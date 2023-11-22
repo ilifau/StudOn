@@ -88,51 +88,40 @@ LICENSE
 
 class EvalMath
 {
-    public $suppress_errors = false;
-    public $last_error = null;
-    
-    public $v = array('e' => 2.71,'pi' => 3.14); // variables (and constants)
-    public $f = array(); // user-defined functions
-    public $vb = array('e', 'pi'); // constants
-    public $fb = array(  // built-in functions
+    public bool $suppress_errors = false;
+    public ?string $last_error = null;
+
+    public array $v = array('e' => 2.71,'pi' => 3.14); // variables (and constants)
+    public array $f = []; // user-defined functions
+    public array $vb = array('e', 'pi'); // constants
+    public array $fb = array(  // built-in functions
         'sin','sinh','arcsin','asin','arcsinh','asinh',
         'cos','cosh','arccos','acos','arccosh','acosh',
         'tan','tanh','arctan','atan','arctanh','atanh',
         'sqrt','abs','ln','log');
-    // fau: formulaQuestionAtan2 - define functions with two arguments
-    public $f2 = array(
-        'atan2', 'arctan2'
-    );
-    // fau.
 
-    // mjansen-patch: begin
     public function __construct()
     {
-        // mjansen-patch: end
         // make the variables a little more accurate
         $this->v['pi'] = pi();
         $this->v['exp'] = exp(1);
-        // PATCH BEGIN
         $this->v['e'] = exp(1); // different result for exp(1) and e
         $this->fb[] = 'exp'; // usage of php exp function in formula
-        // PATCH END
     }
-    
-    public function e($expr)
+
+    public function e(string $expr)
     {
         return $this->evaluate($expr);
     }
-    
-    public function evaluate($expr)
+
+    public function evaluate(string $expr)
     {
         // convert exponential notation
         $expr = preg_replace_callback(
             "/(\\d{0,1})e(-{0,1}\\d+)/is",
-            function ($hit) {
-                return $hit[1] . ((strlen($hit[1])) ? '*' : '') . '10^(' . $hit[2] . ')';
-            },
+            fn ($hit): string => $hit[1] . ((strlen($hit[1])) ? '*' : '') . '10^(' . $hit[2] . ')',
             $expr
-            );
+        );
         // standard functionality
         $this->last_error = null;
         $expr = trim($expr);
@@ -154,9 +143,7 @@ class EvalMath
         // is it a function assignment?
         } elseif (preg_match('/^\s*([a-z]\w*)\s*\(\s*([a-z]\w*(?:\s*,\s*[a-z]\w*)*)\s*\)\s*=\s*(.+)$/', $expr, $matches)) {
             $fnn = $matches[1]; // get the function name
-// fau: formulaQuestionAtan2 - check function assignments of functions with two arguments
-            if (in_array($matches[1], $this->fb) or in_array($matches[1], $this->f2)) { // make sure it isn't built in
-// fau.
+            if (in_array($matches[1], $this->fb)) { // make sure it isn't built in
                 return $this->trigger("cannot redefine built-in function '$matches[1]()'");
             }
             $args = explode(",", preg_replace("/\s+/", "", $matches[2])); // get the arguments
@@ -175,50 +162,49 @@ class EvalMath
             }
             $this->f[$fnn] = array('args' => $args, 'func' => $stack);
             return true;
-        //===============
         } else {
             return $this->pfx($this->nfx($expr)); // straight up evaluation, woo
         }
     }
-    
-    public function vars()
+
+    public function vars(): array
     {
         $output = $this->v;
         unset($output['pi']);
         unset($output['e']);
         return $output;
     }
-    
-    public function funcs()
+
+    /**
+     * @return string[]
+     */
+    public function funcs(): array
     {
-        $output = array();
+        $output = [];
         foreach ($this->f as $fnn => $dat) {
             $output[] = $fnn . '(' . implode(',', $dat['args']) . ')';
         }
         return $output;
     }
 
-    //===================== HERE BE INTERNAL METHODS ====================\\
-
-    // Convert infix to postfix notation
     public function nfx($expr)
     {
         $index = 0;
-        $stack = new EvalMathStack;
-        $output = array(); // postfix form of expression, to be passed to pfx()
+        $stack = new EvalMathStack();
+        $output = []; // postfix form of expression, to be passed to pfx()
         $expr = trim(strtolower($expr));
-        
+
         $ops = array('+', '-', '*', '/', '^', '_');
         $ops_r = array('+' => 0,'-' => 0,'*' => 0,'/' => 0,'^' => 1); // right-associative operator?
         $ops_p = array('+' => 0,'-' => 0,'*' => 1,'/' => 1,'_' => 1,'^' => 2); // operator precedence
-        
+
         $expecting_op = false; // we use this in syntax-checking the expression
         // and determining when a - is a negation
-    
+
         if (preg_match("/[^\w\s+*^\/()\.,-]/", $expr, $matches)) { // make sure the characters are all good
             return $this->trigger("illegal character '{$matches[0]}'");
         }
-    
+
         while (1) { // 1 Infinite Loop ;)
             $op = substr($expr, $index, 1); // get the first character at the current index
             // find out if we're currently at the beginning of a number/variable/function/parenthesis/operand
@@ -252,7 +238,7 @@ class EvalMath
                         $output[] = $o2;
                     }
                 }
-                if (preg_match("/^([a-z]\w*)\($/", $stack->last(2), $matches)) { // did we just close a function?
+                if (preg_match("/^([a-z]\w*)\($/", (string) $stack->last(2), $matches)) { // did we just close a function?
                     $fnn = $matches[1]; // get the function name
                     $arg_count = $stack->pop(); // see how many arguments there were (cleverly stored on the stack, thank you)
                     $output[] = $stack->pop(); // pop the function and push onto the output
@@ -260,12 +246,6 @@ class EvalMath
                         if ($arg_count > 1) {
                             return $this->trigger("too many arguments ($arg_count given, 1 expected)");
                         }
-                        // fau: formulaQuestionAtan2 - check number of arguments for functions with two
-                    } elseif (in_array($fnn, $this->f2)) { // check the argument count
-                        if ($arg_count != 2) {
-                            return $this->trigger("false number of arguments ($arg_count given, 2 expected)");
-                        }
-                        // fau.
                     } elseif (array_key_exists($fnn, $this->f)) {
                         if ($arg_count != count($this->f[$fnn]['args'])) {
                             return $this->trigger("wrong number of arguments ($arg_count given, " . count($this->f[$fnn]['args']) . " expected)");
@@ -303,9 +283,7 @@ class EvalMath
                 $expecting_op = true;
                 $val = $match[1];
                 if (preg_match("/^([a-z]\w*)\($/", $val, $matches)) { // may be func, or variable w/ implicit multiplication against parentheses...
-// fau: formulaQuestionAtan2 -recognize functions with 2 arguments
-                    if (in_array($matches[1], $this->fb) or in_array($matches[1], $this->f2) or array_key_exists($matches[1], $this->f)) { // it's a func
-// fau.
+                    if (in_array($matches[1], $this->fb) or array_key_exists($matches[1], $this->f)) { // it's a func
                         $stack->push($val);
                         $stack->push(1);
                         $stack->push('(');
@@ -347,14 +325,14 @@ class EvalMath
     }
 
     // evaluate postfix notation
-    public function pfx($tokens, $vars = array())
+    public function pfx($tokens, $vars = [])
     {
         if ($tokens == false) {
             return false;
         }
-    
-        $stack = new EvalMathStack;
-        
+
+        $stack = new EvalMathStack();
+
         foreach ($tokens as $token) { // nice and easy
             // if the token is a binary operator, pop two values off the stack, do the operation, and push the result back on
             if (in_array($token, array('+', '-', '*', '/', '^'))) {
@@ -364,21 +342,20 @@ class EvalMath
                 if (is_null($op1 = $stack->pop())) {
                     return $this->trigger("internal error");
                 }
-                include_once "class.ilMath.php";
                 switch ($token) {
                     case '+':
-                                            $stack->push(ilMath::_add($op1, $op2)); break;
-                                        case '-':
-                                            $stack->push(ilMath::_sub($op1, $op2)); break;
-                                        case '*':
-                                            $stack->push(ilMath::_mul($op1, $op2)); break;
-                                        case '/':
-                                            if ($op2 == 0) {
-                                                return $this->trigger("division by zero");
-                                            }
-                                            $stack->push(ilMath::_div($op1, $op2)); break;
-                                        case '^':
-                                            $stack->push(ilMath::_pow($op1, $op2)); break;
+                        $stack->push(ilMath::_add($op1, $op2)); break;
+                    case '-':
+                        $stack->push(ilMath::_sub($op1, $op2)); break;
+                    case '*':
+                        $stack->push(ilMath::_mul($op1, $op2)); break;
+                    case '/':
+                        if ($op2 == 0) {
+                            return $this->trigger("division by zero");
+                        }
+                        $stack->push(ilMath::_div($op1, $op2)); break;
+                    case '^':
+                        $stack->push(ilMath::_pow($op1, $op2)); break;
                 }
                 // if the token is a unary operator, pop one value off the stack, do the operation, and push it back on
             } elseif ($token == "_") {
@@ -398,26 +375,9 @@ class EvalMath
                     }
 
                     $stack->push($fnn($op1)); // 'eval()' can be easily avoided here
-                }
-                // fau: formulaQuestionAtan2 - evaluate functions with two arguments
-                elseif (in_array($fnn, $this->f2)) { // built-in function with 2 arguments
-                    // note the inverse order on the stack
-                    if (is_null($op2 = $stack->pop())) {
-                        return $this->trigger("internal error");
-                    }
-                    if (is_null($op1 = $stack->pop())) {
-                        return $this->trigger("internal error");
-                    }
-                    $fnn = preg_replace("/^arc/", "a", $fnn); // for the 'arc' trig synonyms
-                    if ($fnn == 'atand') {
-                        $fnn = 'atan2';
-                    }
-                    $stack->push($fnn($op1, $op2)); // 'eval()' can be easily avoided here
-                }
-                // fau.
-                elseif (array_key_exists($fnn, $this->f)) { // user function
+                } elseif (array_key_exists($fnn, $this->f)) { // user function
                     // get args
-                    $args = array();
+                    $args = [];
                     for ($i = count($this->f[$fnn]['args']) - 1; $i >= 0; $i--) {
                         if (is_null($args[$this->f[$fnn]['args'][$i]] = $stack->pop())) {
                             return $this->trigger("internal error");
@@ -446,9 +406,9 @@ class EvalMath
         }
         return $stack->pop();
     }
-    
+
     // trigger an error, but nicely, if need be
-    public function trigger($msg)
+    public function trigger(string $msg): bool
     {
         $this->last_error = $msg;
         if (!$this->suppress_errors) {
@@ -456,7 +416,7 @@ class EvalMath
         }
         return false;
     }
-    
+
     // check if the token is a hex/bin number, and convert to decimal
     //  1234h/0101010b are allowed
     public function from_hexbin($token)
@@ -471,18 +431,31 @@ class EvalMath
     }
 }
 
+/******************************************************************************
+ *
+ * This file is part of ILIAS, a powerful learning management system.
+ *
+ * ILIAS is licensed with the GPL-3.0, you should have received a copy
+ * of said license along with the source code.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ *      https://www.ilias.de
+ *      https://github.com/ILIAS-eLearning
+ *
+ *****************************************************************************/
 // for internal use
 class EvalMathStack
 {
-    public $stack = array();
-    public $count = 0;
-    
-    public function push($val)
+    public array $stack = [];
+    public int $count = 0;
+
+    public function push($val): void
     {
         $this->stack[$this->count] = $val;
         $this->count++;
     }
-    
+
     public function pop()
     {
         if ($this->count > 0) {
@@ -491,14 +464,12 @@ class EvalMathStack
         }
         return null;
     }
-    
+
     public function last($n = 1)
     {
-        // mjansen-patch: begin
         if (isset($this->stack[$this->count - $n])) {
             return $this->stack[$this->count - $n];
         }
         return null;
-        // mjansen-patch: end
     }
 }

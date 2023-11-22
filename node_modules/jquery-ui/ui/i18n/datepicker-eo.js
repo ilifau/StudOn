@@ -17,8 +17,8 @@
 
 datepicker.regional.eo = {
 	closeText: "Fermi",
-	prevText: "Anta",
-	nextText: "Sekv",
+	prevText: "&#x3C;Anta",
+	nextText: "Sekv&#x3E;",
 	currentText: "Nuna",
 	monthNames: [ "Januaro", "Februaro", "Marto", "Aprilo", "Majo", "Junio",
 	"Julio", "Aŭgusto", "Septembro", "Oktobro", "Novembro", "Decembro" ],

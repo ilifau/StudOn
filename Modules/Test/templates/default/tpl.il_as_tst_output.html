@@ -16,18 +16,14 @@
 			</div>
 			<!-- END enableprocessingtime -->
 			<input type="hidden" name="formtimestamp" value="{FORM_TIMESTAMP}" />
-			<!-- BEGIN char_selector -->{CHAR_SELECTOR_TEMPLATE}
-			<!-- END char_selector -->
-			<!-- BEGIN test_nav_toolbar -->{TEST_NAV_TOOLBAR}
-			<!-- END test_nav_toolbar -->
+			<!-- BEGIN char_selector -->{CHAR_SELECTOR_TEMPLATE}<!-- END char_selector -->
+			<!-- BEGIN test_nav_toolbar -->{TEST_NAV_TOOLBAR}<!-- END test_nav_toolbar -->
 			<div class="ilTstNavigation">
 				<div class="ilTstNavigationBtn_Prev">
-					<!-- BEGIN prev -->{BTN_PREV}
-					<!-- END prev -->
+					<!-- BEGIN prev -->{BTN_PREV}<!-- END prev -->
 				</div>
 				<div class="ilTstNavigationBtn_Next">
-					<!-- BEGIN next -->{BTN_NEXT}
-					<!-- END next -->
+					<!-- BEGIN next -->{BTN_NEXT}<!-- END next -->
 				</div>
 			</div>
 			<div class="tst_question-container">
@@ -36,18 +32,12 @@
 					<h2>{QUESTION_OUTPUT}
 						<!-- BEGIN lockstate_infobox -->{LOCKSTATE_INFOBOX}<!-- END lockstate_infobox -->
 					</h2>
-					<!-- BEGIN discard_solution_modal -->{DISCARD_SOLUTION_MODAL}
-					<!-- END discard_solution_modal -->
-					<!-- BEGIN nav_while_edit_modal -->{NAV_WHILE_EDIT_MODAL}
-					<!-- END nav_while_edit_modal -->
-					<!-- BEGIN next_locks_changed_modal -->{NEXT_LOCKS_CHANGED_MODAL}
-					<!-- END next_locks_changed_modal -->
-					<!-- BEGIN next_locks_unchanged_modal -->{NEXT_LOCKS_UNCHANGED_MODAL}
-					<!-- END next_locks_unchanged_modal -->
+					<!-- BEGIN discard_solution_modal -->{DISCARD_SOLUTION_MODAL}<!-- END discard_solution_modal -->
+					<!-- BEGIN nav_while_edit_modal -->{NAV_WHILE_EDIT_MODAL}<!-- END nav_while_edit_modal -->
+					<!-- BEGIN next_locks_changed_modal -->{NEXT_LOCKS_CHANGED_MODAL}<!-- END next_locks_changed_modal -->
+					<!-- BEGIN next_locks_unchanged_modal -->{NEXT_LOCKS_UNCHANGED_MODAL}<!-- END next_locks_unchanged_modal -->
 					<!-- BEGIN instant_response_header -->
-					<div<!-- BEGIN inst_resp_id --> id="{INSTANT_RESPONSE_FOCUS_ID}"
-						<!-- END inst_resp_id -->><h2 class="ilc_page_title_PageTitle">{INSTANT_RESPONSE_HEADER}</h2>
-					</div>
+					<div<!-- BEGIN inst_resp_id --> id="{INSTANT_RESPONSE_FOCUS_ID}"<!-- END inst_resp_id -->><h2 class="ilc_page_title_PageTitle">{INSTANT_RESPONSE_HEADER}</h2></div>
 					<!-- END instant_response_header -->
 					<!-- BEGIN instant_response_message -->
 					<p>{INSTANT_RESPONSE_MESSAGE}</p>
@@ -81,21 +71,15 @@
 			<!-- BEGIN navigation_bottom -->
 			<div class="ilTstNavigation">
 				<div class="ilTstNavigationBtn_Prev">
-					<!-- BEGIN prev_bottom -->{BTN_PREV_BOTTOM}
-					<!-- END prev_bottom -->
+					<!-- BEGIN prev_bottom -->{BTN_PREV_BOTTOM}<!-- END prev_bottom -->
 				</div>
 				<div class="ilTstNavigationBtn_Next">
-					<!-- BEGIN next_bottom -->{BTN_NEXT_BOTTOM}
-					<!-- END next_bottom -->
+					<!-- BEGIN next_bottom -->{BTN_NEXT_BOTTOM}<!-- END next_bottom -->
 				</div>
 			</div>
 			<!-- END navigation_bottom -->
 		<!-- BEGIN closeform --></form><!-- END closeform -->
-		<!-- BEGIN reopenform -->
-		<form role="form" class="form-horizontal preventDoubleSubmission" name="test_output_bottom" method="post"
-			action="{FORMACTION_REOPENFORM}">
-			<!-- END reopenform -->
-		
+		<!-- BEGIN reopenform --><form role="form" class="form-horizontal preventDoubleSubmission" name="test_output_bottom" method="post" action="{FORMACTION_REOPENFORM}"><!-- END reopenform -->
 			<!-- BEGIN exam_id_footer -->
 			<p>{EXAM_ID_TXT}&nbsp;{EXAM_ID_VAL}</p>
 			<!-- END exam_id_footer -->
@@ -111,45 +95,7 @@
 					jsswitch.style.display = "block";
 				}
 			</script>
-			<!-- END jsswitch -->
-			<script type="text/javascript" charset="utf-8">
-
-			// fau: testNav - moved saving on time reached to ilTestPlayerQuestionEditControl.js .
-
-			function saveTextarea(editor)
-			{
-				let form = document.forms['taForm'];
-				let input = document.createElement('input');
-				input.type = 'hidden';
-				input.name = 'cmd[submitSolution]';
-				input.value = 'save';
-			
-				form.appendChild(input);
-				form.submit();
-			}
-
-			(function($){ $(document).ready( function()
-			{
-				//return;
-				$('#taForm').on('keyup keydown keypress', function(event) {
-					if( event.which == 13  && $(event.target).prop("tagName").toLowerCase() == "a" ) {
-						return;
-					}
-					if (event.which == 13) {
-						if ($(event.target).prop("tagName").toLowerCase() != "textarea" &&
-							(
-								$(event.target).prop("tagName").toLowerCase() != "input"
-									||
-									$(event.target).prop("type") != "submit"
-								)) {
-							event.preventDefault();
-						}
-					}
-				});
-			}
-			); })(jQuery);
-
-			</script>
+            <!-- END jsswitch -->
 		</form>
 	</div>
 </div>

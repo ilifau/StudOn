@@ -1,44 +1,45 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ILIAS\Filesystem;
 
+/******************************************************************************
+ *
+ * This file is part of ILIAS, a powerful learning management system.
+ *
+ * ILIAS is licensed with the GPL-3.0, you should have received a copy
+ * of said license along with the source code.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ *      https://www.ilias.de
+ *      https://github.com/ILIAS-eLearning
+ *
+ *****************************************************************************/
 /**
  * Class FilesystemsImpl
+ *
  * The Filesystems implementation holds the configuration for the filesystem service.
+ *
  * @author  Nicolas Schäfli <ns@studer-raimann.ch>
- * @since   5.3
+ * @since 5.3
  * @version 1.0.0
+ *
  */
 final class FilesystemsImpl implements Filesystems
 {
+    private Filesystem $node_modules;
+    private Filesystem $libs;
+    private Filesystem $storage;
+    private Filesystem $web;
+    private Filesystem $temp;
+    private Filesystem $customizing;
 
-    /**
-     * @var Filesystem
-     */
-    private $node_modules;
-    /**
-     * @var Filesystem
-     */
-    private $libs;
-    /**
-     * @var Filesystem $storage
-     */
-    private $storage;
-    /**
-     * @var Filesystem $storage
-     */
-    private $web;
-    /**
-     * @var Filesystem $storage
-     */
-    private $temp;
-    /**
-     * @var Filesystem $storage
-     */
-    private $customizing;
 
     /**
      * FilesystemsImpl constructor.
+     *
      * @param Filesystem $storage
      * @param Filesystem $web
      * @param Filesystem $temp
@@ -62,42 +63,47 @@ final class FilesystemsImpl implements Filesystems
         $this->node_modules = $node_modules;
     }
 
+
     /**
      * @inheritDoc
      */
-    public function web() : Filesystem
+    public function web(): Filesystem
     {
         return $this->web;
     }
 
+
     /**
      * @inheritDoc
      */
-    public function storage() : Filesystem
+    public function storage(): Filesystem
     {
         return $this->storage;
     }
 
+
     /**
      * @inheritDoc
      */
-    public function temp() : Filesystem
+    public function temp(): Filesystem
     {
         return $this->temp;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function customizing() : Filesystem
-    {
-        return $this->customizing;
-    }
 
     /**
      * @inheritDoc
      */
-    public function libs() : Filesystem
+    public function customizing(): Filesystem
+    {
+        return $this->customizing;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function libs(): Filesystem
     {
         return $this->libs;
     }
@@ -105,7 +111,7 @@ final class FilesystemsImpl implements Filesystems
     /**
      * @inheritDoc
      */
-    public function nodeModules() : Filesystem
+    public function nodeModules(): Filesystem
     {
         return $this->node_modules;
     }

@@ -1,52 +1,64 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Action class for derived tasks, mostly getting user reponsibilities
  * by respecting permissions as well.
  *
- * @author @leifos.de
- * @ingroup
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilExerciseDerivedTaskAction
 {
-    /**
-     * @var ilExcMemberRepository
-     */
-    protected $exc_mem_repo;
+    protected \ILIAS\Exercise\Submission\SubmissionDBRepository $submission_repo;
+    protected ilExcMemberRepository $exc_mem_repo;
+    protected ilExcAssMemberStateRepository $state_repo;
+    protected ilExcTutorRepository $tutor_repo;
 
-    /**
-     * @var ilExcAssMemberStateRepository
-     */
-    protected $state_repo;
-
-    /**
-     * Constructor
-     * @param ilExcMemberRepository $exc_mem_repo
-     */
     public function __construct(
         ilExcMemberRepository $exc_mem_repo,
         ilExcAssMemberStateRepository $state_repo,
-        ilExcTutorRepository $tutor_repo
+        ilExcTutorRepository $tutor_repo,
+        \ILIAS\Exercise\Submission\SubmissionDBRepository $submission_repo
     ) {
         $this->exc_mem_repo = $exc_mem_repo;
         $this->state_repo = $state_repo;
         $this->tutor_repo = $tutor_repo;
+        $this->submission_repo = $submission_repo;
     }
 
     /**
      * Get all open assignments of a user
-     *
-     * @param int $user_id
-     * @return ilExAssignment[]
+     * @throws ilExcUnknownAssignmentTypeException
+     * @return \ilExAssignment[]
      */
-    public function getOpenAssignmentsOfUser(int $user_id) : array
+    public function getOpenAssignmentsOfUser(int $user_id): array
     {
         $user_exc_ids = $this->exc_mem_repo->getExerciseIdsOfUser($user_id);
         $assignments = [];
-        foreach ($this->state_repo->getSubmitableAssignmentIdsOfUser($user_exc_ids, $user_id) as $ass_id) {
-            $assignments[] = new ilExAssignment($ass_id);
+
+        $submission_states = $this->submission_repo->getUserSubmissionState(
+            $user_id,
+            $this->state_repo->getSubmitableAssignmentIdsOfUser($user_exc_ids, $user_id)
+        );
+        foreach ($submission_states as $ass_id => $submitted) {
+            if (!$submitted) {
+                $assignments[] = new ilExAssignment($ass_id);
+            }
             // to do: permission check
         }
         return $assignments;
@@ -55,10 +67,10 @@ class ilExerciseDerivedTaskAction
     /**
      * Get all open peer reviews of a user
      *
-     * @param int $user_id
      * @return ilExAssignment[]
+     * @throws ilExcUnknownAssignmentTypeException
      */
-    public function getOpenPeerReviewsOfUser(int $user_id) : array
+    public function getOpenPeerReviewsOfUser(int $user_id): array
     {
         $user_exc_ids = $this->exc_mem_repo->getExerciseIdsOfUser($user_id);
         $assignments = [];
@@ -72,14 +84,14 @@ class ilExerciseDerivedTaskAction
     /**
      * Get all open gradings of a user
      *
-     * @param int $user_id
      * @return ilExAssignment[]
+     * @throws ilExcUnknownAssignmentTypeException
      */
-    public function getOpenGradingsOfUser(int $user_id) : array
+    public function getOpenGradingsOfUser(int $user_id): array
     {
         $user_exc_ids = $this->tutor_repo->getExerciseIdsBeingTutor($user_id);
         $assignments = [];
-        foreach ($this->state_repo->getAssignmentIdsWithGradingNeeded($user_exc_ids) as $ass_id => $open) {
+        foreach (array_keys($this->state_repo->getAssignmentIdsWithGradingNeeded($user_exc_ids)) as $ass_id) {
             $assignments[] = new ilExAssignment($ass_id);
             // to do: permission check
         }

@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2017 Ralph Dittrich <dittrich@qualitus.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Component\Chart\ProgressMeter;
 
@@ -10,7 +26,6 @@ namespace ILIAS\UI\Component\Chart\ProgressMeter;
  */
 interface Standard extends ProgressMeter
 {
-
     /**
      * Get comparison value
      *
@@ -22,37 +37,26 @@ interface Standard extends ProgressMeter
 
     /**
      * Get clone of Progress Meter with main text
-     *
      * It will be displayed above the main value percentage display.
      * Example: withMainText('Your Score')
-     *
-     * @param string $text
-     * @return \ILIAS\UI\Component\Chart\ProgressMeter\ProgressMeter
      */
-    public function withMainText($text);
+    public function withMainText(string $text): ProgressMeter;
 
     /**
      * Get main text value
-     *
-     * @return string|null
      */
-    public function getMainText();
+    public function getMainText(): ?string;
 
     /**
      * Get clone of Progress Meter with required text
      *
      * It will be displayed below the required percentage display.
      * Example: withRequiredText("Minimum Required")
-     *
-     * @param string $text
-     * @return \ILIAS\UI\Component\Chart\ProgressMeter\ProgressMeter
      */
-    public function withRequiredText($text);
+    public function withRequiredText(string $text): ProgressMeter;
 
     /**
      * Get required text value
-     *
-     * @return string|null
      */
-    public function getRequiredText();
+    public function getRequiredText(): ?string;
 }

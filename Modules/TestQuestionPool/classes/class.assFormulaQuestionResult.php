@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Formula Question Result
@@ -9,10 +24,10 @@
  * */
 class assFormulaQuestionResult
 {
-    const RESULT_NO_SELECTION = 0;
-    const RESULT_DEC = 1;
-    const RESULT_FRAC = 2;
-    const RESULT_CO_FRAC = 3;
+    public const RESULT_NO_SELECTION = 0;
+    public const RESULT_DEC = 1;
+    public const RESULT_FRAC = 2;
+    public const RESULT_CO_FRAC = 3;
 
     private $result;
     private $range_min;
@@ -29,8 +44,9 @@ class assFormulaQuestionResult
     private $result_type;
     private $range_min_txt;
     private $range_max_txt;
-    
+
     private $available_units = array();
+    private \ilGlobalTemplateInterface $main_tpl;
 
     /**
      * assFormulaQuestionResult constructor
@@ -38,7 +54,7 @@ class assFormulaQuestionResult
      * @param double  $range_min     Range minimum
      * @param double  $range_max     Range maximum
      * @param double  $tolerance     Tolerance of the result in percent
-     * @param object  $unit          Unit
+     * @param mixed  $unit          Unit
      * @param string  $formula       The formula to calculate the result
      * @param double  $points        The maximum available points for the result
      * @param integer $precision     Number of decimal places of the value
@@ -50,6 +66,8 @@ class assFormulaQuestionResult
      */
     public function __construct($result, $range_min, $range_max, $tolerance, $unit, $formula, $points, $precision, $rating_simple = true, $rating_sign = 33, $rating_value = 34, $rating_unit = 33, $result_type = 0)
     {
+        global $DIC;
+        $this->main_tpl = $DIC->ui()->mainTemplate();
         $this->result = $result;
         #	$this->setRangeMin((is_numeric($range_min)) ? $range_min : NULL);
         #	$this->setRangeMax((is_numeric($range_max)) ? $range_max : NULL);
@@ -60,7 +78,7 @@ class assFormulaQuestionResult
         $this->tolerance = $tolerance;
         $this->unit = $unit;
         $this->formula = $formula;
-        $this->points = $points;
+        $this->setPoints($points);
         $this->precision = $precision;
         $this->rating_simple = $rating_simple;
         $this->rating_sign = $rating_sign;
@@ -81,14 +99,14 @@ class assFormulaQuestionResult
         if (preg_match_all("/(\\\$r\\d+)/ims", $formula, $matches)) {
             foreach ($matches[1] as $result) {
                 if (strcmp($result, $this->getResult()) == 0) {
-                    ilUtil::sendFailure($lng->txt("errRecursionInResult"));
+                    $this->main_tpl->setOnScreenMessage('failure', $lng->txt("errRecursionInResult"));
                     return false;
                 }
 
                 if (is_object($results[$result])) {
                     $formula = str_replace($result, $results[$result]->substituteFormula($variables, $results), $formula);
                 } else {
-                    ilUtil::sendFailure($lng->txt("errFormulaQuestion"));
+                    $this->main_tpl->setOnScreenMessage('failure', $lng->txt("errFormulaQuestion"));
                     return false;
                 }
             }
@@ -103,7 +121,7 @@ class assFormulaQuestionResult
         if ($question_id > 0) {
             $resultunits = $this->getAvailableResultUnits($question_id);
         }
-    
+
         include_once "./Services/Math/classes/class.ilMath.php";
         include_once "./Services/Math/classes/class.EvalMath.php";
         $formula = $this->substituteFormula($variables, $results);
@@ -120,17 +138,14 @@ class assFormulaQuestionResult
         $math = new EvalMath();
         $math->suppress_errors = true;
 
-        // fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
         $formula = str_replace(",", ".", $formula);
-        $formula = str_replace(";", ",", $formula);
-        // fau.
         $result = $math->evaluate($formula);
         if (is_object($this->getUnit())) {
             $result = ilMath::_div($result, $this->getUnit()->getFactor(), 100);
         }
 
         // @todo DON'T USE ilMath::_mul() ... bcmul() returns wrong result !!!!
-    
+
         if ($use_precision == true) {
             $res = $result * 1;
             if (is_numeric($this->getPrecision())) {
@@ -142,7 +157,7 @@ class assFormulaQuestionResult
         return $result;
     }
 
-    public function findValidRandomVariables($variables, $results)
+    public function findValidRandomVariables($variables, $results): void
     {
         include_once "./Services/Math/classes/class.EvalMath.php";
         $i = 0;
@@ -161,11 +176,6 @@ class assFormulaQuestionResult
             }
             $math = new EvalMath();
             $math->suppress_errors = true;
-
-            // fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
-            $formula = str_replace(",", ".", $formula);
-            $formula = str_replace(";", ",", $formula);
-            // fau.
             $result = $math->evaluate($formula);
             $inRange = (is_numeric($result)) ? true : false;
             if ($inRange) {
@@ -184,9 +194,9 @@ class assFormulaQuestionResult
         }
     }
 
-    public function suggestRange($variables, $results)
+    public function suggestRange($variables, $results): void
     {
-        
+
 //		@todo Check this
         include_once "./Services/Math/classes/class.EvalMath.php";
         $range_min = null;
@@ -203,10 +213,6 @@ class assFormulaQuestionResult
                     $formula = preg_replace("/\\\$" . substr($variable, 1) . "(?![0-9]+)/", "(" . $varObj->getBaseValue() . ")" . "\\1", $formula);
                 }
             }
-            // fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
-            $formula = str_replace(",", ".", $formula);
-            $formula = str_replace(";", ",", $formula);
-            // fau.
             $math = new EvalMath();
             $math->suppress_errors = true;
             $result = $math->evaluate($formula);
@@ -227,26 +233,26 @@ class assFormulaQuestionResult
     }
 
     /**
-     * @param      $variables      formula variables containing units
-     * @param      $results        formula results containing units
-     * @param      $value          user input value
+     * @param      $variables      array formula variables containing units
+     * @param      $results        array formula results containing units
+     * @param      $value          string user input value
      * @param null $unit           user input unit
      * @return bool
      */
-    public function isCorrect($variables, $results, $value, $unit = null)
+    public function isCorrect($variables, $results, $value, $unit = null): bool
     {
         // The user did not answer the question ....
         if ($value === null || 0 == strlen($value)) {
             return false;
         }
         $value = str_replace(' ', '', $value);
-        
+
         include_once "./Services/Math/classes/class.EvalMath.php";
         include_once "./Services/Math/classes/class.ilMath.php";
         $formula = $this->substituteFormula($variables, $results);
 
         $check_valid_chars = true;
-        
+
         if (preg_match_all("/(\\\$v\\d+)/ims", $formula, $matches)) {
             foreach ($matches[1] as $variable) {
                 $varObj = $variables[$variable];
@@ -271,10 +277,6 @@ class assFormulaQuestionResult
 
         $math = new EvalMath();
         $math->suppress_errors = true;
-        // fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
-        $formula = str_replace(",", ".", $formula);
-        $formula = str_replace(";", ",", $formula);
-        // fau.
         $result = $math->evaluate($formula); // baseunit-result!!
         $resultWithRespectedUnit = $result;
 
@@ -294,6 +296,8 @@ class assFormulaQuestionResult
                 $resultWithRespectedUnit = ilMath::_div($result, $unit->getFactor());
             }
         }
+
+        $result = substr($result, 0, strlen($resultWithRespectedUnit));
 
         //	check for valid chars ("0-9",",|.|/","0-9","e|E","+|-","0-9")
         $has_valid_chars = preg_match("/^-?([0-9]*)(,|\\.|\\/){0,1}([0-9]*)([eE][\\+|-]([0-9])+)?$/", $value, $matches);
@@ -322,13 +326,13 @@ class assFormulaQuestionResult
                     $check_fraction = true;
                 }
                 break;
-            
+
             case assFormulaQuestionResult::RESULT_FRAC:
             case assFormulaQuestionResult::RESULT_CO_FRAC:
                 $exp_val = explode('/', $value);
                 if (count($exp_val) == 1) {
                     $frac_value = ilMath::_div($exp_val[0], 1);
-                  
+
                     if (ilMath::_equals($frac_value, $resultWithRespectedUnit, $this->getPrecision())) {
                         $check_fraction = true;
                     } else {
@@ -349,19 +353,19 @@ class assFormulaQuestionResult
                     if (ilMath::_equals($frac_value, $resultWithRespectedUnit, $this->getPrecision())) {
                         $check_fraction = true;
                     }
-                    
+
                     if ($this->getResultType() == assFormulaQuestionResult::RESULT_CO_FRAC) {
                         if (!self::isCoprimeFraction($exp_val[0], $exp_val[1])) {
                             $check_fraction = false;
                         }
                     }
                 }
-                
+
                 if (substr_count($value, '.') >= 1 || substr_count($value, ',') >= 1) {
                     $check_fraction = false;
                 }
                 break;
-            
+
             case assFormulaQuestionResult::RESULT_NO_SELECTION:
             default:
                 if (substr_count($value, '.') == 1 || substr_count($value, ',') == 1) {
@@ -369,7 +373,7 @@ class assFormulaQuestionResult
                 } elseif (substr_count($value, '/') == 1) {
                     $exp_val = explode('/', $value);
                     try {
-                         $frac_value = ilMath::_div($exp_val[0], $exp_val[1]);
+                        $frac_value = ilMath::_div($exp_val[0], $exp_val[1]);
                     } catch (ilMathDivisionByZeroException $ex) {
                         if ($result) {
                             return false;
@@ -416,18 +420,18 @@ class assFormulaQuestionResult
         return $checkvalue && $checkunit && $check_fraction && $check_valid_chars;
     }
 
-    protected function isInTolerance($user_answer, $expected, $tolerated_percentage)
+    protected function isInTolerance($user_answer, $expected, $tolerated_percentage): bool
     {
         $user_answer = ilMath::_mul($user_answer, 1, $this->getPrecision());
         $tolerance_abs = abs(ilMath::_div(ilMath::_mul($tolerated_percentage, $expected, 100), 100));
         $lower_boundary = ilMath::_sub($expected, $tolerance_abs);
         $upper_boundary = ilMath::_add($expected, $tolerance_abs);
 
-        return $lower_boundary <= $user_answer 
+        return $lower_boundary <= $user_answer
             && $user_answer <= $upper_boundary;
     }
 
-    protected function checkSign($v1, $v2)
+    protected function checkSign($v1, $v2): bool
     {
         if ((($v1 >= 0) && ($v2 >= 0)) || (($v1 <= 0) && ($v2 <= 0))) {
             return true;
@@ -441,7 +445,7 @@ class assFormulaQuestionResult
         global $DIC;
         $ilLog = $DIC['ilLog'];
         if ($this->getRatingSimple()) {
-            if ($this->isCorrect($variables, $results, $value, $units[$unit])) {
+            if ($this->isCorrect($variables, $results, $value, $units[$unit] ?? null)) {
                 return $this->getPoints();
             } else {
                 return 0;
@@ -472,10 +476,6 @@ class assFormulaQuestionResult
                 }
             }
 
-            // fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
-            $formula = str_replace(",", ".", $formula);
-            $formula = str_replace(";", ",", $formula);
-            // fau.
             $math = new EvalMath();
             $math->suppress_errors = true;
             $result = $math->evaluate($formula);
@@ -549,7 +549,7 @@ class assFormulaQuestionResult
                 $points += ilMath::_mul($this->getPoints(), ilMath::_div($this->getRatingValue(), 100));
             }
             if (is_object($this->getUnit())) {
-                $base1 = $units[$unit];
+                $base1 = $units[$unit] ?? null;
                 if (is_object($base1)) {
                     $base1 = $units[$base1->getBaseUnit()];
                 }
@@ -562,10 +562,10 @@ class assFormulaQuestionResult
         }
     }
 
-    public function getResultInfo($variables, $results, $value, $unit, $units)
+    public function getResultInfo($variables, $results, $value, $unit, $units): array
     {
         if ($this->getRatingSimple()) {
-            if ($this->isCorrect($variables, $results, $value, $units[$unit])) {
+            if ($this->isCorrect($variables, $results, $value, $units[$unit] ?? null)) {
                 return array("points" => $this->getPoints());
             } else {
                 return array("points" => 0);
@@ -583,10 +583,6 @@ class assFormulaQuestionResult
             }
             $math = new EvalMath();
             $math->suppress_errors = true;
-            // fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
-            $formula = str_replace(",", ".", $formula);
-            $formula = str_replace(";", ",", $formula);
-            // fau.
             $result = $math->evaluate($formula);
             if (is_object($this->getUnit())) {
                 $result = ilMath::_mul($result, $this->getUnit()->getFactor(), 100);
@@ -627,17 +623,17 @@ class assFormulaQuestionResult
      * Getter and Setter
      ************************************/
 
-    public function setResult($result)
+    public function setResult($result): void
     {
         $this->result = $result;
     }
 
-    public function getResult()
+    public function getResult(): string
     {
         return $this->result;
     }
 
-    public function setRangeMin($range_min)
+    public function setRangeMin($range_min): void
     {
         //		include_once "./Services/Math/classes/class.EvalMath.php";
         //		$math = new EvalMath();
@@ -649,7 +645,7 @@ class assFormulaQuestionResult
         include_once "./Services/Math/classes/class.EvalMath.php";
         $math = new EvalMath();
         $math->suppress_errors = true;
-        $result = $math->evaluate($range_min);
+        $result = $math->evaluate((string) $range_min);
         $this->range_min = $result;
     }
 
@@ -669,7 +665,7 @@ class assFormulaQuestionResult
         return $this->getRangeMin();
     }
 
-    public function setRangeMax($range_max)
+    public function setRangeMax($range_max): void
     {
         //		include_once "./Services/Math/classes/class.EvalMath.php";
         //		$math = new EvalMath();
@@ -681,7 +677,7 @@ class assFormulaQuestionResult
         include_once "./Services/Math/classes/class.EvalMath.php";
         $math = new EvalMath();
         $math->suppress_errors = true;
-        $result = $math->evaluate($range_max);
+        $result = $math->evaluate((string) $range_max);
         $this->range_max = $result;
     }
 
@@ -701,17 +697,17 @@ class assFormulaQuestionResult
         return $this->getRangeMax();
     }
 
-    public function setTolerance($tolerance)
+    public function setTolerance($tolerance): void
     {
         $this->tolerance = $tolerance;
     }
 
-    public function getTolerance()
+    public function getTolerance(): float
     {
         return $this->tolerance;
     }
 
-    public function setUnit($unit)
+    public function setUnit($unit): void
     {
         $this->unit = $unit;
     }
@@ -721,37 +717,37 @@ class assFormulaQuestionResult
         return $this->unit;
     }
 
-    public function setFormula($formula)
+    public function setFormula($formula): void
     {
         $this->formula = $formula;
     }
 
-    public function getFormula()
+    public function getFormula(): ?string
     {
         return $this->formula;
     }
 
-    public function setPoints($points)
+    public function setPoints($points): void
     {
-        $this->points = $points;
+        $this->points = (float) str_replace(",", ".", $points);
     }
 
-    public function getPoints()
+    public function getPoints(): float
     {
         return $this->points;
     }
 
-    public function setRatingSimple($rating_simple)
+    public function setRatingSimple($rating_simple): void
     {
         $this->rating_simple = $rating_simple;
     }
 
-    public function getRatingSimple()
+    public function getRatingSimple(): bool
     {
         return $this->rating_simple;
     }
 
-    public function setRatingSign($rating_sign)
+    public function setRatingSign($rating_sign): void
     {
         $this->rating_sign = $rating_sign;
     }
@@ -761,7 +757,7 @@ class assFormulaQuestionResult
         return $this->rating_sign;
     }
 
-    public function setRatingValue($rating_value)
+    public function setRatingValue($rating_value): void
     {
         $this->rating_value = $rating_value;
     }
@@ -771,7 +767,7 @@ class assFormulaQuestionResult
         return $this->rating_value;
     }
 
-    public function setRatingUnit($rating_unit)
+    public function setRatingUnit($rating_unit): void
     {
         $this->rating_unit = $rating_unit;
     }
@@ -781,27 +777,27 @@ class assFormulaQuestionResult
         return $this->rating_unit;
     }
 
-    public function setPrecision($precision)
+    public function setPrecision($precision): void
     {
         $this->precision = $precision;
     }
 
-    public function getPrecision()
+    public function getPrecision(): int
     {
-        return (int) $this->precision;
+        return $this->precision;
     }
 
-    public function setResultType($a_result_type)
+    public function setResultType($a_result_type): void
     {
         $this->result_type = $a_result_type;
     }
 
-    public function getResultType()
+    public function getResultType(): int
     {
         return (int) $this->result_type;
     }
 
-    public function setRangeMaxTxt($range_max_txt)
+    public function setRangeMaxTxt($range_max_txt): void
     {
         $this->range_max_txt = $range_max_txt;
     }
@@ -811,7 +807,7 @@ class assFormulaQuestionResult
         return $this->range_max_txt;
     }
 
-    public function setRangeMinTxt($range_min_txt)
+    public function setRangeMinTxt($range_min_txt): void
     {
         $this->range_min_txt = $range_min_txt;
     }
@@ -840,8 +836,8 @@ class assFormulaQuestionResult
 
         return $row['result_type'];
     }
-    
-    public static function isCoprimeFraction($numerator, $denominator)
+
+    public static function isCoprimeFraction($numerator, $denominator): bool
     {
         $gcd = self::getGreatestCommonDivisor(abs($numerator), abs($denominator));
 
@@ -888,7 +884,7 @@ class assFormulaQuestionResult
             return array($to_string,$result);
         }
     }
-    
+
     public static function getGreatestCommonDivisor($a, $b)
     {
         if ($b > 0) {
@@ -897,27 +893,27 @@ class assFormulaQuestionResult
             return $a;
         }
     }
-    
-    
-    public function getAvailableResultUnits($question_id)
+
+
+    public function getAvailableResultUnits($question_id): array
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $res = $ilDB->queryF(
             '
-			SELECT * FROM il_qpl_qst_fq_res_unit 
+			SELECT * FROM il_qpl_qst_fq_res_unit
 			WHERE question_fi = %s
 			ORDER BY result',
             array('integer'),
             array($question_id)
         );
-        
-    
+
+
         while ($row = $ilDB->fetchAssoc($res)) {
             $this->available_units[$row['result']][] = $row['unit_fi'] ;
         }
-        
+
         return $this->available_units;
     }
 }

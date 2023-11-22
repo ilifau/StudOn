@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MetaBar\Factory;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
@@ -33,21 +33,21 @@ interface isChild extends isItem
      * @param IdentificationInterface $identification
      * @return isItem
      */
-    public function withParent(IdentificationInterface $identification) : isItem;
+    public function withParent(IdentificationInterface $identification): isItem;
 
     /**
      * @return bool
      */
-    public function hasParent() : bool;
+    public function hasParent(): bool;
 
     /**
      * @return IdentificationInterface
      */
-    public function getParent() : IdentificationInterface;
+    public function getParent(): IdentificationInterface;
 
     /**
      * @param IdentificationInterface $identification
      * @return isChild
      */
-    public function overrideParent(IdentificationInterface $identification) : isChild;
+    public function overrideParent(IdentificationInterface $identification): isChild;
 }

@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Component\Listing\CharacteristicValue;
 
@@ -22,12 +38,9 @@ interface Factory
      *   effect: >
      *     The items will be presented underneath, whereby each items' label and value
      *     will be presented side by side.
-     *
      * ----
-     *
      * @param array $items string => string
-     *
      * @return \ILIAS\UI\Component\Listing\CharacteristicValue\Text
      */
-    public function text(array $items) : \ILIAS\UI\Component\Listing\CharacteristicValue\Text;
+    public function text(array $items): Text;
 }

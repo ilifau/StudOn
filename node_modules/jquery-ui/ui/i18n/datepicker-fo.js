@@ -17,8 +17,8 @@
 
 datepicker.regional.fo = {
 	closeText: "Lat aftur",
-	prevText: "Fyrra",
-	nextText: "Næsta",
+	prevText: "&#x3C;Fyrra",
+	nextText: "Næsta&#x3E;",
 	currentText: "Í dag",
 	monthNames: [ "Januar", "Februar", "Mars", "Apríl", "Mei", "Juni",
 	"Juli", "August", "September", "Oktober", "November", "Desember" ],

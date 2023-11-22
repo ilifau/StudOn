@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Image\Responsive;
+
 /**
  * Base Example for rendering an responsive Image
  */

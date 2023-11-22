@@ -1,21 +1,5 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- *********************************************************************/
-
 namespace ILIAS\GlobalScreen\MainMenu;
 
 use ILIAS\GlobalScreen\Identification\IdentificationFactory;
@@ -43,12 +27,12 @@ class CollectorTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
     }
 
-    public function testBasic() : void
+    public function testBasic(): void
     {
         $this->assertTrue(true);
         return; // WIP
@@ -58,39 +42,39 @@ class CollectorTest extends TestCase
         $this->assertTrue($collector->hasItems());
     }
 
-    private function getItemInformation() : ItemInformation
+    private function getItemInformation(): ItemInformation
     {
-        return new class() implements ItemInformation {
-            public function isItemActive(isItem $item) : bool
+        return new class () implements ItemInformation {
+            public function isItemActive(isItem $item): bool
             {
                 return true;
             }
 
-            public function customPosition(isItem $item) : isItem
+            public function customPosition(isItem $item): isItem
             {
                 return $item;
             }
 
-            public function customTranslationForUser(hasTitle $item) : hasTitle
+            public function customTranslationForUser(hasTitle $item): hasTitle
             {
                 return $item;
             }
 
-            public function getParent(isItem $item) : IdentificationInterface
+            public function getParent(isItem $item): IdentificationInterface
             {
                 return $item->getParent();
             }
 
-            public function customSymbol(hasSymbol $item) : hasSymbol
+            public function customSymbol(hasSymbol $item): hasSymbol
             {
                 return $item;
             }
         };
     }
 
-    private function getDummyProvider() : StaticMainMenuProvider
+    private function getDummyProvider(): StaticMainMenuProvider
     {
-        return new class() implements StaticMainMenuProvider {
+        return new class () implements StaticMainMenuProvider {
             /**
              * @var IdentificationInterface[]
              */
@@ -120,22 +104,22 @@ class CollectorTest extends TestCase
                 }
             }
 
-            public function getAllIdentifications() : array
+            public function getAllIdentifications(): array
             {
                 return [];
             }
 
-            public function getFullyQualifiedClassName() : string
+            public function getFullyQualifiedClassName(): string
             {
                 return 'Provider';
             }
 
-            public function getProviderNameForPresentation() : string
+            public function getProviderNameForPresentation(): string
             {
                 return 'Provider';
             }
 
-            public function getStaticTopItems() : array
+            public function getStaticTopItems(): array
             {
                 $items = [];
                 foreach ($this->p_identifications as $if) {
@@ -144,7 +128,7 @@ class CollectorTest extends TestCase
                 return $items;
             }
 
-            public function getStaticSubItems() : array
+            public function getStaticSubItems(): array
             {
                 $items = [];
                 foreach ($this->c_identifications as $if) {
@@ -154,7 +138,7 @@ class CollectorTest extends TestCase
                 return $items;
             }
 
-            public function provideTypeInformation() : TypeInformationCollection
+            public function provideTypeInformation(): TypeInformationCollection
             {
                 return $this->type_information;
             }

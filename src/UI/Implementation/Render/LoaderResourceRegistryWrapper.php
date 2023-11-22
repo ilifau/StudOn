@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2017 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Render;
 
@@ -11,15 +27,8 @@ use ILIAS\UI\Component\Component;
  */
 class LoaderResourceRegistryWrapper implements Loader
 {
-    /**
-     * @var	ResourceRegistry
-     */
-    private $resource_registry;
-
-    /**
-     * @var Loader
-     */
-    private $loader;
+    private ResourceRegistry $resource_registry;
+    private Loader $loader;
 
     public function __construct(ResourceRegistry $resource_registry, Loader $loader)
     {
@@ -30,7 +39,7 @@ class LoaderResourceRegistryWrapper implements Loader
     /**
      * @inheritdocs
      */
-    public function getRendererFor(Component $component, array $contexts)
+    public function getRendererFor(Component $component, array $contexts): ComponentRenderer
     {
         $renderer = $this->loader->getRendererFor($component, $contexts);
         $renderer->registerResources($this->resource_registry);
@@ -40,7 +49,7 @@ class LoaderResourceRegistryWrapper implements Loader
     /**
      * @inheritdocs
      */
-    public function getRendererFactoryFor(Component $component)
+    public function getRendererFactoryFor(Component $component): RendererFactory
     {
         return $this->loader->getRendererFactoryFor($component);
     }

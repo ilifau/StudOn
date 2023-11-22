@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2015 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilBuddySystemRelationStateFactory
@@ -7,21 +24,19 @@
  */
 class ilBuddySystemRelationStateFactory
 {
-    /** @var self */
-    protected static $instance;
-
-    /** @var array|null */
-    protected static $validStates;
-
-    /** @var ilLanguage */
-    protected $lng;
+    protected static ?self $instance = null;
+    /** @var ilBuddySystemRelationState[]|null */
+    protected static ?array $validStates = null;
+    /** @var array<string, string>[]|null */
+    protected static ?array $stateOptions = null;
+    protected ilLanguage $lng;
 
     public function __construct(ilLanguage $lng)
     {
         $this->lng = $lng;
     }
 
-    public static function getInstance(?ilLanguage $lng = null) : self
+    public static function getInstance(?ilLanguage $lng = null): self
     {
         global $DIC;
 
@@ -34,17 +49,18 @@ class ilBuddySystemRelationStateFactory
         return self::$instance;
     }
 
+    public function reset(): void
+    {
+        self::$instance = null;
+    }
+
     /**
      * Get all valid states
      * @return ilBuddySystemRelationState[]
      */
-    public function getValidStates() : array
+    public function getValidStates(): array
     {
-        if (null !== self::$validStates) {
-            return self::$validStates;
-        }
-
-        return (self::$validStates = [
+        return self::$validStates ?? (self::$validStates = [
             new ilBuddySystemUnlinkedRelationState(),
             new ilBuddySystemRequestedRelationState(),
             new ilBuddySystemIgnoredRequestRelationState(),
@@ -56,7 +72,7 @@ class ilBuddySystemRelationStateFactory
      * @return ilBuddySystemRelationState
      * @throws ilBuddySystemException
      */
-    public function getInitialState() : ilBuddySystemRelationState
+    public function getInitialState(): ilBuddySystemRelationState
     {
         foreach ($this->getValidStates() as $state) {
             if ($state->isInitial()) {
@@ -64,10 +80,10 @@ class ilBuddySystemRelationStateFactory
             }
         }
 
-        throw new ilBuddySystemException("Could not find an initial state class");
+        throw new ilBuddySystemException('Could not find an initial state class');
     }
 
-    public function getTableFilterStateMapper(ilBuddySystemRelationState $state) : ilBuddySystemRelationStateTableFilterMapper
+    public function getTableFilterStateMapper(ilBuddySystemRelationState $state): ilBuddySystemRelationStateTableFilterMapper
     {
         $stateClass = get_class($state);
         $class = $stateClass . 'TableFilterMapper';
@@ -75,15 +91,10 @@ class ilBuddySystemRelationStateFactory
         return new $class($this->lng, $state);
     }
 
-    /**
-     * @param int $ownerId
-     * @param ilBuddySystemRelation $relation
-     * @return ilBuddySystemRelationStateButtonRenderer
-     */
     public function getStateButtonRendererByOwnerAndRelation(
         int $ownerId,
         ilBuddySystemRelation $relation
-    ) : ilBuddySystemRelationStateButtonRenderer {
+    ): ilBuddySystemRelationStateButtonRenderer {
         $stateClass = get_class($relation->getState());
         $class = $stateClass . 'ButtonRenderer';
 

@@ -1,5 +1,19 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Formula Question Variable
@@ -45,8 +59,6 @@ class assFormulaQuestionVariable
 
     public function getRandomValue()
     {
-        
-//		@todo check this
         if ($this->getPrecision() == 0) {
             if (!$this->isIntPrecisionValid(
                 $this->getIntprecision(),
@@ -55,10 +67,13 @@ class assFormulaQuestionVariable
             )) {
                 global $DIC;
                 $lng = $DIC['lng'];
-                ilUtil::sendFailure($lng->txt('err_divider_too_big'));
+                $DIC->ui()->mainTemplate()->setOnScreenMessage(
+                    "failure",
+                    $lng->txt('err_divider_too_big')
+                );
             }
         }
-        
+
         include_once "./Services/Math/classes/class.ilMath.php";
         $mul = ilMath::_pow(10, $this->getPrecision());
         $r1 = round(ilMath::_mul($this->getRangeMin(), $mul));
@@ -69,8 +84,8 @@ class assFormulaQuestionVariable
         $roundedRangeMIN = round($this->getRangeMin(), $this->getPrecision());
         $roundedRangeMAX = round($this->getRangeMax(), $this->getPrecision());
         while ($calcval < $roundedRangeMIN || $calcval > $roundedRangeMAX) {
-        
-    
+
+
 //		while($calcval < $this->getRangeMin() || $calcval > $this->getRangeMax())
             $rnd = mt_rand($r1, $r2);
             $calcval = ilMath::_div($rnd, $mul, $this->getPrecision());
@@ -90,11 +105,11 @@ class assFormulaQuestionVariable
         return $calcval;
     }
 
-    public function setRandomValue()
+    public function setRandomValue(): void
     {
         $this->setValue($this->getRandomValue());
     }
-    
+
     public function isIntPrecisionValid($int_precision, $min_range, $max_range)
     {
         $min_abs = abs($min_range);
@@ -110,7 +125,7 @@ class assFormulaQuestionVariable
      * Getter and Setter
      ************************************/
 
-    public function setValue($value)
+    public function setValue($value): void
     {
         $this->value = $value;
     }
@@ -130,44 +145,44 @@ class assFormulaQuestionVariable
         }
     }
 
-    public function setPrecision($precision)
+    public function setPrecision($precision): void
     {
         $this->precision = $precision;
     }
 
-    public function getPrecision()
+    public function getPrecision(): int
     {
         //@todo TEST
-        
-        return (int) $this->precision;
+
+        return $this->precision;
     }
 
-    public function setVariable($variable)
+    public function setVariable($variable): void
     {
         $this->variable = $variable;
     }
 
-    public function getVariable()
+    public function getVariable(): string
     {
         return $this->variable;
     }
 
-    public function setRangeMin($range_min)
+    public function setRangeMin($range_min): void
     {
         include_once "./Services/Math/classes/class.EvalMath.php";
         $math = new EvalMath();
         $math->suppress_errors = true;
         $result = $math->evaluate($range_min);
-        
+
         $this->range_min = $result;
     }
 
-    public function getRangeMin()
+    public function getRangeMin(): float
     {
-        return (double) $this->range_min;
+        return (float) $this->range_min;
     }
 
-    public function setRangeMax($range_max)
+    public function setRangeMax($range_max): void
     {
         include_once "./Services/Math/classes/class.EvalMath.php";
         $math = new EvalMath();
@@ -176,32 +191,32 @@ class assFormulaQuestionVariable
         $this->range_max = $result;
     }
 
-    public function getRangeMax()
+    public function getRangeMax(): float
     {
-        return (double) $this->range_max;
+        return (float) $this->range_max;
     }
 
-    public function setUnit($unit)
+    public function setUnit($unit): void
     {
         $this->unit = $unit;
     }
 
-    public function getUnit()
+    public function getUnit(): ?object
     {
         return $this->unit;
     }
 
-    public function setIntprecision($intprecision)
+    public function setIntprecision($intprecision): void
     {
         $this->intprecision = $intprecision;
     }
 
-    public function getIntprecision()
+    public function getIntprecision(): int
     {
         return $this->intprecision;
     }
 
-    public function setRangeMaxTxt($range_max_txt)
+    public function setRangeMaxTxt($range_max_txt): void
     {
         $this->range_max_txt = $range_max_txt;
     }
@@ -211,7 +226,7 @@ class assFormulaQuestionVariable
         return $this->range_max_txt;
     }
 
-    public function setRangeMinTxt($range_min_txt)
+    public function setRangeMinTxt($range_min_txt): void
     {
         $this->range_min_txt = $range_min_txt;
     }

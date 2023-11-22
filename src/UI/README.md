@@ -13,13 +13,11 @@ CSS-classes you need to use. You will be able to talk to other people (like user
 or designers) using the same concepts and problem space as they do. This is also
 not a templating framework.
 
-## Compose GUIs from Simple Parts
+## Semantics of Components
 
-In the ILIAS UI-Framework, GUIs are described by composing large chunks from
-smaller components. The available components and their possible compositions are
-described in the Kitchen Sink. The single components only have little  configuration,
-complex GUIs emerge from simple parts. You also won't need to modify existing
-components, just use them as provided.
+UI Components serve a specific purpose. They are not simply named html structures that are composed to larger structures, 
+but semantically different identities. It is possible that two different component look the same and act the same by 
+accident, but still remain different identities. However it is also possible that the same component, looks different in serpereate contexts.
 
 ## Correctness by Construction and Testability
 
@@ -180,7 +178,7 @@ If you would like to implement a new component to the framework you should perfo
  Take care to keep it as minimal as possible. At a description for each function.
  For the demo component, this interface could look as follows (located at (src/UI/Component/Demo/Demo.php):
     ``` php
-    <?php
+    <?php declare(strict_types=1)
     namespace ILIAS\UI\Component\Demo;
 
     /**
@@ -210,14 +208,14 @@ If you would like to implement a new component to the framework you should perfo
  JF. So best create such an example located and also link it in your comment, e.g. at
  src/UI/examples/Demo/mockup.php:
     ``` php
-    <?php
+    <?php declare(strict_types=1)
     function mockup() {
         return "<h1>Hello Demo!</h1>";
     }
     ```
    If needed, you can also add JS-logic (e.g. src/UI/examples/Demo/mockup.php):
     ``` php
-    <?php
+    <?php declare(strict_types=1)
     function script() {
         return "<script>console.log('Hello Demo');</script>Open your JS console!";
     }
@@ -239,7 +237,7 @@ If you would like to implement a new component to the framework you should perfo
   for all interface methods and the rendering.
   For the demo component this looks as follows (located at tests/UI/Component/Demo/DemoTest.php):
    ``` php
-    <?php
+    <?php declare(strict_types=1)
 
     require_once(__DIR__."/../../../../libs/composer/vendor/autoload.php");
     require_once(__DIR__."/../../Base.php");
@@ -284,7 +282,7 @@ If you would like to implement a new component to the framework you should perfo
 8. Currently you will only get the NotImplementedException you throwed previously. That needs to be changed.
   First, add an implementation for the new interface (add it at src/UI/Implementation/Component/Demo/Demo.php):
     ``` php
-    <?php
+    <?php declare(strict_types=1)
     namespace ILIAS\UI\Implementation\Component\Demo;
 
     use ILIAS\UI\Component\Demo as D;
@@ -323,7 +321,7 @@ If you would like to implement a new component to the framework you should perfo
 
 10. Then, implement the renderer at src/UI/Implementation/Component/Demo/Demo.php:
     ``` php
-    <?php
+    <?php declare(strict_types=1)
 
     /* Copyright (c) 2016 Timon Amstutz <timon.amstutz@ilub.unibe.ch> Extended GPL, see docs/LICENSE */
 
@@ -363,7 +361,7 @@ If you would like to implement a new component to the framework you should perfo
     next point). The example for the demo looks as follows (located at
     src/UI/examples/Demo/render.php):
     ``` php
-      <?php
+      <?php declare(strict_types=1)
       function render() {
           //Init Factory and Renderer
           global $DIC;

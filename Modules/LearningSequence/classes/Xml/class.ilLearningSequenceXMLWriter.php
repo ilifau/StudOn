@@ -3,29 +3,49 @@
 declare(strict_types=1);
 
 /**
- * @author Daniel Weise <daniel.weise@concepts-and-training.de>
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilLearningSequenceXMLWriter extends ilXmlWriter
 {
+    protected ilObjLearningSequence $ls_object;
+    protected ilSetting $settings;
+    protected ilLPObjSettings $lp_settings;
+    protected ilRbacReview $rbac_review;
+    protected ilLearningSequenceSettings $ls_settings;
+
     public function __construct(
         ilObjLearningSequence $ls_object,
-        ilSetting $il_settings,
+        ilSetting $settings,
         ilLPObjSettings $lp_settings,
         ilRbacReview $rbac_review
     ) {
+        parent::__construct();
         $this->ls_object = $ls_object;
-        $this->il_settings = $il_settings;
-        $this->settings = $ls_object->getLSSettings();
+        $this->settings = $settings;
         $this->lp_settings = $lp_settings;
         $this->rbac_review = $rbac_review;
+        $this->ls_settings = $ls_object->getLSSettings();
     }
 
-    public function getXml()
+    public function getXml(): string
     {
         return $this->xmlDumpMem(false);
     }
 
-    public function start()
+    public function start(): void
     {
         $this->writeHeader();
         $this->writeLearningSequence();
@@ -38,7 +58,7 @@ class ilLearningSequenceXMLWriter extends ilXmlWriter
         $this->writeFooter();
     }
 
-    protected function writeHeader()
+    protected function writeHeader(): void
     {
         $this->xmlSetDtdDef(
             "<!DOCTYPE learning sequence PUBLIC \"-//ILIAS//DTD LearningSequence//EN\" \"" .
@@ -49,35 +69,35 @@ class ilLearningSequenceXMLWriter extends ilXmlWriter
             "Export of ILIAS LearningSequence " .
             $this->ls_object->getId() .
             " of installation " .
-            $this->il_settings->get("inst_id") .
+            $this->settings->get("inst_id") .
             "."
         );
     }
 
-    protected function writeLearningSequence()
+    protected function writeLearningSequence(): void
     {
         $att["ref_id"] = $this->ls_object->getRefId();
 
         $this->xmlStartTag("lso", $att);
     }
 
-    protected function writeTitle()
+    protected function writeTitle(): void
     {
         $this->xmlElement("title", null, $this->ls_object->getTitle());
     }
 
-    protected function writeDescription()
+    protected function writeDescription(): void
     {
         $this->xmlElement("description", null, $this->ls_object->getDescription());
     }
 
-    protected function writeOwner()
+    protected function writeOwner(): void
     {
-        $att['id'] = 'il_' . $this->il_settings->get("inst_id") . '_usr_' . $this->ls_object->getOwner();
+        $att['id'] = 'il_' . $this->settings->get("inst_id") . '_usr_' . $this->ls_object->getOwner();
         $this->xmlElement('owner', $att);
     }
 
-    protected function writeLSItems()
+    protected function writeLSItems(): void
     {
         $ls_items = $this->ls_object->getLSItems();
 
@@ -104,29 +124,29 @@ class ilLearningSequenceXMLWriter extends ilXmlWriter
         $this->xmlEndTag("ls_items");
     }
 
-    protected function writeSettings()
+    protected function writeSettings(): void
     {
-        $abstract_img = $this->settings->getAbstractImage();
-        $extro_img = $this->settings->getExtroImage();
+        $abstract_img = $this->ls_settings->getAbstractImage();
+        $extro_img = $this->ls_settings->getExtroImage();
 
-        $this->xmlElement("abstract", null, base64_encode($this->settings->getAbstract()));
-        $this->xmlElement("extro", null, base64_encode($this->settings->getExtro()));
-        $this->xmlElement("members_gallery", null, $this->settings->getMembersGallery());
+        $this->xmlElement("abstract", null, base64_encode($this->ls_settings->getAbstract()));
+        $this->xmlElement("extro", null, base64_encode($this->ls_settings->getExtro()));
+        $this->xmlElement("members_gallery", null, $this->ls_settings->getMembersGallery());
         $this->xmlElement("abstract_img", null, $abstract_img);
         $this->xmlElement("extro_img", null, $extro_img);
         $this->xmlElement("abstract_img_data", null, $this->encodeImage($abstract_img));
         $this->xmlElement("extro_img_data", null, $this->encodeImage($extro_img));
     }
 
-    protected function writeLPSettings()
+    protected function writeLPSettings(): void
     {
-        if (!$this->il_settings->get("enable_tracking")) {
+        if (!$this->settings->get("enable_tracking")) {
             return;
         }
 
         $collection = ilLPCollection::getInstanceByMode(
             $this->ls_object->getId(),
-            (int) $this->lp_settings->getMode()
+            $this->lp_settings->getMode()
         );
 
         if (!is_null($collection)) {
@@ -141,16 +161,16 @@ class ilLearningSequenceXMLWriter extends ilXmlWriter
         $this->xmlElement("lp_mode", null, $this->lp_settings->getMode());
     }
 
-    protected function encodeImage(string $path = null) : string
+    protected function encodeImage(string $path = null): string
     {
-        if (is_null($path) || $path == "") {
+        if ($path == "") {
             return "";
         }
 
         return base64_encode(file_get_contents($path));
     }
 
-    protected function writeFooter()
+    protected function writeFooter(): void
     {
         $this->xmlEndTag('lso');
     }

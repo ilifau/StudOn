@@ -1,7 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/Form/interfaces/interface.ilFormValuesManipulator.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author        Björn Heyser <bheyser@databay.de>
@@ -11,12 +24,12 @@ require_once 'Services/Form/interfaces/interface.ilFormValuesManipulator.php';
  */
 class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
 {
-    const INDENTATIONS_POSTVAR_SUFFIX = '_ordering';
-    const INDENTATIONS_POSTVAR_SUFFIX_JS = '__default';
+    public const INDENTATIONS_POSTVAR_SUFFIX = '_ordering';
+    public const INDENTATIONS_POSTVAR_SUFFIX_JS = '__default';
 
-    const CONTEXT_MAINTAIN_ELEMENT_TEXT = 'maintainItemText';
-    const CONTEXT_MAINTAIN_ELEMENT_IMAGE = 'maintainItemImage';
-    const CONTEXT_MAINTAIN_HIERARCHY = 'maintainHierarchy';
+    public const CONTEXT_MAINTAIN_ELEMENT_TEXT = 'maintainItemText';
+    public const CONTEXT_MAINTAIN_ELEMENT_IMAGE = 'maintainItemImage';
+    public const CONTEXT_MAINTAIN_HIERARCHY = 'maintainHierarchy';
 
     /**
      * @var string
@@ -51,7 +64,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @return string
      */
-    public function getContext()
+    public function getContext(): ?string
     {
         return $this->context;
     }
@@ -59,7 +72,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @param $context
      */
-    public function setContext($context)
+    public function setContext($context): void
     {
         $this->context = $context;
     }
@@ -67,7 +80,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @return string
      */
-    public function getPostVar()
+    public function getPostVar(): ?string
     {
         return $this->postVar;
     }
@@ -75,31 +88,22 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @param $postVar
      */
-    public function setPostVar($postVar)
+    public function setPostVar($postVar): void
     {
         $this->postVar = $postVar;
     }
 
-    /**
-     * @return null
-     */
-    public function getImageRemovalCommand()
+    public function getImageRemovalCommand(): ?string
     {
         return $this->imageRemovalCommand;
     }
 
-    /**
-     * @param null $imageRemovalCommand
-     */
-    public function setImageRemovalCommand($imageRemovalCommand)
+    public function setImageRemovalCommand($imageRemovalCommand): void
     {
         $this->imageRemovalCommand = $imageRemovalCommand;
     }
 
-    /**
-     * @return string
-     */
-    public function getImageUrlPath()
+    public function getImageUrlPath(): string
     {
         return $this->imageUrlPath;
     }
@@ -107,7 +111,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @param string $imageUrlPath
      */
-    public function setImageUrlPath($imageUrlPath)
+    public function setImageUrlPath($imageUrlPath): void
     {
         $this->imageUrlPath = $imageUrlPath;
     }
@@ -115,7 +119,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @return string
      */
-    public function getImageFsPath()
+    public function getImageFsPath(): string
     {
         return $this->imageFsPath;
     }
@@ -123,7 +127,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @param string $imageFsPath
      */
-    public function setImageFsPath($imageFsPath)
+    public function setImageFsPath($imageFsPath): void
     {
         $this->imageFsPath = $imageFsPath;
     }
@@ -131,7 +135,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @return string
      */
-    public function getThumbnailPrefix()
+    public function getThumbnailPrefix(): string
     {
         return $this->thumbnailPrefix;
     }
@@ -139,12 +143,12 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @param string $thumbnailPrefix
      */
-    public function setThumbnailPrefix($thumbnailPrefix)
+    public function setThumbnailPrefix($thumbnailPrefix): void
     {
         $this->thumbnailPrefix = $thumbnailPrefix;
     }
 
-    public function getIndentationsPostVar()
+    public function getIndentationsPostVar(): string
     {
         $postVar = $this->getPostVar();
         $postVar .= self::INDENTATIONS_POSTVAR_SUFFIX;
@@ -153,7 +157,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
         return $postVar;
     }
 
-    protected function needsConvertToValues($elementsOrValues)
+    protected function needsConvertToValues($elementsOrValues): bool
     {
         if (!count($elementsOrValues)) {
             return false;
@@ -162,16 +166,16 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
         return (current($elementsOrValues) instanceof ilAssOrderingElement);
     }
 
-    public function manipulateFormInputValues($elementsOrValues)
+    public function manipulateFormInputValues(array $inputValues): array
     {
-        if ($this->needsConvertToValues($elementsOrValues)) {
-            $elementsOrValues = $this->collectValuesFromElements($elementsOrValues);
+        if ($this->needsConvertToValues($inputValues)) {
+            $inputValues = $this->collectValuesFromElements($inputValues);
         }
 
-        return $elementsOrValues;
+        return $inputValues;
     }
 
-    protected function collectValuesFromElements(array $elements)
+    protected function collectValuesFromElements(array $elements): array
     {
         $values = array();
 
@@ -200,12 +204,12 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
         return $values;
     }
 
-    protected function getTextContentValueFromObject(ilAssOrderingElement $element)
+    protected function getTextContentValueFromObject(ilAssOrderingElement $element): ?string
     {
         return $element->getContent();
     }
 
-    protected function getImageContentValueFromObject(ilAssOrderingElement $element)
+    protected function getImageContentValueFromObject(ilAssOrderingElement $element): array
     {
         $element->setImagePathWeb($this->getImageUrlPath());
         $element->setImagePathFs($this->getImageFsPath());
@@ -217,7 +221,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
         );
     }
 
-    protected function getStructValueFromObject(ilAssOrderingElement $element)
+    protected function getStructValueFromObject(ilAssOrderingElement $element): array
     {
         return array(
             'answer_id' => $element->getId(),
@@ -228,7 +232,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
         );
     }
 
-    protected function needsConvertToElements($valuesOrElements)
+    protected function needsConvertToElements($valuesOrElements): bool
     {
         if (!count($valuesOrElements)) {
             return false;
@@ -237,21 +241,24 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
         return !(current($valuesOrElements) instanceof ilAssOrderingElement);
     }
 
-    public function manipulateFormSubmitValues($valuesOrElements)
+    public function manipulateFormSubmitValues(array $submitValues): array
     {
-        if ($this->needsConvertToElements($valuesOrElements)) {
-            $valuesOrElements = $this->constructElementsFromValues($valuesOrElements);
+        if ($this->needsConvertToElements($submitValues)) {
+            $submitValues = $this->constructElementsFromValues($submitValues);
         }
 
-        return $valuesOrElements;
+        return $submitValues;
     }
 
-    public function constructElementsFromValues(array $values)
+    public function constructElementsFromValues(array $values): array
     {
         $elements = array();
 
         $position = 0;
 
+        if (array_key_exists('content', $values)) {
+            $values = $values['content'];
+        }
         foreach ($values as $identifier => $value) {
             $element = new ilAssOrderingElement();
 
@@ -260,7 +267,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
             $element->setPosition($position++);
 
             if ($this->getContext() == self::CONTEXT_MAINTAIN_HIERARCHY) {
-                $element->setIndentation($value);
+                $element->setIndentation((int)$value);
             } else {
                 $element->setContent($value);
             }
@@ -310,7 +317,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
         return $uploadFiles[$identifier];
     }
 
-    protected function fetchSubmittedUploadFiles()
+    protected function fetchSubmittedUploadFiles(): array
     {
         $submittedUploadFiles = $this->getFileSubmitDataRestructuredByIdentifiers();
         //$submittedUploadFiles = $this->getFileSubmitsHavingActualUpload($submittedUploadFiles);
@@ -342,7 +349,7 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
     /**
      * @return array
      */
-    protected function getFileSubmitDataRestructuredByIdentifiers()
+    protected function getFileSubmitDataRestructuredByIdentifiers(): array
     {
         $submittedUploadFiles = array();
 
@@ -368,7 +375,12 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
         return $_FILES[$this->getPostVar()];
     }
 
-    protected function wasImageRemovalRequested($identifier)
+    /**
+     * TODO: Instead of accessing post, the complete ilFormValuesManipulator should be aware of a server request or the corresponding processed input values.
+     * @param $identifier
+     * @return bool
+     */
+    protected function wasImageRemovalRequested($identifier): bool
     {
         if (!$this->getImageRemovalCommand()) {
             return false;
@@ -392,6 +404,13 @@ class ilAssOrderingFormValuesObjectsConverter implements ilFormValuesManipulator
 
         $identifierArr = $fieldArr[$this->getPostVar()];
 
-        return key($identifierArr) == $identifier;
+        $requested_identfier = key($identifierArr);
+
+        // The code actually relied on a manipulation of $_POST by ilIdentifiedMultiValuesJsPositionIndexRemover
+        return (string) str_replace(
+            ilIdentifiedMultiValuesJsPositionIndexRemover::IDENTIFIER_INDICATOR_PREFIX,
+            '',
+            (string) $requested_identfier
+        ) === (string) $identifier;
     }
 }

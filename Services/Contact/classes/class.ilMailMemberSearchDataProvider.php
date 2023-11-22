@@ -1,49 +1,49 @@
 <?php
-/* Copyright (c) 1998-2015 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilMailMemberSearchDataProvider
- *
  * @author Nadia Matuschek <nmatuschek@databay.de>
- *
- **/
+ */
 class ilMailMemberSearchDataProvider
 {
-    /** @var ilAccessHandler */
-    protected $access;
-
-    /** @var int */
-    protected $ref_id;
-
-    /** @var string */
-    protected $type = 'crs';
-
-    /** @var array */
-    protected $data = [];
-
-    /** @var null */
-    protected $objParticipants = null;
-
-    /** @var ilObjectDataCache */
-    protected $dataCache;
-
-    /** @var array */
-    protected $roleSortWeightMap = [
+    protected ilAccessHandler $access;
+    protected int $ref_id;
+    protected string $type = 'crs';
+    protected array $data = [];
+    protected ilParticipants $objParticipants;
+    protected ilObjectDataCache $dataCache;
+    /**
+     * @var array<string, int>
+     */
+    protected array $roleSortWeightMap = [
         'il_crs_a' => 10,
         'il_grp_a' => 10,
         'il_crs_t' => 9,
         'il_crs_m' => 8,
         'il_grp_m' => 8,
     ];
+    protected ilLanguage $lng;
 
-    /** @var ilLanguage */
-    protected $lng;
 
-    /**
-     * @param ilParticipants $objParticipants
-     * @param int $a_ref_id
-     */
-    public function __construct($objParticipants, $a_ref_id)
+    public function __construct(ilParticipants $objParticipants, int $a_ref_id)
     {
         global $DIC;
 
@@ -58,7 +58,7 @@ class ilMailMemberSearchDataProvider
         $this->collectTableData();
     }
 
-    private function collectTableData() : void
+    private function collectTableData(): void
     {
         $participants = $this->objParticipants->getParticipants();
         if ($this->type === 'crs' || $this->type === 'grp') {
@@ -73,7 +73,7 @@ class ilMailMemberSearchDataProvider
         $preloadedRoleIds = [];
         foreach ($participants as $user_id) {
             $user = ilObjectFactory::getInstanceByObjId($user_id, false);
-            if (!$user || !($user instanceof ilObjUser)) {
+            if (!($user instanceof ilObjUser)) {
                 continue;
             }
 
@@ -99,13 +99,13 @@ class ilMailMemberSearchDataProvider
             $roleTitles = [];
             foreach ($assignedRoles as $roleId) {
                 $preloadedRoleIds[$roleId] = $roleId;
-                $title = $this->dataCache->lookupTitle($roleId);
+                $title = $this->dataCache->lookupTitle((int) $roleId);
                 $roleTitles[] = $title;
             }
 
             $roleTitles = $this->sortRoles($roleTitles);
 
-            $roleTitles = array_map(function (string $roleTitle) : string {
+            $roleTitles = array_map(function (string $roleTitle): string {
                 return $this->buildRoleTitle($roleTitle);
             }, $roleTitles);
 
@@ -117,9 +117,9 @@ class ilMailMemberSearchDataProvider
      * @param string[] $roleTitles
      * @return string[]
      */
-    private function sortRoles(array $roleTitles) : array
+    private function sortRoles(array $roleTitles): array
     {
-        usort($roleTitles, function (string $a, string $b) : int {
+        usort($roleTitles, function (string $a, string $b): int {
             $leftPrefixTitle = substr($a, 0, 8);
             $rightPrefixTitle = substr($b, 0, 8);
 
@@ -140,12 +140,12 @@ class ilMailMemberSearchDataProvider
         return $roleTitles;
     }
 
-    private function buildRoleTitle(string $role) : string
+    private function buildRoleTitle(string $role): string
     {
         return ilObjRole::_getTranslation($role);
     }
 
-    public function getData() : array
+    public function getData(): array
     {
         return $this->data;
     }

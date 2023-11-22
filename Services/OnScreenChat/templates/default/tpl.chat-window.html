@@ -4,12 +4,14 @@
 			{CONVERSATION_ICON} <span class="osc_truncate_username" data-toggle="participants-tooltip" data-html="true" data-placement="left" title="[[participants-tt]]" data-onscreenchat-window-participants>[[participants-header]]</span>
 			<div class="btn-group pull-right">
 				{ADD_ACTION}
-				{CLOSE_ACTION}
+				{MINIMIZE_ACTION}
 			</div>
 		</div>
 		<div class="panel-body">
-			<ul class="chat" data-onscreenchat-body></ul>
-			<div class="fader"></div>
+			<ul class="chat" aria-live="off" data-onscreenchat-body></ul>
+			<div class="fader">
+				<div class="typing-info" aria-live="off" data-onscreenchat-typing></div>
+			</div>
 		</div>
 		<div class="panel-footer">
 			<textarea placeholder="#:#chat_osc_write_a_msg#:#" class="form-control iosOnScreenChatMessage iosOnScreenChatMessageContainer" data-onscreenchat-message></textarea>

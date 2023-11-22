@@ -1,23 +1,32 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateScormPdfFilename implements ilCertificateFilename
 {
-    /** @var ilSetting*/
-    private $scormSetting;
-    /** @var ilCertificateFilename */
-    private $origin;
-    /** @var ilLanguage */
-    private $lng;
+    private ilSetting $scormSetting;
+    private ilCertificateFilename $origin;
+    private ilLanguage $lng;
 
-    /**
-     * @param ilCertificateFilename $origin
-     * @param ilLanguage $lng
-     * @param ilSetting $scormSetting
-     */
     public function __construct(ilCertificateFilename $origin, ilLanguage $lng, ilSetting $scormSetting)
     {
         $this->scormSetting = $scormSetting;
@@ -25,31 +34,27 @@ class ilCertificateScormPdfFilename implements ilCertificateFilename
         $this->lng = $lng;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function createFileName(ilUserCertificatePresentation $presentation) : string
+    public function createFileName(ilUserCertificatePresentation $presentation): string
     {
         $fileName = $this->origin->createFileName($presentation);
 
         if (null === $presentation->getUserCertificate()) {
             $fileNameParts = implode('_', array_filter([
                 $this->lng->txt('certificate_var_user_lastname'),
-                $this->scormSetting->get('certificate_short_name_' . $presentation->getObjId()),
+                $this->scormSetting->get('certificate_short_name_' . $presentation->getObjId(), ''),
             ]));
         } else {
+            $short_name = $this->scormSetting->get('certificate_short_name_' . $presentation->getObjId(), '');
             $fileNameParts = implode('_', array_filter([
                 $presentation->getUserName(),
-                $presentation->getObjectTitle(),
+                $short_name ?: $presentation->getObjectTitle(),
             ]));
         }
 
-        $fileName = implode('_', array_filter([
+        return implode('_', array_filter([
             strftime('%y%m%d', time()),
             $fileNameParts,
             $fileName
         ]));
-
-        return $fileName;
     }
 }

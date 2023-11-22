@@ -1,38 +1,44 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
+
+declare(strict_types=1);
 
 /**
  * Represents a ecs course lms url
  *
  * @author Stefan Meyer <smeyer.ilias@gmx.de>
- * $Id$
  */
 class ilECSCourseLmsUrl
 {
-    public $title = '';
-    public $url = '';
-    
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    }
-    
+    public string $title = '';
+    public string $url = '';
+
     /**
      * Set title
-     * @param type $a_title
      */
-    public function setTitle($a_title)
+    public function setTitle(string $a_title): void
     {
         $this->title = $a_title;
     }
-    
+
     /**
      * Set url
      */
-    public function setUrl($a_url)
+    public function setUrl(string $a_url): void
     {
         $this->url = $a_url;
     }

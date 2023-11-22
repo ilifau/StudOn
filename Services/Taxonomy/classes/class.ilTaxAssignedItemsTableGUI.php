@@ -1,36 +1,47 @@
 <?php
 
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/Table/classes/class.ilTable2GUI.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * TableGUI class for taxonomy list
- *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- *
- * @ingroup Services
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilTaxAssignedItemsTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
+    protected ilAccessHandler $access;
+    protected ilObjTaxonomy $tax;
+    protected int $node_id;
+    protected string $comp_id;
+    protected int $obj_id;
+    protected string $item_type;
+    protected ilTaxAssignedItemInfo $info_obj;
 
     /**
      * Constructor
      */
     public function __construct(
         $a_parent_obj,
-        $a_parent_cmd,
-        $a_node_id,
-        $a_tax,
-        $a_comp_id,
-        $a_obj_id,
-        $a_item_type,
-        $a_info_obj
+        string $a_parent_cmd,
+        int $a_node_id,
+        ilObjTaxonomy $a_tax,
+        string $a_comp_id,
+        int $a_obj_id,
+        string $a_item_type,
+        ilTaxAssignedItemInfo $a_info_obj
     ) {
         global $DIC;
 
@@ -40,7 +51,7 @@ class ilTaxAssignedItemsTableGUI extends ilTable2GUI
 
         $ilCtrl = $DIC->ctrl();
         $lng = $DIC->language();
-        
+
         $this->setId("tax_ass_it");
         $this->setLimit(9999);
         $this->tax = $a_tax;
@@ -51,54 +62,35 @@ class ilTaxAssignedItemsTableGUI extends ilTable2GUI
         $this->info_obj = $a_info_obj;
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
-        
-        include_once("./Services/Taxonomy/classes/class.ilObjTaxonomy.php");
-        
-        include_once("./Services/Taxonomy/classes/class.ilTaxNodeAssignment.php");
+
         $tax_ass = new ilTaxNodeAssignment($this->comp_id, $this->obj_id, $this->item_type, $this->tax->getId());
         $this->setData($tax_ass->getAssignmentsOfNode($this->node_id));
         $this->setTitle($lng->txt("tax_assigned_items"));
-        
+
         $this->addColumn($this->lng->txt("tax_order"));
         $this->setDefaultOrderField("order_nr");
         $this->setDefaultOrderDirection("asc");
 
         $this->addColumn($this->lng->txt("title"));
-        
+
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj));
         $this->setRowTemplate("tpl.tax_ass_items_row.html", "Services/Taxonomy");
         $this->addCommandButton("saveAssignedItemsSorting", $lng->txt("save"));
     }
 
-    /**
-     *
-     *
-     * @param
-     * @return
-     */
-    public function numericOrdering($a_field)
+    public function numericOrdering(string $a_field): bool
     {
-        if (in_array($a_field, array("order_nr"))) {
-            return true;
-        }
-        return false;
+        return $a_field == "order_nr";
     }
 
-
-    /**
-     * Fill table row
-     */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
-        $lng = $this->lng;
-        $ilCtrl = $this->ctrl;
-
         $this->tpl->setVariable("ONODE_ID", $a_set["item_id"]);
         $this->tpl->setVariable("ORDER_NR", (int) $a_set["order_nr"]);
         $this->tpl->setVariable("TITLE", $this->info_obj->getTitle(
             $a_set["component"],
             $a_set["item_type"],
-            $a_set["item_id"]
+            (int) $a_set["item_id"]
         ));
     }
 }

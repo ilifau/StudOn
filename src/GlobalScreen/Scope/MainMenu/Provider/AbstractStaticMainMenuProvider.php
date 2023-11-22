@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Provider;
 
 use ILIAS\DI\Container;
@@ -31,18 +31,9 @@ use ILIAS\GlobalScreen\Scope\MainMenu\Factory\MainMenuItemFactory;
  */
 abstract class AbstractStaticMainMenuProvider extends AbstractProvider implements StaticMainMenuProvider
 {
-    /**
-     * @var \ILIAS\DI\Container
-     */
-    protected $dic;
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationProviderInterface
-     */
-    protected $if;
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\MainMenu\Factory\MainMenuItemFactory
-     */
-    protected $mainmenu;
+    protected Container $dic;
+    protected IdentificationProviderInterface $if;
+    protected MainMenuItemFactory $mainmenu;
 
     /**
      * @inheritDoc
@@ -57,7 +48,7 @@ abstract class AbstractStaticMainMenuProvider extends AbstractProvider implement
     /**
      * @inheritDoc
      */
-    public function getAllIdentifications() : array
+    public function getAllIdentifications(): array
     {
         $ids = [];
         foreach ($this->getStaticTopItems() as $slate) {
@@ -73,7 +64,7 @@ abstract class AbstractStaticMainMenuProvider extends AbstractProvider implement
     /**
      * @inheritDoc
      */
-    public function provideTypeInformation() : TypeInformationCollection
+    public function provideTypeInformation(): TypeInformationCollection
     {
         return new TypeInformationCollection();
     }

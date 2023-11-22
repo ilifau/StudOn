@@ -1,8 +1,21 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Modules/Test/classes/class.ilTestRandomQuestionSetQuestionCollection.php';
-require_once 'Modules/Test/interfaces/interface.ilTestRandomSourcePoolDefinitionQuestionCollectionProvider.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
@@ -67,14 +80,14 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 
 
     // hey: fixRandomTestBuildable - rename/public-access to be aware for building interface
-    public function getSrcPoolDefListRelatedQuestCombinationCollection(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList)
-    // hey.
+    public function getSrcPoolDefListRelatedQuestCombinationCollection(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList): ilTestRandomQuestionSetQuestionCollection
+        // hey.
     {
         $questionStage = new ilTestRandomQuestionSetQuestionCollection();
 
         foreach ($sourcePoolDefinitionList as $definition) {
             /** @var ilTestRandomQuestionSetSourcePoolDefinition $definition */
-            
+
             // hey: fixRandomTestBuildable - rename/public-access to be aware for building interface
             $questions = $this->getSrcPoolDefRelatedQuestCollection($definition);
             // hey.
@@ -83,45 +96,34 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 
         return $questionStage;
     }
-    
+
     // hey: fixRandomTestBuildable - rename/public-access to be aware for building interface
     /**
      * @param ilTestRandomQuestionSetSourcePoolDefinition $definition
      * @return ilTestRandomQuestionSetQuestionCollection
      */
-    public function getSrcPoolDefRelatedQuestCollection(ilTestRandomQuestionSetSourcePoolDefinition $definition)
-    // hey.
+    public function getSrcPoolDefRelatedQuestCollection(ilTestRandomQuestionSetSourcePoolDefinition $definition): ilTestRandomQuestionSetQuestionCollection
+        // hey.
     {
         $questionIds = $this->getQuestionIdsForSourcePoolDefinitionIds($definition);
         $questionStage = $this->buildSetQuestionCollection($definition, $questionIds);
 
         return $questionStage;
     }
-    
+
     // hey: fixRandomTestBuildable - rename/public-access to be aware for building interface
     /**
      * @param ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList
      * @return ilTestRandomQuestionSetQuestionCollection
      */
-    public function getSrcPoolDefListRelatedQuestUniqueCollection(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList)
+    public function getSrcPoolDefListRelatedQuestUniqueCollection(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList): ilTestRandomQuestionSetQuestionCollection
     {
         $combinationCollection = $this->getSrcPoolDefListRelatedQuestCombinationCollection($sourcePoolDefinitionList);
         return $combinationCollection->getUniqueQuestionCollection();
     }
     // hey.
 
-    // fau: taxGroupFilter - get a pre-selected set of questions for a source pool definition
-    protected function getQuestionSetForSourcePoolDefinition(ilTestRandomQuestionSetSourcePoolDefinition $definition)
-    {
-        $questionIds = $this->getQuestionIdsForSourcePoolDefinitionIds($definition, true);
-        $questionStage = $this->buildSetQuestionCollection($definition, $questionIds);
-
-        return $questionStage;
-    }
-    // fau.
-
-    // fau: taxGroupFilter - add parameter to select questions from a group
-    private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition, $select = false)
+    private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition): array
     {
         $this->stagingPoolQuestionList->resetQuestionList();
 
@@ -139,7 +141,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
             #);
             // fau.
         }
-        
+
         if (count($definition->getLifecycleFilter())) {
             $this->stagingPoolQuestionList->setLifecycleFilter($definition->getLifecycleFilter());
         }
@@ -150,27 +152,12 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
         }
         // fau.
 
-        // fau: taxGroupFilter - set the gouping information
-        $this->stagingPoolQuestionList->setGroupTaxId($definition->getMappedGroupTaxId());
-        $this->stagingPoolQuestionList->setSelectSize($definition->getQuestionAmount());
-        // fau.
-
-        // fau: randomSetOrder - set order information
-        $this->stagingPoolQuestionList->setOrderBy($definition->getOrderBy());
-        // fau.
-
         $this->stagingPoolQuestionList->loadQuestions();
 
-        // fau: taxGroupFilter - select questions from a group
-        if ($select) {
-            return $this->stagingPoolQuestionList->getSelectedQuestions();
-        } else {
-            return $this->stagingPoolQuestionList->getQuestions();
-        }
-        // fau.
+        return $this->stagingPoolQuestionList->getQuestions();
     }
 
-    private function buildSetQuestionCollection(ilTestRandomQuestionSetSourcePoolDefinition $definition, $questionIds)
+    private function buildSetQuestionCollection(ilTestRandomQuestionSetSourcePoolDefinition $definition, $questionIds): ilTestRandomQuestionSetQuestionCollection
     {
         $setQuestionCollection = new ilTestRandomQuestionSetQuestionCollection();
 
@@ -186,7 +173,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
         return $setQuestionCollection;
     }
 
-    private function hasTaxonomyFilter(ilTestRandomQuestionSetSourcePoolDefinition $definition)
+    private function hasTaxonomyFilter(ilTestRandomQuestionSetSourcePoolDefinition $definition): bool
     {
         // fau: taxFilter - check for existing taxonomy filter
         if (!count($definition->getMappedTaxonomyFilter())) {
@@ -204,14 +191,14 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
         // fau.
         return true;
     }
-    
+
     //	fau: typeFilter - check for existing type filter
-    private function hasTypeFilter(ilTestRandomQuestionSetSourcePoolDefinition $definition)
+    private function hasTypeFilter(ilTestRandomQuestionSetSourcePoolDefinition $definition): bool
     {
         if (count($definition->getTypeFilter())) {
             return true;
         }
-        
+
         return false;
     }
     //	fau.
@@ -244,7 +231,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
         ));
     }
 
-    protected function fetchQuestionsFromStageRandomly(ilTestRandomQuestionSetQuestionCollection $questionStage, $requiredQuestionAmount)
+    protected function fetchQuestionsFromStageRandomly(ilTestRandomQuestionSetQuestionCollection $questionStage, $requiredQuestionAmount): ilTestRandomQuestionSetQuestionCollection
     {
         $questionSet = $questionStage->getRandomQuestionCollection($requiredQuestionAmount);
 
@@ -289,12 +276,12 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
             $stagingPoolQuestionList
         );
     }
-    
+
     //fau: fixRandomTestBuildable - function to get messages
     /**
      * @return array
      */
-    public function getCheckMessages()
+    public function getCheckMessages(): array
     {
         return $this->checkMessages;
     }

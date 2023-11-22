@@ -1,53 +1,40 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2007 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
-* This class represents a location property in a property form.
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-* @ingroup	ServicesForm
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * This class represents a location property in a property form.
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilLocationInputGUI extends ilFormPropertyGUI
 {
-    /**
-     * @var ilRbacSystem
-     */
-    protected $rbacsystem;
+    protected ilRbacSystem $rbacsystem;
+    protected ?float $latitude = null;
+    protected ?float $longitude = null;
+    protected ?int $zoom = null;
+    protected string $address = "";
 
-    protected $latitude;
-    protected $longitude;
-    protected $zoom;
-    protected $address;
-    
-    /**
-    * Constructor
-    *
-    * @param	string	$a_title	Title
-    * @param	string	$a_postvar	Post Variable
-    */
-    public function __construct($a_title = "", $a_postvar = "")
-    {
+    public function __construct(
+        string $a_title = "",
+        string $a_postvar = ""
+    ) {
         global $DIC;
 
         $this->lng = $DIC->language();
@@ -56,131 +43,89 @@ class ilLocationInputGUI extends ilFormPropertyGUI
         $this->setType("location");
     }
 
-    /**
-    * Set Latitude.
-    *
-    * @param	real	$a_latitude	Latitude
-    */
-    public function setLatitude($a_latitude)
+    public function setLatitude(?float $a_latitude): void
     {
         $this->latitude = $a_latitude;
     }
 
-    /**
-    * Get Latitude.
-    *
-    * @return	real	Latitude
-    */
-    public function getLatitude()
+    public function getLatitude(): ?float
     {
         return $this->latitude;
     }
 
-
-
-    /**
-    * Set Longitude.
-    *
-    * @param	real	$a_longitude	Longitude
-    */
-    public function setLongitude($a_longitude)
+    public function setLongitude(?float $a_longitude): void
     {
         $this->longitude = $a_longitude;
     }
 
-    /**
-    * Get Longitude.
-    *
-    * @return	real	Longitude
-    */
-    public function getLongitude()
+    public function getLongitude(): ?float
     {
         return $this->longitude;
     }
 
-    /**
-    * Set Zoom.
-    *
-    * @param	int	$a_zoom	Zoom
-    */
-    public function setZoom($a_zoom)
+    public function setZoom(?int $a_zoom): void
     {
         $this->zoom = $a_zoom;
     }
 
-    /**
-    * Get Zoom.
-    *
-    * @return	int	Zoom
-    */
-    public function getZoom()
+    public function getZoom(): ?int
     {
         return $this->zoom;
     }
 
-    /**
-    * Set Address.
-    *
-    * @param        string  $a_Address      Address
-    */
-    public function setAddress($a_address)
+    public function setAddress(string $a_address): void
     {
         $this->address = $a_address;
     }
-    
-    /**
-    * Get Address.
-    *
-    * @return       string  Address
-    */
-    public function getAddress()
+
+    public function getAddress(): string
     {
         return $this->address;
     }
 
-    /**
-    * Set value by array
-    *
-    * @param	array	$a_values	value array
-    */
-    public function setValueByArray($a_values)
+    public function setValueByArray(array $a_values): void
     {
-        $this->setLatitude($a_values[$this->getPostVar()]["latitude"]);
-        $this->setLongitude($a_values[$this->getPostVar()]["longitude"]);
-        $this->setZoom($a_values[$this->getPostVar()]["zoom"]);
+        $lat = (isset($a_values[$this->getPostVar()]["latitude"]) && $a_values[$this->getPostVar()]["latitude"] != "")
+            ? (float) $a_values[$this->getPostVar()]["latitude"]
+            : null;
+        $lon = (isset($a_values[$this->getPostVar()]["longitude"]) && $a_values[$this->getPostVar()]["longitude"] != "")
+            ? (float) $a_values[$this->getPostVar()]["longitude"]
+            : null;
+        $this->setLatitude($lat);
+        $this->setLongitude($lon);
+        $this->setZoom((int) $a_values[$this->getPostVar()]["zoom"]);
     }
 
-    /**
-    * Check input, strip slashes etc. set alert, if input is not ok.
-    *
-    * @return	boolean		Input ok, true/false
-    */
-    public function checkInput()
+    public function checkInput(): bool
     {
         $lng = $this->lng;
-        
-        $_POST[$this->getPostVar()]["latitude"] =
-            ilUtil::stripSlashes($_POST[$this->getPostVar()]["latitude"]);
-        $_POST[$this->getPostVar()]["longitude"] =
-            ilUtil::stripSlashes($_POST[$this->getPostVar()]["longitude"]);
-        if ($this->getRequired() &&
-            (trim($_POST[$this->getPostVar()]["latitude"]) == "" || trim($_POST[$this->getPostVar()]["longitude"]) == "")) {
-            $this->setAlert($lng->txt("msg_input_is_required"));
 
+        $val = $this->strArray($this->getPostVar());
+        if ($this->getRequired() &&
+            (trim($val["latitude"]) == "" || trim($val["longitude"]) == "")) {
+            $this->setAlert($lng->txt("msg_input_is_required"));
             return false;
         }
         return true;
     }
 
-    /**
-    * Insert property html
-    *
-    */
-    public function insert($a_tpl)
+    public function getInput(): array
+    {
+        $val = $this->strArray($this->getPostVar());
+        return [
+            "latitude" => (float) $val["latitude"],
+            "longitude" => (float) $val["longitude"],
+            "zoom" => (int) ($val["zoom"] ?? 0),
+            "address" => ($val["address"] ?? "")
+        ];
+    }
+
+    public function insert(ilTemplate $a_tpl): void
     {
         $lng = $this->lng;
         $rbacsystem = $this->rbacsystem;
-        
+        $levels = [];
+
         $lng->loadLanguageModule("maps");
         $tpl = new ilTemplate("tpl.prop_location.html", true, true, "Services/Form");
         $tpl->setVariable("POST_VAR", $this->getPostVar());
@@ -188,7 +133,7 @@ class ilLocationInputGUI extends ilFormPropertyGUI
         $tpl->setVariable("TXT_LATITUDE", $lng->txt("maps_latitude"));
         $tpl->setVariable("TXT_LONGITUDE", $lng->txt("maps_longitude"));
         $tpl->setVariable("LOC_DESCRIPTION", $lng->txt("maps_std_location_desc"));
-        
+
         $lat = is_numeric($this->getLatitude())
             ? $this->getLatitude()
             : 0;
@@ -200,12 +145,12 @@ class ilLocationInputGUI extends ilFormPropertyGUI
         for ($i = 0; $i <= 18; $i++) {
             $levels[$i] = $i;
         }
-        
+
         $map_id = "map_" . md5(uniqid());
-        
+
         $tpl->setVariable(
             "ZOOM_SELECT",
-            ilUtil::formSelect(
+            ilLegacyFormElementsUtil::formSelect(
                 $this->getZoom(),
                 $this->getPostVar() . "[zoom]",
                 $levels,
@@ -235,11 +180,10 @@ class ilLocationInputGUI extends ilFormPropertyGUI
             }
         }
 
-        include_once("./Services/Maps/classes/class.ilMapUtil.php");
         $map_gui = ilMapUtil::getMapGUI();
         $map_gui->setMapId($map_id)
-                ->setLatitude($lat)
-                ->setLongitude($long)
+                ->setLatitude((string) $lat)
+                ->setLongitude((string) $long)
                 ->setZoom($this->getZoom())
                 ->setEnableTypeControl(true)
                 ->setEnableLargeMapControl(true)
@@ -247,22 +191,17 @@ class ilLocationInputGUI extends ilFormPropertyGUI
                 ->setEnableCentralMarker(true);
 
         $tpl->setVariable("MAP", $map_gui->getHtml());
-        
+
         $a_tpl->setCurrentBlock("prop_generic");
         $a_tpl->setVariable("PROP_GENERIC", $tpl->get());
         $a_tpl->parseCurrentBlock();
     }
 
-    /**
-    * Is geolocation configured?
-    * @return bool
-    */
-    protected function geolocationAvailiable()
+    protected function geolocationAvailiable(): bool
     {
-        include_once("./Services/Maps/classes/class.ilMapUtil.php");
         switch (ilMapUtil::getType()) {
             case 'openlayers':
-                return ilMapUtil::getStdGeolocationServer() ? true : false;
+                return (bool) ilMapUtil::getStdGeolocationServer();
             case 'googlemaps':
                 return true;
             default:

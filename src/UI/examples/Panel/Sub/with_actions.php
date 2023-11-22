@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace ILIAS\UI\Examples\Panel\Sub;
+
 function with_actions()
 {
     global $DIC;

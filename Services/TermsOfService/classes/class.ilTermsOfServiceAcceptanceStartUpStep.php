@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\DI\Container;
 use ILIAS\Init\StartupSequence\StartUpSequenceStep;
@@ -10,33 +27,22 @@ use ILIAS\Init\StartupSequence\StartUpSequenceStep;
  */
 class ilTermsOfServiceAcceptanceStartUpStep extends StartUpSequenceStep
 {
-    /** @var Container */
-    private $dic;
+    private Container $dic;
 
-    /**
-     * ilTermsOfServiceAcceptanceStartUpStep constructor.
-     * @param Container $dic
-     */
     public function __construct(Container $dic)
     {
         $this->dic = $dic;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function shouldStoreRequestTarget() : bool
+    public function shouldStoreRequestTarget(): bool
     {
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isInFulfillment() : bool
+    public function isInFulfillment(): bool
     {
         return (
-            strtolower($this->dic->ctrl()->getCmdClass()) === 'ilstartupgui' &&
+            strtolower($this->dic->ctrl()->getCmdClass()) === strtolower(ilStartUpGUI::class) &&
             (
                 strtolower($this->dic->ctrl()->getCmd()) === 'getacceptance' ||
                 strtolower($this->dic->ctrl()->getCmd()) === 'confirmacceptance' ||
@@ -45,10 +51,7 @@ class ilTermsOfServiceAcceptanceStartUpStep extends StartUpSequenceStep
         );
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function shouldInterceptRequest() : bool
+    public function shouldInterceptRequest(): bool
     {
         if ($this->isInFulfillment()) {
             return false;
@@ -74,10 +77,7 @@ class ilTermsOfServiceAcceptanceStartUpStep extends StartUpSequenceStep
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function execute() : void
+    public function execute(): void
     {
         $this->dic->ctrl()->redirectToURL('ilias.php?baseClass=ilStartUpGUI&cmdClass=ilStartupGUI&cmd=getAcceptance');
     }

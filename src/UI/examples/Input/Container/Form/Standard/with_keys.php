@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Container\Form\Standard;
+
 /**
  * Example showing how keys can be used when attaching input fields to a form.
  */

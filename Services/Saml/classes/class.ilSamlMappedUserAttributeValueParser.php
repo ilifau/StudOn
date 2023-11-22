@@ -1,33 +1,42 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilSamlMappedUserAttributeValueParser
+ * @author Michael Jansen <mjansen@databay.de>
  */
 class ilSamlMappedUserAttributeValueParser
 {
-    const ATTR_REGEX = '/^(.*?)(\|(\d+))?$/';
-    
-    /** @var \ilExternalAuthUserAttributeMappingRule */
-    protected $rule;
-    /** @var array */
-    protected $userData = [];
+    private const ATTR_REGEX = '/^(.*?)(\|(\d+))?$/';
 
-    /**
-     * ilSamlMappedUserAttributeValueParser constructor.
-     * @param ilExternalAuthUserAttributeMappingRule $rule
-     * @param array                                  $userData
-     */
-    public function __construct(\ilExternalAuthUserAttributeMappingRule $rule, array $userData)
+    protected ilExternalAuthUserAttributeMappingRule $rule;
+    /** @var array<string, mixed> */
+    protected array $userData = [];
+
+    public function __construct(ilExternalAuthUserAttributeMappingRule $rule, array $userData)
     {
         $this->rule = $rule;
         $this->userData = $userData;
     }
 
-    /**
-     * @return int
-     */
-    protected function getValueIndex() : int
+    protected function getValueIndex(): int
     {
         $index = 0;
 
@@ -38,13 +47,10 @@ class ilSamlMappedUserAttributeValueParser
             $index = (int) $matches[3];
         }
 
-        return $index >= 0 ? $index : 0;
+        return max($index, 0);
     }
 
-    /**
-     * @return string
-     */
-    public function getAttributeKey() : string
+    public function getAttributeKey(): string
     {
         $attribute = '';
 
@@ -58,16 +64,12 @@ class ilSamlMappedUserAttributeValueParser
         return $attribute;
     }
 
-    /**
-     * @throws \ilSamlException
-     * @return string
-     */
-    public function parse() : string
+    public function parse(): string
     {
         $attributeKey = $this->getAttributeKey();
 
         if (!array_key_exists($attributeKey, $this->userData)) {
-            throw new \ilSamlException(sprintf(
+            throw new ilSamlException(sprintf(
                 "Configured external attribute of mapping '%s' -> '%s' does not exist in SAML attribute data.",
                 $this->rule->getAttribute(),
                 $this->rule->getExternalAttribute()
@@ -80,7 +82,7 @@ class ilSamlMappedUserAttributeValueParser
             $valueIndex = $this->getValueIndex();
 
             if (!array_key_exists($valueIndex, $value)) {
-                throw new \ilSamlException(sprintf(
+                throw new ilSamlException(sprintf(
                     "Configured external attribute of mapping '%s' -> '%s' does not exist in SAML attribute data.",
                     $this->rule->getAttribute(),
                     $this->rule->getExternalAttribute()
@@ -91,7 +93,7 @@ class ilSamlMappedUserAttributeValueParser
         }
 
         if (!is_scalar($value)) {
-            throw new \ilSamlException(sprintf(
+            throw new ilSamlException(sprintf(
                 "Could not parse a scalar value based on the user attribute mapping '%s' -> '%s'.",
                 $this->rule->getAttribute(),
                 $this->rule->getExternalAttribute()

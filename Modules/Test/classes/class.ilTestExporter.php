@@ -1,7 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Export/classes/class.ilXmlExporter.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Used for container export with tests
@@ -17,20 +30,11 @@ class ilTestExporter extends ilXmlExporter
     /**
      * Initialisation
      */
-    public function init()
+    public function init(): void
     {
     }
 
-
-    /**
-     * Get xml representation
-     *
-     * @param	string		entity
-     * @param	string		schema version
-     * @param	string		id
-     * @return	string		xml string
-     */
-    public function getXmlRepresentation($a_entity, $a_schema_version, $a_id)
+    public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id): string
     {
         include_once './Modules/Test/classes/class.ilObjTest.php';
         $tst = new ilObjTest($a_id, false);
@@ -39,20 +43,20 @@ class ilTestExporter extends ilXmlExporter
         $expFactory = new ilTestExportFactory($tst);
         $testExport = $expFactory->getExporter('xml');
         $zip = $testExport->buildExportFile();
-        
+
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         $DIC['ilLog']->write(__METHOD__ . ': Created zip file ' . $zip);
+        return ''; // Sagt mjansen
     }
 
     /**
      * Get tail dependencies
-     *
      * @param		string		entity
      * @param		string		target release
      * @param		array		ids
-     * @return		array		array of array with keys "component", entity", "ids"
+     * @return        array        array of array with keys "component", entity", "ids"
      */
-    public function getXmlExportTailDependencies($a_entity, $a_target_release, $a_ids)
+    public function getXmlExportTailDependencies(string $a_entity, string $a_target_release, array $a_ids): array
     {
         if ($a_entity == 'tst') {
             $deps = array();
@@ -84,7 +88,7 @@ class ilTestExporter extends ilXmlExporter
      * @param array $testObjIds
      * @return array $taxIds
      */
-    private function getDependingTaxonomyIds($testObjIds)
+    private function getDependingTaxonomyIds($testObjIds): array
     {
         include_once 'Services/Taxonomy/classes/class.ilObjTaxonomy.php';
 
@@ -103,10 +107,10 @@ class ilTestExporter extends ilXmlExporter
      * Returns schema versions that the component can export to.
      * ILIAS chooses the first one, that has min/max constraints which
      * fit to the target release. Please put the newest on top.
-     *
-     * @return
+     * @param string $a_entity
+     * @return array
      */
-    public function getValidSchemaVersions($a_entity)
+    public function getValidSchemaVersions(string $a_entity): array
     {
         return array(
             "4.1.0" => array(

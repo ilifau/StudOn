@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Divider\Horizontal;
+
 function with_label()
 {
     global $DIC;

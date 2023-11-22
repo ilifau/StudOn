@@ -37,16 +37,15 @@ use Psr\Http\Message\StreamInterface;
  */
 final class PreProcessorManagerImpl implements PreProcessorManager
 {
-
     /**
      * @var PreProcessor[] $processors
      */
-    private $processors = [];
+    private array $processors = [];
 
     /**
      * @inheritDoc
      */
-    public function with(PreProcessor $processor)
+    public function with(PreProcessor $processor): void
     {
         $this->processors[] = $processor;
     }
@@ -55,7 +54,7 @@ final class PreProcessorManagerImpl implements PreProcessorManager
     /**
      * @inheritDoc
      */
-    public function process(FileStream $stream, Metadata $metadata)
+    public function process(FileStream $stream, Metadata $metadata): ProcessingStatus
     {
         try {
             $result = null;

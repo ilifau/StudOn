@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Layout\MetaContent\MetaData;
 
 /**
@@ -26,14 +26,8 @@ namespace ILIAS\GlobalScreen\Scope\Layout\MetaContent\MetaData;
  */
 class MetaDatum
 {
-    /**
-     * @var string
-     */
-    protected $key;
-    /**
-     * @var string
-     */
-    protected $value;
+    protected string $key;
+    protected string $value;
 
     public function __construct(string $key, string $value)
     {
@@ -41,12 +35,12 @@ class MetaDatum
         $this->value = $value;
     }
 
-    public function getKey() : string
+    public function getKey(): string
     {
         return $this->key;
     }
 
-    public function getValue() : string
+    public function getValue(): string
     {
         return $this->value;
     }

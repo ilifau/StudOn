@@ -1,24 +1,29 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\DI\Container;
+use ILIAS\Filesystem\Provider\Configuration\LocalConfig;
+use ILIAS\Filesystem\Provider\FlySystem\FlySystemFilesystemFactory;
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
+use ILIAS\ResourceStorage\StorageHandler\Migrator;
 use ILIAS\Setup\CLI\IOWrapper;
 use ILIAS\Setup\Environment;
 use ILIAS\Setup\Migration;
-use ILIAS\ResourceStorage\StorageHandler\Migrator;
-use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
-use ILIAS\Filesystem\Provider\Configuration\LocalConfig;
-use ILIAS\Filesystem\Provider\FlySystem\FlySystemFilesystemFactory;
-use ILIAS\FileUpload\Location;
-use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\FileSystemStorageHandler;
-use ILIAS\ResourceStorage\Policy\FileNamePolicyStack;
-use ILIAS\ResourceStorage\Resource\ResourceBuilder;
-use ILIAS\ResourceStorage\Lock\LockHandlerilDB;
-use ILIAS\ResourceStorage\Identification\ResourceIdentification;
-use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\MaxNestingFileSystemStorageHandler;
-use ILIAS\DI\Container;
-use ILIAS\ResourceStorage\Revision\Repository\RevisionDBRepository;
-use ILIAS\ResourceStorage\Resource\Repository\ResourceDBRepository;
-use ILIAS\ResourceStorage\Information\Repository\InformationDBRepository;
-use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository;
 
 /**
  * Class ilStorageHandlerV1Migration
@@ -26,41 +31,32 @@ use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository;
  */
 class ilStorageHandlerV1Migration implements Migration
 {
-    /**
-     * @var \DirectoryIterator
-     */
-    protected $iterator;
+    protected \DirectoryIterator $iterator;
     /**
      * @var \ilDBInterface
      */
     protected $database;
-    /**
-     * @var Migrator
-     */
-    protected $migrator;
-    /**
-     * @var ResourceBuilder
-     */
-    protected $resource_builder;
-    /**
-     * @var string
-     */
-    protected $data_dir;
+    protected ?\ILIAS\ResourceStorage\StorageHandler\Migrator $migrator = null;
+    protected ?\ILIAS\ResourceStorage\Resource\ResourceBuilder $resource_builder = null;
+    protected ?string $data_dir = null;
 
-    protected $from = 'fsv1';
-    protected $to = 'fsv2';
+    protected string $from = 'fsv1';
+    protected string $to = 'fsv2';
 
-    public function getLabel() : string
+    public function getLabel(): string
     {
-        return 'ilStorageHandlerV1Migration';
+        return \ilStorageHandlerV1Migration::class;
     }
 
-    public function getDefaultAmountOfStepsPerRun() : int
+    public function getDefaultAmountOfStepsPerRun(): int
     {
         return 10000;
     }
 
-    public function getPreconditions(Environment $environment) : array
+    /**
+     * @return \ilDatabaseUpdatedObjective[]|\ilIniFilesLoadedObjective[]|\ilStorageContainersExistingObjective[]
+     */
+    public function getPreconditions(Environment $environment): array
     {
         return [
             new \ilIniFilesLoadedObjective(),
@@ -69,7 +65,7 @@ class ilStorageHandlerV1Migration implements Migration
         ];
     }
 
-    public function prepare(Environment $environment) : void
+    public function prepare(Environment $environment): void
     {
         $ilias_ini = $environment->getResource(Environment::RESOURCE_ILIAS_INI);
         $client_id = $environment->getResource(Environment::RESOURCE_CLIENT_ID);
@@ -82,41 +78,34 @@ class ilStorageHandlerV1Migration implements Migration
         $filesystem = $f->getLocal($configuration);
 
         $this->database = $environment->getResource(Environment::RESOURCE_DATABASE);
-
+        /** @noRector  $DIC */
         // ATTENTION: This is a total abomination. It only exists to allow the db-
         // update to run. This is a memento to the fact, that dependency injection
         // is something we want. Currently, every component could just service
         // locate the whole world via the global $DIC.
+        /** @noRector  $DIC */
         $DIC = $GLOBALS["DIC"] ?? [];
         $GLOBALS["DIC"] = new Container();
         $GLOBALS["DIC"]["ilDB"] = $this->database;
         $GLOBALS["ilDB"] = $this->database;
 
-        $storage_handler_factory = new StorageHandlerFactory([
-            new MaxNestingFileSystemStorageHandler($filesystem, Location::STORAGE),
-            new FileSystemStorageHandler($filesystem, Location::STORAGE)
-        ]);
+        // Build Container
+        $init = new InitResourceStorage();
+        $container = new Container();
+        $container['ilDB'] = $this->database;
+        $container['filesystem.storage'] = $filesystem;
 
-        $this->resource_builder = new ResourceBuilder(
-            $storage_handler_factory,
-            new RevisionDBRepository($this->database),
-            new ResourceDBRepository($this->database),
-            new InformationDBRepository($this->database),
-            new StakeholderDBRepository($this->database),
-            new LockHandlerilDB($this->database),
-            new FileNamePolicyStack()
-        );
+        $this->resource_builder = $init->getResourceBuilder($container);
 
         $this->migrator = new Migrator(
-            $storage_handler_factory,
+            $container[InitResourceStorage::D_STORAGE_HANDLERS],
             $this->resource_builder,
             $this->database,
             $this->data_dir
         );
-
     }
 
-    public function step(Environment $environment) : void
+    public function step(Environment $environment): void
     {
         /** @var $io IOWrapper */
         $io = $environment->getResource(Environment::RESOURCE_ADMIN_INTERACTION);
@@ -128,15 +117,17 @@ class ilStorageHandlerV1Migration implements Migration
         );
         $d = $this->database->fetchObject($r);
         if ($d->rid) {
-            $resource = $this->resource_builder->get(new ResourceIdentification($d->rid));
+            $resource = $this->resource_builder->get(new ResourceIdentification($d->identification));
             if (!$this->migrator->migrate($resource, $this->to)) {
                 $i = $resource->getIdentification()->serialize();
-                $io->text('Resource ' . $i . ' not migrated, file not found. All Stakeholder have been informed about the deletion.');
+                $io->text(
+                    'Resource ' . $i . ' not migrated, file not found. All Stakeholder have been informed about the deletion.'
+                );
             }
         }
     }
 
-    public function getRemainingAmountOfSteps() : int
+    public function getRemainingAmountOfSteps(): int
     {
         $r = $this->database->queryF(
             "SELECT COUNT(rid) as old_storage FROM il_resource WHERE storage_id != %s",
@@ -145,7 +136,6 @@ class ilStorageHandlerV1Migration implements Migration
         );
         $d = $this->database->fetchObject($r);
 
-        return (int) ($d->old_storage ?? 0);
+        return (int)($d->old_storage ?? 0);
     }
-
 }

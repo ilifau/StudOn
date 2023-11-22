@@ -1,6 +1,22 @@
-<?php declare(strict_types=1);
+<?php
 
-/* Copyright (c) 1998-2021 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Exercise\PeerReview;
 
@@ -31,27 +47,15 @@ namespace ILIAS\Exercise\PeerReview;
  */
 class ExcPeerReviewDistribution
 {
-    /**
-     * @var array
-     */
-    protected $user_ids = [];
-
-    /**
-     * @var array
-     */
-    protected $user_order = [];
-
-    /**
-     * @var int
-     */
-    protected $num_assignments;
+    protected array $user_ids = [];
+    protected array $user_order = [];
+    protected int $num_assignments;
 
     /**
      * ExcPeerReviewDistribution constructor.
      * @param int[] $user_ids
-     * @param int $num_assignments
      */
-    public function __construct(array $user_ids, $num_assignments)
+    public function __construct(array $user_ids, int $num_assignments)
     {
         $this->user_ids = array_values($user_ids);  // ensure numerical indexing
 
@@ -65,20 +69,17 @@ class ExcPeerReviewDistribution
         $this->initDistribution();
     }
 
-    /**
-     * Init distribution
-     */
-    protected function initDistribution()
+    protected function initDistribution(): void
     {
         $this->user_order = $this->randomUserOrder($this->user_ids);
     }
 
     /**
      * Random user order
-     * @param array
-     * @return array
+     * @param int[]
+     * @return int[]
      */
-    protected function randomUserOrder($user_ids) : array
+    protected function randomUserOrder(array $user_ids): array
     {
         $order = [];
         while (count($user_ids) > 0) {
@@ -90,11 +91,7 @@ class ExcPeerReviewDistribution
         return $order;
     }
 
-    /**
-     * Get user order
-     * @return array
-     */
-    public function getUserOrder() : array
+    public function getUserOrder(): array
     {
         return $this->user_order;
     }
@@ -102,10 +99,9 @@ class ExcPeerReviewDistribution
     /**
      * Get peers of rater
      *
-     * @param int $user_id
      * @return int[]
      */
-    public function getPeersOfRater($user_id)
+    public function getPeersOfRater(int $user_id): array
     {
         $peers = [];
         $key = array_search($user_id, $this->user_order);

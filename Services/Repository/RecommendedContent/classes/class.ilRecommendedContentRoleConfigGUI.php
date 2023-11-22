@@ -1,69 +1,44 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Recommended content configuration for roles
  *
- * @author killing@leifos.de
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilRecommendedContentRoleConfigGUI
 {
-    /**
-     * @var ilRbacSystem
-     */
-    protected $rbacsystem;
+    /** @var int[] */
+    protected array $requested_item_ref_ids;
+    protected ilRbacSystem $rbacsystem;
+    protected ilRbacReview $rbacreview;
+    protected ilLanguage $lng;
+    protected int $role_id;
+    protected int $node_ref_id;
+    protected ilCtrl $ctrl;
+    protected ilToolbarGUI $toolbar;
+    protected ilGlobalTemplateInterface $main_tpl;
+    protected ilRecommendedContentManager $manager;
+    protected int $requested_item_ref_id;
 
-    /**
-     * @var ilRbacReview
-     */
-    protected $rbacreview;
-
-    /**
-     * @var \ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var int
-     */
-    protected $role_id;
-
-    /**
-     * @var int
-     */
-    protected $node_ref_id;
-
-    /**
-     * @var \ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var ilToolbarGUI
-     */
-    protected $toolbar;
-
-    /**
-     * @var \ilTemplate
-     */
-    protected $main_tpl;
-
-    /**
-     * @var ilRecommendedContentManager
-     */
-    protected $manager;
-
-    /**
-     * @var int
-     */
-    protected $requested_item_ref_id;
-
-    /**
-     * Constructor
-     */
     public function __construct(int $role_id, int $node_ref_id)
     {
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
 
         $this->role_id = $role_id;
@@ -75,18 +50,12 @@ class ilRecommendedContentRoleConfigGUI
         $this->toolbar = $DIC->toolbar();
         $this->main_tpl = $DIC->ui()->mainTemplate();
         $this->manager = new ilRecommendedContentManager();
-        $this->requested_item_ref_id = (int) $_GET['item_ref_id'];
-        $this->requested_item_ref_ids = is_array($_POST["item_ref_id"])
-            ? array_map(function ($i) {
-                return (int) $i;
-            }, $_POST["item_ref_id"])
-            : [];
+        $request = $DIC->repository()->internal()->gui()->standardRequest();
+        $this->requested_item_ref_id = $request->getItemRefId();
+        $this->requested_item_ref_ids = $request->getItemRefIds();
     }
 
-    /**
-     * Execute command
-     */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $ctrl = $this->ctrl;
 
@@ -102,10 +71,7 @@ class ilRecommendedContentRoleConfigGUI
         }
     }
 
-    /**
-     * List items
-     */
-    public function listItems()
+    public function listItems(): void
     {
         $rbacreview = $this->rbacreview;
         $rbacsystem = $this->rbacsystem;
@@ -114,9 +80,8 @@ class ilRecommendedContentRoleConfigGUI
         $main_tpl = $this->main_tpl;
         $ctrl = $this->ctrl;
 
-        if (!$rbacreview->isAssignable($this->role_id, $this->node_ref_id) &&
-            $this->node_ref_id != ROLE_FOLDER_ID) {
-            ilUtil::sendInfo($this->lng->txt('rep_no_assign_rec_content_to_role'));
+        if ($this->node_ref_id !== ROLE_FOLDER_ID && !$rbacreview->isAssignable($this->role_id, $this->node_ref_id)) {
+            $this->main_tpl->setOnScreenMessage('info', $this->lng->txt('rep_no_assign_rec_content_to_role'));
         } else {
             if ($rbacsystem->checkAccess('push_desktop_items', USER_FOLDER_ID)) {
                 $toolbar->addButton($lng->txt('add'), $ctrl->getLinkTarget(
@@ -134,17 +99,14 @@ class ilRecommendedContentRoleConfigGUI
         }
     }
 
-    /**
-     * Remove items confirmation
-     */
-    public function confirmRemoveItems()
+    public function confirmRemoveItems(): void
     {
         $this->checkPushPermission();
 
         $main_tpl = $this->main_tpl;
 
-        if (count($this->requested_item_ref_ids) == 0) {
-            ilUtil::sendFailure($this->lng->txt('select_one'));
+        if (count($this->requested_item_ref_ids) === 0) {
+            $this->main_tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'));
             $this->listItems();
             return;
         }
@@ -157,8 +119,8 @@ class ilRecommendedContentRoleConfigGUI
 
         foreach ($this->requested_item_ref_ids as $item_ref_id) {
             $confirmation_gui->addItem(
-                "item_ref_id[]",
-                $item_ref_id,
+                "item_ref_ids[]",
+                (string) $item_ref_id,
                 ilObject::_lookupTitle(ilObject::_lookupObjectId($item_ref_id))
             );
         }
@@ -166,41 +128,31 @@ class ilRecommendedContentRoleConfigGUI
         $main_tpl->setContent($confirmation_gui->getHTML());
     }
 
-    /**
-     * Remove items
-     */
-    public function removeItems()
+    public function removeItems(): void
     {
         $this->checkPushPermission();
-
         if (count($this->requested_item_ref_ids) > 0) {
             foreach ($this->requested_item_ref_ids as $item_ref_id) {
                 $this->manager->removeRoleRecommendation($this->role_id, $item_ref_id);
             }
-            ilUtil::sendSuccess($this->lng->txt('rep_rec_content_removed'));
+            $this->main_tpl->setOnScreenMessage('success', $this->lng->txt('rep_rec_content_removed'));
         }
         $this->listItems();
     }
 
-    /**
-     * Check permission to push recommended content
-     */
-    protected function checkPushPermission()
+    protected function checkPushPermission(): void
     {
         $ctrl = $this->ctrl;
         $rbacsystem = $this->rbacsystem;
 
         if (!$rbacsystem->checkAccess('write', $this->node_ref_id) ||
             !$rbacsystem->checkAccess('push_desktop_items', USER_FOLDER_ID)) {
-            ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+            $this->main_tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
             $ctrl->redirect($this, "listItems");
         }
     }
 
-    /**
-     * Select recommended content
-     */
-    protected function selectItem()
+    protected function selectItem(): void
     {
         $this->checkPushPermission();
 
@@ -218,16 +170,13 @@ class ilRecommendedContentRoleConfigGUI
         }
     }
 
-    /**
-     * Assign item
-     */
-    protected function assignItem()
+    protected function assignItem(): void
     {
         $ctrl = $this->ctrl;
         $this->checkPushPermission();
         if ($this->requested_item_ref_id > 0) {
             $this->manager->addRoleRecommendation($this->role_id, $this->requested_item_ref_id);
-            ilUtil::sendSuccess($this->lng->txt('rep_added_rec_content'), true);
+            $this->main_tpl->setOnScreenMessage('success', $this->lng->txt('rep_added_rec_content'), true);
         }
         $ctrl->redirect($this, 'listItems');
     }

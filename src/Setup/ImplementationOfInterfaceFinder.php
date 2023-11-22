@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace ILIAS\Setup;
 
 /**
@@ -9,15 +27,12 @@ namespace ILIAS\Setup;
  */
 class ImplementationOfInterfaceFinder
 {
-    /**
-     * @var string
-     */
-    protected $root;
+    protected string $root;
 
     /**
      * @var string[]
      */
-    protected $ignore = [
+    protected array $ignore = [
         '.*/src/',
         '.*/libs/',
         '.*/test/',
@@ -32,12 +47,13 @@ class ImplementationOfInterfaceFinder
     /**
      * @var string[]|null
      */
-    protected $classmap = null;
+    protected ?array $classmap = null;
 
     public function __construct()
     {
-        $this->root = substr(__FILE__, 0, strpos(__FILE__, "/src"));
-        $this->classmap = include "./libs/composer/vendor/composer/autoload_classmap.php";
+        $this->root = substr(__FILE__, 0, strpos(__FILE__, DIRECTORY_SEPARATOR . "src"));
+        $external_classmap = include "./libs/composer/vendor/composer/autoload_classmap.php";
+        $this->classmap = $external_classmap ?: null;
     }
 
     /**
@@ -47,14 +63,15 @@ class ImplementationOfInterfaceFinder
      * Patterns are regexps (without delimiters) to define complete paths on the
      * filesystem to be ignored or selected.
      *
+     * @param   string $interface
      * @param   string[] $additional_ignore
-     * @param   string $matching_path
+     * @param   string|null $matching_path
      */
     public function getMatchingClassNames(
         string $interface,
         array $additional_ignore = [],
         string $matching_path = null
-    ) : \Iterator {
+    ): \Iterator {
         foreach ($this->getAllClassNames($additional_ignore, $matching_path) as $class_name) {
             try {
                 $r = new \ReflectionClass($class_name);
@@ -70,7 +87,7 @@ class ImplementationOfInterfaceFinder
     /**
      * @param   string[] $additional_ignore
      */
-    protected function getAllClassNames(array $additional_ignore, string $matching_path = null) : \Iterator
+    protected function getAllClassNames(array $additional_ignore, string $matching_path = null): \Iterator
     {
         $ignore = array_merge($this->ignore, $additional_ignore);
 
@@ -82,9 +99,7 @@ class ImplementationOfInterfaceFinder
             "|",
             array_map(
                 // fix path-separators to respect windows' backspaces.
-                function ($v) {
-                    return "(" . str_replace('/', '(/|\\\\)', $v) . ")";
-                },
+                fn ($v): string => "(" . str_replace('/', '(/|\\\\)', $v) . ")",
                 $ignore
             )
         );
@@ -94,7 +109,17 @@ class ImplementationOfInterfaceFinder
 
 
         foreach ($this->classmap as $class_name => $file_path) {
-            $path = str_replace($this->root, "", realpath($file_path));
+            $real_path = realpath($file_path);
+            if ($real_path === false) {
+                throw new \RuntimeException(
+                    "Could not find file for class $class_name (path: $file_path). " .
+                    "Please check the composer classmap, maybe it is outdated. " .
+                    "You can regenerate it by executing 'composer du' or 'composer install' " .
+                    "(which also ensures dependencies are correctly installed) in the ILIAS root directory."
+                );
+            }
+
+            $path = str_replace($this->root, "", $real_path);
             if ($matching_path && !preg_match("#^" . $matching_path . "$#", $path)) {
                 continue;
             }

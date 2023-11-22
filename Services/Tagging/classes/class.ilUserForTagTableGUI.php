@@ -1,64 +1,59 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Table/classes/class.ilTable2GUI.php");
-include_once("./Services/Tagging/classes/class.ilTagging.php");
+declare(strict_types=1);
 
 /**
-* Show all users for a tag
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesTagging
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Show all users for a tag
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilUserForTagTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
+    protected ilAccessHandler $access;
 
-    
-    /**
-    * Constructor
-    */
-    public function __construct($a_parent_obj, $a_parent_cmd, $a_tag)
-    {
+    public function __construct(
+        object $a_parent_obj,
+        string $a_parent_cmd,
+        string $a_tag
+    ) {
         global $DIC;
 
-        $this->ctrl = $DIC->ctrl();
-        $this->lng = $DIC->language();
         $this->access = $DIC->access();
-        $ilCtrl = $DIC->ctrl();
-        $lng = $DIC->language();
-        $ilAccess = $DIC->access();
-        $lng = $DIC->language();
-        
+
         parent::__construct($a_parent_obj, $a_parent_cmd);
+
         $this->setData(ilTagging::getUsersForTag($a_tag));
-        $this->setTitle($lng->txt("tagging_users_using_tag"));
-        
+        $this->setTitle($this->lng->txt("tagging_users_using_tag"));
+
         $this->addColumn($this->lng->txt("user"), "");
-        
+
         $this->setEnableHeader(true);
-        $this->setFormAction($ilCtrl->getFormAction($a_parent_obj));
+        $this->setFormAction($this->ctrl->getFormAction($a_parent_obj));
         $this->setRowTemplate("tpl.user_for_tag_row.html", "Services/Tagging");
-        //$this->disable("footer");
         $this->setEnableTitle(true);
-
-        //$this->addMultiCommand("", $lng->txt(""));
-        //$this->addCommandButton("", $lng->txt(""));
     }
-    
-    /**
-    * Fill table row
-    */
-    protected function fillRow($a_set)
-    {
-        $lng = $this->lng;
 
-        include_once("./Services/User/classes/class.ilUserUtil.php");
+    /**
+     * @inheritDoc
+     */
+    protected function fillRow(array $a_set): void
+    {
         $this->tpl->setVariable(
             "USER",
             ilUserUtil::getNamePresentation($a_set["id"], true, false, "", true)

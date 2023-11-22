@@ -30,7 +30,7 @@ trait IsMimeTypeOrExtension
         Metadata $metadata,
         string $extention,
         array $mime_types
-    ) : bool {
+    ): bool {
         // is mime type
         $mime_type = strtolower($metadata->getMimeType());
         $mime_types = array_map('strtolower', $mime_types);

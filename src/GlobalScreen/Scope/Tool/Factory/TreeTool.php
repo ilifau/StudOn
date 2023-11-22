@@ -37,24 +37,15 @@ class TreeTool extends AbstractBaseTool implements isTopItem, hasSymbol, isToolI
 {
     use \ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
 
-    /**
-     * @var \ILIAS\UI\Component\Symbol\Symbol|null
-     */
-    protected $symbol;
-    /**
-     * @var \ILIAS\UI\Component\Tree\Tree
-     */
-    protected $tree;
-    /**
-     * @var string
-     */
-    protected $title;
+    protected ?Symbol $symbol = null;
+    protected Tree $tree;
+    protected string $title;
 
     /**
      * @param string $title
      * @return TreeTool
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -65,7 +56,7 @@ class TreeTool extends AbstractBaseTool implements isTopItem, hasSymbol, isToolI
     /**
      * @return string
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -73,7 +64,7 @@ class TreeTool extends AbstractBaseTool implements isTopItem, hasSymbol, isToolI
     /**
      * @inheritDoc
      */
-    public function withSymbol(Symbol $symbol) : hasSymbol
+    public function withSymbol(Symbol $symbol): hasSymbol
     {
         // bugfix mantis 25526: make aria labels mandatory
         if (($symbol instanceof Glyph\Glyph && $symbol->getAriaLabel() === "") ||
@@ -90,7 +81,7 @@ class TreeTool extends AbstractBaseTool implements isTopItem, hasSymbol, isToolI
     /**
      * @inheritDoc
      */
-    public function withTree(Tree $tree) : self
+    public function withTree(Tree $tree): self
     {
         $clone = clone($this);
         $clone->tree = $tree;
@@ -101,7 +92,7 @@ class TreeTool extends AbstractBaseTool implements isTopItem, hasSymbol, isToolI
     /**
      * @return Tree
      */
-    public function getTree() : Tree
+    public function getTree(): Tree
     {
         return $this->tree;
     }
@@ -109,7 +100,7 @@ class TreeTool extends AbstractBaseTool implements isTopItem, hasSymbol, isToolI
     /**
      * @inheritDoc
      */
-    public function getSymbol() : Symbol
+    public function getSymbol(): Symbol
     {
         return $this->symbol;
     }
@@ -117,7 +108,7 @@ class TreeTool extends AbstractBaseTool implements isTopItem, hasSymbol, isToolI
     /**
      * @inheritDoc
      */
-    public function hasSymbol() : bool
+    public function hasSymbol(): bool
     {
         return ($this->symbol instanceof Symbol);
     }

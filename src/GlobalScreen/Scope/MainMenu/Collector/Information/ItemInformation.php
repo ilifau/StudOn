@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Collector\Information;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
@@ -35,29 +35,29 @@ interface ItemInformation
      * @param isItem $item
      * @return bool
      */
-    public function isItemActive(isItem $item) : bool;
+    public function isItemActive(isItem $item): bool;
 
     /**
      * @param isItem $item
      * @return isItem
      */
-    public function customPosition(isItem $item) : isItem;
+    public function customPosition(isItem $item): isItem;
 
     /**
      * @param hasTitle $item
      * @return hasTitle
      */
-    public function customTranslationForUser(hasTitle $item) : hasTitle;
+    public function customTranslationForUser(hasTitle $item): hasTitle;
 
     /**
      * @param isChild $item
      * @return IdentificationInterface
      */
-    public function getParent(isItem $item) : IdentificationInterface;
+    public function getParent(isItem $item): IdentificationInterface;
 
     /**
      * @param hasSymbol $item
      * @return hasSymbol
      */
-    public function customSymbol(hasSymbol $item) : hasSymbol;
+    public function customSymbol(hasSymbol $item): hasSymbol;
 }

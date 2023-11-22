@@ -24,5 +24,5 @@ interface ImplementsCreationCallback
         \ilObject $object,
         \ilObjectDefinition $obj_definition,
         int $requested_crtcb
-    ) : void;
+    ): void;
 }

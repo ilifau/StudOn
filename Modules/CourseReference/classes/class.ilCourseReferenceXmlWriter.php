@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 include_once './Services/ContainerReference/classes/class.ilContainerReferenceXmlWriter.php';
@@ -11,7 +12,6 @@ include_once './Services/ContainerReference/classes/class.ilContainerReferenceXm
  */
 class ilCourseReferenceXmlWriter extends ilContainerReferenceXmlWriter
 {
-
     /**
     * constructor
     * @param	string	xml version
@@ -28,7 +28,7 @@ class ilCourseReferenceXmlWriter extends ilContainerReferenceXmlWriter
     /**
      * Start writing xml
      */
-    public function export($a_with_header = true)
+    public function export(bool $a_with_header = true): void
     {
         if ($this->getMode() == self::MODE_EXPORT) {
             if ($a_with_header) {
@@ -53,17 +53,15 @@ class ilCourseReferenceXmlWriter extends ilContainerReferenceXmlWriter
 
     /**
      * Build xml header
-     * @global <type> $ilSetting
-     * @return <type>
+     * @return void
+     *@global <type> $ilSetting
      */
-    protected function buildHeader()
+    protected function buildHeader(): void
     {
         global $ilSetting;
 
         $this->xmlSetDtdDef("<!DOCTYPE course reference PUBLIC \"-//ILIAS//DTD Group//EN\" \"" . ILIAS_HTTP_PATH . "/xml/ilias_course_reference_4_3.dtd\">");
         $this->xmlSetGenCmt("Export of ILIAS course reference " . $this->getReference()->getId() . " of installation " . $ilSetting->get('inst_id') . ".");
         $this->xmlHeader();
-
-        return true;
     }
 }

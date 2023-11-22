@@ -1,46 +1,36 @@
 <?php
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/DataSet/classes/class.ilDataSet.php");
+declare(strict_types=1);
+/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
  * Calendar data set class.
- *
- * @author Alex Killing <alex.killing@gmx.de>
+ * @author  Alex Killing <alex.killing@gmx.de>
  * @version $Id$
  * @ingroup ingroup ServicesCalendar
  */
 class ilCalendarDataSet extends ilDataSet
 {
     /**
-     * Get supported versions
-     *
-     * @param
-     * @return
+     * @inheritDoc
      */
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return array("4.3.0");
     }
-    
+
     /**
-     * Get xml namespace
-     *
-     * @param
-     * @return
+     * @inheritDoc
      */
-    public function getXmlNamespace($a_entity, $a_schema_version)
+    protected function getXmlNamespace(string $a_entity, string $a_schema_version): string
     {
         return "http://www.ilias.de/xml/Services/Calendar/" . $a_entity;
     }
-    
+
     /**
-     * Get field types for entity
-     *
-     * @param
-     * @return
+     * @inheritDoc
      */
-    protected function getTypes($a_entity, $a_version)
+    protected function getTypes(string $a_entity, string $a_version): array
     {
         // calendar
         if ($a_entity == "calendar") {
@@ -55,7 +45,7 @@ class ilCalendarDataSet extends ilDataSet
                     );
             }
         }
-        
+
         // calendar entry
         if ($a_entity == "cal_entry") {
             switch ($a_version) {
@@ -79,7 +69,7 @@ class ilCalendarDataSet extends ilDataSet
                     );
             }
         }
-        
+
         // calendar/entry assignment
         if ($a_entity == "cal_assignment") {
             switch ($a_version) {
@@ -90,7 +80,7 @@ class ilCalendarDataSet extends ilDataSet
                     );
             }
         }
-        
+
         // recurrence rule
         if ($a_entity == "recurrence_rule") {
             switch ($a_version) {
@@ -113,15 +103,13 @@ class ilCalendarDataSet extends ilDataSet
                     );
             }
         }
+        return [];
     }
 
     /**
-     * Read data
-     *
-     * @param
-     * @return
+     * @inheritDoc
      */
-    public function readData($a_entity, $a_version, $a_ids, $a_field = "")
+    public function readData(string $a_entity, string $a_version, array $a_ids): void
     {
         global $DIC;
 
@@ -138,11 +126,11 @@ class ilCalendarDataSet extends ilDataSet
                     $this->getDirectDataFromQuery("SELECT cat_id, obj_id, title, color, type " .
                         " FROM cal_categories " .
                         " WHERE " .
-                        $ilDB->in("cat_id", $a_ids, false, "integer"));
+                        $this->db->in("cat_id", $a_ids, false, "integer"));
                     break;
             }
         }
-        
+
         // cal assignments
         if ($a_entity == "cal_assignment") {
             switch ($a_version) {
@@ -150,11 +138,11 @@ class ilCalendarDataSet extends ilDataSet
                     $this->getDirectDataFromQuery("SELECT cat_id, cal_id entry_id " .
                         " FROM cal_cat_assignments " .
                         " WHERE " .
-                        $ilDB->in("cat_id", $a_ids, false, "integer"));
+                        $this->db->in("cat_id", $a_ids, false, "integer"));
                     break;
             }
         }
-        
+
         // cal entries
         if ($a_entity == "cal_entry") {
             switch ($a_version) {
@@ -163,12 +151,11 @@ class ilCalendarDataSet extends ilDataSet
                         " starta, enda, informations, auto_generated, context_id, translation_type, is_milestone, completion, notification " .
                         " FROM cal_entries " .
                         " WHERE " .
-                        $ilDB->in("cal_id", $a_ids, false, "integer"));
+                        $this->db->in("cal_id", $a_ids, false, "integer"));
                     break;
             }
         }
 
-        
         // recurrence_rule
         if ($a_entity == "recurrence_rule") {
             switch ($a_version) {
@@ -177,67 +164,69 @@ class ilCalendarDataSet extends ilDataSet
                         " intervall, byday, byweekno, bymonth, bymonthday, byyearday, bysetpos, weekstart " .
                         " FROM cal_recurrence_rules " .
                         " WHERE " .
-                        $ilDB->in("cal_id", $a_ids, false, "integer"));
+                        $this->db->in("cal_id", $a_ids, false, "integer"));
                     break;
             }
         }
     }
-    
+
     /**
-     * Determine the dependent sets of data
+     * @inheritDoc
      */
-    protected function getDependencies($a_entity, $a_version, $a_rec, $a_ids)
-    {
+    protected function getDependencies(
+        string $a_entity,
+        string $a_version,
+        ?array $a_rec = null,
+        ?array $a_ids = null
+    ): array {
         switch ($a_entity) {
             case "calendar":
-                include_once("./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php");
-                $assignmnts = ilCalendarCategoryAssignments::_getAssignedAppointments(array($a_rec["CatId"]));
+                $assignmnts = ilCalendarCategoryAssignments::_getAssignedAppointments(array($a_rec["CatId"] ?? []));
                 $entries = array();
                 foreach ($assignmnts as $cal_id) {
                     $entries[$cal_id] = $cal_id;
                 }
                 return array(
                     "cal_entry" => array("ids" => $entries),
-                    "cal_assignment" => array("ids" => $a_rec["CatId"])
+                    "cal_assignment" => array("ids" => $a_rec["CatId"] ?? null)
                 );
             case "cal_entry":
                 return array(
-                    "recurrence_rule" => array("ids" => $a_rec["Id"])
+                    "recurrence_rule" => array("ids" => $a_rec["Id"] ?? null)
                 );
         }
 
-        return false;
+        return [];
     }
 
     /**
-     * Import record
-     *
-     * @param
-     * @return
+     * @inheritDoc
      */
-    public function importRecord($a_entity, $a_types, $a_rec, $a_mapping, $a_schema_version)
-    {
+    public function importRecord(
+        string $a_entity,
+        array $a_types,
+        array $a_rec,
+        ilImportMapping $a_mapping,
+        string $a_schema_version
+    ): void {
         switch ($a_entity) {
             case "calendar":
                 // please note: we currently only support private user calendars to
                 // be imported
-                if ($a_rec["Type"] == 1) {
-                    $usr_id = $a_mapping->getMapping("Services/User", "usr", $a_rec["ObjId"]);
+                if (($a_rec["Type"] ?? 0) == 1) {
+                    $usr_id = (int) $a_mapping->getMapping("Services/User", "usr", $a_rec["ObjId"]);
                     if ($usr_id > 0 && ilObject::_lookupType($usr_id) == "usr") {
-                        include_once('./Services/Calendar/classes/class.ilCalendarCategory.php');
                         $category = new ilCalendarCategory(0);
-                        // fau: fixPdImportXss - apply secureString
-                        $category->setTitle(ilUtil::secureString($a_rec["Title"]));
-                        $category->setColor(ilUtil::secureString($a_rec["Color"]));
-                        // fau.
-                        $category->setType(ilCalendarCategory::TYPE_USR);
-                        $category->setObjId($usr_id);
+                        $category->setTitle((string) $a_rec["Title"]);
+                        $category->setColor((string) $a_rec["Color"]);
+                        $category->setType((int) ilCalendarCategory::TYPE_USR);
+                        $category->setObjId((int) $usr_id);
                         $category->add();
                         $a_mapping->addMapping(
                             "Services/Calendar",
                             "calendar",
                             $a_rec["CatId"],
-                            $category->getCategoryID()
+                            (string) $category->getCategoryID()
                         );
                     }
                 }
@@ -246,77 +235,70 @@ class ilCalendarDataSet extends ilDataSet
             case "cal_entry":
                 // please note: we currently only support private user calendars to
                 // be imported
-                if ((int) $a_rec["ContextId"] == 0) {
-                    include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+                if ((int) ($a_rec["ContextId"] ?? 0) == 0) {
                     $entry = new ilCalendarEntry(0);
-                    // fau: fixPdImportXss - apply secureString
-                    $entry->setTitle(ilUtil::secureString($a_rec["Title"]));
-                    $entry->setSubtitle(ilUtil::secureString($a_rec["Subtitle"]));
-                    $entry->setDescription(ilUtil::secureString($a_rec["Description"]));
-                    $entry->setLocation(ilUtil::secureString($a_rec["Location"]));
-                    $entry->setFullday(ilUtil::secureString($a_rec["Fullday"]));
+                    $entry->setTitle((string) $a_rec["Title"]);
+                    $entry->setSubtitle((string) $a_rec["Subtitle"]);
+                    $entry->setDescription((string) $a_rec["Description"]);
+                    $entry->setLocation((string) $a_rec["Location"]);
+                    $entry->setFullday((bool) $a_rec["Fullday"]);
                     if ($a_rec["Starta"] != "") {
-                        $entry->setStart(new ilDateTime(ilUtil::stripSlashes($a_rec["Starta"]), IL_CAL_DATETIME, 'UTC'));
+                        $entry->setStart(new ilDateTime($a_rec["Starta"], IL_CAL_DATETIME, 'UTC'));
                     }
-                    if ($a_rec["Enda"] != "") {
-                        $entry->setEnd(new ilDateTime(ilUtil::stripSlashes($a_rec["Enda"]), IL_CAL_DATETIME, 'UTC'));
+                    if (($a_rec["Enda"] ?? '') != "") {
+                        $entry->setEnd(new ilDateTime($a_rec["Enda"], IL_CAL_DATETIME, 'UTC'));
                     }
-                    $entry->setFurtherInformations(ilUtil::stripSlashes($a_rec["Informations"]));
-                    $entry->setAutoGenerated(ilUtil::stripSlashes($a_rec["AutoGenerated"]));
-                    $entry->setContextId(ilUtil::stripSlashes($a_rec["ContextId"]));
-                    $entry->setMilestone(ilUtil::stripSlashes($a_rec["Milestone"]));
-                    $entry->setCompletion(ilUtil::stripSlashes($a_rec["Completion"]));
-                    $entry->setTranslationType(ilUtil::stripSlashes($a_rec["TranslationType"]));
-                    $entry->enableNotification(ilUtil::stripSlashes($a_rec["Notification"]));
-                    // fau.
+                    $entry->setFurtherInformations((string) ($a_rec["Informations"] ?? ''));
+                    $entry->setAutoGenerated((bool) ($a_rec["AutoGenerated"] ?? false));
+                    $entry->setContextId((int) ($a_rec["ContextId"] ?? 0));
+                    $entry->setMilestone((bool) ($a_rec["Milestone"] ?? false));
+                    $entry->setCompletion((int) ($a_rec["Completion"] ?? 0));
+                    $entry->setTranslationType((int) ($a_rec["TranslationType"] ?? 0));
+                    $entry->enableNotification((bool) ($a_rec["Notification"] ?? false));
                     $entry->save();
                     $a_mapping->addMapping(
                         "Services/Calendar",
                         "cal_entry",
                         $a_rec["Id"],
-                        $entry->getEntryId()
+                        (string) $entry->getEntryId()
                     );
                 }
                 break;
-                
+
             case "cal_assignment":
-                $cat_id = $a_mapping->getMapping("Services/Calendar", "calendar", $a_rec["CatId"]);
-                $entry_id = $a_mapping->getMapping("Services/Calendar", "cal_entry", $a_rec["EntryId"]);
+                $cat_id = (int) $a_mapping->getMapping("Services/Calendar", "calendar", $a_rec["CatId"]);
+                $entry_id = (int) $a_mapping->getMapping("Services/Calendar", "cal_entry", $a_rec["EntryId"]);
                 if ($cat_id > 0 && $entry_id > 0) {
-                    include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
                     $ass = new ilCalendarCategoryAssignments($entry_id);
                     $ass->addAssignment($cat_id);
                 }
                 break;
-                
+
             case "recurrence_rule":
                 $entry_id = $a_mapping->getMapping("Services/Calendar", "cal_entry", $a_rec["EntryId"]);
                 if ($entry_id > 0) {
-                    include_once('./Services/Calendar/classes/class.ilCalendarRecurrence.php');
                     $rec = new ilCalendarRecurrence();
-                    $rec->setEntryId($entry_id);
-                    // fau: fixPdImportXss - apply secureString
-                    $rec->setRecurrence(ilUtil::secureString($a_rec["CalRecurrence"]));
-                    $rec->setFrequenceType(ilUtil::secureString($a_rec["FreqType"]));
+                    $rec->setEntryId((int) $entry_id);
+                    $rec->setRecurrence((int) $a_rec["CalRecurrence"]);
+                    $rec->setFrequenceType((string) $a_rec["FreqType"]);
                     if ($a_rec["FreqUntilDate"] != "") {
-                        $rec->setFrequenceUntilDate(new ilDateTime(ilUtil::stripSlashes($a_rec["FreqUntilDate"], IL_CAL_DATETIME)));
+                        $rec->setFrequenceUntilDate(new ilDateTime((string) $a_rec["FreqUntilDate"], IL_CAL_DATETIME));
                     }
-                    $rec->setFrequenceUntilCount(ilUtil::secureString($a_rec["FreqUntilCount"]));
-                    $rec->setInterval(ilUtil::secureString($a_rec["Interval"]));
-                    $rec->setBYDAY(ilUtil::secureString($a_rec["Byday"]));
-                    $rec->setBYWEEKNO(ilUtil::secureString($a_rec["Byweekno"]));
-                    $rec->setBYMONTH(ilUtil::secureString($a_rec["Bymonth"]));
-                    $rec->setBYMONTHDAY(ilUtil::secureString($a_rec["Bymonthday"]));
-                    $rec->setBYYEARDAY(ilUtil::secureString($a_rec["Byyearday"]));
-                    $rec->setBYSETPOS(ilUtil::secureString($a_rec["Bysetpos"]));
-                    $rec->setWeekstart(ilUtil::secureString($a_rec["Weekstart"]));
-                    // fau.
+                    $rec->setFrequenceUntilCount((int) $a_rec["FreqUntilCount"]);
+                    $rec->setInterval((int) ($a_rec["Interval"] ?? 0));
+                    $rec->setBYDAY((string) ($a_rec["Byday"] ?? ''));
+                    $rec->setBYWEEKNO((string) ($a_rec["Byweekno"] ?? ''));
+                    $rec->setBYMONTH((string) ($a_rec["Bymonth"] ?? ''));
+                    $rec->setBYMONTHDAY((string) ($a_rec["Bymonthday"] ?? ''));
+                    $rec->setBYYEARDAY((string) ($a_rec["Byyearday"] ?? ''));
+                    $rec->setBYSETPOS((string) ($a_rec["Bysetpos"] ?? ''));
+                    $rec->setWeekstart((string) ($a_rec["Weekstart"] ?? ''));
                     $rec->save();
                     $a_mapping->addMapping(
                         "Services/Calendar",
                         "recurrence_rule",
                         $a_rec["RuleId"],
-                        $rec->getRecurrenceId()
+                        (string) $rec->getRecurrenceId()
                     );
                 }
                 break;

@@ -1,6 +1,21 @@
 <?php
 
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 
 /**
  * Update skill from Services/Tracking events
@@ -10,21 +25,21 @@
 class ilSkillAppEventListener implements ilAppEventListener
 {
     /**
-    * Handle an event in a listener.
-    *
-    * @param	string	$a_component	component, e.g. "Modules/Forum" or "Services/User"
-    * @param	string	$a_event		event e.g. "createUser", "updateUser", "deleteUser", ...
-    * @param	array	$a_parameter	parameter array (assoc), array("name" => ..., "phone_office" => ...)
-    */
-    public static function handleEvent($a_component, $a_event, $a_params)
+     * @inheritDoc
+     */
+    public static function handleEvent(string $a_component, string $a_event, array $a_parameter): void
     {
+        global $DIC;
+
+        $profile_completion_manager = $DIC->skills()->internal()->manager()->getProfileCompletionManager();
+
         switch ($a_component) {
             case 'Services/Tracking':
                 switch ($a_event) {
                     case 'updateStatus':
-                        if ($a_params["status"] == ilLPStatus::LP_STATUS_COMPLETED_NUM) {
-                            $obj_id = $a_params["obj_id"];
-                            $usr_id = $a_params["usr_id"];
+                        if ($a_parameter["status"] == ilLPStatus::LP_STATUS_COMPLETED_NUM) {
+                            $obj_id = $a_parameter["obj_id"];
+                            $usr_id = $a_parameter["usr_id"];
                             foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
                                 foreach (ilSkillResources::getTriggerLevelsForRefId($ref_id) as $sk) {
                                     ilBasicSkill::writeUserSkillLevelStatus(
@@ -41,6 +56,8 @@ class ilSkillAppEventListener implements ilAppEventListener
                                     }
                                 }
                             }
+                            //write profile completion entries if fulfilment status has changed
+                            $profile_completion_manager->writeCompletionEntryForAllProfiles($usr_id);
                         }
                         break;
                 }
@@ -49,14 +66,12 @@ class ilSkillAppEventListener implements ilAppEventListener
             case "Services/Object":
                 switch ($a_event) {
                     case "beforeDeletion":
-                        $handler = new ilSkillObjDeletionHandler($a_params["object"]->getId(), $a_params["object"]->getType());
+                        $handler = new ilSkillObjDeletionHandler($a_parameter["object"]->getId(), $a_parameter["object"]->getType());
                         $handler->processDeletion();
                         break;
                 }
                 break;
 
         }
-        
-        return true;
     }
 }

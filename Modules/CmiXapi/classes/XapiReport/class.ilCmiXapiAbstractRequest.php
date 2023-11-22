@@ -1,7 +1,22 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilCmiXapiAbstractRequest
@@ -14,30 +29,18 @@
  */
 abstract class ilCmiXapiAbstractRequest
 {
-    /**
-     * @var string
-     */
-    private $basicAuth;
-    
-    /**
-     * @var boolean
-     */
-    public static $plugin = false;
+    private string $basicAuth;
+    public static bool $plugin = false;
 
     /**
      * ilCmiXapiAbstractRequest constructor.
-     * @param string $basicAuth
      */
     public function __construct(string $basicAuth)
     {
         $this->basicAuth = $basicAuth;
     }
-    
-    /**
-     * @param string $url
-     * @return string
-     */
-    protected function sendRequest($url)
+
+    protected function sendRequest(string $url): string
     {
         $client = new GuzzleHttp\Client();
         $req_opts = array(
@@ -59,19 +62,20 @@ abstract class ilCmiXapiAbstractRequest
             return $body;
         } catch (Exception $e) {
             ilObjCmiXapi::log()->error($e->getMessage());
-            throw new Exception("LRS Connection Problems");
+            throw new Exception("LRS Connection Problems", $e->getCode(), $e);
         }
     }
 
-    public static function checkResponse($response, &$body, $allowedStatus = [200, 204])
+    //todo body?
+    public static function checkResponse(array $response, &$body, array $allowedStatus = [200, 204]): bool
     {
         if ($response['state'] == 'fulfilled') {
             $status = $response['value']->getStatusCode();
             if (in_array($status, $allowedStatus)) {
-                $body = $response['value']->getBody();
+                $body = $response['value']->getBody()->getContents();
                 return true;
             } else {
-                ilObjCmiXapi::log()->error("LRS error: " . $response['value']->getBody());
+                ilObjCmiXapi::log()->error("LRS error: " . $response['value']->getBody()->getContents());
                 return false;
             }
         } else {
@@ -84,16 +88,15 @@ abstract class ilCmiXapiAbstractRequest
         }
     }
 
-    public static function buildQuery(array $params, $encoding = PHP_QUERY_RFC3986)
+    //todo
+    public static function buildQuery(array $params, $encoding = PHP_QUERY_RFC3986): string
     {
-        if (!$params) {
+        if ($params === []) {
             return '';
         }
 
         if ($encoding === false) {
-            $encoder = function ($str) {
-                return $str;
-            };
+            $encoder = fn ($str) => $str;
         } elseif ($encoding === PHP_QUERY_RFC3986) {
             $encoder = 'rawurlencode';
         } elseif ($encoding === PHP_QUERY_RFC1738) {

@@ -1,27 +1,37 @@
 <?php
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-require_once "./Services/Object/classes/class.ilObject2.php";
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Taxonomy
- *
- * @author Alex Killing <alex.killing@gmx.de>
- * $Id$
- *
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilObjTaxonomy extends ilObject2
 {
-    const SORT_ALPHABETICAL = 0;
-    const SORT_MANUAL = 1;
-    protected $node_mapping = array();
-    protected $item_sorting = false;
-    
+    public const SORT_ALPHABETICAL = 0;
+    public const SORT_MANUAL = 1;
+
+    protected array $node_mapping = array();
+    protected bool $item_sorting = false;
+    protected int $sorting_mode = self::SORT_ALPHABETICAL;
+
     /**
-     * Constructor
-     *
-     * @param	integer	object id
+     * ilObjTaxonomy constructor.
+     * @param int $a_id
      */
     public function __construct($a_id = 0)
     {
@@ -32,171 +42,109 @@ class ilObjTaxonomy extends ilObject2
         parent::__construct($a_id, false);
     }
 
-    /**
-     * Init type
-     *
-     * @param
-     * @return
-     */
-    public function initType()
+    protected function initType(): void
     {
         $this->type = "tax";
     }
-    
-    /**
-     * Set sorting mode
-     *
-     * @param int $a_val sorting mode
-     */
-    public function setSortingMode($a_val)
+
+    public function setSortingMode(int $a_val): void
     {
         $this->sorting_mode = $a_val;
     }
-    
-    /**
-     * Get sorting mode
-     *
-     * @return int sorting mode
-     */
-    public function getSortingMode()
+
+    public function getSortingMode(): int
     {
         return $this->sorting_mode;
     }
-    
-    /**
-     * Set item sorting
-     *
-     * @param bool $a_val item sorting
-     */
-    public function setItemSorting($a_val)
+
+    public function setItemSorting(bool $a_val): void
     {
         $this->item_sorting = $a_val;
     }
-    
-    /**
-     * Get item sorting
-     *
-     * @return bool item sorting
-     */
-    public function getItemSorting()
+
+    public function getItemSorting(): bool
     {
         return $this->item_sorting;
     }
-    
-    /**
-     * Get tree
-     *
-     * @param
-     * @return
-     */
-    public function getTree()
+
+    public function getTree(): ?ilTaxonomyTree
     {
         if ($this->getId() > 0) {
-            include_once("./Services/Taxonomy/classes/class.ilTaxonomyTree.php");
-            $tax_tree = new ilTaxonomyTree($this->getId());
-            return $tax_tree;
+            return new ilTaxonomyTree($this->getId());
         }
-        return false;
+        return null;
     }
-    
-    /**
-     * Get node mapping (used after cloning)
-     *
-     * @param
-     * @return
-     */
-    public function getNodeMapping()
+
+    // node mapping is used during cloning
+    public function getNodeMapping(): array
     {
         return $this->node_mapping;
     }
-    
-    
-    /**
-     * Create a new taxonomy
-     */
-    public function doCreate()
+
+    protected function doCreate(bool $clone_mode = false): void
     {
         $ilDB = $this->db;
-        
+
         // create tax data record
         $ilDB->manipulate("INSERT INTO tax_data " .
             "(id, sorting_mode, item_sorting) VALUES (" .
             $ilDB->quote($this->getId(), "integer") . "," .
-            $ilDB->quote((int) $this->getSortingMode(), "integer") . "," .
+            $ilDB->quote($this->getSortingMode(), "integer") . "," .
             $ilDB->quote((int) $this->getItemSorting(), "integer") .
             ")");
-        
-        // create the taxonomy tree
-        include_once("./Services/Taxonomy/classes/class.ilTaxonomyNode.php");
         $node = new ilTaxonomyNode();
-        $node->setType("");	// empty type
+        $node->setType("");    // empty type
         $node->setTitle("Root node for taxonomy " . $this->getId());
         $node->setTaxonomyId($this->getId());
         $node->create();
-        include_once("./Services/Taxonomy/classes/class.ilTaxonomyTree.php");
         $tax_tree = new ilTaxonomyTree($this->getId());
         $tax_tree->addTree($this->getId(), $node->getId());
     }
-    
-    /**
-     * clone taxonomy sheet (note: taxonomies have no ref ids and return an object id)
-     *
-     * @access	public
-     * @return	integer		new obj id
-     */
-    public function doCloneObject($a_new_obj, $a_target_id, $a_copy_id = null)
+
+    protected function doCloneObject(ilObject2 $new_obj, int $a_target_id, ?int $a_copy_id = null): void
     {
-        $a_new_obj->setTitle($this->getTitle());
-        $a_new_obj->setDescription($this->getDescription());
-        $a_new_obj->setSortingMode($this->getSortingMode());
+        assert($new_obj instanceof ilObjTaxonomy);
+        $new_obj->setTitle($this->getTitle());
+        $new_obj->setDescription($this->getDescription());
+        $new_obj->setSortingMode($this->getSortingMode());
 
         $this->node_mapping = array();
-        
+
         $this->cloneNodes(
-            $a_new_obj,
-            $a_new_obj->getTree()->readRootId(),
+            $new_obj,
+            $new_obj->getTree()->readRootId(),
             $this->getTree()->readRootId()
         );
     }
 
-    /**
-     * Clone nodes
-     *
-     * @param
-     * @return
-     */
-    public function cloneNodes($a_new_obj, $a_target_parent, $a_source_parent)
-    {
-        include_once("./Services/Taxonomy/classes/class.ilTaxonomyNode.php");
-        
+    // clone nodes of taxonomy
+    public function cloneNodes(
+        ilObjTaxonomy $a_new_obj,
+        int $a_target_parent,
+        int $a_source_parent
+    ): void {
         // get all childs
         $nodes = $this->getTree()->getChilds($a_source_parent);
         foreach ($nodes as $node) {
-            switch ($node["type"]) {
-                case "taxn":
-                    $tax_node = new ilTaxonomyNode($node["child"]);
-                    $new_node = $tax_node->copy($a_new_obj->getId());
-                    break;
+            if ($node["type"] === "taxn") {
+                $tax_node = new ilTaxonomyNode($node["child"]);
+                $new_node = $tax_node->copy($a_new_obj->getId());
+
+                ilTaxonomyNode::putInTree(
+                    $a_new_obj->getId(),
+                    $new_node,
+                    $a_target_parent
+                );
+
+                $this->node_mapping[$node["child"]] = $new_node->getId();
+
+                // handle childs
+                $this->cloneNodes($a_new_obj, $new_node->getId(), $node["child"]);
             }
-
-            ilTaxonomyNode::putInTree(
-                $a_new_obj->getId(),
-                $new_node,
-                $a_target_parent
-            );
-            
-            $this->node_mapping[$node["child"]] = $new_node->getId();
-
-            // handle childs
-            $this->cloneNodes($a_new_obj, $new_node->getId(), $node["child"]);
         }
     }
-    
 
-    /**
-     * Delete taxonomy object
-     */
-    public function doDelete()
+    protected function doDelete(): void
     {
         $ilDB = $this->db;
 
@@ -207,19 +155,16 @@ class ilObjTaxonomy extends ilObject2
         $tree = $this->getTree();
         $subtree = $tree->getSubTreeIds($tree->readRootId());
         $subtree[] = $tree->readRootId();
-        
+
         // get root node data (important: must happen before we
         // delete the nodes
         $root_node_data = $tree->getNodeData($tree->readRootId());
-        
-        // delete all nodes
-        include_once("./Services/Taxonomy/classes/class.ilTaxonomyNode.php");
         foreach ($subtree as $node_id) {
             // delete node (this also deletes its assignments)
             $node = new ilTaxonomyNode($node_id);
             $node->delete();
         }
-        
+
         // delete the tree
         $tree->deleteTree($root_node_data);
 
@@ -230,61 +175,41 @@ class ilObjTaxonomy extends ilObject2
         );
     }
 
-
-    /**
-     * Read taxonomy properties
-     */
-    public function doRead()
+    protected function doRead(): void
     {
         $ilDB = $this->db;
-        
+
         $set = $ilDB->query(
             "SELECT * FROM tax_data " .
             " WHERE id = " . $ilDB->quote($this->getId(), "integer")
         );
         $rec = $ilDB->fetchAssoc($set);
-        $this->setSortingMode($rec["sorting_mode"]);
-        $this->setItemSorting($rec["item_sorting"]);
+        $this->setSortingMode((int) $rec["sorting_mode"]);
+        $this->setItemSorting((bool) $rec["item_sorting"]);
     }
 
-    /**
-     * Upate taxonomy properties
-     */
-    public function doUpdate()
+    protected function doUpdate(): void
     {
         $ilDB = $this->db;
-        
+
         $ilDB->manipulate(
             $t = "UPDATE tax_data SET " .
-            " sorting_mode = " . $ilDB->quote((int) $this->getSortingMode(), "integer") . ", " .
-            " item_sorting = " . $ilDB->quote((int) $this->getItemSorting(), "integer") .
-            " WHERE id = " . $ilDB->quote($this->getId(), "integer")
+                " sorting_mode = " . $ilDB->quote($this->getSortingMode(), "integer") . ", " .
+                " item_sorting = " . $ilDB->quote((int) $this->getItemSorting(), "integer") .
+                " WHERE id = " . $ilDB->quote($this->getId(), "integer")
         );
     }
-    
-    /**
-     * Load language module
-     *
-     * @param
-     * @return
-     */
-    public static function loadLanguageModule()
+
+    public static function loadLanguageModule(): void
     {
         global $DIC;
 
         $lng = $DIC->language();
-        
+
         $lng->loadLanguageModule("tax");
     }
-    
-    
-    /**
-     * Save Usage
-     *
-     * @param
-     * @return
-     */
-    public static function saveUsage($a_tax_id, $a_obj_id)
+
+    public static function saveUsage(int $a_tax_id, int $a_obj_id): void
     {
         global $DIC;
 
@@ -294,25 +219,24 @@ class ilObjTaxonomy extends ilObject2
             $ilDB->replace(
                 "tax_usage",
                 array("tax_id" => array("integer", $a_tax_id),
-                    "obj_id" => array("integer", $a_obj_id)
-                    ),
+                      "obj_id" => array("integer", $a_obj_id)
+                ),
                 array()
             );
         }
     }
-    
+
     /**
-     * Get usage of object
-     *
-     * @param int $a_obj_id object id
-     * @return array array of taxonomies
+     * @param int  $a_obj_id         object id
+     * @param bool $a_include_titles include titles in array
+     * @return array array of tax IDs or array of arrays with keys tax_id, title
      */
-    public static function getUsageOfObject($a_obj_id, $a_include_titles = false)
+    public static function getUsageOfObject(int $a_obj_id, bool $a_include_titles = false): array
     {
         global $DIC;
 
         $ilDB = $DIC->database();
-        
+
         $set = $ilDB->query(
             "SELECT tax_id FROM tax_usage " .
             " WHERE obj_id = " . $ilDB->quote($a_obj_id, "integer")
@@ -320,63 +244,58 @@ class ilObjTaxonomy extends ilObject2
         $tax = array();
         while ($rec = $ilDB->fetchAssoc($set)) {
             if (!$a_include_titles) {
-                $tax[] = $rec["tax_id"];
+                $tax[] = (int) $rec["tax_id"];
             } else {
-                $tax[] = array("tax_id" => $rec["tax_id"],
-                    "title" => ilObject::_lookupTitle($rec["tax_id"])
-                    );
+                $tax[] = array("tax_id" => (int) $rec["tax_id"],
+                               "title" => ilObject::_lookupTitle((int) $rec["tax_id"])
+                );
             }
         }
         return $tax;
     }
-    
-    /**
-     * Delete all usages of a taxonomy
-     *
-     * @param
-     * @return
-     */
-    public static function deleteUsagesOfTaxonomy($a_id)
+
+    // Delete all usages of a taxonomy
+    public static function deleteUsagesOfTaxonomy(int $a_id): void
     {
         global $DIC;
 
         $ilDB = $DIC->database();
-        
+
         $ilDB->manipulate(
             "DELETE FROM tax_usage WHERE " .
             " tax_id = " . $ilDB->quote($a_id, "integer")
         );
     }
-    
-    
+
     /**
      * Get all assigned items under a node
-     *
-     * @param
-     * @return
+     * @param string $a_comp
+     * @param int    $a_obj_id
+     * @param string $a_item_type
+     * @param int    $a_tax_id
+     * @param        $a_node
+     * @return array
+     * @throws ilTaxonomyException
      */
-    public static function getSubTreeItems($a_comp, $a_obj_id, $a_item_type, $a_tax_id, $a_node)
-    {
-        include_once("./Services/Taxonomy/classes/class.ilTaxonomyTree.php");
+    public static function getSubTreeItems(
+        string $a_comp,
+        int $a_obj_id,
+        string $a_item_type,
+        int $a_tax_id,
+        $a_node
+    ): array {
         $tree = new ilTaxonomyTree($a_tax_id);
 
         $sub_nodes = $tree->getSubTreeIds($a_node);
         $sub_nodes[] = $a_node;
-        include_once("./Services/Taxonomy/classes/class.ilTaxNodeAssignment.php");
-        
+
         $tn_ass = new ilTaxNodeAssignment($a_comp, $a_obj_id, $a_item_type, $a_tax_id);
-        $items = $tn_ass->getAssignmentsOfNode($sub_nodes);
-        
-        return $items;
+
+        return $tn_ass->getAssignmentsOfNode($sub_nodes);
     }
-    
-    /**
-     * Lookup
-     *
-     * @param
-     * @return
-     */
-    protected static function lookup($a_field, $a_id)
+
+    // lookup property in tax_data record
+    protected static function lookup(string $a_field, int $a_id): string
     {
         global $DIC;
 
@@ -390,15 +309,9 @@ class ilObjTaxonomy extends ilObject2
 
         return $rec[$a_field];
     }
-    
-    /**
-     * Lookup sorting mode
-     *
-     * @param int $a_id taxonomy id
-     * @return int sorting mode
-     */
-    public static function lookupSortingMode($a_id)
+
+    public static function lookupSortingMode(int $a_id): int
     {
-        return self::lookup("sorting_mode", $a_id);
+        return (int) self::lookup("sorting_mode", $a_id);
     }
 }

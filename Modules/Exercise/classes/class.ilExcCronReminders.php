@@ -1,24 +1,31 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Cron for exercise reminders
  *
  * @author Jesús López <lopez@leifos.com>
- * @ingroup ModulesExercise
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilExcCronReminders extends ilCronJob
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected ilLanguage $lng;
 
-
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         global $DIC;
@@ -26,12 +33,12 @@ class ilExcCronReminders extends ilCronJob
         $this->lng = $DIC->language();
     }
 
-    public function getId()
+    public function getId(): string
     {
         return "exc_reminders";
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         $lng = $this->lng;
 
@@ -40,7 +47,7 @@ class ilExcCronReminders extends ilCronJob
         return $lng->txt("exc_reminders_cron");
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         $lng = $this->lng;
 
@@ -49,27 +56,30 @@ class ilExcCronReminders extends ilCronJob
         return $lng->txt("exc_reminders_cron_info");
     }
 
-    public function getDefaultScheduleType()
+    public function getDefaultScheduleType(): int
     {
         return self::SCHEDULE_TYPE_DAILY;
     }
 
-    public function getDefaultScheduleValue()
+    public function getDefaultScheduleValue(): ?int
     {
-        return;
+        return null;
     }
 
-    public function hasAutoActivation()
-    {
-        return true;
-    }
-
-    public function hasFlexibleSchedule()
+    public function hasAutoActivation(): bool
     {
         return true;
     }
 
-    public function run()
+    public function hasFlexibleSchedule(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @throws ilExcUnknownAssignmentTypeException
+     */
+    public function run(): ilCronJobResult
     {
         $log = ilLoggerFactory::getLogger("exc");
         $log->debug("--- Start Exercise Reminders Cron");
@@ -81,7 +91,7 @@ class ilExcCronReminders extends ilCronJob
 
         $this->lng->loadLanguageModule("exc");
 
-        if ($num_reminders) {
+        if ($num_reminders !== 0) {
             $cron_status = ilCronJobResult::STATUS_OK;
             $message = $this->lng->txt('exc_reminder_cron_ok');
         }
@@ -90,8 +100,7 @@ class ilExcCronReminders extends ilCronJob
         $cron_result->setStatus($cron_status);
 
         if ($message != "") {
-            $cron_result->setMessage($message . " " . $num_reminders);
-            $cron_result->setCode("#" . $num_reminders);
+            $cron_result->setMessage($message . " " . $num_reminders . ' / ' . "#" . $num_reminders);
         }
 
         return $cron_result;

@@ -22,7 +22,7 @@
  */
 class ilMediaCastNewsRendererGUI extends ilNewsDefaultRendererGUI
 {
-    public function preventEditing() : bool
+    public function preventEditing(): bool
     {
         return true;
     }

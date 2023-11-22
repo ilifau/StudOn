@@ -33,18 +33,9 @@ class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbo
 {
     use SymbolDecoratorTrait;
 
-    /**
-     * @var \ILIAS\UI\Component\Symbol\Symbol|null
-     */
-    protected $symbol;
-    /**
-     * @var string
-     */
-    protected $title = "";
-    /**
-     * @var string
-     */
-    protected $action = "";
+    protected ?Symbol $symbol = null;
+    protected string $title = "";
+    protected string $action = "";
 
     /**
      * @inheritDoc
@@ -55,7 +46,7 @@ class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbo
         $this->renderer = new TopLinkItemRenderer();
     }
 
-    public function withAction(string $action) : self
+    public function withAction(string $action): self
     {
         $clone = clone($this);
         $clone->action = $action;
@@ -66,7 +57,7 @@ class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbo
     /**
      * @return string
      */
-    public function getAction() : string
+    public function getAction(): string
     {
         return $this->action;
     }
@@ -74,7 +65,7 @@ class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbo
     /**
      * @inheritDoc
      */
-    public function withSymbol(Symbol $symbol) : hasSymbol
+    public function withSymbol(Symbol $symbol): hasSymbol
     {
         $clone = clone($this);
         $clone->symbol = $symbol;
@@ -85,7 +76,7 @@ class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbo
     /**
      * @inheritDoc
      */
-    public function getSymbol() : Symbol
+    public function getSymbol(): Symbol
     {
         return $this->symbol;
     }
@@ -93,7 +84,7 @@ class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbo
     /**
      * @inheritDoc
      */
-    public function hasSymbol() : bool
+    public function hasSymbol(): bool
     {
         return ($this->symbol instanceof Symbol);
     }
@@ -101,7 +92,7 @@ class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbo
     /**
      * @inheritDoc
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -112,7 +103,7 @@ class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbo
     /**
      * @inheritDoc
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }

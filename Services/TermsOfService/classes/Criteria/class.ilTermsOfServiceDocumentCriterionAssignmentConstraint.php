@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\Data\Factory;
 use ILIAS\Refinery\Custom\Constraint;
@@ -10,19 +27,9 @@ use ILIAS\Refinery\Custom\Constraint;
  */
 class ilTermsOfServiceDocumentCriterionAssignmentConstraint extends Constraint
 {
-    /** @var ilTermsOfServiceCriterionTypeFactoryInterface */
-    protected $criterionTypeFactory;
+    protected ilTermsOfServiceCriterionTypeFactoryInterface $criterionTypeFactory;
+    protected ilTermsOfServiceDocument $document;
 
-    /** @var ilTermsOfServiceDocument */
-    protected $document;
-
-    /**
-     * ilTermsOfServiceDocumentCriterionAssignmentConstraint constructor.
-     * @param ilTermsOfServiceCriterionTypeFactoryInterface $criterionTypeFactory
-     * @param ilTermsOfServiceDocument                      $document
-     * @param Factory                                       $dataFactory
-     * @param ilLanguage                                    $lng
-     */
     public function __construct(
         ilTermsOfServiceCriterionTypeFactoryInterface $criterionTypeFactory,
         ilTermsOfServiceDocument $document,
@@ -33,11 +40,11 @@ class ilTermsOfServiceDocumentCriterionAssignmentConstraint extends Constraint
         $this->document = $document;
 
         parent::__construct(
-            function (ilTermsOfServiceDocumentCriterionAssignment $value) {
+            function (ilTermsOfServiceDocumentCriterionAssignment $value): bool {
                 return 0 === count($this->filterEqualValues($value));
             },
-            function ($txt, $value) {
-                return "The passed assignment must be unique for the document!";
+            static function ($txt, $value): string {
+                return 'The passed assignment must be unique for the document!';
             },
             $dataFactory,
             $lng
@@ -50,12 +57,12 @@ class ilTermsOfServiceDocumentCriterionAssignmentConstraint extends Constraint
      */
     protected function filterEqualValues(
         ilTermsOfServiceDocumentCriterionAssignment $value
-    ) : array {
+    ): array {
         $otherValues = $this->document->criteria();
 
         return array_filter(
             $otherValues,
-            function (ilTermsOfServiceDocumentCriterionAssignment $otherValue) use ($value) {
+            function (ilTermsOfServiceDocumentCriterionAssignment $otherValue) use ($value): bool {
                 $idCurrent = $otherValue->getId();
                 $idNew = $value->getId();
 
@@ -69,9 +76,7 @@ class ilTermsOfServiceDocumentCriterionAssignmentConstraint extends Constraint
                     return true;
                 }
 
-                $valuesHaveSameNature = $this->haveSameNature($value, $otherValue);
-
-                return $valuesHaveSameNature;
+                return $this->haveSameNature($value, $otherValue);
             }
         );
     }
@@ -85,7 +90,7 @@ class ilTermsOfServiceDocumentCriterionAssignmentConstraint extends Constraint
     protected function haveSameNature(
         ilTermsOfServiceDocumentCriterionAssignment $value,
         ilTermsOfServiceDocumentCriterionAssignment $otherValue
-    ) : bool {
+    ): bool {
         if ($value->getCriterionId() !== $otherValue->getCriterionId()) {
             return false;
         }

@@ -1,8 +1,5 @@
 <?php
 
-/**
- * @group needsInstalledILIAS
- */
 class ilStudyProgrammeTypeTranslationTest extends \PHPUnit\Framework\TestCase
 {
     protected $backupGlobals = false;

@@ -1,5 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * Class ilDBPdoMySQLFieldDefinition
  *
@@ -7,12 +25,7 @@
  */
 class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
 {
-
-    /**
-     * @param $field
-     * @return \ilDBPdo|string
-     */
-    public function getTypeDeclaration($field)
+    public function getTypeDeclaration(array $field): string
     {
         $db = $this->getDBInstance();
 
@@ -21,18 +34,25 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
                 if (empty($field['length']) && array_key_exists('default', $field)) {
                     $field['length'] = $db->varchar_max_length ?? null;
                 }
-                $length = !empty($field['length']) ? $field['length'] : false;
-                $fixed = !empty($field['fixed']) ? $field['fixed'] : false;
+                $length = empty($field['length']) ? false : $field['length'];
+                $fixed = empty($field['fixed']) ? false : $field['fixed'];
+                if ($fixed) {
+                    return $length ? 'CHAR(' . $length . ')' : 'CHAR(255)';
+                }
+                return $length ? 'VARCHAR(' . $length . ')' : 'TEXT';
 
-                return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)') : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
             case 'clob':
                 if (!empty($field['length'])) {
                     $length = $field['length'];
                     if ($length <= 255) {
                         return 'TINYTEXT';
-                    } elseif ($length <= 65532) {
+                    }
+
+                    if ($length <= 65532) {
                         return 'TEXT';
-                    } elseif ($length <= 16777215) {
+                    }
+
+                    if ($length <= 16_777_215) {
                         return 'MEDIUMTEXT';
                     }
                 }
@@ -43,9 +63,13 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
                     $length = $field['length'];
                     if ($length <= 255) {
                         return 'TINYBLOB';
-                    } elseif ($length <= 65532) {
+                    }
+
+                    if ($length <= 65532) {
                         return 'BLOB';
-                    } elseif ($length <= 16777215) {
+                    }
+
+                    if ($length <= 16_777_215) {
                         return 'MEDIUMBLOB';
                     }
                 }
@@ -56,13 +80,21 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
                     $length = $field['length'];
                     if ($length <= 1) {
                         return 'TINYINT';
-                    } elseif ($length == 2) {
+                    }
+
+                    if ($length === 2) {
                         return 'SMALLINT';
-                    } elseif ($length == 3) {
+                    }
+
+                    if ($length === 3) {
                         return 'MEDIUMINT';
-                    } elseif ($length == 4) {
+                    }
+
+                    if ($length === 4) {
                         return 'INT';
-                    } elseif ($length > 4) {
+                    }
+
+                    if ($length > 4) {
                         return 'BIGINT';
                     }
                 }
@@ -79,8 +111,8 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
             case 'float':
                 return 'DOUBLE';
             case 'decimal':
-                $length = !empty($field['length']) ? $field['length'] : 18;
-                $scale = !empty($field['scale']) ? $field['scale'] : $db->options['decimal_places'];
+                $length = empty($field['length']) ? 18 : $field['length'];
+                $scale = empty($field['scale']) ? $db->options['decimal_places'] : $field['scale'];
 
                 return 'DECIMAL(' . $length . ',' . $scale . ')';
         }
@@ -90,12 +122,9 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
 
 
     /**
-     * @param $name
-     * @param $field
-     * @return \ilDBPdo|string
      * @throws \ilDatabaseException
      */
-    protected function getIntegerDeclaration($name, $field)
+    protected function getIntegerDeclaration(string $name, array $field): string
     {
         $db = $this->getDBInstance();
 
@@ -120,15 +149,13 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
 
 
     /**
-     * @param $field
-     * @return array
      * @throws \ilDatabaseException
      */
-    protected function mapNativeDatatypeInternal($field)
+    protected function mapNativeDatatypeInternal(array $field): array
     {
         $db_type = strtolower($field['type']);
         $db_type = strtok($db_type, '(), ');
-        if ($db_type == 'national') {
+        if ($db_type === 'national') {
             $db_type = strtok('(), ');
         }
         if (!empty($field['length'])) {
@@ -175,7 +202,6 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
             case 'mediumtext':
             case 'longtext':
             case 'text':
-            case 'text':
             case 'varchar':
                 $fixed = false;
                 // no break
@@ -187,9 +213,9 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
                     if (preg_match('/^(is|has)/', $field['name'])) {
                         $type = array_reverse($type);
                     }
-                } elseif (strstr($db_type, 'text')) {
+                } elseif (strpos($db_type, 'text') !== false) {
                     $type[] = 'clob';
-                    if ($decimal == 'binary') {
+                    if ($decimal === 'binary') {
                         $type[] = 'blob';
                     }
                 }
@@ -206,7 +232,7 @@ class ilDBPdoMySQLFieldDefinition extends ilDBPdoFieldDefinition
                     foreach ($matches[0] as $value) {
                         $length = max($length, strlen($value) - 2);
                     }
-                    if ($length == '1' && count($matches[0]) == 2) {
+                    if ($length == '1' && count($matches[0]) === 2) {
                         $type[] = 'boolean';
                         if (preg_match('/^(is|has)/', $field['name'])) {
                             $type = array_reverse($type);

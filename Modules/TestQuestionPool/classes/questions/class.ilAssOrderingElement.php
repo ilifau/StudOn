@@ -27,16 +27,16 @@ declare(strict_types=1);
 */
 class ilAssOrderingElement
 {
-    const EXPORT_IDENT_PROPERTY_SEPARATOR = '_';
+    public const EXPORT_IDENT_PROPERTY_SEPARATOR = '_';
 
     public static $objectInstanceCounter = 0;
     public $objectInstanceId;
 
     /**
      * this identifier equals the database's row id
-     * @var integer $id
+     * @var integer
      */
-    public $id;
+    public int $id;
 
     /**
      * this identifier is generated randomly
@@ -44,10 +44,8 @@ class ilAssOrderingElement
      *
      * the main purpose is to have a key that does not make the solution
      * derivable and is therefore useable in the examines working form
-     *
-     * @var integer $random_identifier
      */
-    protected $random_identifier = null;
+    protected ?int $random_identifier = null;
 
     /**
      * this identifier is used to identify elements and is stored
@@ -58,52 +56,24 @@ class ilAssOrderingElement
      *
      * it is an integer sequence starting at 0 that increments
      * with every added element while obsolete numbers are not recycled
-     *
-     * @var integer $solution_identifier
      */
-    protected $solution_identifier = null;
+    protected ?int $solution_identifier = null;
 
     /**
      * the correct width of indentation for the element
-     * @var integer $indentation
      */
-    protected $indentation = 0;
+    protected int $indentation = 0;
 
     /**
      * the correct position in the ordering sequence
-     * @var integer $position
      */
-    protected $position = null;
-
-    /**
-     * @var string $content
-     */
-    protected $content = null;
-
-    /**
-     * @var string $uploadImageName
-     */
-    protected $uploadImageName = null;
-
-    /**
-     * @var string $upploadImageFile
-     */
-    protected $uploadImageFile = null;
-
-    /**
-     * @var bool $imageRemovalRequest
-     */
-    protected $imageRemovalRequest = false;
-
-    /**
-     * @var string $imagePathWeb
-     */
-    protected $imagePathWeb = null;
-
-    /**
-     * @var string $imagePathFs
-     */
-    protected $imagePathFs = null;
+    protected ?int $position = null;
+    protected ?string $content = null;
+    protected ?string $uploadImageName = null;
+    protected ?string $uploadImageFile = null;
+    protected bool $imageRemovalRequest = false;
+    protected ?string $imagePathWeb = null;
+    protected ?string $imagePathFs = null;
     protected $imageThumbnailPrefix = null;
 
     /**
@@ -123,27 +93,27 @@ class ilAssOrderingElement
         $this->objectInstanceId = ++self::$objectInstanceCounter;
     }
 
-    public function getClone() : ilAssOrderingElement
+    public function getClone(): ilAssOrderingElement
     {
         return clone $this;
     }
 
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function setId(int $id) : void
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
 
-    public function getRandomIdentifier() : int
+    public function getRandomIdentifier(): ?int
     {
         return $this->random_identifier;
     }
 
-    public function setRandomIdentifier(int $random_identifier) : void
+    public function setRandomIdentifier(int $random_identifier): void
     {
         $this->random_identifier = $random_identifier;
     }
@@ -151,47 +121,32 @@ class ilAssOrderingElement
     /**
      * @return int
      */
-    public function getSolutionIdentifier()
+    public function getSolutionIdentifier(): ?int
     {
         return $this->solution_identifier;
     }
 
-    /**
-     * @param int $solution_identifier
-     */
-    public function setSolutionIdentifier($solution_identifier)
+    public function setSolutionIdentifier(int $solution_identifier): void
     {
         $this->solution_identifier = $solution_identifier;
     }
 
-    /**
-     * @param int $indentation
-     */
-    public function setIndentation($indentation)
+    public function setIndentation(int $indentation): void
     {
         $this->indentation = $indentation;
     }
 
-    /**
-     * @return int
-     */
-    public function getIndentation()
+    public function getIndentation(): int
     {
         return $this->indentation;
     }
 
-    /**
-     * @return int
-     */
-    public function getPosition()
+    public function getPosition(): ?int
     {
         return $this->position;
     }
 
-    /**
-     * @param int $position
-     */
-    public function setPosition($position)
+    public function setPosition(int $position): void
     {
         $this->position = $position;
     }
@@ -199,12 +154,13 @@ class ilAssOrderingElement
     /**
      * @return string
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
 
-    public function setContent($content)
+
+    public function setContent($content): void
     {
         if (is_array($content)) {
             $content = array_shift($content);
@@ -212,7 +168,7 @@ class ilAssOrderingElement
         $this->content = $content;
     }
 
-    public function getUploadImageFile() : ?string
+    public function getUploadImageFile(): ?string
     {
         return $this->uploadImageFile;
     }
@@ -220,7 +176,7 @@ class ilAssOrderingElement
     /**
      * @param string $uploadImageFile
      */
-    public function setUploadImageFile($uploadImageFile)
+    public function setUploadImageFile($uploadImageFile): void
     {
         if (is_array($uploadImageFile)) {
             $uploadImageFile = array_shift($uploadImageFile);
@@ -231,7 +187,7 @@ class ilAssOrderingElement
     /**
      * @return string
      */
-    public function getUploadImageName()
+    public function getUploadImageName(): ?string
     {
         return $this->uploadImageName;
     }
@@ -239,7 +195,7 @@ class ilAssOrderingElement
     /**
      * @param string $uploadImageName
      */
-    public function setUploadImageName($uploadImageName)
+    public function setUploadImageName($uploadImageName): void
     {
         if (is_array($uploadImageName)) {
             $uploadImageName = array_shift($uploadImageName);
@@ -250,7 +206,7 @@ class ilAssOrderingElement
     /**
      * @return bool
      */
-    public function isImageUploadAvailable()
+    public function isImageUploadAvailable(): bool
     {
         return (bool) strlen($this->getUploadImageFile());
     }
@@ -258,7 +214,7 @@ class ilAssOrderingElement
     /**
      * @return bool
      */
-    public function isImageRemovalRequest()
+    public function isImageRemovalRequest(): ?bool
     {
         return $this->imageRemovalRequest;
     }
@@ -266,7 +222,7 @@ class ilAssOrderingElement
     /**
      * @param bool $imageRemovalRequest
      */
-    public function setImageRemovalRequest($imageRemovalRequest)
+    public function setImageRemovalRequest($imageRemovalRequest): void
     {
         $this->imageRemovalRequest = $imageRemovalRequest;
     }
@@ -274,7 +230,7 @@ class ilAssOrderingElement
     /**
      * @return string
      */
-    public function getImagePathWeb()
+    public function getImagePathWeb(): ?string
     {
         return $this->imagePathWeb;
     }
@@ -282,7 +238,7 @@ class ilAssOrderingElement
     /**
      * @param string $imagePathWeb
      */
-    public function setImagePathWeb($imagePathWeb)
+    public function setImagePathWeb($imagePathWeb): void
     {
         $this->imagePathWeb = $imagePathWeb;
     }
@@ -290,7 +246,7 @@ class ilAssOrderingElement
     /**
      * @return string
      */
-    public function getImagePathFs()
+    public function getImagePathFs(): ?string
     {
         return $this->imagePathFs;
     }
@@ -298,23 +254,17 @@ class ilAssOrderingElement
     /**
      * @param string $imagePathFs
      */
-    public function setImagePathFs($imagePathFs)
+    public function setImagePathFs($imagePathFs): void
     {
         $this->imagePathFs = $imagePathFs;
     }
 
-    /**
-     * @return null
-     */
     public function getImageThumbnailPrefix()
     {
         return $this->imageThumbnailPrefix;
     }
 
-    /**
-     * @param null $imageThumbnailPrefix
-     */
-    public function setImageThumbnailPrefix($imageThumbnailPrefix)
+    public function setImageThumbnailPrefix($imageThumbnailPrefix): void
     {
         $this->imageThumbnailPrefix = $imageThumbnailPrefix;
     }
@@ -323,7 +273,7 @@ class ilAssOrderingElement
      * @param ilAssOrderingElement $element
      * @return bool
      */
-    public function isSameElement(ilAssOrderingElement $element) : bool
+    public function isSameElement(ilAssOrderingElement $element): bool
     {
         return [
             $this->getRandomIdentifier(),
@@ -348,7 +298,7 @@ class ilAssOrderingElement
 
             case assOrderingQuestion::OQ_TERMS:
             case assOrderingQuestion::OQ_PICTURES:
-
+            default:
                 return $this->getSolutionIdentifier();
         }
     }
@@ -363,17 +313,17 @@ class ilAssOrderingElement
 
             case assOrderingQuestion::OQ_TERMS:
             case assOrderingQuestion::OQ_PICTURES:
-
+            default:
                 return $this->getPosition() + 1;
         }
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getContent();
+        return $this->getContent() ?? '';
     }
 
-    protected function thumbnailFileExists()
+    protected function thumbnailFileExists(): bool
     {
         if (!$this->getContent()) {
             return false;
@@ -382,17 +332,17 @@ class ilAssOrderingElement
         return file_exists($this->getThumbnailFilePath());
     }
 
-    protected function getThumbnailFilePath()
+    protected function getThumbnailFilePath(): string
     {
         return $this->getImagePathFs() . $this->getImageThumbnailPrefix() . $this->getContent();
     }
 
-    protected function getThumbnailFileUrl()
+    protected function getThumbnailFileUrl(): string
     {
         return $this->getImagePathWeb() . $this->getImageThumbnailPrefix() . $this->getContent();
     }
 
-    protected function imageFileExists()
+    protected function imageFileExists(): bool
     {
         if (!$this->getContent()) {
             return false;
@@ -401,17 +351,17 @@ class ilAssOrderingElement
         return file_exists($this->getImageFilePath());
     }
 
-    protected function getImageFilePath()
+    protected function getImageFilePath(): string
     {
         return $this->getImagePathFs() . $this->getContent();
     }
 
-    protected function getImageFileUrl()
+    protected function getImageFileUrl(): string
     {
         return $this->getImagePathWeb() . $this->getContent();
     }
 
-    public function getPresentationImageUrl()
+    public function getPresentationImageUrl(): string
     {
         if ($this->thumbnailFileExists()) {
             return $this->getThumbnailFileUrl();
@@ -424,7 +374,7 @@ class ilAssOrderingElement
         return '';
     }
 
-    public function getExportIdent()
+    public function getExportIdent(): string
     {
         $ident = array(
             $this->getRandomIdentifier(),
@@ -436,7 +386,7 @@ class ilAssOrderingElement
         return implode(self::EXPORT_IDENT_PROPERTY_SEPARATOR, $ident);
     }
 
-    public function isExportIdent(string $ident) : bool
+    public function isExportIdent(string $ident): bool
     {
         if (!strlen($ident)) {
             return false;
@@ -451,7 +401,7 @@ class ilAssOrderingElement
             && ilAssOrderingElementList::isValidIndentation($parts[3]);
     }
 
-    public function setExportIdent($ident)
+    public function setExportIdent($ident): void
     {
         if ($this->isExportIdent($ident)) {
             list($randomId, $solutionId, $pos, $indent) = explode(
@@ -459,38 +409,38 @@ class ilAssOrderingElement
                 $ident
             );
             $this->setRandomIdentifier((int) $randomId);
-            $this->setSolutionIdentifier($solutionId);
-            $this->setPosition($pos);
-            $this->setIndentation($indent);
+            $this->setSolutionIdentifier((int) $solutionId);
+            $this->setPosition((int) $pos);
+            $this->setIndentation((int) $indent);
         }
     }
 
 
-    public function withRandomIdentifier(int $id) : self
+    public function withRandomIdentifier(int $id): self
     {
         $clone = clone $this;
         $clone->random_identifier = $id;
         return $clone;
     }
-    public function withSolutionIdentifier(int $id) : self
+    public function withSolutionIdentifier(int $id): self
     {
         $clone = clone $this;
         $clone->solution_identifier = $id;
         return $clone;
     }
-    public function withPosition(int $position) : self
+    public function withPosition(int $position): self
     {
         $clone = clone $this;
         $clone->position = $position;
         return $clone;
     }
-    public function withIndentation(int $indentation) : self
+    public function withIndentation(int $indentation): self
     {
         $clone = clone $this;
         $clone->indentation = $indentation;
         return $clone;
     }
-    public function withContent(string $content) : self
+    public function withContent(string $content): self
     {
         $clone = clone $this;
         $clone->content = $content;

@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 require_once './Modules/Test/classes/inc.AssessmentConstants.php';
 
@@ -9,70 +24,75 @@ require_once './Modules/Test/classes/inc.AssessmentConstants.php';
  * @author	Helmut Schottmüller <helmut.schottmueller@mac.com>
  * @author	Maximilian Becker <mbecker@databay.de>
  *
- * @version	$Id$
- *
  * @ingroup ModulesTestQuestionPool
- *
- * @TODO Rework class to use members instead of $arrData + magic methods. (This needs some changes in neighbours.)
  */
 class assAnswerErrorText
 {
-    /**
-     * Array consisting of one errortext-answer
-     * E.g. array('text_wrong' => 'Guenther', 'text_correct' => 'Günther', 'points' => 20)
-     *
-     * @var array Array consisting of one errortext-answer
-     */
-    protected $arrData;
+    protected string $text_wrong;
+    protected string $text_correct;
+    protected float  $points;
+    protected ?int $position;
 
     /**
      * assAnswerErrorText constructor
-     *
-     * @param string $text_wrong Wrong text
+     * @param string $text_wrong   Wrong text
      * @param string $text_correct Correct text
-     * @param double $points Points
-     *
-     * @return assAnswerErrorText
+     * @param double $points       Points
      */
-    public function __construct($text_wrong = "", $text_correct = "", $points = 0.0)
-    {
-        $this->arrData = array(
-            'text_wrong' => $text_wrong,
-            'text_correct' => $text_correct,
-            'points' => $points
-        );
-    }
+    public function __construct(
+        string $text_wrong = "",
+        string $text_correct = "",
+        float $points = 0.0,
+        ?int $position = null
+    ) {
+        $this->text_wrong = $text_wrong;
+        $this->text_correct = $text_correct;
+        $this->points = $points;
+        $this->position = $position;
 
-    /**
-     * Object getter
-     */
-    public function __get($value)
-    {
-        switch ($value) {
-            case "text_wrong":
-            case "text_correct":
-            case "points":
-                return $this->arrData[$value];
-                break;
-            default:
-                return null;
-                break;
+        $word_array = preg_split("/\s+/", $text_wrong);
+
+        if ($word_array) {
+            $this->length = count($word_array);
         }
     }
 
-    /**
-     * Object setter
-     */
-    public function __set($key, $value)
+    public function getTextWrong(): string
     {
-        switch ($key) {
-            case "text_wrong":
-            case "text_correct":
-            case "points":
-                $this->arrData[$key] = $value;
-                break;
-            default:
-                break;
-        }
+        return $this->text_wrong;
+    }
+
+    public function getTextCorrect(): string
+    {
+        return $this->text_correct;
+    }
+
+    public function getPoints(): string
+    {
+        return $this->points;
+    }
+
+    public function withPoints(float $points): self
+    {
+        $clone = clone $this;
+        $clone->points = $points;
+        return $clone;
+    }
+
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    public function withPosition(int $position): self
+    {
+        $clone = clone $this;
+        $clone->position = $position;
+        return $clone;
+    }
+
+    public function getLength(): int
+    {
+        return $this->length;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -21,6 +22,7 @@ use ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection;
 use ILIAS\GlobalScreen\ScreenContext\Stack\CalledContexts;
 use ILIAS\GlobalScreen\Scope\Layout\Factory\MainBarModification;
 use ILIAS\UI\Component\MainControls\MainBar;
+use ILIAS\GlobalScreen\ScreenContext\AdditionalData\Collection;
 
 /**
  * Class DashboardLayoutProvider
@@ -29,20 +31,14 @@ use ILIAS\UI\Component\MainControls\MainBar;
  */
 class DashboardLayoutProvider extends AbstractModificationProvider implements ModificationProvider
 {
-    /**
-     * @var Collection | null
-     */
-    protected $data_collection;
+    protected ?Collection $data_collection;
 
-    /**
-     * @inheritDoc
-     */
-    public function isInterestedInContexts() : ContextCollection
+    public function isInterestedInContexts(): ContextCollection
     {
         return $this->context_collection->desktop();
     }
 
-    public function getMainBarModification(CalledContexts $screen_context_stack) : ?MainBarModification
+    public function getMainBarModification(CalledContexts $screen_context_stack): ?MainBarModification
     {
         $this->data_collection = $screen_context_stack->current()->getAdditionalData();
         if (!$this->data_collection->is(\ilDashboardGUI::DISENGAGE_MAINBAR, true)) {
@@ -51,7 +47,7 @@ class DashboardLayoutProvider extends AbstractModificationProvider implements Mo
 
         return $this->globalScreen()->layout()->factory()->mainbar()
             ->withModification(
-                function (?MainBar $mainbar = null) : ?MainBar {
+                function (?MainBar $mainbar): ?MainBar {
                     return $mainbar !== null ? $mainbar->withActive($mainbar::NONE_ACTIVE) : null;
                 }
             )

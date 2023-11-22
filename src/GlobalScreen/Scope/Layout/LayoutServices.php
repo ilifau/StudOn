@@ -33,10 +33,7 @@ class LayoutServices
 {
     use SingletonTrait;
 
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\Layout\MetaContent\MetaContent
-     */
-    private $meta_content;
+    private MetaContent $meta_content;
 
     /**
      * LayoutServices constructor.
@@ -49,7 +46,7 @@ class LayoutServices
     /**
      * @return ModificationFactory
      */
-    public function factory() : ModificationFactory
+    public function factory(): ModificationFactory
     {
         return $this->get(ModificationFactory::class);
     }
@@ -57,7 +54,7 @@ class LayoutServices
     /**
      * @return MetaContent
      */
-    public function meta() : MetaContent
+    public function meta(): MetaContent
     {
         return $this->meta_content;
     }

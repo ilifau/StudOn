@@ -1,7 +1,22 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilCmiXapiHighscoreReport
@@ -14,63 +29,46 @@
  */
 class ilCmiXapiHighscoreReport
 {
-    /**
-     * @var array
-     */
-    protected $response;
-
-    /**
-     * @var array
-     */
-    private $tableData = [];
-
-    /**
-     * @var null|int
-     */
-    private $userRank = null;
-    
+    protected array $response = [];
+    private array $tableData = [];
+    private ?int $userRank = null;
+    protected int $objId;
     /**
      * @var ilCmiXapiUser[]
      */
-    protected $cmixUsersByIdent;
-    
-    /**
-     * @var int
-     */
-    protected $objId;
+    protected array $cmixUsersByIdent = [];
 
-    protected $obj;
     /**
      * ilCmiXapiHighscoreReport constructor.
-     * @param string $responseBody
      */
-    public function __construct(string $responseBody, $obj)
+    public function __construct(string $responseBody, int $objId)
     {
-        $this->obj = $obj;
-        $this->objId = $obj->getId();
+        $this->objId = $objId;
         $responseBody = json_decode($responseBody, true);
-        
-        if (count($responseBody)) {
+
+        if (is_array($responseBody) && count($responseBody)) {
             $this->response = $responseBody;
         } else {
             $this->response = array();
         }
-        
-        foreach (ilCmiXapiUser::getUsersForObject($this->objId) as $cmixUser) {
+
+        foreach (ilCmiXapiUser::getUsersForObject($objId) as $cmixUser) {
             $this->cmixUsersByIdent[$cmixUser->getUsrIdent()] = $cmixUser;
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function initTableData()
+    public function initTableData(): bool
     {
-        global $DIC; /* @var \ILIAS\DI\Container $DIC */
-        
-        $rows = [];
+        global $DIC;
 
-        if ($this->obj instanceof ilObjCmiXapi && $this->obj->isMixedContentType()) {
+        $rows = [];
+        if (ilObject::_lookupType($this->objId) == 'cmix') {
+            $obj = ilObjCmiXapi::getInstance($this->objId, false);
+        } else {
+            $obj = ilObjLTIConsumer::getInstance($this->objId, false);
+        }
+
+        if ($obj->isMixedContentType()) {
             foreach ($this->response as $item) {
                 $userIdent = str_replace('mailto:', '', $item['mbox']);
                 if (empty($userIdent)) {
@@ -86,7 +84,7 @@ class ilCmiXapiHighscoreReport
                     'ilias_user_id' => $cmixUser->getUsrId()
                 ];
             }
-        } elseif ($this->obj instanceof ilObjCmiXapi && $this->obj->getContentType() == ilObjCmiXapi::CONT_TYPE_CMI5) {
+        } elseif ($obj->getContentType() == ilObjCmiXapi::CONT_TYPE_CMI5) {
             foreach ($this->response as $item) {
                 $userIdent = $item['account'];
                 $cmixUser = $this->cmixUsersByIdent[$userIdent];
@@ -113,9 +111,7 @@ class ilCmiXapiHighscoreReport
                 ];
             }
         }
-        usort($rows, function ($a, $b) {
-            return $a['score'] != $b['score'] ? $a['score'] > $b['score'] ? -1 : 1 : 0;
-        });
+        usort($rows, fn ($a, $b): int => $a['score'] != $b['score'] ? $a['score'] > $b['score'] ? -1 : 1 : 0);
 
         $i = 0;
         $prevScore = null;
@@ -148,62 +144,66 @@ class ilCmiXapiHighscoreReport
         return true;
     }
 
-    private function identUser($userIdent)
+    private function identUser(int $userIdent): bool
     {
         global $DIC; /* @var \ILIAS\DI\Container $DIC */
-    
+
         $cmixUser = $this->cmixUsersByIdent[$userIdent];
-        
+
         if ($cmixUser->getUsrId() == $DIC->user()->getId()) {
             return true;
         }
         return false;
     }
-    
-    protected function fetchTotalDuration($allDurations)
+
+    /**
+     * @param array $allDurations
+     * @return string
+     */
+    protected function fetchTotalDuration(array $allDurations): string
     {
         $totalDuration = 0;
-        
+
         foreach ($allDurations as $duration) {
             $totalDuration += ilObjSCORM2004LearningModule::_ISODurationToCentisec($duration) / 100;
         }
 
-        $hours = floor($totalDuration / 3600);
+        $hours = (string) floor($totalDuration / 3600);
         $hours = strlen($hours) < 2 ? "0" . $hours : $hours;
-        $totalDuration = $hours . ":" . date('i:s', $totalDuration);
 
-        return $totalDuration;
+        return $hours . ":" . date('i:s', (int) round($totalDuration));
     }
 
-    private function formatRawTimestamp($rawTimestamp)
+    private function formatRawTimestamp(string $rawTimestamp): string
     {
         $dateTime = ilCmiXapiDateTime::fromXapiTimestamp($rawTimestamp);
         return ilDatePresentation::formatDate($dateTime);
     }
 
-    public function getTableData()
+    /**
+     * @return mixed[]
+     */
+    public function getTableData(): array
     {
         return $this->tableData;
     }
 
-    public function getUserRank()
+    public function getUserRank(): ?int
     {
         return $this->userRank;
     }
 
-    public function getResponseDebug()
+    public function getResponseDebug(): string
     {
-        /*
-        foreach($this->response as $key => $item)
-        {
-            $user = ilCmiXapiUser::getUserFromIdent(
-                ilObjectFactory::getInstanceByRefId($_GET['ref_id']),
-                $tableRowData['mbox']
-            );
-
-            $this->response[$key]['realname'] = $user->getFullname();
-        }
-        */
+//        foreach($this->response as $key => $item)
+//        {
+//            $user = ilCmiXapiUser::getUserFromIdent(
+//                ilObjectFactory::getInstanceByRefId($_GET['ref_id']),
+//                $tableRowData['mbox']
+//            );
+//
+//            $this->response[$key]['realname'] = $user->getFullname();
+//        }
         return '<pre>' . json_encode($this->response, JSON_PRETTY_PRINT) . '</pre>';
     }
 }

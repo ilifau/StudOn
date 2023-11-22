@@ -1,7 +1,22 @@
 <?php
+
 declare(strict_types=1);
 
-/* Copyright (c) 2019 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Tree\Node;
 
@@ -11,7 +26,7 @@ use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\Triggerer;
-use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
+use ILIAS\UI\Component\Clickable;
 
 /**
  * A very simple Tree-Node
@@ -23,29 +38,13 @@ abstract class Node implements INode
     use Triggerer;
 
     /**
-     * @var URI
-     */
-    protected $link;
-
-    /**
-     * @var string
-     */
-    protected $label;
-
-    /**
-     * @var bool
-     */
-    protected $expanded = false;
-
-    /**
-     * @var bool
-     */
-    protected $highlighted = false;
-
-    /**
      * @var Node[]
      */
-    protected $subnodes = [];
+    protected array $subnodes = [];
+    protected ?URI $link = null;
+    protected string $label;
+    protected bool $expanded = false;
+    protected bool $highlighted = false;
 
     public function __construct(string $label, URI $link = null)
     {
@@ -56,7 +55,7 @@ abstract class Node implements INode
     /**
      * @inheritdoc
      */
-    public function getLabel() : string
+    public function getLabel(): string
     {
         return $this->label;
     }
@@ -64,7 +63,7 @@ abstract class Node implements INode
     /**
      * @inheritdoc
      */
-    public function withAdditionalSubnode(INode $node) : INode
+    public function withAdditionalSubnode(INode $node): INode
     {
         $this->subnodes[] = $node;
         return $this;
@@ -73,7 +72,7 @@ abstract class Node implements INode
     /**
      * @inheritdoc
      */
-    public function getSubnodes() : array
+    public function getSubnodes(): array
     {
         return $this->subnodes;
     }
@@ -81,7 +80,7 @@ abstract class Node implements INode
     /**
      * @inheritdoc
      */
-    public function withExpanded(bool $expanded) : INode
+    public function withExpanded(bool $expanded): INode
     {
         $clone = clone $this;
         $clone->expanded = $expanded;
@@ -91,7 +90,7 @@ abstract class Node implements INode
     /**
      * @inheritdoc
      */
-    public function isExpanded() : bool
+    public function isExpanded(): bool
     {
         return $this->expanded;
     }
@@ -99,7 +98,7 @@ abstract class Node implements INode
     /**
      * @inhertidoc
      */
-    public function withHighlighted(bool $highlighted) : INode
+    public function withHighlighted(bool $highlighted): INode
     {
         $clone = clone $this;
         $clone->highlighted = $highlighted;
@@ -109,7 +108,7 @@ abstract class Node implements INode
     /**
      * @inhertidoc
      */
-    public function isHighlighted() : bool
+    public function isHighlighted(): bool
     {
         return $this->highlighted;
     }
@@ -117,7 +116,7 @@ abstract class Node implements INode
     /**
      * @inhertidoc
      */
-    public function withOnClick(Signal $signal)
+    public function withOnClick(Signal $signal): self
     {
         return $this->withTriggeredSignal($signal, 'click');
     }
@@ -125,16 +124,15 @@ abstract class Node implements INode
     /**
      * @inhertidoc
      */
-    public function appendOnClick(Signal $signal)
+    public function appendOnClick(Signal $signal): self
     {
         return $this->appendTriggeredSignal($signal, 'click');
     }
 
     /**
      * Get the URI object that is added as link in the UI
-     * @return URI
      */
-    public function getLink() : ?URI
+    public function getLink(): ?URI
     {
         return $this->link;
     }

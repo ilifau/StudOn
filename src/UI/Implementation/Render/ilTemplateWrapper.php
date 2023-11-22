@@ -1,25 +1,37 @@
 <?php
 
-/* Copyright (c) 2016 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Render;
+
+use ilGlobalTemplateInterface;
+use ilTemplate;
 
 /**
  * Wraps an ilTemplate to only provide smaller interface.
  */
 class ilTemplateWrapper implements Template
 {
-    /**
-     * @var	\ilGlobalTemplate
-     */
-    protected $global_tpl;
+    protected ilGlobalTemplateInterface $global_tpl;
+    private ilTemplate $tpl;
 
-    /**
-     * @var	\ilTemplate
-     */
-    private $tpl;
-
-    final public function __construct(\ilGlobalTemplateInterface $global_tpl, \ilTemplate $tpl)
+    final public function __construct(ilGlobalTemplateInterface $global_tpl, ilTemplate $tpl)
     {
         $this->global_tpl = $global_tpl;
         $this->tpl = $tpl;
@@ -28,7 +40,7 @@ class ilTemplateWrapper implements Template
     /**
      * @inheritdocs
      */
-    public function setCurrentBlock($name)
+    public function setCurrentBlock(string $name): bool
     {
         return $this->tpl->setCurrentBlock($name);
     }
@@ -36,7 +48,7 @@ class ilTemplateWrapper implements Template
     /**
      * @inheritdocs
      */
-    public function parseCurrentBlock()
+    public function parseCurrentBlock(): bool
     {
         return $this->tpl->parseCurrentBlock();
     }
@@ -44,7 +56,7 @@ class ilTemplateWrapper implements Template
     /**
      * @inheritdocs
      */
-    public function touchBlock($name)
+    public function touchBlock(string $name): bool
     {
         return $this->tpl->touchBlock($name);
     }
@@ -52,7 +64,7 @@ class ilTemplateWrapper implements Template
     /**
      * @inheritdocs
      */
-    public function setVariable($name, $value)
+    public function setVariable(string $name, $value): void
     {
         $this->tpl->setVariable($name, $value);
     }
@@ -60,7 +72,7 @@ class ilTemplateWrapper implements Template
     /**
      * @inheritdocs
      */
-    public function get($block = null)
+    public function get(string $block = null): string
     {
         if ($block === null) {
             $block = "__global__";
@@ -71,7 +83,7 @@ class ilTemplateWrapper implements Template
     /**
      * @inheritdocs
      */
-    public function addOnLoadCode($code)
+    public function addOnLoadCode(string $code): void
     {
         $this->global_tpl->addOnLoadCode($code);
     }

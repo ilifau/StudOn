@@ -1,7 +1,26 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * User interface form for configuring under which conditions a competence is
+ * awarded when a test question has been solved. Refers to one specific
+ * question from a test question pool (or directly from a test).
+ *
  * @author  Björn Heyser <bheyser@databay.de>
  * @package Modules/Test
  */
@@ -26,8 +45,7 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
         ilGlobalTemplateInterface $pageTemplate,
         ilCtrl $ctrl,
         ilLanguage $lng,
-        ilAssQuestionSkillAssignmentsGUI
-        $parentGUI
+        ilAssQuestionSkillAssignmentsGUI $parentGUI
     ) {
         global $DIC;
 
@@ -40,11 +58,11 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
 
         parent::__construct();
     }
-    
+
     /**
      * @return assQuestion
      */
-    public function getQuestion()
+    public function getQuestion(): ?assQuestion
     {
         return $this->question;
     }
@@ -52,7 +70,7 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
     /**
      * @param assQuestion $question
      */
-    public function setQuestion($question)
+    public function setQuestion($question): void
     {
         $this->question = $question;
     }
@@ -60,7 +78,7 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
     /**
      * @return ilAssQuestionSkillAssignment
      */
-    public function getAssignment()
+    public function getAssignment(): ?ilAssQuestionSkillAssignment
     {
         return $this->assignment;
     }
@@ -68,7 +86,7 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
     /**
      * @param ilAssQuestionSkillAssignment $assignment
      */
-    public function setAssignment($assignment)
+    public function setAssignment($assignment): void
     {
         $this->assignment = $assignment;
     }
@@ -76,7 +94,7 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
     /**
      * @return boolean
      */
-    public function isManipulationEnabled()
+    public function isManipulationEnabled(): bool
     {
         return $this->manipulationEnabled;
     }
@@ -84,12 +102,12 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
     /**
      * @param boolean $manipulationEnabled
      */
-    public function setManipulationEnabled($manipulationEnabled)
+    public function setManipulationEnabled($manipulationEnabled): void
     {
         $this->manipulationEnabled = $manipulationEnabled;
     }
 
-    public function build()
+    public function build(): void
     {
         $this->setFormAction($this->ctrl->getFormAction($this->parentGUI));
 
@@ -127,7 +145,7 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
         }
     }
 
-    private function populateFullProperties()
+    private function populateFullProperties(): void
     {
         $evaluationMode = new ilRadioGroupInputGUI($this->lng->txt('condition'), 'eval_mode');
         $evalOptionReachedQuestionPoints = new ilRadioOption(
@@ -184,8 +202,8 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
         $questResultSkillPoints = $this->buildResultSkillPointsInputField();
         $evalOptionReachedQuestionPoints->addSubItem($questResultSkillPoints);
     }
-    
-    private function populateLimitedProperties()
+
+    private function populateLimitedProperties(): void
     {
         $evaluationMode = new ilNonEditableValueGUI($this->lng->txt('condition'));
         $evaluationMode->setValue($this->lng->txt('qpl_skill_point_eval_by_quest_result'));
@@ -194,8 +212,8 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
         $questResultSkillPoints = $this->buildResultSkillPointsInputField();
         $evaluationMode->addSubItem($questResultSkillPoints);
     }
-    
-    private function buildResultSkillPointsInputField()
+
+    private function buildResultSkillPointsInputField(): ilNumberInputGUI
     {
         $questResultSkillPoints = new ilNumberInputGUI($this->lng->txt('tst_comp_points'), 'q_res_skill_points');
         $questResultSkillPoints->setRequired(true);
@@ -207,11 +225,11 @@ class ilAssQuestionSkillAssignmentPropertyFormGUI extends ilPropertyFormGUI
         if (!$this->isManipulationEnabled()) {
             $questResultSkillPoints->setDisabled(true);
         }
-        
+
         return $questResultSkillPoints;
     }
-    
-    private function questionSupportsSolutionCompare()
+
+    private function questionSupportsSolutionCompare(): bool
     {
         return (
             $this->question instanceof iQuestionCondition

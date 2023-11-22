@@ -22,7 +22,7 @@ use ILIAS\User\Profile\ProfileChangeMailTokenDBRepository;
 
 class ProfileChangeMailTokenDBRepositoryTest extends ilUserBaseTest
 {
-    public function testGetNewTokenForUserReturnsMd5OfUserIdAndEmail() : void
+    public function testGetNewTokenForUserReturnsMd5OfUserIdAndEmail(): void
     {
         $old_email = 'oldemail@ilias.de';
         $our_token = hash('md5', '5' . '-' . $old_email);
@@ -41,7 +41,7 @@ class ProfileChangeMailTokenDBRepositoryTest extends ilUserBaseTest
         $this->assertEquals($returned_token, $our_token);
     }
 
-    public function testGetNewEmailForUserReturnsEmail() : void
+    public function testGetNewEmailForUserReturnsEmail(): void
     {
         $old_email = 'oldemail@ilias.de';
         $our_token = hash('md5', '5' . '-' . $old_email);
@@ -60,7 +60,7 @@ class ProfileChangeMailTokenDBRepositoryTest extends ilUserBaseTest
         $this->assertEquals($returned_email, $new_email);
     }
 
-    public function testGetNewEmailForUserReturnsEmptyStringOnWrongToken() : void
+    public function testGetNewEmailForUserReturnsEmptyStringOnWrongToken(): void
     {
         $old_email = 'oldemail@ilias.de';
         $our_token = hash('md5', '5' . '-' . $old_email);

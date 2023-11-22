@@ -1,52 +1,51 @@
 <?php
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Filesystem\Filesystem;
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateBackgroundImageFileService
 {
-    const BACKGROUND_IMAGE_NAME = 'background.jpg';
-    const BACKGROUND_TEMPORARY_UPLOAD_FILE_NAME = 'background_upload.tmp';
-    const BACKGROUND_THUMBNAIL_FILE_ENDING = '.thumb.jpg';
-    const PLACEHOLDER_CLIENT_WEB_DIRECTORY = '[CLIENT_WEB_DIR]';
+    public const BACKGROUND_IMAGE_NAME = 'background.jpg';
+    public const BACKGROUND_TEMPORARY_UPLOAD_FILE_NAME = 'background_upload_tmp';
+    public const BACKGROUND_THUMBNAIL_FILE_ENDING = '.thumb.jpg';
+    public const PLACEHOLDER_CLIENT_WEB_DIRECTORY = '[CLIENT_WEB_DIR]';
+    public const VALID_BACKGROUND_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png'];
 
-    /**
-     * @var \ILIAS\Filesystem\Filesystem
-     */
-    private $fileSystem;
+    private Filesystem $fileSystem;
+    private string $certificatePath;
+    private string $webDirectory;
 
-    /**
-     * @var string
-     */
-    private $certificatePath;
-
-    /**
-     * @var string
-     */
-    private $webDirectory;
-
-    /**
-     * @param string                       $certificatePath
-     * @param \ILIAS\Filesystem\Filesystem $filesystem
-     * @param string                       $webDirectory
-     */
     public function __construct(
         string $certificatePath,
-        \ILIAS\Filesystem\Filesystem $filesystem,
-        $webDirectory = CLIENT_WEB_DIR
+        Filesystem $filesystem,
+        string $webDirectory = CLIENT_WEB_DIR
     ) {
         $this->certificatePath = $certificatePath;
         $this->fileSystem = $filesystem;
         $this->webDirectory = $webDirectory;
     }
 
-    /**
-     * Checks for the background image of the certificate
-     * @param ilCertificateTemplate $template
-     * @return boolean Returns TRUE if the certificate has a background image, FALSE otherwise
-     */
-    public function hasBackgroundImage(ilCertificateTemplate $template)
+    public function hasBackgroundImage(ilCertificateTemplate $template): bool
     {
         $backgroundImagePath = $template->getBackgroundImagePath();
         if ($backgroundImagePath === '') {
@@ -60,11 +59,7 @@ class ilCertificateBackgroundImageFileService
         return false;
     }
 
-    /**
-     * @param ilCertificateTemplate $template
-     * @return bool
-     */
-    public function hasBackgroundImageThumbnail(ilCertificateTemplate $template)
+    public function hasBackgroundImageThumbnail(ilCertificateTemplate $template): bool
     {
         $backgroundImagePath = $template->getThumbnailImagePath();
         if ($backgroundImagePath === '') {
@@ -78,36 +73,35 @@ class ilCertificateBackgroundImageFileService
         return false;
     }
 
-    /**
-     * Returns the filesystem path of the background image thumbnail
-     * @return string The filesystem path of the background image thumbnail
-     */
-    public function getBackgroundImageThumbPath()
+    public function getBackgroundImageThumbPath(): string
     {
         return $this->webDirectory . $this->certificatePath . self::BACKGROUND_IMAGE_NAME . self::BACKGROUND_THUMBNAIL_FILE_ENDING;
     }
 
-    /**
-     * Returns the filesystem path of the background image
-     * @param string $backgroundImagePath
-     * @return string The filesystem path of the background image
-     */
-    public function getBackgroundImageDirectory($backgroundImagePath = '')
+    public function getBackgroundImageDirectory(string $backgroundImagePath = ''): string
     {
         return str_replace(
-            array($this->webDirectory, '//'),
-            array(self::PLACEHOLDER_CLIENT_WEB_DIRECTORY, '/'),
+            [$this->webDirectory, '//'],
+            [self::PLACEHOLDER_CLIENT_WEB_DIRECTORY, '/'],
             $backgroundImagePath
         );
     }
 
-    /**
-     * Returns the filesystem path of the background image temp file during upload
-     *
-     * @return string The filesystem path of the background image temp file
-     */
-    public function getBackgroundImageTempfilePath()
+    public function getBackgroundImageTempfilePath(string $extension): string
     {
-        return $this->webDirectory . $this->certificatePath . self::BACKGROUND_TEMPORARY_UPLOAD_FILE_NAME;
+        return implode('', [
+            $this->webDirectory,
+            $this->certificatePath,
+            self::BACKGROUND_TEMPORARY_UPLOAD_FILE_NAME,
+            '.' . $extension
+        ]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getValidBackgroundImageFileExtensions(): array
+    {
+        return self::VALID_BACKGROUND_IMAGE_EXTENSIONS;
     }
 }

@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Symbol\Glyph\Time;
+
 function time_glyph()
 {
     global $DIC;

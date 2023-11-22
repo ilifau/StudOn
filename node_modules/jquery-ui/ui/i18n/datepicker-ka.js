@@ -17,8 +17,8 @@
 
 datepicker.regional.ka = {
 	closeText: "დახურვა",
-	prevText: "წინა",
-	nextText: "შემდეგი ",
+	prevText: "&#x3c; წინა",
+	nextText: "შემდეგი &#x3e;",
 	currentText: "დღეს",
 	monthNames: [
 		"იანვარი",

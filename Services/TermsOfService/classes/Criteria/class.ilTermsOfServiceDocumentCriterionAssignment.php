@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceDocumentCriterionAssignment
@@ -7,17 +24,17 @@
  */
 class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implements ilTermsOfServiceEvaluableCriterion, ilTermsOfServiceEquatable
 {
-    const TABLE_NAME = 'tos_criterion_to_doc';
+    private const TABLE_NAME = 'tos_criterion_to_doc';
 
     /**
-     * @var string
+     * @var int
      * @db_has_field        true
      * @db_fieldtype        integer
      * @db_length           4
      * @db_is_primary       true
      * @con_sequence        true
      */
-    protected $id;
+    protected ?int $id = null;
 
     /**
      * @var int
@@ -25,7 +42,7 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $assigned_ts = 0;
+    protected int $assigned_ts = 0;
 
     /**
      * @var int
@@ -33,7 +50,7 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $modification_ts = 0;
+    protected int $modification_ts = 0;
 
     /**
      * @var int
@@ -41,7 +58,7 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $doc_id = 0;
+    protected int $doc_id = 0;
 
     /**
      * @var string
@@ -50,7 +67,7 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
      * @db_length           255
      * @con_is_notnull      true
      */
-    protected $criterion_id = '';
+    protected string $criterion_id = '';
 
     /**
      * @var string
@@ -58,7 +75,7 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
      * @db_fieldtype        text
      * @db_length           255
      */
-    protected $criterion_value = '';
+    protected string $criterion_value;
 
     /**
      * @var int
@@ -66,7 +83,7 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $owner_usr_id = 0;
+    protected int $owner_usr_id = 0;
 
     /**
      * @var int
@@ -74,56 +91,38 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $last_modified_usr_id = 0;
+    protected int $last_modified_usr_id = 0;
 
-    /**
-     * @inheritdoc
-     */
-    public static function returnDbTableName()
+    public static function returnDbTableName(): string
     {
         return self::TABLE_NAME;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function create()
+    public function create(): void
     {
         $this->setAssignedTs(time());
 
         parent::create();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function update()
+    public function update(): void
     {
         $this->setModificationTs(time());
 
         parent::update();
     }
 
-    /**
-     * @param ilTermsOfServiceCriterionConfig $config
-     */
-    public function setCriterionValue(ilTermsOfServiceCriterionConfig $config) : void
+    public function setCriterionValue(ilTermsOfServiceCriterionConfig $config): void
     {
         $this->criterion_value = $config->toJson();
     }
 
-    /**
-     * @return ilTermsOfServiceCriterionConfig
-     */
-    public function getCriterionValue() : ilTermsOfServiceCriterionConfig
+    public function getCriterionValue(): ilTermsOfServiceCriterionConfig
     {
         return new ilTermsOfServiceCriterionConfig($this->criterion_value);
     }
 
-    /**
-     * @return string
-     */
-    public function getCriterionId() : string
+    public function getCriterionId(): string
     {
         return $this->criterion_id;
     }
@@ -131,7 +130,7 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
     /**
      * @inheritDoc
      */
-    public function equals($other) : bool
+    public function equals($other): bool
     {
         if (!($other instanceof static)) {
             return false;
@@ -144,7 +143,7 @@ class ilTermsOfServiceDocumentCriterionAssignment extends ActiveRecord implement
         $valueNew = $other->getCriterionValue();
 
         $equals = (
-            $criterionIdCurrent == $criterionIdNew &&
+            $criterionIdCurrent === $criterionIdNew &&
             $valueCurrent == $valueNew
         );
 

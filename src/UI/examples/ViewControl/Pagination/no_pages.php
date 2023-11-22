@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\ViewControl\Pagination;
+
 function no_pages()
 {
     global $DIC;

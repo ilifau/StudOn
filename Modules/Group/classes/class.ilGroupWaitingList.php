@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /*
         +-----------------------------------------------------------------------------+
         | ILIAS open source                                                           |
@@ -21,38 +23,25 @@
         +-----------------------------------------------------------------------------+
 */
 
-include_once('./Services/Membership/classes/class.ilWaitingList.php');
 
 /**
 * Waiting list for groups
 *
 * @author Stefan Meyer <smeyer.ilias@gmx.de>
-* @version $Id$
 *
 * @ingroup ModulesGroup
 */
 
 class ilGroupWaitingList extends ilWaitingList
 {
-    // fau: fairSub - add subject, to_confirm and sub_time as parameter, avoid re-reading
-    /**
-     * add to list
-     *
-     * @param 	int 		$a_usr_id
-     * @param 	string		$a_subject
-     * @param	int 		$a_to_confirm
-     * @param	int			$a_sub_time
-     * @return bool
-     */
-    public function addToList($a_usr_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null)
-
+    public function addToList(int $a_usr_id): bool
     {
         global $DIC;
 
         $ilAppEventHandler = $DIC['ilAppEventHandler'];
         $ilLog = $DIC['ilLog'];
-        
-        if (!parent::addToList($a_usr_id, $a_subject, $a_to_confirm, $a_sub_time)) {
+
+        if (!parent::addToList($a_usr_id)) {
             return false;
         }
 
@@ -64,8 +53,7 @@ class ilGroupWaitingList extends ilWaitingList
                     'obj_id' => $this->getObjId(),
                     'usr_id' => $a_usr_id
                 )
-            );
+        );
         return true;
     }
-    // fau.
 }

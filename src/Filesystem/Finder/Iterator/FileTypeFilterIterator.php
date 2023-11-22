@@ -1,9 +1,25 @@
 <?php
+
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Finder\Iterator;
 
 use ILIAS\Filesystem\DTO\Metadata;
+use Iterator as PhpIterator;
+
+/******************************************************************************
+ *
+ * This file is part of ILIAS, a powerful learning management system.
+ *
+ * ILIAS is licensed with the GPL-3.0, you should have received a copy
+ * of said license along with the source code.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ *      https://www.ilias.de
+ *      https://github.com/ILIAS-eLearning
+ *
+ *****************************************************************************/
 
 /**
  * Class FileTypeFilterIterator
@@ -12,18 +28,17 @@ use ILIAS\Filesystem\DTO\Metadata;
  */
 class FileTypeFilterIterator extends \FilterIterator
 {
-    const ALL = 0;
-    const ONLY_FILES = 1;
-    const ONLY_DIRECTORIES = 2;
+    public const ALL = 0;
+    public const ONLY_FILES = 1;
+    public const ONLY_DIRECTORIES = 2;
 
-    /** @var int */
-    private $mode = self::ALL;
+    private int $mode = self::ALL;
 
     /**
-     * @param \Iterator $iterator The Iterator to filter
-     * @param int       $mode     The mode (self::ALL or self::ONLY_FILES or self::ONLY_DIRECTORIES)
+     * @param PhpIterator $iterator The Iterator to filter
+     * @param int $mode The mode (self::ALL or self::ONLY_FILES or self::ONLY_DIRECTORIES)
      */
-    public function __construct(\Iterator $iterator, int $mode)
+    public function __construct(PhpIterator $iterator, int $mode)
     {
         $this->mode = $mode;
         parent::__construct($iterator);
@@ -32,14 +47,14 @@ class FileTypeFilterIterator extends \FilterIterator
     /**
      * @inheritdoc
      */
-    public function accept()
+    public function accept(): bool
     {
         /** @var Metadata $metadata */
         $metadata = $this->current();
 
-        if (self::ONLY_DIRECTORIES === (self::ONLY_DIRECTORIES&$this->mode) && $metadata->isFile()) {
+        if (self::ONLY_DIRECTORIES === (self::ONLY_DIRECTORIES & $this->mode) && $metadata->isFile()) {
             return false;
-        } elseif (self::ONLY_FILES === (self::ONLY_FILES&$this->mode) && $metadata->isDir()) {
+        } elseif (self::ONLY_FILES === (self::ONLY_FILES & $this->mode) && $metadata->isDir()) {
             return false;
         }
 

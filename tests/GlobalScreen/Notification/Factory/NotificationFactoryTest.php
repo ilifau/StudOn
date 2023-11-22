@@ -26,7 +26,7 @@ require_once(__DIR__ . "/../BaseNotificationSetUp.php");
  */
 class NotificationFactoryTest extends BaseNotificationSetUp
 {
-    public function testAvailableMethods() : void
+    public function testAvailableMethods(): void
     {
         $r = new ReflectionClass($this->factory);
 
@@ -46,7 +46,7 @@ class NotificationFactoryTest extends BaseNotificationSetUp
     }
 
 
-    public function testCorrectReturn() : void
+    public function testCorrectReturn(): void
     {
         $this->assertInstanceOf(StandardNotification::class, $this->factory->standard($this->id));
         $this->assertInstanceOf(StandardNotificationGroup::class, $this->factory->standardGroup($this->id));

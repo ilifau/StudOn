@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 require_once 'Modules/TestQuestionPool/classes/class.assQuestionGUI.php';
 require_once 'Modules/TestQuestionPool/interfaces/interface.ilGuiQuestionScoringAdjustable.php';
@@ -15,11 +30,6 @@ require_once 'Modules/TestQuestionPool/interfaces/interface.ilGuiAnswerScoringAd
  */
 class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustable, ilGuiAnswerScoringAdjustable
 {
-    /**
-     * @var assKprimChoice
-     */
-    public $object;
-
     /**
      * @param $qId
      */
@@ -38,17 +48,17 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
     /**
      * @return bool
      */
-    public function hasInlineFeedback()
+    public function hasInlineFeedback(): bool
     {
         return $this->object->feedbackOBJ->isSpecificAnswerFeedbackAvailable($this->object->getId());
     }
 
-    protected function getAdditionalEditQuestionCommands()
+    protected function getAdditionalEditQuestionCommands(): array
     {
         return array('uploadImage', 'removeImage');
     }
 
-    protected function editQuestion(ilPropertyFormGUI $form = null)
+    protected function editQuestion(ilPropertyFormGUI $form = null): void
     {
         if ($form === null) {
             $form = $this->buildEditForm();
@@ -59,7 +69,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $this->tpl->setVariable("QUESTION_DATA", $this->ctrl->getHTML($form));
     }
 
-    protected function uploadImage()
+    protected function uploadImage(): void
     {
         $result = $this->writePostData(true);
 
@@ -69,7 +79,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         }
     }
 
-    public function removeImage()
+    public function removeImage(): void
     {
         $position = key($_POST['cmd']['removeImage']);
         $this->object->removeAnswerImage($position);
@@ -78,7 +88,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $this->editQuestion();
     }
 
-    public function downkprim_answers()
+    public function downkprim_answers(): void
     {
         if (isset($_POST['cmd'][__FUNCTION__]) && count($_POST['cmd'][__FUNCTION__])) {
             $this->object->moveAnswerDown(key($_POST['cmd'][__FUNCTION__]));
@@ -88,7 +98,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $this->editQuestion();
     }
 
-    public function upkprim_answers()
+    public function upkprim_answers(): void
     {
         if (isset($_POST['cmd'][__FUNCTION__]) && count($_POST['cmd'][__FUNCTION__])) {
             $this->object->moveAnswerUp(key($_POST['cmd'][__FUNCTION__]));
@@ -101,32 +111,32 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
     /**
      * {@inheritdoc}
      */
-    protected function writePostData($upload = false)
+    protected function writePostData(bool $always = false): int
     {
         $form = $this->buildEditForm();
         $form->setValuesByPost();
-        $errors = !$form->checkInput();
-        $form->setValuesByPost();
 
-        if ($upload) {
+        if ($always) {
             $answersInput = $form->getItemByPostVar('kprim_answers');
             $answersInput->setIgnoreMissingUploadsEnabled(true);
 
             if (!$answersInput->checkUploads($_POST[$answersInput->getPostVar()])) {
-                ilUtil::sendFailure($this->lng->txt("form_input_not_valid"));
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("form_input_not_valid"));
                 $this->editQuestion($form);
                 return 1;
             }
 
             $answersInput->collectValidFiles();
-        } elseif ($errors) {
+        } elseif (!$form->checkInput()) {
             $this->editQuestion($form);
             return 1;
         }
 
         $this->writeQuestionGenericPostData();
+
         $this->writeQuestionSpecificPostData($form);
         $this->writeAnswerSpecificPostData($form);
+
         $this->saveTaxonomyAssignments();
 
         return 0;
@@ -135,7 +145,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
     /**
      * @return ilPropertyFormGUI
      */
-    protected function buildEditForm()
+    protected function buildEditForm(): ilPropertyFormGUI
     {
         $form = $this->buildBasicEditFormObject();
 
@@ -155,7 +165,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      * @param ilPropertyFormGUI $form
      * @return ilPropertyFormGUI
      */
-    public function populateQuestionSpecificFormPart(ilPropertyFormGUI $form)
+    public function populateQuestionSpecificFormPart(ilPropertyFormGUI $form): ilPropertyFormGUI
     {
         // shuffle answers
         $shuffleAnswers = new ilCheckboxInputGUI($this->lng->txt("shuffle_answers"), "shuffle_answers_enabled");
@@ -172,17 +182,18 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 
         if (!$this->object->getSelfAssessmentEditingMode() && $this->object->isSingleLineAnswerType($this->object->getAnswerType())) {
             // thumb size
-            $thumbSize = new ilNumberInputGUI($this->lng->txt('thumb_size'), 'thumb_size');
-            $thumbSize->setSuffix($this->lng->txt("thumb_size_unit_pixel"));
-            $thumbSize->setInfo($this->lng->txt('thumb_size_info'));
-            $thumbSize->setDecimals(false);
-            $thumbSize->setMinValue(20);
-            $thumbSize->setSize(6);
-            if ($this->object->getThumbSize() > 0) {
-                $thumbSize->setValue($this->object->getThumbSize());
-            }
-            $form->addItem($thumbSize);
+            $thumb_size = new ilNumberInputGUI($this->lng->txt('thumb_size'), 'thumb_size');
+            $thumb_size->setSuffix($this->lng->txt("thumb_size_unit_pixel"));
+            $thumb_size->setInfo($this->lng->txt('thumb_size_info'));
+            $thumb_size->setDecimals(false);
+            $thumb_size->setMinValue(20);
+            $thumb_size->setSize(6);
+            $thumb_size->setValue($this->object->getThumbSize());
+        } else {
+            $thumb_size = new ilHiddenInputGUI('thumb_size');
+            $thumb_size->setValue($this->object->getThumbSize());
         }
+        $form->addItem($thumb_size);
 
         // option label
         $optionLabel = new ilRadioGroupInputGUI($this->lng->txt('option_label'), 'option_label');
@@ -233,9 +244,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
     /**
      * @param ilPropertyFormGUI $form
      */
-    public function writeQuestionSpecificPostData(ilPropertyFormGUI $form)
+    public function writeQuestionSpecificPostData(ilPropertyFormGUI $form): void
     {
-        $oldAnswerType = $this->object->getAnswerType();
+        $old_answer_type = $this->object->getAnswerType();
 
         $this->object->setShuffleAnswersEnabled($form->getItemByPostVar('shuffle_answers_enabled')->getChecked());
 
@@ -245,8 +256,8 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
             $this->object->setAnswerType(assKprimChoice::ANSWER_TYPE_MULTI_LINE);
         }
 
-        if (!$this->object->getSelfAssessmentEditingMode() && $this->object->isSingleLineAnswerType($oldAnswerType)) {
-            $this->object->setThumbSize($form->getItemByPostVar('thumb_size')->getValue());
+        if (!$this->object->getSelfAssessmentEditingMode() && $this->object->isSingleLineAnswerType($old_answer_type)) {
+            $this->object->setThumbSize((int) ($form->getItemByPostVar('thumb_size')->getValue() ?? $this->object->getThumbSize()));
         }
 
         $this->object->setOptionLabel($form->getItemByPostVar('option_label')->getValue());
@@ -269,7 +280,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      * @param ilPropertyFormGUI $form
      * @return ilPropertyFormGUI
      */
-    public function populateAnswerSpecificFormPart(ilPropertyFormGUI $form)
+    public function populateAnswerSpecificFormPart(ilPropertyFormGUI $form): ilPropertyFormGUI
     {
         require_once 'Modules/TestQuestionPool/classes/class.ilKprimChoiceWizardInputGUI.php';
         $kprimAnswers = new ilKprimChoiceWizardInputGUI($this->lng->txt('answers'), 'kprim_answers');
@@ -293,7 +304,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
     /**
      * @param ilPropertyFormGUI $form
      */
-    public function writeAnswerSpecificPostData(ilPropertyFormGUI $form)
+    public function writeAnswerSpecificPostData(ilPropertyFormGUI $form): void
     {
         $answers = $form->getItemByPostVar('kprim_answers')->getValues();
         $answers = $this->handleAnswerTextsSubmit($answers);
@@ -321,7 +332,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      * @param integer $pass
      * @return string
      */
-    public function getSpecificFeedbackOutput($userSolution)
+    public function getSpecificFeedbackOutput(array $userSolution): string
     {
         return ''; // question type supports inline answer specific feedback
     }
@@ -343,27 +354,13 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $is_postponed = false,
         $use_post_solutions = false,
         $showInlineFeedback = false
-    ) {
-
-// fau: imageBox - init colorbox
-        include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
-        iljQueryUtil::initjQuery();
-        iljQueryUtil::initColorbox();
-        // fau.
-
+    ): string {
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();
 
         // get the solution of the user for the active pass or from the last pass if allowed
         $user_solution = array();
         if ($active_id) {
-            // hey: prevPassSolutions - obsolete due to central check
-            #$solutions = NULL;
-            #include_once "./Modules/Test/classes/class.ilObjTest.php";
-            #if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-            #{
-            #	if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-            #}
             $solutions = $this->object->getTestOutputSolutions($active_id, $pass);
             // hey.
             foreach ($solutions as $idx => $solution_value) {
@@ -384,27 +381,27 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
                     $template->setVariable("TEXT_PREVIEW", $this->lng->txt('preview'));
                     $template->setVariable("IMG_PREVIEW", ilUtil::getImagePath('enlarge.svg'));
                     $template->setVariable("ANSWER_IMAGE_URL", $answer->getThumbWebPath());
-                    list($width, $height, $type, $attr) = getimagesize($answer->getImageFsPath());
+                    [$width, $height, $type, $attr] = getimagesize($answer->getImageFsPath());
                     $alt = $answer->getImageFile();
                     if (strlen($answer->getAnswertext())) {
                         $alt = $answer->getAnswertext();
                     }
                     $alt = preg_replace("/<[^>]*?>/", "", $alt);
-                    $template->setVariable("ANSWER_IMAGE_ALT", ilUtil::prepareFormOutput($alt));
-                    $template->setVariable("ANSWER_IMAGE_TITLE", ilUtil::prepareFormOutput($alt));
+                    $template->setVariable("ANSWER_IMAGE_ALT", ilLegacyFormElementsUtil::prepareFormOutput($alt));
+                    $template->setVariable("ANSWER_IMAGE_TITLE", ilLegacyFormElementsUtil::prepareFormOutput($alt));
                     $template->parseCurrentBlock();
                 } else {
                     $template->setCurrentBlock("answer_image");
                     $template->setVariable("ANSWER_IMAGE_URL", $answer->getImageWebPath());
-                    list($width, $height, $type, $attr) = getimagesize($answer->getImageFsPath());
+                    [$width, $height, $type, $attr] = getimagesize($answer->getImageFsPath());
                     $alt = $answer->getImageFile();
                     if (strlen($answer->getAnswertext())) {
                         $alt = $answer->getAnswertext();
                     }
                     $alt = preg_replace("/<[^>]*?>/", "", $alt);
                     $template->setVariable("ATTR", $attr);
-                    $template->setVariable("ANSWER_IMAGE_ALT", ilUtil::prepareFormOutput($alt));
-                    $template->setVariable("ANSWER_IMAGE_TITLE", ilUtil::prepareFormOutput($alt));
+                    $template->setVariable("ANSWER_IMAGE_ALT", ilLegacyFormElementsUtil::prepareFormOutput($alt));
+                    $template->setVariable("ANSWER_IMAGE_TITLE", ilLegacyFormElementsUtil::prepareFormOutput($alt));
                     $template->parseCurrentBlock();
                 }
             }
@@ -451,14 +448,8 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      * @param bool $show_question_only
      * @param bool $showInlineFeedback
      */
-    public function getPreview($show_question_only = false, $showInlineFeedback = false)
+    public function getPreview($show_question_only = false, $showInlineFeedback = false): string
     {
-        // fau: imageBox - init colorbox
-        include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
-        iljQueryUtil::initjQuery();
-        iljQueryUtil::initColorbox();
-        // fau.
-
         $user_solution = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : array();
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();
@@ -476,27 +467,27 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
                     $template->setVariable("TEXT_PREVIEW", $this->lng->txt('preview'));
                     $template->setVariable("IMG_PREVIEW", ilUtil::getImagePath('enlarge.svg'));
                     $template->setVariable("ANSWER_IMAGE_URL", $answer->getThumbWebPath());
-                    list($width, $height, $type, $attr) = getimagesize($answer->getImageFsPath());
+                    [$width, $height, $type, $attr] = getimagesize($answer->getImageFsPath());
                     $alt = $answer->getImageFile();
                     if (strlen($answer->getAnswertext())) {
                         $alt = $answer->getAnswertext();
                     }
                     $alt = preg_replace("/<[^>]*?>/", "", $alt);
-                    $template->setVariable("ANSWER_IMAGE_ALT", ilUtil::prepareFormOutput($alt));
-                    $template->setVariable("ANSWER_IMAGE_TITLE", ilUtil::prepareFormOutput($alt));
+                    $template->setVariable("ANSWER_IMAGE_ALT", ilLegacyFormElementsUtil::prepareFormOutput($alt));
+                    $template->setVariable("ANSWER_IMAGE_TITLE", ilLegacyFormElementsUtil::prepareFormOutput($alt));
                     $template->parseCurrentBlock();
                 } else {
                     $template->setCurrentBlock("answer_image");
                     $template->setVariable("ANSWER_IMAGE_URL", $answer->getImageWebPath());
-                    list($width, $height, $type, $attr) = getimagesize($answer->getImageFsPath());
+                    [$width, $height, $type, $attr] = getimagesize($answer->getImageFsPath());
                     $alt = $answer->getImageFile();
                     if (strlen($answer->getAnswertext())) {
                         $alt = $answer->getAnswertext();
                     }
                     $alt = preg_replace("/<[^>]*?>/", "", $alt);
                     $template->setVariable("ATTR", $attr);
-                    $template->setVariable("ANSWER_IMAGE_ALT", ilUtil::prepareFormOutput($alt));
-                    $template->setVariable("ANSWER_IMAGE_TITLE", ilUtil::prepareFormOutput($alt));
+                    $template->setVariable("ANSWER_IMAGE_ALT", ilLegacyFormElementsUtil::prepareFormOutput($alt));
+                    $template->setVariable("ANSWER_IMAGE_TITLE", ilLegacyFormElementsUtil::prepareFormOutput($alt));
                     $template->parseCurrentBlock();
                 }
             }
@@ -507,7 +498,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 
             $template->setCurrentBlock("answer_row");
             $template->setVariable("ANSWER_ID", $answer_id);
-            $template->setVariable("ANSWER_TEXT", $this->object->prepareTextareaOutput($answer->getAnswertext(), true));
+            $template->setVariable("ANSWER_TEXT", $this->object->prepareTextareaOutput((string) $answer->getAnswertext(), true));
             $template->setVariable('VALUE_TRUE', 1);
             $template->setVariable('VALUE_FALSE', 0);
 
@@ -548,17 +539,6 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
     }
 
     /**
-     * Question type specific support of intermediate solution output
-     * The function getSolutionOutput respects getUseIntermediateSolution()
-     * @return bool
-     */
-    public function supportsIntermediateSolutionOutput()
-    {
-        return true;
-    }
-
-
-    /**
      * @param $active_id
      * @param null $pass
      * @param bool $graphicalOutput
@@ -579,14 +559,14 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $show_correct_solution = false,
         $show_manual_scoring = false,
         $show_question_text = true
-    ) {
+    ): string {
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();
 
         // get the solution of the user for the active pass or from the last pass if allowed
         $user_solution = array();
         if (($active_id > 0) && (!$show_correct_solution)) {
-            $solutions = $this->object->getSolutionValues($active_id, $pass, !$this->getUseIntermediateSolution());
+            $solutions = $this->object->getSolutionValues($active_id, $pass);
             foreach ($solutions as $idx => $solution_value) {
                 $user_solution[$solution_value['value1']] = $solution_value['value2'];
             }
@@ -603,22 +583,16 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         foreach ($keys as $answer_id) {
             $answer = $this->object->getAnswer($answer_id);
 
-            if (($active_id > 0) && (!$show_correct_solution)) {
-                if ($graphicalOutput) {
-                    // output of ok/not ok icons for user entered solutions
-
-                    if ($user_solution[$answer->getPosition()] == $answer->getCorrectness()) {
-                        $template->setCurrentBlock("icon_ok");
-                        $template->setVariable("ICON_OK", ilUtil::getImagePath("icon_ok.svg"));
-                        $template->setVariable("TEXT_OK", $this->lng->txt("answer_is_right"));
-                        $template->parseCurrentBlock();
-                    } else {
-                        $template->setCurrentBlock("icon_ok");
-                        $template->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_not_ok.svg"));
-                        $template->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_wrong"));
-                        $template->parseCurrentBlock();
-                    }
+            if (($active_id > 0) &&
+                !$show_correct_solution &&
+                $graphicalOutput) {
+                $correctness_icon = $this->generateCorrectnessIconsForCorrectness(self::CORRECTNESS_NOT_OK);
+                if (isset($user_solution[$answer->getPosition()]) && $user_solution[$answer->getPosition()] == $answer->getCorrectness()) {
+                    $correctness_icon = $this->generateCorrectnessIconsForCorrectness(self::CORRECTNESS_OK);
                 }
+                $template->setCurrentBlock("icon_ok");
+                $template->setVariable("ICON_OK", $correctness_icon);
+                $template->parseCurrentBlock();
             }
             if (strlen($answer->getImageFile())) {
                 $template->setCurrentBlock("answer_image");
@@ -628,8 +602,18 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
                     $template->setVariable("ANSWER_IMAGE_URL", $answer->getImageWebPath());
                 }
 
-                $template->setVariable("ANSWER_IMAGE_ALT", ilUtil::prepareFormOutput($answer->getImageFile()));
-                $template->setVariable("ANSWER_IMAGE_TITLE", ilUtil::prepareFormOutput($answer->getImageFile()));
+                $template->setVariable(
+                    "ANSWER_IMAGE_ALT",
+                    ilLegacyFormElementsUtil::prepareFormOutput(
+                        $answer->getImageFile()
+                    )
+                );
+                $template->setVariable(
+                    "ANSWER_IMAGE_TITLE",
+                    ilLegacyFormElementsUtil::prepareFormOutput(
+                        $answer->getImageFile()
+                    )
+                );
                 $template->parseCurrentBlock();
             }
 
@@ -704,7 +688,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 
 
         $questionoutput = $template->get();
-        $feedback = ($show_feedback && !$this->isTestPresentationContext()) ? $this->getGenericFeedbackOutput($active_id, $pass) : "";
+        $feedback = ($show_feedback && !$this->isTestPresentationContext()) ? $this->getGenericFeedbackOutput((int) $active_id, $pass) : "";
 
         $solutiontemplate = new ilTemplate("tpl.il_as_tst_solution_output.html", true, true, "Modules/TestQuestionPool");
 
@@ -734,13 +718,13 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $choiceKeys = array_keys($this->object->getAnswers());
 
         if ($this->object->isShuffleAnswersEnabled()) {
-            $choiceKeys = $this->object->getShuffler()->shuffle($choiceKeys);
+            $choiceKeys = $this->object->getShuffler()->transform($choiceKeys);
         }
 
         return $choiceKeys;
     }
 
-    private function populateSpecificFeedbackInline($user_solution, $answer_id, $template)
+    private function populateSpecificFeedbackInline($user_solution, $answer_id, $template): void
     {
         require_once 'Modules/TestQuestionPool/classes/feedback/class.ilAssConfigurableMultiOptionQuestionFeedback.php';
 
@@ -787,7 +771,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      *
      * @return string[]
      */
-    public function getAfterParticipationSuppressionAnswerPostVars()
+    public function getAfterParticipationSuppressionAnswerPostVars(): array
     {
         return array();
     }
@@ -801,7 +785,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      *
      * @return string[]
      */
-    public function getAfterParticipationSuppressionQuestionPostVars()
+    public function getAfterParticipationSuppressionQuestionPostVars(): array
     {
         return array();
     }
@@ -809,12 +793,10 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
     /**
      * Returns an html string containing a question specific representation of the answers so far
      * given in the test for use in the right column in the scoring adjustment user interface.
-     *
      * @param array $relevant_answers
-     *
      * @return string
      */
-    public function getAggregatedAnswersView($relevant_answers)
+    public function getAggregatedAnswersView(array $relevant_answers): string
     {
         return  $this->renderAggregateView(
             $this->aggregateAnswers($relevant_answers, $this->object->getAnswers())
@@ -823,7 +805,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         return '<pre>' . print_r($relevant_answers, 1) . '</pre>';
     }
 
-    public function renderAggregateView($aggregate)
+    public function renderAggregateView($aggregate): ilTemplate
     {
         $trueOptionLabel = $this->object->getTrueOptionLabelTranslation($this->lng, $this->object->getOptionLabel());
         $falseOptionLabel = $this->object->getFalseOptionLabelTranslation($this->lng, $this->object->getOptionLabel());
@@ -845,7 +827,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         return $tpl;
     }
 
-    public function aggregateAnswers($rawSolutionData, $answers)
+    public function aggregateAnswers($rawSolutionData, $answers): array
     {
         $aggregate = array();
 
@@ -870,7 +852,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         return $aggregate;
     }
 
-    public function getAnswersFrequency($relevantAnswers, $questionIndex)
+    public function getAnswersFrequency($relevantAnswers, $questionIndex): array
     {
         $agg = $this->aggregateAnswers($relevantAnswers, $this->object->getAnswers());
 
@@ -894,7 +876,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      * @param $questionIndex
      * @return ilKprimChoiceAnswerFreqStatTableGUI
      */
-    public function getAnswerFrequencyTableGUI($parentGui, $parentCmd, $relevantAnswers, $questionIndex)
+    public function getAnswerFrequencyTableGUI($parentGui, $parentCmd, $relevantAnswers, $questionIndex): ilAnswerFrequencyStatisticTableGUI
     {
         require_once 'Modules/TestQuestionPool/classes/tables/class.ilKprimChoiceAnswerFreqStatTableGUI.php';
 
@@ -906,7 +888,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         return $table;
     }
 
-    public function populateCorrectionsFormProperties(ilPropertyFormGUI $form)
+    public function populateCorrectionsFormProperties(ilPropertyFormGUI $form): void
     {
         // points
         $points = new ilNumberInputGUI($this->lng->txt('points'), 'points');
@@ -934,17 +916,15 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $kprimAnswers->setQuestionObject($this->object);
         $kprimAnswers->setValues($this->object->getAnswers());
         $form->addItem($kprimAnswers);
-
-        return $form;
     }
 
     /**
      * @param ilPropertyFormGUI $form
      */
-    public function saveCorrectionsFormProperties(ilPropertyFormGUI $form)
+    public function saveCorrectionsFormProperties(ilPropertyFormGUI $form): void
     {
         $this->object->setPoints(
-            (float) $form->getInput('points')
+            (float) str_replace(',', '.', $form->getInput('points'))
         );
 
         $this->object->setScorePartialSolutionEnabled(

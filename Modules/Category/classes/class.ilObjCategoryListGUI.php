@@ -1,54 +1,56 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
-include_once "Services/Object/classes/class.ilObjectListGUI.php";
+declare(strict_types=1);
 
 /**
-* Class ilObjCategoryListGUI
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* $Id$
-*
-* @ingroup ModulesCategory
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Category\StandardGUIRequest;
+
+/**
+ * Class ilObjCategoryListGUI
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilObjCategoryListGUI extends ilObjectListGUI
 {
+    protected StandardGUIRequest $cat_request;
 
     /**
      * Constructor
      */
-    public function __construct($a_context = self::CONTEXT_REPOSITORY)
+    public function __construct(int $a_context = self::CONTEXT_REPOSITORY)
     {
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
 
         parent::__construct($a_context);
         $this->ctrl = $DIC->ctrl();
+
+        $this->cat_request = $DIC
+            ->category()
+            ->internal()
+            ->gui()
+            ->standardRequest();
     }
 
     /**
     * initialisation
     */
-    public function init()
+    public function init(): void
     {
         $this->static_link_enabled = true;
         $this->delete_enabled = true;
@@ -61,30 +63,21 @@ class ilObjCategoryListGUI extends ilObjectListGUI
         $this->type = "cat";
         $this->gui_class_name = "ilobjcategorygui";
 
-        include_once('Services/AdvancedMetaData/classes/class.ilAdvancedMDSubstitution.php');
         $this->substitutions = ilAdvancedMDSubstitution::_getInstanceByObjectType($this->type);
         if ($this->substitutions->isActive()) {
             $this->substitutions_enabled = true;
         }
 
         // general commands array
-        include_once('./Modules/Category/classes/class.ilObjCategoryAccess.php');
         $this->commands = ilObjCategoryAccess::_getCommands();
     }
 
-    /**
-    *
-    * @param bool
-    * @return bool
-    */
-    public function getInfoScreenStatus()
+    public function getInfoScreenStatus(): bool
     {
-        include_once("./Services/Container/classes/class.ilContainer.php");
-        include_once("./Services/Object/classes/class.ilObjectServiceSettingsGUI.php");
         if (ilContainer::_lookupContainerSetting(
             $this->obj_id,
             ilObjectServiceSettingsGUI::INFO_TAB_VISIBILITY,
-            true
+            '1'
         )) {
             return $this->info_screen_enabled;
         }
@@ -92,36 +85,15 @@ class ilObjCategoryListGUI extends ilObjectListGUI
         return false;
     }
 
-    /**
-    * Get command target frame.
-    *
-    * Overwrite this method if link frame is not current frame
-    *
-    * @param	string		$a_cmd			command
-    *
-    * @return	string		command target frame
-    */
-    public function getCommandFrame($a_cmd)
-    {
-        // begin-patch fm
-        return parent::getCommandFrame($a_cmd);
-        // end-patch fm
-    }
-    /**
-    * Get command link url.
-    *
-    * @param	int			$a_ref_id		reference id
-    * @param	string		$a_cmd			command
-    *
-    */
-    public function getCommandLink($a_cmd)
+    public function getCommandLink(string $cmd): string
     {
         $ilCtrl = $this->ctrl;
-        
+
+        $cmd_link = "";
+
         // BEGIN WebDAV
-        switch ($a_cmd) {
+        switch ($cmd) {
             case 'mount_webfolder':
-                require_once('Services/WebDAV/classes/class.ilDAVActivationChecker.php');
                 if (ilDAVActivationChecker::_isActive()) {
                     global $DIC;
                     $uri_builder = new ilWebDAVUriBuilder($DIC->http()->request());
@@ -131,8 +103,12 @@ class ilObjCategoryListGUI extends ilObjectListGUI
             default:
                 // separate method for this line
                 $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $this->ref_id);
-                $cmd_link = $ilCtrl->getLinkTargetByClass("ilrepositorygui", $a_cmd);
-                $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $_GET["ref_id"]);
+                $cmd_link = $ilCtrl->getLinkTargetByClass("ilrepositorygui", $cmd);
+                $ilCtrl->setParameterByClass(
+                    "ilrepositorygui",
+                    "ref_id",
+                    $this->cat_request->getRefId()
+                );
                 break;
         }
         // END WebDAV
@@ -140,11 +116,8 @@ class ilObjCategoryListGUI extends ilObjectListGUI
         return $cmd_link;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function checkInfoPageOnAsynchronousRendering() : bool
+    public function checkInfoPageOnAsynchronousRendering(): bool
     {
         return true;
     }
-} // END class.ilObjCategoryGUI
+}

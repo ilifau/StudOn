@@ -1,63 +1,49 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Filesystem\Filesystem;
+use ILIAS\Filesystem\Exception\FileAlreadyExistsException;
+use ILIAS\Filesystem\Exception\FileNotFoundException;
+use ILIAS\Filesystem\Exception\IOException;
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateCloneAction
 {
-    /**
-     * @var ilLogger
-     */
-    private $logger;
+    private ilLogger $logger;
+    private ilCertificatePathFactory $pathFactory;
+    private ilCertificateTemplateRepository $templateRepository;
+    private ilDBInterface $database;
+    private Filesystem $fileSystem;
+    private ilCertificateObjectHelper $objectHelper;
+    private string $webDirectory;
+    private string $global_certificate_path;
 
-    /**
-     * @var ilCertificatePathFactory
-     */
-    private $pathFactory;
-
-    /**
-     * @var ilCertificateTemplateRepository
-     */
-    private $templateRepository;
-
-    /**
-     * @var ilDBInterface
-     */
-    private $database;
-
-    /**
-     * @var \ILIAS\Filesystem\Filesystem|null
-     */
-    private $fileSystem;
-
-    /**
-     * @var ilCertificateObjectHelper|null
-     */
-    private $objectHelper;
-
-    /**
-     * @var string
-     */
-    private $webDirectory;
-    private $global_certificate_path;
-
-    /**
-     * @param ilDBInterface $database
-     * @param ilCertificateFactory $certificateFactory
-     * @param ilCertificateTemplateRepository $templateRepository
-     * @param \ILIAS\Filesystem\Filesystem|null $fileSystem
-     * @param illLogger $logger
-     * @param ilCertificateObjectHelper|null $objectHelper
-     * @param string $rootDirectory
-     */
     public function __construct(
         ilDBInterface $database,
         ilCertificatePathFactory $pathFactory,
         ilCertificateTemplateRepository $templateRepository,
-        \ILIAS\Filesystem\Filesystem $fileSystem = null,
-        ilLogger $logger = null,
-        ilCertificateObjectHelper $objectHelper = null,
+        ?Filesystem $fileSystem = null,
+        ?ilLogger $logger = null,
+        ?ilCertificateObjectHelper $objectHelper = null,
         string $webDirectory = CLIENT_WEB_DIR,
         string $global_certificate_path = null
     ) {
@@ -91,16 +77,18 @@ class ilCertificateCloneAction
         }
         $this->global_certificate_path = $global_certificate_path;
 
+
         $this->webDirectory = $webDirectory;
     }
 
     /**
      * @param ilObject $oldObject
      * @param ilObject $newObject
-     * @param string $iliasVersion
-     * @throws \ILIAS\Filesystem\Exception\FileAlreadyExistsException
-     * @throws \ILIAS\Filesystem\Exception\FileNotFoundException
-     * @throws \ILIAS\Filesystem\Exception\IOException
+     * @param string   $iliasVersion
+     * @param string   $webDir
+     * @throws FileAlreadyExistsException
+     * @throws FileNotFoundException
+     * @throws IOException
      * @throws ilDatabaseException
      * @throws ilException
      */
@@ -109,7 +97,7 @@ class ilCertificateCloneAction
         ilObject $newObject,
         string $iliasVersion = ILIAS_VERSION_NUMERIC,
         string $webDir = CLIENT_WEB_DIR
-    ) {
+    ): void {
         $oldType = $oldObject->getType();
         $newType = $newObject->getType();
 
@@ -139,7 +127,8 @@ class ilCertificateCloneAction
                 ) {
                     $newBackgroundImage = $certificatePath . $backgroundImageFile;
                     $newBackgroundImageThumbnail = str_replace(
-                        $webDir, '',
+                        $webDir,
+                        '',
                         $this->getBackgroundImageThumbPath($certificatePath)
                     );
                     if ($this->fileSystem->has($newBackgroundImage) &&
@@ -176,6 +165,7 @@ class ilCertificateCloneAction
 
             $newCardThumbImage = '';
             $cardThumbImagePath = $template->getThumbnailImagePath();
+
             if ($this->fileSystem->has($cardThumbImagePath) && !$this->fileSystem->hasDir($cardThumbImagePath)) {
                 $newCardThumbImage = $certificatePath . basename($cardThumbImagePath);
                 if ($this->fileSystem->has($newCardThumbImage) && !$this->fileSystem->hasDir($newCardThumbImage)) {
@@ -189,7 +179,7 @@ class ilCertificateCloneAction
 
             $newTemplate = new ilCertificateTemplate(
                 $newObject->getId(),
-                $this->objectHelper->lookupType((int) $newObject->getId()),
+                $this->objectHelper->lookupType($newObject->getId()),
                 $template->getCertificateContent(),
                 $template->getCertificateHash(),
                 $template->getTemplateValues(),
@@ -205,44 +195,32 @@ class ilCertificateCloneAction
         }
 
         // #10271
-        if ($this->readActive($oldObject->getId())) {
+        if ($this->isActive($oldObject->getId())) {
             $this->database->replace(
                 'il_certificate',
-                array('obj_id' => array('integer', $newObject->getId())),
-                array()
+                ['obj_id' => ['integer', $newObject->getId()]],
+                []
             );
         }
     }
 
-    /**
-     * @param integer $objectId
-     * @return int
-     */
-    private function readActive(int $objectId) : int
+    private function isActive(int $objectId): bool
     {
-        $sql = 'SELECT obj_id FROM il_certificate WHERE obj_id = ' . $this->database->quote($objectId, 'integer');
+        $sql = 'SELECT 1 FROM il_certificate WHERE obj_id = ' . $this->database->quote($objectId, 'integer');
 
-        $query = $this->database->query($sql);
+        if ($row = $this->database->fetchAssoc($this->database->query($sql))) {
+            return true;
+        }
 
-        return $this->database->numRows($query);
+        return false;
     }
 
-    /**
-     * Returns the filename of the background image
-     *
-     * @return string The filename of the background image
-     */
-    private function getBackgroundImageName()
+    private function getBackgroundImageName(): string
     {
         return "background.jpg";
     }
 
-    /**
-     * Returns the filesystem path of the background image thumbnail
-     * @param $certificatePath
-     * @return string The filesystem path of the background image thumbnail
-     */
-    private function getBackgroundImageThumbPath(string $certificatePath) : string
+    private function getBackgroundImageThumbPath(string $certificatePath): string
     {
         return $this->webDirectory . $certificatePath . $this->getBackgroundImageName() . ".thumb.jpg";
     }

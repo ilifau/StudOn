@@ -1,4 +1,4 @@
-**Component** Documentation
+**Survey**
 
 * [Public Services](#public-services)
 * [Internal Documentation](#internal-documentation)
@@ -6,11 +6,6 @@
 # Public Services
 
 This component does currently not offer any public services.
-
-# PDF Generation
-
-- If wkhtmltopdf is being used you must set the "Use print media type instead of screen" flag.
-- wkhtmltopdf struggles with canvas rendering, see e.g. https://github.com/wkhtmltopdf/wkhtmltopdf/issues/1964
 
 # Internal Documentation
 
@@ -193,6 +188,16 @@ Answer options for each question. Hold Scale Values. Texts are in Question Categ
 * table svy_svy (general settings of the survey)
   * obj_fi: general object -> object_data
   * ...
+  
+### Business Rules
+* **Codes**: If code usage is activated, every user (logged in or anonymous) must enter a code to participate.
+* **Privacy** (with/without names): The setting only affects the result presentation. No user names, account names or emails will be shown if privacy is activated (without names).
+* **Anonymous Access**: To give an external user (no ILIAS account) access to a suvey, **read permission** to the survey (and all upper container) must be granted to the **Anonymous Role**. The Codes or Privacy settings are not relevant.
+  * If an **anonymous user accesses via code** and suspends the survey. The user will be able to continue without entering the code, as long as the (anonymous) user session is valid. After the session has ended, the user needs to re-enter the code to be able to resume the survey.
+  * If an **anonymous user accesses without code**, the use will **not get** a "Suspend" button. However as long as the (anonymous) user session is valid in the browser, the user may re-enter the survey and click on "Resume". After finishing the survey, a re-entering is not possible within the current (anonymous) user session. However a new anonymous user session will allow to perform the survey again.
+    (Current issue: when the survey is set to "with names", a Suspend button will be shown. After suspending a "Start" instead of a "Resume" button is shown, even if given answers are store in the session. If the survey has been finished, the start button is still displayed, but an error message "You already finished" is shown on click. A new user session will not allow to re-enter the Survey.)
+* 360° surveys do not allow to activate Codes on the top level. However **external raters** can be added to appraisees. These will get access codes assigned. External raters can access the survey **via code**, **no anonymous role permissions** or **public area configuration** are needed.
+* 360° surveys do not allow to set privacy settings. 
 
 ## Survey Questions
 * **Code**:
@@ -273,16 +278,24 @@ If the constraint is met, show the question.
   * finished_id: autoincrement and pk of this table
   * survey_fi: survey -> svy_svy
   * user_fi: user -> usr_data (and object_data)
-  * anonymous_id:
-  * state: 1 if finished? 0 otherwise?
+  * anonymous_id: this is the survey key, aka code, (NOT the field anonymous_id) from table svy_anonymous
+  * state: 1 finished, 0 otherwise
   * lastpage:
-  * appr_id:
+  * appr_id: If a survey supports appraisees, this is the user ID of the appraisee. For self evaluations this is the user id of the current user.
 * table svy_times (Access times to survey pages during a run. Back and forward navigation lead to multiple entries per run for a page)
   * finished_fi: survey run -> svy_finished
   * first_question: first question id of page/block -> svy_question (does not seem to point to svy_svy_qst)
   * entered_page: timestamp when page has been rendered
   * left_page: timestamp when answers of page have been saved
-  
+
+### Business Rules
+
+* **Suspend Behaviour**: Clicking suspend will leave the survey without saving the inputs of the current page. Resume will present the page left with empty input. JF decision: https://mantis.ilias.de/view.php?id=30766
+* **Final Page**
+  * The final page will contain a button named "Back to Repository", see https://mantis.ilias.de/view.php?id=14292
+  * The button on the final survey page will lead to the container of the survey. Exception are 360° surveys, they will return to the info page, see https://mantis.ilias.de/view.php?id=14971
+
+
 ## Answer
 * **Code**:
 * **DB Tables**: `svy_answer`
@@ -295,7 +308,8 @@ If the constraint is met, show the question.
   * active_fi: survey run -> svy_finished
   * question_fi: question -> svy_question (does not point to svy_svy_qst)
   * value: scale value of corresponding "variable" - 1 (!)
-    (metric question answers have the entered value stored, no "-1" !)
+    * metric question answers have the entered value stored, no "-1" !
+    * metric questions allow to enter floats like 2.5
   * textanswer: Text answer
   * rowvalue: Matrix question row, starting with 0
   

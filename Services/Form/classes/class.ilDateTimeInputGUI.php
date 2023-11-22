@@ -1,48 +1,45 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
 
 /**
-* This class represents a date/time property in a property form.
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-* @ingroup	ServicesForm
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * This class represents a date/time property in a property form.
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFilterItem, ilToolbarItem
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected ilObjUser $user;
+    protected ?ilDateTime $date = null;
+    protected string $time = "00:00:00";
+    protected bool $showtime = false;
+    protected bool $showseconds = false;
+    protected int $minute_step_size = 5;
+    protected ?int $startyear = null;
+    protected string $invalid_input = '';
+    protected bool $side_by_side = true;
+    protected bool $valid = false;
 
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
-
-    protected $date;
-    protected $time = "00:00:00";
-    protected $showtime = false;
-    protected $showseconds = false;
-    protected $minute_step_size = 5;
-    protected $startyear = '';
-    protected $invalid_input = '';
-
-    /**
-     * @var bool
-     */
-    protected $side_by_side = true;
-    /** @var ilDateTime|null */
-    protected $valid_incoming_datetime = null;
-
-    /**
-    * Constructor
-    *
-    * @param	string	$a_title	Title
-    * @param	string	$a_postvar	Post Variable
-    */
-    public function __construct($a_title = "", $a_postvar = "")
-    {
+    public function __construct(
+        string $a_title = "",
+        string $a_postvar = ""
+    ) {
         global $DIC;
 
         $this->lng = $DIC->language();
@@ -52,165 +49,105 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
     }
 
     /**
-    * set date
-    * E.g	$dt_form->setDate(new ilDateTime(time(),IL_CAL_UTC));
-    * or 	$dt_form->setDate(new ilDateTime('2008-06-12 08:00:00',IL_CAL_DATETIME));
-    *
-    * For fullday (no timezone conversion) events use:
-    *
-    * 		$dt_form->setDate(new ilDate('2008-08-01',IL_CAL_DATE));
-    *
-    * @param	object	$a_date	ilDate or ilDateTime  object
-    */
-    public function setDate(ilDateTime $a_date = null)
+     * set date
+     * E.g	$dt_form->setDate(new ilDateTime(time(),IL_CAL_UTC));
+     * or 	$dt_form->setDate(new ilDateTime('2008-06-12 08:00:00',IL_CAL_DATETIME));
+     *
+     * For fullday (no timezone conversion) events use:
+     *
+     * 		$dt_form->setDate(new ilDate('2008-08-01',IL_CAL_DATE));
+     */
+    public function setDate(ilDateTime $a_date = null): void
     {
         $this->date = $a_date;
     }
 
-    /**
-    * Get Date, yyyy-mm-dd.
-    *
-    * @return	object	Date, yyyy-mm-dd
-    */
-    public function getDate()
+    public function getDate(): ?ilDateTime
     {
         return $this->date;
     }
 
-    /**
-    * Set Show Time Information.
-    *
-    * @param	boolean	$a_showtime	Show Time Information
-    */
-    public function setShowTime($a_showtime)
+    public function setShowTime(bool $a_showtime): void
     {
         $this->showtime = $a_showtime;
     }
 
-    /**
-    * Get Show Time Information.
-    *
-    * @return	boolean	Show Time Information
-    */
-    public function getShowTime()
+    public function getShowTime(): bool
     {
         return $this->showtime;
     }
-    
-    /**
-    * Set start year
-    *
-    * @param	integer	Start year
-    */
-    public function setStartYear($a_year)
+
+    public function setStartYear(int $a_year): void
     {
         $this->startyear = $a_year;
     }
-    
-    /**
-    * Get start year
-    *
-    * @return	integer	Start year
-    */
-    public function getStartYear()
+
+    public function getStartYear(): ?int
     {
         return $this->startyear;
     }
-    
+
     /**
      * Set minute step size
      * E.g 5 => The selection will only show 00,05,10... minutes
-     *
-     * @access public
-     * @param int minute step_size 1,5,10,15,20...
-     *
+     * @param int $a_step_size minute step_size 1,5,10,15,20...
      */
-    public function setMinuteStepSize($a_step_size)
+    public function setMinuteStepSize(int $a_step_size): void
     {
         $this->minute_step_size = $a_step_size;
     }
-    
-    /**
-     * Get minute step size
-     *
-     * @access public
-     *
-     */
-    public function getMinuteStepSize()
+
+    public function getMinuteStepSize(): int
     {
         return $this->minute_step_size;
     }
 
-    /**
-    * Set Show Seconds.
-    *
-    * @param	boolean	$a_showseconds	Show Seconds
-    */
-    public function setShowSeconds($a_showseconds)
+    public function setShowSeconds(bool $a_showseconds): void
     {
         $this->showseconds = $a_showseconds;
     }
 
-    /**
-    * Get Show Seconds.
-    *
-    * @return	boolean	Show Seconds
-    */
-    public function getShowSeconds()
+    public function getShowSeconds(): bool
     {
         return $this->showseconds;
     }
 
-    /**
-    * Set value by array
-    *
-    * @param	array	$a_values	value array
-    */
-    public function setValueByArray($a_values)
+    public function setValueByArray(array $a_values): void
     {
-        if ($this->valid_incoming_datetime !== null) {
-            $this->setDate($this->valid_incoming_datetime);
-        } else {
-            $incoming = $a_values[$this->getPostVar()];
-            $this->setDate(ilCalendarUtil::parseIncomingDate($incoming, $this->getDatePickerTimeFormat()));
-        }
+        $incoming = $a_values[$this->getPostVar()] ?? "";
+        $this->setDate(ilCalendarUtil::parseIncomingDate($incoming, (bool) $this->getDatePickerTimeFormat()));
 
         foreach ($this->getSubItems() as $item) {
             $item->setValueByArray($a_values);
         }
     }
-    
-    protected function getDatePickerTimeFormat()
+
+    protected function getDatePickerTimeFormat(): int
     {
         return (int) $this->getShowTime() + (int) $this->getShowSeconds();
     }
-    
-    public function hasInvalidInput()
+
+    public function hasInvalidInput(): bool
     {
         return (bool) $this->invalid_input;
     }
 
-    /**
-    * Check input, strip slashes etc. set alert, if input is not ok.
-    *
-    * @return	boolean		Input ok, true/false
-    */
-    public function checkInput()
+    public function checkInput(): bool
     {
         $lng = $this->lng;
-        
+
         if ($this->getDisabled()) {
             return true;
         }
 
-        $post = $_POST[$this->getPostVar()];
-        
+        $post = $this->str($this->getPostVar());
+
         // always done to make sure there are no obsolete values left
         $this->setDate(null);
-        
+
         $valid = false;
         if (trim($post)) {
-            $parsed = ilCalendarUtil::parseIncomingDate($post, $this->getDatePickerTimeFormat());
+            $parsed = ilCalendarUtil::parseIncomingDate($post, (bool) $this->getDatePickerTimeFormat());
             if ($parsed) {
                 $this->setDate($parsed);
                 $valid = true;
@@ -218,68 +155,55 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
         } elseif (!$this->getRequired()) {
             $valid = true;
         }
-        
+
         if ($valid &&
             $this->getDate() &&
             $this->getStartYear() &&
             $this->getDate()->get(IL_CAL_FKT_DATE, "Y") < $this->getStartYear()) {
             $valid = false;
         }
-        
+
+        $this->valid = $valid;
+
         if (!$valid) {
             $this->invalid_input = $post;
-            $_POST[$this->getPostVar()] = null;
-            
             $this->setAlert($lng->txt("form_msg_wrong_date"));
-        } else {
-            if ($this->getDate() !== null) {
-                // getInput() should return a generic format
-                $post_format = $this->getShowTime()
-                    ? IL_CAL_DATETIME
-                    : IL_CAL_DATE;
-                $this->valid_incoming_datetime = $this->getDate();
-                $_POST[$this->getPostVar()] = $this->getDate()->get($post_format);
-            } else {
-                $_POST[$this->getPostVar()] = null;
-            }
         }
-        
+
         if ($valid) {
             $valid = $this->checkSubItemsInput();
         }
-        
+
         return $valid;
     }
 
-    /**
-     * Set side by side
-     * @param bool $a_val side by side
-     */
-    public function setSideBySide(bool $a_val)
+    public function getInput(): ?string
+    {
+        if ($this->valid && $this->getDate() !== null) {
+            // getInput() should return a generic format
+            $post_format = $this->getShowTime()
+                ? IL_CAL_DATETIME
+                : IL_CAL_DATE;
+            return $this->getDate()->get($post_format);
+        }
+        return null;
+    }
+
+    public function setSideBySide(bool $a_val): void
     {
         $this->side_by_side = $a_val;
     }
 
-    /**
-     * Get side by side
-     * @return bool side by side
-     */
-    public function getSideBySide() : bool
+    public function getSideBySide(): bool
     {
         return $this->side_by_side;
     }
 
-
-    /**
-     * parse properties to datepicker config
-     *
-     * @return array
-     */
-    protected function parseDatePickerConfig()
+    protected function parseDatePickerConfig(): array
     {
         $config = null;
         if ($this->getMinuteStepSize()) {
-            $config['stepping'] = (int) $this->getMinuteStepSize();
+            $config['stepping'] = $this->getMinuteStepSize();
         }
         if ($this->getStartYear()) {
             $config['minDate'] = $this->getStartYear() . '-01-01';
@@ -288,22 +212,18 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
         return $config;
     }
 
-    /**
-    * Insert property html
-    *
-    */
-    public function render()
+    public function render(): string
     {
         $ilUser = $this->user;
         $lng = $this->lng;
-        
+
         $tpl = new ilTemplate("tpl.prop_datetime.html", true, true, "Services/Form");
 
         // config picker
         if (!$this->getDisabled()) {
             $picker_id = md5($this->getPostVar()); // :TODO: unique?
             $tpl->setVariable('DATEPICKER_ID', $picker_id);
-            
+
             ilCalendarUtil::addDateTimePicker(
                 $picker_id,
                 $this->getDatePickerTimeFormat(),
@@ -316,7 +236,7 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
         } else {
             $tpl->setVariable('DATEPICKER_DISABLED', 'disabled="disabled" ');
         }
-        
+
         // :TODO: i18n?
         $pl_format = ilCalendarUtil::getUserDateFormat($this->getDatePickerTimeFormat());
         $tpl->setVariable('PLACEHOLDER', $pl_format);
@@ -324,9 +244,9 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
         // accessibility description
         $tpl->setVariable(
             'DESCRIPTION',
-            ilUtil::prepareFormOutput($lng->txt("form_date_aria_desc") . " " . $pl_format)
+            ilLegacyFormElementsUtil::prepareFormOutput($lng->txt("form_date_aria_desc") . " " . $pl_format)
         );
-        
+
         // current value
         $date_value = htmlspecialchars($this->invalid_input);
         if (!$date_value &&
@@ -337,19 +257,15 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
 
         $tpl->setVariable('DATEPICKER_VALUE', $date_value);
         $tpl->setVariable('DATE_ID', $this->getPostVar());
-        
+
         if ($this->getRequired()) {
             $tpl->setVariable("REQUIRED", "required=\"required\"");
         }
-        
+
         return $tpl->get();
     }
 
-    /**
-     * Get onload code
-     * @return array
-     */
-    public function getOnloadCode() : array
+    public function getOnloadCode(): array
     {
         $code = [];
         if (!$this->getDisabled()) {
@@ -368,12 +284,7 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
         return $code;
     }
 
-    /**
-    * Insert property html
-    *
-    * @return	int	Size
-    */
-    public function insert($a_tpl)
+    public function insert(ilTemplate $a_tpl): void
     {
         $html = $this->render();
 
@@ -382,29 +293,21 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
         $a_tpl->parseCurrentBlock();
     }
 
-    /**
-    * Get HTML for table filter
-    */
-    public function getTableFilterHTML()
+    public function getTableFilterHTML(): string
     {
         $html = $this->render();
         return $html;
     }
 
-    /**
-    * serialize data
-    */
-    public function serializeData()
+    public function serializeData(): string
     {
         if ($this->getDate()) {
             return serialize($this->getDate()->get(IL_CAL_UNIX));
         }
+        return "";
     }
-    
-    /**
-     * unserialize data
-     */
-    public function unserializeData($a_data)
+
+    public function unserializeData(string $a_data): void
     {
         $tmp = unserialize($a_data);
         if ($tmp) {
@@ -418,31 +321,22 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
             }
             $this->setDate($date);
         } else {
-            $this->setDate(null);
+            $this->setDate();
         }
     }
 
-    /**
-     * parse post value to make it comparable
-     *
-     * used by combination input gui
-     */
-    public function getPostValueForComparison()
+    public function getPostValueForComparison(): string
     {
-        // :TODO:
-        return trim($_POST[$this->getPostVar()]);
+        return trim($this->str($this->getPostVar()));
     }
-    
-    /**
-    * Get HTML for toolbar
-    */
-    public function getToolbarHTML()
+
+    public function getToolbarHTML(): string
     {
-        $html = $this->render("toolbar");
+        $html = $this->render();
         return $html;
     }
-    
-    public function hideSubForm()
+
+    public function hideSubForm(): bool
     {
         return (!$this->getDate() || $this->getDate()->isNull());
     }

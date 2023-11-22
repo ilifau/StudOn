@@ -1,4 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 require_once(__DIR__ . "/../../../../../libs/composer/vendor/autoload.php");
 
@@ -6,53 +24,28 @@ class ilStudyProgrammeAssignmentTest extends \PHPUnit\Framework\TestCase
 {
     protected $backupGlobals = false;
 
-    public function testInitAndId() : ilStudyProgrammeAssignment
+    public function testPRGAssignmentInitAndId(): void
     {
-        $spa = new ilStudyProgrammeAssignment(123);
-        $this->assertEquals($spa->getId(), 123);
-        return $spa;
+        $ass = new ilPRGAssignment(123, 6);
+        $this->assertEquals($ass->getId(), 123);
+        $this->assertEquals($ass->getUserId(), 6);
     }
 
-    /**
-     * @depends testInitAndId
-     */
-    public function testRootId() : void
+    public function testPRGAssignmentProperties(): void
     {
-        $spa = (new ilStudyProgrammeAssignment(123))->withRootId(321);
-        $this->assertEquals($spa->getRootId(), 321);
-    }
+        $ass = new ilPRGAssignment(123, 456);
+        $now = new DateTimeImmutable();
 
-    /**
-     * @depends testInitAndId
-     */
-    public function testUserId() : void
-    {
-        $spa = (new ilStudyProgrammeAssignment(123))->withUserId(321);
-        $this->assertEquals($spa->getUserId(), 321);
-    }
+        $ass = $ass->withLastChange(6, $now);
+        $this->assertEquals($ass->getLastChangeBy(), 6);
+        $this->assertEquals($ass->getLastChange()->format(ilPRGAssignment::DATE_TIME_FORMAT), $now->format(ilPRGAssignment::DATE_TIME_FORMAT));
 
-    /**
-     * @depends testInitAndId
-     */
-    public function testWithLastChange() : void
-    {
-        $spa = (new ilStudyProgrammeAssignment(123))->withLastChange(
-            6,
-            $now = new DateTimeImmutable()
-        );
-        $this->assertEquals($spa->getLastChangeBy(), 6);
-        $this->assertEquals($spa->getLastChange()->format('Y-m-d H:i:s'), $now->format('Y-m-d H:i:s'));
-    }
+        $this->assertFalse($ass->withManuallyAssigned(false)->isManuallyAssigned());
+        $this->assertTrue($ass->withManuallyAssigned(true)->isManuallyAssigned());
 
-
-    /**
-     * @depends testInitAndId
-     */
-    public function testRestartDate() : void
-    {
         $dl = DateTimeImmutable::createFromFormat('Ymd', '20201001');
-        $spa = (new ilStudyProgrammeAssignment(123))->withRestarted(321, $dl);
-        $this->assertEquals($spa->getRestartDate()->format('Ymd'), '20201001');
-        $this->assertEquals($spa->getRestartedAssignmentId(), 321);
+        $ass = $ass->withRestarted(321, $dl);
+        $this->assertEquals($ass->getRestartDate()->format('Ymd'), '20201001');
+        $this->assertEquals($ass->getRestartedAssignmentId(), 321);
     }
 }

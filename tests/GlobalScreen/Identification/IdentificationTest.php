@@ -57,16 +57,13 @@ class IdentificationTest extends TestCase
      * @var Mockery\MockInterface|ilPlugin
      */
     private $plugin_mock;
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationFactory
-     */
-    private $identification;
+    private IdentificationFactory $identification;
 
 
     /**
      * @inheritDoc
      */
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -84,7 +81,7 @@ class IdentificationTest extends TestCase
     }
 
 
-    public function testMustThrowExceptionSinceSerializedIdentificationIsTooLong() : void
+    public function testMustThrowExceptionSinceSerializedIdentificationIsTooLong(): void
     {
         $string = str_repeat("x", SerializerInterface::MAX_LENGTH - strlen(self::MOCKED_PROVIDER_CLASSNAME) - strlen(CoreSerializer::DIVIDER) + 1);
         $this->expectException(LogicException::class);
@@ -92,7 +89,7 @@ class IdentificationTest extends TestCase
     }
 
 
-    public function testMustNotThrowExceptionSinceSerializedIdentificationIsExactLength() : void
+    public function testMustNotThrowExceptionSinceSerializedIdentificationIsExactLength(): void
     {
         $string = str_repeat("x", SerializerInterface::MAX_LENGTH - strlen(self::MOCKED_PROVIDER_CLASSNAME) - strlen(CoreSerializer::DIVIDER));
         $this->identification->core($this->provider_mock)->identifier($string);

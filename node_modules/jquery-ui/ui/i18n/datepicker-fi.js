@@ -17,8 +17,8 @@
 
 datepicker.regional.fi = {
 	closeText: "Sulje",
-	prevText: "Edellinen",
-	nextText: "Seuraava",
+	prevText: "&#xAB;Edellinen",
+	nextText: "Seuraava&#xBB;",
 	currentText: "Tänään",
 	monthNames: [ "Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu", "Toukokuu", "Kesäkuu",
 	"Heinäkuu", "Elokuu", "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu" ],

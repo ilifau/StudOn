@@ -1,46 +1,48 @@
 <?php
 
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
 
 /**
- * Handles cron (cli) request
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Stefan Meyer <smeyer.ilias@gmx.de>
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
  *
- */
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilCronStartUp
 {
-    private $client = '';
-    private $username = '';
-    private $password = '';
+    private string $client;
+    private string $username;
+    private string $password;
+    private ilAuthSession $authSession;
 
-    /** @var ilAuthSession */
-    private $authSession;
-
-    /**
-     * @param $a_client_id
-     * @param $a_login
-     * @param $a_password
-     * @param ilAuthSession|null $authSession
-     */
     public function __construct(
-        $a_client_id,
-        $a_login,
-        $a_password,
-        ilAuthSession $authSession = null
+        string $a_client_id,
+        string $a_login,
+        string $a_password,
+        ?ilAuthSession $authSession = null
     ) {
         $this->client = $a_client_id;
         $this->username = $a_login;
         $this->password = $a_password;
 
-        include_once './Services/Context/classes/class.ilContext.php';
+        /** @noRector  */
+        require_once './Services/Context/classes/class.ilContext.php';
         ilContext::init(ilContext::CONTEXT_CRON);
 
-        // define client
-        // @see mantis 20371
+        // @see mantis 20371: To get rid of this, the authentication service has to provide a mechanism to pass the client_id
         $_GET['client_id'] = $this->client;
-
-        include_once './include/inc.header.php';
+        /** @noRector  */
+        require_once './include/inc.header.php';
 
         if (null === $authSession) {
             global $DIC;
@@ -48,25 +50,23 @@ class ilCronStartUp
         }
         $this->authSession = $authSession;
     }
-    
+
 
     /**
      * Start authentication
-     * @return bool
-     *
      * @throws ilCronException if authentication failed.
      */
-    public function authenticate()
+    public function authenticate(): bool
     {
         $credentials = new ilAuthFrontendCredentials();
         $credentials->setUsername($this->username);
         $credentials->setPassword($this->password);
-        
+
         $provider_factory = new ilAuthProviderFactory();
         $providers = $provider_factory->getProviders($credentials);
-            
+
         $status = ilAuthStatus::getInstance();
-            
+
         $frontend_factory = new ilAuthFrontendFactory();
         $frontend_factory->setContext(ilAuthFrontendFactory::CONTEXT_CLI);
 
@@ -76,26 +76,24 @@ class ilCronStartUp
             $credentials,
             $providers
         );
-            
+
         $frontend->authenticate();
-            
+
         switch ($status->getStatus()) {
             case ilAuthStatus::STATUS_AUTHENTICATED:
                 ilLoggerFactory::getLogger('auth')->debug('Authentication successful; Redirecting to starting page.');
                 return true;
-                
 
-            default:
+
             case ilAuthStatus::STATUS_AUTHENTICATION_FAILED:
+            default:
                 throw new ilCronException($status->getTranslatedReason());
         }
+
         return true;
     }
 
-    /**
-     * Closes the current auth session
-     */
-    public function logout()
+    public function logout(): void
     {
         ilSession::setClosingContext(ilSession::SESSION_CLOSE_USER);
         $this->authSession->logout();

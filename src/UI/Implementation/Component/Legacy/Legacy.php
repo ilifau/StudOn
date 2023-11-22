@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2016 Timon Amstutz <timon.amstutz@ilub.unibe.ch> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Legacy;
 
@@ -9,7 +25,7 @@ use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
-use ILIAS\UI\NotImplementedException;
+use InvalidArgumentException;
 
 /**
  * Class Legacy
@@ -20,27 +36,11 @@ class Legacy implements C\Legacy\Legacy
     use ComponentHelper;
     use JavaScriptBindable;
 
-    /**
-     * @var	string
-     */
-    private $content;
+    private string $content;
+    private SignalGeneratorInterface $signal_generator;
+    private array $signal_list;
 
-    /**
-     * @var SignalGeneratorInterface
-     */
-    private $signal_generator;
-
-    /**
-     * @var array
-     */
-    private $signal_list;
-
-    /**
-     * Legacy constructor.
-     * @param string $content
-     * @param SignalGeneratorInterface $signal_generator
-     */
-    public function __construct($content, SignalGeneratorInterface $signal_generator)
+    public function __construct(string $content, SignalGeneratorInterface $signal_generator)
     {
         $this->checkStringArg("content", $content);
 
@@ -52,7 +52,7 @@ class Legacy implements C\Legacy\Legacy
     /**
      * @inheritdoc
      */
-    public function getContent()
+    public function getContent(): string
     {
         return $this->content;
     }
@@ -60,7 +60,7 @@ class Legacy implements C\Legacy\Legacy
     /**
      * @inheritdoc
      */
-    public function withCustomSignal(string $signal_name, string $js_code) : \ILIAS\UI\Component\Legacy\Legacy
+    public function withCustomSignal(string $signal_name, string $js_code): C\Legacy\Legacy
     {
         $clone = clone $this;
         $clone->registerSignalAndCustomCode($signal_name, $js_code);
@@ -70,10 +70,10 @@ class Legacy implements C\Legacy\Legacy
     /**
      * @inheritdoc
      */
-    public function getCustomSignal(string $signal_name) : Signal
+    public function getCustomSignal(string $signal_name): Signal
     {
         if (!key_exists($signal_name, $this->signal_list)) {
-            throw new \InvalidArgumentException("Signal with name $signal_name is not registered");
+            throw new InvalidArgumentException("Signal with name $signal_name is not registered");
         }
 
         return $this->signal_list[$signal_name]['signal'];
@@ -90,20 +90,16 @@ class Legacy implements C\Legacy\Legacy
      * )
      *
      * @deprecated Should only be used to connect legacy components. Will be removed in the future. Use at your own risk
-     * @return array
      */
-    public function getAllCustomSignals() : array
+    public function getAllCustomSignals(): array
     {
         return $this->signal_list;
     }
 
     /**
      * Registers new signal with its JavaScript code in the signal list
-     *
-     * @param string $signal_name
-     * @param string $js_code
      */
-    private function registerSignalAndCustomCode(string $signal_name, string $js_code)
+    private function registerSignalAndCustomCode(string $signal_name, string $js_code): void
     {
         $this->signal_list[$signal_name] = array(
             'signal' => $this->signal_generator->create(),

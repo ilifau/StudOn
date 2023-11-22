@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Field\Password;
+
 /**
  * Example of how to create and render a basic password field and attach it to a form.
  */

@@ -1,5 +1,19 @@
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /*
    Please note that this file should only contain common Javascript code
@@ -178,27 +192,6 @@ il.Util = {
 		{
 			obj.focus();
 			self.location.hash = id;
-		}
-	},
-	
-	// Set standard screen reader focus
-	setStdScreenReaderFocus: function() {
-		var obj = document.getElementById("il_message_focus");
-		if (obj) {
-			obj.focus();
-			self.location.hash = 'il_message_focus';
-		} else {
-			obj = document.getElementById("il_lm_head");
-			if (obj && self.location.hash == '') {
-				obj.focus();
-				self.location.hash = 'il_lm_head';
-			} else {
-				obj = document.getElementById("il_mhead_t_focus");
-				if (obj && self.location.hash == '') {
-					obj.focus();
-					self.location.hash = 'il_mhead_t_focus';
-				}
-			}
 		}
 	},
 	
@@ -431,7 +424,7 @@ il.UICore = {
 	is_page_visible: true,
 
 	/**
-	 *
+	 * 
 	 * @param {boolean} status
 	 */
 	setPageVisibilityStatus: function(status) {
@@ -439,7 +432,7 @@ il.UICore = {
 	},
 
 	/**
-	 *
+	 * 
 	 * @returns {boolean}
 	 */
 	isPageVisible: function() {
@@ -666,30 +659,6 @@ il.UICore = {
 			}
 		});
 		return;
-		/*
-		var n = document.getElementById('ilRightPanel');
-		if (!n) {
-			var b = $("body");
-			b.append("<div class='yui-skin-sam'><div id='ilRightPanel' class='ilOverlay ilRightPanel'>" +
-				"&nbsp;</div>");
-			var n = document.getElementById('ilRightPanel');
-			il.Overlay.add("ilRightPanel", {yuicfg: {}});
-			il.Overlay.show(null, "ilRightPanel");
-		}
-		else
-		{
-			il.Overlay.show(null, "ilRightPanel");
-		}
-		
-		il.Overlay.subscribe("ilRightPanel", "hide", function () {il.UICore.unloadWrapperFromRightPanel();});
-		
-		il.UICore.setRightPanelContent("");
-
-		n = document.getElementById('ilRightPanel');
-		n.style.width = '500px';
-		n.style.height = '100%';
-
-		 */
 	},
 	
 	setRightPanelContent: function (c) {
@@ -700,12 +669,6 @@ il.UICore = {
 	loadWrapperToRightPanel: function (wrapper_id) {
 		this.right_panel_wrapper = wrapper_id;
 		$("#" + wrapper_id).children().appendTo('#ilRightPanel');
-
-// fau: taxDesc - enable tooltips for nodes in taxonomy selector
-        if (il.Tooltip) {
-            il.Tooltip.init();
-        }
-// fau.
 	},
 	
 	// move the right panel content back to wrapper
@@ -1007,38 +970,6 @@ il.Language = {
 //// The following methods should be moved to the corresponding components
 ////
 
-/**
- * Opens a chat window
- *
- * @param   object	the link which was clicked
- * @param   int		desired width of the new window
- * @param   int		desired height of the new window
- */
-function openChatWindow(oLink, width, height)
-{
-	if(width == null)
-	{
-		width = screen.availWidth;
-	}
-	leftPos = (screen.availWidth / 2)- (width / 2);	
-	
-	if(height == null)
-	{
-		height = screen.availHeight;
-	}
-	topPos = (screen.availHeight / 2)- (height / 2);				
-
-	oChatWindow = window.open(
-		oLink.href, 
-		oLink.target, 
-		'width=' + width + ',height=' + height + ',left=' + leftPos + ',top=' + topPos +
-		',resizable=yes,scrollbars=yes,status=yes,toolbar=yes,menubar=yes,location=yes'
-	);
-
-	oChatWindow.focus();
-}
-
-
 function startSAHS(SAHSurl, SAHStarget, SAHSopenMode, SAHSwidth, SAHSheight)
 {
 	if (SAHSopenMode == 1){
@@ -1097,9 +1028,7 @@ function numericInputCheck() {
 
 		// Append ilcqinput_NumericInputInvalid class for visually distinguishable numeric input fields.
 		// -> Onload.
-		// fau: fixIos9 - use var instead of let
-		var value = $( numericInput ).val().toString().replace( ',', '.' );
-		// fau.
+		let value = $( numericInput ).val().toString().replace( ',', '.' );
 		if ( value && !$.isNumeric( value ) ) {
 			$( numericInput ).addClass( 'ilcqinput_NumericInputInvalid' );
 		} else {
@@ -1107,9 +1036,7 @@ function numericInputCheck() {
 		}
 		// -> OnChange.
 		$( numericInput ).on( 'change', function() {
-			// fau: fixIos9 - use var instead of let
-			var value = $( this ).val().toString().replace( ',', '.' );
-			// fau.
+			let value = $( this ).val().toString().replace( ',', '.' );
 			if ( value && !$.isNumeric( value ) ) {
 				$( this ).addClass( 'ilcqinput_NumericInputInvalid' );
 			} else {

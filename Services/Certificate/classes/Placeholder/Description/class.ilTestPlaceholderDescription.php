@@ -1,35 +1,36 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilTestPlaceholderDescription implements ilCertificatePlaceholderDescription
 {
-    /**
-     * @var ilDefaultPlaceholderDescription
-     */
-    private $defaultPlaceHolderDescriptionObject;
+    private ilDefaultPlaceholderDescription $defaultPlaceHolderDescriptionObject;
+    private ilLanguage $language;
+    private array $placeholder;
 
-    /**
-     * @var ilLanguage|null
-     */
-    private $language;
-
-    /**
-     * @var array
-     */
-    private $placeholder;
-
-    /**
-     * @param ilDefaultPlaceholderDescription|null $defaultPlaceholderDescriptionObject
-     * @param ilLanguage|null $language
-     * @param ilUserDefinedFieldsPlaceholderDescription|null $userDefinedFieldPlaceHolderDescriptionObject
-     */
     public function __construct(
-        ilDefaultPlaceholderDescription $defaultPlaceholderDescriptionObject = null,
-        ilLanguage $language = null,
-        ilUserDefinedFieldsPlaceholderDescription $userDefinedFieldPlaceHolderDescriptionObject = null
+        ?ilDefaultPlaceholderDescription $defaultPlaceholderDescriptionObject = null,
+        ?ilLanguage $language = null,
+        ?ilUserDefinedFieldsPlaceholderDescription $userDefinedFieldPlaceHolderDescriptionObject = null
     ) {
         global $DIC;
 
@@ -40,32 +41,51 @@ class ilTestPlaceholderDescription implements ilCertificatePlaceholderDescriptio
         $this->language = $language;
 
         if (null === $defaultPlaceholderDescriptionObject) {
-            $defaultPlaceholderDescriptionObject = new ilDefaultPlaceholderDescription($language, $userDefinedFieldPlaceHolderDescriptionObject);
+            $defaultPlaceholderDescriptionObject = new ilDefaultPlaceholderDescription(
+                $language,
+                $userDefinedFieldPlaceHolderDescriptionObject
+            );
         }
         $this->defaultPlaceHolderDescriptionObject = $defaultPlaceholderDescriptionObject;
 
         $this->placeholder = $this->defaultPlaceHolderDescriptionObject->getPlaceholderDescriptions();
 
-        $this->placeholder['RESULT_PASSED'] = ilUtil::prepareFormOutput($this->language->txt('certificate_var_result_passed'));
-        $this->placeholder['RESULT_POINTS'] = ilUtil::prepareFormOutput($this->language->txt('certificate_var_result_points'));
-        $this->placeholder['RESULT_PERCENT'] = ilUtil::prepareFormOutput($this->language->txt('certificate_var_result_percent'));
-        $this->placeholder['MAX_POINTS'] = ilUtil::prepareFormOutput($this->language->txt('certificate_var_max_points'));
-        $this->placeholder['RESULT_MARK_SHORT'] = ilUtil::prepareFormOutput($this->language->txt('certificate_var_result_mark_short'));
-        $this->placeholder['RESULT_MARK_LONG'] = ilUtil::prepareFormOutput($this->language->txt('certificate_var_result_mark_long'));
-        $this->placeholder['TEST_TITLE'] = ilUtil::prepareFormOutput($this->language->txt('certificate_ph_testtitle'));
-        $this->placeholder['DATE_COMPLETED'] = ilUtil::prepareFormOutput($language->txt('certificate_ph_date_completed'));
-        $this->placeholder['DATETIME_COMPLETED'] = ilUtil::prepareFormOutput($language->txt('certificate_ph_datetime_completed'));
+        $this->placeholder['RESULT_PASSED'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $this->language->txt('certificate_var_result_passed')
+        );
+        $this->placeholder['RESULT_POINTS'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $this->language->txt('certificate_var_result_points')
+        );
+        $this->placeholder['RESULT_PERCENT'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $this->language->txt('certificate_var_result_percent')
+        );
+        $this->placeholder['MAX_POINTS'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $this->language->txt('certificate_var_max_points')
+        );
+        $this->placeholder['RESULT_MARK_SHORT'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $this->language->txt('certificate_var_result_mark_short')
+        );
+        $this->placeholder['RESULT_MARK_LONG'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $this->language->txt('certificate_var_result_mark_long')
+        );
+        $this->placeholder['TEST_TITLE'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $this->language->txt('certificate_ph_testtitle')
+        );
+        $this->placeholder['DATE_COMPLETED'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $language->txt('certificate_ph_date_completed')
+        );
+        $this->placeholder['DATETIME_COMPLETED'] = ilLegacyFormElementsUtil::prepareFormOutput(
+            $language->txt('certificate_ph_datetime_completed')
+        );
     }
-
 
     /**
      * This methods MUST return an array containing an array with
      * the the description as array value.
-     *
      * @param ilTemplate|null $template
-     * @return mixed - [PLACEHOLDER] => 'description'
+     * @return string
      */
-    public function createPlaceholderHtmlDescription(ilTemplate $template = null) : string
+    public function createPlaceholderHtmlDescription(?ilTemplate $template = null): string
     {
         if (null === $template) {
             $template = new ilTemplate('tpl.default_description.html', true, true, 'Services/Certificate');
@@ -86,10 +106,9 @@ class ilTestPlaceholderDescription implements ilCertificatePlaceholderDescriptio
     /**
      * This method MUST return an array containing an array with
      * the the description as array value.
-     *
-     * @return mixed - [PLACEHOLDER] => 'description'
+     * @return array - [PLACEHOLDER] => 'description'
      */
-    public function getPlaceholderDescriptions() : array
+    public function getPlaceholderDescriptions(): array
     {
         return $this->placeholder;
     }

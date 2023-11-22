@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /* Copyright (c) 2018 - Richard Klees <richard.klees@concepts-and-training.de> - Extended GPL, see LICENSE */
 
 namespace ILIAS\KioskMode;
@@ -10,10 +13,10 @@ use ILIAS\UI;
  */
 interface TOCBuilder
 {
-    const LP_NOT_STARTED = 0;
-    const LP_IN_PROGRESS = 1;
-    const LP_COMPLETED = 2;
-    const LP_FAILED = 3;
+    public const LP_NOT_STARTED = 0;
+    public const LP_IN_PROGRESS = 1;
+    public const LP_COMPLETED = 2;
+    public const LP_FAILED = 3;
 
     /**
      * Finish building the TOC.
@@ -32,7 +35,7 @@ interface TOCBuilder
      *
      * @param	mixed $state one of the LP_ constants from TOCBuilder
      */
-    public function node($label, int $parameter = null, $lp = null) : TOCBuilder;
+    public function node(string $label, int $parameter = null, int $lp = null): TOCBuilder;
 
     /**
      * Build an entry in the TOC.
@@ -45,5 +48,5 @@ interface TOCBuilder
      * @param mixed $state one of the LP_ constants from TOCBuilder
      * @param bool $current is this the currently active item?
      */
-    public function item(string $label, int $parameter, $state = null, bool $current = false) : TOCBuilder;
+    public function item(string $label, int $parameter, $state = null, bool $current = false): TOCBuilder;
 }

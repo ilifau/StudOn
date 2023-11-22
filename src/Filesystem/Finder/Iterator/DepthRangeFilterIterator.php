@@ -1,9 +1,26 @@
 <?php
+
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Finder\Iterator;
 
 use ILIAS\Filesystem\Finder\Comparator\NumberComparator;
+use InvalidArgumentException;
+use RecursiveIteratorIterator;
+
+/******************************************************************************
+ *
+ * This file is part of ILIAS, a powerful learning management system.
+ *
+ * ILIAS is licensed with the GPL-3.0, you should have received a copy
+ * of said license along with the source code.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ *      https://www.ilias.de
+ *      https://github.com/ILIAS-eLearning
+ *
+ *****************************************************************************/
 
 /**
  * Class DepthRangeFilterIterator
@@ -12,26 +29,26 @@ use ILIAS\Filesystem\Finder\Comparator\NumberComparator;
  */
 class DepthRangeFilterIterator extends \FilterIterator
 {
-    /** @var int */
-    private $minDepth = 0;
+    private int $minDepth = 0;
 
     /**
      * DepthRangeFilterIterator constructor.
-     * @param \RecursiveIteratorIterator $iterator
-     * @param NumberComparator[]         $comparators
+     * @param RecursiveIteratorIterator $iterator
+     * @param NumberComparator[] $comparators
+     * @throws InvalidArgumentException
      */
-    public function __construct(\RecursiveIteratorIterator $iterator, array $comparators)
+    public function __construct(RecursiveIteratorIterator $iterator, array $comparators)
     {
-        array_walk($comparators, function ($comparator) {
+        array_walk($comparators, static function ($comparator): void {
             if (!($comparator instanceof NumberComparator)) {
                 if (is_object($comparator)) {
-                    throw new \InvalidArgumentException(sprintf(
+                    throw new InvalidArgumentException(sprintf(
                         'Invalid comparator given: %s',
                         get_class($comparator)
                     ));
                 }
 
-                throw new \InvalidArgumentException(sprintf('Invalid comparator given: %s', gettype($comparator)));
+                throw new InvalidArgumentException(sprintf('Invalid comparator given: %s', gettype($comparator)));
             }
         });
 
@@ -66,7 +83,7 @@ class DepthRangeFilterIterator extends \FilterIterator
     /**
      * @inheritdoc
      */
-    public function accept()
+    public function accept(): bool
     {
         return $this->getInnerIterator()->getDepth() >= $this->minDepth;
     }

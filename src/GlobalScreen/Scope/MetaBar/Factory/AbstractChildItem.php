@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MetaBar\Factory;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
-use ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
 
 /**
  * Class AbstractChildItem
@@ -29,16 +28,12 @@ use ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
  */
 abstract class AbstractChildItem extends AbstractBaseItem implements isItem, isChild
 {
-    use SymbolDecoratorTrait;
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationInterface|null
-     */
-    protected $parent;
+    protected ?IdentificationInterface $parent = null;
 
     /**
      * @inheritDoc
      */
-    public function withParent(IdentificationInterface $identification) : isItem
+    public function withParent(IdentificationInterface $identification): isItem
     {
         $clone = clone $this;
         $clone->parent = $identification;
@@ -49,7 +44,7 @@ abstract class AbstractChildItem extends AbstractBaseItem implements isItem, isC
     /**
      * @inheritDoc
      */
-    public function hasParent() : bool
+    public function hasParent(): bool
     {
         return ($this->parent instanceof IdentificationInterface);
     }
@@ -57,7 +52,7 @@ abstract class AbstractChildItem extends AbstractBaseItem implements isItem, isC
     /**
      * @inheritDoc
      */
-    public function getParent() : IdentificationInterface
+    public function getParent(): IdentificationInterface
     {
         return $this->parent;
     }
@@ -65,7 +60,7 @@ abstract class AbstractChildItem extends AbstractBaseItem implements isItem, isC
     /**
      * @inheritDoc
      */
-    public function overrideParent(IdentificationInterface $identification) : isChild
+    public function overrideParent(IdentificationInterface $identification): isChild
     {
         $this->parent = $identification;
 

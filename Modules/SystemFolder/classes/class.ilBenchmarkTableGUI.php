@@ -1,15 +1,25 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Table/classes/class.ilTable2GUI.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Benchmark table
  *
  * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- *
- * @ingroup ModulesSystemFolder
  */
 class ilBenchmarkTableGUI extends ilTable2GUI
 {
@@ -38,40 +48,18 @@ class ilBenchmarkTableGUI extends ilTable2GUI
         $this->setLimit(9999);
         $this->mode = $a_mode;
 
-        // fau: extendBenchmark - get total time
-        global $ilBench;
-        $this->total = $ilBench->getDbBenchTotalTime();
-        // fau.
-
-        // fau: extendBenchmark - add columns for time share and toggle, headers for grouping by SQL
-        $lng->loadLanguageModule('trac');
-
         switch ($this->mode) {
             case "slowest_first":
-                $this->setData(ilUtil::sortArray($a_records, "time", "desc", true));
+                $this->setData(ilArrayUtil::sortArray($a_records, "time", "desc", true));
                 $this->setTitle($lng->txt("adm_db_bench_slowest_first"));
                 $this->addColumn($this->lng->txt("adm_time"));
-                $this->addColumn($this->lng->txt("trac_percentage"));
-                $this->addColumn(' ');
                 $this->addColumn($this->lng->txt("adm_sql"));
                 break;
 
             case "sorted_by_sql":
-                $this->setData(ilUtil::sortArray($a_records, "sql", "asc"));
+                $this->setData(ilArrayUtil::sortArray($a_records, "sql", "asc"));
                 $this->setTitle($lng->txt("adm_db_bench_sorted_by_sql"));
                 $this->addColumn($this->lng->txt("adm_time"));
-                $this->addColumn($this->lng->txt("trac_percentage"));
-                $this->addColumn(' ');
-                $this->addColumn($this->lng->txt("adm_sql"));
-                break;
-
-            case "grouped_by_sql":
-                $this->setData($this->groupDataBySQL($a_records));
-                $this->setTitle($lng->txt("adm_db_bench_grouped_by_sql"));
-                $this->addColumn($this->lng->txt("adm_time"));
-                $this->addColumn($this->lng->txt("trac_percentage"));
-                $this->addColumn($this->lng->txt("adm_nr_statements"));
-                $this->addColumn(' ');
                 $this->addColumn($this->lng->txt("adm_sql"));
                 break;
 
@@ -79,7 +67,6 @@ class ilBenchmarkTableGUI extends ilTable2GUI
                 $this->setData($this->getDataByFirstTable($a_records));
                 $this->setTitle($lng->txt("adm_db_bench_by_first_table"));
                 $this->addColumn($this->lng->txt("adm_time"));
-                $this->addColumn($this->lng->txt("trac_percentage"));
                 $this->addColumn($this->lng->txt("adm_nr_statements"));
                 $this->addColumn($this->lng->txt("adm_table"));
                 break;
@@ -88,12 +75,10 @@ class ilBenchmarkTableGUI extends ilTable2GUI
                 $this->setData($a_records);
                 $this->setTitle($lng->txt("adm_db_bench_chronological"));
                 $this->addColumn($this->lng->txt("adm_time"));
-                $this->addColumn($this->lng->txt("trac_percentage"));
-                $this->addColumn(' ');
                 $this->addColumn($this->lng->txt("adm_sql"));
                 break;
+
         }
-        // fau.
 
         $this->setEnableHeader(true);
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj));
@@ -102,12 +87,7 @@ class ilBenchmarkTableGUI extends ilTable2GUI
         $this->setEnableTitle(true);
 
         //		$this->addMultiCommand("", $lng->txt(""));
-        //		$this->addCommandButton("", $lng->txt(""));
-
-        // fau: extendBenchmark - include JQUery for toggling the
-        include_once("./Services/jQuery/classes/class.iljQueryUtil.php");
-        ilJQueryUtil::initjQuery();
-        // fau.
+//		$this->addCommandButton("", $lng->txt(""));
     }
 
     /**
@@ -174,131 +154,33 @@ class ilBenchmarkTableGUI extends ilTable2GUI
             $data[$table]["time"] += $r["time"];
         }
         if (count($data) > 0) {
-            $data = ilUtil::sortArray($data, "time", "desc", true);
+            $data = ilArrayUtil::sortArray($data, "time", "desc", true);
         }
 
         return $data;
     }
-
-    // fau: extendBenchmark - new function to group data by SQL
-    public function groupDataBySQL($a_records)
-    {
-        $data = array();
-        foreach ($a_records as $r) {
-            $hash = md5($r["sql"]);
-            $data[$hash]["sql"] = $r["sql"];
-            $data[$hash]["cnt"]++;
-            $data[$hash]["time"] += $r["time"];
-
-            $bthash = md5($r["backtrace"]);
-            $data[$hash]["backtrace"][$bthash]["trace"] = $r["backtrace"];
-            $data[$hash]["backtrace"][$bthash]["count"]++;
-            $data[$hash]["backtrace"][$bthash]["time"] += $r["time"];
-        }
-
-        foreach ($data as $hash => $row) {
-            $backtraces = ilUtil::sortArray(array_values($row['backtrace']), "time", "desc", true);
-            $btstring = '';
-            foreach ($backtraces as $btrow) {
-                if ($this->total > 0) {
-                    $share = round(100 * $btrow['time'] / $this->total, 2) . '%';
-                }
-                $bthead = $btrow['count'] . "x - " . round($btrow['time'], 5) . "s " . $share . "\n";
-                $btstring .= $bthead . $btrow['trace'] . "\n\n";
-            }
-            $data[$hash]['backtrace'] = $btstring;
-        }
-
-        if (count($data) > 0) {
-            $data = ilUtil::sortArray(array_values($data), "time", "desc", true);
-        }
-
-        return $data;
-    }
-    // fau.
 
     /**
      * Fill table row
      */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         $lng = $this->lng;
-
-        // fau: extendBenchmark - add time share info, add backtraces, add groped_by_sql_mode
-        if ($this->total > 0) {
-            $share = round(100 * $a_set["time"] / $this->total, 2) . '%';
-        }
-        $expand_id = 'expand' . rand();
 
         switch ($this->mode) {
             case "by_first_table":
                 $this->tpl->setCurrentBlock("td");
-                $this->tpl->setVariable("VAL", round($a_set["time"], 5));
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("td");
-                $this->tpl->setVariable("VAL", $share);
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("td");
-                $this->tpl->setVariable("VAL", $a_set["cnt"]);
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("td");
                 $this->tpl->setVariable("VAL", $a_set["table"]);
                 $this->tpl->parseCurrentBlock();
+                $this->tpl->setVariable("VAL1", $a_set["time"]);
+                $this->tpl->setVariable("VAL2", $a_set["cnt"]);
                 break;
-
-            case "grouped_by_sql":
-                $this->tpl->setCurrentBlock("td");
-                $this->tpl->setVariable("VAL", round($a_set["time"], 5));
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("td");
-                $this->tpl->setVariable("VAL", $share);
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("td");
-                $this->tpl->setVariable("VAL", $a_set["cnt"]);
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("td2");
-                $this->tpl->setVariable("VAL2", wordwrap($a_set["sql"], 80, "\n", true));
-                $this->tpl->setVariable("EXPAND_ID", $expand_id);
-                $this->tpl->setVariable("EXPAND_VAL", $a_set["backtrace"]);
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("toggle");
-                $this->tpl->setVariable("EXPAND_ID", $expand_id);
-                $this->tpl->setVariable("EXPAND_IMG", ilUtil::getImagePath("tree_col.svg"));
-                $this->tpl->setVariable("EXPAND_TXT", $lng->txt('details'));
-                $this->tpl->parseCurrentBlock();
-                break;
-
 
             case "slowest_first":
             case "sorted_by_sql":
             default:
-                $this->tpl->setCurrentBlock("td");
-                $this->tpl->setVariable("VAL", round($a_set["time"], 5));
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("td");
-                $this->tpl->setVariable("VAL", $share);
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("td2");
-                $this->tpl->setVariable("VAL2", wordwrap($a_set["sql"], 80, "\n", true));
-                $this->tpl->setVariable("EXPAND_ID", $expand_id);
-                $this->tpl->setVariable("EXPAND_VAL", $a_set["backtrace"]);
-                $this->tpl->parseCurrentBlock();
-
-                $this->tpl->setCurrentBlock("toggle");
-                $this->tpl->setVariable("EXPAND_ID", $expand_id);
-                $this->tpl->setVariable("EXPAND_IMG", ilUtil::getImagePath("tree_col.svg"));
-                $this->tpl->setVariable("EXPAND_TXT", $lng->txt('details'));
-                $this->tpl->parseCurrentBlock();
-// fau.
+                $this->tpl->setVariable("VAL1", $a_set["time"]);
+                $this->tpl->setVariable("VAL2", $a_set["sql"]);
                 break;
         }
     }

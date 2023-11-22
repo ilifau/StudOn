@@ -25,13 +25,13 @@ require_once(__DIR__ . "/../../BaseNotificationSetUp.php");
  */
 class StandardNotificationGroupRendererTest extends BaseNotificationSetUp
 {
-    public function testConstruct() : void
+    public function testConstruct(): void
     {
         $renderer = new StandardNotificationGroupRenderer($this->getUIFactory());
         $this->assertInstanceOf(StandardNotificationGroupRenderer::class, $renderer);
     }
 
-    public function testGetNotificationComponentForItem() : void
+    public function testGetNotificationComponentForItem(): void
     {
         $renderer = new StandardNotificationGroupRenderer($this->getUIFactory());
         $icon = $this->getUIFactory()->symbol()->icon()->standard("mail", "mail");

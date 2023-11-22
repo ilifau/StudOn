@@ -1,66 +1,72 @@
 <?php
-require_once('class.arConnector.php');
-require_once(dirname(__FILE__) . '/../Exception/class.arException.php');
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class arConnectorDB
- *
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @author  Timon Amstutz <timon.amstutz@ilub.unibe.ch>
  * @version 2.0.7
  */
 class arConnectorDB extends arConnector
 {
+    private ?ilDBInterface $db;
 
-    /**
-     * @return ilDB
-     */
-    protected function returnDB()
+    public function __construct(?ilDBInterface $db = null)
     {
-        global $DIC;
-        $ilDB = $DIC['ilDB'];
+        if (is_null($db)) {
+            global $DIC;
 
-        return $ilDB;
+            $this->db = $GLOBALS['ilDB'] ?? $DIC['ilDB'] ?? null;
+        } else {
+            $this->db = $db;
+        }
     }
 
+    protected function returnDB(): ilDBInterface
+    {
+        if (is_null($this->db)) {
+            throw new arException("No DB-Connection available");
+        }
+        return $this->db;
+    }
 
-    /**
-     * @param ActiveRecord $ar
-     *
-     * @return bool
-     */
-    public function checkConnection(ActiveRecord $ar)
+    public function checkConnection(ActiveRecord $ar): bool
     {
         return is_object($this->returnDB());
     }
 
-
     /**
-     * @param ActiveRecord $ar
-     *
      * @return mixed
      */
-    public function nextID(ActiveRecord $ar)
+    public function nextID(ActiveRecord $ar): int
     {
         return $this->returnDB()->nextId($ar->getConnectorContainerName());
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     * @param              $fields
-     *
-     * @return bool
-     */
-    public function installDatabase(ActiveRecord $ar, $fields)
+    public function installDatabase(ActiveRecord $ar, array $fields): bool
     {
         $ilDB = $this->returnDB();
         $ilDB->createTable($ar->getConnectorContainerName(), $fields);
         $arFieldList = $ar->getArFieldList();
         if ($arFieldList->getPrimaryField()->getName()) {
-            $ilDB->addPrimaryKey($ar->getConnectorContainerName(), array( $arFieldList->getPrimaryField()->getName() ));
+            $ilDB->addPrimaryKey($ar->getConnectorContainerName(), array($arFieldList->getPrimaryField()->getName()));
         }
-        if ($ar->getArFieldList()->getPrimaryField()->getSequence() and !$ilDB->sequenceExists($ar->getConnectorContainerName())) {
+        if (!$ilDB->sequenceExists($ar->getConnectorContainerName()) && $ar->getArFieldList()->getPrimaryField()->getSequence()) {
             $ilDB->createSequence($ar->getConnectorContainerName());
         }
         $this->updateIndices($ar);
@@ -68,11 +74,7 @@ class arConnectorDB extends arConnector
         return true;
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     */
-    public function updateIndices(ActiveRecord $ar)
+    public function updateIndices(ActiveRecord $ar): void
     {
         $ilDB = $this->returnDB();
         $arFieldList = $ar->getArFieldList();
@@ -81,26 +83,24 @@ class arConnectorDB extends arConnector
         foreach ($arFieldList->getFields() as $i => $arField) {
             if ($arField->getIndex() === true) {
                 if (!in_array($arField->getName(), $existing_indices)) {
-                    if (!$ilDB->indexExistsByFields($ar->getConnectorContainerName(), array( $arField->getName() ))) {
-                        $ilDB->addIndex($ar->getConnectorContainerName(), array( $arField->getName() ), 'i' . $i);
+                    if (!$ilDB->indexExistsByFields($ar->getConnectorContainerName(), array($arField->getName()))) {
+                        $ilDB->addIndex($ar->getConnectorContainerName(), array($arField->getName()), 'i' . $i);
                     }
                 }
             }
         }
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     *
-     * @return bool
-     */
-    public function updateDatabase(ActiveRecord $ar)
+    public function updateDatabase(ActiveRecord $ar): bool
     {
         $ilDB = $this->returnDB();
         foreach ($ar->getArFieldList()->getFields() as $field) {
             if (!$ilDB->tableColumnExists($ar->getConnectorContainerName(), $field->getName())) {
-                $ilDB->addTableColumn($ar->getConnectorContainerName(), $field->getName(), $field->getAttributesForConnector());
+                $ilDB->addTableColumn(
+                    $ar->getConnectorContainerName(),
+                    $field->getName(),
+                    $field->getAttributesForConnector()
+                );
             }
         }
         $this->updateIndices($ar);
@@ -108,13 +108,7 @@ class arConnectorDB extends arConnector
         return true;
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     *
-     * @return bool
-     */
-    public function resetDatabase(ActiveRecord $ar)
+    public function resetDatabase(ActiveRecord $ar): bool
     {
         $ilDB = $this->returnDB();
         if ($ilDB->tableExists($ar->getConnectorContainerName())) {
@@ -125,11 +119,7 @@ class arConnectorDB extends arConnector
         return true;
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     */
-    public function truncateDatabase(ActiveRecord $ar)
+    public function truncateDatabase(ActiveRecord $ar): bool
     {
         $ilDB = $this->returnDB();
         $query = 'TRUNCATE TABLE ' . $ar->getConnectorContainerName();
@@ -138,15 +128,11 @@ class arConnectorDB extends arConnector
             $ilDB->dropSequence($ar->getConnectorContainerName());
             $ilDB->createSequence($ar->getConnectorContainerName());
         }
+
+        return true;
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     *
-     * @return mixed
-     */
-    public function checkTableExists(ActiveRecord $ar)
+    public function checkTableExists(ActiveRecord $ar): bool
     {
         $ilDB = $this->returnDB();
 
@@ -157,51 +143,26 @@ class arConnectorDB extends arConnector
         return $ilDB->tableExists($ar->getConnectorContainerName());
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     * @param              $field_name
-     *
-     * @return mixed
-     */
-    public function checkFieldExists(ActiveRecord $ar, $field_name)
+    public function checkFieldExists(ActiveRecord $ar, string $field_name): bool
     {
         $ilDB = $this->returnDB();
 
         return $ilDB->tableColumnExists($ar->getConnectorContainerName(), $field_name);
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     * @param              $field_name
-     *
-     * @return bool
-     * @throws arException
-     */
-    public function removeField(ActiveRecord $ar, $field_name)
+    public function removeField(ActiveRecord $ar, string $field_name): bool
     {
         $ilDB = $this->returnDB();
-        if ($ilDB->tableColumnExists($ar->getConnectorContainerName(), $field_name)) {
-            //throw new arException($field_name, arException::COLUMN_DOES_NOT_EXIST);
+        if (!$ilDB->tableColumnExists($ar->getConnectorContainerName(), $field_name)) {
+            throw new arException($field_name, arException::COLUMN_DOES_NOT_EXIST);
         }
         if ($ilDB->tableColumnExists($ar->getConnectorContainerName(), $field_name)) {
             $ilDB->dropTableColumn($ar->getConnectorContainerName(), $field_name);
-
-            return true;
         }
+        return true;
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     * @param              $old_name
-     * @param              $new_name
-     *
-     * @return bool
-     * @throws arException
-     */
-    public function renameField(ActiveRecord $ar, $old_name, $new_name)
+    public function renameField(ActiveRecord $ar, string $old_name, string $new_name): bool
     {
         $ilDB = $this->returnDB();
         if ($ilDB->tableColumnExists($ar->getConnectorContainerName(), $old_name)) {
@@ -216,28 +177,21 @@ class arConnectorDB extends arConnector
         return true;
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     */
-    public function create(ActiveRecord $ar)
+    public function create(ActiveRecord $ar): void
     {
         $ilDB = $this->returnDB();
         $ilDB->insert($ar->getConnectorContainerName(), $ar->getArrayForConnector());
     }
 
-
     /**
-     * @param ActiveRecord $ar
-     *
-     * @return array
+     * @return mixed[]
      */
-    public function read(ActiveRecord $ar)
+    public function read(ActiveRecord $ar): array
     {
         $ilDB = $this->returnDB();
 
         $query = 'SELECT * FROM ' . $ar->getConnectorContainerName() . ' ' . ' WHERE ' . arFieldCache::getPrimaryFieldName($ar) . ' = '
-                 . $ilDB->quote($ar->getPrimaryFieldValue(), arFieldCache::getPrimaryFieldType($ar));
+            . $ilDB->quote($ar->getPrimaryFieldValue(), arFieldCache::getPrimaryFieldType($ar));
 
         $set = $ilDB->query($query);
         $records = array();
@@ -248,11 +202,7 @@ class arConnectorDB extends arConnector
         return $records;
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     */
-    public function update(ActiveRecord $ar)
+    public function update(ActiveRecord $ar): void
     {
         $ilDB = $this->returnDB();
 
@@ -264,30 +214,22 @@ class arConnectorDB extends arConnector
         ));
     }
 
-
-    /**
-     * @param ActiveRecord $ar
-     */
-    public function delete(ActiveRecord $ar)
+    public function delete(ActiveRecord $ar): void
     {
         $ilDB = $this->returnDB();
 
         $ilDB->manipulate('DELETE FROM ' . $ar->getConnectorContainerName() . ' WHERE ' . arFieldCache::getPrimaryFieldName($ar) . ' = '
-                          . $ilDB->quote($ar->getPrimaryFieldValue(), arFieldCache::getPrimaryFieldType($ar)));
+            . $ilDB->quote($ar->getPrimaryFieldValue(), arFieldCache::getPrimaryFieldType($ar)));
     }
 
-
     /**
-     * @param ActiveRecordList $arl
-     *
+     * @return mixed[]
      * @internal param $q
-     *
-     * @return array
      */
-    public function readSet(ActiveRecordList $arl)
+    public function readSet(ActiveRecordList $arl): array
     {
         $ilDB = $this->returnDB();
-        $set = $ilDB->query(self::buildQuery($arl));
+        $set = $ilDB->query($this->buildQuery($arl));
         $records = array();
         while ($rec = $ilDB->fetchAssoc($set)) {
             $records[] = $rec;
@@ -296,29 +238,21 @@ class arConnectorDB extends arConnector
         return $records;
     }
 
-
-    /**
-     * @param ActiveRecordList $arl
-     *
-     * @return int
-     */
-    public function affectedRows(ActiveRecordList $arl)
+    public function affectedRows(ActiveRecordList $arl): int
     {
         $ilDB = $this->returnDB();
-        $q = self::buildQuery($arl);
+        $q = $this->buildQuery($arl);
 
         $set = $ilDB->query($q);
 
+        /** @noinspection PhpParamsInspection */
         return $ilDB->numRows($set);
     }
 
-
     /**
-     * @param ActiveRecordList $arl
-     *
      * @return mixed|string
      */
-    protected function buildQuery(ActiveRecordList $arl)
+    protected function buildQuery(ActiveRecordList $arl): string
     {
         $method = 'asSQLStatement';
 
@@ -338,42 +272,18 @@ class arConnectorDB extends arConnector
         // LIMIT
         $q .= $arl->getArLimitCollection()->{$method}();
 
-        //TODO: using template in the model.
-        if ($arl->getDebug()) {
-            global $DIC;
-            $tpl = $DIC['tpl'];
-            if ($tpl instanceof ilTemplate) {
-                ilUtil::sendInfo($q);
-            } else {
-                var_dump($q); // FSX
-            }
-        }
         $arl->setLastQuery($q);
 
         return $q;
     }
 
-
     /**
-     * @param $value
-     * @param $type
-     *
-     * @return string
+     * @param        $value
      */
-    public function quote($value, $type)
+    public function quote($value, string $type): string
     {
         $ilDB = $this->returnDB();
 
         return $ilDB->quote($value, $type);
-    }
-
-
-    /**
-     * @param $value
-     * @return string
-     */
-    public function fixDate($value)
-    {
-        return parent::fixDate($value);
     }
 }

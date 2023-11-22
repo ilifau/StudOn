@@ -1,61 +1,54 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-require_once("./Services/COPage/classes/class.ilPageContent.php");
 
 /**
-* Class ilPCResources
-*
-* Resources content object (see ILIAS DTD). Inserts Repository Resources
-* of a Container Object,
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesCOPage
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Resources content object (see ILIAS DTD). Inserts Repository Resources
+ * of a Container Object,
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilPCResources extends ilPageContent
 {
-    public $dom;
-    public $res_node;
+    public php4DOMElement $res_node;
 
-    /**
-    * Init page content component.
-    */
-    public function init()
+    public function init(): void
     {
         $this->setType("repobj");
     }
 
-    /**
-    * Set node
-    */
-    public function setNode($a_node)
+    public function setNode(php4DOMElement $a_node): void
     {
         parent::setNode($a_node);		// this is the PageContent node
         $this->res_node = $a_node->first_child();		// this is the Resources node
     }
 
-    /**
-    * Create resources node in xml.
-    *
-    * @param	object	$a_pg_obj		Page Object
-    * @param	string	$a_hier_id		Hierarchical ID
-    */
-    public function create(&$a_pg_obj, $a_hier_id, $a_pc_id = "")
-    {
+    public function create(
+        ilPageObject $a_pg_obj,
+        string $a_hier_id,
+        string $a_pc_id = ""
+    ): void {
         $this->node = $this->createPageContentNode();
         $a_pg_obj->insertContent($this, $a_hier_id, IL_INSERT_AFTER, $a_pc_id);
         $this->res_node = $this->dom->create_element("Resources");
         $this->res_node = $this->node->append_child($this->res_node);
     }
 
-    /**
-     * Set Type of Resource List (currently only one)
-     *
-     * @param	string	$a_type		Resource Type Group
-     */
-    public function setResourceListType($a_type)
+    public function setResourceListType(string $a_type): void
     {
         if (!empty($a_type)) {
             $children = $this->res_node->child_nodes();
@@ -68,12 +61,7 @@ class ilPCResources extends ilPageContent
         }
     }
 
-    /**
-     * Set Item Group Ref Id
-     *
-     * @param	int	$a_ref_id item group ref id
-     */
-    public function setItemGroupRefId($a_ref_id)
+    public function setItemGroupRefId(int $a_ref_id): void
     {
         if (!empty($a_ref_id)) {
             $children = $this->res_node->child_nodes();
@@ -87,11 +75,9 @@ class ilPCResources extends ilPageContent
     }
 
     /**
-     * Get Resource Lis Type.
-     *
-     * @return	string		resource type group
+     * Get Resource List Type.
      */
-    public function getResourceListType()
+    public function getResourceListType(): ?string
     {
         if (is_object($this->res_node)) {
             $children = $this->res_node->child_nodes();
@@ -99,15 +85,13 @@ class ilPCResources extends ilPageContent
                 return $children[0]->get_attribute("Type");
             }
         }
-        return false;
+        return null;
     }
-    
+
     /**
      * Get item group ref id
-     *
-     * @return int ref id
      */
-    public function getItemGroupRefId()
+    public function getItemGroupRefId(): ?int
     {
         if (is_object($this->res_node)) {
             $children = $this->res_node->child_nodes();
@@ -115,71 +99,55 @@ class ilPCResources extends ilPageContent
                 return (int) $children[0]->get_attribute("RefId");
             }
         }
-        return false;
+        return null;
     }
 
-    /**
-     * Get main type
-     *
-     * @return int ref id
-     */
-    public function getMainType()
+    public function getMainType(): ?string
     {
         if (is_object($this->res_node)) {
             $children = $this->res_node->child_nodes();
             if (is_object($children[0])) {
-                return $children[0]->node_name();
+                return (string) $children[0]->node_name();
             }
         }
-        return false;
+        return null;
     }
 
-    /**
-     * Modify ref ids by mapping
-     *
-     * @param
-     * @return
-     */
-    public static function modifyItemGroupRefIdsByMapping($a_page, $mappings) : bool
-    {
+    public static function modifyItemGroupRefIdsByMapping(
+        ilPageObject $a_page,
+        array $mappings
+    ): bool {
         $dom = $a_page->getDom();
         $log = ilLoggerFactory::getLogger('copg');
-        
+
         if ($dom instanceof php4DOMDocument) {
             $dom = $dom->myDOMDocument;
         }
         $changed = false;
         $xpath_temp = new DOMXPath($dom);
         $igs = $xpath_temp->query("//Resources/ItemGroup");
-        
+
         foreach ($igs as $ig_node) {
             $ref_id = $ig_node->getAttribute("RefId");
             $log->debug(">>> Fix Item Group with import Ref Id:" . $ref_id);
             $log->debug("Ref Id Mapping:" . print_r($mappings, true));
-            if ($mappings[$ref_id] > 0) {
+            if (($mappings[$ref_id] ?? 0) > 0) {
                 $ig_node->setAttribute("RefId", $mappings[$ref_id]);
                 $changed = true;
             }
         }
         return $changed;
     }
-    
-    /**
-     * Get lang vars needed for editing
-     * @return array array of lang var keys
-     */
-    public static function getLangVars()
+
+    public static function getLangVars(): array
     {
         return array("pc_res");
     }
 
-    /**
-     * Resolve resources
-     *
-     * @param ilPageObject $page
-     */
-    public static function resolveResources(ilPageObject $page, $ref_mappings) : bool
-    {
+    public static function resolveResources(
+        ilPageObject $page,
+        array $ref_mappings
+    ): bool {
         return self::modifyItemGroupRefIdsByMapping($page, $ref_mappings);
     }
 }

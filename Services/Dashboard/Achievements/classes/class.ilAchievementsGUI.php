@@ -1,45 +1,30 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
 
 /**
- * Achivements GUI
- *
  * @ilCtrl_Calls ilAchievementsGUI: ilLearningProgressGUI, ilPersonalSkillsGUI, ilBadgeProfileGUI, ilLearningHistoryGUI
- *
- * @author killing@leifos.de
- * @ingroup ServicesPersonalDesktop
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilAchievementsGUI
 {
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
+    protected ilCtrl $ctrl;
+    protected ilAchievements $achievements;
+    protected ilLanguage $lng;
+    protected ilTabsGUI $tabs;
+    private ilGlobalTemplateInterface $main_tpl;
 
-    /**
-     * @var ilAchievements
-     */
-    protected $achievements;
-
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilTabsGUI
-     */
-    protected $tabs;
-
-    /**
-     * @var ilGlobalTemplate
-     */
-    private $main_tpl;
-
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         global $DIC;
@@ -51,10 +36,9 @@ class ilAchievementsGUI
     }
 
     /**
-     * Execute command
      * @throws ilCtrlException
      */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $ctrl = $this->ctrl;
         $main_tpl = $this->main_tpl;
@@ -70,7 +54,6 @@ class ilAchievementsGUI
             case "illearningprogressgui":
                 $main_tpl->setTitle($lng->txt("learning_progress"));
                 $main_tpl->setTitleIcon(ilUtil::getImagePath("icon_trac.svg"));
-                include_once './Services/Tracking/classes/class.ilLearningProgressGUI.php';
                 $new_gui = new ilLearningProgressGUI(ilLearningProgressGUI::LP_CONTEXT_PERSONAL_DESKTOP, 0);
                 $ctrl->forwardCommand($new_gui);
                 break;
@@ -94,7 +77,6 @@ class ilAchievementsGUI
             case 'ilbadgeprofilegui':
                 $main_tpl->setTitle($lng->txt("obj_bdga"));
                 $main_tpl->setTitleIcon(ilUtil::getImagePath("icon_bdga.svg"));
-                include_once './Services/Badge/classes/class.ilBadgeProfileGUI.php';
                 $bgui = new ilBadgeProfileGUI();
                 $ctrl->forwardCommand($bgui);
                 $this->main_tpl->printToStdout();
@@ -120,7 +102,7 @@ class ilAchievementsGUI
     /**
      * Show (redirects to first active service)
      */
-    protected function show()
+    protected function show(): void
     {
         $ctrl = $this->ctrl;
 
@@ -131,10 +113,7 @@ class ilAchievementsGUI
         }
     }
 
-    /**
-     * Set tabs
-     */
-    protected function setTabs($activate)
+    protected function setTabs(string $activate): void
     {
         $tabs = $this->tabs;
         $links = $this->getLinks();
@@ -146,12 +125,9 @@ class ilAchievementsGUI
     }
 
     /**
-     * Get link
-     *
-     * @param
-     * @return
+     * @return array[]
      */
-    protected function getLinks()
+    protected function getLinks(): array
     {
         $ctrl = $this->ctrl;
         $lng = $this->lng;
@@ -166,12 +142,9 @@ class ilAchievementsGUI
             ilAchievements::SERV_COMPETENCES => [
                 "txt" => $lng->txt("skills")
             ],
-// fau: hideLpOnDesktop - don't show learning progress tab in achievements
-// see https://mantis.ilias.de/view.php?id=23396
-//			ilAchievements::SERV_LEARNING_PROGRESS => [
-//				"txt" => $lng->txt("learning_progress")
-//			],
-// fau.
+            ilAchievements::SERV_LEARNING_PROGRESS => [
+                "txt" => $lng->txt("learning_progress")
+            ],
             ilAchievements::SERV_BADGES => [
                 "txt" => $lng->txt('obj_bdga')
             ],
@@ -189,20 +162,16 @@ class ilAchievementsGUI
 
     /**
      * Get GUI class
-     *
-     * @param
-     * @return
+     * @return string[]
      */
-    protected function getGUIClasses()
+    protected function getGUIClasses(): array
     {
-        $gui_classes = [
-            ilAchievements::SERV_LEARNING_HISTORY => "ilLearningHistoryGUI",
-            ilAchievements::SERV_COMPETENCES => "ilpersonalskillsgui",
-            ilAchievements::SERV_LEARNING_PROGRESS => "illearningprogressgui",
-            ilAchievements::SERV_BADGES => "ilbadgeprofilegui",
-            ilAchievements::SERV_CERTIFICATES => "ilusercertificategui"
+        return [
+            ilAchievements::SERV_LEARNING_HISTORY => strtolower(ilLearningHistoryGUI::class),
+            ilAchievements::SERV_COMPETENCES => strtolower(ilPersonalSkillsGUI::class),
+            ilAchievements::SERV_LEARNING_PROGRESS => strtolower(ilLearningProgressGUI::class),
+            ilAchievements::SERV_BADGES => strtolower(ilBadgeProfileGUI::class),
+            ilAchievements::SERV_CERTIFICATES => strtolower(ilUserCertificateGUI::class)
         ];
-
-        return $gui_classes;
     }
 }

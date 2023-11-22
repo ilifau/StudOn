@@ -1,21 +1,38 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateUserForObjectPreloaderTest extends ilCertificateBaseTestCase
 {
-    public function testUsersWithCertifcatesWillBePreoloaded()
+    public function testUsersWithCertifcatesWillBePreoloaded(): void
     {
-        $userCertificateRepository = $this->getMockBuilder('ilUserCertificateRepository')
+        $userCertificateRepository = $this->getMockBuilder(ilUserCertificateRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $userCertificateRepository->method('fetchUserIdsWithCertificateForObject')
-            ->willReturn(array(1, 2, 3));
+            ->willReturn([1, 2, 3]);
 
-        $activeValidator = $this->getMockBuilder('ilCertificateActiveValidator')
+        $activeValidator = $this->getMockBuilder(ilCertificateActiveValidator::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -31,16 +48,16 @@ class ilCertificateUserForObjectPreloaderTest extends ilCertificateBaseTestCase
         $this->assertTrue($result);
     }
 
-    public function testUserWithCertificateIsNotPreloaded()
+    public function testUserWithCertificateIsNotPreloaded(): void
     {
-        $userCertificateRepository = $this->getMockBuilder('ilUserCertificateRepository')
+        $userCertificateRepository = $this->getMockBuilder(ilUserCertificateRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $userCertificateRepository->method('fetchUserIdsWithCertificateForObject')
-            ->willReturn(array(1, 2, 3));
+            ->willReturn([1, 2, 3]);
 
-        $activeValidator = $this->getMockBuilder('ilCertificateActiveValidator')
+        $activeValidator = $this->getMockBuilder(ilCertificateActiveValidator::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -56,16 +73,16 @@ class ilCertificateUserForObjectPreloaderTest extends ilCertificateBaseTestCase
         $this->assertFalse($result);
     }
 
-    public function testUserIsNoProloaded()
+    public function testUserIsNoProloaded(): void
     {
-        $userCertificateRepository = $this->getMockBuilder('ilUserCertificateRepository')
+        $userCertificateRepository = $this->getMockBuilder(ilUserCertificateRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $userCertificateRepository->method('fetchUserIdsWithCertificateForObject')
-            ->willReturn(array(1, 2, 3));
+            ->willReturn([1, 2, 3]);
 
-        $activeValidator = $this->getMockBuilder('ilCertificateActiveValidator')
+        $activeValidator = $this->getMockBuilder(ilCertificateActiveValidator::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -81,9 +98,9 @@ class ilCertificateUserForObjectPreloaderTest extends ilCertificateBaseTestCase
         $this->assertFalse($result);
     }
 
-    public function testWontPreloadBecauseCertificatesAreCurrentlyInActive()
+    public function testWontPreloadBecauseCertificatesAreCurrentlyInActive(): void
     {
-        $userCertificateRepository = $this->getMockBuilder('ilUserCertificateRepository')
+        $userCertificateRepository = $this->getMockBuilder(ilUserCertificateRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -91,7 +108,7 @@ class ilCertificateUserForObjectPreloaderTest extends ilCertificateBaseTestCase
             ->expects($this->never())
             ->method('fetchUserIdsWithCertificateForObject');
 
-        $activeValidator = $this->getMockBuilder('ilCertificateActiveValidator')
+        $activeValidator = $this->getMockBuilder(ilCertificateActiveValidator::class)
             ->disableOriginalConstructor()
             ->getMock();
 

@@ -17,6 +17,7 @@
  *********************************************************************/
 
 declare(strict_types=1);
+
 namespace ILIAS\GlobalScreen\Scope\Layout\Factory;
 
 use Closure;
@@ -30,16 +31,10 @@ use ReflectionException;
  */
 abstract class AbstractLayoutModification implements LayoutModification
 {
-    /**
-     * @var int
-     */
-    private $priority;
-    /**
-     * @var \Closure|null
-     */
-    private $modification;
+    private int $priority;
+    private ?Closure $modification = null;
 
-    public function isFinal() : bool
+    public function isFinal(): bool
     {
         return false;
     }
@@ -47,7 +42,7 @@ abstract class AbstractLayoutModification implements LayoutModification
     /**
      * @inheritDoc
      */
-    public function getPriority() : int
+    public function getPriority(): int
     {
         return $this->priority ?? LayoutModification::PRIORITY_LOW;
     }
@@ -55,7 +50,7 @@ abstract class AbstractLayoutModification implements LayoutModification
     /**
      * @inheritDoc
      */
-    final public function withPriority(int $priority) : LayoutModification
+    final public function withPriority(int $priority): LayoutModification
     {
         if ((self::PRIORITY_LOW > $priority) || ($priority > self::PRIORITY_HIGH)) {
             throw new LogicException("\$priority MUST be between LayoutModification::PRIORITY_LOW, LayoutModification::PRIORITY_MEDIUM or LayoutModification::PRIORITY_HIGH");
@@ -69,7 +64,7 @@ abstract class AbstractLayoutModification implements LayoutModification
     /**
      * @inheritDoc
      */
-    final public function withHighPriority() : LayoutModification
+    final public function withHighPriority(): LayoutModification
     {
         $clone = clone $this;
         $clone->priority = LayoutModification::PRIORITY_HIGH;
@@ -80,7 +75,7 @@ abstract class AbstractLayoutModification implements LayoutModification
     /**
      * @inheritDoc
      */
-    final public function withLowPriority() : LayoutModification
+    final public function withLowPriority(): LayoutModification
     {
         $clone = clone $this;
         $clone->priority = LayoutModification::PRIORITY_LOW;
@@ -92,7 +87,7 @@ abstract class AbstractLayoutModification implements LayoutModification
      * @param Closure $closure
      * @return LayoutModification|ContentModification|MainBarModification|MetaBarModification|BreadCrumbsModification|LogoModification|FooterModification
      */
-    final public function withModification(Closure $closure) : LayoutModification
+    final public function withModification(Closure $closure): LayoutModification
     {
         $clone = clone $this;
         $clone->modification = $closure;
@@ -103,7 +98,7 @@ abstract class AbstractLayoutModification implements LayoutModification
     /**
      * @inheritDoc
      */
-    final public function getModification() : Closure
+    final public function getModification(): Closure
     {
         return $this->modification;
     }
@@ -111,7 +106,7 @@ abstract class AbstractLayoutModification implements LayoutModification
     /**
      * @inheritDoc
      */
-    final public function hasValidModification() : bool
+    final public function hasValidModification(): bool
     {
         try {
             return $this->checkClosure();
@@ -126,7 +121,7 @@ abstract class AbstractLayoutModification implements LayoutModification
     /**
      * @return bool
      */
-    private function checkClosure() : bool
+    private function checkClosure(): bool
     {
         $closure = $this->modification;
         if (!$closure instanceof Closure) {

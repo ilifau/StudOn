@@ -3,53 +3,42 @@
 declare(strict_types=1);
 
 /**
- * Settings for an LSO (like abstract, extro)
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Settings for an LSO (like abstract, extro)
  */
 class ilLearningSequenceSettings
 {
+    protected int $obj_id;
+    protected string $abstract;
+    protected string $extro;
+    protected ?string $abstract_image;
+    protected ?string $extro_image;
 
     /**
-     * @var int
+     * @return array<string, array>
      */
-    protected $obj_id;
+    protected array $uploads = [];
 
     /**
-     * @var string
+     * @var string[]
      */
-    protected $abstract;
-
-    /**
-     * @var string
-     */
-    protected $extro;
-
-    /**
-     * @var string|null
-     */
-    protected $abstract_image;
-
-    /**
-     * @var string|null
-     */
-    protected $extro_image;
-
-    /**
-     * @var array
-     */
-    protected $uploads = [];
-
-    /**
-     * @var array
-     */
-    protected $deletions = [];
-
-    /**
-     * @var bool
-     */
-    protected $members_gallery;
-
+    protected array $deletions = [];
+    protected bool $members_gallery;
 
     public function __construct(
         int $obj_id,
@@ -67,89 +56,95 @@ class ilLearningSequenceSettings
         $this->members_gallery = $members_gallery;
     }
 
-    public function getObjId() : int
+    public function getObjId(): int
     {
         return $this->obj_id;
     }
 
-    public function getAbstract() : string
+    public function getAbstract(): string
     {
         return $this->abstract;
     }
 
-    public function withAbstract(string $abstract) : ilLearningSequenceSettings
+    public function withAbstract(string $abstract): ilLearningSequenceSettings
     {
         $clone = clone $this;
         $clone->abstract = $abstract;
         return $clone;
     }
 
-    public function getExtro() : string
+    public function getExtro(): string
     {
         return $this->extro;
     }
 
-    public function withExtro(string $extro) : ilLearningSequenceSettings
+    public function withExtro(string $extro): ilLearningSequenceSettings
     {
         $clone = clone $this;
         $clone->extro = $extro;
         return $clone;
     }
 
-    public function getAbstractImage()
+    public function getAbstractImage(): string
     {
-        return $this->abstract_image;
+        return $this->abstract_image ?? '';
     }
 
-    public function withAbstractImage(string $path = null) : ilLearningSequenceSettings
+    public function withAbstractImage(string $path = null): ilLearningSequenceSettings
     {
         $clone = clone $this;
         $clone->abstract_image = $path;
         return $clone;
     }
 
-    public function getExtroImage()
+    public function getExtroImage(): string
     {
-        return $this->extro_image;
+        return $this->extro_image ?? '';
     }
 
-    public function withExtroImage(string $path = null) : ilLearningSequenceSettings
+    public function withExtroImage(string $path = null): ilLearningSequenceSettings
     {
         $clone = clone $this;
         $clone->extro_image = $path;
         return $clone;
     }
 
-    public function getUploads() : array
+    /**
+     * @return array<string, array>
+     */
+    public function getUploads(): array
     {
         return $this->uploads;
     }
 
-    public function withUpload(array $upload_info, string $which) : ilLearningSequenceSettings
+    public function withUpload(array $upload_info, string $which): ilLearningSequenceSettings
     {
         $clone = clone $this;
         $clone->uploads[$which] = $upload_info;
         return $clone;
     }
 
-    public function getDeletions() : array
+    /**
+     * @return string[]
+     */
+    public function getDeletions(): array
     {
         return $this->deletions;
     }
 
-    public function withDeletion(string $which) : ilLearningSequenceSettings
+    public function withDeletion(string $which): ilLearningSequenceSettings
     {
         $clone = clone $this;
         $clone->deletions[] = $which;
         return $clone;
     }
 
-    public function getMembersGallery() : bool
+    public function getMembersGallery(): bool
     {
         return $this->members_gallery;
     }
 
-    public function withMembersGallery(bool $members_gallery) : ilLearningSequenceSettings
+    public function withMembersGallery(bool $members_gallery): ilLearningSequenceSettings
     {
         $clone = clone $this;
         $clone->members_gallery = $members_gallery;

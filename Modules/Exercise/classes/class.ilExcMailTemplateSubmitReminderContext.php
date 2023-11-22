@@ -1,26 +1,36 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use OrgUnit\PublicApi\OrgUnitUserService;
 
 /**
  * Handles exercise Submit reminder mail placeholders
  * If all contexts are using the same placeholders,constructor etc. todo: create base class.
- *
  * @author Jesús López <lopez@leifos.com>
- * @package ModulesExercise
  */
 class ilExcMailTemplateSubmitReminderContext extends ilMailTemplateContext
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    public const ID = 'exc_context_submit_rmd';
 
-    /**
-     * @var ilObjectDataCache
-     */
-    protected $obj_data_cache;
+    protected ilLanguage $lng;
+    protected ilObjectDataCache $obj_data_cache;
 
     public function __construct(
         OrgUnitUserService $orgUnitUserService = null,
@@ -28,6 +38,7 @@ class ilExcMailTemplateSubmitReminderContext extends ilMailTemplateContext
         ilMailUserHelper $usernameHelper = null,
         ilMailLanguageHelper $languageHelper = null
     ) {
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
 
         parent::__construct(
@@ -43,20 +54,12 @@ class ilExcMailTemplateSubmitReminderContext extends ilMailTemplateContext
         }
     }
 
-    const ID = 'exc_context_submit_rmd';
-
-    /**
-     * @return string
-     */
-    public function getId() : string
+    public function getId(): string
     {
         return self::ID;
     }
 
-    /**
-     * @return string
-     */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         $lng = $this->lng;
 
@@ -65,10 +68,7 @@ class ilExcMailTemplateSubmitReminderContext extends ilMailTemplateContext
         return $lng->txt('exc_mail_context_submit_reminder_title');
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription() : string
+    public function getDescription(): string
     {
         $lng = $this->lng;
 
@@ -77,11 +77,7 @@ class ilExcMailTemplateSubmitReminderContext extends ilMailTemplateContext
         return $lng->txt('exc_mail_context_submit_reminder_info');
     }
 
-    /**
-     * Return an array of placeholders
-     * @return array
-     */
-    public function getSpecificPlaceholders() : array
+    public function getSpecificPlaceholders(): array
     {
         $lng = $this->lng;
         $lng->loadLanguageModule('exc');
@@ -105,22 +101,19 @@ class ilExcMailTemplateSubmitReminderContext extends ilMailTemplateContext
         return $placeholders;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function resolveSpecificPlaceholder(
         string $placeholder_id,
         array $context_parameters,
         ilObjUser $recipient = null,
         bool $html_markup = false
-    ) : string {
+    ): string {
         $ilObjDataCache = $this->obj_data_cache;
 
         if ($placeholder_id == 'ass_title') {
-            return ilExAssignment::lookupTitle($context_parameters["ass_id"]);
+            return ilExAssignment::lookupTitle((int) $context_parameters["ass_id"]);
         } else {
             if ($placeholder_id == 'exc_title') {
-                return $ilObjDataCache->lookupTitle($context_parameters["exc_id"]);
+                return $ilObjDataCache->lookupTitle((int) $context_parameters["exc_id"]);
             } else {
                 if ($placeholder_id == 'ass_link') {
                     return ilLink::_getLink(

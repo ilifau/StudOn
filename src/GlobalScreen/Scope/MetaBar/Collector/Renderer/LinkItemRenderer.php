@@ -33,7 +33,7 @@ class LinkItemRenderer extends AbstractMetaBarItemRenderer
     /**
      * @inheritDoc
      */
-    protected function getSpecificComponentForItem(isItem $item) : Component
+    protected function getSpecificComponentForItem(isItem $item): Component
     {
         /**
          * @var $item LinkItem

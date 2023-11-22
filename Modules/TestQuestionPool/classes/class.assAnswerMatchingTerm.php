@@ -1,73 +1,79 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
 * Class for matching question terms
 *
 * @author		Helmut Schottmüller <helmut.schottmueller@mac.com>
-* @version	$Id$
 * @ingroup ModulesTestQuestionPool
 */
 class assAnswerMatchingTerm
 {
-    protected $arrData;
+    protected string $text;
+    protected string $picture;
+    protected int $identifier;
 
-    /**
-    * assAnswerMatchingTerm constructor
-    *
-    * @param string $text Definition text
-    * @param string $picture Definition picture
-    * @param integer $identifier Random number identifier
-    */
-    public function __construct($text = "", $picture = "", $identifier = "")
+    public function __construct(string $text = "", string $picture = "", int $identifier = 0)
     {
-        if (strlen($identifier) == 0) {
-            mt_srand((double) microtime() * 1000000);
-            $identifier = mt_rand(1, 100000);
-        }
-        $this->arrData = array(
-            'text' => $text,
-            'picture' => $picture,
-            'identifier' => $identifier
-        );
+        $this->text = $text;
+        $this->picture = $picture;
+
+        $this->identifier = ($identifier !==0) ? $identifier : $this->createIdentifier();
     }
 
-    /**
-    * Object getter
-    */
-    public function __get($value)
+    protected function createIdentifier(): int
     {
-        switch ($value) {
-            case "text":
-            case "picture":
-                if (strlen($this->arrData[$value])) {
-                    return $this->arrData[$value];
-                } else {
-                    return null;
-                }
-                break;
-            case "identifier":
-                return $this->arrData[$value];
-                break;
-            default:
-                return null;
-                break;
-        }
+        $id = random_int(1, 100000);
+        return $id;
     }
 
-    /**
-    * Object setter
-    */
-    public function __set($key, $value)
+    public function getText(): string
     {
-        switch ($key) {
-            case "text":
-            case "picture":
-            case "identifier":
-                $this->arrData[$key] = $value;
-                break;
-            default:
-                break;
-        }
+        return $this->text;
+    }
+    public function withText(string $text): self
+    {
+        $clone = clone $this;
+        $clone->text = $text;
+        return $clone;
+    }
+
+    public function getPicture(): string
+    {
+        return $this->picture;
+    }
+    public function withPicture(string $picture): self
+    {
+        $clone = clone $this;
+        $clone->picture = $picture;
+        return $clone;
+    }
+
+    public function getIdentifier(): int
+    {
+        return $this->identifier;
+    }
+    public function withIdentifier(int $identifier): self
+    {
+        $clone = clone $this;
+        $clone->identifier = $identifier;
+        return $clone;
     }
 }

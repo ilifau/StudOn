@@ -1,30 +1,36 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("Services/Table/classes/class.ilTable2GUI.php");
 
 /**
-* Page History Table GUI Class
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesCOPage
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Page History Table GUI Class
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilPageHistoryTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
+    protected ilAccessHandler $access;
+    protected bool $rselect = false;
+    protected bool $lselect = false;
 
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
-
-    public function __construct($a_parent_obj, $a_parent_cmd = "")
-    {
+    public function __construct(
+        object $a_parent_obj,
+        string $a_parent_cmd = ""
+    ) {
         global $DIC;
 
         $this->ctrl = $DIC->ctrl();
@@ -36,7 +42,7 @@ class ilPageHistoryTableGUI extends ilTable2GUI
         $this->setId("ilCOPgHistoryTable");
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->setTitle($lng->txt("content_page_history"));
-        
+
         $this->addColumn("", "", "1");
         $this->addColumn("", "", "1");
         $this->addColumn($lng->txt("date"), "", "33%");
@@ -49,13 +55,12 @@ class ilPageHistoryTableGUI extends ilTable2GUI
         $this->addMultiCommand("compareVersion", $lng->txt("cont_page_compare"));
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj));
     }
-    
+
     /**
     * Should this field be sorted numeric?
-    *
-    * @return	boolean		numeric ordering; default is false
+    * @return    bool        numeric ordering; default is false
     */
-    public function numericOrdering($a_field)
+    public function numericOrdering(string $a_field): bool
     {
         if ($a_field == "sortkey") {
             return true;
@@ -67,7 +72,7 @@ class ilPageHistoryTableGUI extends ilTable2GUI
     * Standard Version of Fill Row. Most likely to
     * be overwritten by derived class.
     */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
@@ -85,7 +90,7 @@ class ilPageHistoryTableGUI extends ilTable2GUI
             $this->tpl->parseCurrentBlock();
             $ilCtrl->setParameter($this->getParentObject(), "old_nr", "");
         }
-        
+
         if (!$this->rselect) {
             $this->tpl->setVariable("RSELECT", 'checked="checked"');
             $this->rselect = true;
@@ -94,7 +99,7 @@ class ilPageHistoryTableGUI extends ilTable2GUI
             $this->lselect = true;
         }
 
-        
+
         $this->tpl->setVariable("NR", $a_set["nr"]);
         $this->tpl->setVariable(
             "TXT_HDATE",
@@ -108,27 +113,13 @@ class ilPageHistoryTableGUI extends ilTable2GUI
             $ilCtrl->getLinkTarget($this->getParentObject(), "preview")
         );
         $ilCtrl->setParameter($this->getParentObject(), "history_mode", "");
-            
+
         if (ilObject::_exists($a_set["user"])) {
             // user name
-            $user = ilObjUser::_lookupName($a_set["user"]);
-            $login = ilObjUser::_lookupLogin($a_set["user"]);
-            //$this->tpl->setVariable("TXT_LINKED_USER",
-            //	$user["lastname"].", ".$user["firstname"]." [".$login."]");
-                
-            // profile link
-            include_once("./Services/User/classes/class.ilUserUtil.php");
             $name_pres = ilUserUtil::getNamePresentation($a_set["user"], true, true, $ilCtrl->getLinkTarget($this->getParentObject(), $this->getParentCmd()));
-            //$ilCtrl->setParameterByClass("ilpublicuserprofilegui", "user", $a_set["user"]);
-            //$ilCtrl->setParameterByClass("ilpublicuserprofilegui", "back_url",
-            //	rawurlencode($ilCtrl->getLinkTarget($this->getParentObject(), $this->getParentCmd())));
-            //$this->tpl->setVariable("USER_LINK",
-            //	$ilCtrl->getLinkTargetByClass("ilpublicuserprofilegui", "getHTML"));
-            //$img = ilObjUser::_getPersonalPicturePath($a_set["user"], "xxsmall");
-            //$this->tpl->setVariable("IMG_USER", $img);
             $this->tpl->setVariable("TXT_USER", $name_pres);
         }
-            
+
         $ilCtrl->setParameter($this->getParentObject(), "old_nr", "");
     }
 }

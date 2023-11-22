@@ -20,7 +20,7 @@
  */
 trait ilBibliographicSecureString
 {
-    protected function secure(string $string) : string
+    protected function secure(string $string): string
     {
         return htmlspecialchars(
             strip_tags(

@@ -1,8 +1,22 @@
 <?php
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/Object/classes/class.ilObjectAccess.php';
-require_once 'Services/WebAccessChecker/interfaces/interface.ilWACCheckingClass.php';
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Access class for chatroom objects.
@@ -12,70 +26,55 @@ require_once 'Services/WebAccessChecker/interfaces/interface.ilWACCheckingClass.
  */
 class ilObjChatroomAccess extends ilObjectAccess implements ilWACCheckingClass
 {
-    /**
-     * @var null|bool
-     */
-    private static $chat_enabled = null;
+    private static ?bool $chat_enabled = null;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function _getCommands()
+    public static function _getCommands(): array
     {
-        $commands = array();
-        $commands[] = array("permission" => "read", "cmd" => "view", "lang_var" => "enter", "default" => true);
-        $commands[] = array("permission" => "write", "cmd" => "settings-general", "lang_var" => "settings");
-
-        // alex 3 Oct 2012: this leads to a blank screen, i guess it is a copy/paste bug from files
-        //$commands[] = array("permission" => "write", "cmd" => "versions", "lang_var" => "versions");
+        $commands = [];
+        $commands[] = ['permission' => 'read', 'cmd' => 'view', 'lang_var' => 'enter', 'default' => true];
+        $commands[] = ['permission' => 'write', 'cmd' => 'settings-general', 'lang_var' => 'settings'];
 
         return $commands;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function _checkGoto($a_target)
+    public static function _checkGoto(string $target): bool
     {
-        if (is_string($a_target)) {
-            $t_arr = explode("_", $a_target);
+        $t_arr = explode('_', $target);
 
-            if (count($t_arr) < 2 || $t_arr[0] != 'chtr' || ((int) $t_arr[1]) <= 0) {
-                return false;
-            }
+        if (count($t_arr) < 2 || $t_arr[0] !== 'chtr' || ((int) $t_arr[1]) <= 0) {
+            return false;
+        }
 
-            if (
-                ilChatroom::checkUserPermissions('visible', $t_arr[1], false) ||
-                ilChatroom::checkUserPermissions('read', $t_arr[1], false)
-            ) {
-                return true;
-            }
+        if (
+            ilChatroom::checkUserPermissions('visible', (int) $t_arr[1], false) ||
+            ilChatroom::checkUserPermissions('read', (int) $t_arr[1], false)
+        ) {
+            return true;
         }
 
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = "")
+    public function _checkAccess(string $cmd, string $permission, int $ref_id, int $obj_id, ?int $user_id = null): bool
     {
-        if ($a_user_id == '') {
-            $a_user_id = $GLOBALS['DIC']->user()->getId();
+        if (!$user_id) {
+            $user_id = $GLOBALS['DIC']->user()->getId();
         }
 
-        return self::checkRoomAccess($a_permission, $a_ref_id, $a_obj_id, $a_user_id);
+        return self::checkRoomAccess($permission, $ref_id, $obj_id, (int) $user_id);
     }
-    
-    
-    public static function checkRoomAccess($a_permission, $a_ref_id, $a_obj_id, $a_user_id)
+
+    private static function checkRoomAccess(string $a_permission, int $a_ref_id, int $a_obj_id, int $a_user_id): bool
     {
+        global $DIC;
+
         if (self::$chat_enabled === null) {
             $chatSetting = new ilSetting('chatroom');
-            self::$chat_enabled = (boolean) $chatSetting->get('chat_enabled');
+            self::$chat_enabled = (bool) $chatSetting->get('chat_enabled', '0');
         }
 
-        if ($GLOBALS['DIC']->rbac()->system()->checkAccessOfUser($a_user_id, 'write', $a_ref_id)) {
+        $hasWriteAccess = $DIC->rbac()->system()->checkAccessOfUser($a_user_id, 'write', $a_ref_id);
+        if ($hasWriteAccess) {
             return true;
         }
 
@@ -84,26 +83,26 @@ class ilObjChatroomAccess extends ilObjectAccess implements ilWACCheckingClass
                 $visible = null;
 
                 $active = self::isActivated($a_ref_id, $a_obj_id, $visible);
-                $hasWriteAccess = $GLOBALS['DIC']->rbac()->system()->checkAccessOfUser($a_user_id, 'write', $a_ref_id);
 
                 if (!$active) {
-                    $GLOBALS['DIC']->access()->addInfoItem(IL_NO_OBJECT_ACCESS, $GLOBALS['DIC']->language()->txt('offline'));
+                    $DIC->access()->addInfoItem(
+                        ilAccessInfo::IL_NO_OBJECT_ACCESS,
+                        $DIC->language()->txt('offline')
+                    );
                 }
 
-                if (!$hasWriteAccess && !$active && !$visible) {
+                if ($active === false && $visible === false) {
                     return false;
                 }
                 break;
 
             case 'read':
-                $hasWriteAccess = $GLOBALS['DIC']->rbac()->system()->checkAccessOfUser($a_user_id, 'write', $a_ref_id);
-                if ($hasWriteAccess) {
-                    return true;
-                }
-
                 $active = self::isActivated($a_ref_id, $a_obj_id);
                 if (!$active) {
-                    $GLOBALS['DIC']->access()->addInfoItem(IL_NO_OBJECT_ACCESS, $GLOBALS['DIC']->language()->txt('offline'));
+                    $DIC->access()->addInfoItem(
+                        ilAccessInfo::IL_NO_OBJECT_ACCESS,
+                        $DIC->language()->txt('offline')
+                    );
                     return false;
                 }
                 break;
@@ -112,13 +111,7 @@ class ilObjChatroomAccess extends ilObjectAccess implements ilWACCheckingClass
         return self::$chat_enabled;
     }
 
-    /**
-     * @param int $refId
-     * @param int $objId
-     * @param null $a_visible_flag
-     * @return bool
-     */
-    public static function isActivated($refId, $objId, &$a_visible_flag = null)
+    public static function isActivated(int $refId, int $objId, bool &$a_visible_flag = null): bool
     {
         if (!self::lookupOnline($objId)) {
             $a_visible_flag = false;
@@ -127,39 +120,32 @@ class ilObjChatroomAccess extends ilObjectAccess implements ilWACCheckingClass
 
         $a_visible_flag = true;
 
-        require_once 'Services/Object/classes/class.ilObjectActivation.php';
         $item = ilObjectActivation::getItem($refId);
         switch ($item['timing_type']) {
             case ilObjectActivation::TIMINGS_ACTIVATION:
                 if (time() < $item['timing_start'] || time() > $item['timing_end']) {
-                    $a_visible_flag = $item['visible'];
+                    $a_visible_flag = (bool) $item['visible'];
                     return false;
                 }
-
-                // no break
-            default:
-                return true;
         }
+
+        return true;
     }
 
-    /**
-     * @param int $a_obj_id
-     * @return bool
-     */
-    public static function lookupOnline($a_obj_id)
+    public static function lookupOnline(int $a_obj_id): bool
     {
         global $DIC;
 
-        $res = $DIC->database()->query("SELECT online_status FROM chatroom_settings WHERE object_id = " . $DIC->database()->quote($a_obj_id, 'integer'));
+        $res = $DIC->database()->query(
+            'SELECT online_status FROM chatroom_settings WHERE object_id = ' .
+            $DIC->database()->quote($a_obj_id, 'integer')
+        );
         $row = $DIC->database()->fetchAssoc($res);
 
-        return (bool) $row['online_status'];
+        return (bool) ($row['online_status'] ?? false);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function canBeDelivered(ilWACPath $ilWACPath)
+    public function canBeDelivered(ilWACPath $ilWACPath): bool
     {
         if (preg_match("/chatroom\\/smilies\\//ui", $ilWACPath->getPath())) {
             return true;

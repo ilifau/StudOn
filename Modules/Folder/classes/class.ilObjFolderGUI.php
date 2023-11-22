@@ -1,40 +1,46 @@
 <?php
 
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
 
 /**
-* Class ilObjFolderGUI
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* $Id$
-*
-* @ilCtrl_Calls ilObjFolderGUI: ilPermissionGUI
-* @ilCtrl_Calls ilObjFolderGUI: ilCourseContentGUI, ilLearningProgressGUI
-* @ilCtrl_Calls ilObjFolderGUI: ilInfoScreenGUI, ilContainerPageGUI, ilColumnGUI
-* @ilCtrl_Calls ilObjFolderGUI: ilObjectCopyGUI, ilObjStyleSheetGUI
-* @ilCtrl_Calls ilObjFolderGUI: ilExportGUI, ilCommonActionDispatcherGUI, ilDidacticTemplateGUI
-* @ilCtrl_Calls ilObjFolderGUI: ilBackgroundTaskHub, ilObjectTranslationGUI, ilRepUtilGUI
-*
-* @extends ilObjectGUI
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
 
-require_once "./Services/Container/classes/class.ilContainerGUI.php";
+use ILIAS\Folder\StandardGUIRequest;
 
+/**
+ * Class ilObjFolderGUI
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ *
+ * @ilCtrl_Calls ilObjFolderGUI: ilPermissionGUI
+ * @ilCtrl_Calls ilObjFolderGUI: ilCourseContentGUI, ilLearningProgressGUI
+ * @ilCtrl_Calls ilObjFolderGUI: ilInfoScreenGUI, ilContainerPageGUI, ilColumnGUI
+ * @ilCtrl_Calls ilObjFolderGUI: ilObjectCopyGUI, ilObjectContentStyleSettingsGUI
+ * @ilCtrl_Calls ilObjFolderGUI: ilExportGUI, ilCommonActionDispatcherGUI, ilDidacticTemplateGUI
+ * @ilCtrl_Calls ilObjFolderGUI: ilBackgroundTaskHub, ilObjectTranslationGUI, ilRepositoryTrashGUI
+ */
 class ilObjFolderGUI extends ilContainerGUI
 {
-    /**
-     * @var ilHelpGUI
-     */
-    protected $help;
+    protected ilHelpGUI $help;
+    public ilTree $folder_tree;
+    protected StandardGUIRequest $folder_request;
 
-    public $folder_tree;		// folder tree
-
-    /**
-    * Constructor
-    * @access	public
-    */
-    public function __construct($a_data, $a_id = 0, $a_call_by_reference = true, $a_prepare_output = false)
-    {
+    public function __construct(
+        $a_data,
+        int $a_id = 0,
+        bool $a_call_by_reference = true,
+        bool $a_prepare_output = false
+    ) {
         global $DIC;
 
         $this->tree = $DIC->repositoryTree();
@@ -49,66 +55,56 @@ class ilObjFolderGUI extends ilContainerGUI
         $this->tpl = $DIC["tpl"];
         $this->settings = $DIC->settings();
         $this->type = "fold";
-        parent::__construct($a_data, $a_id, $a_call_by_reference, $a_prepare_output, false);
-
+        parent::__construct($a_data, $a_id, $a_call_by_reference, $a_prepare_output);
         $this->lng->loadLanguageModule("obj");
+        $this->folder_request = $DIC
+            ->folder()
+            ->internal()
+            ->gui()
+            ->standardRequest();
     }
 
 
-    /**
-    * View folder
-    */
-    public function viewObject()
+    public function viewObject(): void
     {
-        $tree = $this->tree;
-        
         $this->checkPermission('read');
-
-        if (strtolower($_GET["baseClass"]) == "iladministrationgui") {
+        if (strtolower($this->folder_request->getBaseClass()) === "iladministrationgui") {
             parent::viewObject();
-            return true;
+            return;
         }
-        
+
         // Trac access - see ilObjCourseGUI
-        include_once 'Services/Tracking/classes/class.ilLearningProgress.php';
         ilLearningProgress::_tracProgress(
             $GLOBALS["ilUser"]->getId(),
             $this->object->getId(),
             $this->object->getRefId(),
             'fold'
         );
-        
+
         $this->renderObject();
         $this->tabs_gui->setTabActive('view_content');
-        return true;
     }
-        
-    /**
-    * Render folder
-    */
-    public function renderObject()
+
+    public function renderObject(): void
     {
         $ilTabs = $this->tabs;
-        
+
         $this->checkPermission('read');
 
         $ilTabs->activateTab("view_content");
-        $ret = parent::renderObject();
-        return $ret;
+        parent::renderObject();
     }
 
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $ilUser = $this->user;
-        $ilCtrl = $this->ctrl;
-
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
 
         $header_action = true;
         switch ($next_class) {
-            case 'ilreputilgui':
-                $ru = new \ilRepUtilGUI($this);
+            case strtolower(ilRepositoryTrashGUI::class):
+                $ru = new ilRepositoryTrashGUI($this);
                 $this->ctrl->setReturn($this, 'trash');
                 $this->ctrl->forwardCommand($ru);
                 break;
@@ -116,37 +112,34 @@ class ilObjFolderGUI extends ilContainerGUI
             case 'ilpermissiongui':
                 $this->prepareOutput();
                 $this->tabs_gui->activateTab('perm_settings');
-                include_once("Services/AccessControl/classes/class.ilPermissionGUI.php");
                 $perm_gui = new ilPermissionGUI($this);
-                $ret = &$this->ctrl->forwardCommand($perm_gui);
+                $ret = $this->ctrl->forwardCommand($perm_gui);
                 break;
 
 
             case 'ilcoursecontentgui':
                 $this->prepareOutput();
-                include_once './Modules/Course/classes/class.ilCourseContentGUI.php';
                 $course_content_obj = new ilCourseContentGUI($this);
                 $this->ctrl->forwardCommand($course_content_obj);
                 break;
-            
+
             case "illearningprogressgui":
                 $this->prepareOutput();
-                include_once './Services/Tracking/classes/class.ilLearningProgressGUI.php';
-                
+
                 $new_gui = new ilLearningProgressGUI(
-                    ilLearningProgressGUI::LP_CONTEXT_REPOSITORY,
+                    ilLearningProgressBaseGUI::LP_CONTEXT_REPOSITORY,
                     $this->object->getRefId(),
-                    $_GET['user_id'] ? $_GET['user_id'] : $ilUser->getId()
+                    $this->folder_request->getUserId() ?: $ilUser->getId()
                 );
                 $this->ctrl->forwardCommand($new_gui);
                 $this->tabs_gui->setTabActive('learning_progress');
                 break;
 
-            // container page editing
+                // container page editing
             case "ilcontainerpagegui":
                 $this->prepareOutput(false);
                 $ret = $this->forwardToPageObject();
-                if ($ret != "") {
+                if ($ret !== "") {
                     $this->tpl->setContent($ret);
                 }
                 $header_action = false;
@@ -160,26 +153,32 @@ class ilObjFolderGUI extends ilContainerGUI
             case 'ilobjectcopygui':
                 $this->prepareOutput();
 
-                include_once './Services/Object/classes/class.ilObjectCopyGUI.php';
                 $cp = new ilObjectCopyGUI($this);
                 $cp->setType('fold');
                 $this->ctrl->forwardCommand($cp);
                 break;
 
-            case "ilobjstylesheetgui":
-                $this->forwardToStyleSheet();
+            case "ilobjectcontentstylesettingsgui":
+                $this->checkPermission("write");
+                $this->setTitleAndDescription();
+                //$this->showContainerPageTabs();
+                $settings_gui = $this->content_style_gui
+                    ->objectSettingsGUIForRefId(
+                        null,
+                        $this->object->getRefId()
+                    );
+                $this->ctrl->forwardCommand($settings_gui);
                 break;
-                
+
             case 'ilexportgui':
                 $this->prepareOutput();
-                    
+
                 $this->tabs_gui->setTabActive('export');
-                include_once './Services/Export/classes/class.ilExportGUI.php';
                 $exp = new ilExportGUI($this);
                 $exp->addFormat('xml');
                 $this->ctrl->forwardCommand($exp);
                 break;
-            
+
             case "ilcommonactiondispatchergui":
                 $this->prepareOutput();
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
@@ -188,7 +187,6 @@ class ilObjFolderGUI extends ilContainerGUI
 
             case 'ildidactictemplategui':
                 $this->ctrl->setReturn($this, 'edit');
-                include_once './Services/DidacticTemplate/classes/class.ilDidacticTemplateGUI.php';
                 $did = new ilDidacticTemplateGUI($this);
                 $this->ctrl->forwardCommand($did);
                 break;
@@ -202,7 +200,6 @@ class ilObjFolderGUI extends ilContainerGUI
                 $this->checkPermissionBool("write");
                 $this->prepareOutput();
                 $this->setSubTabs("settings_trans");
-                include_once("./Services/Object/classes/class.ilObjectTranslationGUI.php");
                 $transgui = new ilObjectTranslationGUI($this);
                 $this->ctrl->forwardCommand($transgui);
                 break;
@@ -227,44 +224,28 @@ class ilObjFolderGUI extends ilContainerGUI
         }
     }
 
-    /**
-    * set tree
-    */
-    public function setFolderTree($a_tree)
+    public function setFolderTree(ilTree $a_tree): void
     {
-        $this->folder_tree = &$a_tree;
+        $this->folder_tree = $a_tree;
     }
 
-    /**
-     * Import file object
-     * @global type $lng
-     * @param type $parent_id
-     * @param type $a_catch_errors
-     */
-    public function importFileObject($parent_id = null, $a_catch_errors = true)
+    protected function importFileObject(?int $parent_id = null): void
     {
         $lng = $this->lng;
-        
-        if (parent::importFileObject($parent_id, $a_catch_errors)) {
-            ilUtil::sendSuccess($lng->txt("msg_obj_modified"), true);
-            $this->ctrl->returnToParent($this);
-        }
+
+        parent::importFileObject($parent_id);
+
+        $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
+        $this->ctrl->returnToParent($this);
     }
 
-    /**
-     * Init object edit form
-     *
-     * @return ilPropertyFormGUI
-     */
-    protected function initEditForm()
+    protected function initEditForm(): ilPropertyFormGUI
     {
         $lng = $this->lng;
-        $ilCtrl = $this->ctrl;
         $obj_service = $this->getObjectService();
 
         $lng->loadLanguageModule($this->object->getType());
 
-        include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this, "update"));
         $form->setTitle($this->lng->txt($this->object->getType() . "_edit"));
@@ -306,12 +287,12 @@ class ilObjFolderGUI extends ilContainerGUI
 
         $this->initSortingForm(
             $form,
-            array(
+            [
                 ilContainer::SORT_INHERIT,
                 ilContainer::SORT_TITLE,
                 ilContainer::SORT_CREATION,
                 ilContainer::SORT_MANUAL
-            )
+            ]
         );
 
         $form->addCommandButton("update", $this->lng->txt("save"));
@@ -320,69 +301,66 @@ class ilObjFolderGUI extends ilContainerGUI
         return $form;
     }
 
-    protected function getEditFormCustomValues(array &$a_values)
+    protected function getEditFormCustomValues(array &$a_values): void
     {
         // we cannot use $this->object->getOrderType()
         // if set to inherit it will be translated to parent setting
-        include_once './Services/Container/classes/class.ilContainerSortingSettings.php';
         $sort = new ilContainerSortingSettings($this->object->getId());
         $a_values["sor"] = $sort->getSortMode();
     }
 
-    protected function updateCustom(ilPropertyFormGUI $a_form)
+    protected function updateCustom(ilPropertyFormGUI $form): void
     {
         $obj_service = $this->getObjectService();
 
         // title icon visibility
-        $obj_service->commonSettings()->legacyForm($a_form, $this->object)->saveTitleIconVisibility();
+        $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTitleIconVisibility();
 
         // top actions visibility
-        $obj_service->commonSettings()->legacyForm($a_form, $this->object)->saveTopActionsVisibility();
+        $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTopActionsVisibility();
 
         // custom icon
-        $obj_service->commonSettings()->legacyForm($a_form, $this->object)->saveIcon();
+        $obj_service->commonSettings()->legacyForm($form, $this->object)->saveIcon();
 
         // tile image
-        $obj_service->commonSettings()->legacyForm($a_form, $this->object)->saveTileImage();
+        $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTileImage();
 
         // list presentation
-        $this->saveListPresentation($a_form);
+        $this->saveListPresentation($form);
 
-        $this->saveSortingSettings($a_form);
+        $this->saveSortingSettings($form);
     }
-    
-    // BEGIN ChangeEvent show info screen on folder object
+
     /**
-    * this one is called from the info button in the repository
-    * not very nice to set cmdClass/Cmd manually, if everything
-    * works through ilCtrl in the future this may be changed
-    */
-    public function showSummaryObject()
+     * this one is called from the info button in the repository
+     * not very nice to set cmdClass/Cmd manually, if everything
+     * works through ilCtrl in the future this may be changed
+     */
+    public function showSummaryObject(): void
     {
         $this->ctrl->setCmd("showSummary");
         $this->ctrl->setCmdClass("ilinfoscreengui");
         $this->infoScreen();
     }
-    
-    protected function afterSave(ilObject $a_new_object)
+
+    protected function afterSave(ilObject $new_object): void
     {
-        include_once './Services/Container/classes/class.ilContainerSortingSettings.php';
-        $sort = new ilContainerSortingSettings($a_new_object->getId());
+        $sort = new ilContainerSortingSettings($new_object->getId());
         $sort->setSortMode(ilContainer::SORT_INHERIT);
         $sort->update();
-        
+
         // always send a message
-        ilUtil::sendSuccess($this->lng->txt("fold_added"), true);
-        $this->ctrl->setParameter($this, "ref_id", $a_new_object->getRefId());
-        $this->redirectToRefId($a_new_object->getRefId(), "");
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("fold_added"), true);
+        $this->ctrl->setParameter($this, "ref_id", $new_object->getRefId());
+        $this->redirectToRefId($new_object->getRefId(), "");
     }
-    
+
     /**
     * this one is called from the info button in the repository
     * not very nice to set cmdClass/Cmd manually, if everything
     * works through ilCtrl in the future this may be changed
     */
-    public function infoScreenObject()
+    public function infoScreenObject(): void
     {
         $this->ctrl->setCmd("showSummary");
         $this->ctrl->setCmdClass("ilinfoscreengui");
@@ -390,52 +368,47 @@ class ilObjFolderGUI extends ilContainerGUI
     }
 
     /**
-    * show information screen
-    */
-    public function infoScreen()
+     * @throws ilPermissionException
+     */
+    public function infoScreen(): void
     {
         $ilAccess = $this->access;
 
         if (!$ilAccess->checkAccess("visible", "", $this->ref_id)) {
-            $this->ilias->raiseError($this->lng->txt("msg_no_perm_read"), $this->ilias->error_obj->MESSAGE);
+            throw new ilPermissionException($this->lng->txt("msg_no_perm_read"));
         }
 
-        include_once("./Services/InfoScreen/classes/class.ilInfoScreenGUI.php");
         $info = new ilInfoScreenGUI($this);
-        
+
         $GLOBALS['ilTabs']->activateTab('info_short');
 
         $info->enablePrivateNotes();
-        
-        if ($ilAccess->checkAccess("read", "", $_GET["ref_id"])) {
+
+        if ($ilAccess->checkAccess("read", "", $this->requested_ref_id)) {
             $info->enableNews();
         }
 
         // no news editing for files, just notifications
         $info->enableNewsEditing(false);
-        if ($ilAccess->checkAccess("write", "", $_GET["ref_id"])) {
+        if ($ilAccess->checkAccess("write", "", $this->requested_ref_id)) {
             $news_set = new ilSetting("news");
             $enable_internal_rss = $news_set->get("enable_rss_for_internal");
-            
+
             if ($enable_internal_rss) {
-                $info->setBlockProperty("news", "settings", true);
-                $info->setBlockProperty("news", "public_notifications_option", true);
+                $info->setBlockProperty("news", "settings", '1');
+                $info->setBlockProperty("news", "public_notifications_option", '1');
             }
         }
 
-        
+
         // standard meta data
         $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
-        
+
         // forward the command
         $this->ctrl->forwardCommand($info);
     }
-    // END ChangeEvent show info screen on folder object
 
-    /**
-    * Get tabs
-    */
-    public function getTabs()
+    protected function getTabs(): void
     {
         $rbacsystem = $this->rbacsystem;
         $lng = $this->lng;
@@ -444,7 +417,7 @@ class ilObjFolderGUI extends ilContainerGUI
         $ilHelp = $this->help;
 
         $this->ctrl->setParameter($this, "ref_id", $this->ref_id);
-        
+
         $ilHelp->setScreenIdComponent("fold");
 
         $this->tabs_gui->setTabActive("");
@@ -456,24 +429,22 @@ class ilObjFolderGUI extends ilContainerGUI
             );
 
             //BEGIN ChangeEvent add info tab to category object
-            $force_active = ($this->ctrl->getNextClass() == "ilinfoscreengui"
-                || strtolower($_GET["cmdClass"]) == "ilnotegui")
-                ? true
-                : false;
+            $force_active = $this->ctrl->getNextClass() === "ilinfoscreengui"
+                || strtolower($this->ctrl->getCmdClass()) === "ilnotegui";
             $this->tabs_gui->addTarget(
                 "info_short",
                 $this->ctrl->getLinkTargetByClass(
-                    array("ilobjfoldergui", "ilinfoscreengui"),
+                    ["ilobjfoldergui", "ilinfoscreengui"],
                     "showSummary"
                 ),
-                array("showSummary","", "infoScreen"),
+                ["showSummary", "", "infoScreen"],
                 "",
                 "",
                 $force_active
             );
             //END ChangeEvent add info tab to category object
         }
-        
+
         if ($rbacsystem->checkAccess('write', $this->ref_id)) {
             $this->tabs_gui->addTarget(
                 "settings",
@@ -481,21 +452,20 @@ class ilObjFolderGUI extends ilContainerGUI
                 "edit",
                 "",
                 "",
-                ($ilCtrl->getCmd() == "edit")
+                ($ilCtrl->getCmd() === "edit")
             );
         }
 
         // learning progress
-        include_once './Services/Tracking/classes/class.ilLearningProgressAccess.php';
         if (ilLearningProgressAccess::checkAccess($this->object->getRefId())) {
             $this->tabs_gui->addTarget(
                 'learning_progress',
-                $this->ctrl->getLinkTargetByClass(array('ilobjfoldergui','illearningprogressgui'), ''),
+                $this->ctrl->getLinkTargetByClass(['ilobjfoldergui', 'illearningprogressgui'], ''),
                 '',
-                array('illplistofobjectsgui','illplistofsettingsgui','illearningprogressgui','illplistofprogressgui')
+                ['illplistofobjectsgui', 'illplistofsettingsgui', 'illearningprogressgui', 'illplistofprogressgui']
             );
         }
-        
+
         if ($ilAccess->checkAccess('write', '', $this->object->getRefId())) {
             $this->tabs_gui->addTarget(
                 'export',
@@ -504,24 +474,14 @@ class ilObjFolderGUI extends ilContainerGUI
                 'ilexportgui'
             );
         }
-        
+
 
         if ($rbacsystem->checkAccess('edit_permission', $this->ref_id)) {
             $this->tabs_gui->addTarget(
                 "perm_settings",
-                $this->ctrl->getLinkTargetByClass(array(get_class($this),'ilpermissiongui'), "perm"),
-                array("perm","info","owner"),
+                $this->ctrl->getLinkTargetByClass([get_class($this), 'ilpermissiongui'], "perm"),
+                ["perm", "info", "owner"],
                 'ilpermissiongui'
-            );
-        }
-
-        // show clipboard in repository
-        if ($_GET["baseClass"] == "ilRepositoryGUI" and !empty($_SESSION['il_rep_clipboard'])) {
-            $this->tabs_gui->addTarget(
-                "clipboard",
-                $this->ctrl->getLinkTarget($this, "clipboard"),
-                "clipboard",
-                get_class($this)
             );
         }
     }
@@ -529,13 +489,15 @@ class ilObjFolderGUI extends ilContainerGUI
     /**
     * goto target group
     */
-    public static function _goto($a_target)
+    public static function _goto($a_target): void
     {
         global $DIC;
 
         $ilAccess = $DIC->access();
         $ilErr = $DIC["ilErr"];
         $lng = $DIC->language();
+
+        $a_target = (int) $a_target;
 
         if ($ilAccess->checkAccess("read", "", $a_target)) {
             ilObjectGUI::_gotoRepositoryNode($a_target);
@@ -545,28 +507,18 @@ class ilObjFolderGUI extends ilContainerGUI
         }
         $ilErr->raiseError($lng->txt("msg_no_perm_read"), $ilErr->FATAL);
     }
-    
-    /**
-     * Modify Item ListGUI for presentation in container
-     * @global type $tree
-     * @param type $a_item_list_gui
-     * @param type $a_item_data
-     * @param type $a_show_path
-     */
-    public function modifyItemGUI($a_item_list_gui, $a_item_data, $a_show_path)
+
+    public function modifyItemGUI(ilObjectListGUI $a_item_list_gui, array $a_item_data): void
     {
         $tree = $this->tree;
 
         // if folder is in a course, modify item list gui according to course requirements
         if ($course_ref_id = $tree->checkForParentType($this->object->getRefId(), 'crs')) {
-            include_once("./Modules/Course/classes/class.ilObjCourse.php");
-            include_once("./Modules/Course/classes/class.ilObjCourseGUI.php");
             $course_obj_id = ilObject::_lookupObjId($course_ref_id);
             ilObjCourseGUI::_modifyItemGUI(
                 $a_item_list_gui,
                 'ilcoursecontentgui',
                 $a_item_data,
-                $a_show_path,
                 ilObjCourse::_lookupAboStatus($course_obj_id),
                 $course_ref_id,
                 $course_obj_id,
@@ -578,50 +530,41 @@ class ilObjFolderGUI extends ilContainerGUI
     /**
      * show possible sub objects selection list
      */
-    public function showPossibleSubObjects()
+    protected function showPossibleSubObjects(): void
     {
         $gui = new ilObjectAddNewItemGUI($this->object->getRefId());
         $gui->render();
     }
 
-    
-    protected function forwardToTimingsView()
+
+    protected function forwardToTimingsView(): void
     {
         $tree = $this->tree;
-        
+
         if (!$crs_ref = $tree->checkForParentType($this->ref_id, 'crs')) {
-            return false;
+            return;
         }
-        include_once './Modules/Course/classes/class.ilObjCourse.php';
-        if (!$this->ctrl->getCmd() and ilObjCourse::_lookupViewMode(ilObject::_lookupObjId($crs_ref)) == ilContainer::VIEW_TIMING) {
-            if (!isset($_SESSION['crs_timings'])) {
-                $_SESSION['crs_timings'] = true;
+        if (!$this->ctrl->getCmd() && ilObjCourse::_lookupViewMode(ilObject::_lookupObjId($crs_ref)) === ilContainer::VIEW_TIMING) {
+            if (!ilSession::has('crs_timings')) {
+                ilSession::set('crs_timings', true);
             }
-            
-            if ($_SESSION['crs_timings'] == true) {
-                include_once './Modules/Course/classes/class.ilCourseContentGUI.php';
+
+            if (ilSession::get('crs_timings')) {
                 $course_content_obj = new ilCourseContentGUI($this);
                 $this->ctrl->setCmdClass(get_class($course_content_obj));
                 $this->ctrl->setCmd('editUserTimings');
                 $this->ctrl->forwardCommand($course_content_obj);
-                return true;
+                return;
             }
         }
-        $_SESSION['crs_timings'] = false;
-        return false;
+        ilSession::set('crs_timings', false);
     }
-    
-    /**
-     * Edit
-     *
-     * @param
-     * @return
-     */
-    public function editObject()
+
+    public function editObject(): void
     {
         $ilTabs = $this->tabs;
         $ilErr = $this->error;
-        
+
         $this->setSubTabs("settings");
         $ilTabs->activateTab("settings");
 
@@ -636,16 +579,12 @@ class ilObjFolderGUI extends ilContainerGUI
         }
         $GLOBALS['tpl']->setContent($form->getHTML());
     }
-    
-    
-    /**
-     * Set sub tabs
-     */
-    public function setSubTabs($a_tab)
+
+    public function setSubTabs(string $a_tab): void
     {
         $ilTabs = $this->tabs;
         $lng = $this->lng;
-        
+
         $ilTabs->addSubTab(
             "settings",
             $lng->txt("fold_settings"),
@@ -661,4 +600,4 @@ class ilObjFolderGUI extends ilContainerGUI
         $ilTabs->activateSubTab($a_tab);
         $ilTabs->activateTab("settings");
     }
-} // END class.ilObjFolderGUI
+}

@@ -1,13 +1,26 @@
 <?php
 
-require_once("./Services/Object/classes/class.ilObjectListGUI.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 class ilObjIndividualAssessmentListGUI extends ilObjectListGUI
 {
-
-    /**
-    * initialisation
-    */
-    public function init()
+    public function init(): void
     {
         $this->static_link_enabled = true;
         $this->delete_enabled = true;
@@ -17,47 +30,41 @@ class ilObjIndividualAssessmentListGUI extends ilObjectListGUI
         $this->link_enabled = true;
         $this->info_screen_enabled = true;
         $this->type = "iass";
-        $this->gui_class_name = "ilobjIndividualassessmentgui";
+        $this->gui_class_name = "ilobjindividualassessmentgui";
 
         $this->substitutions = ilAdvancedMDSubstitution::_getInstanceByObjectType($this->type);
         $this->enableSubstitutions($this->substitutions->isActive());
 
         // general commands array
-        include_once('./Modules/IndividualAssessment/classes/class.ilObjIndividualAssessmentAccess.php');
         $this->commands = ilObjIndividualAssessmentAccess::_getCommands();
     }
-
-
 
     /**
     * Get command target frame
     *
-    * @param	string		$a_cmd			command
+    * @param	string		$cmd			command
     *
     * @return	string		command target frame
     */
-    public function getCommandFrame($a_cmd)
+    public function getCommandFrame(string $cmd): string
     {
-        switch ($a_cmd) {
-            default:
-                $frame = ilFrameTargetInfo::_getFrame("MainContent");
-                break;
-        }
-
-        return $frame;
+        return ilFrameTargetInfo::_getFrame("MainContent");
     }
 
-    public function getCommandLink($a_cmd)
+    public function getCommandLink(string $cmd): string
     {
-        switch ($a_cmd) {
+        switch ($cmd) {
             case 'edit':
-                $return = $this->ctrl->getLinkTargetByClass(array($this->gui_class_name,'ilIndividualassessmentsettingsgui'), "edit");
+                $return = $this->ctrl->getLinkTargetByClass(
+                    array($this->gui_class_name,'ilIndividualassessmentsettingsgui'),
+                    "edit"
+                );
                 break;
             case 'infoScreen':
                 $return = $this->ctrl->getLinkTargetByClass($this->gui_class_name, "view");
                 break;
             default:
-                $return = parent::getCommandLink($a_cmd);
+                $return = parent::getCommandLink($cmd);
         }
 
         return $return;
@@ -71,7 +78,7 @@ class ilObjIndividualAssessmentListGUI extends ilObjectListGUI
     *						"property" (string) => property name
     *						"value" (string) => property value
     */
-    public function getProperties()
+    public function getProperties(): array
     {
         return [];
     }

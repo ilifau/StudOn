@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Tool\Provider;
 
 use ILIAS\DI\Container;
@@ -31,20 +31,11 @@ use ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection;
  */
 abstract class AbstractDynamicToolProvider extends AbstractProvider implements DynamicToolProvider
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\ToolIdentificationProviderInterface
-     */
-    protected $identification_provider;
+    protected ToolIdentificationProviderInterface $identification_provider;
 
-    /**
-     * @var \ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection
-     */
-    protected $context_collection;
+    protected ContextCollection $context_collection;
 
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\Tool\Factory\ToolFactory
-     */
-    protected $factory;
+    protected ToolFactory $factory;
 
     /**
      * @inheritDoc

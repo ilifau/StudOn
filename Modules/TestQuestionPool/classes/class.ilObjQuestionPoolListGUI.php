@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
 
 /**
 * Class ilObjQuestionPoolListGUI
@@ -10,16 +27,11 @@
 *
 * @extends ilObjectListGUI
 * @ingroup ModulesTestQuestionPool
-*/
-
-
-include_once "Services/Object/classes/class.ilObjectListGUI.php";
-include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
-
+ */
 class ilObjQuestionPoolListGUI extends ilObjectListGUI
 {
     protected $command_link_params = array();
-    
+
     /**
     * constructor
     *
@@ -32,7 +44,7 @@ class ilObjQuestionPoolListGUI extends ilObjectListGUI
     /**
     * initialisation
     */
-    public function init()
+    public function init(): void
     {
         $this->delete_enabled = true;
         $this->cut_enabled = true;
@@ -52,14 +64,11 @@ class ilObjQuestionPoolListGUI extends ilObjectListGUI
 
     /**
     * Get command target frame
-    *
-    * @param	string		$a_cmd			command
-    *
-    * @return	string		command target frame
     */
-    public function getCommandFrame($a_cmd)
+    public function getCommandFrame(string $cmd): string
     {
-        switch ($a_cmd) {
+        $frame = '';
+        switch ($cmd) {
             case "":
             case "questions":
                 include_once "./Services/UICore/classes/class.ilFrameTargetInfo.php";
@@ -82,7 +91,7 @@ class ilObjQuestionPoolListGUI extends ilObjectListGUI
     *						"property" (string) => property name
     *						"value" (string) => property value
     */
-    public function getProperties()
+    public function getProperties(): array
     {
         global $DIC;
         $lng = $DIC['lng'];
@@ -101,22 +110,18 @@ class ilObjQuestionPoolListGUI extends ilObjectListGUI
 
     /**
     * Get command link url.
-    *
-    * @param	int			$a_ref_id		reference id
-    * @param	string		$a_cmd			command
-    *
     */
-    public function getCommandLink($a_cmd)
+    public function getCommandLink(string $cmd): string
     {
         global $DIC;
         $ilCtrl = $DIC['ilCtrl'];
 
-        $a_cmd = explode('::', $a_cmd);
+        $cmd = explode('::', $cmd);
 
-        if (count($a_cmd) == 2) {
-            $cmd_link = $ilCtrl->getLinkTargetByClass(array('ilRepositoryGUI', 'ilObjQuestionPoolGUI', $a_cmd[0]), $a_cmd[1]);
+        if (count($cmd) == 2) {
+            $cmd_link = $ilCtrl->getLinkTargetByClass(array('ilRepositoryGUI', 'ilObjQuestionPoolGUI', $cmd[0]), $cmd[1]);
         } else {
-            $cmd_link = $ilCtrl->getLinkTargetByClass('ilObjQuestionPoolGUI', $a_cmd[0]);
+            $cmd_link = $ilCtrl->getLinkTargetByClass('ilObjQuestionPoolGUI', $cmd[0]);
         }
 
         $params = array_merge(array('ref_id' => $this->ref_id), $this->command_link_params);

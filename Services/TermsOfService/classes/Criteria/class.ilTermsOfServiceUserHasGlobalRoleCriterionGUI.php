@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Factory;
@@ -10,33 +27,11 @@ use ILIAS\UI\Factory;
  */
 class ilTermsOfServiceUserHasGlobalRoleCriterionGUI implements ilTermsOfServiceCriterionTypeGUI
 {
-    /**
-     * @var ilTermsOfServiceUserHasGlobalRoleCriterion
-     */
-    protected $type;
+    protected ilTermsOfServiceUserHasGlobalRoleCriterion $type;
+    protected ilRbacReview $rbacReview;
+    protected ilLanguage $lng;
+    protected ilObjectDataCache $objectCache;
 
-    /**
-     * @var ilRbacReview
-     */
-    protected $rbacReview;
-
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilObjectDataCache
-     */
-    protected $objectCache;
-
-    /**
-     * ilTermsOfServiceUserHasGlobalRoleCriterionGUI constructor.
-     * @param ilTermsOfServiceUserHasGlobalRoleCriterion $type
-     * @param ilLanguage                                 $lng
-     * @param ilRbacReview                               $rbacReview
-     * @param ilObjectDataCache                          $objectCache
-     */
     public function __construct(
         ilTermsOfServiceUserHasGlobalRoleCriterion $type,
         ilLanguage $lng,
@@ -51,10 +46,7 @@ class ilTermsOfServiceUserHasGlobalRoleCriterionGUI implements ilTermsOfServiceC
         $this->lng->loadLanguageModule('rbac');
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function appendOption(ilRadioGroupInputGUI $group, ilTermsOfServiceCriterionConfig $config) : void
+    public function appendOption(ilRadioGroupInputGUI $group, ilTermsOfServiceCriterionConfig $config): void
     {
         $option = new ilRadioOption($this->getIdentPresentation(), $this->type->getTypeIdent());
         $option->setInfo($this->lng->txt('tos_crit_type_usr_global_role_info'));
@@ -70,20 +62,17 @@ class ilTermsOfServiceUserHasGlobalRoleCriterionGUI implements ilTermsOfServiceC
             $options[$roleId] = $this->objectCache->lookupTitle($roleId);
         }
 
-        asort($options);
+        natcasesort($options);
 
         $roleSelection->setOptions(['' => $this->lng->txt('please_choose')] + $options);
-        $roleSelection->setValue((int) ($config['role_id'] ?? 0));
+        $roleSelection->setValue((string) ((int) ($config['role_id'] ?? 0)));
 
         $option->addSubItem($roleSelection);
 
         $group->addOption($option);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getConfigByForm(ilPropertyFormGUI $form) : ilTermsOfServiceCriterionConfig
+    public function getConfigByForm(ilPropertyFormGUI $form): ilTermsOfServiceCriterionConfig
     {
         $config = new ilTermsOfServiceCriterionConfig([
             'role_id' => (int) $form->getInput($this->type->getTypeIdent() . '_role_id')
@@ -92,26 +81,21 @@ class ilTermsOfServiceUserHasGlobalRoleCriterionGUI implements ilTermsOfServiceC
         return $config;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getIdentPresentation() : string
+    public function getIdentPresentation(): string
     {
         return $this->lng->txt('tos_crit_type_usr_global_role');
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getValuePresentation(ilTermsOfServiceCriterionConfig $config, Factory $uiFactory) : Component
+    public function getValuePresentation(ilTermsOfServiceCriterionConfig $config, Factory $uiFactory): Component
     {
         $roleId = $config['role_id'] ?? 0;
 
-        if (!is_numeric($roleId) || $roleId < 1 || is_float($roleId)) {
+        if (!is_numeric($roleId) || $roleId < 1 || $roleId > PHP_INT_MAX || is_float($roleId)) {
             return $uiFactory->legacy('');
         }
 
-        if (!in_array($roleId, $this->rbacReview->getGlobalRoles())) {
+        $roleId = (int) $roleId;
+        if (!in_array($roleId, $this->rbacReview->getGlobalRoles(), true)) {
             return $uiFactory->legacy($this->lng->txt('deleted'));
         }
 

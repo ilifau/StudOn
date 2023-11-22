@@ -1,96 +1,50 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2007 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
-include_once("./Services/Form/classes/class.ilSubEnabledFormPropertyGUI.php");
-include_once "./Services/RTE/classes/class.ilRTE.php";
+declare(strict_types=1);
 
 /**
-* This class represents a text area property in a property form.
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-* @ingroup	ServicesForm
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * This class represents a text area property in a property form.
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
 {
-    protected $value;
-    protected $cols;
-    protected $rows;
-    protected $usert;
-    protected $rtetags;
-    protected $plugins;
-    protected $removeplugins;
-    protected $buttons;
-    protected $rtesupport;
-    protected $use_tags_for_rte_only = true;
-    protected $max_num_chars;
-    protected $min_num_chars;
+    protected array $rteSupport = [];
+    protected string $value = "";
+    protected int $cols = 30;
+    protected int $rows = 5;
+    protected bool $usert = false;
+    protected array $rtetags = [];
+    protected array $plugins = [];
+    protected array $removeplugins = [];
+    protected array $buttons = [];
+    protected array $rtesupport = [];
+    protected bool $use_tags_for_rte_only = true;
+    protected int $max_num_chars = 0;
+    protected int $min_num_chars = 0;
+    protected int $initial_rte_width = 795;
+    protected array $disabled_buttons = array();
+    protected bool $usePurifier = false;
+    protected ?ilHtmlPurifierInterface $Purifier = null;
+    protected ?string $root_block_element = null;
 
-    /**
-     * @var int
-     */
-    protected $initial_rte_width = 795;
-    
-    /**
-    * Array of tinymce buttons which should be disabled
-    *
-    * @var		Array
-    * @type		Array
-    * @access	protected
-    *
-    */
-    protected $disabled_buttons = array();
-    
-    /**
-    * Use purifier or not
-    *
-    * @var		boolean
-    * @type		boolean
-    * @access	protected
-    *
-    */
-    protected $usePurifier = false;
-    
-    /**
-    * Instance of ilHtmlPurifierInterface
-    *
-    * @var		ilHtmlPurifierInterface
-    * @type		ilHtmlPurifierInterface
-    * @access	protected
-    *
-    */
-    protected $Purifier = null;
-    
-    /**
-    * TinyMCE root block element which surrounds the generated html
-    *
-    * @var		string
-    * @type		string
-    * @access	protected
-    */
-    protected $root_block_element = null;
-    
-    protected $rte_tag_set = array(
+    protected array $rte_tag_set = array(
         "mini" => array("strong", "em", "u", "ol", "li", "ul", "blockquote", "a", "p", "span", "br"), // #13286/#17981
         "standard" => array("strong", "em", "u", "ol", "li", "ul", "p", "div",
             "i", "b", "code", "sup", "sub", "pre", "strike", "gap"),
@@ -119,16 +73,11 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
             "h4","h5","h6","hr","img","li","ol","p",
             "pre","span","strike","strong","sub","sup","table","td",
             "tr","u","ul","ruby","rbc","rtc","rb","rt","rp", "i", "b", "gap"));
-        
-    
-    /**
-    * Constructor
-    *
-    * @param	string	$a_title	Title
-    * @param	string	$a_postvar	Post Variable
-    */
-    public function __construct($a_title = "", $a_postvar = "")
-    {
+
+    public function __construct(
+        string $a_title = "",
+        string $a_postvar = ""
+    ) {
         global $DIC;
 
         $this->lng = $DIC->language();
@@ -141,236 +90,144 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
         $this->rteSupport = array();
     }
 
-    /**
-    * Set Value.
-    *
-    * @param	string	$a_value	Value
-    */
-    public function setValue($a_value)
+    public function setValue(string $a_value): void
     {
         $this->value = $a_value;
     }
 
-    /**
-    * Get Value.
-    *
-    * @return	string	Value
-    */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
 
     /**
-    * Set Cols.
-    *
-    * @deprecated
-    * @param	int	$a_cols	Cols
-    */
-    public function setCols($a_cols)
+     * @deprecated
+     */
+    public function setCols(int $a_cols): void
     {
         // obsolete because of bootstrap
         $this->cols = $a_cols;
     }
 
-    /**
-    * Get Cols.
-    *
-    * @return	int	Cols
-    */
-    public function getCols()
+    public function getCols(): int
     {
         return $this->cols;
     }
 
-    /**
-    * Set Rows.
-    *
-    * @param	int	$a_rows	Rows
-    */
-    public function setRows($a_rows)
+    public function setRows(int $a_rows): void
     {
         $this->rows = $a_rows;
     }
 
-    /**
-    * Get Rows.
-    *
-    * @return	int	Rows
-    */
-    public function getRows()
+    public function getRows(): int
     {
         return $this->rows;
     }
 
-    /**
-     * Set Maximum number of characters allowed.
-     *
-     * @param int $a_number	Characters
-     */
-    public function setMaxNumOfChars($a_number)
+    // Set Maximum number of characters allowed.
+    public function setMaxNumOfChars(int $a_number): void
     {
         $this->max_num_chars = $a_number;
     }
 
-    /**
-     * Get Maximum number of characters allowed.
-     */
-    public function getMaxNumOfChars()
+    public function getMaxNumOfChars(): int
     {
         return $this->max_num_chars;
     }
 
-    /**
-     * Set Minimum number of characters allowed.
-     *
-     * @param int $a_number	Characters
-     */
-    public function setMinNumOfChars($a_number)
+    public function setMinNumOfChars(int $a_number): void
     {
         $this->min_num_chars = $a_number;
     }
 
-    /**
-     * Get Minimum number of characters allowed.
-     */
-    public function getMinNumOfChars()
+    public function getMinNumOfChars(): int
     {
         return $this->min_num_chars;
     }
 
-    /**
-     * Set Use Rich Text Editing.
-     *
-     * @param	int	$a_usert	Use Rich Text Editing
-     * @param	string $version
-     */
-    public function setUseRte($a_usert, $version = '')
+    public function setUseRte(bool $a_usert, string $version = ''): void
     {
         $this->usert = $a_usert;
-
-        if (strlen($version)) {
-            $this->rteSupport['version'] = $version;
-        }
+        $this->rteSupport['version'] = $version;
     }
 
-    /**
-    * Get Use Rich Text Editing.
-    *
-    * @return	int	Use Rich Text Editing
-    */
-    public function getUseRte()
+    public function getUseRte(): bool
     {
         return $this->usert;
     }
-    
-    /**
-    * Add RTE plugin.
-    *
-    * @param string $a_plugin Plugin name
-    */
-    public function addPlugin($a_plugin)
+
+    public function addPlugin(string $a_plugin): void
     {
         $this->plugins[$a_plugin] = $a_plugin;
     }
-    
-    /**
-    * Remove RTE plugin.
-    *
-    * @param string $a_plugin Plugin name
-    */
-    public function removePlugin($a_plugin)
+
+    public function removePlugin(string $a_plugin): void
     {
         $this->removeplugins[$a_plugin] = $a_plugin;
     }
 
-    /**
-    * Add RTE button.
-    *
-    * @param string $a_button Button name
-    */
-    public function addButton($a_button)
+    // Add RTE button.
+    public function addButton(string $a_button): void
     {
         $this->buttons[$a_button] = $a_button;
     }
-    
-    /**
-    * Remove RTE button.
-    *
-    * @param string $a_button Button name
-    */
-    public function removeButton($a_button)
+
+    public function removeButton(string $a_button): void
     {
         unset($this->buttons[$a_button]);
     }
 
     /**
-    * Set RTE support for a special module
-    *
-    * @param int $obj_id Object ID
-    * @param string $obj_type Object Type
-    * @param string $module ILIAS module
-    */
-    public function setRTESupport($obj_id, $obj_type, $module, $cfg_template = null, $hide_switch = false, $version = null)
-    {
-        $this->rteSupport = array("obj_id" => $obj_id, "obj_type" => $obj_type, "module" => $module, 'cfg_template' => $cfg_template, 'hide_switch' => $hide_switch, 'version' => $version);
+     * Set RTE support for a special module
+     */
+    public function setRTESupport(
+        int $obj_id,
+        string $obj_type,
+        string $module,
+        ?string $cfg_template = null,
+        bool $hide_switch = false,
+        ?string $version = null
+    ): void {
+        $this->rteSupport = array(
+            "obj_id" => $obj_id,
+            "obj_type" => $obj_type,
+            "module" => $module,
+            'cfg_template' => $cfg_template,
+            'hide_switch' => $hide_switch,
+            'version' => $version
+        );
     }
-    
-    /**
-    * Remove RTE support for a special module
-    */
-    public function removeRTESupport()
+
+    public function removeRTESupport(): void
     {
         $this->rteSupport = array();
     }
 
-    /**
-    * Set Valid RTE Tags.
-    *
-    * @param	array	$a_rtetags	Valid RTE Tags
-    */
-    public function setRteTags($a_rtetags)
+    public function setRteTags(array $a_rtetags): void
     {
         $this->rtetags = $a_rtetags;
     }
 
-    /**
-    * Get Valid RTE Tags.
-    *
-    * @return	array	Valid RTE Tags
-    */
-    public function getRteTags()
+    public function getRteTags(): array
     {
         return $this->rtetags;
     }
-    
+
     /**
-    * Set Set of Valid RTE Tags
-    *
-    * @return	array	Set name "standard", "extended", "extended_img",
-    *					"extended_table", "extended_table_img", "full"
-    */
-    public function setRteTagSet($a_set_name)
+     * @param string $a_set_name Set name "standard", "extended", "extended_img",
+     *					"extended_table", "extended_table_img", "full"
+     */
+    public function setRteTagSet(string $a_set_name): void
     {
         $this->setRteTags($this->rte_tag_set[$a_set_name]);
     }
 
-    /**
-    * Get Set of Valid RTE Tags
-    *
-    * @return	array	Set name "standard", "extended", "extended_img",
-    *					"extended_table", "extended_table_img", "full"
-    */
-    public function getRteTagSet($a_set_name)
+    public function getRteTagSet($a_set_name): array
     {
         return $this->rte_tag_set[$a_set_name];
     }
 
-    
-    /**
-    * RTE Tag string
-    */
-    public function getRteTagString()
+    public function getRteTagString(): string
     {
         $result = "";
         foreach ($this->getRteTags() as $tag) {
@@ -381,66 +238,33 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
 
     /**
      * Set use tags for RTE only (default is true)
-     *
-     * @param boolean $a_val use tags for RTE only
      */
-    public function setUseTagsForRteOnly($a_val)
+    public function setUseTagsForRteOnly(bool $a_val): void
     {
         $this->use_tags_for_rte_only = $a_val;
     }
-    
-    /**
-     * Get use tags for RTE only (default is true)
-     *
-     * @return boolean use tags for RTE only
-     */
-    public function getUseTagsForRteOnly()
+
+    public function getUseTagsForRteOnly(): bool
     {
         return $this->use_tags_for_rte_only;
     }
-    
-    /**
-    * Set value by array
-    *
-    * @param	array	$a_values	value array
-    */
-    public function setValueByArray($a_values)
+
+    public function setValueByArray(array $a_values): void
     {
-        $this->setValue($a_values[$this->getPostVar()]);
-        
+        $this->setValue($a_values[$this->getPostVar()] ?? "");
+
         foreach ($this->getSubItems() as $item) {
             $item->setValueByArray($a_values);
         }
     }
 
-    /**
-    * Check input, strip slashes etc. set alert, if input is not ok.
-    *
-    * @return	boolean		Input ok, true/false
-    */
-    public function checkInput()
+    public function checkInput(): bool
     {
         $lng = $this->lng;
-        include_once("./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php");
-        
-        if ($this->usePurifier() && $this->getPurifier()) {
-            $_POST[$this->getPostVar()] = ilUtil::stripOnlySlashes($_POST[$this->getPostVar()]);
-            $_POST[$this->getPostVar()] = $this->getPurifier()->purify($_POST[$this->getPostVar()]);
-        } else {
-            $allowed = $this->getRteTagString();
-            if ($this->plugins["latex"] == "latex" && !is_int(strpos($allowed, "<span>"))) {
-                $allowed .= "<span>";
-            }
-            $_POST[$this->getPostVar()] = ($this->getUseRte() || !$this->getUseTagsForRteOnly())
-                ? ilUtil::stripSlashes($_POST[$this->getPostVar()], true, $allowed)
-                : $this->stripSlashesAddSpaceFallback($_POST[$this->getPostVar()]);
-        }
 
-        $_POST[$this->getPostVar()] = self::removeProhibitedCharacters($_POST[$this->getPostVar()]);
-
-        if ($this->getRequired() && trim($_POST[$this->getPostVar()]) == "") {
+        $value = $this->getInput();
+        if ($this->getRequired() && trim($value) == "") {
             $this->setAlert($lng->txt("msg_input_is_required"));
-
             return false;
         }
 
@@ -453,15 +277,13 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
             $replace_to = array(' ', '', "_", "_", "_");
 
             #20630 mbstring extension is mandatory for 5.4
-            $chars_entered = mb_strlen(strip_tags(str_replace($to_replace, $replace_to, $_POST[$this->getPostVar()])));
+            $chars_entered = mb_strlen(strip_tags(str_replace($to_replace, $replace_to, $value)));
 
             if ($this->getMaxNumOfChars() && ($chars_entered > $this->getMaxNumOfChars())) {
                 $this->setAlert($lng->txt("msg_input_char_limit_max"));
-
                 return false;
             } elseif ($this->getMinNumOfChars() && ($chars_entered < $this->getMinNumOfChars())) {
                 $this->setAlert($lng->txt("msg_input_char_limit_min"));
-
                 return false;
             }
         }
@@ -469,30 +291,40 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
         return $this->checkSubItemsInput();
     }
 
-    /**
-    * Insert property html
-    *
-    * @return	int	Size
-    */
-    public function insert($a_tpl)
+    public function getInput(): string
+    {
+        if ($this->usePurifier() && $this->getPurifier()) {
+            $value = $this->getPurifier()->purify($this->raw($this->getPostVar()));
+        } else {
+            $allowed = $this->getRteTagString();
+            if (isset($this->plugins["latex"]) && $this->plugins["latex"] == "latex" && !is_int(strpos($allowed, "<span>"))) {
+                $allowed .= "<span>";
+            }
+            $value = ($this->getUseRte() || !$this->getUseTagsForRteOnly())
+                ? ilUtil::stripSlashes($this->raw($this->getPostVar()), true, $allowed)
+                : $this->str($this->getPostVar());
+        }
+
+        $value = self::removeProhibitedCharacters($value);
+        return $value;
+    }
+
+    public function insert(ilTemplate $a_tpl): void
     {
         $lng = $this->lng;
 
         $ttpl = new ilTemplate("tpl.prop_textarea.html", true, true, "Services/Form");
-        
+
         // disabled rte
         if ($this->getUseRte() && $this->getDisabled()) {
             $ttpl->setCurrentBlock("disabled_rte");
             $ttpl->setVariable("DR_VAL", $this->getValue());
-            $ttpl->parseCurrentBlock();
         } else {
             if ($this->getUseRte()) {
                 $rtestring = ilRTE::_getRTEClassname();
-                include_once "./Services/RTE/classes/class.$rtestring.php";
-                $rte = new $rtestring($this->rteSupport['version']);
-
+                $rte = new $rtestring((string) $this->rteSupport['version']);
                 $rte->setInitialWidth($this->getInitialRteWidth());
-                
+
                 // @todo: Check this.
                 $rte->addPlugin("emoticons");
                 foreach ($this->plugins as $plugin) {
@@ -505,26 +337,26 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
                         $rte->removePlugin($plugin);
                     }
                 }
-    
+
                 foreach ($this->buttons as $button) {
                     if (strlen($button)) {
                         $rte->addButton($button);
                     }
                 }
-                
+
                 $rte->disableButtons($this->getDisabledButtons());
-                
+
                 if ($this->getRTERootBlockElement() !== null) {
                     $rte->setRTERootBlockElement($this->getRTERootBlockElement());
                 }
-                
+
                 if (count($this->rteSupport) >= 3) {
                     $rte->addRTESupport($this->rteSupport["obj_id"], $this->rteSupport["obj_type"], $this->rteSupport["module"], false, $this->rteSupport['cfg_template'], $this->rteSupport['hide_switch']);
                 } else {
                     // disable all plugins for mini-tagset
                     if (!array_diff($this->getRteTags(), $this->getRteTagSet("mini"))) {
                         $rte->removeAllPlugins();
-                        
+
                         // #13603 - "paste from word" is essential
                         $rte->addPlugin("paste");
                         //Add plugins 'lists', 'code' and 'link': in tinymce 3 it wasnt necessary to configure these plugins
@@ -535,7 +367,7 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
                         if (method_exists($rte, 'removeAllContextMenuItems')) {
                             $rte->removeAllContextMenuItems(); //https://github.com/ILIAS-eLearning/ILIAS/pull/3088#issuecomment-805830050
                         }
-                        
+
                         // #11980 - p-tag is mandatory but we do not want the icons it comes with
                         $rte->disableButtons(array("anchor", "alignleft", "aligncenter",
                             "alignright", "alignjustify", "formatselect", "removeformat",
@@ -543,13 +375,11 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
                     }
                     $rte->addCustomRTESupport(0, "", $this->getRteTags());
                 }
-                
+
                 $ttpl->touchBlock("prop_ta_w");
-                $ttpl->setCurrentBlock("prop_textarea");
-                $ttpl->setVariable("ROWS", $this->getRows());
             } else {
                 $ttpl->touchBlock("no_rteditor");
-    
+
                 if ($this->getCols() > 5) {
                     $ttpl->setCurrentBlock("prop_ta_c");
                     $ttpl->setVariable("COLS", $this->getCols());
@@ -557,18 +387,16 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
                 } else {
                     $ttpl->touchBlock("prop_ta_w");
                 }
-                
-                $ttpl->setCurrentBlock("prop_textarea");
-                $ttpl->setVariable("ROWS", $this->getRows());
             }
-
+            $ttpl->setCurrentBlock("prop_textarea");
+            $ttpl->setVariable("ROWS", $this->getRows());
             $ttpl->setVariable("POST_VAR", $this->getPostVar());
             $ttpl->setVariable("ID", $this->getFieldId());
             if ($this->getDisabled()) {
                 $ttpl->setVariable('DISABLED', 'disabled="disabled" ');
             }
-            $ttpl->setVariable("PROPERTY_VALUE", ilUtil::prepareFormOutput($this->getValue()));
-        
+            $ttpl->setVariable("PROPERTY_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($this->getValue()));
+
             if ($this->getRequired()) {
                 $ttpl->setVariable("REQUIRED", "required=\"required\"");
             }
@@ -579,9 +407,8 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
 
                 $lng->toJS("form_chars_remaining");
             }
-
-            $ttpl->parseCurrentBlock();
         }
+        $ttpl->parseCurrentBlock();
 
         if ($this->isCharLimited()) {
             $ttpl->setVariable("FEEDBACK_MAX_LIMIT", $this->getMaxNumOfChars());
@@ -601,98 +428,64 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
     }
 
     /**
-    * Setter/Getter for the html purifier usage
-    *
-    * @param	boolean	$a_flag	Use purifier or not
-    * @return	mixed	Returns instance of ilTextAreaInputGUI or boolean
-    * @access	public
-    */
-    public function usePurifier($a_flag = null)
+     * Setter/Getter for the html purifier usage
+     * @param bool $a_flag Use purifier or not
+     * @return self|bool
+     */
+    public function usePurifier(bool $a_flag = null)
     {
         if (null === $a_flag) {
             return $this->usePurifier;
         }
-        
+
         $this->usePurifier = $a_flag;
         return $this;
     }
-    
+
     /**
-    * Setter for the html purifier
-    *
-    * @param	ilHtmlPurifierInterface	Instance of ilHtmlPurifierInterface
-    * @return	ilTextAreaInputGUI		Instance of ilTextAreaInputGUI
-    * @access	public
-    */
-    public function setPurifier(ilHtmlPurifierInterface $Purifier)
+     * Setter for the html purifier
+     */
+    public function setPurifier(ilHtmlPurifierInterface $Purifier): self
     {
         $this->Purifier = $Purifier;
         return $this;
     }
-    
-    /**
-    * Getter for the html purifier
-    *
-    * @return	ilHtmlPurifierInterface	Instance of ilHtmlPurifierInterface
-    * @access	public
-    */
-    public function getPurifier()
+
+    public function getPurifier(): ilHtmlPurifierInterface
     {
         return $this->Purifier;
     }
-    
-    /**
-    * Setter for the TinyMCE root block element
-    *
-    * @param	string				$a_root_block_element	root block element
-    * @return	ilTextAreaInputGUI	Instance of ilTextAreaInputGUI
-    * @access	public
-    */
-    public function setRTERootBlockElement($a_root_block_element)
+
+    public function setRTERootBlockElement(?string $a_root_block_element): self
     {
         $this->root_block_element = $a_root_block_element;
         return $this;
     }
-    
-    /**
-    * Getter for the TinyMCE root block element
-    *
-    * @return	string	Root block element of TinyMCE
-    * @access	public
-    */
-    public function getRTERootBlockElement()
+
+    public function getRTERootBlockElement(): ?string
     {
         return $this->root_block_element;
     }
-    
+
     /**
-    * Sets buttons which should be disabled in TinyMCE
-    *
-    * @param	mixed	$a_button	Either a button string or an array of button strings
-    * @return	ilTextAreaInputGUI	Instance of ilTextAreaInputGUI
-    * @access	public
-    *
-    */
-    public function disableButtons($a_button)
+     * Sets buttons which should be disabled in TinyMCE
+     *
+     * @param string|string[] $a_button	Either a button string or an array of button strings
+     */
+    public function disableButtons($a_button): self
     {
         if (is_array($a_button)) {
             $this->disabled_buttons = array_unique(array_merge($this->disabled_buttons, $a_button));
         } else {
             $this->disabled_buttons = array_unique(array_merge($this->disabled_buttons, array($a_button)));
         }
-        
         return $this;
     }
-    
+
     /**
-    * Returns the disabled TinyMCE buttons
-    *
-    * @param	boolean	$as_array	Should the disabled buttons be returned as a string or as an array
-    * @return	Array	Array of disabled buttons
-    * @access	public
-    *
-    */
-    public function getDisabledButtons($as_array = true)
+     * @return	string|array	Array of disabled buttons
+     */
+    public function getDisabledButtons(bool $as_array = true)
     {
         if (!$as_array) {
             return implode(',', $this->disabled_buttons);
@@ -701,23 +494,17 @@ class ilTextAreaInputGUI extends ilSubEnabledFormPropertyGUI
         }
     }
 
-    /**
-     * @return int
-     */
-    public function getInitialRteWidth()
+    public function getInitialRteWidth(): int
     {
         return $this->initial_rte_width;
     }
 
-    /**
-     * @param int $initial_rte_width
-     */
-    public function setInitialRteWidth($initial_rte_width)
+    public function setInitialRteWidth(int $initial_rte_width): void
     {
         $this->initial_rte_width = $initial_rte_width;
     }
 
-    public function isCharLimited()
+    public function isCharLimited(): bool
     {
         if ($this->getMaxNumOfChars() || $this->getMinNumOfChars()) {
             return true;

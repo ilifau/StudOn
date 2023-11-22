@@ -2,52 +2,38 @@
 
 declare(strict_types=1);
 
-use \ILIAS\UI\Component\Input\Field;
-use \ILIAS\Refinery\Factory as Refinery;
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\UI\Component\Input\Field;
+use ILIAS\Refinery\Factory as Refinery;
 
 /**
  * An object carrying settings of an Individual Assessment obj
- * beyond the standart information
- *
- * @author Denis Klöpfer <denis.kloepfer@concepts-and-training.de>
- * @author Stefan Hecken <stefan.hecken@concepts-and-training.de>
+ * beyond the standard information
  */
 class ilIndividualAssessmentSettings
 {
-    /**
-     * @var int
-     */
-    protected $obj_id;
-
-    /**
-     * @var string
-     */
-    protected $title;
-
-    /**
-     * @var string
-     */
-    protected $description;
-
-    /**
-     * @var	string
-     */
-    protected $content;
-
-    /**
-     * @var	string
-     */
-    protected $record_template;
-
-    /**
-     * @var bool
-     */
-    protected $event_time_place_required;
-
-    /**
-     * @var bool
-     */
-    protected $file_required;
+    protected int $obj_id;
+    protected string $title;
+    protected string $description;
+    protected string $content;
+    protected string $record_template;
+    protected bool $event_time_place_required;
+    protected bool $file_required;
 
     public function __construct(
         int $obj_id,
@@ -70,7 +56,7 @@ class ilIndividualAssessmentSettings
     /**
      * Get the id of corresponding iass-object
      */
-    public function getObjId() : int
+    public function getObjId(): int
     {
         return $this->obj_id;
     }
@@ -78,7 +64,7 @@ class ilIndividualAssessmentSettings
     /**
      * Get the content of this assessment, e.g. corresponding topics...
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -86,7 +72,7 @@ class ilIndividualAssessmentSettings
     /**
      * Get the content of this assessment, e.g. corresponding topics...
      */
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -94,7 +80,7 @@ class ilIndividualAssessmentSettings
     /**
      * Get the content of this assessment, e.g. corresponding topics...
      */
-    public function getContent() : string
+    public function getContent(): string
     {
         return $this->content;
     }
@@ -103,7 +89,7 @@ class ilIndividualAssessmentSettings
      * Get the record template to be used as default record with
      * corresponding object
      */
-    public function getRecordTemplate() : string
+    public function getRecordTemplate(): string
     {
         return $this->record_template;
     }
@@ -111,7 +97,7 @@ class ilIndividualAssessmentSettings
     /**
      * Get the value of the checkbox event_time_place_require
      */
-    public function isEventTimePlaceRequired() : bool
+    public function isEventTimePlaceRequired(): bool
     {
         return $this->event_time_place_required;
     }
@@ -119,16 +105,16 @@ class ilIndividualAssessmentSettings
     /**
      * Get the value of the checkbox file_required
      */
-    public function isFileRequired() : bool
+    public function isFileRequired(): bool
     {
         return $this->file_required;
     }
 
     public function toFormInput(
         Field\Factory $input,
-        \ilLanguage $lng,
+        ilLanguage $lng,
         Refinery $refinery
-    ) : Field\Input {
+    ): Field\Input {
         return $input->section(
             [
                 $input->text($lng->txt("title"))
@@ -148,7 +134,7 @@ class ilIndividualAssessmentSettings
             $lng->txt("settings")
         )->withAdditionalTransformation(
             $refinery->custom()->transformation(function ($value) {
-                return new \ilIndividualAssessmentSettings(
+                return new ilIndividualAssessmentSettings(
                     $this->getObjId(),
                     ...$value
                 );

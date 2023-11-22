@@ -18,28 +18,13 @@
 
 namespace ILIAS\FileUpload\Processor;
 
-use ILIAS\Filesystem\Stream\FileStream;
-use ILIAS\FileUpload\DTO\Metadata;
-use ILIAS\FileUpload\DTO\ProcessingStatus;
-
-/**
- * Class BlacklistExtensionPreProcessor
- * PreProcessor which denies all blacklisted file extensions.
- * @author  Nicolas Schäfli <ns@studer-raimann.ch>
- * @since   5.3
- * @version 1.0.0
- */
-final class BlacklistExtensionPreProcessor extends AbstractRecursiveZipPreProcessor implements PreProcessor
+class BlacklistExtensionPreProcessor extends AbstractRecursiveZipPreProcessor implements PreProcessor
 {
-
-    /**
-     * @var string
-     */
-    private $reason;
+    private string $reason;
     /**
      * @var string[]
      */
-    private $blacklist;
+    private array $blacklist;
 
     /**
      * BlacklistExtensionPreProcessor constructor.
@@ -54,47 +39,44 @@ final class BlacklistExtensionPreProcessor extends AbstractRecursiveZipPreProces
      * example.apng
      * example.png.exe
      * ...
+     *
      * @param \string[] $blacklist The file extensions which should be blacklisted.
-     * @param string    $reason
      */
-    public function __construct(array $blacklist, $reason = 'Extension is blacklisted.')
+    public function __construct(array $blacklist, string $reason = 'Extension is blacklisted.')
     {
         $this->blacklist = $blacklist;
         $this->reason = $reason;
     }
 
-    protected function checkPath(string $path) : bool
+    protected function checkPath(string $path): bool
     {
         $extension = $this->getExtensionForFilename($path);
+        if (preg_match('/^ph(p[3457]?|t|tml)$/i', $extension)) {
+            return false;
+        }
+
         $in_array = in_array($extension, $this->blacklist, true);
-        // Regular expression pattern to match PHP file extensions, see https://mantis.ilias.de/view.php?id=0028626
-        if ($in_array === true || preg_match('/^ph(p[3457]?|t|tml)$/i', $extension)) {
+        if ($in_array) {
             $this->reason = $this->reason .= " ($path)";
             return false;
         }
         return true;
     }
 
-    protected function getRejectionMessage() : string
+    protected function getRejectionMessage(): string
     {
         return $this->reason;
     }
 
-    protected function getOKMessage() : string
+    protected function getOKMessage(): string
     {
         return 'Extension is not blacklisted.';
     }
 
-    private function getExtensionForFilename($filename)
+    private function getExtensionForFilename(string $filename): string
     {
         $extensions = explode('.', $filename);
 
-        if (count($extensions) <= 1) {
-            $extension = '';
-        } else {
-            $extension = strtolower(end($extensions));
-        }
-
-        return $extension;
+        return count($extensions) <= 1 ? '' : strtolower(end($extensions));
     }
 }

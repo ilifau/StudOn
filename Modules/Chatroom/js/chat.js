@@ -1,10 +1,5 @@
 (function($) {
-
-	$(document).click(function() {
-		$('.dropdown-menu.menu').hide();
-	});
-	
-	var iconsByType = {
+	const iconsByType = {
 		user: 'templates/default/images/icon_usr.svg',
 		room: 'templates/default/images/icon_chtr.svg'
 	};
@@ -28,7 +23,7 @@
 				var defaultButtons = (params.defaultButtons === false) ? [] : [
 					{
 						id:      "ok",
-						label:   translate("ok"),
+						label:   il.Chatroom.translate("ok"),
 						callback:function (e) {
 							var close = true;
 							if (typeof params.positiveAction === "function") {
@@ -41,7 +36,7 @@
 					},
 					{
 						id:      "cancel",
-						label:   translate("cancel"),
+						label:   il.Chatroom.translate("cancel"),
 						callback:function (e) {
 							var close = true;
 							if (typeof params.negativeAction == "function") {
@@ -245,7 +240,7 @@
 
 				$this.data('ilChatUserList')._index['id_' + options.id] = line;
 
-				if (personalUserInfo.userid == options.id) {
+				if (il.Chatroom.getUserInfo().id == options.id) {
 					line.addClass('self');
 				}
 				
@@ -262,8 +257,8 @@
 						}(getUserActionRow(this.label, this.callback)));
 					}
 					else if (
-						(personalUserInfo.moderator && inArray(this.permission, 'moderator') >= 0) ||
-						(personalUserInfo.userid == data.owner && inArray(this.permission, 'owner') >= 0)
+						(il.Chatroom.getUserInfo().moderator && inArray(this.permission, 'moderator') >= 0) ||
+						(il.Chatroom.getUserInfo().id == data.owner && inArray(this.permission, 'owner') >= 0)
 					) {
 						menu.append(function(row) {
 							if (i === 0) {
@@ -435,11 +430,9 @@
 							menuContainer.append(getMenuLine(this.label, this.callback));
 						}
 						else if (
-							//(personalUserInfo.moderator && this.permission.indexOf('moderator') >= 0)
-							//|| (personalUserInfo.userid == data.owner && this.permission.indexOf('owner') >= 0)
-							(personalUserInfo.moderator && inArray(this.permission, 'moderator') >= 0)
-							|| (personalUserInfo.userid == data.owner && inArray(this.permission, 'owner') >= 0)
-							) {
+							il.Chatroom.getUserInfo().moderator && inArray(this.permission, 'moderator') >= 0 ||
+							il.Chatroom.getUserInfo().id == data.owner && inArray(this.permission, 'owner') >= 0
+						) {
 							menuContainer.append(getMenuLine(this.label, this.callback));
 						}
 					});
@@ -453,7 +446,7 @@
 					menuContainer.show();
 				});
 
-				if (options.type == 'room' && options.owner == personalUserInfo.userid) {
+				if (options.type == 'room' && options.owner == il.Chatroom.getUserInfo().id) {
 					line.addClass('self');
 				}
 
@@ -535,21 +528,60 @@
 
 	var lastHandledDate = {};
 	$.fn.ilChatMessageArea = function( method ) {
+		let scrollChatArea = function(container, state) {
+			if (state.scrolling) {
+				$(container).parent().animate({
+					scrollTop: $(container).height()
+				}, 5);
+			}
+		}
+
 		var methods = {
-			init: function() {
+			init: function(s) {
 				$(this).data('ilChatMessageArea', {
-					_scopes: {}
+					_scopes: {},
+					_typeInfos: {},
+					_state: s
 				});
+
+				$(this).data('state', s);
 			},
 			addScope: function(scope_id, scope) {
-				var tmp = $('<div class="messageContainer">');
+				const tmp = $('<div class="messageContainer" aria-live="off">');
 				$(this).data('ilChatMessageArea')._scopes['id_' + scope_id] = tmp;
 				$(this).append(tmp);
 				tmp.data('ilChatMessageArea', scope);
 				tmp.hide();
+
+				const fader = $('<div class="fader">');
+				$(this).data('ilChatMessageArea')._typeInfos['id_' + scope_id] = fader;
+				$(this).append(fader);
+				fader.data('ilChatMessageArea', scope);
+				fader.append($('<div class="typing-info" aria-live="off">'));
+				fader.hide();
+			},
+			addTypingInfo: function (messageObject, text) {
+				const scope = messageObject.subRoomId;
+				let containers;
+
+				if (scope == -1) {
+					containers = $(this).data('ilChatMessageArea')._typeInfos;
+				} else {
+					containers = [$(this).data('ilChatMessageArea')._typeInfos['id_' + scope]];
+				}
+
+				$.each(containers, function() {
+					const container = this;
+
+					if (!container || container == window) {
+						return;
+					}
+
+					container.find(".typing-info").text(text);
+				});
 			},
 			addMessage: function(scope, message) {
-				var containers;
+				var containers, msgArea = $(this);
 				if (scope == -1) {
 					containers = $(this).data('ilChatMessageArea')._scopes;
 				}
@@ -589,11 +621,11 @@
 								lastHandledDate.scope.getDate() != messageDate.getDate() ||
 								lastHandledDate.scope.getMonth() != messageDate.getMonth() ||
 								lastHandledDate.scope.getFullYear() != messageDate.getFullYear()) {
-								container.append($('<div class="messageLine chat dateline"><span class="chat content date">' + formatISODate(message.timestamp) + '</span><span class="chat content username"></span><span class="chat content message"></span></div>'));
+								container.append($('<div class="messageLine chat dateline"><span class="chat content date">' + il.Chatroom.formatISODate(message.timestamp) + '</span><span class="chat content username"></span><span class="chat content message"></span></div>'));
 							}
 							lastHandledDate.scope = messageDate;
 							
-							line.append($('<span class="chat content date"></span>').append('' + formatISOTime(message.timestamp) + ', '))
+							line.append($('<span class="chat content date"></span>').append('' + il.Chatroom.formatISOTime(message.timestamp) + ', '))
 								.append($('<span class="chat content username"></span>').append(message.from.username));
 
 							if (message.target) {
@@ -601,17 +633,17 @@
 									line.append($('<span class="chat recipient">@</span>').append(message.target.username))
 								}
 								else {
-									line.append($('<span class="chat recipient">@</span>').append('unkown'))
+									line.append($('<span class="chat recipient">@</span>').append('unknown'))
 								}
 							}
 
 							var messageSpan = $('<span class="chat content message"></span>');
 								messageSpan.text(messageSpan.text(content).text())
-									.html(smileys.replace(messageSpan.text()));
+									.html(il.Chatroom.getSmileys().replace(messageSpan.text()));
 							line.append($('<span class="chat content messageseparator">:</span>'))
 								.append(messageSpan);
 
-							if (message.subRoomId != subRoomId) {
+							if (message.subRoomId != il.Chatroom.getSubRoomId()) {
 								$('.room_' + message.subRoomId).addClass('new_events');
 							}
 
@@ -619,34 +651,30 @@
 						case 'connected':
 							if (message.login || (message.users[0] && message.users[0].login)) {
 								line
-								    .append($('<span class="chat"></span>').append(translate('connect', {username: message.users[0].login})));
+								    .append($('<span class="chat"></span>').append(il.Chatroom.translate('connect', {username: message.users[0].login})));
 								line.addClass('notice');
-								// fau: toggleChatMessages  - Hide autogenerated messages if checkbox is disabled
-								if (!$("#chat_show_auto_msg").is(":checked")) {
+								if (!msgArea.data('state').show_auto_msg) {
 									line.addClass('ilNoDisplay');
 								}
-								// fau.
 							}
 							break;
 						case 'disconnected':
 							if (message.login || (message.users[0] && message.users[0].login)) {
 								line
-								    .append($('<span class="chat"></span>').append(translate('disconnected', {username: message.users[0].login})));
+								    .append($('<span class="chat"></span>').append(il.Chatroom.translate('disconnected', {username: message.users[0].login})));
 								line.addClass('notice');
-								// fau: toggleChatMessages  - Hide autogenerated messages if checkbox is disabled
-								if (!$("#chat_show_auto_msg").is(":checked")) {
+								if (!msgArea.data('state').show_auto_msg) {
 									line.addClass('ilNoDisplay');
 								}
-								// fau.
 							}
 							break;
 						case 'private_room_entered':
 							if (message.login || (message.users[0] && message.users[0].login)) {
 							    line
-							    .append($('<span class="chat content date"></span>').append('' + formatISOTime(message.timestamp) + ', '))
+							    .append($('<span class="chat content date"></span>').append('' + il.Chatroom.formatISOTime(message.timestamp) + ', '))
 							    .append($('<span class="chat content username"></span>').append(message.login || message.users[0].login))
 							    .append($('<span class="chat content messageseparator">:</span>'))
-							    .append($('<span class="chat content message"></span>').append(translate('connect', {username: message.users[0].login})));
+							    .append($('<span class="chat content message"></span>').append(il.Chatroom.translate('connect', {username: message.users[0].login})));
 							}
 							break;
 						case 'private_room_left':
@@ -654,11 +682,9 @@
 							line
 							    .append($('<span class="chat"></span>').append(message.content));
 							line.addClass('notice');
-							// fau: toggleChatMessages  - Hide autogenerated messages if checkbox is disabled
-							if (!$("#chat_show_auto_msg").is(":checked")) {
+							if (!msgArea.data('state').show_auto_msg) {
 								line.addClass('ilNoDisplay');
 							}
-							// fau.
 							break;
 						case 'error':
 							line
@@ -671,13 +697,11 @@
 
 					container.append(line);
 
-					if(message.subRoomId == subRoomId)
-					{
-						scrollChatArea(container);
+					if (message.subRoomId == il.Chatroom.getSubRoomId()) {
+						scrollChatArea(container, msgArea.data('state'));
 					}
 				});
 
-                    
 				return $(this);
 			},
 			hasContent: function(id) {
@@ -687,26 +711,34 @@
 				$(this).data('ilChatMessageArea')._scopes['id_' + id].find('div').html('');
 			},
 			show: function(id, posturl, leaveCallback) {
-				var scopes = $(this).data('ilChatMessageArea')._scopes;
-                    
+				const scopes = $(this).data('ilChatMessageArea')._scopes,
+					typeInfos = $(this).data('ilChatMessageArea')._typeInfos,
+					msgArea = $(this);
+
 				$.each(scopes, function() {
-					$(this).hide();
+					$(this).attr("aria-live", "off").hide();
 				});
-                    
-				scopes['id_' + id].show();
-				scrollChatArea(scopes['id_' + id]);
+				
+				$.each(typeInfos, function() {
+					$(this).hide().find("[aria-live]").attr("aria-live", "off");
+				});
+
+				scopes['id_' + id].attr("aria-live", "polite").show();
+				typeInfos['id_' + id].show().find("[aria-live]").attr("aria-live", "polite");
+
+				scrollChatArea(scopes['id_' + id], msgArea.data('state'));
 				if (id == 0) {
 				    $('.current_room_title').text(scopes['id_' + id].data('ilChatMessageArea').title);
 				}
 				else {
 				    $('.current_room_title').html('').append(
 					$('<a href="#"></a>')
-					    .text(translate('main'))
+					    .text(il.Chatroom.translate('main'))
 					    .click(function(e) {
 							e.preventDefault();
 							e.stopPropagation();
-							iliasConnector.leavePrivateRoom(currentRoom);
-							currentRoom = 0;
+
+							il.Chatroom.leavePrivateRoom();
 					    })
 				    )
 				    .append('&nbsp;&rarr;&nbsp;' + scopes['id_' + id].data('ilChatMessageArea').title);
@@ -729,27 +761,42 @@
 				else {
 					$('.no_users').hide();
 				}
-				// fau: toggleChatMessages  - Listen for state changes and hide/show all autogenerated chat messatges accordingly
-				$("#chat_show_auto_msg").on("change", function() {
-					const url = $(this).data("toggle-endpoint-url");
 
-					let state = 1;
-					if ($(this).is(":checked")) {
-						$("#chat_messages .messageLine.notice").removeClass("ilNoDisplay");
-					} else {
-						state = 0;
-						$("#chat_messages .messageLine.notice").addClass("ilNoDisplay");
-					}
+				msgArea
+					.off("auto-message:toggle")
+					.off("msg-scrolling:toggle")
+					.on("auto-message:toggle", function(e, isActive, url) {
+						let state = msgArea.data('state');
 
-					$.ajax({
-						type: 'POST',
-						url: url,
-						data: {state: state}
+						let msgState = 1;
+						if (isActive) {
+							state.show_auto_msg = true;
+							$("#chat_messages .messageLine.notice").removeClass("ilNoDisplay");
+						} else {
+							msgState = 0;
+							state.show_auto_msg = false;
+							$("#chat_messages .messageLine.notice").addClass("ilNoDisplay");
+						}
+
+						msgArea.data('state', state);
+
+						$.ajax({
+							type: 'POST',
+							url: url,
+							data: {state: msgState}
+						});
+					})
+					.on("msg-scrolling:toggle", function(e, isActive) {
+						let state = msgArea.data('state');
+
+						if (isActive) {
+							state.scrolling = true;
+						} else {
+							state.scrolling = false;
+						}
 					});
-				});
-				// fau.
 
-				subRoomId = id;
+				il.Chatroom.setSubRoomId(id);
 
 				return $(this);
 			}
@@ -762,17 +809,5 @@
 		} else {
 			$.error( 'Method ' +  method + ' does not exist on jQuery.ilChatMessageArea' );
 		}
-  
 	};
-
-
-	function scrollChatArea(container) {
-		if ($('#chat_auto_scroll:checked').length > 0) {
-			$(container).parent().animate({
-				scrollTop: $(container).height()
-			}, 5);
-		}
-	}
-
-
 })(jQuery)

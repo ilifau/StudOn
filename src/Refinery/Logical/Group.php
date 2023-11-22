@@ -1,68 +1,69 @@
 <?php
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Refinery\Logical;
 
 use ILIAS\Data\Factory;
-use ILIAS\Refinery\Constraint;
-use ILIAS\Refinery\Logical\LogicalOr;
-use ILIAS\Refinery\Logical\Not;
-use ILIAS\Refinery\Logical\Parallel;
-use ILIAS\Refinery\Logical\Sequential;
+use ILIAS\Refinery\Custom\Constraint;
+use ILIAS\Refinery\Constraint as ConstraintInterface;
+use ilLanguage;
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class Group
 {
-    /**
-     * @var Factory
-     */
-    private $dataFactory;
+    private Factory $dataFactory;
+    private ilLanguage $language;
 
-    /**
-     * @var \ilLanguage
-     */
-    private $language;
-
-    public function __construct(Factory $dataFactory, \ilLanguage $language)
+    public function __construct(Factory $dataFactory, ilLanguage $language)
     {
         $this->dataFactory = $dataFactory;
         $this->language = $language;
     }
 
     /**
-     * @param array $other
-     * @return LogicalOr
+     * @param Constraint[] $other
+     * @return ConstraintInterface
      */
-    public function logicalOr(array $other) : LogicalOr
+    public function logicalOr(array $other): ConstraintInterface
     {
         return new LogicalOr($other, $this->dataFactory, $this->language);
     }
 
-    /**
-     * @param Constraint $constraint
-     * @return Not
-     */
-    public function not(Constraint $constraint) : Not
+    public function not(Constraint $constraint): ConstraintInterface
     {
         return new Not($constraint, $this->dataFactory, $this->language);
     }
 
     /**
-     * @param array $constraints
-     * @return Parallel
+     * @param Constraint[] $constraints
+     * @return ConstraintInterface
      */
-    public function parallel(array $constraints) : Parallel
+    public function parallel(array $constraints): ConstraintInterface
     {
         return new Parallel($constraints, $this->dataFactory, $this->language);
     }
 
     /**
-     * @param array $constraints
-     * @return Sequential
+     * @param Constraint[] $constraints
+     * @return ConstraintInterface
      */
-    public function sequential(array $constraints) : Sequential
+    public function sequential(array $constraints): ConstraintInterface
     {
         return new Sequential($constraints, $this->dataFactory, $this->language);
     }

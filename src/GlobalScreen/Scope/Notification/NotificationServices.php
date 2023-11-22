@@ -30,10 +30,7 @@ use ILIAS\GlobalScreen\SingletonTrait;
  */
 class NotificationServices
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\Notification\Factory\NotificationFactory
-     */
-    private $notification_factory;
+    private NotificationFactory $notification_factory;
 
     public function __construct()
     {
@@ -44,7 +41,7 @@ class NotificationServices
     /**
      * @return NotificationFactory
      */
-    public function factory() : NotificationFactory
+    public function factory(): NotificationFactory
     {
         return $this->notification_factory;
     }

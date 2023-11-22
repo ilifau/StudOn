@@ -21,9 +21,7 @@
 				<div class="ilc_qanswer_Answer thumbnail">
 					<img class="ilc_qimg_QuestionImage" border="0" src="{THUMBNAIL_HREF}" alt="{THUMB_ALT}" title="{THUMB_TITLE}" />
 					<div class="caption">
-                        <!-- fau: imageBox - use colorbox -->
-                        <a class="ilc_qimgd_ImageDetailsLink" onclick="$.colorbox({href:'{IMAGE_HREF}', maxWidth:'100%', maxHeight:'100%'});return false;" target="_blank" href="{IMAGE_HREF}" title="{TEXT_PREVIEW}">{TEXT_DEFINITION} <img border="0" align="right" src="{IMG_PREVIEW}"/></a>
-                        <!-- fau. -->
+						<a class="ilc_qimgd_ImageDetailsLink" target="_blank" href="{IMAGE_HREF}" title="{TEXT_PREVIEW}">{TEXT_DEFINITION} <img border="0" align="right" src="{IMG_PREVIEW}" /></a>
 					</div>
 				</div>
 				<!-- END definition_picture -->
@@ -42,9 +40,7 @@
 			<div class="ilc_qanswer_Answer thumbnail">
 				<img class="ilc_qimg_QuestionImage" border="0" src="{THUMBNAIL_HREF}" alt="{THUMB_ALT}" title="{THUMB_TITLE}" />
 				<div class="caption">
-					<!-- fau: imageBox - use colorbox -->
-                    <a class="ilc_qimgd_ImageDetailsLink" onclick="$.colorbox({href:'{IMAGE_HREF}',  maxWidth:'100%', maxHeight:'100%'});return false;" target="_blank" href="{IMAGE_HREF}" title="{TEXT_PREVIEW}">{TEXT_TERM} <img border="0" align="right" src="{IMG_PREVIEW}"/></a>
-                    <!-- fau. -->
+					<a class="ilc_qimgd_ImageDetailsLink" target="_blank" href="{IMAGE_HREF}" title="{TEXT_PREVIEW}">{TEXT_TERM} <img border="0" align="right" src="{IMG_PREVIEW}" /></a>
 				</div>
 			</div>
 			<!-- END term_picture -->
@@ -54,9 +50,7 @@
 </div>
 </div>
 <script type="text/javascript">
-	(function($){
-
-		$(document).ready(
+let ilMatchingQuestionInit =
 			function()
 			{
 				var question = $.fn.ilMatchingQuestionEngine({QUESTION_ID}, {
@@ -79,7 +73,4 @@
 
 				question.init();
 			}
-		);
-
-	}(jQuery));
 </script>

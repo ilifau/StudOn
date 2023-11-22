@@ -17,8 +17,8 @@
 
 datepicker.regional.gl = {
 	closeText: "Pechar",
-	prevText: "Ant",
-	nextText: "Seg",
+	prevText: "&#x3C;Ant",
+	nextText: "Seg&#x3E;",
 	currentText: "Hoxe",
 	monthNames: [ "Xaneiro", "Febreiro", "Marzo", "Abril", "Maio", "Xuño",
 	"Xullo", "Agosto", "Setembro", "Outubro", "Novembro", "Decembro" ],

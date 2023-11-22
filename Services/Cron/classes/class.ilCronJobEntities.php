@@ -1,68 +1,64 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
 
 /**
- * Class ilCronJobEntities
- * @author Michael Jansen <mjansen@databay.de>
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilCronJobEntities implements ilCronJobCollection
 {
-    /** @var ArrayIterator */
-    private $jobs;
+    private ArrayIterator $jobs;
 
-    /**
-     * ilCronJobs constructor.
-     * @param array $jobs
-     */
-    public function __construct(array $jobs = [])
+    public function __construct(ilCronJobEntity ...$jobs)
     {
         $this->jobs = new ArrayIterator($jobs);
     }
 
     /**
-     * @inheritdoc
+     * @return ArrayIterator|ilCronJobEntity[]
      */
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
         return $this->jobs;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function count()
+    public function count(): int
     {
         return iterator_count($this);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function add(ilCronJobEntity $job) : void
+    public function add(ilCronJobEntity $job): void
     {
         $this->jobs->append($job);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function filter(callable $callable) : ilCronJobCollection
+    public function filter(callable $callable): ilCronJobCollection
     {
-        return new static(array_filter(iterator_to_array($this), $callable));
+        return new static(...array_filter(iterator_to_array($this), $callable));
+    }
+
+    public function slice(int $offset, ?int $length = null): ilCronJobCollection
+    {
+        return new static(...array_slice(iterator_to_array($this), $offset, $length, true));
     }
 
     /**
-     * @inheritdoc
+     * @return ilCronJobEntity[]
      */
-    public function slice(int $offset, ?int $length = null) : ilCronJobCollection
-    {
-        return new static(array_slice(iterator_to_array($this), $offset, $length, true));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function toArray() : array
+    public function toArray(): array
     {
         return iterator_to_array($this);
     }

@@ -34,10 +34,13 @@ use Exception;
  */
 class TopParentItemDrilldownRenderer extends BaseTypeRenderer
 {
-    public function getComponentWithContent(isItem $item) : Component
+    public function getComponentWithContent(isItem $item): Component
     {
         $entries = [];
         foreach ($item->getChildren() as $child) {
+            if (!$child->isVisible()) {
+                continue;
+            }
             $entries[] = $this->buildEntry($child);
         }
 
@@ -50,7 +53,7 @@ class TopParentItemDrilldownRenderer extends BaseTypeRenderer
         );
     }
 
-    protected function buildEntry(AbstractChildItem $item) : Component
+    protected function buildEntry(AbstractChildItem $item): Component
     {
         $title = $item->getTitle();
         $symbol = $this->getStandardSymbol($item);
@@ -69,6 +72,9 @@ class TopParentItemDrilldownRenderer extends BaseTypeRenderer
             case LinkList::class:
                 $links = [];
                 foreach ($item->getLinks() as $child) {
+                    if (!$child->isVisible()) {
+                        continue;
+                    }
                     $links[] = $this->buildEntry($child);
                 }
                 $entry = $this->ui_factory->menu()->sub($title, $links);
@@ -81,12 +87,12 @@ class TopParentItemDrilldownRenderer extends BaseTypeRenderer
         return $entry;
     }
 
-    protected function getDataFactory() : Factory
+    protected function getDataFactory(): Factory
     {
         return new Factory();
     }
 
-    private function getBaseURL() : string
+    private function getBaseURL(): string
     {
         return ILIAS_HTTP_PATH;
     }

@@ -1,7 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Modules/TestQuestionPool/classes/feedback/class.ilAssQuestionFeedback.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * abstract parent feedback class for question types
@@ -19,18 +32,12 @@ abstract class ilAssSingleOptionQuestionFeedback extends ilAssQuestionFeedback
     /**
      * returns the html of SPECIFIC feedback for the given question id
      * and answer index for test presentation
-     *
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param integer $answerIndex
-     * @return string $specificAnswerFeedbackTestPresentationHTML
      */
-    public function getSpecificAnswerFeedbackTestPresentation($questionId, $questionIndex, $answerIndex)
+    public function getSpecificAnswerFeedbackTestPresentation(int $questionId, int $questionIndex, int $answerIndex): string
     {
-        return null;
+        return '';
     }
-    
+
     /**
      * completes a given form object with the specific form properties
      * required by this question type
@@ -38,10 +45,10 @@ abstract class ilAssSingleOptionQuestionFeedback extends ilAssQuestionFeedback
      * @access public
      * @param ilPropertyFormGUI $form
      */
-    public function completeSpecificFormProperties(ilPropertyFormGUI $form)
+    public function completeSpecificFormProperties(ilPropertyFormGUI $form): void
     {
     }
-    
+
     /**
      * initialises a given form object's specific form properties
      * relating to this question type
@@ -49,132 +56,51 @@ abstract class ilAssSingleOptionQuestionFeedback extends ilAssQuestionFeedback
      * @access public
      * @param ilPropertyFormGUI $form
      */
-    public function initSpecificFormProperties(ilPropertyFormGUI $form)
-    {
-    }
-    
-    /**
-     * saves a given form object's specific form properties
-     * relating to this question type
-     *
-     * @access public
-     * @param ilPropertyFormGUI $form
-     */
-    public function saveSpecificFormProperties(ilPropertyFormGUI $form)
+    public function initSpecificFormProperties(ilPropertyFormGUI $form): void
     {
     }
 
-    /**
-     * returns the SPECIFIC answer feedback content for a given question id and answer index.
-     *
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param boolean $answerIndex
-     * @return string $feedbackContent
-     */
-    public function getSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex)
+    public function saveSpecificFormProperties(ilPropertyFormGUI $form): void
+    {
+    }
+
+    public function getSpecificAnswerFeedbackContent(int $questionId, int $questionIndex, int $answerIndex): string
     {
         return '';
     }
-    
-    /**
-     * returns the SPECIFIC feedback content for a given question id and answer index.
-     *
-     * @abstract
-     * @access public
-     * @param integer $questionId
-     * @return string $feedbackContent
-     */
-    public function getAllSpecificAnswerFeedbackContents($questionId)
+
+    public function getAllSpecificAnswerFeedbackContents(int $questionId): string
     {
         return '';
     }
-    
-    /**
-     * saves SPECIFIC answer feedback content for the given question id and answer index to the database.
-     *
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param integer $answerIndex
-     * @param string $feedbackContent
-     * @return integer $feedbackId
-     */
-    public function saveSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex, $feedbackContent)
+
+    public function saveSpecificAnswerFeedbackContent(int $questionId, int $questionIndex, int $answerIndex, string $feedbackContent): int
     {
-        return null;
+        return -1;
     }
-        
-    /**
-     * deletes all SPECIFIC answer feedback contents (and page objects if required)
-     * for the given question id
-     *
-     * @access public
-     * @param integer $questionId
-     * @param boolean $isAdditionalContentEditingModePageObject
-     */
-    public function deleteSpecificAnswerFeedbacks($questionId, $isAdditionalContentEditingModePageObject)
+
+    public function deleteSpecificAnswerFeedbacks(int $questionId, bool $isAdditionalContentEditingModePageObject): void
     {
     }
-    
-    /**
-     * duplicates the SPECIFIC feedback relating to the given original question id
-     * and saves it for the given duplicate question id
-     *
-     * @access protected
-     * @param integer $originalQuestionId
-     * @param integer $duplicateQuestionId
-     */
-    protected function duplicateSpecificFeedback($originalQuestionId, $duplicateQuestionId)
+
+    protected function duplicateSpecificFeedback(int $originalQuestionId, int $duplicateQuestionId): void
     {
     }
-    
-    /**
-     * syncs the SPECIFIC feedback from a duplicated question back to the original question
-     *
-     * @access protected
-     * @param integer $originalQuestionId
-     * @param integer $duplicateQuestionId
-     */
-    protected function syncSpecificFeedback($originalQuestionId, $duplicateQuestionId)
+
+    protected function syncSpecificFeedback(int $originalQuestionId, int $duplicateQuestionId): void
     {
     }
-    
-    /**
-     * returns the generic feedback export presentation for given question id
-     * either for solution completed or incompleted
-     *
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param integer $answerIndex
-     * @return string $specificAnswerFeedbackExportPresentation
-     */
-    public function getSpecificAnswerFeedbackExportPresentation($questionId, $questionIndex, $answerIndex)
+
+    public function getSpecificAnswerFeedbackExportPresentation(int $questionId, int $questionIndex, int $answerIndex): string
     {
-        return null;
+        return '';
     }
-    
-    /**
-     * imports the given feedback content as specific feedback
-     * for the given question id and answer index
-     *
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param integer $answerIndex
-     * @param string $feedbackContent
-     */
-    public function importSpecificAnswerFeedback($questionId, $questionIndex, $answerIndex, $feedbackContent)
+
+    public function importSpecificAnswerFeedback(int $questionId, int $questionIndex, int $answerIndex, string $feedbackContent): void
     {
     }
-    
-    /**
-     * @param int $feedbackId
-     * @return bool
-     */
-    protected function isSpecificAnswerFeedbackId($feedbackId)
+
+    protected function isSpecificAnswerFeedbackId(int $feedbackId): bool
     {
         return false;
     }

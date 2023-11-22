@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 /* Copyright (c) 2017 Stefan Hecken <stefan.hecken@concepts-and-training.de> Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Data\Result;
 
 use ILIAS\Data;
+use ILIAS\Data\Result;
 
 /**
  * A result encapsulates a value or an error and simplifies the handling of those.
@@ -12,7 +16,6 @@ use ILIAS\Data;
  */
 class Error implements Data\Result
 {
-
     /**
      * @var string | \Exception
      */
@@ -25,10 +28,11 @@ class Error implements Data\Result
         }
         $this->error = $error;
     }
+
     /**
      * @inheritdoc
      */
-    public function isOK()
+    public function isOK(): bool
     {
         return false;
     }
@@ -48,7 +52,7 @@ class Error implements Data\Result
     /**
      * @inheritdoc
      */
-    public function isError()
+    public function isError(): bool
     {
         return true;
     }
@@ -72,7 +76,7 @@ class Error implements Data\Result
     /**
      * @inheritdoc
      */
-    public function map(callable $f)
+    public function map(callable $f): Result
     {
         return $this;
     }
@@ -80,7 +84,7 @@ class Error implements Data\Result
     /**
      * @inheritdoc
      */
-    public function then(callable $f)
+    public function then(callable $f): Result
     {
         return $this;
     }
@@ -88,7 +92,7 @@ class Error implements Data\Result
     /**
      * @inheritdoc
      */
-    public function except(callable $f)
+    public function except(callable $f): Result
     {
         $result = $f($this->error);
 

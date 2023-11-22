@@ -1,38 +1,48 @@
 <?php
 
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/Tagging/classes/class.ilTagging.php");
+declare(strict_types=1);
 
 /**
-* Class ilTaggingGUI. User interface class for tagging engine.
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesTagging
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use Psr\Http\Message\RequestInterface;
+
+/**
+ * Class ilTaggingGUI. User interface class for tagging engine.
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilTaggingGUI
 {
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
-
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var \ILIAS\DI\UIServices
-     */
-    protected $ui;
+    protected ilCtrl $ctrl;
+    protected ilObjUser $user;
+    protected ilLanguage $lng;
+    protected \ILIAS\DI\UIServices $ui;
+    protected int $obj_id = 0;
+    protected string $obj_type = "";
+    protected int $sub_obj_id = 0;
+    protected string $sub_obj_type;
+    protected array $forbidden = [];    // forbidden tags
+    protected int $userid = 0;
+    protected string $savecmd = "";
+    protected string $inputfieldname = "";
+    protected RequestInterface $request;
+    protected string $mess = "";
+    protected string $requested_mess = "";
+    private \ilGlobalTemplateInterface $main_tpl;
 
     /**
      * Constructor
@@ -40,25 +50,28 @@ class ilTaggingGUI
     public function __construct()
     {
         global $DIC;
+        $this->main_tpl = $DIC->ui()->mainTemplate();
 
         $this->ctrl = $DIC->ctrl();
         $this->user = $DIC->user();
         $this->lng = $DIC->language();
         $this->ui = $DIC->ui();
+        $this->request = $DIC->http()->request();
+
+        $params = $this->request->getQueryParams();
+        $this->requested_mess = ($params["mess"] ?? "");
     }
 
-    
+
     /**
      * Execute command
-     *
-     * @param
-     * @return
      */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $ilCtrl = $this->ctrl;
-        
+
         $next_class = $ilCtrl->getNextClass();
+        // PHP8 Review: 'switch' with single 'case'
         switch ($next_class) {
             default:
                 $cmd = $ilCtrl->getCmd();
@@ -66,106 +79,75 @@ class ilTaggingGUI
                 break;
         }
     }
-    
-    
+
+
     /**
-    * Set Object.
-    *
-    * @param	int			$a_obj_id			Object ID
-    * @param	string		$a_obj_type			Object Type
-    * @param	int			$a_sub_obj_id		Subobject ID
-    * @param	string		$a_sub_obj_type		Subobject Type
-    */
-    public function setObject($a_obj_id, $a_obj_type, $a_sub_obj_id = 0, $a_sub_obj_type = "")
-    {
+     * Set Object.
+     * @param int    $a_obj_id          Object ID
+     * @param string $a_obj_type        Object Type
+     * @param int    $a_sub_obj_id      Sub-object ID
+     * @param string $a_sub_obj_type    Sub-object Type
+     */
+    public function setObject(
+        int $a_obj_id,
+        string $a_obj_type,
+        int $a_sub_obj_id = 0,
+        string $a_sub_obj_type = ""
+    ): void {
         $ilUser = $this->user;
 
         $this->obj_id = $a_obj_id;
         $this->obj_type = $a_obj_type;
         $this->sub_obj_id = $a_sub_obj_id;
         $this->sub_obj_type = $a_sub_obj_type;
-        
+
         $this->setSaveCmd("saveTags");
         $this->setUserId($ilUser->getId());
         $this->setInputFieldName("il_tags");
-        
+
         $tags_set = new ilSetting("tags");
         $forbidden = $tags_set->get("forbidden_tags");
         if ($forbidden != "") {
-            $this->forbidden = unserialize($forbidden);
+            $this->forbidden = unserialize((string) $forbidden, ['allowed_classes' => false]);
         } else {
             $this->forbidden = array();
         }
     }
-    
-    /**
-    * Set User ID.
-    *
-    * @param	int	$a_userid	User ID
-    */
-    public function setUserId($a_userid)
+
+    public function setUserId(int $a_userid): void
     {
         $this->userid = $a_userid;
     }
 
-    /**
-    * Get User ID.
-    *
-    * @return	int	User ID
-    */
-    public function getUserId()
+    public function getUserId(): int
     {
         return $this->userid;
     }
 
-    /**
-    * Set Save Command.
-    *
-    * @param	string	$a_savecmd	Save Command
-    */
-    public function setSaveCmd($a_savecmd)
+    public function setSaveCmd(string $a_savecmd): void
     {
         $this->savecmd = $a_savecmd;
     }
 
-    /**
-    * Get Save Command.
-    *
-    * @return	string	Save Command
-    */
-    public function getSaveCmd()
+    public function getSaveCmd(): string
     {
         return $this->savecmd;
     }
 
-    /**
-    * Set Input Field Name.
-    *
-    * @param	string	$a_inputfieldname	Input Field Name
-    */
-    public function setInputFieldName($a_inputfieldname)
+    public function setInputFieldName(string $a_inputfieldname): void
     {
         $this->inputfieldname = $a_inputfieldname;
     }
 
-    /**
-    * Get Input Field Name.
-    *
-    * @return	string	Input Field Name
-    */
-    public function getInputFieldName()
+    public function getInputFieldName(): string
     {
         return $this->inputfieldname;
     }
 
-    /**
-    * Get Input HTML for Tagging of an object (and a user)
-    */
-    public function getTaggingInputHTML()
+    public function getTaggingInputHTML(): string
     {
         $lng = $this->lng;
-        $ilCtrl = $this->ctrl;
-        
+
         $ttpl = new ilTemplate("tpl.tags_input.html", true, true, "Services/Tagging");
         $tags = ilTagging::getTagsForUserAndObject(
             $this->obj_id,
@@ -176,29 +158,34 @@ class ilTaggingGUI
         );
         $ttpl->setVariable(
             "VAL_TAGS",
-            ilUtil::prepareFormOutput(implode(", ", $tags))
+            ilLegacyFormElementsUtil::prepareFormOutput(implode(", ", $tags))
         );
         $ttpl->setVariable("TAG_LABEL", $lng->txt("tagging_my_tags"));
         $ttpl->setVariable("TXT_SAVE", $lng->txt("save"));
         $ttpl->setVariable("TXT_COMMA_SEPARATED", $lng->txt("comma_separated"));
         $ttpl->setVariable("CMD_SAVE", $this->savecmd);
         $ttpl->setVariable("NAME_TAGS", $this->getInputFieldName());
-        
+
         return $ttpl->get();
     }
-    
-    /**
-    * Save Input
-    */
-    public function saveInput()
+
+    protected function getTagsFromInput(string $input): array
     {
-        $lng = $this->lng;
-        
-        $input = ilUtil::stripSlashes($_POST[$this->getInputFieldName()]);
+        $input = ilUtil::stripSlashes($input);
         $input = str_replace("\r", "\n", $input);
         $input = str_replace("\n\n", "\n", $input);
         $input = str_replace("\n", ",", $input);
         $itags = explode(",", $input);
+        return $itags;
+    }
+
+    public function saveInput(): void
+    {
+        $lng = $this->lng;
+        $request = $this->request;
+        $body = $request->getParsedBody();
+
+        $itags = $this->getTagsFromInput($body[$this->getInputFieldName()]);
         $tags = array();
         foreach ($itags as $itag) {
             $itag = trim($itag);
@@ -217,13 +204,11 @@ class ilTaggingGUI
             $this->getUserId(),
             $tags
         );
-        ilUtil::sendSuccess($lng->txt('msg_obj_modified'));
+        $this->main_tpl->setOnScreenMessage('success', $lng->txt('msg_obj_modified'));
     }
-    
-    /**
-    * Check whether a tag is forbiddens
-    */
-    public function isForbidden($a_tag)
+
+    // Check whether a tag is forbiddens
+    public function isForbidden(string $a_tag): bool
     {
         foreach ($this->forbidden as $f) {
             if (is_int(strpos(strtolower(
@@ -235,15 +220,10 @@ class ilTaggingGUI
         }
         return false;
     }
-    
-    /**
-    * Get Input HTML for Tagging of an object (and a user)
-    */
-    public function getAllUserTagsForObjectHTML()
+
+    // Get Input HTML for Tagging of an object (and a user)
+    public function getAllUserTagsForObjectHTML(): string
     {
-        $lng = $this->lng;
-        $ilCtrl = $this->ctrl;
-        
         $ttpl = new ilTemplate("tpl.tag_cloud.html", true, true, "Services/Tagging");
         $tags = ilTagging::getTagsForObject(
             $this->obj_id,
@@ -262,26 +242,25 @@ class ilTaggingGUI
                 $ttpl->setCurrentBlock("unlinked_tag");
                 $ttpl->setVariable(
                     "REL_CLASS",
-                    ilTagging::getRelevanceClass($tag["cnt"], $max)
+                    ilTagging::getRelevanceClass((int) $tag["cnt"], $max)
                 );
                 $ttpl->setVariable("TAG_TITLE", $tag["tag"]);
                 $ttpl->parseCurrentBlock();
             }
         }
-        
+
         return $ttpl->get();
     }
 
-    
+
     ////
     //// Ajax related methods
     ////
-    
-    /**
-     * Init javascript
-     */
-    public static function initJavascript($a_ajax_url, ilGlobalTemplateInterface $a_main_tpl = null)
-    {
+
+    public static function initJavascript(
+        string $a_ajax_url,
+        ilGlobalTemplateInterface $a_main_tpl = null
+    ): void {
         global $DIC;
 
         if ($a_main_tpl != null) {
@@ -293,56 +272,47 @@ class ilTaggingGUI
         $lng = $DIC->language();
 
         $lng->loadLanguageModule("tagging");
-        $lng->toJs("tagging_tags", $tpl);
+        $lng->toJS("tagging_tags", $tpl);
 
-        include_once("./Services/YUI/classes/class.ilYuiUtil.php");
-        ilYuiUtil::initPanel(false, $tpl);
-        include_once("./Services/jQuery/classes/class.iljQueryUtil.php");
         iljQueryUtil::initjQuery($tpl);
-        $tpl->addJavascript("./Services/Tagging/js/ilTagging.js");
-        
+        $tpl->addJavaScript("./Services/Tagging/js/ilTagging.js");
+
         $tpl->addOnLoadCode("ilTagging.setAjaxUrl('" . $a_ajax_url . "');");
     }
-    
-    /**
-     * Get tagging js call
-     *
-     * @param string $a_hash
-     * @param string $a_update_code
-     * @return string
-     */
-    public static function getListTagsJSCall($a_hash, $a_update_code = null)
-    {
-        global $DIC;
 
-        $tpl = $DIC["tpl"];
-        
+    // Get tagging js call
+    public static function getListTagsJSCall(
+        string $a_hash,
+        string $a_update_code = null
+    ): string {
         if ($a_update_code === null) {
             $a_update_code = "null";
         } else {
             $a_update_code = "'" . $a_update_code . "'";
         }
-
         return "ilTagging.listTags(event, '" . $a_hash . "', " . $a_update_code . ");";
     }
 
     /**
      * Get HTML
-     *
-     * @param
-     * @return
      */
-    public function getHTML()
+    public function getHTML(): string
     {
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
         $ui = $this->ui;
-        
+
         $lng->loadLanguageModule("tagging");
         $tpl = new ilTemplate("tpl.edit_tags.html", true, true, "Services/Tagging");
         $tpl->setVariable("TXT_TAGS", $lng->txt("tagging_tags"));
-    
-        switch ($_GET["mess"] != "" ? $_GET["mess"] : $this->mess) {
+
+        $mtxt = "";
+        $mtype = "";
+        $mess = $this->requested_mess != ""
+            ? $this->requested_mess
+            : $this->mess;
+        // PHP8 Review: 'switch' with single 'case'
+        switch ($mess) {
             case "mod":
                 $mtype = "success";
                 $mtxt = $lng->txt("msg_obj_modified");
@@ -371,23 +341,23 @@ class ilTaggingGUI
         );
         $tpl->setVariable(
             "VAL_TAGS",
-            ilUtil::prepareFormOutput(implode(", ", $tags))
+            ilLegacyFormElementsUtil::prepareFormOutput(implode(", ", $tags))
         );
         $tpl->setVariable("TXT_SAVE", $lng->txt("save"));
         $tpl->setVariable("TXT_COMMA_SEPARATED", $lng->txt("comma_separated"));
         $tpl->setVariable("CMD_SAVE", "saveJS");
-        
+
         $os = "ilTagging.cmdAjaxForm(event, '" .
             $ilCtrl->getFormActionByClass("iltagginggui", "", "", true) .
             "');";
         $tpl->setVariable("ON_SUBMIT", $os);
-        
+
         $tags_set = new ilSetting("tags");
         if ($tags_set->get("enable_all_users")) {
             $tpl->setVariable("TAGS_TITLE", $lng->txt("tagging_my_tags"));
-            
+
             $all_obj_tags = ilTagging::_getListTagsForObjects(array($this->obj_id));
-            $all_obj_tags = $all_obj_tags[$this->obj_id];
+            $all_obj_tags = $all_obj_tags[$this->obj_id] ?? null;
             if (is_array($all_obj_tags) &&
                 sizeof($all_obj_tags) != sizeof($tags)) {
                 $tpl->setVariable("TITLE_OTHER", $lng->txt("tagging_other_users"));
@@ -400,21 +370,19 @@ class ilTaggingGUI
                 }
             }
         }
-        
+
         echo $tpl->get();
         exit;
     }
-    
+
     /**
      * Save JS
      */
-    public function saveJS()
+    public function saveJS(): void
     {
-        $input = ilUtil::stripSlashes($_POST["tags"]);
-        $input = str_replace("\r", "\n", $input);
-        $input = str_replace("\n\n", "\n", $input);
-        $input = str_replace("\n", ",", $input);
-        $itags = explode(",", $input);
+        $request = $this->request;
+        $body = $request->getParsedBody();
+        $itags = $this->getTagsFromInput($body["tags"]);
         $tags = array();
         foreach ($itags as $itag) {
             $itag = trim($itag);
@@ -433,9 +401,9 @@ class ilTaggingGUI
             $this->getUserId(),
             $tags
         );
-        
+
         $this->mess = "mod";
-        
+
         $this->getHTML();
     }
 }

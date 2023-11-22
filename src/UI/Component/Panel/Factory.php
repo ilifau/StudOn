@@ -1,10 +1,26 @@
 <?php
 
-/* Copyright (c) 2016 Timon Amstutz <timon.amstutz@ilub.unibe.ch> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Component\Panel;
 
-use \ILIAS\UI\Component\Component as Component;
+use ILIAS\UI\Component\Component;
 
 /**
  * This is how the factory for UI elements looks. This should provide access
@@ -12,7 +28,6 @@ use \ILIAS\UI\Component\Component as Component;
  */
 interface Factory
 {
-
     /**
      * ---
      * description:
@@ -40,7 +55,7 @@ interface Factory
      * @param Component[]|Component
      * @return \ILIAS\UI\Component\Panel\Standard
      */
-    public function standard($title, $content);
+    public function standard(string $title, $content): Standard;
 
     /**
      * ---
@@ -48,14 +63,15 @@ interface Factory
      *   purpose: >
      *       Sub Panels are used to structure the content of Standard panels further into titled sections.
      *   composition: >
-     *       Sub Panels consist of a title and a content section. They may contain a Card on their right side to display
-     *       meta information about the content displayed.
+     *       Sub Panels consist of a title and a content section. They may contain either a Card or a Secondary Panel on
+     *       their right side to display meta information about the content displayed.
      *   rivals:
      *      Standard Panel: >
      *        The Standard Panel might contain a Sub Panel.
      *      Card: >
      *        The Sub Panels may contain one Card.
-     *
+     *      Secondary Panel: >
+     *        The Sub Panels may contain one Secondary Panel.
      * rules:
      *   usage:
      *      1: Sub Panels MUST only be inside Standard Panels
@@ -66,7 +82,7 @@ interface Factory
      * @param Component[]|Component
      * @return \ILIAS\UI\Component\Panel\Sub
      */
-    public function sub($title, $content);
+    public function sub(string $title, $content): Sub;
 
     /**
      * ---
@@ -89,7 +105,6 @@ interface Factory
      *      Presentation Table: >
      *        Presentation Tables display only a subset of the data at first glance;
      *        their entries can then be expanded to show detailed information.
-     *
      * rules:
      *   usage:
      *      1: >
@@ -100,10 +115,10 @@ interface Factory
      *      2: Buttons MAY trigger actions or inline editing.
      * ---
      * @param string $title
-     * @param \ILIAS\UI\Component\Panel\Sub[] $sub_panels
+     * @param \ILIAS\UI\Component\Panel\Sub[]|\ILIAS\UI\Component\Panel\Sub $sub_panels
      * @return \ILIAS\UI\Component\Panel\Report
      */
-    public function report($title, $sub_panels);
+    public function report(string $title, $sub_panels): Report;
 
     /**
      * ---
@@ -137,7 +152,7 @@ interface Factory
      * ---
      * @return \ILIAS\UI\Component\Panel\Listing\Factory
      */
-    public function listing();
+    public function listing(): Listing\Factory;
 
     /**
      * ---
@@ -169,5 +184,5 @@ interface Factory
      * ---
      * @return \ILIAS\UI\Component\Panel\Secondary\Factory
      */
-    public function secondary();
+    public function secondary(): Secondary\Factory;
 }

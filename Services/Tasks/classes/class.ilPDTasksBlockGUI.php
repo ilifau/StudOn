@@ -1,21 +1,35 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
-include_once("Services/Block/classes/class.ilBlockGUI.php");
+use ILIAS\UI\Component\Item\Item;
 
 /**
  * BlockGUI class for Tasks on PD
  *
- * @author Alex Killing <alex.killing@gmx.de>
+ * @author Alexander Killing <killing@leifos.de>
  *
  * @ilCtrl_IsCalledBy ilPDTasksBlockGUI: ilColumnGUI
  */
 class ilPDTasksBlockGUI extends ilBlockGUI
 {
-    public static $block_type = "pdtasks";
+    public static string $block_type = "pdtasks";
 
-    protected $tasks = [];
+    protected array $tasks = [];
 
     /**
      * Constructor
@@ -41,7 +55,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
     /**
      * @inheritdoc
      */
-    public function getBlockType() : string
+    public function getBlockType(): string
     {
         return self::$block_type;
     }
@@ -49,7 +63,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
     /**
      * @inheritdoc
      */
-    protected function isRepositoryObject() : bool
+    protected function isRepositoryObject(): bool
     {
         return false;
     }
@@ -57,13 +71,9 @@ class ilPDTasksBlockGUI extends ilBlockGUI
     /**
      * Get Screen Mode for current command.
      */
-    public static function getScreenMode()
+    public static function getScreenMode(): string
     {
-        switch ($_GET["cmd"]) {
-            default:
-                return IL_SCREEN_SIDE;
-                break;
-        }
+        return IL_SCREEN_SIDE;
     }
 
     /**
@@ -81,7 +91,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
     /**
      * Fill data section
      */
-    public function fillDataSection()
+    public function fillDataSection(): void
     {
         global $DIC;
         $collector = $DIC->task()->derived()->factory()->collector();
@@ -102,7 +112,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
     /**
      * Get list data.
      */
-    public function getListRowData()
+    public function getListRowData(): void
     {
         $data = [];
 
@@ -124,7 +134,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
     /**
      * get flat list for personal desktop
      */
-    public function fillRow($a_set)
+    public function fillRow(array $a_set): void
     {
         global $DIC;
 
@@ -145,12 +155,8 @@ class ilPDTasksBlockGUI extends ilBlockGUI
         if ($a_set["ref_id"] > 0) {
             $obj_id = ilObject::_lookupObjId($a_set["ref_id"]);
             $obj_type = ilObject::_lookupType($obj_id);
-            
-            if (0 === $a_set['url']) {
-                $url = ilLink::_getStaticLink($a_set["ref_id"]);
-            } else {
-                $url = $a_set['url'];
-            }
+
+            $url = 0 === $a_set['url'] ? ilLink::_getStaticLink($a_set["ref_id"]) : $a_set['url'];
             $link = $factory->button()->shy(ilObject::_lookupTitle($obj_id), $url);
 
             $info_screen->addProperty(
@@ -164,11 +170,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
             $obj_id = $wst->lookupObjectId($a_set["wsp_id"]);
             $obj_type = ilObject::_lookupType($obj_id);
 
-            if (0 === $a_set['url']) {
-                $url = ilLink::_getStaticLink($a_set["wsp_id"]);
-            } else {
-                $url = $a_set['url'];
-            }
+            $url = 0 === $a_set['url'] ? ilLink::_getStaticLink($a_set["wsp_id"]) : $a_set['url'];
             $link = $factory->button()->shy(ilObject::_lookupTitle($obj_id), $url);
 
             $info_screen->addProperty(
@@ -207,23 +209,23 @@ class ilPDTasksBlockGUI extends ilBlockGUI
     /**
      * Get overview.
      */
-    public function getOverview()
+    public function getOverview(): string
     {
         $lng = $this->lng;
 
-        return '<div class="small">' . ((int) count($this->tasks)) . " " . $lng->txt("task_derived_tasks") . "</div>";
+        return '<div class="small">' . (count($this->tasks)) . " " . $lng->txt("task_derived_tasks") . "</div>";
     }
 
     //
     // New rendering
     //
 
-    protected $new_rendering = true;
+    protected bool $new_rendering = true;
 
     /**
      * @inheritdoc
      */
-    public function getHTMLNew() : string
+    public function getHTMLNew(): string
     {
         global $DIC;
         $collector = $DIC->task()->derived()->factory()->collector();
@@ -238,7 +240,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
     /**
      * @inheritdoc
      */
-    protected function getListItemForData(array $data) : \ILIAS\UI\Component\Item\Item
+    protected function getListItemForData(array $data): ?Item
     {
         $factory = $this->ui->factory();
         $lng = $this->lng;
@@ -249,11 +251,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
         if ($data["ref_id"] > 0) {
             $obj_id = ilObject::_lookupObjId($data["ref_id"]);
             $obj_type = ilObject::_lookupType($obj_id);
-            if ($data['url'] == "") {
-                $url = ilLink::_getStaticLink($data["ref_id"]);
-            } else {
-                $url = $data['url'];
-            }
+            $url = $data['url'] == "" ? ilLink::_getStaticLink($data["ref_id"]) : $data['url'];
             $link = $url;
             $title = $factory->link()->standard($data["title"], $link);
             $props[$lng->txt("obj_" . $obj_type)] = ilObject::_lookupTitle($obj_id);
@@ -263,11 +261,7 @@ class ilPDTasksBlockGUI extends ilBlockGUI
             $wst = new ilWorkspaceTree($this->user->getId());
             $obj_id = $wst->lookupObjectId($data["wsp_id"]);
             $obj_type = ilObject::_lookupType($obj_id);
-            if ($data['url'] == "") {
-                $url = ilLink::_getStaticLink($data["wsp_id"]);
-            } else {
-                $url = $data['url'];
-            }
+            $url = $data['url'] == "" ? ilLink::_getStaticLink($data["wsp_id"]) : $data['url'];
             $link = $url;
             $title = $factory->link()->standard($data["title"], $link);
             $props[$lng->txt("obj_" . $obj_type)] = ilObject::_lookupTitle($obj_id);
@@ -295,10 +289,8 @@ class ilPDTasksBlockGUI extends ilBlockGUI
 
     /**
      * No item entry
-     *
-     * @return string
      */
-    protected function getNoItemFoundContent() : string
+    public function getNoItemFoundContent(): string
     {
         return $this->lng->txt("task_no_task_items");
     }

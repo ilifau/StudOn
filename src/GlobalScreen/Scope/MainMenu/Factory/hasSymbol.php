@@ -35,26 +35,26 @@ interface hasSymbol extends isItem
      * @param Symbol $symbol
      * @return hasSymbol
      */
-    public function withSymbol(Symbol $symbol) : hasSymbol;
+    public function withSymbol(Symbol $symbol): hasSymbol;
 
     /**
      * @return Symbol
      */
-    public function getSymbol() : Symbol;
+    public function getSymbol(): Symbol;
 
     /**
      * @return bool
      */
-    public function hasSymbol() : bool;
+    public function hasSymbol(): bool;
 
     /**
      * @param Closure $symbol_decorator
      * @return hasSymbol
      */
-    public function addSymbolDecorator(Closure $symbol_decorator) : isGlobalScreenItem;
+    public function addSymbolDecorator(Closure $symbol_decorator): isGlobalScreenItem;
 
     /**
      * @return Closure|null
      */
-    public function getSymbolDecorator() : ?Closure;
+    public function getSymbolDecorator(): ?Closure;
 }

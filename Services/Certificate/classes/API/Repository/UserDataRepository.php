@@ -1,47 +1,60 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
 
-namespace Certificate\API\Repository;
+declare(strict_types=1);
 
-use Certificate\API\Data\UserCertificateDto;
-use Certificate\API\Filter\UserDataFilter;
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+namespace ILIAS\Certificate\API\Repository;
+
+use ILIAS\Certificate\API\Data\UserCertificateDto;
+use ILIAS\Certificate\API\Filter\UserDataFilter;
+use ilCtrlInterface;
 use ilDBConstants;
 use ilUserCertificateApiGUI;
+use ilDBInterface;
+use ilLogger;
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class UserDataRepository
 {
-    /** @var \ilDBInterface */
-    private $database;
-
-    /** @var \ilLogger */
-    private $logger;
-
-    /** @var null|string */
-    private $defaultTitle;
-
-    /** @var \ilCtrl */
-    private $controller;
+    private ilDBInterface $database;
+    private ilLogger $logger;
+    private string $defaultTitle;
+    private ilCtrlInterface $ctrl;
 
     /**
-     * @param \ilDBInterface $database
-     * @param \ilLogger $logger
-     * @param \ilCtrl $controller
-     * @param string|null $defaultTitle The default title is use if the title of an repository object could not be
-     *                                  determined. This could be the case if the object is deleted from system and
-     *                                  mechanisms to store the title of deleted objects (table: object_data_del) failed.
+     * @param ilDBInterface   $database
+     * @param ilLogger        $logger
+     * @param ilCtrlInterface $ctrl
+     * @param string|null     $defaultTitle The default title is use if the title of an repository object could not be
+     *                                    determined. This could be the case if the object is deleted from system and
+     *                                    mechanisms to store the title of deleted objects (table: object_data_del) failed.
      */
     public function __construct(
-        \ilDBInterface $database,
-        \ilLogger $logger,
-        \ilCtrl $controller,
-        string $defaultTitle = null
+        ilDBInterface $database,
+        ilLogger $logger,
+        ilCtrlInterface $ctrl,
+        ?string $defaultTitle = null
     ) {
         $this->database = $database;
         $this->logger = $logger;
-        $this->controller = $controller;
+        $this->ctrl = $ctrl;
 
         if (null === $defaultTitle) {
             global $DIC;
@@ -52,15 +65,15 @@ class UserDataRepository
 
     /**
      * @param UserDataFilter $filter
-     * @param array $ilCtrlStack
-     * @return array
+     * @param string[] $ilCtrlStack
+     * @return array<int, UserCertificateDto>
      */
-    public function getUserData(UserDataFilter $filter, array $ilCtrlStack) : array
+    public function getUserData(UserDataFilter $filter, array $ilCtrlStack): array
     {
         $sql = 'SELECT
     cert.pattern_certificate_id,
     cert.obj_id,
-    cert.user_id,
+    cert.usr_id,
     cert.user_name,
     cert.acquired_timestamp,
     cert.currently_active,
@@ -92,9 +105,9 @@ FROM
 
             $link = '';
             if ([] !== $ilCtrlStack) {
-                $this->controller->setParameterByClass(ilUserCertificateApiGUI::class, 'certificate_id', $id);
-                $link = $this->controller->getLinkTargetByClass($ilCtrlStack, ilUserCertificateApiGUI::CMD_DOWNLOAD);
-                $this->controller->clearParametersByClass(ilUserCertificateApiGUI::class);
+                $this->ctrl->setParameterByClass(ilUserCertificateApiGUI::class, 'certificate_id', $id);
+                $link = $this->ctrl->getLinkTargetByClass($ilCtrlStack, ilUserCertificateApiGUI::CMD_DOWNLOAD);
+                $this->ctrl->clearParametersByClass(ilUserCertificateApiGUI::class);
             }
 
             $dataObject = new UserCertificateDto(
@@ -102,7 +115,7 @@ FROM
                 $row['title'] ?? $this->defaultTitle,
                 (int) $row['obj_id'],
                 (int) $row['acquired_timestamp'],
-                (int) $row['user_id'],
+                (int) $row['usr_id'],
                 $row['firstname'],
                 $row['lastname'],
                 $row['login'],
@@ -116,19 +129,13 @@ FROM
         }
 
         if ($filter->getLimitOffset() !== null && $filter->getLimitCount() !== null) {
-            $result = array_slice($result, $filter->getLimitOffset(), $filter->getLimitCount());
+            $result = array_slice($result, $filter->getLimitOffset(), $filter->getLimitCount(), true);
         }
 
         return $result;
     }
 
-
-    /**
-     * @param UserDataFilter $filter
-     *
-     * @return int
-     */
-    public function getUserCertificateDataMaxCount(UserDataFilter $filter) : int
+    public function getUserCertificateDataMaxCount(UserDataFilter $filter): int
     {
         $sql = 'SELECT
     COUNT(id) AS count
@@ -137,25 +144,21 @@ FROM
 
         $query = $this->database->query($sql);
 
-        $max_count = intval($this->database->fetchAssoc($query)["count"]);
-
-        return $max_count;
+        return (int) $this->database->fetchAssoc($query)["count"];
     }
-
 
     /**
      * @param UserDataFilter $filter
      * @param bool           $max_count_only
-     *
      * @return string
      */
-    private function getQuery(UserDataFilter $filter, bool $max_count_only = false) : string
+    private function getQuery(UserDataFilter $filter, bool $max_count_only = false): string
     {
         $sql = '(
 SELECT 
   il_cert_user_cert.pattern_certificate_id,
   il_cert_user_cert.obj_id,
-  il_cert_user_cert.user_id,
+  il_cert_user_cert.usr_id,
   il_cert_user_cert.user_name,
   il_cert_user_cert.acquired_timestamp,
   il_cert_user_cert.currently_active,
@@ -172,7 +175,7 @@ UNION
 SELECT 
   il_cert_user_cert.pattern_certificate_id,
   il_cert_user_cert.obj_id,
-  il_cert_user_cert.user_id,
+  il_cert_user_cert.usr_id,
   il_cert_user_cert.user_name,
   il_cert_user_cert.acquired_timestamp,
   il_cert_user_cert.currently_active,
@@ -188,8 +191,8 @@ WHERE object_reference.deleted IS NULL';
 
         $sql .= '
 ) AS cert
-INNER JOIN usr_data ON usr_data.usr_id = cert.user_id
-INNER JOIN il_orgu_ua ON il_orgu_ua.user_id = cert.user_id
+INNER JOIN usr_data ON usr_data.usr_id = cert.usr_id
+INNER JOIN il_orgu_ua ON il_orgu_ua.user_id = cert.usr_id
 ' . $this->createWhereCondition($filter);
 
         if (!$max_count_only) {
@@ -199,12 +202,7 @@ INNER JOIN il_orgu_ua ON il_orgu_ua.user_id = cert.user_id
         return $sql;
     }
 
-
-    /**
-     * @param UserDataFilter $filter
-     * @return string
-     */
-    private function createOrderByClause(UserDataFilter $filter) : string
+    private function createOrderByClause(UserDataFilter $filter): string
     {
         $sorts = $filter->getSorts();
 
@@ -247,9 +245,7 @@ INNER JOIN il_orgu_ua ON il_orgu_ua.user_id = cert.user_id
             }
         }
 
-        $orderBy = ' ORDER BY ' . implode(', ', $orders);
-
-        return $orderBy;
+        return ' ORDER BY ' . implode(', ', $orders);
     }
 
     /**
@@ -257,13 +253,13 @@ INNER JOIN il_orgu_ua ON il_orgu_ua.user_id = cert.user_id
      * @param UserDataFilter $filter
      * @return string
      */
-    private function createWhereCondition(UserDataFilter $filter) : string
+    private function createWhereCondition(UserDataFilter $filter): string
     {
         $wheres = [];
 
         $userIds = $filter->getUserIds();
         if (!empty($userIds)) {
-            $wheres[] = $this->database->in('cert.user_id', $userIds, false, ilDBConstants::T_INTEGER);
+            $wheres[] = $this->database->in('cert.usr_id', $userIds, false, ilDBConstants::T_INTEGER);
         }
 
         $objIds = $filter->getObjIds();
@@ -338,8 +334,6 @@ INNER JOIN il_orgu_ua ON il_orgu_ua.user_id = cert.user_id
             return '';
         }
 
-        $sql = 'WHERE ' . implode(' AND ', $wheres);
-
-        return $sql;
+        return 'WHERE ' . implode(' AND ', $wheres);
     }
 }

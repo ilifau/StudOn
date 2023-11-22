@@ -27,7 +27,7 @@ require_once('./libs/composer/vendor/autoload.php');
  */
 class NotificationServicesTest extends TestCase
 {
-    public function testFactory() : void
+    public function testFactory(): void
     {
         $factory = new NotificationServices();
         $this->assertInstanceOf(NotificationFactory::class, $factory->factory());

@@ -38,20 +38,11 @@ use ILIAS\GlobalScreen\Scope\MainMenu\Factory\TopItem\TopParentItem;
  */
 class MapTest extends TestCase
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationFactory
-     */
-    protected $identification;
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\MainMenu\Factory\MainMenuItemFactory
-     */
-    protected $factory;
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\MainMenu\Provider\StaticMainMenuProvider
-     */
-    protected $provider;
+    protected IdentificationFactory $identification;
+    protected MainMenuItemFactory $factory;
+    protected StaticMainMenuProvider $provider;
 
-    private function getMap() : Map
+    private function getMap(): Map
     {
         return new Map($this->factory);
     }
@@ -59,7 +50,7 @@ class MapTest extends TestCase
     /**
      * @inheritDoc
      */
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -68,12 +59,12 @@ class MapTest extends TestCase
         $this->factory = new MainMenuItemFactory();
     }
 
-    private function getId(string $id) : IdentificationInterface
+    private function getId(string $id): IdentificationInterface
     {
         return $this->identification->core($this->provider)->identifier($id);
     }
 
-    public function testAddItem() : void
+    public function testAddItem(): void
     {
         $map = $this->getMap();
 
@@ -97,7 +88,7 @@ class MapTest extends TestCase
         $this->assertTrue($map->existsInFilter($p4));
     }
 
-    public function testFilterItems() : void
+    public function testFilterItems(): void
     {
         $map = $this->getMap();
 
@@ -115,13 +106,13 @@ class MapTest extends TestCase
         $this->assertTrue($map->has());
         $this->assertSame(count(iterator_to_array($map->getAllFromFilter())), 4);
 
-        $map->filter(static function () : bool {
+        $map->filter(static function (): bool {
             return true;
         });
 
         $this->assertSame(count(iterator_to_array($map->getAllFromFilter())), 4);
 
-        $map->filter(static function (isItem $i) : bool {
+        $map->filter(static function (isItem $i): bool {
             return $i->getProviderIdentification()->getInternalIdentifier() !== 'parent_1';
         });
 
@@ -131,7 +122,7 @@ class MapTest extends TestCase
         $this->assertTrue($map->existsInFilter($p3));
         $this->assertTrue($map->existsInFilter($p4));
 
-        $map->filter(static function () : bool {
+        $map->filter(static function (): bool {
             return false;
         });
         $this->assertFalse($map->existsInFilter($p1));
@@ -140,7 +131,7 @@ class MapTest extends TestCase
         $this->assertFalse($map->existsInFilter($p4));
     }
 
-    public function testSortingTopItems() : void
+    public function testSortingTopItems(): void
     {
         $map = $this->getMap();
 
@@ -158,7 +149,7 @@ class MapTest extends TestCase
 
         $generator = $map->getAllFromFilter();
 
-        $one = static function () use ($generator) : isItem {
+        $one = static function () use ($generator): isItem {
             $i = $generator->current();
             $generator->next();
             return $i;
@@ -205,7 +196,7 @@ class MapTest extends TestCase
         $this->assertSame(10, $i->getPosition());
     }
 
-    public function testSortingNestedItems() : void
+    public function testSortingNestedItems(): void
     {
         $map = $this->getMap();
         /** @var TopParentItem $tp_1 */
@@ -264,7 +255,7 @@ class MapTest extends TestCase
         $this->assertEquals(1, $first->getPosition());
     }
 
-    public function testSamePositionResolution() : void
+    public function testSamePositionResolution(): void
     {
         $map = $this->getMap();
         /** @var TopParentItem $tp_1 */
@@ -288,35 +279,35 @@ class MapTest extends TestCase
         $this->assertCount(2, $item->getChildren());
     }
 
-    private function getDummyProvider() : StaticMainMenuProvider
+    private function getDummyProvider(): StaticMainMenuProvider
     {
-        return new class() implements StaticMainMenuProvider {
-            public function getAllIdentifications() : array
+        return new class () implements StaticMainMenuProvider {
+            public function getAllIdentifications(): array
             {
                 return [];
             }
 
-            public function getFullyQualifiedClassName() : string
+            public function getFullyQualifiedClassName(): string
             {
                 return 'Provider';
             }
 
-            public function getProviderNameForPresentation() : string
+            public function getProviderNameForPresentation(): string
             {
                 return 'Provider';
             }
 
-            public function getStaticTopItems() : array
+            public function getStaticTopItems(): array
             {
                 return [];
             }
 
-            public function getStaticSubItems() : array
+            public function getStaticSubItems(): array
             {
                 return [];
             }
 
-            public function provideTypeInformation() : TypeInformationCollection
+            public function provideTypeInformation(): TypeInformationCollection
             {
                 return new TypeInformationCollection();
             }

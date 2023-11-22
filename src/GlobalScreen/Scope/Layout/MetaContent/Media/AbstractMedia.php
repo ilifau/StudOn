@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Layout\MetaContent\Media;
 
 /**
@@ -25,15 +25,9 @@ namespace ILIAS\GlobalScreen\Scope\Layout\MetaContent\Media;
  */
 abstract class AbstractMedia
 {
-    /**
-     * @var string
-     */
-    protected $content = "";
+    protected string $content = "";
 
-    /**
-     * @var string
-     */
-    protected $version = '';
+    protected string  $version = '';
 
     /**
      * AbstractMedia constructor.
@@ -48,7 +42,7 @@ abstract class AbstractMedia
     /**
      * @return string
      */
-    public function getContent() : string
+    public function getContent(): string
     {
         return $this->content;
     }

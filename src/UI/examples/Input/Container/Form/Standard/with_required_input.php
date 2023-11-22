@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace ILIAS\UI\examples\Input\Container\Form\Standard;
+
 /**
  * Example showing a Form with required fields. An explaining hint is displayed below the Form.
  */
@@ -16,8 +18,8 @@ function with_required_input()
         ->withRequired(true);
 
     $section = $ui->input()->field()->section(
-        [$text_input], 
-        "Section with required field", 
+        [$text_input],
+        "Section with required field",
         "The Form should show an explaining hint at the bottom"
     );
 

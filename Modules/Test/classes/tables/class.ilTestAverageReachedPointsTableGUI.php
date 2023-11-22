@@ -1,8 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-
-include_once('./Services/Table/classes/class.ilTable2GUI.php');
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Helmut Schottmüller <ilias@aurealis.de>
@@ -11,17 +23,11 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
  */
 class ilTestAverageReachedPointsTableGUI extends ilTable2GUI
 {
-    /**
-     * Constructor
-     * @access public
-     * @param
-     * @return
-     */
-    public function __construct($a_parent_obj, $a_parent_cmd)
+    public function __construct(?object $a_parent_obj, string $a_parent_cmd)
     {
         $this->setId('tstAvgReachedPointsTbl');
         $this->setPrefix('tstAvgReachedPointsTbl');
-        
+
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         global $DIC;
@@ -39,9 +45,7 @@ class ilTestAverageReachedPointsTableGUI extends ilTable2GUI
         $this->addColumn($this->lng->txt("points"), 'points', '');
         $this->addColumn($this->lng->txt("percentage"), 'percentage', '');
         $this->addColumn($this->lng->txt("number_of_answers"), 'answers', '');
-        // fau: extendTestResults add actions column in questions table
-        $this->addColumn($this->lng->txt("actions"), 'actions', '');
-        // fau.
+
         $this->setRowTemplate("tpl.il_as_tst_average_reached_points_row.html", "Modules/Test");
 
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj, $a_parent_cmd));
@@ -55,18 +59,14 @@ class ilTestAverageReachedPointsTableGUI extends ilTable2GUI
 
     /**
      * Should this field be sorted numeric?
-     * @return    boolean        numeric ordering; default is false
+     * @return bool  numeric ordering; default is false
      */
-    public function numericOrdering($a_field)
+    public function numericOrdering(string $a_field): bool
     {
         switch ($a_field) {
-            case 'points':
-                return true;
-
-            case 'qid':
-                return true;
-
             case 'percentage':
+            case 'qid':
+            case 'points':
                 return true;
 
             default:
@@ -74,31 +74,16 @@ class ilTestAverageReachedPointsTableGUI extends ilTable2GUI
         }
     }
 
-    /**
-     * fill row
-     * @access public
-     * @param
-     * @return
-     */
-    public function fillRow($data)
+    public function fillRow(array $a_set): void
     {
-        $this->tpl->setVariable("ID", $data["qid"]);
-        $this->tpl->setVariable("TITLE", $data["title"]);
-        $this->tpl->setVariable("POINTS", $this->formatPoints($data));
-        $this->tpl->setVariable("PERCENTAGE", sprintf("%.2f", $data["percentage"]) . "%");
-        $this->tpl->setVariable("ANSWERS", $data["answers"]);
-        // fau: extendTestResults - add pdf link to questions table
-        $this->ctrl->setParameter($this->parent_obj, "qid", $data["qid"]);
-        $this->tpl->setVariable("TXT_PDF_EXPORT", $this->lng->txt("pdf_export"));
-        $this->tpl->setVariable("URL_PDF_EXPORT", $this->ctrl->getLinkTarget($this->parent_obj, "exportQuestionForAllParticipants"));
-        // fau.
+        $this->tpl->setVariable("ID", $a_set["qid"]);
+        $this->tpl->setVariable("TITLE", $a_set["title"]);
+        $this->tpl->setVariable("POINTS", $this->formatPoints($a_set));
+        $this->tpl->setVariable("PERCENTAGE", sprintf("%.2f", $a_set["percentage"]) . "%");
+        $this->tpl->setVariable("ANSWERS", $a_set["answers"]);
     }
 
-    /**
-     * @param array $data
-     * @return string
-     */
-    protected function formatPoints(array $data)
+    protected function formatPoints(array $data): string
     {
         return sprintf("%.2f", $data['points_reached']) . " " . strtolower($this->lng->txt("of")) . " " . sprintf("%.2f", $data['points_max']);
     }

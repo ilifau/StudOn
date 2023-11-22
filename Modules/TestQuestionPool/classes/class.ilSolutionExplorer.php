@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
 
 /*
 * Solution Explorer for question pools
@@ -8,21 +25,16 @@
 * @version $Id$
 *
 * @ingroup ModulesTestQuestionPool
-*/
-
-include_once "./Services/UIComponent/Explorer/classes/class.ilExplorer.php";
-include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
+ */
 
 class ilSolutionExplorer extends ilExplorer
 {
-
-/**
- * id of root folder
- * @var int root folder id
- * @access private
- */
+    /**
+     * id of root folder
+     * @var int root folder id
+     * @access private
+     */
     public $root_id;
-    public $output;
     public $ctrl;
 
     public $selectable_type;
@@ -63,7 +75,7 @@ class ilSolutionExplorer extends ilExplorer
     /**
      * @param int $ref_id
      */
-    public function expandPathByRefId($ref_id)
+    public function expandPathByRefId($ref_id): void
     {
         /**
          * @var $tree ilTree
@@ -71,31 +83,33 @@ class ilSolutionExplorer extends ilExplorer
         global $DIC;
         $tree = $DIC['tree'];
 
-        if (!$_SESSION[$this->expand_variable]) {
-            $_SESSION[$this->expand_variable] = array();
+        if (ilSession::get($this->expand_variable) == null) {
+            ilSession::set($this->expand_variable, array());
         }
 
         $path = $tree->getPathId($ref_id);
         foreach ((array) $path as $node_id) {
-            if (!in_array($node_id, $_SESSION[$this->expand_variable])) {
-                $_SESSION[$this->expand_variable][] = $node_id;
+            if (!in_array($node_id, ilSession::get($this->expand_variable))) {
+                $expand = ilSession::get($this->expand_variable);
+                $expand[] = $node_id;
+                ilSession::set($this->expand_variable, $expand);
             }
         }
 
-        $this->expanded = $_SESSION[$this->expand_variable];
+        $this->expanded = ilSession::get($this->expand_variable);
     }
 
-    public function setSelectableType($a_type)
+    public function setSelectableType($a_type): void
     {
         $this->selectable_type = $a_type;
     }
-    public function setRefId($a_ref_id)
+    public function setRefId($a_ref_id): void
     {
         $this->ref_id = $a_ref_id;
     }
-    
 
-    public function buildLinkTarget($a_node_id, $a_type)
+
+    public function buildLinkTarget($a_node_id, string $a_type): string
     {
         if ($a_type == $this->selectable_type) {
             $this->ctrl->setParameterByClass($this->target_class, 'source_id', $a_node_id);
@@ -106,26 +120,26 @@ class ilSolutionExplorer extends ilExplorer
         }
     }
 
-    public function buildFrameTarget($a_type, $a_child = 0, $a_obj_id = 0)
+    public function buildFrameTarget(string $a_type, $a_child = 0, $a_obj_id = 0): string
     {
         return '';
     }
 
-    public function isClickable($a_type, $a_ref_id = 0)
+    public function isClickable(string $type, int $ref_id = 0): bool
     {
-        return $a_type == $this->selectable_type and $a_ref_id != $this->ref_id;
+        return $type == $this->selectable_type && $ref_id !== $this->ref_id;
     }
 
-    public function showChilds($a_ref_id)
+    public function showChilds($a_parent_id): bool
     {
         global $DIC;
         $rbacsystem = $DIC['rbacsystem'];
 
-        if ($a_ref_id == 0) {
+        if ($a_parent_id == 0) {
             return true;
         }
 
-        if ($rbacsystem->checkAccess("read", $a_ref_id)) {
+        if ($rbacsystem->checkAccess("read", $a_parent_id)) {
             return true;
         } else {
             return false;

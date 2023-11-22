@@ -1,44 +1,39 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilPdfGenerator
 {
-    /**
-     * @var ilUserCertificateRepository
-     */
-    private $certificateRepository;
+    private ilUserCertificateRepository $certificateRepository;
+    private ilLogger $logger;
+    private ilCertificateRpcClientFactoryHelper $rpcHelper;
+    private ilCertificatePdfFileNameFactory $pdfFilenameFactory;
 
-    /**
-     * @var ilLogger
-     */
-    private $logger;
-
-    /**
-     * @var ilCertificateRpcClientFactoryHelper|null
-     */
-    private $rpcHelper;
-
-    /**
-     * @var ilCertificatePdfFileNameFactory|null
-     */
-    private $pdfFilenameFactory;
-
-    /**
-     * @param ilUserCertificateRepository $userCertificateRepository
-     * @param ilLogger $logger
-     * @param ilCertificateRpcClientFactoryHelper|null $rpcHelper
-     * @param ilCertificatePdfFileNameFactory|null $pdfFileNameFactory
-     * @param ilLanguage|null $lng
-     */
     public function __construct(
         ilUserCertificateRepository $userCertificateRepository,
         ilLogger $logger,
-        ilCertificateRpcClientFactoryHelper $rpcHelper = null,
-        ilCertificatePdfFileNameFactory $pdfFileNameFactory = null,
-        ilLanguage $lng = null
+        ?ilCertificateRpcClientFactoryHelper $rpcHelper = null,
+        ?ilCertificatePdfFileNameFactory $pdfFileNameFactory = null,
+        ?ilLanguage $lng = null
     ) {
         global $DIC;
 
@@ -61,11 +56,11 @@ class ilPdfGenerator
     }
 
     /**
-     * @param $userCertificateId
-     * @return mixed
+     * @param int $userCertificateId
+     * @return string
      * @throws ilException
      */
-    public function generate(int $userCertificateId)
+    public function generate(int $userCertificateId): string
     {
         $certificate = $this->certificateRepository->fetchCertificate($userCertificateId);
 
@@ -73,48 +68,45 @@ class ilPdfGenerator
     }
 
     /**
-     * @param $userId
-     * @param $objId
-     * @return mixed
+     * @param int $userId
+     * @param int $objId
+     * @return string
      * @throws ilException
      */
-    public function generateCurrentActiveCertificate(int $userId, int $objId) : string
+    public function generateCurrentActiveCertificate(int $userId, int $objId): string
     {
         $certificate = $this->certificateRepository->fetchActiveCertificate($userId, $objId);
 
         return $this->createPDFScalar($certificate);
     }
 
-    public function generateFileName(int $userId, int $objId) : string
+    /**
+     * @param int $userId
+     * @param int $objId
+     * @return string
+     * @throws ilDatabaseException
+     * @throws ilException
+     * @throws ilObjectNotFoundException
+     */
+    public function generateFileName(int $userId, int $objId): string
     {
         $certificate = $this->certificateRepository->fetchActiveCertificateForPresentation($userId, $objId);
 
         $user = ilObjectFactory::getInstanceByObjId($userId);
         if (!$user instanceof ilObjUser) {
-            throw new ilException(sprintf('The user_id "%s" does NOT reference a user', $userId));
+            throw new ilException(sprintf('The usr_id "%s" does NOT reference a user', $userId));
         }
 
-        $pdfFileName = $this->pdfFilenameFactory->create($certificate);
-
-        return $pdfFileName;
+        return $this->pdfFilenameFactory->create($certificate);
     }
 
-    /**
-     * @param $certificate
-     * @return mixed
-     */
-    private function createPDFScalar(ilUserCertificate $certificate) : string
+    private function createPDFScalar(ilUserCertificate $certificate): string
     {
         $certificateContent = $certificate->getCertificateContent();
 
         $certificateContent = str_replace(
-            '[BACKGROUND_IMAGE]',
-            '[CLIENT_WEB_DIR]' . $certificate->getBackgroundImagePath(),
-            $certificateContent
-        );
-        $certificateContent = str_replace(
-            '[CLIENT_WEB_DIR]',
-            CLIENT_WEB_DIR,
+            ['[BACKGROUND_IMAGE]', '[CLIENT_WEB_DIR]'],
+            ['[CLIENT_WEB_DIR]' . $certificate->getBackgroundImagePath(), CLIENT_WEB_DIR],
             $certificateContent
         );
 

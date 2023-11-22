@@ -1,41 +1,41 @@
 <?php
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilForumDraftsDerivedTaskProvider
  * @author Michael Jansen <mjansen@databay.de>
  */
-class ilForumDraftsDerivedTaskProvider implements \ilDerivedTaskProvider
+class ilForumDraftsDerivedTaskProvider implements ilDerivedTaskProvider
 {
-    /** @var ilTaskService */
-    protected $taskService;
+    protected ilTaskService $taskService;
+    protected ilAccessHandler $accessHandler;
+    protected ilLanguage $lng;
+    protected ilSetting $settings;
+    protected ilCtrlInterface $ctrl;
 
-    /** @var \ilAccess */
-    protected $accessHandler;
-
-    /** @var \ilLanguage */
-    protected $lng;
-
-    /** @var \ilSetting */
-    protected $settings;
-
-    /** @var \ilCtrl */
-    protected $ctrl;
-
-    /**
-     * ilForumDraftsDerivedTaskProvider constructor.
-     * @param \ilTaskService $taskService
-     * @param \ilAccessHandler $accessHandler
-     * @param \ilLanguage $lng
-     * @param \ilSetting $settings
-     * @param \ilCtrl $ctrl
-     */
     public function __construct(
         ilTaskService $taskService,
-        \ilAccessHandler $accessHandler,
-        \ilLanguage $lng,
-        \ilSetting $settings,
-        \ilCtrl $ctrl
+        ilAccessHandler $accessHandler,
+        ilLanguage $lng,
+        ilSetting $settings,
+        ilCtrlInterface $ctrl
     ) {
         $this->taskService = $taskService;
         $this->accessHandler = $accessHandler;
@@ -46,14 +46,11 @@ class ilForumDraftsDerivedTaskProvider implements \ilDerivedTaskProvider
         $this->lng->loadLanguageModule('forum');
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getTasks(int $user_id) : array
+    public function getTasks(int $user_id): array
     {
         $tasks = [];
 
-        $drafts = \ilForumPostDraft::getDraftInstancesByUserId($user_id);
+        $drafts = ilForumPostDraft::getDraftInstancesByUserId($user_id);
         foreach ($drafts as $draft) {
             $objId = ilForum::_lookupObjIdForForumId($draft->getForumId());
             $refId = $this->getFirstRefIdWithPermission('read', $objId, $user_id);
@@ -75,22 +72,36 @@ class ilForumDraftsDerivedTaskProvider implements \ilDerivedTaskProvider
             );
 
             $isThread = false;
-            if (0 === (int) $draft->getThreadId()) {
+            if (0 === $draft->getThreadId()) {
                 $isThread = true;
             }
 
             $anchor = '';
+            $params = ['ref_id' => $refId];
             if ($isThread) {
                 $params['draft_id'] = $draft->getDraftId();
-                $params['cmd'] = 'editThreadDraft';
+                $cmd = 'editThreadDraft';
             } else {
                 $params['thr_pk'] = $draft->getThreadId();
                 $params['pos_pk'] = $draft->getPostId();
-                $params['cmd'] = 'viewThread';
-                $anchor = '#draft_' . $draft->getDraftId();
+                $cmd = 'viewThread';
+                $anchor = 'draft_' . $draft->getDraftId();
             }
 
-            $url = \ilLink::_getLink($refId, 'frm', $params) . $anchor;
+            foreach ($params as $name => $value) {
+                $this->ctrl->setParameterByClass(ilObjForumGUI::class, $name, $value);
+            }
+            $url = $this->ctrl->getLinkTargetByClass(
+                [
+                    ilRepositoryGUI::class,
+                    ilObjForumGUI::class
+                ],
+                $cmd,
+                $anchor
+            );
+            foreach (array_keys($params) as $name) {
+                $this->ctrl->setParameterByClass(ilObjForumGUI::class, $name, null);
+            }
 
             $tasks[] = $task->withUrl($url);
         }
@@ -98,15 +109,9 @@ class ilForumDraftsDerivedTaskProvider implements \ilDerivedTaskProvider
         return $tasks;
     }
 
-    /**
-     * @param string $operation
-     * @param int $objId
-     * @param int $userId
-     * @return int
-     */
-    protected function getFirstRefIdWithPermission(string $operation, int $objId, int $userId) : int
+    protected function getFirstRefIdWithPermission(string $operation, int $objId, int $userId): int
     {
-        foreach (\ilObject::_getAllReferences($objId) as $refId) {
+        foreach (ilObject::_getAllReferences($objId) as $refId) {
             if ($this->accessHandler->checkAccessOfUser($userId, $operation, '', $refId)) {
                 return $refId;
             }
@@ -115,11 +120,8 @@ class ilForumDraftsDerivedTaskProvider implements \ilDerivedTaskProvider
         return 0;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function isActive() : bool
+    public function isActive(): bool
     {
-        return (bool) $this->settings->get('save_post_drafts', false);
+        return (bool) $this->settings->get('save_post_drafts', '0');
     }
 }

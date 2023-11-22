@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Layout\Factory;
 
 /**
@@ -28,7 +28,7 @@ class NullModification extends AbstractLayoutModification implements LayoutModif
     /**
      * @inheritDoc
      */
-    public function getClosureFirstArgumentType() : string
+    public function getClosureFirstArgumentType(): string
     {
         return '';
     }
@@ -36,7 +36,7 @@ class NullModification extends AbstractLayoutModification implements LayoutModif
     /**
      * @inheritDoc
      */
-    public function getClosureReturnType() : string
+    public function getClosureReturnType(): string
     {
         return '';
     }
@@ -44,7 +44,7 @@ class NullModification extends AbstractLayoutModification implements LayoutModif
     /**
      * @inheritDoc
      */
-    public function getPriority() : int
+    public function getPriority(): int
     {
         return -1;
     }
@@ -52,7 +52,7 @@ class NullModification extends AbstractLayoutModification implements LayoutModif
     /**
      * @inheritDoc
      */
-    public function firstArgumentAllowsNull() : bool
+    public function firstArgumentAllowsNull(): bool
     {
         return true;
     }
@@ -60,7 +60,7 @@ class NullModification extends AbstractLayoutModification implements LayoutModif
     /**
      * @inheritDoc
      */
-    public function returnTypeAllowsNull() : bool
+    public function returnTypeAllowsNull(): bool
     {
         return true;
     }

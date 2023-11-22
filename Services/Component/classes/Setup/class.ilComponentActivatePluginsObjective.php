@@ -1,5 +1,21 @@
 <?php
-/* Copyright (c) 2020 Daniel Weise <daniel.weise@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 
 declare(strict_types=1);
 
@@ -8,10 +24,7 @@ use ILIAS\DI;
 
 class ilComponentActivatePluginsObjective implements Setup\Objective
 {
-    /**
-     * @var string
-     */
-    protected $plugin_name;
+    protected string $plugin_name;
 
     public function __construct(string $plugin_name)
     {
@@ -21,7 +34,7 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getHash() : string
+    public function getHash(): string
     {
         return hash("sha256", self::class . $this->plugin_name);
     }
@@ -29,7 +42,7 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getLabel() : string
+    public function getLabel(): string
     {
         return "Activate plugin $this->plugin_name.";
     }
@@ -37,7 +50,7 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function isNotable() : bool
+    public function isNotable(): bool
     {
         return true;
     }
@@ -45,33 +58,41 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getPreconditions(Setup\Environment $environment) : array
+    public function getPreconditions(Setup\Environment $environment): array
     {
         return [
-            new \ilComponentUpdatePluginObjective($this->plugin_name)
+            new \ilIniFilesLoadedObjective(),
+            new \ilDatabaseInitializedObjective(),
+            new \ilComponentPluginAdminInitObjective(),
+            new \ilComponentRepositoryExistsObjective(),
+            new \ilComponentFactoryExistsObjective()
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function achieve(Setup\Environment $environment) : Setup\Environment
+    public function achieve(Setup\Environment $environment): Setup\Environment
     {
-        $ORIG_DIC = $this->initEnvironment($environment);
+        $component_repository = $environment->getResource(Setup\Environment::RESOURCE_COMPONENT_REPOSITORY);
+        $component_factory = $environment->getResource(Setup\Environment::RESOURCE_COMPONENT_FACTORY);
+        $info = $component_repository->getPluginByName($this->plugin_name);
 
-        $plugin = $GLOBALS["DIC"]["ilPluginAdmin"]->getRawPluginDataFor($this->plugin_name);
-
-        if (!is_null($plugin) && $plugin['activation_possible'] && $plugin['supports_cli_setup']) {
-            $pl = ilPlugin::getPluginObject(
-                $plugin['component_type'],
-                $plugin['component_name'],
-                $plugin['slot_id'],
-                $plugin['name']
+        if (!$info->supportsCLISetup()) {
+            throw new \RuntimeException(
+                "Plugin $this->plugin_name does not support command line setup."
             );
-
-            $pl->activate();
         }
 
+        if (!$info->isActivationPossible()) {
+            throw new \RuntimeException(
+                "Plugin $this->plugin_name can not be activated."
+            );
+        }
+
+        $ORIG_DIC = $this->initEnvironment($environment, $component_repository, $component_factory);
+        $plugin = $component_factory->getPlugin($info->getId());
+        $plugin->activate();
         $GLOBALS["DIC"] = $ORIG_DIC;
 
         return $environment;
@@ -80,28 +101,23 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
     /**
      * @inheritDoc
      */
-    public function isApplicable(Setup\Environment $environment) : bool
+    public function isApplicable(Setup\Environment $environment): bool
     {
-        $ORIG_DIC = $this->initEnvironment($environment);
+        $component_repository = $environment->getResource(Setup\Environment::RESOURCE_COMPONENT_REPOSITORY);
+        $plugin = $component_repository->getPluginByName($this->plugin_name);
 
-        $plugin = $GLOBALS["DIC"]["ilPluginAdmin"]->getRawPluginDataFor($this->plugin_name);
-
-        if (is_null($plugin) || !$plugin['supports_cli_setup']) {
-            return false;
-        }
-
-        $GLOBALS["DIC"] = $ORIG_DIC;
-
-        return $plugin['activation_possible'];
+        return $plugin->isActivationPossible($environment);
     }
 
-    protected function initEnvironment(Setup\Environment $environment) : ?ILIAS\DI\Container
-    {
+    protected function initEnvironment(
+        Setup\Environment $environment,
+        \ilComponentRepository $component_repository,
+        \ilComponentFactory $component_factory
+    ) {
         $db = $environment->getResource(Setup\Environment::RESOURCE_DATABASE);
         $plugin_admin = $environment->getResource(Setup\Environment::RESOURCE_PLUGIN_ADMIN);
         $ini = $environment->getResource(Setup\Environment::RESOURCE_ILIAS_INI);
         $client_ini = $environment->getResource(Setup\Environment::RESOURCE_CLIENT_INI);
-
 
         // ATTENTION: This is a total abomination. It only exists to allow various
         // sub components of the various readers to run. This is a memento to the
@@ -109,41 +125,43 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
         // component could just service locate the whole world via the global $DIC.
         $DIC = $GLOBALS["DIC"];
         $GLOBALS["DIC"] = new DI\Container();
+        $GLOBALS["DIC"]["component.repository"] = $component_repository;
+        $GLOBALS["DIC"]["component.factory"] = $component_factory;
         $GLOBALS["DIC"]["ilDB"] = $db;
         $GLOBALS["DIC"]["ilIliasIniFile"] = $ini;
         $GLOBALS["DIC"]["ilClientIniFile"] = $client_ini;
-        $GLOBALS["DIC"]["ilLog"] = new class() extends ilLogger {
+        $GLOBALS["DIC"]["ilLog"] = new class () extends ilLogger {
             public function __construct()
             {
             }
-            public function write($m, $l = ilLogLevel::INFO)
+            public function write(string $a_message, $a_level = ilLogLevel::INFO): void
             {
             }
-            public function info($msg)
+            public function info(string $a_message): void
             {
             }
-            public function warning($msg)
+            public function warning(string $a_message): void
             {
             }
-            public function error($msg)
+            public function error(string $a_message): void
             {
             }
-            public function debug($msg, $a = [])
+            public function debug(string $a_message, array $a_context = []): void
             {
             }
-            public function dump($msg, $a = ilLogLevel::INFO)
+            public function dump($a_variable, int $a_level = ilLogLevel::INFO): void
             {
             }
         };
-        $GLOBALS["DIC"]["ilLoggerFactory"] = new class() extends ilLoggerFactory {
+        $GLOBALS["DIC"]["ilLoggerFactory"] = new class () extends ilLoggerFactory {
             public function __construct()
             {
             }
-            public static function getRootLogger()
+            public static function getRootLogger(): ilLogger
             {
                 return $GLOBALS["DIC"]["ilLog"];
             }
-            public static function getLogger($a)
+            public static function getLogger(string $a_component_id): ilLogger
             {
                 return $GLOBALS["DIC"]["ilLog"];
             }
@@ -151,11 +169,10 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
         $GLOBALS["DIC"]["ilBench"] = null;
         $GLOBALS["DIC"]["lng"] = new ilLanguage('en');
         $GLOBALS["DIC"]["ilPluginAdmin"] = $plugin_admin;
-        $GLOBALS["DIC"]["ilCtrl"] = new ilCtrl();
         $GLOBALS["DIC"]["ilias"] = null;
         $GLOBALS["ilLog"] = $GLOBALS["DIC"]["ilLog"];
         $GLOBALS["DIC"]["ilErr"] = null;
-        $GLOBALS["DIC"]["tree"] = new class() extends ilTree {
+        $GLOBALS["DIC"]["tree"] = new class () extends ilTree {
             public function __construct()
             {
             }
@@ -163,8 +180,8 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
         $GLOBALS["DIC"]["ilAppEventHandler"] = null;
         $GLOBALS["DIC"]["ilSetting"] = new ilSetting();
         $GLOBALS["DIC"]["objDefinition"] = new ilObjectDefinition();
-        $GLOBALS["DIC"]["ilUser"] = new class() extends ilObjUser {
-            public $prefs = [];
+        $GLOBALS["DIC"]["ilUser"] = new class () extends ilObjUser {
+            public array $prefs = [];
 
             public function __construct()
             {

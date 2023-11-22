@@ -1,4 +1,6 @@
-<?php return array(
+<?php
+
+return array(
     'Entry1' =>
         array(
             'id' => 'Entry1',
@@ -66,6 +68,7 @@
                 array(
                 ),
             'path' => 'src/UI/Factory',
+            'namespace' => 'ILIAS\\UI\\Factory',
         ),
     'Entry2' =>
         array(
@@ -134,5 +137,6 @@
                 array(
                 ),
             'path' => 'src/UI/Factory',
+            'namespace' => 'ILIAS\\UI\\Factory'
         ),
 );

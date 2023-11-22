@@ -3,12 +3,32 @@
 declare(strict_types=1);
 
 /**
- * Builds the overview (curriculum) of a LearningSequence.
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Builds the overview (curriculum) of a LearningSequence.
  */
 class ilLSCurriculumBuilder
 {
+    protected ilLSLearnerItemsQueries $ls_items;
+    protected ILIAS\UI\Factory $ui_factory;
+    protected ilLanguage $lng;
+    protected string $goto_command;
+    protected ?LSUrlBuilder $url_builder;
+
     public function __construct(
         ilLSLearnerItemsQueries $ls_items,
         ILIAS\UI\Factory $ui_factory,
@@ -23,13 +43,12 @@ class ilLSCurriculumBuilder
         $this->url_builder = $url_builder;
     }
 
-    public function getLearnerCurriculum(bool $with_action = false)//: ILIAS\UI\Component\Listing\Workflow
+    public function getLearnerCurriculum(bool $with_action = false): ILIAS\UI\Component\Listing\Workflow\Linear
     {
         $steps = [];
         foreach ($this->ls_items->getItems() as $item) {
             $action = '#';
             if ($with_action) {
-                $action = $this->query . $item->getRefId();
                 $action = $this->url_builder->getHref($this->goto_command, $item->getRefId());
             }
 
@@ -51,7 +70,7 @@ class ilLSCurriculumBuilder
             $steps
         );
 
-        if (count($steps) > 0) {
+        if ($steps !== []) {
             $current_position = max(0, $this->ls_items->getCurrentItemPosition());
             $workflow = $workflow->withActive($current_position);
         }
@@ -72,18 +91,15 @@ class ilLSCurriculumBuilder
             const LP_STATUS_COMPLETED_NUM = 2;
             const LP_STATUS_FAILED_NUM = 3;
     */
-    protected function translateLPStatus(int $il_lp_status) : int
+    protected function translateLPStatus(int $il_lp_status): int
     {
         switch ($il_lp_status) {
             case \ilLPStatus::LP_STATUS_IN_PROGRESS_NUM:
                 return ILIAS\UI\Component\Listing\Workflow\Step::IN_PROGRESS;
-                break;
             case \ilLPStatus::LP_STATUS_COMPLETED_NUM:
                 return ILIAS\UI\Component\Listing\Workflow\Step::SUCCESSFULLY;
-                break;
             case \ilLPStatus::LP_STATUS_FAILED_NUM:
                 return ILIAS\UI\Component\Listing\Workflow\Step::UNSUCCESSFULLY;
-                break;
             case \ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM:
             default:
                 return ILIAS\UI\Component\Listing\Workflow\Step::NOT_STARTED;

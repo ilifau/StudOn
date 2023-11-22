@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\ScreenContext\Stack;
 
 use ILIAS\GlobalScreen\ScreenContext\ScreenContext;
@@ -31,12 +31,12 @@ class ContextStack
     /**
      * @var ScreenContext[]
      */
-    protected $stack = [];
+    protected array $stack = [];
 
     /**
      * @param ScreenContext $context
      */
-    public function push(ScreenContext $context) : void
+    public function push(ScreenContext $context): void
     {
         if (in_array($context, $this->stack)) {
             throw new LogicException("A context can only be claimed once");
@@ -47,7 +47,7 @@ class ContextStack
     /**
      * @return ScreenContext
      */
-    public function getLast() : ScreenContext
+    public function getLast(): ScreenContext
     {
         return end($this->stack);
     }
@@ -55,7 +55,7 @@ class ContextStack
     /**
      * @return ScreenContext[]
      */
-    public function getStack() : array
+    public function getStack(): array
     {
         return $this->stack;
     }
@@ -63,7 +63,7 @@ class ContextStack
     /**
      * @return string[]
      */
-    public function getStackAsArray() : array
+    public function getStackAsArray(): array
     {
         $return = [];
         foreach ($this->stack as $item) {

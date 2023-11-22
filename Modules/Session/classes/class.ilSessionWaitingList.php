@@ -1,41 +1,43 @@
 <?php
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once('./Services/Membership/classes/class.ilWaitingList.php');
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 
 /**
  * Session waiting list
  *
  * @author Stefan Meyer <smeyer.ilias@gmx.de>
  * @version $Id$
- *
- * @extends ilWaitingList
  */
 class ilSessionWaitingList extends ilWaitingList
 {
-
-// fau: fairSub - add subject, to_confirm and sub_time as parameter, avoid re-reading
-    /**
-     * add to list
-     *
-     * @param 	int 		$a_usr_id
-     * @param 	string		$a_subject
-     * @param	int 		$a_to_confirm
-     * @param	int			$a_sub_time
-     * @return bool
-     */
-    public function addToList($a_usr_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null)
-// fau.
+    public function addToList(int $a_usr_id): bool
     {
         global $DIC;
 
-        $ilAppEventHandler = $DIC['ilAppEventHandler'];
+        $ilAppEventHandler = $DIC->event();
         $ilLog = $DIC->logger()->sess();
-        
+
         if (!parent::addToList($a_usr_id)) {
             return false;
         }
-        
+
         $ilLog->info('Raise new event: Modules/Session addToWaitingList');
         $ilAppEventHandler->raise(
             "Modules/Session",
@@ -44,7 +46,7 @@ class ilSessionWaitingList extends ilWaitingList
                     'obj_id' => $this->getObjId(),
                     'usr_id' => $a_usr_id
                 )
-            );
+        );
         return true;
     }
 }

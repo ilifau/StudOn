@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Panel\Standard;
+
 function with_listings()
 {
     global $DIC;

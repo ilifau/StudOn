@@ -1,7 +1,27 @@
 <?php
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\DI\Container;
+use ILIAS\DI\UIServices;
+use ILIAS\UI\Component\Input\Field\UploadHandler;
+use ILIAS\ResourceStorage\Services;
+use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
+use ILIAS\UI\Implementation\Component\Input\Container\Form\Standard;
+use ILIAS\UI\Implementation\Component\Dropzone\File\File as Dropzone;
 
 /**
  * GUI class for file objects.
@@ -15,39 +35,62 @@ use ILIAS\DI\Container;
  */
 class ilObjFileGUI extends ilObject2GUI
 {
-    const CMD_EDIT = "edit";
-    const CMD_VERSIONS = "versions";
-    const CMD_UPLOAD_FILES = "uploadFiles";
-    /**
-     * @var \ilObjFile
-     */
-    public $object;
-    public $lng;
-    protected $log = null;
-    protected $obj_service;
+    public const UPLOAD_MAX_FILES = 100;
+    public const PARAM_FILES = 0;
+
+    public const PARAM_UPLOAD_ORIGIN = 'origin';
+    public const UPLOAD_ORIGIN_STANDARD = 'standard';
+    public const UPLOAD_ORIGIN_DROPZONE = 'dropzone';
+
+    public const CMD_EDIT = "edit";
+    public const CMD_VERSIONS = "versions";
+    public const CMD_UPLOAD_FILES = "uploadFiles";
+
+    public ?ilObject $object = null;
+    public ilLanguage $lng;
+    protected UIServices $ui;
+    protected UploadHandler $upload_handler;
+    protected ResourceStakeholder $stakeholder;
+    protected Services $storage;
+    protected ?ilLogger $log = null;
+    protected ilObjectService $obj_service;
+    protected \ILIAS\Refinery\Factory $refinery;
+    protected \ILIAS\HTTP\Wrapper\WrapperFactory $http;
+    protected ilFileServicesSettings $file_service_settings;
 
     /**
      * Constructor
-     * @param int $a_id
-     * @param int $a_id_type
-     * @param int $a_parent_node_id
      */
-    public function __construct($a_id = 0, $a_id_type = self::REPOSITORY_NODE_ID, $a_parent_node_id = 0)
+    public function __construct(int $a_id = 0, int $a_id_type = self::REPOSITORY_NODE_ID, int $a_parent_node_id = 0)
     {
         global $DIC;
+        $this->http = $DIC->http()->wrapper();
+        $this->request = $DIC->http()->request();
+        $this->refinery = $DIC->refinery();
+        $this->file_service_settings = $DIC->fileServiceSettings();
+        $this->user = $DIC->user();
         $this->lng = $DIC->language();
-        $this->log = ilLoggerFactory::getLogger('file');
+        $this->log = ilLoggerFactory::getLogger(ilObjFile::OBJECT_TYPE);
+        $this->ui = $DIC->ui();
+        $this->storage = $DIC->resourceStorage();
+        $this->upload_handler = new ilObjFileUploadHandlerGUI();
+        $this->stakeholder = new ilObjFileStakeholder();
         parent::__construct($a_id, $a_id_type, $a_parent_node_id);
         $this->obj_service = $DIC->object();
-        $this->lng->loadLanguageModule("file");
+        $this->lng->loadLanguageModule(ilObjFile::OBJECT_TYPE);
     }
 
-    public function getType()
+    public function getType(): string
     {
-        return "file";
+        return ilObjFile::OBJECT_TYPE;
     }
 
-    public function executeCommand()
+    public function getParentId(): int
+    {
+        return $this->parent_id;
+    }
+
+    public function executeCommand(): void
     {
         global $DIC;
         $ilNavigationHistory = $DIC['ilNavigationHistory'];
@@ -65,13 +108,13 @@ class ilObjFileGUI extends ilObject2GUI
             ) {
                 $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $this->node_id);
                 $link = $ilCtrl->getLinkTargetByClass("ilrepositorygui", "infoScreen");
-                $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $_GET["ref_id"]);
+                $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $this->ref_id);
 
                 // add entry to navigation history
                 $ilNavigationHistory->addItem(
                     $this->node_id,
                     $link,
-                    "file"
+                    ilObjFile::OBJECT_TYPE
                 );
             }
         }
@@ -102,19 +145,19 @@ class ilObjFileGUI extends ilObject2GUI
             case 'ilpermissiongui':
                 $ilTabs->activateTab("id_permissions");
                 $perm_gui = new ilPermissionGUI($this);
-                $ret = $this->ctrl->forwardCommand($perm_gui);
+                $this->ctrl->forwardCommand($perm_gui);
                 break;
 
             case "ilexportgui":
                 $ilTabs->activateTab("export");
                 $exp_gui = new ilExportGUI($this);
                 $exp_gui->addFormat("xml");
-                $ret = $this->ctrl->forwardCommand($exp_gui);
+                $this->ctrl->forwardCommand($exp_gui);
                 break;
 
             case 'ilobjectcopygui':
                 $cp = new ilObjectCopyGUI($this);
-                $cp->setType('file');
+                $cp->setType(ilObjFile::OBJECT_TYPE);
                 $this->ctrl->forwardCommand($cp);
                 break;
 
@@ -132,10 +175,13 @@ class ilObjFileGUI extends ilObject2GUI
 
             case "illearningprogressgui":
                 $ilTabs->activateTab('learning_progress');
+                $user_id = $this->http->query()->has('user_id')
+                    ? $this->http->query()->retrieve('user_id', $this->refinery->kindlyTo()->int())
+                    : $ilUser->getId();
                 $new_gui = new ilLearningProgressGUI(
                     ilLearningProgressGUI::LP_CONTEXT_REPOSITORY,
                     $this->object->getRefId(),
-                    $_GET['user_id'] ? $_GET['user_id'] : $ilUser->getId()
+                    $user_id
                 );
                 $this->ctrl->forwardCommand($new_gui);
                 $this->tabs_gui->setTabActive('learning_progress');
@@ -144,13 +190,19 @@ class ilObjFileGUI extends ilObject2GUI
                 $this->tabs_gui->activateTab("id_versions");
 
                 if (!$this->checkPermissionBool("write")) {
-                    $this->ilErr->raiseError($this->lng->txt("permission_denied"), $this->ilErr->MESSAGE);
+                    $this->error->raiseError($this->lng->txt("permission_denied"), $this->error->MESSAGE);
                 }
-                $this->ctrl->forwardCommand(new ilFileVersionsGUI($this->object));
+                /** @var ilObjFile $obj */
+                $obj = $this->object;
+                $this->ctrl->forwardCommand(new ilFileVersionsGUI($obj));
                 break;
+            case strtolower(ilObjFileUploadHandlerGUI::class):
+                $this->ctrl->forwardCommand(new ilObjFileUploadHandlerGUI());
+                break;
+
             default:
                 // in personal workspace use object2gui
-                if ((int)$this->id_type === self::WORKSPACE_NODE_ID) {
+                if ($this->id_type === self::WORKSPACE_NODE_ID) {
                     $this->addHeaderAction();
 
                     // coming from goto we need default command
@@ -159,7 +211,7 @@ class ilObjFileGUI extends ilObject2GUI
                     }
                     $ilTabs->clearTargets();
 
-                    return parent::executeCommand();
+                    parent::executeCommand();
                 }
 
                 if (empty($cmd) || $cmd === 'render') {
@@ -177,117 +229,224 @@ class ilObjFileGUI extends ilObject2GUI
      * This Method is needed if called from personal resources
      * @see executeCommand() line 162
      */
-    protected function render() : void
+    protected function render(): void
     {
         $this->infoScreen();
     }
 
+    protected function addUIFormToAccordion(ilAccordionGUI $accordion, Standard $form, int $form_type): void
+    {
+        // abort if form-type is unknown
+        if (!in_array($form_type, [self::CFORM_NEW, self::CFORM_CLONE, self::CFORM_IMPORT], true)) {
+            return;
+        }
+
+        $inputs = $form->getInputs();
+        // use label of first input as title, because UI Component forms don't support form-titles yet
+        $title = (!empty($inputs)) ?
+            $inputs[array_key_first($inputs)]->getLabel() : '';
+
+        $tpl = new ilTemplate("tpl.creation_acc_head.html", true, true, "Services/Object");
+        $tpl->setVariable("TITLE", $this->lng->txt("option") . " " . $form_type . ": " . $title);
+
+        $accordion->addItem($tpl->get(), $this->ui->renderer()->render($form));
+    }
+
+    protected function addLegacyFormToAccordion(
+        ilAccordionGUI $accordion,
+        ilPropertyFormGUI $form,
+        int $form_type
+    ): void {
+        // abort if form-type is unknown
+        if (!in_array($form_type, [self::CFORM_NEW, self::CFORM_CLONE, self::CFORM_IMPORT], true)) {
+            return;
+        }
+
+        // see bug #0016217
+        if (method_exists($this, "getCreationFormTitle")) {
+            if (!empty(($title = $this->getCreationFormTitle($form_type)))) {
+                $form->setTitle($title);
+            }
+        }
+
+        $tpl = new ilTemplate("tpl.creation_acc_head.html", true, true, "Services/Object");
+        $tpl->setVariable("TITLE", $this->lng->txt("option") . " " . $form_type . ": " . $form->getTitle());
+
+        $accordion->addItem($tpl->get(), $form->getHTML());
+    }
+
+    protected function getCreationFormsHTML(array $a_forms): string
+    {
+        // abort if empty array was passed
+        if (empty($a_forms)) {
+            return '';
+        }
+
+        if (1 === count($a_forms)) {
+            $creation_form = end($a_forms);
+            if ($creation_form instanceof Standard) {
+                return $this->ui->renderer()->render($creation_form);
+            }
+
+            if ($creation_form instanceof ilPropertyFormGUI) {
+                return $creation_form->getHTML();
+            }
+        }
+
+        $accordion = new ilAccordionGUI();
+        $accordion->setBehaviour(ilAccordionGUI::FIRST_OPEN);
+
+        foreach ($a_forms as $type => $form) {
+            if ($form instanceof Standard) {
+                $this->addUIFormToAccordion($accordion, $form, $type);
+            }
+
+            if ($form instanceof ilPropertyFormGUI) {
+                $this->addLegacyFormToAccordion($accordion, $form, $type);
+            }
+        }
+
+        return "<div class='ilCreationFormSection'>{$accordion->getHTML()}</div>";
+    }
+
     /**
-     * @param string $a_new_type
      * @return array
      */
-    protected function initCreationForms($a_new_type) : array
+    protected function initCreationForms($a_new_type): array
     {
-        $forms = [];
-        $forms[] = $this->initMultiUploadForm();
+        $forms[self::CFORM_NEW] = $this->initUploadForm();
 
         // repository only
-        if ((int) $this->id_type !== self::WORKSPACE_NODE_ID) {
-            $forms[self::CFORM_IMPORT] = $this->initImportForm('file');
-            $forms[self::CFORM_CLONE] = $this->fillCloneTemplate(null, "file");
+        if ($this->id_type !== self::WORKSPACE_NODE_ID) {
+            $forms[self::CFORM_IMPORT] = $this->initImportForm(ilObjFile::OBJECT_TYPE);
+            $forms[self::CFORM_CLONE] = $this->fillCloneTemplate(null, ilObjFile::OBJECT_TYPE);
         }
 
         return $forms;
     }
 
-    /**
-     * MUST be protected, since this is Called from ilObject2GUI when used in Personal Workspace
-     * @throws JsonException
-     * @throws \ILIAS\FileUpload\Exception\IllegalStateException
-     */
-    protected function uploadFiles() : void
+    public function initUploadForm(): Standard
     {
-        // Response
-        $response = new ilObjFileUploadResponse();
+        $this->ctrl->setParameterByClass(self::class, 'new_type', $this->getType());
+        $this->ctrl->setParameterByClass(
+            self::class,
+            self::PARAM_UPLOAD_ORIGIN,
+            self::UPLOAD_ORIGIN_STANDARD
+        );
 
-        $dnd_form_gui = $this->initMultiUploadForm();
-        // Form not valid, abort
-        if (!$dnd_form_gui->checkInput()) {
-            $dnd_input = $dnd_form_gui->getItemByPostVar("upload_files");
-            $response->error = $dnd_input->getAlert();
-            $response->send();
-            // end
+        return $this->ui->factory()->input()->container()->form()->standard(
+            $this->ctrl->getFormActionByClass(self::class, self::CMD_UPLOAD_FILES),
+            [
+                self::PARAM_FILES => $this->ui->factory()->input()->field()->file(
+                    $this->upload_handler,
+                    $this->lng->txt('upload_files'),
+                    null,
+                    $this->ui->factory()->input()->field()->group([
+                        ilObjFileProcessorInterface::OPTION_FILENAME => $this->ui->factory()->input()->field()->text($this->lng->txt('title')),
+                        ilObjFileProcessorInterface::OPTION_DESCRIPTION => $this->ui->factory()->input()->field()->textarea($this->lng->txt('description')),
+                    ])
+                )->withMaxFiles(self::UPLOAD_MAX_FILES)
+                 ->withMaxFileSize((int) ilFileUtils::getUploadSizeLimitBytes())
+                 ->withRequired(true),
+            ]
+        )->withSubmitCaption($this->lng->txt('upload_files'));
+    }
+
+    /**
+     * MUST be protected, since this is Called from ilObject2GUI when used in Personal Workspace.
+     */
+    protected function uploadFiles(): void
+    {
+        $origin = ($this->http->query()->has(self::PARAM_UPLOAD_ORIGIN)) ?
+            $this->http->query()->retrieve(
+                self::PARAM_UPLOAD_ORIGIN,
+                $this->refinery->kindlyTo()->string()
+            ) : self::UPLOAD_ORIGIN_STANDARD;
+
+        if (self::UPLOAD_ORIGIN_DROPZONE === $origin) {
+            $dropzone = new ilObjFileUploadDropzone($this->parent_id);
+            $dropzone = $dropzone->getDropzone()->withRequest($this->request);
+            $files = $dropzone->getData()[self::PARAM_FILES] ?? null;;
+        } else {
+            $form = $this->initUploadForm()->withRequest($this->request);
+            $files = $form->getData()[self::PARAM_FILES] ?? null;
         }
 
-        // Form valid, proceed
-
-        /**
-         * @var $DIC Container
-         */
-        global $DIC;
-
-        $upload = $DIC->upload();
-        $upload->register(new ilCountPDFPagesPreProcessors());
-        $post = $DIC->http()->request()->getParsedBody();
-        // Sanitize POST
-        array_walk($post, function (&$item) {
-            if (is_string($item)) {
-                $item = ilUtil::stripSlashes($item);
-            }
-        });
-
-        if (!$upload->hasBeenProcessed()) {
-            $upload->process();
+        if (empty($files)) {
+            $form = $this->initUploadForm()->withRequest($this->request);
+            $this->tpl->setContent($this->ui->renderer()->render($form));
+            return;
         }
 
-        $extract = isset($post['extract']) ? (bool) $post['extract'] : false;
-        $keep_structure = isset($post['keep_structure']) ? (bool) $post['keep_structure'] : false;
+        $processor = new ilObjFileProcessor(
+            $this->stakeholder,
+            $this,
+            $this->storage,
+            $this->file_service_settings
+        );
 
-        foreach ($upload->getResults() as $result) {
-            if (!$result->isOK()) {
-                $response->error = $result->getStatus()->getMessage();
-                $response->send();
-                continue;
-            }
-            if ($extract) {
-                if ($keep_structure) {
-                    $delegate = new ilObjFileUnzipRecursiveDelegate(
-                        $this->access_handler,
-                        (int) $this->id_type,
-                        $this->tree);
-                } else {
-                    $delegate = new ilObjFileUnzipFlatDelegate(
-                        $this->access_handler,
-                        (int) $this->id_type,
-                        $this->tree);
+        $errors = false;
+        foreach ($files as $file_data) {
+            $rid = $this->storage->manage()->find($file_data[$this->upload_handler->getFileIdentifierParameterName()]);
+            if (null !== $rid) {
+                try {
+                    $processor->process($rid, [
+                        ilObjFileProcessorInterface::OPTION_FILENAME => $file_data[ilObjFileProcessorInterface::OPTION_FILENAME],
+                        ilObjFileProcessorInterface::OPTION_DESCRIPTION => $file_data[ilObjFileProcessorInterface::OPTION_DESCRIPTION],
+                    ]);
+                } catch (Throwable $t) {
+                    $errors = true;
+                    if (null !== $this->log) {
+                        $this->log->error($t->getMessage() . ": " . $t->getTraceAsString());
+                    }
                 }
-            } else {
-                $delegate = new ilObjFileSingleFileDelegate();
             }
-            $response = $delegate->handle(
-                (int) $this->parent_id,
-                $post,
-                $result,
-                $this
-            );
-
-            $suffixes = array_unique($delegate->getUploadedSuffixes());
-            if (count(array_diff($suffixes, ilFileUtils::getValidExtensions())) > 0) {
-                ilUtil::sendInfo(
-                    $this->lng->txt('file_upload_info_file_with_critical_extension'),
-                    true
-                );
-            }
-            $response->send();
         }
 
+        if ($errors) {
+            $this->ui->mainTemplate()->setOnScreenMessage(
+                'failure',
+                $this->lng->txt('could_not_create_file_objs'),
+                true
+            );
+        }
+
+        if ($processor->getInvalidFileNames() !== []) {
+            $this->ui->mainTemplate()->setOnScreenMessage(
+                'info',
+                sprintf(
+                    $this->lng->txt('file_upload_info_file_with_critical_extension'),
+                    implode(', ', $processor->getInvalidFileNames())
+                ),
+                true
+            );
+        }
+
+        switch ($this->id_type) {
+            case self::WORKSPACE_NODE_ID:
+                $link = $this->ctrl->getLinkTargetByClass(ilObjWorkspaceRootFolderGUI::class);
+                break;
+            case self::REPOSITORY_NODE_ID:
+            default:
+                $link = ilLink::_getLink($this->requested_ref_id);
+                break;
+        }
+
+        $this->ctrl->redirectToURL($link);
+    }
+
+    public function putObjectInTree(ilObject $obj, int $parent_node_id = null): void
+    {
+        // this is needed to support multi fileuploads in personal and shared resources
+        $backup_node_id = $this->node_id;
+        parent::putObjectInTree($obj, $parent_node_id);
+        $this->node_id = $backup_node_id;
     }
 
     /**
      * updates object entry in object_data
-     * @access    public
      */
-    public function update()
+    public function update(): void
     {
         global $DIC;
         $ilTabs = $DIC['ilTabs'];
@@ -298,7 +457,7 @@ class ilObjFileGUI extends ilObject2GUI
             $form->setValuesByPost();
             $this->tpl->setContent($form->getHTML());
 
-            return false;
+            return;
         }
 
         $title = $form->getInput('title');
@@ -314,7 +473,7 @@ class ilObjFileGUI extends ilObject2GUI
         $this->object->setDescription($form->getInput('description'));
         $this->object->setRating($form->getInput('rating'));
 
-        $this->update = $this->object->update();
+        $this->object->update();
         $this->obj_service->commonSettings()->legacyForm($form, $this->object)->saveTileImage();
 
         // BEGIN ChangeEvent: Record update event.
@@ -330,15 +489,11 @@ class ilObjFileGUI extends ilObject2GUI
         $ecs = new ilECSFileSettings($this->object);
         $ecs->handleSettingsUpdate();
 
-        ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
         ilUtil::redirect($this->ctrl->getLinkTarget($this, self::CMD_EDIT, '', false, false));
     }
 
-    /**
-     * edit object
-     * @access    public
-     */
-    public function edit()
+    public function edit(): void
     {
         global $DIC;
         $ilTabs = $DIC['ilTabs'];
@@ -350,29 +505,20 @@ class ilObjFileGUI extends ilObject2GUI
 
         $ilTabs->activateTab("settings");
 
-        $form = $this->initPropertiesForm(self::CMD_EDIT);
+        $form = $this->initPropertiesForm();
 
-        $val = array();
+        $val = [];
         $val['title'] = $this->object->getTitle();
         $val['description'] = $this->object->getLongDescription();
         $val['rating'] = $this->object->hasRating();
         $form->setValuesByArray($val);
-
-        // Edit ecs export settings
-        include_once 'Modules/File/classes/class.ilECSFileSettings.php';
         $ecs = new ilECSFileSettings($this->object);
-        $ecs->addSettingsToForm($form, 'file');
+        $ecs->addSettingsToForm($form, ilObjFile::OBJECT_TYPE);
 
         $this->tpl->setContent($form->getHTML());
-
-        return true;
     }
 
-    /**
-     * @param
-     * @return
-     */
-    protected function initPropertiesForm($mode = "create")
+    protected function initPropertiesForm(): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this, 'update'));
@@ -386,35 +532,15 @@ class ilObjFileGUI extends ilObject2GUI
         $title->setInfo($this->lng->txt("if_no_title_then_filename"));
         $form->addItem($title);
 
-        if ($mode === 'create') {
+        $o = new ilNonEditableValueGUI($this->lng->txt('upload_info'));
+        $o->setValue($this->lng->txt('upload_info_desc'));
+        $form->addItem($o);
 
-            $file = new ilFileStandardDropzoneInputGUI($this->lng->txt('obj_file'), 'file');
-            $file->setRequired(false);
-            $form->addItem($file);
-
-            $group = new ilRadioGroupInputGUI('', 'replace');
-            $group->setValue(0);
-
-            $replace = new ilRadioOption($this->lng->txt('replace_file'), 1);
-            $replace->setInfo($this->lng->txt('replace_file_info'));
-            $group->addOption($replace);
-
-            $keep = new ilRadioOption($this->lng->txt('file_new_version'), 0);
-            $keep->setInfo($this->lng->txt('file_new_version_info'));
-            $group->addOption($keep);
-
-            $file->addSubItem($group);
-
-        } else {
-            $o = new ilNonEditableValueGUI($this->lng->txt('upload_info'));
-            $o->setValue($this->lng->txt('upload_info_desc'));
-            $form->addItem($o);
-        }
         $desc = new ilTextAreaInputGUI($this->lng->txt('description'), 'description');
         $desc->setRows(3);
         $form->addItem($desc);
 
-        if ($this->id_type == self::REPOSITORY_NODE_ID) {
+        if ($this->id_type === self::REPOSITORY_NODE_ID) {
             $this->lng->loadLanguageModule('rating');
             $rate = new ilCheckboxInputGUI($this->lng->txt('rating_activate_rating'), 'rating');
             $rate->setInfo($this->lng->txt('rating_activate_rating_info'));
@@ -429,39 +555,32 @@ class ilObjFileGUI extends ilObject2GUI
         return $form;
     }
 
-    public function sendFile()
+    public function sendFile(): bool
     {
-        global $DIC;
-
+        $hist_entry_id = $this->http->query()->has('hist_id')
+            ? $this->http->query()->retrieve('hist_id', $this->refinery->kindlyTo()->int())
+            : null;
         try {
-            if (ANONYMOUS_USER_ID == $DIC->user()->getId() && isset($_GET['transaction'])) {
-                $a_hist_entry_id = isset($_GET["hist_id"]) ? $_GET["hist_id"] : null;
-                $this->object->sendFile($a_hist_entry_id);
+            if (ANONYMOUS_USER_ID === $this->user->getId() && $this->http->query()->has('transaction')) {
+                $this->object->sendFile($hist_entry_id);
             }
 
             if ($this->checkPermissionBool("read")) {
-                // BEGIN ChangeEvent: Record read event.
-                require_once('Services/Tracking/classes/class.ilChangeEvent.php');
-
                 // Record read event and catchup with write events
                 ilChangeEvent::_recordReadEvent(
                     $this->object->getType(),
                     $this->object->getRefId(),
                     $this->object->getId(),
-                    $DIC->user()->getId()
+                    $this->user->getId()
                 );
-                // END ChangeEvent: Record read event.
+                ilLPStatusWrapper::_updateStatus($this->object->getId(), $this->user->getId());
 
-                require_once 'Services/Tracking/classes/class.ilLPStatusWrapper.php';
-                ilLPStatusWrapper::_updateStatus($this->object->getId(), $DIC->user()->getId());
-
-                $a_hist_entry_id = isset($_GET["hist_id"]) ? $_GET["hist_id"] : null;
-                $this->object->sendFile($a_hist_entry_id);
+                $this->object->sendFile($hist_entry_id);
             } else {
-                $this->ilErr->raiseError($this->lng->txt("permission_denied"), $this->ilErr->MESSAGE);
+                $this->error->raiseError($this->lng->txt("permission_denied"), $this->error->MESSAGE);
             }
         } catch (\ILIAS\Filesystem\Exception\FileNotFoundException $e) {
-            $this->ilErr->raiseError($e->getMessage(), $this->ilErr->MESSAGE);
+            $this->error->raiseError($e->getMessage(), $this->error->MESSAGE);
         }
 
         return true;
@@ -470,9 +589,14 @@ class ilObjFileGUI extends ilObject2GUI
     /**
      * @deprecated
      */
-    public function versions()
+    public function versions(): void
     {
         $this->ctrl->redirectByClass(ilFileVersionsGUI::class);
+    }
+
+    public function unzipCurrentRevision(): void
+    {
+        $this->ctrl->redirectByClass(ilFileVersionsGUI::class, ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION);
     }
 
     /**
@@ -480,7 +604,7 @@ class ilObjFileGUI extends ilObject2GUI
      * not very nice to set cmdClass/Cmd manually, if everything
      * works through ilCtrl in the future this may be changed
      */
-    public function infoScreen()
+    public function infoScreen(): void
     {
         $this->ctrl->setCmd("showSummary");
         $this->ctrl->setCmdClass("ilinfoscreengui");
@@ -490,23 +614,19 @@ class ilObjFileGUI extends ilObject2GUI
     /**
      * show information screen
      */
-    public function infoScreenForward()
+    public function infoScreenForward(): void
     {
-        global $DIC;
-        $ilTabs = $DIC['ilTabs'];
-        $ilErr = $DIC['ilErr'];
-        $ilToolbar = $DIC['ilToolbar'];
-
-        $ilTabs->activateTab("id_info");
+        $this->tabs_gui->activateTab("id_info");
 
         if (!$this->checkPermissionBool("visible") && !$this->checkPermissionBool("read")) {
-            $ilErr->raiseError($this->lng->txt("msg_no_perm_read"));
+            $GLOBALS['DIC']['ilErr']->raiseError($this->lng->txt("msg_no_perm_read"));
         }
 
         $info = new ilInfoScreenGUI($this);
 
         if ($this->checkPermissionBool("read", "sendfile")) {
             $button = ilLinkButton::getInstance();
+            $button->setTarget('_blank');
             $button->setCaption("file_download");
             $button->setPrimary(true);
 
@@ -517,7 +637,7 @@ class ilObjFileGUI extends ilObject2GUI
                 $button->setUrl($this->ctrl->getLinkTarget($this, "sendfile"));
             }
 
-            $ilToolbar->addButtonInstance($button);
+            $this->toolbar->addButtonInstance($button);
         }
 
         $info->enablePrivateNotes();
@@ -548,16 +668,20 @@ class ilObjFileGUI extends ilObject2GUI
         $info->addProperty($this->lng->txt("resource_id"), $this->object->getResourceId());
         $info->addProperty($this->lng->txt("storage_id"), $this->object->getStorageID());
 
-        $info->addProperty($this->lng->txt("size"),
-            ilUtil::formatSize(ilObjFileAccess::_lookupFileSize($this->object->getId()), 'long'));
+        $info->addProperty(
+            $this->lng->txt("size"),
+            ilUtil::formatSize($this->object->getFileSize(), 'long')
+        );
         $info->addProperty($this->lng->txt("version"), $this->object->getVersion());
 
         $version = $this->object->getVersions([$this->object->getVersion()]);
         $version = end($version);
-        if($version instanceof ilObjFileVersion) {
-            $info->addProperty($this->lng->txt("version_uploaded"), (new ilDateTime($version->getDate(), IL_CAL_DATETIME))->get(IL_CAL_DATETIME));
+        if ($version instanceof ilObjFileVersion) {
+            $info->addProperty(
+                $this->lng->txt("version_uploaded"),
+                (new ilDateTime($version->getDate(), IL_CAL_DATETIME))->get(IL_CAL_DATETIME)
+            );
         }
-
 
         if ($this->object->getPageCount() > 0) {
             $info->addProperty($this->lng->txt("page_count"), $this->object->getPageCount());
@@ -566,9 +690,7 @@ class ilObjFileGUI extends ilObject2GUI
         // using getVersions function instead of ilHistory direct
         $uploader = $this->object->getVersions();
         $uploader = array_shift($uploader);
-        $uploader = $uploader["user_id"];
-
-        include_once "Services/User/classes/class.ilUserUtil.php";
+        $uploader = $uploader["user_id"] ?? -1; // unknown uploader
         $info->addProperty($this->lng->txt("file_uploaded_by"), ilUserUtil::getNamePresentation($uploader));
 
         // download link added in repository
@@ -581,15 +703,10 @@ class ilObjFileGUI extends ilObject2GUI
         if ($this->id_type == self::WORKSPACE_NODE_ID) {
             $info->addProperty($this->lng->txt("perma_link"), $this->getPermanentLinkWidget());
         }
-
-        // display previews
-        include_once("./Services/Preview/classes/class.ilPreview.php");
         if (!$this->ctrl->isAsynch()
             && ilPreview::hasPreview($this->object->getId(), $this->object->getType())
             && $this->checkPermissionBool("read")
         ) {
-            include_once("./Services/Preview/classes/class.ilPreviewGUI.php");
-
             // get context for access checks later on
             switch ($this->id_type) {
                 case self::WORKSPACE_NODE_ID:
@@ -613,14 +730,14 @@ class ilObjFileGUI extends ilObject2GUI
     }
 
     // get tabs
-    public function setTabs()
+    protected function setTabs(): void
     {
         global $DIC;
         $ilTabs = $DIC['ilTabs'];
         $lng = $DIC['lng'];
         $ilHelp = $DIC['ilHelp'];
 
-        $ilHelp->setScreenIdComponent("file");
+        $ilHelp->setScreenIdComponent(ilObjFile::OBJECT_TYPE);
 
         $this->ctrl->setParameter($this, "ref_id", $this->node_id);
 
@@ -682,18 +799,16 @@ class ilObjFileGUI extends ilObject2GUI
         parent::setTabs();
     }
 
-    public static function _goto($a_target, $a_additional = null)
+    public static function _goto($a_target, $a_additional = null): void
     {
         global $DIC;
+        $main_tpl = $DIC->ui()->mainTemplate();
         $ilErr = $DIC['ilErr'];
         $lng = $DIC['lng'];
         $ilAccess = $DIC['ilAccess'];
 
         if ($a_additional && substr($a_additional, -3) == "wsp") {
-            $_GET["baseClass"] = "ilsharedresourceGUI";
-            $_GET["wsp_id"] = $a_target;
-            include("ilias.php");
-            exit;
+            ilObjectGUI::_gotoSharedWorkspaceNode((int) $a_target);
         }
 
         // added support for direct download goto links
@@ -709,7 +824,7 @@ class ilObjFileGUI extends ilObject2GUI
             ilObjectGUI::_gotoRepositoryNode($a_target, "infoScreen");
         } else {
             if ($ilAccess->checkAccess("read", "", ROOT_FOLDER_ID)) {
-                ilUtil::sendFailure(sprintf(
+                $main_tpl->setOnScreenMessage('failure', sprintf(
                     $lng->txt("msg_no_perm_read_item"),
                     ilObject::_lookupTitle(ilObject::_lookupObjId($a_target))
                 ), true);
@@ -723,7 +838,7 @@ class ilObjFileGUI extends ilObject2GUI
     /**
      *
      */
-    public function addLocatorItems()
+    protected function addLocatorItems(): void
     {
         global $DIC;
         $ilLocator = $DIC['ilLocator'];
@@ -733,40 +848,7 @@ class ilObjFileGUI extends ilObject2GUI
         }
     }
 
-    /**
-     * Initializes the upload form for multiple files.
-     * @return object The created property form.
-     */
-    public function initMultiUploadForm()
-    {
-        include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
-        $dnd_form_gui = new ilPropertyFormGUI();
-        $dnd_form_gui->setMultipart(true);
-        $dnd_form_gui->setHideLabels();
-
-        // file input
-        include_once("Services/Form/classes/class.ilDragDropFileInputGUI.php");
-        $dnd_input = new ilDragDropFileInputGUI($this->lng->txt("files"), "upload_files");
-        $dnd_input->setArchiveSuffixes(["zip"]);
-        $dnd_input->setCommandButtonNames(self::CMD_UPLOAD_FILES, "cancel");
-        $dnd_form_gui->addItem($dnd_input);
-
-        // add commands
-        $dnd_form_gui->addCommandButton(self::CMD_UPLOAD_FILES, $this->lng->txt("upload_files"));
-        $dnd_form_gui->addCommandButton("cancel", $this->lng->txt("cancel"));
-
-        $dnd_form_gui->setTableWidth("100%");
-        $dnd_form_gui->setTarget($this->getTargetFrame("save"));
-        $dnd_form_gui->setTitle($this->lng->txt("upload_files_title"));
-        $dnd_form_gui->setTitleIcon(ilUtil::getImagePath('icon_file.gif'));
-
-        $this->ctrl->setParameter($this, "new_type", "file");
-        $dnd_form_gui->setFormAction($this->ctrl->getFormAction($this, self::CMD_UPLOAD_FILES));
-
-        return $dnd_form_gui;
-    }
-
-    protected function initHeaderAction($a_sub_type = null, $a_sub_id = null)
+    protected function initHeaderAction($a_sub_type = null, $a_sub_id = null): ?\ilObjectListGUI
     {
         $lg = parent::initHeaderAction($a_sub_type, $a_sub_id);
         if ($lg instanceof ilObjectListGUI && $this->object->hasRating()) {

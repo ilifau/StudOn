@@ -37,21 +37,15 @@ class TopParentItem extends AbstractParentItem implements isTopItem, hasTitle, h
     use SymbolDecoratorTrait;
     use hasSymbolTrait;
 
-    /**
-     * @var string
-     */
-    protected $title = '';
+    protected string $title = '';
 
-    /**
-     * @var bool
-     */
-    protected $supports_async_loading = false;
+    protected bool $supports_async_loading = false;
 
     /**
      * @param string $title
      * @return TopParentItem
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -62,12 +56,12 @@ class TopParentItem extends AbstractParentItem implements isTopItem, hasTitle, h
     /**
      * @inheritDoc
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function withSupportsAsynchronousLoading(bool $supported) : supportsAsynchronousLoading
+    public function withSupportsAsynchronousLoading(bool $supported): supportsAsynchronousLoading
     {
         $clone = clone($this);
         $clone->supports_async_loading = $supported;
@@ -75,7 +69,7 @@ class TopParentItem extends AbstractParentItem implements isTopItem, hasTitle, h
         return $clone;
     }
 
-    public function supportsAsynchronousLoading() : bool
+    public function supportsAsynchronousLoading(): bool
     {
         return $this->supports_async_loading;
     }

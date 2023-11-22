@@ -1,19 +1,29 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* ListGUI class for exercise objects.
-*
-* @author 	Alex Killing <alex.killing@gmx.de>
-*
-* @ingroup ModulesExercise
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * ListGUI class for exercise objects.
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilObjExerciseListGUI extends ilObjectListGUI
 {
-    /**
-    * initialisation
-    */
-    public function init()
+    public function init(): void
     {
         $this->static_link_enabled = true;
         $this->delete_enabled = true;
@@ -29,46 +39,16 @@ class ilObjExerciseListGUI extends ilObjectListGUI
         if ($this->substitutions->isActive()) {
             $this->substitutions_enabled = true;
         }
-        
+
         // general commands array
         $this->commands = ilObjExerciseAccess::_getCommands();
     }
 
-
-
     /**
-    * Get command target frame
-    *
-    * @param	string		$a_cmd			command
-    *
-    * @return	string		command target frame
-    */
-    public function getCommandFrame($a_cmd)
+     * @throws ilDateTimeException
+     */
+    public function getProperties(): array
     {
-        switch ($a_cmd) {
-            default:
-                $frame = ilFrameTargetInfo::_getFrame("MainContent");
-                break;
-        }
-
-        return $frame;
-    }
-
-
-
-    /**
-    * Get item properties
-    *
-    * @return	array		array of property arrays:
-    *						"alert" (boolean) => display as an alert property (usually in red)
-    *						"property" (string) => property name
-    *						"value" (string) => property value
-    */
-    public function getProperties()
-    {
-        $lng = $this->lng;
-        $ilUser = $this->user;
-
         $props = array();
         $rem = ilObjExerciseAccess::_lookupRemainingWorkingTimeString($this->obj_id);
         if ($rem["mtime"] != "") {
@@ -83,19 +63,8 @@ class ilObjExerciseListGUI extends ilObjectListGUI
         return $props;
     }
 
-
-    /**
-    * Get command link url.
-    *
-    * @param	int			$a_ref_id		reference id
-    * @param	string		$a_cmd			command
-    *
-    */
-    public function getCommandLink($a_cmd)
+    public function getCommandLink(string $cmd): string
     {
-        // separate method for this line
-        $cmd_link = "ilias.php?baseClass=ilExerciseHandlerGUI&ref_id=" . $this->ref_id . "&cmd=$a_cmd";
-
-        return $cmd_link;
+        return "ilias.php?baseClass=ilExerciseHandlerGUI&ref_id=" . $this->ref_id . "&cmd=$cmd";
     }
-} // END class.ilObjTestListGUI
+}

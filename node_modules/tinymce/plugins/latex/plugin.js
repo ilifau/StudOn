@@ -21,6 +21,7 @@
 */
 
 (function() {
+    'use strict';
     // Load plugin specific language pack
     tinymce.PluginManager.requireLangPack('latex');
 

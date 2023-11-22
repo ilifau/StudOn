@@ -799,7 +799,7 @@ include_once('./Services/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObje
 $lp_type_id = ilDBUpdateNewObjectType::getObjectTypeId('lso');
 if ($lp_type_id) {
     $ops_id = ilDBUpdateNewObjectType::getCustomRBACOperationId("lp_other_users");
-    ilDBUpdateNewObjectType::deleteRBACOperation($lp_type_id, $ops_id);
+    ilDBUpdateNewObjectType::deleteRBACOperation("lso", $ops_id);
 }
 
 ?>
@@ -2910,7 +2910,7 @@ switch ($tree_type) {
                 break;
 
         case \ilTree::TREE_TYPE_MATERIALIZED_PATH:
-                \ilMaterializedPathTree::createFromParentReleation();
+                \ilMaterializedPathTree::createFromParentRelation($ilDB);
                 break;
 
 
@@ -4404,7 +4404,7 @@ $ilCtrlStructureReader->getStructure();
 <?php
 // remove magpie cache dir
 $mcdir = CLIENT_WEB_DIR . "/magpie_cache";
-ilUtil::delDir($mcdir);
+ilFileUtils::delDir($mcdir);
 ?>
 <#5675>
 <?php
@@ -4419,8 +4419,16 @@ if (!$ilDB->tableColumnExists('skl_profile_level', 'order_nr')) {
 ?>
 <#5676>
 <?php
+$profiles = [];
+if ($ilDB->tableExists('skl_profile')) {
+    $set = $ilDB->query(
+        "SELECT * FROM skl_profile"
+    );
+    while ($rec = $ilDB->fetchAssoc($set)) {
+        $profiles[$rec["id"]] = $rec;
+    }
+}
 if ($ilDB->tableExists('skl_profile_level')) {
-    $profiles = ilSkillProfile::getProfiles();
     if (!empty($profiles)) {
         foreach ($profiles as $id => $profile) {
             $set = $ilDB->query(
@@ -4483,8 +4491,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tview_set', 'default_value')) {
         'il_dcl_tview_set',
         'default_value',
         array(
-            'type' => 'text',
-            'length' => 255,
+            'type'    => 'text',
+            'length'  => 255,
             'notnull' => false
         )
     );
@@ -4497,8 +4505,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tview_set', 'required_create')) {
         'il_dcl_tview_set',
         'required_create',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 0
         )
@@ -4512,8 +4520,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tview_set', 'locked_create')) {
         'il_dcl_tview_set',
         'locked_create',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 0
         )
@@ -4527,8 +4535,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tview_set', 'visible_create')) {
         'il_dcl_tview_set',
         'visible_create',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 1
         )
@@ -4542,8 +4550,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tview_set', 'visible_edit')) {
         'il_dcl_tview_set',
         'visible_edit',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 1
         )
@@ -4557,8 +4565,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tview_set', 'required_edit')) {
         'il_dcl_tview_set',
         'required_edit',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 0
         )
@@ -4572,8 +4580,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tview_set', 'locked_edit')) {
         'il_dcl_tview_set',
         'locked_edit',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 0
         )
@@ -4629,8 +4637,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tableview', 'step_vs')) {
         'il_dcl_tableview',
         'step_vs',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 1
         )
@@ -4644,8 +4652,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tableview', 'step_c')) {
         'il_dcl_tableview',
         'step_c',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 0
         )
@@ -4659,8 +4667,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tableview', 'step_e')) {
         'il_dcl_tableview',
         'step_e',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 0
         )
@@ -4674,8 +4682,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tableview', 'step_o')) {
         'il_dcl_tableview',
         'step_o',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 0
         )
@@ -4689,8 +4697,8 @@ if (!$ilDB->tableColumnExists('il_dcl_tableview', 'step_s')) {
         'il_dcl_tableview',
         'step_s',
         array(
-            'type' => 'integer',
-            'length' => 1,
+            'type'    => 'integer',
+            'length'  => 1,
             'notnull' => true,
             'default' => 0
         )
@@ -4700,18 +4708,18 @@ if (!$ilDB->tableColumnExists('il_dcl_tableview', 'step_s')) {
 <#5695>
 <?php
 $fields = array(
-    'id' => array(
-        'type' => 'integer',
+    'id'       => array(
+        'type'   => 'integer',
         'length' => '4',
 
     ),
     'tview_set_id' => array(
-        'type' => 'integer',
+        'type'   => 'integer',
         'length' => '4',
 
     ),
-    'value' => array(
-        'type' => 'text',
+    'value'      => array(
+        'type'   => 'text',
         'length' => '4000',
 
     )
@@ -4726,18 +4734,18 @@ if (!$ilDB->tableExists('il_dcl_stloc1_default')) {
 <#5696>
 <?php
 $fields = array(
-    'id' => array(
-        'type' => 'integer',
+    'id'       => array(
+        'type'   => 'integer',
         'length' => '4',
 
     ),
     'tview_set_id' => array(
-        'type' => 'integer',
+        'type'   => 'integer',
         'length' => '4',
 
     ),
-    'value' => array(
-        'type' => 'integer',
+    'value'      => array(
+        'type'   => 'integer',
         'length' => '4',
 
     )
@@ -4918,7 +4926,7 @@ $fields = array(
     ),
 
 );
-if (!$ilDB->tableExists('il_resource_stakeh')) {
+if (! $ilDB->tableExists('il_resource_stakeh')) {
     $ilDB->createTable('il_resource_stakeh', $fields);
     $ilDB->addPrimaryKey('il_resource_stakeh', array( 'internal' ));
 }
@@ -4928,32 +4936,32 @@ if (!$ilDB->tableExists('il_resource_stakeh')) {
 if (!$ilDB->tableExists('webr_lists')) {
     $fields = [
         'webr_id' => [
-            'type' => 'integer',
-            'length' => 4,
+            'type'    => 'integer',
+            'length'  => 4,
             'notnull' => true,
             'default' => 0
         ],
         'title' => [
-            'type' => 'text',
-            'length' => 127,
-            'notnull' => false
+            'type'     => 'text',
+            'length'   => 127,
+            'notnull'  => false
         ],
         'description' => [
-            'type' => 'text',
-            'length' => 4000,
-            'notnull' => false
+            'type'     => 'text',
+            'length'   => 4000,
+            'notnull'  => false
         ],
         'create_date' => [
-            'type' => 'integer',
-            'length' => 4,
-            'notnull' => true,
-            'default' => 0
+            'type'     => 'integer',
+            'length'   => 4,
+            'notnull'  => true,
+            'default'  => 0
         ],
         'last_update' => [
-            'type' => 'integer',
-            'length' => 4,
-            'notnull' => true,
-            'default' => 0
+            'type'     => 'integer',
+            'length'   => 4,
+            'notnull'  => true,
+            'default'  => 0
         ]
     ];
     $ilDB->createTable('webr_lists', $fields);
@@ -5602,11 +5610,11 @@ $fields = array(
     ),
 
 );
-if (!$ilDB->tableExists('il_adn_notifications')) {
+if (! $ilDB->tableExists('il_adn_notifications')) {
     $ilDB->createTable('il_adn_notifications', $fields);
     $ilDB->addPrimaryKey('il_adn_notifications', array( 'id' ));
 
-    if (!$ilDB->sequenceExists('il_adn_notifications')) {
+    if (! $ilDB->sequenceExists('il_adn_notifications')) {
         $ilDB->createSequence('il_adn_notifications');
     }
 }
@@ -5631,11 +5639,11 @@ $fields = array(
     ),
 
 );
-if (!$ilDB->tableExists('il_adn_dismiss')) {
+if (! $ilDB->tableExists('il_adn_dismiss')) {
     $ilDB->createTable('il_adn_dismiss', $fields);
     $ilDB->addPrimaryKey('il_adn_dismiss', array( 'id' ));
 
-    if (!$ilDB->sequenceExists('il_adn_dismiss')) {
+    if (! $ilDB->sequenceExists('il_adn_dismiss')) {
         $ilDB->createSequence('il_adn_dismiss');
     }
 }
@@ -5859,4 +5867,1330 @@ if (!$ilDB->tableColumnExists('media_item', 'duration')) {
         "default" => 0
     ));
 }
+
+?>
+<#5752>
+<?php
+$table_name = 'il_adn_notifications';
+$columns = [
+        'event_start',
+        'event_end',
+        'display_start',
+        'display_end',
+        'create_date',
+        'last_update',
+];
+
+foreach ($columns as $column) {
+    if ($ilDB->tableExists($table_name)) {
+        if ($ilDB->tableColumnExists($table_name, $column)) {
+            $ilDB->dropTableColumn($table_name, $column);
+        }
+        $ilDB->addTableColumn($table_name, $column, array(
+            "type" => "integer",
+            "notnull" => false,
+            "length" => 8,
+            "default" => 0
+        ));
+    }
+}
+?>
+<#5753>
+<?php
+    $ilCtrlStructureReader->getStructure();
+?>
+<#5754>
+<?php
+$set = $ilDB->queryF(
+    "SELECT availability_id FROM pdfgen_renderer_avail " .
+    " WHERE renderer = %s AND service = %s AND purpose = %s",
+    ["text", "text", "text"],
+    ["PhantomJS", "Survey", "Results"]
+);
+if (!$ilDB->fetchAssoc($set)) {
+    $ilDB->insert("pdfgen_renderer_avail", [
+        "availability_id" => ["integer", $ilDB->nextId('pdfgen_renderer_avail')],
+        "renderer" => ["text", "PhantomJS"],
+        "service" => ["text", "Survey"],
+        "purpose" => ["text", "Results"]
+    ]);
+}
+?>
+<#5755>
+<?php
+$set = $ilDB->queryF(
+    "SELECT availability_id FROM pdfgen_renderer_avail " .
+    " WHERE renderer = %s AND service = %s AND purpose = %s",
+    ["text", "text", "text"],
+    ["WkhtmlToPdf", "Survey", "Results"]
+);
+if (!$ilDB->fetchAssoc($set)) {
+    $ilDB->insert("pdfgen_renderer_avail", [
+        "availability_id" => ["integer", $ilDB->nextId('pdfgen_renderer_avail')],
+        "renderer" => ["text", "WkhtmlToPdf"],
+        "service" => ["text", "Survey"],
+        "purpose" => ["text", "Results"]
+    ]);
+}
+?>
+<#5756>
+<?php
+$set = $ilDB->queryF(
+    "SELECT purpose_id FROM pdfgen_purposes " .
+    " WHERE service = %s AND purpose = %s",
+    ["text",  "text"],
+    ["Survey", "Results"]
+);
+if (!$ilDB->fetchAssoc($set)) {
+    $ilDB->insert("pdfgen_purposes", [
+        "purpose_id" => ["integer", $ilDB->nextId('pdfgen_purposes')],
+        "service" => ["text", "Survey"],
+        "purpose" => ["text", "Results"]
+    ]);
+}
+?>
+<#5757>
+<?php
+$ilDB->update(
+    "pdfgen_renderer_avail",
+    [
+    "renderer" => ["text", "WkhtmlToPdf"]
+],
+    [    // where
+        "renderer" => ["text", "PhantomJS"],
+        "service" => ["text", "Wiki"],
+    ]
+);
+?>
+<#5758>
+<?php
+$ilDB->update(
+    "pdfgen_renderer_avail",
+    [
+    "renderer" => ["text", "WkhtmlToPdf"]
+],
+    [    // where
+        "renderer" => ["text", "PhantomJS"],
+        "service" => ["text", "Portfolio"]
+    ]
+);
+?>
+<#5759>
+<?php
+$ilDB->manipulateF(
+    "DELETE FROM pdfgen_renderer_avail WHERE " .
+    " renderer = %s AND service = %s",
+    ["text", "text"],
+    ["PhantomJS", "Survey"]
+);
+?>
+<#5760>
+<?php
+$ilDB->update(
+    "pdfgen_map",
+    [
+    "preferred" => ["text", "WkhtmlToPdf"],
+    "selected" => ["text", "WkhtmlToPdf"]
+],
+    [    // where
+        "service" => ["text", "Wiki"]
+    ]
+);
+?>
+<#5761>
+<?php
+$ilDB->update(
+    "pdfgen_map",
+    [
+    "preferred" => ["text", "WkhtmlToPdf"],
+    "selected" => ["text", "WkhtmlToPdf"]
+],
+    [    // where
+        "service" => ["text", "Portfolio"]
+    ]
+);
+?>
+<#5762>
+<?php
+$set = $ilDB->queryF(
+    "SELECT map_id FROM pdfgen_map " .
+    " WHERE service = %s AND purpose = %s",
+    ["text", "text"],
+    ["Survey", "Results"]
+);
+if (!$ilDB->fetchAssoc($set)) {
+    $ilDB->insert("pdfgen_map", [
+        "map_id" => ["integer", $ilDB->nextId('pdfgen_map')],
+        "preferred" => ["text", "WkhtmlToPdf"],
+        "selected" => ["text", "WkhtmlToPdf"],
+        "service" => ["text", "Survey"],
+        "purpose" => ["text", "Results"]
+    ]);
+}
+?>
+<#5763>
+<?php
+// deleted
+?>
+<#5764>
+<?php
+global $DIC;
+$DIC->database()->modifyTableColumn("usr_data", "login", [
+    "type" => \ilDBConstants::T_TEXT,
+    "length" => 190,
+    "notnull" => false,
+    "fixed" => false
+]);
+?>
+<#5765>
+<?php
+if (!$ilDB->tableExists('adv_md_values_enum')) {
+    $ilDB->createTable('adv_md_values_enum', [
+        'obj_id' => [
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true,
+            'default' => 0
+        ],
+        'sub_type' => [
+            'type' => 'text',
+            'length' => 10,
+            'notnull' => true,
+            'default' => "-"
+        ],
+        'sub_id' => [
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true,
+            'default' => 0
+        ],
+        'field_id' => [
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true,
+            'default' => 0
+        ],
+        'disabled' => [
+            'type' => 'integer',
+            'length' => 1,
+            'notnull' => true,
+            'default' => 0
+        ],
+        'value_index' => [
+            'type' => ilDBConstants::T_TEXT,
+            'length' => 16,
+            'notnull' => true,
+        ]
+    ]);
+
+    $ilDB->addPrimaryKey('adv_md_values_enum', array('obj_id', 'sub_type', 'sub_id', 'field_id', 'value_index'));
+}
+?>
+<#5766>
+<?php
+
+$query = 'select field_id, field_type, field_values from adv_mdf_definition ' .
+    'where field_type = 1  or field_type = 8 ';
+$res = $ilDB->query($query);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $values = unserialize($row->field_values);
+    if (!is_array($values)) {
+        continue;
+    }
+    $options = $values;
+
+    $query = 'select * from adv_md_values_text ' .
+        'where field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER);
+    $val_res = $ilDB->query($query);
+    while ($val_row = $val_res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+        $query = 'select * from adv_md_values_enum ' .
+            'where obj_id = ' . $ilDB->quote($val_row->obj_id, ilDBConstants::T_INTEGER) . ' ' .
+            'and sub_id = ' . $ilDB->quote($val_row->sub_id, ilDBConstants::T_INTEGER) . ' ' .
+            'and sub_type = ' . $ilDB->quote($val_row->sub_type, ilDBConstants::T_TEXT) . ' ' .
+            'and field_id = ' . $ilDB->quote($val_row->field_id, ilDBConstants::T_INTEGER);
+        $exists_res = $ilDB->query($query);
+        if ($exists_res->numRows()) {
+            //ilLoggerFactory::getLogger('root')->info('field_id: ' . $val_row->field_id . ' is already migrated');
+            continue;
+        }
+        $current_values = [];
+        if (strpos($val_row->value, '~|~') === 0) {
+            // multi enum
+            $current_values = explode('~|~', $val_row->value);
+            array_pop($current_values);
+            array_shift($current_values);
+        } else {
+            $current_values[] = (string) $val_row->value;
+        }
+        //ilLoggerFactory::getLogger('root')->dump($current_values);
+        $positions = [];
+        foreach ($current_values as $value) {
+            if (!strlen(trim($value))) {
+                continue;
+            }
+            $idx = array_search($value, $options);
+            if ($idx === false) {
+                continue;
+            }
+            $positions[] = $idx;
+        }
+
+        //ilLoggerFactory::getLogger('root')->dump($positions);
+        foreach ($positions as $pos) {
+            $query = 'insert into adv_md_values_enum (obj_id, sub_type, sub_id, field_id, value_index, disabled) ' .
+                'values ( ' .
+                $ilDB->quote($val_row->obj_id, ilDBConstants::T_INTEGER) . ', ' .
+                $ilDB->quote($val_row->sub_type, ilDBConstants::T_TEXT) . ', ' .
+                $ilDB->quote($val_row->sub_id, ilDBConstants::T_INTEGER) . ', ' .
+                $ilDB->quote($val_row->field_id, ilDBConstants::T_INTEGER) . ', ' .
+                $ilDB->quote($pos, ilDBConstants::T_INTEGER) . ', ' .
+                $ilDB->quote($val_row->disabled, ilDBConstants::T_INTEGER)
+                . ' ) ';
+            $ilDB->query($query);
+        }
+    }
+}
+?>
+<#5767>
+<?php
+
+if (!$ilDB->tableExists('adv_mdf_enum')) {
+    $ilDB->createTable('adv_mdf_enum', [
+        'field_id' => [
+            'type' => ilDBConstants::T_INTEGER,
+            'length' => 4,
+            'notnull' => true,
+        ],
+        'lang_code' => [
+            'type' => ilDBConstants::T_TEXT,
+            'notnull' => true,
+            'length' => 5
+        ],
+        'idx' => [
+            'type' => ilDBConstants::T_INTEGER,
+            'length' => 4,
+            'notnull' => true,
+        ],
+        'value' => [
+            'type' => ilDBConstants::T_TEXT,
+            'length' => 4000,
+            'notnull' => true
+        ]
+    ]);
+    $ilDB->addPrimaryKey('adv_mdf_enum', array('field_id', 'lang_code', 'idx'));
+}
+?>
+<#5768>
+<?php
+
+$query = 'select value from settings where  module = ' . $ilDB->quote('common', ilDBConstants::T_TEXT) . ' ' .
+    'and keyword = ' . $ilDB->quote('language', ilDBConstants::T_TEXT);
+$res = $ilDB->query($query);
+$default = 'en';
+while ($row  = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $default = $row->value;
+}
+$query = 'update adv_md_record set lang_default = ' . $ilDB->quote($default, ilDBConstants::T_TEXT) . ' ' .
+    'where lang_default IS NULL';
+$ilDB->query($query);
+?>
+
+<#5769>
+<?php
+$query = 'select * from adv_md_record ';
+$res = $ilDB->query($query);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $query = 'select * from adv_md_record_int ' .
+        'where record_id = ' . $ilDB->quote($row->record_id, ilDBConstants::T_INTEGER) . ' ' .
+        'and lang_code = ' . $ilDB->quote($row->lang_default, ilDBConstants::T_TEXT);
+    $int_res = $ilDB->query($query);
+    if ($int_res->numRows()) {
+        continue;
+    }
+    $query = 'insert into adv_md_record_int (record_id, title, description, lang_code ) ' .
+        'values ( ' .
+        $ilDB->quote($row->record_id, ilDBConstants::T_INTEGER) . ', ' .
+        $ilDB->quote($row->title, ilDBConstants::T_TEXT) . ', ' .
+        $ilDB->quote($row->description, ilDBConstants::T_TEXT) . ', ' .
+        $ilDB->quote($row->lang_default, ilDBConstants::T_TEXT) .
+        ')' ;
+    $ilDB->manipulate($query);
+}
+?>
+
+<#5770>
+<?php
+$query = 'select advf.field_id, lang_default, advf.title, advf.description from adv_mdf_definition advf ' .
+    'join adv_md_record advr on advf.record_id = advr.record_id ';
+$res = $ilDB->query($query);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $query = 'select * from adv_md_field_int ' .
+        'where field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ' ' .
+        'and lang_code = ' . $ilDB->quote($row->lang_default, ilDBConstants::T_TEXT);
+    $int_res = $ilDB->query($query);
+    if ($int_res->numRows()) {
+        continue;
+    }
+    $query = 'insert into adv_md_field_int (field_id, title, description, lang_code ) ' .
+        'values ( ' .
+        $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ', ' .
+        $ilDB->quote($row->title, ilDBConstants::T_TEXT) . ', ' .
+        $ilDB->quote($row->description, ilDBConstants::T_TEXT) . ', ' .
+        $ilDB->quote($row->lang_default, ilDBConstants::T_TEXT) .
+        ')' ;
+    $ilDB->manipulate($query);
+}
+?>
+
+<#5771>
+<?php
+
+$query = 'select advf.record_id, field_id, field_values, lang_default from adv_mdf_definition advf ' .
+    'join adv_md_record advr on advf.record_id = advr.record_id ' . ' ' .
+    'where ( field_type = ' . $ilDB->quote(1, ilDBConstants::T_INTEGER) . ' or ' .
+    'field_type = ' . $ilDB->quote(8, ilDBConstants::T_INTEGER) . ' ) ';
+
+$res = $ilDB->query($query);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $values = unserialize($row->field_values);
+    if (array_key_exists('options', $values)) {
+        $idx = 0;
+        foreach ($values['options'] as $option) {
+            $index = $idx + 1;
+            $exists_query = 'select field_id from adv_mdf_enum ' .
+                'where field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ' ' .
+                'and lang_code = ' . $ilDB->quote($row->lang_default, ilDBConstants::T_TEXT) . ' ' .
+                'and idx = ' . $ilDB->quote($index, ilDBConstants::T_INTEGER);
+            $exists_res = $ilDB->query($exists_query);
+            if ($exists_res->numRows() > 0) {
+                continue;
+            }
+            $query = 'insert into adv_mdf_enum (field_id, lang_code, idx, value ) ' .
+                'values ( ' .
+                $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ', ' .
+                $ilDB->quote($row->lang_default, ilDBConstants::T_TEXT) . ', ' .
+                $ilDB->quote($idx++, ilDBConstants::T_INTEGER) . ', ' .
+                $ilDB->quote($option, ilDBConstants::T_TEXT) .
+                ' ) ';
+            $ilDB->manipulate($query);
+        }
+    }
+    if (array_key_exists('option_translations', $values)) {
+        foreach ($values['option_translations'] as $lang => $options) {
+            if ($lang == $row->lang_default) {
+                continue;
+            }
+            $idx = 0;
+            foreach ($options as $option) {
+                $index = $idx + 1;
+                $exists_query = 'select field_id from adv_mdf_enum ' .
+                    'where field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ' ' .
+                    'and lang_code = ' . $ilDB->quote($lang, ilDBConstants::T_TEXT) . ' ' .
+                    'and idx = ' . $ilDB->quote($index, ilDBConstants::T_INTEGER);
+                $exists_res = $ilDB->query($exists_query);
+                if ($exists_res->numRows() > 0) {
+                    continue;
+                }
+                $query = 'insert into adv_mdf_enum (field_id, lang_code, idx, value ) ' .
+                    'values ( ' .
+                    $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ', ' .
+                    $ilDB->quote($lang, ilDBConstants::T_TEXT) . ', ' .
+                    $ilDB->quote($idx++, ilDBConstants::T_INTEGER) . ', ' .
+                    $ilDB->quote($option, ilDBConstants::T_TEXT) .
+                    ' ) ';
+                $ilDB->manipulate($query);
+            }
+        }
+    }
+    if (
+        !array_key_exists('options', $values) &&
+        !array_key_exists('options_translations', $values) &&
+        is_array($values)
+    ) {
+        $idx = 0;
+        foreach ($values as $option) {
+            $index = $idx + 1;
+            $exists_query = 'select field_id from adv_mdf_enum ' .
+                'where field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ' ' .
+                'and lang_code = ' . $ilDB->quote($row->lang_default, ilDBConstants::T_TEXT) . ' ' .
+                'and idx = ' . $ilDB->quote($index, ilDBConstants::T_INTEGER);
+            $exists_res = $ilDB->query($exists_query);
+            if ($exists_res->numRows() > 0) {
+                continue;
+            }
+            $query = 'insert into adv_mdf_enum (field_id, lang_code, idx, value ) ' .
+                'values ( ' .
+                $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ', ' .
+                $ilDB->quote($row->lang_default, ilDBConstants::T_TEXT) . ', ' .
+                $ilDB->quote($idx++, ilDBConstants::T_INTEGER) . ', ' .
+                $ilDB->quote($option, ilDBConstants::T_TEXT) .
+                ' ) ';
+            $ilDB->manipulate($query);
+        }
+    }
+}
+?>
+<#5772>
+<?php
+if (!$ilDB->tableColumnExists('adv_md_values_ltext', 'disabled')) {
+    $ilDB->addTableColumn(
+        'adv_md_values_ltext',
+        'disabled',
+        [
+            'type' => ilDBConstants::T_INTEGER,
+            'notnull' => true,
+            'length' => 1,
+            'default' => 0
+        ]
+    );
+}
+?>
+<#5773>
+<?php
+$ilCtrlStructureReader->getStructure();
+?>
+<#5774>
+<?php
+if ($ilDB->tableColumnExists("reg_access_limit", "limit_relative_y")) {
+    $res = $ilDB->query("SELECT role_id, limit_relative_m, limit_relative_y FROM reg_access_limit WHERE limit_relative_y IS NOT NULL");
+    $updateStatement = $ilDB->prepareManip("UPDATE reg_access_limit SET limit_relative_m = ? WHERE role_id = ?", ['months', 'role_id']);
+    while ($row = $ilDB->fetchAssoc($res)) {
+        $row['limit_relative_m'] = ($row['limit_relative_y'] * 12) + $row['limit_relative_m'];
+        $ilDB->execute($updateStatement, [$row['limit_relative_m'], $row['role_id']]);
+    }
+
+    $ilDB->dropTableColumn("reg_access_limit", "limit_relative_y");
+}
+?>
+<#5775>
+<?php
+$table_name = 'il_adn_notifications';
+$columns = [
+    'event_start',
+    'event_end',
+    'display_start',
+    'display_end',
+    'create_date',
+    'last_update',
+];
+
+foreach ($columns as $column) {
+    if ($ilDB->tableExists($table_name)) {
+        if ($ilDB->tableColumnExists($table_name, $column)) {
+            $ilDB->dropTableColumn($table_name, $column);
+        }
+        $ilDB->addTableColumn($table_name, $column, array(
+            "type" => "integer",
+            "notnull" => false,
+            "length" => 8,
+            "default" => 0
+        ));
+    }
+}
+?>
+<#5776>
+<?php
+$ilDB->manipulate('delete from log_components where component_id = ' . $ilDB->quote('btsk', ilDBConstants::T_TEXT));
+?>
+<#5777>
+<?php
+$ilDB->replace(
+    'settings',
+    [
+        'module' => ['text', 'adve'],
+        'keyword' => ['text', 'autosave']
+    ],
+    [
+        'value' => ['text', '30']
+    ]
+);
+?>
+<#5778>
+<?php
+if ($ilDB->tableColumnExists("il_poll", "online_status")) {
+    $res = $ilDB->query("SELECT id, online_status FROM il_poll");
+    $updateStatement = $ilDB->prepareManip("UPDATE object_data SET offline = ? WHERE obj_id = ?", ['status', 'id']);
+    while ($row = $ilDB->fetchAssoc($res)) {
+        //il_poll online_status is true if online, object_data offline is true if offline
+        $row['offline'] = ($row['online_status'] == 1) ? 0 : 1;
+        $ilDB->execute($updateStatement, [$row['offline'], $row['id']]);
+    }
+
+    $ilDB->dropTableColumn("il_poll", "online_status");
+}
+?>
+<#5779>
+<?php
+$query = 'select value from settings where  module = ' . $ilDB->quote('common', ilDBConstants::T_TEXT) . ' ' .
+    'and keyword = ' . $ilDB->quote('language', ilDBConstants::T_TEXT);
+$res = $ilDB->query($query);
+$default = 'en';
+while ($row  = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $default = $row->value;
+}
+$query = 'update adv_md_record set lang_default = ' . $ilDB->quote($default, ilDBConstants::T_TEXT) . ' ' .
+    'where lang_default = ' . $ilDB->quote('', ilDBConstants::T_TEXT);
+$ilDB->manipulate($query);
+
+// update md_record_int
+$query = 'select record_id from adv_md_record_int where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT);
+$res = $ilDB->query($query);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $query = 'select record_id from adv_md_record_int where lang_code = ' . $ilDB->quote($default, ilDBConstants::T_TEXT) . ' ' .
+        'and record_id = ' . $ilDB->quote($row->record_id, ilDBConstants::T_INTEGER);
+    $setres = $ilDB->query($query);
+    if ($setres->numRows()) {
+        $query = 'delete from adv_md_record_int where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT) . ' ' .
+            'and record_id = ' . $ilDB->quote($row->record_id, ilDBConstants::T_INTEGER);
+        $ilDB->manipulate($query);
+    }
+}
+$query = 'update adv_md_record_int set lang_code = ' . $ilDB->quote($default, ilDBConstants::T_TEXT) . ' ' .
+    'where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT);
+$ilDB->manipulate($query);
+
+// update md_field_int
+$query = 'select field_id from adv_md_field_int where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT);
+$res = $ilDB->query($query);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $query = 'select field_id from adv_md_field_int where lang_code = ' . $ilDB->quote($default, ilDBConstants::T_TEXT) . ' ' .
+        'and field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER);
+    $setres = $ilDB->query($query);
+    if ($setres->numRows()) {
+        $query = 'delete from adv_md_field_int where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT) . ' ' .
+            'and field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER);
+        $ilDB->manipulate($query);
+    }
+}
+$query = 'update adv_md_field_int set lang_code = ' . $ilDB->quote($default, ilDBConstants::T_TEXT) . ' ' .
+    'where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT);
+$ilDB->manipulate($query);
+
+// update adv_mdf_enum
+$query = 'select field_id, lang_code, idx from adv_mdf_enum ' .
+    'where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT);
+$res = $ilDB->query($query);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $query = 'select field_id, lang_code, idx from  adv_mdf_enum where lang_code = ' . $ilDB->quote($default, ilDBConstants::T_TEXT) . ' ' .
+        'and field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ' ' .
+        'and idx = ' . $ilDB->quote($row->idx, ilDBConstants::T_INTEGER);
+    $setres = $ilDB->query($query);
+    if ($setres->numRows()) {
+        $query = 'delete from  adv_mdf_enum where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT) . ' ' .
+            'and field_id = ' . $ilDB->quote($row->field_id, ilDBConstants::T_INTEGER) . ' ' .
+            'and idx = ' . $ilDB->quote($row->idx, ilDBConstants::T_INTEGER);
+        $ilDB->manipulate($query);
+    }
+}
+$query = 'update adv_mdf_enum set lang_code = ' . $ilDB->quote($default, ilDBConstants::T_TEXT) . ' ' .
+    'where lang_code = ' . $ilDB->quote('', ilDBConstants::T_TEXT);
+$ilDB->manipulate($query);
+?>
+<#5780>
+<?php
+if (!$ilDB->tableColumnExists('ldap_server_settings', 'escape_dn')) {
+    $ilDB->addTableColumn(
+        'ldap_server_settings',
+        'escape_dn',
+        [
+            'type' => ilDBConstants::T_INTEGER,
+            'length' => 1,
+            'notnull' => true,
+            'default' => 0
+        ]
+    );
+}
+?>
+<#5781>
+<?php
+if (!$ilDB->indexExistsByFields('exc_returned', array('filetitle'))) {
+    $ilDB->addIndex('exc_returned', array('filetitle'), 'i3');
+}
+?>
+<#5782>
+<?php
+if ($ilDB->uniqueConstraintExists('cmi_gobjective', array('user_id','objective_id','scope_id'))) {
+    $ilDB->dropUniqueConstraintByFields('cmi_gobjective', array('user_id','objective_id','scope_id'));
+}
+$query = "show index from cmi_gobjective where Key_name = 'PRIMARY'";
+$res = $ilDB->query($query);
+if (!$ilDB->numRows($res)) {
+    $ilDB->addPrimaryKey('cmi_gobjective', array('user_id', 'scope_id', 'objective_id'));
+}
+?>
+<#5783>
+<?php
+if ($ilDB->uniqueConstraintExists('cp_suspend', array('user_id','obj_id'))) {
+    $ilDB->dropUniqueConstraintByFields('cp_suspend', array('user_id','obj_id'));
+}
+$query = "show index from cp_suspend where Key_name = 'PRIMARY'";
+$res = $ilDB->query($query);
+if (!$ilDB->numRows($res)) {
+    $ilDB->addPrimaryKey('cp_suspend', array('user_id', 'obj_id'));
+}
+?>
+<#5784>
+<?php
+$read_learning_progress = 0;
+$read_outcomes = 0;
+$res = $ilDB->queryF(
+    "SELECT ops_id FROM rbac_operations WHERE operation = %s",
+    array('text'),
+    array('read_learning_progress')
+);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $read_learning_progress = $row->ops_id;
+}
+$res = $ilDB->queryF(
+    "SELECT ops_id FROM rbac_operations WHERE operation = %s",
+    array('text'),
+    array('read_outcomes')
+);
+while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+    $read_outcomes = $row->ops_id;
+}
+if ($read_outcomes > 0 && $read_learning_progress > 0) {
+    $res = $ilDB->queryF(
+        "SELECT rol_id, parent, type FROM rbac_templates WHERE (type=%s OR type=%s) AND ops_id=%s",
+        array('text', 'text', 'integer'),
+        array('cmix', 'lti', $read_learning_progress)
+    );
+    while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+        $resnum = $ilDB->queryF(
+            "SELECT rol_id FROM rbac_templates WHERE rol_id = %s AND type = %s AND ops_id = %s AND parent = %s",
+            array('integer', 'text', 'integer', 'integer'),
+            array($row->rol_id, $row->type, $read_outcomes, $row->parent)
+        );
+        if (!$ilDB->numRows($resnum)) {
+            $ilDB->insert('rbac_templates', array(
+                    'rol_id' => array('integer', $row->rol_id),
+                    'type' => array('text', $row->type),
+                    'ops_id' => array('integer', $read_outcomes),
+                    'parent' => array('integer', $row->parent)
+                ));
+        }
+    }
+}
+?>
+<#5785>
+<?php
+$ilDB->update(
+    "rbac_operations",
+    [
+    "op_order" => ["integer", 3900]
+],
+    [    // where
+        "operation" => ["text", "redact"]
+    ]
+);
+?>
+<#5786>
+<?php
+if (!$ilDB->indexExistsByFields('booking_reservation', array('date_from'))) {
+    $ilDB->addIndex('booking_reservation', array('date_from'), 'i3');
+}
+?>
+<#5787>
+<?php
+if (!$ilDB->indexExistsByFields('booking_reservation', array('date_to'))) {
+    $ilDB->addIndex('booking_reservation', array('date_to'), 'i4');
+}
+?>
+<#5788>
+<?php
+$query = "show index from il_meta_oer_stat where Key_name = 'PRIMARY'";
+$res = $ilDB->query($query);
+if (!$ilDB->numRows($res)) {
+    $ilDB->addPrimaryKey('il_meta_oer_stat', ['obj_id']);
+}
+?>
+<#5789>
+<?php
+if (!$ilDB->tableColumnExists('il_bt_value', 'position')) {
+    $ilDB->addTableColumn(
+        'il_bt_value',
+        'position',
+        [
+            'type' => ilDBConstants::T_INTEGER,
+            'length' => 8,
+            'notnull' => true,
+            'default' => 0
+        ]
+    );
+}
+?>
+<#5790>
+<?php
+if (!$ilDB->indexExistsByFields('il_bt_value', array('bucket_id'))) {
+    $ilDB->addIndex(
+        'il_bt_value',
+        array('bucket_id'),
+        'i1'
+    );
+}
+if (!$ilDB->indexExistsByFields('il_bt_value_to_task', array('task_id'))) {
+    $ilDB->addIndex(
+        'il_bt_value_to_task',
+        array('task_id'),
+        'i1'
+    );
+}
+if (!$ilDB->indexExistsByFields('il_bt_value_to_task', array('value_id'))) {
+    $ilDB->addIndex(
+        'il_bt_value_to_task',
+        array('value_id'),
+        'i2'
+    );
+}
+?>
+<#5791>
+<?php
+if (!$ilDB->tableColumnExists('il_bt_value_to_task', 'position')) {
+    $ilDB->addTableColumn(
+        'il_bt_value_to_task',
+        'position',
+        [
+            'type' => ilDBConstants::T_INTEGER,
+            'length' => 8,
+            'notnull' => true,
+            'default' => 0
+        ]
+    );
+}
+?>
+<#5792>
+<?php
+if (!$ilDB->tableColumnExists('cmix_users', 'privacy_ident')) {
+    $ilDB->addTableColumn('cmix_users', 'privacy_ident', array(
+        'type' => 'integer',
+        'length' => 2,
+        'notnull' => true,
+        'default' => 0
+    ));
+    $ilDB->dropPrimaryKey('cmix_users');
+    $ilDB->addPrimaryKey('cmix_users', array('obj_id', 'usr_id', 'privacy_ident'));
+}
+if (!$ilDB->tableColumnExists('cmix_settings', 'privacy_ident')) {
+    $ilDB->addTableColumn('cmix_settings', 'privacy_ident', array(
+        'type' => 'integer',
+        'length' => 2,
+        'notnull' => true,
+        'default' => 0
+    ));
+}
+if (!$ilDB->tableColumnExists('cmix_settings', 'privacy_name')) {
+    $ilDB->addTableColumn('cmix_settings', 'privacy_name', array(
+        'type' => 'integer',
+        'length' => 2,
+        'notnull' => true,
+        'default' => 0
+    ));
+}
+if (!$ilDB->tableColumnExists('lti_ext_provider', 'privacy_ident')) {
+    $ilDB->addTableColumn('lti_ext_provider', 'privacy_ident', array(
+        'type' => 'integer',
+        'length' => 2,
+        'notnull' => true,
+        'default' => 0
+    ));
+}
+if (!$ilDB->tableColumnExists('lti_ext_provider', 'privacy_name')) {
+    $ilDB->addTableColumn('lti_ext_provider', 'privacy_name', array(
+        'type' => 'integer',
+        'length' => 2,
+        'notnull' => true,
+        'default' => 0
+    ));
+}
+?>
+<#5793>
+<?php
+if ($ilDB->tableColumnExists('cmix_settings', 'user_ident')) {
+    $set = $ilDB->query("SELECT obj_id, user_ident, user_name FROM cmix_settings");
+    while ($row = $ilDB->fetchAssoc($set)) {
+        $ident = 0;
+        $name = 0;
+        if ($row['user_ident'] == 'il_uuid_ext_account') {
+            $ident = 1;
+        }
+        if ($row['user_ident'] == 'il_uuid_login') {
+            $ident = 2;
+        }
+        if ($row['user_ident'] == 'real_email') {
+            $ident = 3;
+        }
+        if ($row['user_ident'] == 'il_uuid_random') {
+            $ident = 4;
+        }
+        if ($row['user_name'] == 'firstname') {
+            $name = 1;
+        }
+        if ($row['user_name'] == 'lastname') {
+            $name = 2;
+        }
+        if ($row['user_name'] == 'fullname') {
+            $name = 3;
+        }
+
+        $ilDB->update(
+            "cmix_users",
+            [
+                "privacy_ident" => ["integer", $ident]
+            ],
+            [	// where
+                "obj_id" => ["integer", $row['obj_id']]
+            ]
+        );
+        $ilDB->update(
+            "cmix_settings",
+            [
+                "privacy_ident" => ["integer", $ident],
+                "privacy_name"   => ["integer", $name]
+            ],
+            [	// where
+                "obj_id" => ["integer", $row['obj_id']]
+            ]
+        );
+    }
+    $ilDB->dropTableColumn("cmix_settings", "user_ident");
+    $ilDB->dropTableColumn("cmix_settings", "user_name");
+}
+?>
+<#5794>
+<?php
+if ($ilDB->tableColumnExists('lti_ext_provider', 'user_ident')) {
+    $set = $ilDB->query("SELECT id, user_ident, user_name FROM lti_ext_provider");
+    while ($row = $ilDB->fetchAssoc($set)) {
+        $ident = 0;
+        $name = 0;
+        if ($row['user_ident'] == 'il_uuid_ext_account') {
+            $ident = 1;
+        }
+        if ($row['user_ident'] == 'il_uuid_login') {
+            $ident = 2;
+        }
+        if ($row['user_ident'] == 'real_email') {
+            $ident = 3;
+        }
+        if ($row['user_ident'] == 'il_uuid_random') {
+            $ident = 4;
+        }
+        if ($row['user_name'] == 'firstname') {
+            $name = 1;
+        }
+        if ($row['user_name'] == 'lastname') {
+            $name = 2;
+        }
+        if ($row['user_name'] == 'fullname') {
+            $name = 3;
+        }
+
+        $ilDB->update(
+            "lti_ext_provider",
+            [
+                "privacy_ident" => ["integer", $ident],
+                "privacy_name"   => ["integer", $name]
+            ],
+            [	// where
+                "id" => ["integer", $row['id']]
+            ]
+        );
+    }
+    $ilDB->dropTableColumn("lti_ext_provider", "user_ident");
+    $ilDB->dropTableColumn("lti_ext_provider", "user_name");
+}
+?>
+<#5795>
+<?php
+if (!$ilDB->tableColumnExists('cmix_lrs_types', 'privacy_ident')) {
+    $ilDB->addTableColumn('cmix_lrs_types', 'privacy_ident', array(
+        'type' => 'integer',
+        'length' => 2,
+        'notnull' => true,
+        'default' => 0
+    ));
+}
+if (!$ilDB->tableColumnExists('cmix_lrs_types', 'privacy_name')) {
+    $ilDB->addTableColumn('cmix_lrs_types', 'privacy_name', array(
+        'type' => 'integer',
+        'length' => 2,
+        'notnull' => true,
+        'default' => 0
+    ));
+}
+if ($ilDB->tableColumnExists('cmix_lrs_types', 'user_ident')) {
+    $set = $ilDB->query("SELECT type_id, user_ident, user_name FROM cmix_lrs_types");
+    while ($row = $ilDB->fetchAssoc($set)) {
+        $ident = 0;
+        $name = 0;
+        if ($row['user_ident'] == 'il_uuid_ext_account') {
+            $ident = 1;
+        }
+        if ($row['user_ident'] == 'il_uuid_login') {
+            $ident = 2;
+        }
+        if ($row['user_ident'] == 'real_email') {
+            $ident = 3;
+        }
+        if ($row['user_ident'] == 'il_uuid_random') {
+            $ident = 4;
+        }
+        if ($row['user_name'] == 'firstname') {
+            $name = 1;
+        }
+        if ($row['user_name'] == 'lastname') {
+            $name = 2;
+        }
+        if ($row['user_name'] == 'fullname') {
+            $name = 3;
+        }
+
+        $ilDB->update(
+            "cmix_lrs_types",
+            [
+                "privacy_ident" => ["integer", $ident],
+                "privacy_name"   => ["integer", $name]
+            ],
+            [	// where
+                "type_id" => ["integer", $row['type_id']]
+            ]
+        );
+    }
+    $ilDB->dropTableColumn("cmix_lrs_types", "user_ident");
+    $ilDB->dropTableColumn("cmix_lrs_types", "user_name");
+}
+?>
+<#5796>
+<?php
+if (!$ilDB->tableColumnExists('il_bibl_data', 'rid')) {
+    $ilDB->addTableColumn('il_bibl_data', 'rid', [
+        'type' => 'text',
+        'length' => 255
+    ]);
+}
+?>
+<#5797>
+<?php
+if ($ilDB->tableColumnExists('il_resource_revision', 'identification')
+    && !$ilDB->indexExistsByFields('il_resource_revision', array('identification'))
+) {
+    $ilDB->addIndex(
+        'il_resource_revision',
+        array('identification'),
+        'i1'
+    );
+}
+if ($ilDB->tableExists('il_resource_stakeh')
+    && $ilDB->tableColumnExists('il_resource_stakeh', 'identification')
+    && !$ilDB->indexExistsByFields('il_resource_stakeh', array('identification'))
+) {
+    $ilDB->addIndex(
+        'il_resource_stakeh',
+        array('identification'),
+        'i1'
+    );
+}
+if ($ilDB->tableExists('il_resource_stakeh')
+    && $ilDB->tableColumnExists('il_resource_stakeh', 'stakeholder_id')
+    && !$ilDB->indexExistsByFields('il_resource_stakeh', array('stakeholder_id'))
+) {
+    $ilDB->addIndex(
+        'il_resource_stakeh',
+        array('stakeholder_id'),
+        'i2'
+    );
+}
+if ($ilDB->tableColumnExists('il_resource_info', 'identification')
+    && !$ilDB->indexExistsByFields('il_resource_info', array('identification'))
+) {
+    $ilDB->addIndex(
+        'il_resource_info',
+        array('identification'),
+        'i1'
+    );
+}
+if ($ilDB->tableColumnExists('il_resource', 'storage_id')
+    && !$ilDB->indexExistsByFields('il_resource', array('storage_id'))
+) {
+    $ilDB->addIndex(
+        'il_resource',
+        array('storage_id'),
+        'i1'
+    );
+}
+?>
+<#5798>
+<?php
+$ilCtrlStructureReader->getStructure();
+?>
+<#5799>
+<?php
+if ($ilDB->tableExists('frm_notification')) {
+    if (!$ilDB->tableColumnExists('frm_notification', 'interested_events')) {
+        $ilDB->addTableColumn('frm_notification', 'interested_events', array(
+            "type" => "integer",
+            "notnull" => true,
+            "length" => 1,
+            "default" => 0
+        ));
+    }
+}
+?>
+<#5800>
+<?php
+if ($ilDB->tableColumnExists('frm_notification', 'interested_events')) {
+    $ilDB->update(
+        'frm_notification',
+        array('interested_events' => array('integer', 31)),
+        array('interested_events' => array('integer', 0))
+    );
+}
+?>
+<#5801>
+<?php
+if ($ilDB->tableExists('frm_settings')) {
+    if (!$ilDB->tableColumnExists('frm_settings', 'interested_events')) {
+        $ilDB->addTableColumn('frm_settings', 'interested_events', array(
+            "type" => "integer",
+            "notnull" => true,
+            "length" => 1,
+            "default" => 0
+        ));
+    }
+}
+?>
+<#5802>
+<?php
+if ($ilDB->tableColumnExists('frm_settings', 'interested_events')) {
+    $ilDB->update(
+        'frm_settings',
+        array('interested_events' => array('integer', 31)),
+        array('interested_events' => array('integer', 0))
+    );
+}
+?>
+<#5803>
+<?php
+require_once 'Services/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
+
+$rp_ops_id = ilDBUpdateNewObjectType::getCustomRBACOperationId("read_learning_progress");
+$ep_ops_id = ilDBUpdateNewObjectType::getCustomRBACOperationId('edit_learning_progress');
+$w_ops_id = ilDBUpdateNewObjectType::getCustomRBACOperationId('write');
+if ($rp_ops_id && $ep_ops_id && $w_ops_id) {
+    $lp_types = ['frm'];
+    $lp_type_id = ilDBUpdateNewObjectType::getObjectTypeId('frm');
+
+    if ($lp_type_id) {
+        ilDBUpdateNewObjectType::addRBACOperation($lp_type_id, $rp_ops_id);
+        ilDBUpdateNewObjectType::addRBACOperation($lp_type_id, $ep_ops_id);
+        ilDBUpdateNewObjectType::cloneOperation('frm', $w_ops_id, $rp_ops_id);
+        ilDBUpdateNewObjectType::cloneOperation('frm', $w_ops_id, $ep_ops_id);
+    }
+}
+?>
+<#5804>
+<?php
+if (!$ilDB->tableColumnExists('frm_settings', 'lp_req_num_postings')) {
+    $ilDB->addTableColumn(
+        'frm_settings',
+        'lp_req_num_postings',
+        [
+            'type' => 'integer',
+            'notnull' => false,
+            'length' => 4,
+            'default' => null
+        ]
+    );
+}
+?>
+<#5805>
+<?php
+$query = "
+    SELECT 
+           u.usr_id, d.top_frm_fk obj_id,
+           MIN(f.pos_date) first_access_datetime,
+           MAX(f.pos_date) last_access_datetime
+    FROM frm_posts f
+    INNER JOIN frm_posts_tree t ON f.pos_pk = t.pos_fk
+    INNER JOIN frm_threads th ON t.thr_fk = th.thr_pk
+    INNER JOIN usr_data u ON u.usr_id = f.pos_author_id
+    INNER JOIN frm_data d ON d.top_pk = f.pos_top_fk
+    LEFT JOIN read_event re ON re.obj_id = d.top_frm_fk AND re.usr_id = u.usr_id
+    WHERE re.usr_id IS NULL AND t.parent_pos != %s
+    GROUP BY u.usr_id, d.top_frm_fk
+";
+$res = $ilDB->queryF($query, ['integer'], [0]);
+
+$frm_read_stats_statement = $ilDB->prepare('
+    SELECT MAX(access_last) last_access_ts
+    FROM frm_thread_access
+    WHERE usr_id = ? AND obj_id = ? AND (access_last > 0 AND access_last IS NOT NULL)
+', ['integer', 'integer']);
+
+while ($row = $ilDB->fetchAssoc($res)) {
+    $firs_access_datetime = null;
+    $last_access_ts = null;
+
+    if ($row['last_access_datetime']) {
+        $last_access_ts = (new DateTimeImmutable(
+            $row['last_access_datetime'],
+            new DateTimeZone(date_default_timezone_get())
+        ))->getTimestamp();
+    }
+
+    $access_res = $ilDB->execute($frm_read_stats_statement, [$row['usr_id'], $row['usr_id']]);
+    $access_row = $ilDB->fetchAssoc($access_res);
+    if (
+        (is_array($access_row) && $access_row['last_access_ts'] > 0) &&
+        (null === $last_access_ts || $access_row['last_access_ts'] > $last_access_ts)
+    ) {
+        $last_access_ts = $access_row['last_access_ts'];
+    }
+    if (null === $last_access_ts) {
+        $last_access_ts = time();
+    }
+
+    if ($row['first_access_datetime']) {
+        $firs_access_datetime = $row['first_access_datetime'];
+    }
+    if (null === $firs_access_datetime) {
+        $firs_access_datetime = (new DateTimeImmutable('@' . time()))
+            ->setTimezone(new DateTimeZone(date_default_timezone_get()))->format('Y-m-d H:i:s');
+    }
+
+    $ilDB->insert(
+        'read_event',
+        [
+            'obj_id' => ['integer', $row['obj_id']],
+            'usr_id' => ['integer', $row['usr_id']],
+            'read_count' => ['integer', 1],
+            'spent_seconds' => ['integer', 1],
+            'first_access' => ['timestamp', $firs_access_datetime],
+            'last_access' => ['integer', $last_access_ts]
+        ]
+    );
+}
+
+$query = "
+    SELECT frm_thread_access.usr_id, frm_thread_access.obj_id, MAX(frm_thread_access.access_last) last_access_ts
+    FROM frm_thread_access
+    INNER JOIN object_data od ON od.obj_id = frm_thread_access.obj_id
+    LEFT JOIN read_event re ON re.obj_id = od.obj_id AND re.usr_id = frm_thread_access.usr_id
+    WHERE (frm_thread_access.access_last > 0 AND frm_thread_access.access_last IS NOT NULL)
+    AND re.usr_id IS NULL
+    GROUP BY frm_thread_access.usr_id, frm_thread_access.obj_id
+";
+while ($row = $ilDB->fetchAssoc($res)) {
+    $access = (new DateTimeImmutable('@' . $row['last_access_ts']))
+        ->setTimezone(new DateTimeZone(date_default_timezone_get()));
+
+    $ilDB->insert(
+        'read_event',
+        [
+            'obj_id' => ['integer', $row['obj_id']],
+            'usr_id' => ['integer', $row['usr_id']],
+            'read_count' => ['integer', 1],
+            'spent_seconds' => ['integer', 1],
+            'first_access' => ['timestamp', $access->format('Y-m-d H:i:s')],
+            'last_access' => ['integer', $access->getTimestamp()]
+        ]
+    );
+}
+?>
+
+<#5806>
+<?php
+
+if (!$ilDB->tableExists(ilDBStepExecutionDB::TABLE_NAME)) {
+    $ilDB->createTable(ilDBStepExecutionDB::TABLE_NAME, [
+        ilDBStepExecutionDB::FIELD_CLASS => [
+            'type' => ilDBConstants::T_TEXT,
+            'length' => 200,
+            'notnull' => true,
+        ],
+        ilDBStepExecutionDB::FIELD_STEP => [
+            'type' => ilDBConstants::T_INTEGER,
+            'length' => 4,
+            'notnull' => true
+        ],
+        ilDBStepExecutionDB::FIELD_STARTED => [
+            'type' => ilDBConstants::T_TEXT,
+            'length' => 23, // YYYY-MM-DD HH:MM:SS.mmm
+            'notnull' => true
+        ],
+        ilDBStepExecutionDB::FIELD_FINISHED => [
+            'type' => ilDBConstants::T_TEXT,
+            'length' => 23, // YYYY-MM-DD HH:MM:SS.mmm
+            'notnull' => false
+        ]
+    ]);
+    $ilDB->addPrimaryKey(
+        ilDBStepExecutionDB::TABLE_NAME,
+        [ilDBStepExecutionDB::FIELD_CLASS, ilDBStepExecutionDB::FIELD_STEP]
+    );
+    $ilDB->addIndex(
+        ilDBStepExecutionDB::TABLE_NAME,
+        [ilDBStepExecutionDB::FIELD_CLASS],
+        "i1"
+    );
+}
+
+?>
+
+<#5807>
+<?php
+
+if ($ilDB->tableExists(\ilDBStepExecutionDB::TABLE_NAME)
+&& $ilDB->tableColumnExists(ilDBStepExecutionDB::TABLE_NAME, ilDBStepExecutionDB::FIELD_STARTED)
+) {
+    $ilDB->modifyTableColumn(ilDBStepExecutionDB::TABLE_NAME, ilDBStepExecutionDB::FIELD_STARTED, [
+        'length' => 26,
+        'type' => ilDBConstants::T_TEXT,
+        'notnull' => false
+    ]);
+}
+
+?>
+
+<#5808>
+<?php
+
+if ($ilDB->tableExists(ilDBStepExecutionDB::TABLE_NAME)
+&& $ilDB->tableColumnExists(ilDBStepExecutionDB::TABLE_NAME, ilDBStepExecutionDB::FIELD_FINISHED)
+) {
+    $ilDB->modifyTableColumn(ilDBStepExecutionDB::TABLE_NAME, ilDBStepExecutionDB::FIELD_FINISHED, [
+        'length' => 26,
+        'type' => ilDBConstants::T_TEXT,
+        'notnull' => false
+    ]);
+}
+
+?>
+
+<?php
+// Dear colleague!
+//
+// The dbupdate-files will be decommissioned as decided by the JF on 2021-06-28:
+//
+// https://docu.ilias.de/goto_docu_wiki_wpage_5889_1357.html
+//
+// Please make sure to understand that, starting now, every change in this file
+// will need to be handed in via PR, just as changes in any other component
+// maintained by someone else.
+//
+// The setup and the database provide powerful new mechanisms to cater your
+// requirements that have been previously implemented via this file. Please
+// have a look into the according ressources and use the new mechanisms:
+//
+// https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/src/Setup/README.md
+// https://www.youtube.com/watch?v=lNYDKWqZNGc
+//
+// You might discover some reason why you absolutely still need to use this file
+// to implement your setup requirement. If so: Please move this message along so
+// it is at the bottom of this file. Please create a PR containing your change
+// and hand it in as described here:
+//
+// https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/contributing.md#how-to-contribute
+//
+// Thanks!
 ?>

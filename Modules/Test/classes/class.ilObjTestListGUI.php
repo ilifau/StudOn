@@ -1,25 +1,37 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* Class ilObjTestListGUI
-*
-* @author		Helmut Schottmueller <helmut.schottmueller@mac.com>
-* @author		Alex Killing <alex.killing@gmx.de>
-* $Id$
-*
-* @extends ilObjectListGUI
-* @ingroup ModulesTest
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
-
-include_once "Services/Object/classes/class.ilObjectListGUI.php";
+/**
+ * Class ilObjTestListGUI
+ *
+ * @author		Helmut Schottmueller <helmut.schottmueller@mac.com>
+ * @author		Alex Killing <alex.killing@gmx.de>
+ * $Id$
+ *
+ * @extends ilObjectListGUI
+ * @ingroup ModulesTest
+ */
 include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
 
 class ilObjTestListGUI extends ilObjectListGUI
 {
     protected $command_link_params = array();
-    
+
     /**
     * constructor
     *
@@ -33,7 +45,7 @@ class ilObjTestListGUI extends ilObjectListGUI
     /**
     * initialisation
     */
-    public function init()
+    public function init(): void
     {
         $this->static_link_enabled = true;
         $this->delete_enabled = true;
@@ -45,7 +57,6 @@ class ilObjTestListGUI extends ilObjectListGUI
         $this->gui_class_name = "ilobjtestgui";
 
         // general commands array
-        include_once "./Modules/Test/classes/class.ilObjTestAccess.php";
         $this->commands = ilObjTestAccess::_getCommands();
     }
 
@@ -54,18 +65,18 @@ class ilObjTestListGUI extends ilObjectListGUI
     /**
     * Get command target frame
     *
-    * @param	string		$a_cmd			command
+    * @param	string		$cmd			command
     *
     * @return	string		command target frame
     */
-    public function getCommandFrame($a_cmd)
+    public function getCommandFrame(string $cmd): string
     {
-        switch ($a_cmd) {
+        $frame = '';
+        switch ($cmd) {
             case "":
             case "infoScreen":
             case "eval_a":
             case "eval_stat":
-                include_once "./Services/UICore/classes/class.ilFrameTargetInfo.php";
                 $frame = ilFrameTargetInfo::_getFrame("MainContent");
                 break;
 
@@ -85,7 +96,7 @@ class ilObjTestListGUI extends ilObjectListGUI
     *						"property" (string) => property name
     *						"value" (string) => property value
     */
-    public function getProperties()
+    public function getProperties(): array
     {
         global $DIC;
         $lng = $DIC['lng'];
@@ -94,7 +105,7 @@ class ilObjTestListGUI extends ilObjectListGUI
         $props = parent::getProperties();
 
         // we cannot use ilObjTestAccess::_isOffline() because of text messages
-        $onlineaccess = ilObjTestAccess::_lookupOnlineTestAccess($this->obj_id, $ilUser->id);
+        $onlineaccess = ilObjTestAccess::_lookupOnlineTestAccess($this->obj_id, $ilUser->getId());
         if ($onlineaccess !== true) {
             $props[] = array("alert" => true, "property" => $lng->txt("status"),
                 "value" => $onlineaccess);
@@ -106,26 +117,22 @@ class ilObjTestListGUI extends ilObjectListGUI
 
     /**
     * Get command link url.
-    *
-    * @param	int			$a_ref_id		reference id
-    * @param	string		$a_cmd			command
-    *
     */
-    public function getCommandLink($a_cmd)
+    public function getCommandLink(string $cmd): string
     {
         global $DIC;
         $ilCtrl = $DIC['ilCtrl'];
-        
-        $a_cmd = explode('::', $a_cmd);
-        
-        if (count($a_cmd) == 2) {
-            $cmd_link = $ilCtrl->getLinkTargetByClass(array('ilRepositoryGUI', 'ilObjTestGUI', $a_cmd[0]), $a_cmd[1]);
+
+        $cmd = explode('::', $cmd);
+
+        if (count($cmd) == 2) {
+            $cmd_link = $ilCtrl->getLinkTargetByClass(array('ilRepositoryGUI', 'ilObjTestGUI', $cmd[0]), $cmd[1]);
         } else {
-            $cmd_link = $ilCtrl->getLinkTargetByClass('ilObjTestGUI', $a_cmd[0]);
+            $cmd_link = $ilCtrl->getLinkTargetByClass('ilObjTestGUI', $cmd[0]);
         }
-        
+
         $params = array_merge(array('ref_id' => $this->ref_id), $this->command_link_params);
-        
+
         foreach ($params as $param => $value) {
             $cmd_link = ilUtil::appendUrlParameterString($cmd_link, "$param=$value", true);
         }
@@ -133,37 +140,29 @@ class ilObjTestListGUI extends ilObjectListGUI
         return $cmd_link;
     }
 
-    public function getCommands()
+    public function getCommands(): array
     {
         $commands = parent::getCommands();
-        
+
         $commands = $this->handleUserResultsCommand($commands);
-        
+
         return $commands;
     }
-    
+
     private function handleUserResultsCommand($commands)
     {
         global $DIC;
         $ilUser = $DIC['ilUser'];
-        
-        if (!$this->isObjectiveTest()) {
+
+        if (!ilLOSettings::isObjectiveTest($this->ref_id)) {
             $commands = $this->removeUserResultsCommand($commands);
         } else {
-            require_once 'Modules/Test/classes/class.ilObjTestAccess.php';
-            
             if (!ilObjTestAccess::visibleUserResultExists($this->obj_id, $ilUser->getId())) {
                 $commands = $this->removeUserResultsCommand($commands);
             }
         }
-        
+
         return $commands;
-    }
-    
-    private function isObjectiveTest()
-    {
-        require_once 'Modules/Course/classes/Objectives/class.ilLOSettings.php';
-        return ilLOSettings::isObjectiveTest($this->ref_id);
     }
 
     private function removeUserResultsCommand($commands)
@@ -174,10 +173,10 @@ class ilObjTestListGUI extends ilObjectListGUI
                 break;
             }
         }
-        
+
         return $commands;
     }
-    
+
     /**
      * overwritten from base class for course objectives
      *
@@ -185,18 +184,17 @@ class ilObjTestListGUI extends ilObjectListGUI
      * @param
      * @return
      */
-    public function createDefaultCommand($a_command)
+    public function createDefaultCommand(array $command): array
     {
-        return $a_command;
+        return $command;
     }
-    
+
 
     /**
      * add command link parameters
      *
      * @access public
      * @param array (param => value)
-     * @return
      */
     public function addCommandLinkParameter($a_param)
     {
@@ -204,24 +202,29 @@ class ilObjTestListGUI extends ilObjectListGUI
     }
 
     // begin-patch lok
-    protected function modifyTitleLink($a_default_link)
+    protected function modifyTitleLink(string $default_link): string
     {
-        include_once './Modules/Course/classes/Objectives/class.ilLOSettings.php';
-        $id = ilLOSettings::isObjectiveTest($this->ref_id);
-        
-        $cmd_link = $a_default_link;
-        
-        if ($id) {
-            $ref_ids = ilObject::_getAllReferences($id);
-            $ref_id = end($ref_ids);
-            
-            $this->ctrl->setParameterByClass("ilrepositorygui", 'ref_id', $ref_id);
-            $this->ctrl->setParameterByClass("ilrepositorygui", 'tid', $this->ref_id);
-            $cmd_link = $this->ctrl->getLinkTargetByClass("ilrepositorygui", 'redirectLocToTest');
-            $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $this->ref_id);
-            $this->ctrl->clearParametersByClass('ilrepositorygui');
+        if (!ilLOSettings::isObjectiveTest($this->ref_id)) {
+            return parent::modifyTitleLink($default_link);
         }
+
+        $path = $this->tree->getPathFull($this->ref_id);
+
+        while ($parent = array_pop($path)) {
+            if ($parent['type'] === 'crs') {
+                $parent_crs_ref_id = $parent['ref_id'];
+                break;
+            }
+        }
+
+        $this->ctrl->setParameterByClass("ilrepositorygui", 'ref_id', $parent_crs_ref_id);
+        $this->ctrl->setParameterByClass("ilrepositorygui", 'tid', $this->ref_id);
+        $cmd_link = $this->ctrl->getLinkTargetByClass("ilrepositorygui", 'redirectLocToTest');
+        $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $this->ref_id);
+        $this->ctrl->clearParametersByClass('ilrepositorygui');
+
         return parent::modifyTitleLink($cmd_link);
     }
+
     // end-patch lok
 } // END class.ilObjTestListGUI

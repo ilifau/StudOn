@@ -1,32 +1,36 @@
-<?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php declare(strict_types = 1);
+
 /**
-* This script provides a WebDAV interface for the ILIAS repository.
-*
-* @author Werner Randelshofer, Hochschule Luzern, werner.randelshofer@hslu.ch
-* @version $Id: class.ilDAVServer.php,v 1.0 2005/07/08 12:00:00 wrandelshofer Exp $
-*
-* @package webdav
-*/
-// Initialize
-// -----------------------------------------------------
-// Retrieve the client id from PATH_INFO
-// Component 1 contains the ILIAS client_id.
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 require_once("Services/Init/classes/class.ilInitialisation.php");
+
 $path_info_components = explode('/', $_SERVER['PATH_INFO']);
 $client_id = $path_info_components[1];
 $show_mount_instr = isset($_GET['mount-instructions']);
 
-try{
-    // Set context for authentication
+try {
     ilAuthFactory::setContext(ilAuthFactory::CONTEXT_HTTP);
 
-    // Launch ILIAS using the client id we have determined
     $_GET["client_id"] = $client_id;
-    $context =  ilContext::CONTEXT_WEBDAV;
+    $context = ilContext::CONTEXT_WEBDAV;
     ilContext::init($context);
+    $post_array = $_POST;
     ilInitialisation::initILIAS();
-} catch(InvalidArgumentException $e) {
+} catch (InvalidArgumentException $e) {
     header("HTTP/1.1 400 Bad Request");
     header("X-WebDAV-Status: 400 Bad Request", true);
     echo '<?xml version="1.0" encoding="utf-8"?>
@@ -42,25 +46,19 @@ if (!ilDAVActivationChecker::_isActive()) {
     header("HTTP/1.1 403 Forbidden");
     header("X-WebDAV-Status: 403 Forbidden", true);
     echo '<html><body><h1>Sorry</h1>' .
-      '<p><b>Please enable the WebDAV plugin in the ILIAS Administration panel.</b></p>' .
+      '<p><b>Please enable WebDAV in the ILIAS Administration panel.</b></p>' .
       '<p>You can only access this page, if WebDAV is enabled on this server.</p>' .
       '</body></html>';
     exit;
 }
 
-if ($show_mount_instr) {
-    // Show mount instructions page for WebDAV
-    $f = new ilWebDAVMountInstructionsFactory(
-        new ilWebDAVMountInstructionsRepositoryImpl($DIC->database()),
-        $DIC->http()->request(),
-        $DIC->user()
-    );
-    $mount_instructions = $f->getMountInstructionsObject();
+$webdav_dic = new ilWebDAVDIC();
+$webdav_dic->init($DIC);
 
-    $mount_gui = new ilWebDAVMountInstructionsGUI($mount_instructions);
+if ($show_mount_instr) {
+    $mount_gui = $webdav_dic->mountinstructions();
     $mount_gui->renderMountInstructionsContent();
 } else {
-    // Launch the WebDAV Server
-    $server =  ilWebDAVRequestHandler::getInstance();
-    $server->handleRequest();
+    $server = new ilWebDAVRequestHandler($webdav_dic);
+    $server->handleRequest($post_array);
 }

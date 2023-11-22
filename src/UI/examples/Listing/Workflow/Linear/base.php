@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Listing\Workflow\Linear;
+
 function base()
 {
     //init Factory and Renderer

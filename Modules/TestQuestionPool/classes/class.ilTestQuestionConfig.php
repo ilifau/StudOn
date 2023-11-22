@@ -1,8 +1,22 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 // fau: testNav - new class ilTestQuestionConfig.
-
 /**
  * Test Question configuration
  */
@@ -19,9 +33,9 @@ class ilTestQuestionConfig
     // hey.
 
     protected $scoreEmptyMcSolutionsEnabled = false;
-    
+
     protected $workedThrough = false;
-    
+
     /**
      * ilTestQuestionConfig constructor.
      */
@@ -36,7 +50,7 @@ class ilTestQuestionConfig
      * Return if the saving of an unchanged answer is supported with an additional checkbox
      * @return bool
      */
-    public function isUnchangedAnswerPossible()
+    public function isUnchangedAnswerPossible(): bool
     {
         return $this->isUnchangedAnswerPossible;
     }
@@ -46,7 +60,7 @@ class ilTestQuestionConfig
      * @param 	bool 	$isUnchangedAnswerPossible
      * @return  ilTestQuestionConfig
      */
-    public function setIsUnchangedAnswerPossible($isUnchangedAnswerPossible)
+    public function setIsUnchangedAnswerPossible($isUnchangedAnswerPossible): ilTestQuestionConfig
     {
         $this->isUnchangedAnswerPossible = $isUnchangedAnswerPossible;
         return $this;
@@ -56,7 +70,7 @@ class ilTestQuestionConfig
      * Return the label to be used for the 'use unchanged answer' checkbox
      * @return string
      */
-    public function getUseUnchangedAnswerLabel()
+    public function getUseUnchangedAnswerLabel(): string
     {
         return $this->useUnchangedAnswerLabel;
     }
@@ -66,7 +80,7 @@ class ilTestQuestionConfig
      * @param 	string 	$useUnchangedAnswerLabel
      * @return 	ilTestQuestionConfig
      */
-    public function setUseUnchangedAnswerLabel($useUnchangedAnswerLabel)
+    public function setUseUnchangedAnswerLabel($useUnchangedAnswerLabel): ilTestQuestionConfig
     {
         $this->useUnchangedAnswerLabel = $useUnchangedAnswerLabel;
         return $this;
@@ -76,7 +90,7 @@ class ilTestQuestionConfig
      * Return if the detection of form changes is enabled
      * @return bool
      */
-    public function isFormChangeDetectionEnabled()
+    public function isFormChangeDetectionEnabled(): bool
     {
         return $this->enableFormChangeDetection;
     }
@@ -86,7 +100,7 @@ class ilTestQuestionConfig
      * @param 	bool 	$enableFormChangeDetection
      * @return	ilTestQuestionConfig
      */
-    public function setFormChangeDetectionEnabled($enableFormChangeDetection)
+    public function setFormChangeDetectionEnabled($enableFormChangeDetection): ilTestQuestionConfig
     {
         $this->enableFormChangeDetection = $enableFormChangeDetection;
         return $this;
@@ -96,7 +110,7 @@ class ilTestQuestionConfig
      * Return if the detection of background changes is enabled
      * @return bool
      */
-    public function isBackgroundChangeDetectionEnabled()
+    public function isBackgroundChangeDetectionEnabled(): bool
     {
         return $this->enableBackgroundChangeDetection;
     }
@@ -108,7 +122,7 @@ class ilTestQuestionConfig
      * @param $enableBackgroundChangeDetection
      * @return	ilTestQuestionConfig
      */
-    public function setBackgroundChangeDetectionEnabled($enableBackgroundChangeDetection)
+    public function setBackgroundChangeDetectionEnabled($enableBackgroundChangeDetection): ilTestQuestionConfig
     {
         $this->enableBackgroundChangeDetection = $enableBackgroundChangeDetection;
         return $this;
@@ -118,72 +132,72 @@ class ilTestQuestionConfig
     /**
      * @return bool
      */
-    public function isPreviousPassSolutionReuseAllowed()
+    public function isPreviousPassSolutionReuseAllowed(): bool
     {
         return $this->previousPassSolutionReuseAllowed;
     }
-    
+
     /**
      * @param bool $previousPassSolutionReuseAllowed
      */
-    public function setPreviousPassSolutionReuseAllowed($previousPassSolutionReuseAllowed)
+    public function setPreviousPassSolutionReuseAllowed($previousPassSolutionReuseAllowed): void
     {
         $this->previousPassSolutionReuseAllowed = $previousPassSolutionReuseAllowed;
     }
     // hey.
-    
+
     // hey: prevPassSolutions - previous solution adopted
     /**
      * @return bool
      */
-    public function isSolutionInitiallyPrefilled()
+    public function isSolutionInitiallyPrefilled(): bool
     {
         return $this->solutionInitiallyPrefilled;
     }
-    
+
     /**
      * @param bool $solutionInitiallyPrefilled
     // hey: prevPassSolutions - streamlined signatures
      * @return ilTestQuestionConfig $this
     // hey.
      */
-    public function setSolutionInitiallyPrefilled($solutionInitiallyPrefilled)
+    public function setSolutionInitiallyPrefilled($solutionInitiallyPrefilled): ilTestQuestionConfig
     {
         $this->solutionInitiallyPrefilled = $solutionInitiallyPrefilled;
         // hey: prevPassSolutions - streamlined signatures
         return $this;
         // hey.
     }
-    
+
     /**
      * @return bool
      */
-    public function isScoreEmptyMcSolutionsEnabled()
+    public function isScoreEmptyMcSolutionsEnabled(): bool
     {
         return $this->scoreEmptyMcSolutionsEnabled;
     }
-    
+
     /**
      * @param bool $scoreEmptyMcSolutionsEnabled
      */
-    public function setScoreEmptyMcSolutionsEnabled($scoreEmptyMcSolutionsEnabled)
+    public function setScoreEmptyMcSolutionsEnabled($scoreEmptyMcSolutionsEnabled): void
     {
         $this->scoreEmptyMcSolutionsEnabled = $scoreEmptyMcSolutionsEnabled;
     }
-    
+
     /**
      * @return bool
      */
-    public function isWorkedThrough()
+    public function isWorkedThrough(): bool
     {
         return $this->workedThrough;
     }
-    
+
     /**
      * @param bool $workedThrough
      * @return $this
      */
-    public function setWorkedThrough($workedThrough)
+    public function setWorkedThrough($workedThrough): ilTestQuestionConfig
     {
         $this->workedThrough = $workedThrough;
         return $this;

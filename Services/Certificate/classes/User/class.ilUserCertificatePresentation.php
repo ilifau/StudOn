@@ -1,50 +1,35 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilUserCertificatePresentation
 {
-    /**
-     * @var int
-     */
-    private $objId;
+    private int $objId;
+    private string $objType;
+    private ?ilUserCertificate $userCertificate;
+    private string $objectTitle;
+    private string $objectDescription;
+    private string $userName;
 
-    /**
-     * @var string
-     */
-    private $objType;
-    
-    /**
-     * @var ilUserCertificate|null
-     */
-    private $userCertificate;
-
-    /**
-     * @var string
-     */
-    private $objectTitle;
-
-    /**
-     * @var string
-     */
-    private $objectDescription;
-
-    /**
-     * @var string
-     */
-    private $userName;
-
-    /**
-     * ilUserCertificatePresentation constructor.
-     * @param int $objId
-     * @param string $objType
-     * @param ilUserCertificate|null $userCertificate
-     * @param string $objectTitle
-     * @param string $objectDescription
-     * @param string $userName
-     */
     public function __construct(
         int $objId,
         string $objType,
@@ -61,50 +46,32 @@ class ilUserCertificatePresentation
         $this->userName = $userName;
     }
 
-    /**
-     * @return int
-     */
-    public function getObjId() : int
+    public function getObjId(): int
     {
         return $this->objId;
     }
 
-    /**
-     * @return string
-     */
-    public function getObjType() : string
+    public function getObjType(): string
     {
         return $this->objType;
     }
 
-    /**
-     * @return ilUserCertificate|null
-     */
-    public function getUserCertificate() : ?ilUserCertificate
+    public function getUserCertificate(): ?ilUserCertificate
     {
         return $this->userCertificate;
     }
 
-    /**
-     * @return string
-     */
-    public function getObjectTitle() : string
+    public function getObjectTitle(): string
     {
         return $this->objectTitle;
     }
 
-    /**
-     * @return string
-     */
-    public function getObjectDescription() : string
+    public function getObjectDescription(): string
     {
         return $this->objectDescription;
     }
 
-    /**
-     * @return string
-     */
-    public function getUserName() : string
+    public function getUserName(): string
     {
         return $this->userName;
     }

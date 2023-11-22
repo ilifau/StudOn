@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Identification\Serializer;
 
 use InvalidArgumentException;
@@ -27,16 +27,10 @@ use InvalidArgumentException;
  */
 class SerializerFactory
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\Serializer\CoreSerializer
-     */
-    private static $core_instance;
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\Serializer\PluginSerializer
-     */
-    private static $plugin_instance;
+    private static CoreSerializer $core_instance;
+    private static PluginSerializer $plugin_instance;
 
-    public function core() : CoreSerializer
+    public function core(): CoreSerializer
     {
         if (!isset(self::$core_instance)) {
             self::$core_instance = new CoreSerializer();
@@ -45,7 +39,7 @@ class SerializerFactory
         return self::$core_instance;
     }
 
-    public function plugin() : PluginSerializer
+    public function plugin(): PluginSerializer
     {
         if (!isset(self::$plugin_instance)) {
             self::$plugin_instance = new PluginSerializer();
@@ -58,7 +52,7 @@ class SerializerFactory
      * @param string $serialized_identification
      * @return SerializerInterface
      */
-    public function fromSerializedIdentification(string $serialized_identification) : SerializerInterface
+    public function fromSerializedIdentification(string $serialized_identification): SerializerInterface
     {
         $plugin = $this->plugin();
         if ($plugin->canHandle($serialized_identification)) {

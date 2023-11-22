@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Notification\Collector\Renderer;
 
 use ILIAS\GlobalScreen\Client\Notifications as ClientNotifications;
@@ -32,10 +32,7 @@ abstract class AbstractBaseNotificationRenderer implements NotificationRenderer
 {
     use Hasher;
 
-    /**
-     * @var UIFactory
-     */
-    protected $ui_factory;
+    protected UIFactory $ui_factory;
 
     /**
      * AbstractBaseNotificationRenderer constructor.
@@ -50,7 +47,7 @@ abstract class AbstractBaseNotificationRenderer implements NotificationRenderer
      * @param isItem $item
      * @return string
      */
-    protected function buildCloseQuery(isItem $item) : string
+    protected function buildCloseQuery(isItem $item): string
     {
         return http_build_query([
             ClientNotifications::MODE => ClientNotifications::MODE_CLOSED,

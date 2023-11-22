@@ -17,8 +17,8 @@
 
 datepicker.regional.rm = {
 	closeText: "Serrar",
-	prevText: "Suandant",
-	nextText: "Precedent",
+	prevText: "&#x3C;Suandant",
+	nextText: "Precedent&#x3E;",
 	currentText: "Actual",
 	monthNames: [
 		"Schaner",

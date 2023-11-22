@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilChatroomSmiliesGUI
@@ -10,41 +27,12 @@
  */
 class ilChatroomSmiliesGUI
 {
-
-    /**
-     * Constructor
-     * @access public
-     */
-    /*public function __construct()
-     {
-
-     }*/
-
-    /**
-     * Instantiates ilChatroomSmiliesTableGUI and returns its table's HTML.
-     * @param ilObjChatroomAdminGUI $a_ref
-     * @return string
-     */
-    public static function _getExistingSmiliesTable($a_ref)
+    public static function _getExistingSmiliesTable(ilChatroomObjectGUI $a_ref): string
     {
-        include_once "Modules/Chatroom/classes/class.ilChatroomSmiliesTableGUI.php";
-
         $table = new ilChatroomSmiliesTableGUI($a_ref, 'smiley');
-
-        include_once('Modules/Chatroom/classes/class.ilChatroomSmilies.php');
-
         $values = ilChatroomSmilies::_getSmilies();
         $table->setData($values);
 
         return $table->getHTML();
-    }
-
-    /**
-     * Default execute command, calls ilChatroomSmilies::initial();
-     */
-    public function executeCommand()
-    {
-        include_once 'Modules/Chatroom/classes/class.ilChatroomSmilies.php';
-        ilChatroomSmilies::initial();
     }
 }

@@ -1,18 +1,32 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 /**
  * Storage of images in settings.
- *
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
  */
-class ilLearningSequenceFilesystem extends ilFileSystemStorage
+class ilLearningSequenceFilesystem extends ilFileSystemAbstractionStorage
 {
-    const IMG_ABSTRACT = 'abstract';
-    const IMG_EXTRO = 'extro';
-    const PATH_PRE = 'LSO';
-    const PATH_POST = 'Images';
+    public const IMG_ABSTRACT = 'abstract';
+    public const IMG_EXTRO = 'extro';
+    public const PATH_PRE = 'LSO';
+    public const PATH_POST = 'Images';
 
     public function __construct()
     {
@@ -26,7 +40,7 @@ class ilLearningSequenceFilesystem extends ilFileSystemStorage
         string $which,
         array $file_info,
         ilLearningSequenceSettings $settings
-    ) : ilLearningSequenceSettings {
+    ): ilLearningSequenceSettings {
         $target = $this->getStoragePathFor(
             $which,
             $settings->getObjId(),
@@ -44,40 +58,39 @@ class ilLearningSequenceFilesystem extends ilFileSystemStorage
     }
 
 
-    public function delete_image(string $which, ilLearningSequenceSettings $settings)
+    public function delete_image(string $which, ilLearningSequenceSettings $settings): ilLearningSequenceSettings
     {
+        $delete = '';
         if ($which === self::IMG_ABSTRACT) {
             $delete = $settings->getAbstractImage();
-            $settings = $settings->withAbstractImage(null);
+            $settings = $settings->withAbstractImage();
         }
         if ($which === self::IMG_EXTRO) {
             $delete = $settings->getExtroImage();
-            $settings = $settings->withExtroImage(null);
+            $settings = $settings->withExtroImage();
         }
-
-        $this->deleteFile($delete);
+        if (!empty($delete)) {
+            $this->deleteFile($delete);
+        }
         return $settings;
     }
 
-    public function getStoragePathFor(string $which, int $obj_id, string $suffix)
+    public function getStoragePathFor(string $which, int $obj_id, string $suffix): string
     {
         return $this->getStoragePath()
             . $which
             . '_'
-            . (string) $obj_id
+            . $obj_id
             . '.'
             . $suffix;
     }
 
-    public function getSuffix(string $file_name) : string
+    public function getSuffix(string $file_name): string
     {
         return pathinfo($file_name, PATHINFO_EXTENSION);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getStoragePath()
+    protected function getStoragePath(): string
     {
         return  $this->getAbsolutePath() . '/';
     }
@@ -85,7 +98,7 @@ class ilLearningSequenceFilesystem extends ilFileSystemStorage
     /**
      * @inheritdoc
      */
-    protected function getPathPrefix()
+    protected function getPathPrefix(): string
     {
         return self::PATH_PRE;
     }
@@ -93,7 +106,7 @@ class ilLearningSequenceFilesystem extends ilFileSystemStorage
     /**
      * @inheritdoc
      */
-    protected function getPathPostfix()
+    protected function getPathPostfix(): string
     {
         return self::PATH_POST;
     }

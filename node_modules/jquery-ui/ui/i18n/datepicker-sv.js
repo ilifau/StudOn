@@ -17,8 +17,8 @@
 
 datepicker.regional.sv = {
 	closeText: "Stäng",
-	prevText: "Förra",
-	nextText: "Nästa",
+	prevText: "&#xAB;Förra",
+	nextText: "Nästa&#xBB;",
 	currentText: "Idag",
 	monthNames: [ "januari", "februari", "mars", "april", "maj", "juni",
 	"juli", "augusti", "september", "oktober", "november", "december" ],

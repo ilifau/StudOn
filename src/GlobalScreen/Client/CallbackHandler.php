@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Client;
 
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\Hasher;
@@ -33,22 +33,10 @@ class CallbackHandler
     private const TARGET_SCRIPT = "/ilias.php";
     public const KEY_ITEM = 'item';
 
-    /**
-     * @var \ILIAS\HTTP\Wrapper\WrapperFactory
-     */
-    protected $wrapper;
-    /**
-     * @var \ILIAS\Refinery\Factory
-     */
-    protected $refinery;
-    /**
-     * @var \ilCtrlInterface
-     */
-    protected $ctrl;
-    /**
-     * @var \ILIAS\GlobalScreen\Services
-     */
-    protected $global_screen;
+    protected WrapperFactory $wrapper;
+    protected Factory $refinery;
+    protected \ilCtrlInterface $ctrl;
+    protected \ILIAS\GlobalScreen\Services $global_screen;
 
     public function __construct()
     {
@@ -60,7 +48,7 @@ class CallbackHandler
         $this->global_screen = $DIC->globalScreen();
     }
 
-    public function run() : void
+    public function run(): void
     {
         $this->ctrl->setTargetScript(self::TARGET_SCRIPT);
 
@@ -78,15 +66,15 @@ class CallbackHandler
         }
     }
 
-    private function resolveCallback(isToolItem $item) : \Closure
+    private function resolveCallback(isToolItem $item): \Closure
     {
         return $item->hasCloseCallback()
             ? $item->getCloseCallback()
-            : static function () : void {
+            : static function (): void {
             };
     }
 
-    private function getIdentification() : IdentificationInterface
+    private function getIdentification(): IdentificationInterface
     {
         $hashed = $this->wrapper->query()->has(self::KEY_ITEM)
             ? $this->wrapper->query()->retrieve(self::KEY_ITEM, $this->refinery->to()->string())

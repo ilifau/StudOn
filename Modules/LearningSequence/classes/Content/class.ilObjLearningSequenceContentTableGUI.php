@@ -3,27 +3,53 @@
 declare(strict_types=1);
 
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Daniel Weise <daniel.weise@concepts-and-training.de>
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
- */
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilObjLearningSequenceContentTableGUI extends ilTable2GUI
 {
+    protected ilObjLearningSequenceContentGUI $parent_gui;
+    protected ilObjLearningSequenceGUI $container_gui;
+    protected string $cmd;
+    protected ilAccess $access;
+    protected ILIAS\UI\Factory $ui_factory;
+    protected ILIAS\UI\Renderer $ui_renderer;
+    protected ilAdvancedSelectionListGUI $advanced_selection_list_gui;
+    protected LSItemOnlineStatus $ls_item_online_status;
+
     public function __construct(
         ilObjLearningSequenceContentGUI $parent_gui,
+        ilObjLearningSequenceGUI $container_gui,
         string $cmd,
         ilCtrl $ctrl,
         ilLanguage $lng,
         ilAccess $access,
+        ILIAS\UI\Factory $ui_factory,
+        ILIAS\UI\Renderer $ui_renderer,
         ilAdvancedSelectionListGUI $advanced_selection_list_gui,
         LSItemOnlineStatus $ls_item_online_status
     ) {
         parent::__construct($parent_gui, $cmd);
 
         $this->parent_gui = $parent_gui;
+        $this->container_gui = $container_gui;
         $this->ctrl = $ctrl;
         $this->lng = $lng;
         $this->access = $access;
+        $this->ui_factory = $ui_factory;
+        $this->ui_renderer = $ui_renderer;
         $this->advanced_selection_list_gui = $advanced_selection_list_gui;
         $this->ls_item_online_status = $ls_item_online_status;
 
@@ -47,22 +73,24 @@ class ilObjLearningSequenceContentTableGUI extends ilTable2GUI
         $this->setLimit(9999);
     }
 
-    protected function fillRow($set)
+    protected function fillRow(array $a_set): void
     {
+        /** @var LSItem $ls_item */
+        $ls_item = $a_set[0];
+
         $ni = new ilNumberInputGUI(
             "",
-            $this->parent_gui->getFieldName($this->parent_gui::FIELD_ORDER, $set->getRefId())
+            $this->parent_gui->getFieldName($this->parent_gui::FIELD_ORDER, $ls_item->getRefId())
         );
-        $ni->setSize("3");
-        $ni->setDisabled($this->set_is_used);
-        $ni->setValue(($set->getOrderNumber() + 1) * 10);
+        $ni->setSize(3);
+        $ni->setValue((string) (($ls_item->getOrderNumber() + 1) * 10));
 
-        if ($this->ls_item_online_status->hasOnlineStatus($set->getRefId())) {
+        if ($this->ls_item_online_status->hasOnlineStatus($ls_item->getRefId())) {
             $cb = new ilCheckboxInputGUI(
                 "",
-                $this->parent_gui->getFieldName($this->parent_gui::FIELD_ONLINE, $set->getRefId())
+                $this->parent_gui->getFieldName($this->parent_gui::FIELD_ONLINE, $ls_item->getRefId())
             );
-            $cb->setChecked($set->isOnline());
+            $cb->setChecked($ls_item->isOnline());
         } else {
             $cb = new ilCheckboxInputGUI("", "");
             $cb->setChecked(true);
@@ -72,34 +100,43 @@ class ilObjLearningSequenceContentTableGUI extends ilTable2GUI
 
         $si = new ilSelectInputGUI(
             "",
-            $this->parent_gui->getFieldName($this->parent_gui::FIELD_POSTCONDITION_TYPE, $set->getRefId())
+            $this->parent_gui->getFieldName($this->parent_gui::FIELD_POSTCONDITION_TYPE, $ls_item->getRefId())
         );
-        $options = $this->parent_gui->getPossiblePostConditionsForType($set->getType());
+        $options = $this->parent_gui->getPossiblePostConditionsForType($ls_item->getType());
 
         $si->setOptions($options);
-        $si->setValue($set->getPostCondition()->getConditionOperator());
+        $si->setValue($ls_item->getPostCondition()->getConditionOperator());
 
-        $action_items = $this->getActionMenuItems($set->getRefId(), $set->getType());
-        $obj_link = $this->getEditLink($set->getRefId(), $set->getType(), $action_items);
+        $action_items = $this->getActionMenuItems($ls_item->getRefId(), $ls_item->getType());
+        $obj_link = $this->getEditLink($ls_item->getRefId(), $ls_item->getType(), $action_items);
 
-        $title = $set->getTitle();
+        $title = $ls_item->getTitle();
         $title = sprintf(
             '<a href="%s">%s</a>',
             $obj_link,
             $title
         );
 
-        $this->tpl->setVariable("ID", $set->getRefId());
-        $this->tpl->setVariable("IMAGE", $set->getIconPath());
+        $this->tpl->setVariable("ID", $ls_item->getRefId());
+
+        $this->tpl->setVariable(
+            "IMAGE",
+            $this->ui_renderer->render(
+                $this->ui_factory->symbol()->icon()->custom(
+                    $ls_item->getIconPath(),
+                    $ls_item->getType()
+                )->withSize('medium')
+            )
+        );
+
         $this->tpl->setVariable("ORDER", $ni->render());
         $this->tpl->setVariable("TITLE", $title);
         $this->tpl->setVariable("POST_CONDITIONS", $si->render());
-        $this->tpl->setVariable("ACTIONS", $this->getItemActionsMenu($set->getRefId(), $set->getType()));
-        $this->tpl->setVariable("TYPE", $set->getType());
+        $this->tpl->setVariable("ACTIONS", $this->getItemActionsMenu($ls_item->getRefId(), $ls_item->getType()));
+        $this->tpl->setVariable("TYPE", $ls_item->getType());
     }
 
-
-    protected function getItemActionsMenu(int $ref_id, string $type) : string
+    protected function getItemActionsMenu(int $ref_id, string $type): string
     {
         $item_obj_id = $this->getObjIdFor($ref_id);
         $item_list_gui = $this->getListGuiFor($type);
@@ -110,13 +147,22 @@ class ilObjLearningSequenceContentTableGUI extends ilTable2GUI
         $item_list_gui->enableLink(true);
         $item_list_gui->enableTimings(false);
 
-        $lso_gui = $this->parent_gui->parent_gui;
-        $item_list_gui->setContainerObject($lso_gui);
+        $item_list_gui->setContainerObject($this->container_gui);
 
         return $item_list_gui->getCommandsHTML();
     }
 
-    protected function getActionMenuItems(int $ref_id, string $type) : array
+    /**
+     * @return	array	array of command arrays including
+     *					"permission" => permission name
+     *					"cmd" => command
+     *					"link" => command link url
+     *					"frame" => command link frame
+     *					"lang_var" => language variable of command
+     *					"granted" => true/false: command granted or not
+     *					"access_info" => access info object (to do: implementation)
+     */
+    protected function getActionMenuItems(int $ref_id, string $type): array
     {
         $item_obj_id = $this->getObjIdFor($ref_id);
         $item_list_gui = $this->getListGuiFor($type);
@@ -124,10 +170,7 @@ class ilObjLearningSequenceContentTableGUI extends ilTable2GUI
         return $item_list_gui->getCommands();
     }
 
-    /**
-    * @return string|null
-    */
-    protected function getEditLink(int $ref_id, string $type, array $action_items)
+    protected function getEditLink(int $ref_id, string $type, array $action_items): ?string
     {
         switch ($type) {
             case $this->ls_item_online_status::S_LEARNMODULE_IL:
@@ -154,29 +197,26 @@ class ilObjLearningSequenceContentTableGUI extends ilTable2GUI
 
         $props = array_filter(
             $action_items,
-            function ($action_item) use ($prop_for_type) {
-                //var_dump($action_item['cmd']);
-                return $action_item['cmd'] === $prop_for_type;
-            }
+            fn ($action_item) => $action_item['cmd'] === $prop_for_type
         );
 
-        if (count($props) > 0) {
+        if ($props !== []) {
             return array_shift($props)['link'];
         }
         return null;
     }
 
-    protected function getObjIdFor(int $ref_id) : int
+    protected function getObjIdFor(int $ref_id): int
     {
         return ilObject::_lookupObjId($ref_id);
     }
 
-    protected function getListGuiFor(string $type) : ilObjectListGUI
+    protected function getListGuiFor(string $type): ilObjectListGUI
     {
         return ilObjectListGUIFactory::_getListGUIByType($type);
     }
 
-    protected function getStdLink(int $ref_id, string $type) : string
+    protected function getStdLink(int $ref_id, string $type): string
     {
         return ilLink::_getLink($ref_id, $type);
     }

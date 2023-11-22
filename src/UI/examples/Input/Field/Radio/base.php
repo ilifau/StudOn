@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Field\Radio;
+
 /**
  * Base example showing how to plug a radio into a form
  */

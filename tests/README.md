@@ -18,14 +18,9 @@
       1. [Configure Testframework](#configure-testframework)
       1. [Create run configuration](#create-run-configuration)
       1. [Run the tests](#run-the-tests)
-      1. [Explanation ILIAS installation bound tests](#explanation-ilias-installation-bound-tests)
-      1. [Configure ILIAS installation bound tests](#configure-ilias-installation-bound-tests)
-      1. [Exclude ILIAS installation bound tests](#exclude-ilias-installation-bound-tests)
-      1. [Run only ILIAS installation bound tests](#run-only-ilias-installation-bound-tests)
    1. [Run tests with CLI](#run-tests-with-cli)
-      1. [Execute ILIAS installation bound tests](#execute-ilias-installation-bound-tests)
       1. [Execute all tests](#execute-all-tests)
-      1. [Execute only installation unbound tests](#execute-only-installation-unbound-tests)
+      1. [Execution Order](#execution-order)
 1. [Guidelines](#guidelines)
    1. [Foreword](#foreword)
    1. [Naming](#naming)
@@ -212,8 +207,8 @@ Please make sure to add the xdebug extension to one of your php.ini files.
 <a name="configure-testframework"></a>
 #### Configure Testframework
 - Enter the PHPStorm settings.
-- Navigate to "Language & Frameworks -> PHP -> Testframeworks"
-- Select your interpreter
+- Navigate to "PHP -> Testframeworks"
+- Add a new configuration, e.g. `PHPUnit Local`
 - Select composer within the PHPUnit library section
 - Enter the path to the composer 
 autoload.php -> {ILIAS root}/libs/composer/vendor/autoload.php
@@ -226,7 +221,7 @@ autoload.php -> {ILIAS root}/libs/composer/vendor/autoload.php
 - Name it properly like global test suite.
 - Select the test scope radio option -> Defined in Configuration file
 - Tick use alternative configuration file
-- Enter the path -> {ILIAS root}/Services/PHPUnit/config/PhpUnitConfig.xml
+- Enter the path -> {ILIAS root}/CI/PHPUnit/phpunit.xml
 - Set the path custom working directory to the ILIAS root.
 - Hit the OK button to save the changes
 
@@ -234,59 +229,6 @@ autoload.php -> {ILIAS root}/libs/composer/vendor/autoload.php
 #### Run the tests
 Select the test in the top right corner and press the play button to let the 
 global suite run.
-
-<a name="explanation-ilias-installation-bound-tests"></a>
-#### Explanation ILIAS installation bound tests
-ILIAS with the version 5.3 contains installation bound tests which require 
-a fully installed ILIAS. All tests which are bound belong to a special test group
-called *needInstalledILIAS* which can be excluded to run the remaining test 
-for example on a continuous integration server.
-
-The tests in the *needInstalledILIAS* group also need an additional configuration
-which is shown bellow. 
-
-<a name="configure-ilias-installation-bound-tests"></a>
-#### Configure ILIAS installation bound tests
-The ILIAS bound test uses a configuration located in 
-{ILIAS root}/Services/PHPUnit/config/cfg.phpunit.php. If the file doesn't exist 
-the template file must be copied and configured as shown bellow. 
-The location of the template file is 
-{ILIAS root}/Services/PHPUnit/config/cfg.phpunit.template.php.
-
-Rename the template *cfg.phpunit.template.php* to *cfg.phpunit.php*.
-
-```
-$_SESSION["AccountId"] = '6';
-$_POST["username"] = 'root';
-$_GET["client_id"] = 'default';
-```
-
-The values above shows an example configuration which loads the root user which 
-has the id 6 and the ILIAS client with the id "default".
-
-<a name="find-installation-specific-values"></a>
-##### Find installation specific values
-* The account id is equal to the user id which can be found
-at *Administration -> User Management -> Username*.
-* The value for the username is equal to the field called "Login"
-right after the user id. 
-* A full list of installed clients is provided in the setup screen which is located
-at {ILIAS URL}/setup/setup.php. In order to see all clients a master password
-login is required.
-
-<a name="exclude-ilias-installation-bound-tests"></a>
-#### Exclude ILIAS installation bound tests
-- Navigate to "Run -> Edit Configurations..."
-- Select your PHPUnit run configuration
-- Add "--exclude-group needInstalledILIAS" to the Test runner options.
-- Hit OK to save the changes
-
-<a name="run-only-ilias-installation-bound-tests"></a>
-#### Run only ILIAS installation bound tests
-- Navigate to "Run -> Edit Configurations..."
-- Select your PHPUnit run configuration
-- Add "--group needsInstalledILIAS" to the Test runner options.
-- Hit OK to save the changes
 
 <a name="run-tests-with-cli"></a>
 ### Run tests with CLI
@@ -297,36 +239,44 @@ test should run as configured on the CI server omit the *--no-globals-backup*,
 
 The commands bellow must be run from the ILIAS web root directory.
 
-<a name="execute-ilias-installation-bound-tests"></a>
-#### Execute ILIAS installation bound tests
-```
-./libs/composer/vendor/bin/phpunit -c ./Services/PHPUnit/config/PhpUnitConfig.xml \
-	--colors=always \
-	--no-globals-backup \
-	--report-useless-tests \
-	--disallow-todo-tests \
-	--group needsInstalledILIAS
-```
-
 <a name="execute-all-tests"></a>
 #### Execute all tests
-```
-./libs/composer/vendor/bin/phpunit -c ./Services/PHPUnit/config/PhpUnitConfig.xml \
-	--colors=always \
-	--report-useless-tests \
-	--disallow-todo-tests \
-	--no-globals-backup
+
+To execute the complete ILIAS test suite you can either run the respective bash script or call the `PHPUnit`
+executable directly.
+
+Bash (all additional arguments passed are passed to the `PHPUnit` test runner):
+
+```bash
+./CI/PHPUnit/run_tests.sh
 ```
 
-<a name="execute-only-installation-unbound-tests"></a>
-#### Execute only installation unbound tests
+Executable:
+
+```bash
+./libs/composer/vendor/phpunit/phpunit/phpunit -c ./CI/PHPUnit/phpunit.xml
 ```
-./libs/composer/vendor/bin/phpunit -c ./Services/PHPUnit/config/PhpUnitConfig.xml \
-	--colors=always \
-	--no-globals-backup \
-	--report-useless-tests \
-	--disallow-todo-tests \
-	--exclude-group needsInstalledILIAS
+
+#### Execution Order
+
+Tests are executed in a random order to make issues visible which are caused by hidden dependencies of the tests
+among themselves.
+
+The random order seed is printed after the respective test suites have been added in a test run:
+
+```bash
+PHPUnit 9.5.20 #StandWithUkraine
+
+Runtime:       PHP 8.1.5
+Configuration: ./CI/PHPUnit/phpunit.xml
+Random Seed:   1651495463
+```
+
+To achieve the same test execution order given for the failed test run, make sure your local installation is based
+on the same code (GIT hash). Afterwads, execute `PHPUnit` with the addtional `--random-order-seed` option.
+
+```bash
+./CI/PHPUnit/run_tests.sh --random-order-seed 1651495463
 ```
 
 <a name="guidelines"></a>

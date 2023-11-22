@@ -1,87 +1,71 @@
 <?php
 
-require_once('./Services/GlobalCache/classes/class.ilGlobalCacheService.php');
-require_once('./Services/Environment/classes/class.ilRuntime.php');
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilApc
- *
  * @beta
- *
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @version 1.0.0
  */
-class ilApc extends ilGlobalCacheService
+class ilApc extends ilGlobalCacheService implements ilGlobalCacheServiceInterface
 {
-    const MIN_MEMORY = 16;
-    const CACHE_ID = 'user';
-
-
     /**
-     * @param $key
-     *
-     * @return bool
+     * @var int
      */
-    public function exists($key)
+    private const MIN_MEMORY = 16;
+
+    public function exists(string $key): bool
     {
         if (function_exists('apcu_exists')) {
             return apcu_exists($this->returnKey($key));
-        } else {
-            return apcu_fetch($this->returnKey($key));
         }
+        return (bool) apcu_fetch($this->returnKey($key));
     }
 
-
-    /**
-     * @param     $key
-     * @param     $serialized_value
-     * @param int $ttl
-     *
-     * @return array|bool
-     */
-    public function set($key, $serialized_value, $ttl = 0)
+    public function set(string $key, $serialized_value, int $ttl = null): bool
     {
         return apcu_store($this->returnKey($key), $serialized_value, $ttl);
     }
 
-
     /**
-     * @param $key
-     *
      * @return mixed
      */
-    public function get($key)
+    public function get(string $key)
     {
         return apcu_fetch($this->returnKey($key));
     }
 
-
     /**
-     * @param $key
-     *
      * @return bool|string[]
      */
-    public function delete($key)
+    public function delete(string $key): bool
     {
         return apcu_delete($this->returnKey($key));
     }
 
-
-    /**
-     * @param bool $complete
-     *
-     * @return bool
-     */
-    public function flush($complete = false)
+    public function flush(bool $complete = false): bool
     {
         // incomplete flushing is not supported by APCu, an own implementation coused issues like https://mantis.ilias.de/view.php?id=28201
         return function_exists('apcu_clear_cache') && apcu_clear_cache();
     }
 
-
     /**
-     * @param $value
-     *
+     * @param mixed $value
      * @return mixed|string
      */
     public function serialize($value)
@@ -89,10 +73,8 @@ class ilApc extends ilGlobalCacheService
         return ($value);
     }
 
-
     /**
-     * @param $serialized_value
-     *
+     * @param mixed $serialized_value
      * @return mixed
      */
     public function unserialize($serialized_value)
@@ -100,11 +82,7 @@ class ilApc extends ilGlobalCacheService
         return ($serialized_value);
     }
 
-
-    /**
-     * @return array
-     */
-    public function getInfo()
+    public function getInfo(): array
     {
         $return = array();
 
@@ -134,26 +112,17 @@ class ilApc extends ilGlobalCacheService
         return $return;
     }
 
-
-    protected function getActive()
+    protected function getActive(): bool
     {
         return function_exists('apcu_store');
     }
 
-
-    /**
-     * @return bool
-     */
-    protected function getInstallable()
+    protected function getInstallable(): bool
     {
         return function_exists('apcu_store');
     }
 
-
-    /**
-     * @return string
-     */
-    protected function getMemoryLimit()
+    protected function getMemoryLimit(): string
     {
         if (ilRuntime::getInstance()->isHHVM()) {
             return $this->getMinMemory() . 'M';
@@ -162,20 +131,18 @@ class ilApc extends ilGlobalCacheService
         return ini_get('apc.shm_size');
     }
 
-
     /**
      * @inheritDoc
      */
-    protected function getMinMemory()
+    protected function getMinMemory(): int
     {
         return self::MIN_MEMORY;
     }
 
-
     /**
      * @inheritdoc
      */
-    public function isValid($key)
+    public function isValid(string $key): bool
     {
         return true;
     }

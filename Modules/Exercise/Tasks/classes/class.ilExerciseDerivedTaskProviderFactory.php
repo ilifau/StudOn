@@ -1,35 +1,37 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Exercise derived task provider factory
  *
- * @author @leifos.de
- * @ingroup ModulesExercise
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilExerciseDerivedTaskProviderFactory implements ilDerivedTaskProviderFactory
 {
-    /**
-     * @var ilTaskService
-     */
-    protected $task_service;
+    protected ilTaskService $task_service;
+    protected ilAccess $access;
+    protected ilLanguage $lng;
 
-    /**
-     * @var \ilAccess
-     */
-    protected $access;
-
-    /**
-     * @var \ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * Constructor
-     */
-    public function __construct(ilTaskService $task_service, \ilAccess $access = null, \ilLanguage $lng = null)
-    {
+    public function __construct(
+        ilTaskService $task_service,
+        ilAccess $access = null,
+        ilLanguage $lng = null
+    ) {
         global $DIC;
 
         $this->access = is_null($access)
@@ -44,9 +46,9 @@ class ilExerciseDerivedTaskProviderFactory implements ilDerivedTaskProviderFacto
     }
 
     /**
-     * @inheritdoc
+     * @return \ilExerciseDerivedTaskProvider[]
      */
-    public function getProviders() : array
+    public function getProviders(): array
     {
         return [
             new ilExerciseDerivedTaskProvider(
@@ -56,7 +58,8 @@ class ilExerciseDerivedTaskProviderFactory implements ilDerivedTaskProviderFacto
                 new ilExerciseDerivedTaskAction(
                     new ilExcMemberRepository(),
                     new ilExcAssMemberStateRepository(),
-                    new ilExcTutorRepository()
+                    new ilExcTutorRepository(),
+                    new \ILIAS\Exercise\Submission\SubmissionDBRepository()
                 )
             )
         ];

@@ -34,11 +34,6 @@
 		<context id="exc_context_grade_rmd" class="ilExcMailTemplateGradeReminderContext" />
 		<context id="exc_context_peer_rmd" class="ilExcMailTemplatePeerReminderContext" />
 	</mailtemplates>
-	<!-- fau: exAssHook - add plugin slot in module definition -->
-	<pluginslots>
-		<pluginslot id="exashk" name="AssignmentHook" />
-	</pluginslots>
-	<!-- fau. -->
 	<events>				
 		<event type="raise" id="createAssignment" />
 		<event type="raise" id="updateAssignment" />

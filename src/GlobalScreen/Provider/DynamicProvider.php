@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Provider;
 
 /**
@@ -40,7 +40,7 @@ interface DynamicProvider extends Provider
      * dependant from the current user.
      * @return bool
      */
-    public function isGloballyAvailable() : bool;
+    public function isGloballyAvailable(): bool;
 
     /**
      * Return a simple bool whether the GlobalScreen element could be relevant for the
@@ -48,12 +48,12 @@ interface DynamicProvider extends Provider
      * mail-system, return false;
      * @return bool
      */
-    public function isAvailableForCurrentUser() : bool;
+    public function isAvailableForCurrentUser(): bool;
 
     /**
      * ATTENTION: Implement your isCurrentlyActive()-Method as efficient as
      * possible
      * @return bool
      */
-    public function isCurrentlyAvailable() : bool;
+    public function isCurrentlyAvailable(): bool;
 }

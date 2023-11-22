@@ -3,9 +3,25 @@
 declare(strict_types=1);
 
 /**
- * GUI class for learning sequence membership features.
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Daniel Weise <daniel.weise@concepts-and-training.de>
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
+
+/**
+ * GUI class for learning sequence membership features.
  *
  * @ilCtrl_Calls ilLearningSequenceMembershipGUI: ilMailMemberSearchGUI, ilUsersGalleryGUI, ilRepositorySearchGUI
  * @ilCtrl_Calls ilLearningSequenceMembershipGUI: ilCourseParticipantsGroupsGUI, ilObjectCustomuserFieldsGUI
@@ -15,32 +31,43 @@ declare(strict_types=1);
  */
 class ilLearningSequenceMembershipGUI extends ilMembershipGUI
 {
+    protected ilObjectGUI $repository_gui;
+    protected ilObject $obj;
+    protected ilObjUserTracking $obj_user_tracking;
+    protected ilPrivacySettings $privacy_settings;
+    protected ilRbacReview $rbac_review;
+    protected ilSetting $settings;
+    protected ilToolbarGUI $toolbar;
+    protected ILIAS\HTTP\Wrapper\RequestWrapper $request_wrapper;
+    protected ArrayBasedRequestWrapper $post_wrapper;
+    protected ILIAS\Refinery\Factory $refinery;
+
     public function __construct(
         ilObjectGUI $repository_gui,
-        ilObject $repository_obj,
+        ilObject $obj,
         ilObjUserTracking $obj_user_tracking,
         ilPrivacySettings $privacy_settings,
-        ilLanguage $lng,
-        ilCtrl $ctrl,
-        ilAccess $access,
         ilRbacReview $rbac_review,
         ilSetting $settings,
-        ilToolbarGUI $toolbar
+        ilToolbarGUI $toolbar,
+        ILIAS\HTTP\Wrapper\RequestWrapper $request_wrapper,
+        ArrayBasedRequestWrapper $post_wrapper,
+        ILIAS\Refinery\Factory $refinery
     ) {
-        parent::__construct($repository_gui, $repository_obj);
+        parent::__construct($repository_gui, $obj);
 
+        $this->obj = $obj;
         $this->obj_user_tracking = $obj_user_tracking;
         $this->privacy_settings = $privacy_settings;
-        $this->lng = $lng;
-        $this->ctrl = $ctrl;
-        $this->access = $access;
         $this->rbac_review = $rbac_review;
         $this->settings = $settings;
-        $this->obj = $repository_obj;
         $this->toolbar = $toolbar;
+        $this->request_wrapper = $request_wrapper;
+        $this->post_wrapper = $post_wrapper;
+        $this->refinery = $refinery;
     }
 
-    protected function printMembers()
+    protected function printMembers(): void
     {
         $this->checkPermission('read');
         if ($this->checkRbacOrPositionAccessBool('manage_members', 'manage_members')) {
@@ -62,10 +89,10 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
         $this->tpl->setContent($form->getHTML());
     }
 
-    public function getDefaultCommand()
+    protected function getDefaultCommand(): string
     {
-        $back_cmd = $_GET['back_cmd'];
-        return $back_cmd;
+        $r = $this->refinery;
+        return $this->request_wrapper->retrieve("back_cmd", $r->byTrying([$r->kindlyTo()->string(), $r->always("members")]));
     }
 
     /**
@@ -73,36 +100,41 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
      * @param int[] $a_user_ids
      * @return int[]
      */
-    public function filterUserIdsByRbacOrPositionOfCurrentUser($user_ids)
+    public function filterUserIdsByRbacOrPositionOfCurrentUser(array $a_user_ids): array
     {
         return $this->access->filterUserIdsByRbacOrPositionOfCurrentUser(
             'manage_members',
             'manage_members',
             $this->getParentObject()->getRefId(),
-            $user_ids
+            $a_user_ids
         );
     }
 
-    public function assignMembers(array $user_ids, string $type)
+    /**
+     * @param array<int>  $user_ids
+     */
+    public function assignMembers(array $user_ids, string $type): bool
     {
         $object = $this->getParentObject();
         $members = $this->getParentObject()->getLSParticipants();
 
         if (count($user_ids) == 0) {
             $this->lng->loadLanguageModule('search');
-            ilUtil::sendFailure($this->lng->txt('search_err_user_not_exist'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('search_err_user_not_exist'), true);
             return false;
         }
 
         $assigned = false;
         foreach ($user_ids as $new_member) {
+            $new_member = (int) $new_member;
+
             if ($members->isAssigned($new_member)) {
                 continue;
             }
 
             switch ($type) {
                 case $object->getDefaultAdminRole():
-                    $members->add($new_member, IL_LSO_ADMIN);
+                    $members->add($new_member, ilParticipants::IL_LSO_ADMIN);
                     $members->sendNotification(
                         ilLearningSequenceMembershipMailNotification::TYPE_ADMISSION_MEMBER,
                         $new_member
@@ -110,7 +142,7 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
                     $assigned = true;
                     break;
                 case $object->getDefaultMemberRole():
-                    $members->add($new_member, IL_LSO_MEMBER);
+                    $members->add($new_member, ilParticipants::IL_LSO_MEMBER);
                     $members->sendNotification(
                         ilLearningSequenceMembershipMailNotification::TYPE_ADMISSION_MEMBER,
                         $new_member
@@ -119,11 +151,13 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
                     break;
                 default:
                     if (in_array($type, $object->getLocalLearningSequenceRoles(true))) {
-                        $members->add($new_member, IL_LSO_MEMBER);
+                        $members->add($new_member, ilParticipants::IL_LSO_MEMBER);
                         $members->updateRoleAssignments($new_member, array($type));
                     } else {
-                        ilLoggerFactory::getLogger('lso')->notice('Can not find role with id .' . $type . ' to assign users.');
-                        ilUtil::sendFailure($this->lng->txt("lso_cannot_find_role"), true);
+                        ilLoggerFactory::getLogger('lso')->notice(
+                            'Can not find role with id .' . $type . ' to assign users.'
+                        );
+                        $this->tpl->setOnScreenMessage('failure', $this->lng->txt("lso_cannot_find_role"), true);
                         return false;
                     }
 
@@ -137,23 +171,34 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
         }
 
         if ($assigned) {
-            ilUtil::sendSuccess($this->lng->txt("lso_msg_member_assigned"), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt("lso_msg_member_assigned"), true);
         } else {
-            ilUtil::sendSuccess($this->lng->txt('lso_users_already_assigned'), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('lso_users_already_assigned'), true);
         }
 
         $this->ctrl->redirect($this, 'participants');
+        return $assigned;
     }
 
     /**
      * save in participants table
      */
-    protected function updateParticipantsStatus()
+    protected function updateParticipantsStatus(): void
     {
         $members = $this->getParentObject()->getLSParticipants();
 
-        $participants = (array) $_POST['visible_member_ids'];
-        $notification = (array) $_POST['notification'];
+        $participants = $this->post_wrapper->retrieve(
+            "visible_member_ids",
+            $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
+        );
+
+        $notification = [];
+        if ($this->post_wrapper->has('notification')) {
+            $notification = $this->post_wrapper->retrieve(
+                "notification",
+                $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
+            );
+        }
 
         foreach ($participants as $participant) {
             if ($members->isAdmin($participant)) {
@@ -163,11 +208,11 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
             $members->updateNotification($participant, false);
         }
 
-        ilUtil::sendSuccess($this->lng->txt('settings_saved'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'), true);
         $this->ctrl->redirect($this, 'participants');
     }
 
-    protected function initParticipantTableGUI() : ilLearningSequenceParticipantsTableGUI
+    protected function initParticipantTableGUI(): ilLearningSequenceParticipantsTableGUI
     {
         return new ilLearningSequenceParticipantsTableGUI(
             $this,
@@ -181,15 +226,22 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
         );
     }
 
-    protected function initEditParticipantTableGUI(array $participants) : ilLearningSequenceEditParticipantsTableGUI
+    public function getParentObject(): ilObjLearningSequence
+    {
+        $obj = parent::getParentObject();
+        if (!$obj instanceof ilObjLearningSequence) {
+            throw new Exception('Invalid class type ' . get_class($obj) . ". Expected ilObjLearningSequence.");
+        }
+        return $obj;
+    }
+
+    protected function initEditParticipantTableGUI(array $participants): ilLearningSequenceEditParticipantsTableGUI
     {
         $table = new ilLearningSequenceEditParticipantsTableGUI(
             $this,
             $this->getParentObject(),
             $this->getParentObject()->getLSParticipants(),
-            $this->privacy_settings,
-            $this->lng,
-            $this->ctrl
+            $this->privacy_settings
         );
 
         $table->setTitle($this->lng->txt($this->getParentObject()->getType() . '_header_edit_members'));
@@ -201,74 +253,74 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
     /**
      * Init participant view template
      */
-    protected function initParticipantTemplate()
+    protected function initParticipantTemplate(): void
     {
         $this->tpl->addBlockFile('ADM_CONTENT', 'adm_content', 'tpl.lso_edit_members.html', 'Modules/LearningSequence');
     }
 
-    public function getLocalTypeRole($a_translation = false)
+    /**
+     * @return array<string, int>
+     */
+    public function getLocalTypeRole(bool $translation = false): array
     {
-        return $this->getParentObject()->getLocalLearningSequenceRoles($a_translation);
+        return $this->getParentObject()->getLocalLearningSequenceRoles($translation);
     }
 
-    public function readMemberData(array $user_ids, array $columns = null)
+    /**
+     * @param array<int|string> $user_ids
+     * @param string[] $columns
+     * @return array<int|string, array>
+     */
+    public function readMemberData(array $usr_ids, array $columns = null): array
     {
-        return $this->getParentObject()->readMemberData($user_ids, $columns);
+        return $this->getParentObject()->readMemberData($usr_ids, $columns);
     }
 
-    protected function updateLPFromStatus()
-    {
-        return null;
-    }
 
-    protected function initWaitingList() : ilLearningSequenceWaitingList
+    protected function initWaitingList(): ilLearningSequenceWaitingList
     {
         return new ilLearningSequenceWaitingList($this->getParentObject()->getId());
     }
 
-    protected function getDefaultRole() : int
+    protected function getDefaultRole(): ?int
     {
         return $this->getParentObject()->getDefaultMemberRole();
     }
 
-    public function getPrintMemberData(array $members) : array
+    /**
+     * @return array<string, mixed>
+     */
+    public function getPrintMemberData(array $members): array
     {
         $member_data = $this->readMemberData($members, array());
-        $member_data = $this->getParentGUI()->addCustomData($member_data);
 
-        return $member_data;
+        return $this->getParentGUI()->addCustomData($member_data);
     }
 
-    public function getAttendanceListUserData(int $user_id) : array
+    /**
+     * @return array<string, mixed>
+     */
+    public function getAttendanceListUserData(int $user_id, array $filters = []): array
     {
         $data = array();
 
         if ($this->filterUserIdsByRbacOrPositionOfCurrentUser([$user_id])) {
             $data = $this->member_data[$user_id];
-            $data['access'] = $data['access_time'];
+            if (array_key_exists('access_time', $data)) {
+                $data['access'] = $data['access_time'];
+            }
             $data['progress'] = $this->lng->txt($data['progress']);
         }
 
         return $data;
     }
 
-    public function getMembersObject()
-    {
-        if ($this->participants instanceof ilParticipants) {
-            return $this->participants;
-        }
-        return $this->participants = ilParticipants::getInstance($this->getParentObject()->getRefId());
-    }
-
-    /**
-     * @return \ilMailMemberLearningSequenceRoles
-     */
-    protected function getMailMemberRoles()
+    protected function getMailMemberRoles(): ?ilAbstractMailMemberRoles
     {
         return new ilMailMemberLearningSequenceRoles();
     }
 
-    protected function setSubTabs(ilTabsGUI $tabs)
+    protected function setSubTabs(ilTabsGUI $tabs): void
     {
         $access = $this->checkRbacOrPositionAccessBool(
             'manage_members',
@@ -300,20 +352,19 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
         }
     }
 
-    protected function showParticipantsToolbar()
+    protected function showParticipantsToolbar(): void
     {
         $toolbar_entries = [
             'auto_complete_name' => $this->lng->txt('user'),
             'user_type' => $this->getParentGUI()->getLocalRoles(),
             'user_type_default' => $this->getDefaultRole(),
             'submit_name' => $this->lng->txt('add'),
-            'add_search' => true,
+            'add_search' => true
         ];
-
 
         $search_params = ['crs', 'grp'];
         $parent_container = $this->obj->getParentObjectInfo(
-            (int) $this->obj->getRefId(),
+            $this->obj->getRefId(),
             $search_params
         );
         if (!is_null($parent_container)) {
@@ -334,6 +385,6 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
             $this->ctrl->getLinkTarget($this, 'printMembers')
         );
 
-        $this->showMailToMemberToolbarButton($this->toolbar, 'participants', false);
+        $this->showMailToMemberToolbarButton($this->toolbar, 'participants');
     }
 }

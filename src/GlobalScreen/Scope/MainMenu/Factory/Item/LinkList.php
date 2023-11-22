@@ -49,24 +49,18 @@ class LinkList extends AbstractChildItem implements
     use hasSymbolTrait;
     use isInterchangeableItemTrait;
 
-    /**
-     * @var string
-     */
-    protected $title = '';
+    protected string $title = '';
     /**
      * @var Link[]
      */
-    protected $links = [];
-    /**
-     * @var bool
-     */
-    protected $supports_async_loading = false;
+    protected array $links = [];
+    protected bool $supports_async_loading = false;
 
     /**
      * @param string $title
      * @return Link
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -77,7 +71,7 @@ class LinkList extends AbstractChildItem implements
     /**
      * @return string
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -85,7 +79,7 @@ class LinkList extends AbstractChildItem implements
     /**
      * @param array|callable|Generator $links
      */
-    public function withLinks($links) : self
+    public function withLinks($links): self
     {
         if (is_callable($links)) {
             try {
@@ -113,7 +107,7 @@ class LinkList extends AbstractChildItem implements
     /**
      * @return Link[]
      */
-    public function getLinks() : array
+    public function getLinks(): array
     {
         return $this->links;
     }
@@ -121,7 +115,7 @@ class LinkList extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function withSupportsAsynchronousLoading(bool $supported) : supportsAsynchronousLoading
+    public function withSupportsAsynchronousLoading(bool $supported): supportsAsynchronousLoading
     {
         $clone = clone($this);
         $clone->supports_async_loading = $supported;
@@ -132,12 +126,12 @@ class LinkList extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function supportsAsynchronousLoading() : bool
+    public function supportsAsynchronousLoading(): bool
     {
         return $this->supports_async_loading;
     }
 
-    public function isVisible() : bool
+    public function isVisible(): bool
     {
         $visible_links = 0;
         foreach ($this->getLinks() as $link) {

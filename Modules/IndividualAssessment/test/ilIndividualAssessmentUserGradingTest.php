@@ -2,8 +2,25 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 use PHPUnit\Framework\TestCase;
-use \ILIAS\UI\Component\Input\Field\Section;
+use ILIAS\UI\Component\Input\Field\Section;
+use ILIAS\FileUpload\Handler\AbstractCtrlAwareUploadHandler;
 
 /**
  * @backupGlobals disabled
@@ -100,17 +117,18 @@ class ilIndividualAssessmentUserGradingTest extends TestCase
         $this->assertNotSame($n_grading, $grading);
     }
 
-    public function testToFormInput() : void
+    public function testToFormInput(): void
     {
         $lng = $this->createMock(ilLanguage::class);
         $lng->expects($this->atLeastOnce())
             ->method('txt')
             ->willReturn("label")
         ;
-        $file_handler = $this->createMock(ilIndividualAssessmentMemberGUI::class);
+        $file_handler = $this->createMock(AbstractCtrlAwareUploadHandler::class);
         $df = new ILIAS\Data\Factory();
         $refinery = new ILIAS\Refinery\Factory($df, $lng);
         $f = new ILIAS\UI\Implementation\Component\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new ILIAS\UI\Implementation\Component\SignalGenerator(),
             $df,
             $refinery,
@@ -145,15 +163,13 @@ class ilIndividualAssessmentUserGradingTest extends TestCase
             $df,
             $lng,
             $refinery,
+            $file_handler,
+            $df->dateFormat()->standard(),
             [
                 ilIndividualAssessmentMembers::LP_IN_PROGRESS,
                 ilIndividualAssessmentMembers::LP_FAILED,
                 ilIndividualAssessmentMembers::LP_COMPLETED
-            ],
-            true,
-            false,
-            false,
-            $file_handler
+            ]
         );
 
         $this->assertInstanceOf(Section::class, $input);

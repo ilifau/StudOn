@@ -1,104 +1,62 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
-* Interface for GUI classes (PDGUI, LuceneSearchGUI...) that have to handle administration commands (cut delete link)
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*
-* @ingroup ServicesAdministration
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Interface for GUI classes (PDGUI, LuceneSearchGUI...) that have to
+ * handle administration commands (cut delete link)
+ * @author Stefan Meyer <meyer@leifos.com>
+ */
 interface ilAdministrationCommandHandling
 {
-    
     /**
      * Show delete confirmation
      */
-    public function delete();
-    
+    public function delete(): void;
+
     /**
      * Cancel delete
      */
-    public function cancelDelete();
-    
-    /**
-     * Perform Delete
-     */
-    public function performDelete();
-    
-    /**
-     * Cut object
-     */
-    public function cut();
-    
-    /**
-     * Target selection link
-     * @return
-     */
-    public function showLinkIntoMultipleObjectsTree();
-    
-    /**
-     * Target selection cut
-     * @return
-     */
-    public function showPasteTree();
-    
-    /**
-     * Perform paste into multiple objects
-     * @return
-     */
-    public function performPasteIntoMultipleObjects();
-    
-    /**
-     * Paste
-     */
-    public function paste();
-    
+    public function cancelDelete(): void;
+
+    public function performDelete(): void;
+
+    public function cut(): void;
+
+    public function showLinkIntoMultipleObjectsTree(): void;
+
+    public function showMoveIntoObjectTree(): void;
+
+    public function performPasteIntoMultipleObjects(): void;
+
+    public function paste(): void;
+
     /**
      * clear clipboard
      */
-    public function clear();
-    
-    /**
-     * Enable administration panel
-     */
-    public function enableAdministrationPanel();
-    
-    /**
-     * Disable administration panel
-     */
-    public function disableAdministrationPanel();
-    
-    /**
-     * Cancel move/link
-     */
-    public function cancelMoveLinkObject();
+    public function clear(): void;
 
-    /**
-     * cancel action but keep objects in clipboard
-     * @return void
-     */
-    public function keepObjectsInClipboardObject();
+    public function enableAdministrationPanel(): void;
+
+    public function disableAdministrationPanel(): void;
+
+    public function cancelMoveLinkObject(): void;
+
+    public function keepObjectsInClipboardObject(): void;
 }

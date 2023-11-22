@@ -30,22 +30,10 @@ use LogicException;
  */
 abstract class AbstractIdentification implements IdentificationInterface
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\Serializer\SerializerInterface
-     */
-    protected $serializer;
-    /**
-     * @var string
-     */
-    protected $provider_presentation_name;
-    /**
-     * @var string
-     */
-    protected $internal_identifier = '';
-    /**
-     * @var string
-     */
-    protected $classname = '';
+    protected SerializerInterface $serializer;
+    protected string $provider_presentation_name;
+    protected string $internal_identifier = '';
+    protected string $classname = '';
 
     /**
      * CoreIdentification constructor.
@@ -81,7 +69,7 @@ abstract class AbstractIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getClassName() : string
+    public function getClassName(): string
     {
         return $this->classname;
     }
@@ -89,7 +77,7 @@ abstract class AbstractIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getInternalIdentifier() : string
+    public function getInternalIdentifier(): string
     {
         return $this->internal_identifier;
     }
@@ -97,7 +85,7 @@ abstract class AbstractIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getProviderNameForPresentation() : string
+    public function getProviderNameForPresentation(): string
     {
         global $DIC;
         /**
@@ -111,12 +99,12 @@ abstract class AbstractIdentification implements IdentificationInterface
     /**
      * @return array{data: string|null}
      */
-    public function __serialize() : array
+    public function __serialize(): array
     {
         return ['data' => $this->serialize()];
     }
 
-    public function __unserialize(array $data) : void
+    public function __unserialize(array $data): void
     {
         $this->unserialize($data['data']);
     }

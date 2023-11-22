@@ -1,6 +1,21 @@
 <?php
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 
 /**
  * Skill management settings
@@ -11,91 +26,52 @@
  */
 class ilSkillManagementSettings extends ilSetting
 {
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         parent::__construct("skmg");
     }
-    
-    /**
-     * Activate skill management
-     *
-     * @param
-     * @return
-     */
-    public function activate($a_active)
+
+    public function activate(bool $a_active): void
     {
-        $this->set("enable_skmg", (int) $a_active);
-    }
-    
-    
-    /**
-     * Is activated
-     */
-    public function isActivated()
-    {
-        return $this->get("enable_skmg");
-    }
-    
-    /**
-     * Set hide profile values before self evaluations
-     *
-     * @param bool $a_val hide profile
-     */
-    public function setHideProfileBeforeSelfEval($a_val)
-    {
-        $this->set("hide_profile_self_eval", (int) $a_val);
-    }
-    
-    /**
-     * Get hide profile values before self evaluations
-     *
-     * @return bool hide profile
-     */
-    public function getHideProfileBeforeSelfEval()
-    {
-        return $this->get("hide_profile_self_eval");
+        $value = $a_active ? "1" : "0";
+        $this->set("enable_skmg", $value);
     }
 
-    /**
-     * Set value if local assignment of global profiles is allowed
-     *
-     * @param bool $a_val
-     */
-    public function setLocalAssignmentOfProfiles(bool $a_val)
+    public function isActivated(): bool
     {
-        $this->set("local_assignment_profiles", (int) $a_val);
+        return (bool) $this->get("enable_skmg", "0");
     }
 
-    /**
-     * Get value if local assignment of global profiles is allowed
-     *
-     * @return bool
-     */
-    public function getLocalAssignmentOfProfiles() : bool
+    public function setHideProfileBeforeSelfEval(bool $a_val): void
     {
-        return $this->get("local_assignment_profiles");
+        $value = $a_val ? "1" : "0";
+        $this->set("hide_profile_self_eval", $value);
     }
 
-    /**
-     * Set value if creation of local profiles is allowed
-     *
-     * @param bool $a_val
-     */
-    public function setAllowLocalProfiles(bool $a_val)
+    public function getHideProfileBeforeSelfEval(): bool
     {
-        $this->set("allow_local_profiles", (int) $a_val);
+        return (bool) $this->get("hide_profile_self_eval", "0");
     }
 
-    /**
-     * Get value if creation of local profiles is allowed
-     *
-     * @return bool
-     */
-    public function getAllowLocalProfiles() : bool
+    public function setLocalAssignmentOfProfiles(bool $a_val): void
     {
-        return $this->get("allow_local_profiles");
+        $value = $a_val ? "1" : "0";
+        $this->set("local_assignment_profiles", $value);
+    }
+
+    public function getLocalAssignmentOfProfiles(): bool
+    {
+        return (bool) $this->get("local_assignment_profiles", "0");
+    }
+
+    public function setAllowLocalProfiles(bool $a_val): void
+    {
+        $value = $a_val ? "1" : "0";
+        $this->set("allow_local_profiles", $value);
+    }
+
+    public function getAllowLocalProfiles(): bool
+    {
+        return (bool) $this->get("allow_local_profiles", "0");
     }
 }

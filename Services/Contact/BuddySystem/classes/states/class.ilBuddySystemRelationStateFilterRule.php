@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2015 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilBuddySystemRelation
@@ -7,33 +24,19 @@
  */
 abstract class ilBuddySystemRelationStateFilterRule
 {
-    /** @var ilBuddySystemRelation */
-    protected $relation;
+    protected ilBuddySystemRelation $relation;
 
-    /**
-     * @param ilBuddySystemRelation $relation
-     */
     public function __construct(ilBuddySystemRelation $relation)
     {
         $this->relation = $relation;
     }
 
-    /**
-     * @return ilBuddySystemRelationStateCollection
-     */
-    public function getStates() : ilBuddySystemRelationStateCollection
+    public function getStates(): ilBuddySystemRelationStateCollection
     {
         return $this->relation->getState()->getPossibleTargetStates()->filter($this);
     }
 
-    /**
-     * @return bool
-     */
-    abstract public function matches() : bool;
+    abstract public function matches(): bool;
 
-    /**
-     * @param ilBuddySystemRelationState $state
-     * @return boolean
-     */
-    abstract public function __invoke(ilBuddySystemRelationState $state) : bool;
+    abstract public function __invoke(ilBuddySystemRelationState $state): bool;
 }

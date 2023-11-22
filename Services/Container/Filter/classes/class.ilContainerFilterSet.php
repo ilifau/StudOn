@@ -1,24 +1,36 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Filter field set
  *
- * @author killing@leifos.de
- * @ingroup ServicesContainer
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilContainerFilterSet
 {
     /**
      * @var ilContainerFilterField[]
      */
-    protected $filters;
-
+    protected array $filters;
     /**
-     * @var array
+     * @var string[]
      */
-    protected $ids = [];
+    protected array $ids = [];
 
     /**
      * Constructor
@@ -28,18 +40,15 @@ class ilContainerFilterSet
     {
         $this->filters = $filters;
 
-        $this->ids = array_map(function ($f) {
-            /** @var ilContainerFilterField $f */
+        $this->ids = array_map(static function (ilContainerFilterField $f): string {
             return $f->getRecordSetId() . "_" . $f->getFieldId();
         }, $filters);
     }
-    
+
     /**
-     * Get filters
-     *
      * @return ilContainerFilterField[]
      */
-    public function getFields() : array
+    public function getFields(): array
     {
         return $this->filters;
     }
@@ -50,8 +59,8 @@ class ilContainerFilterSet
      * @param int $field_id
      * @return bool
      */
-    public function has(int $record_set_id, int $field_id) : bool
+    public function has(int $record_set_id, int $field_id): bool
     {
-        return in_array($record_set_id . "_" . $field_id, $this->ids);
+        return in_array($record_set_id . "_" . $field_id, $this->ids, true);
     }
 }

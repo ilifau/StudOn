@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 include_once("./Services/Export/classes/class.ilXmlImporter.php");
 
@@ -20,11 +35,10 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 
     /**
      * Import XML
-     *
      * @param
-     * @return
+     * @return void
      */
-    public function importXmlRepresentation($a_entity, $a_id, $a_xml, $a_mapping)
+    public function importXmlRepresentation(string $a_entity, string $a_id, string $a_xml, ilImportMapping $a_mapping): void
     {
         /* @var ilObjQuestionPool $newObj */
 
@@ -36,14 +50,14 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
             $newObj = ilObjectFactory::getInstanceByObjId($new_id, false);
             $newObj->setOnline(true); // sets Question pools to always online
 
-            $_SESSION['qpl_import_subdir'] = $this->getImportPackageName();
+            ilSession::set('qpl_import_subdir', $this->getImportPackageName());
         } elseif ($new_id = $a_mapping->getMapping('Modules/TestQuestionPool', 'qpl', "new_id")) {
             $newObj = ilObjectFactory::getInstanceByObjId($new_id, false);
         } else {
             // Shouldn't happen
             global $DIC; /* @var ILIAS\DI\Container $DIC */
             $DIC['ilLog']->write(__METHOD__ . ': non container and no tax mapping, perhaps old qpl export');
-            return false;
+            return;
         }
 
 
@@ -53,11 +67,11 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         if (!@file_exists($xml_file)) {
             $DIC['ilLog']->write(__METHOD__ . ': Cannot find xml definition: ' . $xml_file);
-            return false;
+            return;
         }
         if (!@file_exists($qti_file)) {
             $DIC['ilLog']->write(__METHOD__ . ': Cannot find qti definition: ' . $qti_file);
-            return false;
+            return;
         }
 
         $this->poolOBJ = $newObj;
@@ -79,23 +93,23 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         $DIC['ilLog']->write(__METHOD__ . ': xml file: ' . $xml_file . ", qti file:" . $qti_file);
 
-        if (isset($_SESSION["qpl_import_idents"])) {
-            $idents = $_SESSION["qpl_import_idents"];
-            unset($_SESSION["qpl_import_idents"]);
+        if (ilSession::get("qpl_import_idents") !== null) {
+            $idents = ilSession::get("qpl_import_idents");
+            ilSession::clear("qpl_import_idents");
         } else {
             $idents = null;
         }
 
         // start parsing of QTI files
         include_once "./Services/QTI/classes/class.ilQTIParser.php";
-        $qtiParser = new ilQTIParser($qti_file, IL_MO_PARSE_QTI, $newObj->getId(), $idents);
-        $result = $qtiParser->startParsing();
+        $qtiParser = new ilQTIParser($qti_file, ilQTIParser::IL_MO_PARSE_QTI, $newObj->getId(), $idents);
+        $qtiParser->startParsing();
 
         // import page data
         if (strlen($xml_file)) {
-            $contParser = new ilQuestionPageParser($newObj, $xml_file, basename($this->getImportDirectory()));
-            $contParser->setQuestionMapping($qtiParser->getImportMapping());
-            $contParser->startParsing();
+            $questionPageParser = new ilQuestionPageParser($newObj, $xml_file, basename($this->getImportDirectory()));
+            $questionPageParser->setQuestionMapping($qtiParser->getImportMapping());
+            $questionPageParser->startParsing();
 
             foreach ($qtiParser->getImportMapping() as $k => $v) {
                 $oldQuestionId = substr($k, strpos($k, 'qst_') + strlen('qst_'));
@@ -135,11 +149,10 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 
     /**
      * Final processing
-     *
      * @param ilImportMapping $a_mapping
-     * @return
+     * @return void
      */
-    public function finalProcessing($a_mapping)
+    public function finalProcessing(ilImportMapping $a_mapping): void
     {
         //echo "<pre>".print_r($a_mapping, true)."</pre>"; exit;
         // get all glossaries of the import
@@ -152,7 +165,7 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
                 if ($new_tax_ids !== false) {
                     $tax_ids = explode(":", $new_tax_ids);
                     foreach ($tax_ids as $tid) {
-                        ilObjTaxonomy::saveUsage($tid, $new);
+                        ilObjTaxonomy::saveUsage((int) $tid, $new);
                     }
                 }
 
@@ -172,7 +185,7 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
      * Create qti and xml file name
      * @return array
      */
-    protected function parseXmlFileNames()
+    protected function parseXmlFileNames(): array
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         $DIC['ilLog']->write(__METHOD__ . ': ' . $this->getImportDirectory());
@@ -185,21 +198,21 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
         return array($xml,$qti);
     }
 
-    private function getImportDirectoryContainer()
+    private function getImportDirectoryContainer(): string
     {
         $dir = $this->getImportDirectory();
         $dir = dirname($dir);
         return $dir;
     }
 
-    private function getImportPackageName()
+    private function getImportPackageName(): string
     {
         $dir = $this->getImportDirectory();
         $name = basename($dir);
         return $name;
     }
 
-    protected function importQuestionSkillAssignments($xmlFile, ilImportMapping $mappingRegistry, $targetParentObjId)
+    protected function importQuestionSkillAssignments($xmlFile, ilImportMapping $mappingRegistry, $targetParentObjId): void
     {
         require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssQuestionSkillAssignmentXmlParser.php';
         $parser = new ilAssQuestionSkillAssignmentXmlParser($xmlFile);

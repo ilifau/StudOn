@@ -1,40 +1,26 @@
 <?php
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-require_once 'Services/Membership/classes/class.ilParticipants.php';
 
 /**
- * Class ilPDSelectedItemsBlockMembershipsProvider
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
  */
+
 class ilPDSelectedItemsBlockMembershipsProvider implements ilPDSelectedItemsBlockProvider
 {
-    /**
-     * @var ilObjUser
-     */
-    protected $actor;
+    protected ilObjUser $actor;
+    protected ilTree $tree;
+    protected ilAccessHandler $access;
+    protected ilSetting  $settings;
+    private ilPDSelectedItemsBlockMembershipsObjectRepository $repository;
 
-    /**
-     * @var ilTree
-     */
-    protected $tree;
-
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
-
-    /**
-     * @var ilSetting
-     */
-    protected $settings;
-
-    /** @var ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository */
-    private $repository;
-
-    /**
-     * ilPDSelectedItemsBlockSelectedItemsProvider constructor.
-     * @param ilObjUser $actor
-     */
     public function __construct(ilObjUser $actor)
     {
         global $DIC;
@@ -47,21 +33,15 @@ class ilPDSelectedItemsBlockMembershipsProvider implements ilPDSelectedItemsBloc
             $DIC->database(),
             RECOVERY_FOLDER_ID
         );
-
-        // fau: filterMyMem - set the filter for the repository
-        $this->repository->setFilterTermId($DIC->fau()->tools()->preferences()->getTermIdForMyMemberships());
-        // fau.
     }
 
     /**
      * Gets all objects the current user is member of
-     * @param string[] $objTypes
-     * @return array array of objects
      */
-    protected function getObjectsByMembership(array $objTypes = []) : array
+    protected function getObjectsByMembership(array $objTypes = []): array
     {
         $short_desc = $this->settings->get("rep_shorten_description");
-        $short_desc_max_length = $this->settings->get("rep_shorten_description_length");
+        $short_desc_max_length = (int) $this->settings->get("rep_shorten_description_length");
 
         if (!is_array($objTypes) || $objTypes === []) {
             $objTypes = $this->repository->getValidObjectTypes();
@@ -92,8 +72,8 @@ class ilPDSelectedItemsBlockMembershipsProvider implements ilPDSelectedItemsBloc
             }
 
             $description = $item->getDescription();
-            if ($short_desc && $short_desc_max_length) {
-                $description = ilUtil::shortenText($description, $short_desc_max_length, true);
+            if ($short_desc && $short_desc_max_length !== 0) {
+                $description = ilStr::shortenTextExtended($description, $short_desc_max_length, true);
             }
 
             $references[$parentTreeLftValue . $title . $refId] = [
@@ -112,10 +92,7 @@ class ilPDSelectedItemsBlockMembershipsProvider implements ilPDSelectedItemsBloc
         return $references;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getItems($object_type_white_list = array())
+    public function getItems(array $object_type_white_list = array()): array
     {
         return $this->getObjectsByMembership($object_type_white_list);
     }

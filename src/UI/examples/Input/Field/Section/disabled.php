@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Field\Section;
+
 /**
  * Example showing how disabled sections can be used to attach transformation and constraints on
  * multiple fields at once.

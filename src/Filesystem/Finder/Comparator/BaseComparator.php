@@ -1,7 +1,24 @@
 <?php
+
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Finder\Comparator;
+
+use InvalidArgumentException;
+
+/******************************************************************************
+ *
+ * This file is part of ILIAS, a powerful learning management system.
+ *
+ * ILIAS is licensed with the GPL-3.0, you should have received a copy
+ * of said license along with the source code.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ *      https://www.ilias.de
+ *      https://github.com/ILIAS-eLearning
+ *
+ *****************************************************************************/
 
 /**
  * Class Base
@@ -10,57 +27,38 @@ namespace ILIAS\Filesystem\Finder\Comparator;
  */
 abstract class BaseComparator
 {
-    /** @var string */
-    private $target = '';
+    private string $target = '';
+    private string $operator = '==';
 
-    /** @var string */
-    private $operator = '==';
-
-    /**
-     * @return string
-     */
-    public function getTarget() : string
+    public function getTarget(): string
     {
         return $this->target;
     }
 
-    /**
-     * @param string $target
-     */
-    public function setTarget(string $target)
+    public function setTarget(string $target): void
     {
         $this->target = $target;
     }
 
-    /**
-     * @return string
-     */
-    public function getOperator() : string
+    public function getOperator(): string
     {
         return $this->operator;
     }
 
-    /**
-     * @param string $operator
-     */
-    public function setOperator(string $operator)
+    public function setOperator(string $operator): void
     {
-        if (0 === strlen($operator)) {
+        if ($operator === '') {
             $operator = '==';
         }
 
         if (!in_array($operator, ['>', '<', '>=', '<=', '==', '!='])) {
-            throw new \InvalidArgumentException(sprintf('Invalid operator "%s".', $operator));
+            throw new InvalidArgumentException(sprintf('Invalid operator "%s".', $operator));
         }
 
         $this->operator = $operator;
     }
 
-    /**
-     * @param string $test
-     * @return bool
-     */
-    public function test(string $test) : bool
+    public function test(string $test): bool
     {
         switch ($this->operator) {
             case '>':
@@ -76,9 +74,9 @@ abstract class BaseComparator
                 return $test <= $this->target;
 
             case '!=':
-                return $test != $this->target;
+                return $test !== $this->target;
         }
 
-        return $test == $this->target;
+        return $test === $this->target;
     }
 }

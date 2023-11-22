@@ -47,15 +47,9 @@ class BaseTypeRenderer implements TypeRenderer
 
     use ComponentDecoratorApplierTrait;
 
-    /**
-     * @var \ILIAS\UI\Factory
-     */
-    protected $ui_factory;
+    protected Factory $ui_factory;
 
-    /**
-     * @var \ILIAS\UI\Renderer
-     */
-    protected $ui_renderer;
+    protected Renderer $ui_renderer;
 
     /**
      * BaseTypeRenderer constructor.
@@ -70,7 +64,7 @@ class BaseTypeRenderer implements TypeRenderer
     /**
      * @inheritDoc
      */
-    public function getComponentForItem(isItem $item, bool $with_content = true) : Component
+    public function getComponentForItem(isItem $item, bool $with_content = true): Component
     {
         return $this->applyDecorator($with_content ? $this->getComponentWithContent($item) : $this->getComponentWithoutContent($item), $item);
     }
@@ -78,7 +72,7 @@ class BaseTypeRenderer implements TypeRenderer
     /**
      * @inheritDoc
      */
-    public function getComponentWithContent(isItem $item) : Component
+    public function getComponentWithContent(isItem $item): Component
     {
         return $this->ui_factory->legacy($item->getProviderIdentification()->serialize());
     }
@@ -86,7 +80,7 @@ class BaseTypeRenderer implements TypeRenderer
     /**
      * @inheritDoc
      */
-    public function getComponentWithoutContent(isItem $item) : Component
+    public function getComponentWithoutContent(isItem $item): Component
     {
         if (!$this->supportsAsyncContent($item)) {
             return $this->getComponentWithContent($item);
@@ -100,7 +94,7 @@ class BaseTypeRenderer implements TypeRenderer
         return $this->addOnloadCode($slate, $item);
     }
 
-    private function supportsAsyncContent(isItem $item) : bool
+    private function supportsAsyncContent(isItem $item): bool
     {
         return $item instanceof supportsAsynchronousLoading && $item->supportsAsynchronousLoading();
     }
@@ -109,7 +103,7 @@ class BaseTypeRenderer implements TypeRenderer
      * @param isItem $item
      * @return Symbol
      */
-    protected function getStandardSymbol(isItem $item) : Symbol
+    protected function getStandardSymbol(isItem $item): Symbol
     {
         if ($item instanceof hasSymbol && $item->hasSymbol()) {
             $c = $item->getSymbolDecorator();
@@ -136,7 +130,7 @@ class BaseTypeRenderer implements TypeRenderer
      * @param string $uri_string
      * @return URI
      */
-    protected function getURI(string $uri_string) : URI
+    protected function getURI(string $uri_string): URI
     {
         $uri_string = trim($uri_string, " ");
 
@@ -151,9 +145,9 @@ class BaseTypeRenderer implements TypeRenderer
         return new URI(rtrim(ILIAS_HTTP_PATH, "/") . "/" . ltrim($uri_string, "./"));
     }
 
-    public static function getURIChecker() : callable
+    public static function getURIChecker(): callable
     {
-        return static function (string $v) : bool {
+        return static function (string $v): bool {
             $v = self::getURIConverter()($v);
             try {
                 new URI($v);
@@ -164,9 +158,9 @@ class BaseTypeRenderer implements TypeRenderer
         };
     }
 
-    public static function getURIConverter() : callable
+    public static function getURIConverter(): callable
     {
-        return static function (string $v) : string {
+        return static function (string $v): string {
             if (strpos($v, './') === 0) {
                 $v = ltrim($v, './');
                 return ILIAS_HTTP_PATH . '/' . $v;

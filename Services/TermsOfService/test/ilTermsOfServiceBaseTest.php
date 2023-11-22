@@ -1,7 +1,26 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\DI\Container;
+use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Factory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -11,14 +30,9 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class ilTermsOfServiceBaseTest extends TestCase
 {
-    /** @var Container */
-    protected $dic;
+    protected Container $dic;
 
-    /**
-     * @inheritdoc
-     * @throws ReflectionException
-     */
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->dic = new Container();
         $GLOBALS['DIC'] = $this->dic;
@@ -33,10 +47,9 @@ abstract class ilTermsOfServiceBaseTest extends TestCase
     }
 
     /**
-     * @return MockObject|ilLanguage
-     * @throws ReflectionException
+     * @return MockObject&ilLanguage
      */
-    protected function getLanguageMock() : ilLanguage
+    protected function getLanguageMock(): ilLanguage
     {
         $lng = $this
             ->getMockBuilder(ilLanguage::class)
@@ -48,22 +61,22 @@ abstract class ilTermsOfServiceBaseTest extends TestCase
     }
 
     /**
-     * @return MockObject|\ILIAS\UI\Factory
+     * @return MockObject&Factory
      */
-    protected function getUiFactoryMock() : \ILIAS\UI\Factory
+    protected function getUiFactoryMock(): Factory
     {
         $ui = $this
-            ->getMockBuilder(\ILIAS\UI\Factory::class)
+            ->getMockBuilder(Factory::class)
             ->getMock();
 
-        $ui->expects($this->any())->method('legacy')->will($this->returnCallback(function ($content) {
+        $ui->method('legacy')->willReturnCallback(function ($content) {
             $legacyMock = $this
-                ->getMockBuilder(\ILIAS\UI\Component\Legacy\Legacy::class)
+                ->getMockBuilder(Legacy::class)
                 ->getMock();
-            $legacyMock->expects($this->any())->method('getContent')->willReturn($content);
+            $legacyMock->method('getContent')->willReturn($content);
 
             return $legacyMock;
-        }));
+        });
 
         return $ui;
     }
@@ -72,14 +85,14 @@ abstract class ilTermsOfServiceBaseTest extends TestCase
      * @param string $name
      * @param mixed  $value
      */
-    protected function setGlobalVariable(string $name, $value) : void
+    protected function setGlobalVariable(string $name, $value): void
     {
         global $DIC;
 
         $GLOBALS[$name] = $value;
 
         unset($DIC[$name]);
-        $DIC[$name] = function ($c) use ($name) {
+        $DIC[$name] = static function ($c) use ($name) {
             return $GLOBALS[$name];
         };
     }
@@ -88,7 +101,7 @@ abstract class ilTermsOfServiceBaseTest extends TestCase
      * @param mixed $value
      * @return ilTermsOfServiceCriterionConfig
      */
-    protected function getCriterionConfig($value = null) : ilTermsOfServiceCriterionConfig
+    protected function getCriterionConfig($value = null): ilTermsOfServiceCriterionConfig
     {
         if (null === $value) {
             return new ilTermsOfServiceCriterionConfig();

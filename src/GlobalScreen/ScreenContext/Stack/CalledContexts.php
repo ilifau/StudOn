@@ -30,17 +30,14 @@ use ILIAS\GlobalScreen\ScreenContext\ContextRepository;
  */
 final class CalledContexts extends ContextCollection
 {
-    /**
-     * @var mixed[]
-     */
-    private $call_locations = [];
+    private array $call_locations = [];
 
-    public function current() : ScreenContext
+    public function current(): ScreenContext
     {
         return $this->getLast();
     }
 
-    public function push(ScreenContext $context) : void
+    public function push(ScreenContext $context): void
     {
         $this->claim(
             $context,
@@ -48,20 +45,20 @@ final class CalledContexts extends ContextCollection
         ); // external can be claimed multiple times
     }
 
-    public function external() : ContextCollection
+    public function external(): ContextCollection
     {
         $this->claim($this->repo->external(), true);
 
         return $this;
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         $this->call_locations = [];
         $this->stack = [];
     }
 
-    protected function claim(ScreenContext $context, bool $silent = false) : void
+    protected function claim(ScreenContext $context, bool $silent = false): void
     {
         $this->checkCallLocation($context, $silent);
 
@@ -75,11 +72,11 @@ final class CalledContexts extends ContextCollection
         parent::push($context);
     }
 
-    private function checkCallLocation(ScreenContext $context, bool $silent = false) : void
+    private function checkCallLocation(ScreenContext $context, bool $silent = false): void
     {
         $called_classes = array_filter(
             debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS),
-            function ($item) : bool {
+            function ($item): bool {
                 if (!isset($item['class'])) {
                     return false;
                 }
@@ -89,7 +86,7 @@ final class CalledContexts extends ContextCollection
         );
         array_walk(
             $called_classes,
-            function (&$item) : void {
+            function (& $item): void {
                 $item = ($item['class'] ?? '') . ":" . ($item['line'] ?? '');
             }
         );

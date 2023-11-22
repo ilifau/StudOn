@@ -23,9 +23,6 @@
 	</objects>
 	<events>	
 		<event type="listen" id="Services/AccessControl" />
-		<!-- fau: fairSub - listen to group events to recognize deleteParticipant for an autofill -->
-		<event type="listen" id='Modules/Group' />
-		<!-- fau. -->
 		<event type="raise" id="create" />
 		<event type="raise" id="update" />
 		<event type="raise" id="delete" />

@@ -1,6 +1,20 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Repository object assignment information
@@ -9,54 +23,29 @@
  */
 class ilExcRepoObjAssignmentInfo implements ilExcRepoObjAssignmentInfoInterface
 {
-    /**
-     * @var int
-     */
-    protected $id;
+    protected int  $id;
 
     /**
      * @var int[]
      */
-    protected $ref_ids;
+    protected array $ref_ids;
+
+    protected string $title;
+    protected ilExAssignmentTypes $ass_types;
+    protected bool $is_user_submission;
+    protected string $exc_title;
+    protected int $exc_id;
 
     /**
-     * @var string
-     */
-    protected $title;
-
-    /**
-     * @var ilExAssignmentTypes
-     */
-    protected $ass_types;
-
-    /**
-     * @var bool
-     */
-    protected $is_user_submission;
-
-    /**
-     * @var string
-     */
-    protected $exc_title;
-
-    /**
-     * @var int
-     */
-    protected $exc_id;
-
-    /**
-     * Constructor
-     *
-     * @param int $a_assignment_id
-     * @param int[] $a_ref_ids ref ids
+     * @param int[] $a_ref_ids
      */
     protected function __construct(
-        $a_assignment_id,
-        $a_assignment_title,
-        $a_ref_ids,
-        $is_user_submission,
-        $a_exc_id,
-        $a_exc_title
+        int $a_assignment_id,
+        string $a_assignment_title,
+        array $a_ref_ids,
+        bool $is_user_submission,
+        int $a_exc_id,
+        string $a_exc_title
     ) {
         $this->id = $a_assignment_id;
         $this->title = $a_assignment_title;
@@ -68,27 +57,20 @@ class ilExcRepoObjAssignmentInfo implements ilExcRepoObjAssignmentInfoInterface
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-
     /**
-     * @inheritdoc
+     * @return string[]
      */
-    public function getLinks()
+    public function getLinks(): array
     {
         $links = [];
         foreach ($this->ref_ids as $ref_id) {
@@ -97,38 +79,28 @@ class ilExcRepoObjAssignmentInfo implements ilExcRepoObjAssignmentInfoInterface
         return $links;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isUserSubmission()
+    public function isUserSubmission(): bool
     {
         return $this->is_user_submission;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getExerciseId()
+    public function getExerciseId(): int
     {
         return $this->exc_id;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getExerciseTitle()
+    public function getExerciseTitle(): string
     {
         return $this->exc_title;
     }
 
     /**
-     * @inheritdoc
+     * @return int[]
      */
-    public function getReadableRefIds()
+    public function getReadableRefIds(): array
     {
         return $this->ref_ids;
     }
-
 
     /**
      * Get all info objects for a ref id of an repo object
@@ -136,8 +108,9 @@ class ilExcRepoObjAssignmentInfo implements ilExcRepoObjAssignmentInfoInterface
      * @param int $a_ref_id ref id
      * @param int $a_user_id user id
      * @return ilExcRepoObjAssignmentInfo[]
+     * @throws ilExcUnknownAssignmentTypeException
      */
-    public static function getInfo($a_ref_id, $a_user_id)
+    public static function getInfo(int $a_ref_id, int $a_user_id): array
     {
         global $DIC;
 
@@ -146,19 +119,17 @@ class ilExcRepoObjAssignmentInfo implements ilExcRepoObjAssignmentInfoInterface
         $ass_types = ilExAssignmentTypes::getInstance();
 
         $repos_ass_type_ids = $ass_types->getIdsForSubmissionType(ilExSubmission::TYPE_REPO_OBJECT);
-        $submissions = ilExSubmission::getSubmissionsForFilename($a_ref_id, $repos_ass_type_ids);
-
+        $submissions1 = ilExSubmission::getSubmissionsForFilename($a_ref_id, $repos_ass_type_ids);
+        $submissions2 = ilExSubmission::getSubmissionsForFilename($a_ref_id . ".zip", $repos_ass_type_ids);
+        $submissions = array_merge($submissions1, $submissions2);
         $ass_info = array();
         foreach ($submissions as $s) {
-            $ass_type = $ass_types->getById($s["type"]);
+            //$ass_type = $ass_types->getById($s["type"]);
 
             // @todo note: this currently only works, if submissions are assigned to the team (like team wikis)
             // get team of user
             $team = ilExAssignmentTeam::getInstanceByUserId($s["ass_id"], $a_user_id);
-            $is_user_submission = ($team->getId() > 0 && $team->getId() == $s["team_id"])
-                ? true
-                : false;
-
+            $is_user_submission = $team->getId() > 0 && $team->getId() == $s["team_id"];
 
             // determine all readable ref ids of the exercise
             $ref_ids = ilObject::_getAllReferences($s["exc_id"]);

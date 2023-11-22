@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MetaBar\Provider;
 
 use ILIAS\GlobalScreen\Provider\StaticProvider;
@@ -31,5 +31,5 @@ interface StaticMetaBarProvider extends StaticProvider, MetaBarProviderInterface
     /**
      * @return isItem[]
      */
-    public function getMetaBarItems() : array;
+    public function getMetaBarItems(): array;
 }

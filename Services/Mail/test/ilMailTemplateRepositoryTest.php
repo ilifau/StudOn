@@ -1,6 +1,22 @@
-<?php declare(strict_types=1);
+<?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilMailTemplateRepository
@@ -9,12 +25,11 @@
 class ilMailTemplateRepositoryTest extends ilMailBaseTest
 {
     /**
-     * @return ilMailTemplate
      * @throws ReflectionException
      */
-    public function testEntityCanBeSaved() : ilMailTemplate
+    public function testEntityCanBeSaved(): ilMailTemplate
     {
-        $db = $this->getMockbuilder(ilDBInterface::class)->getMock();
+        $db = $this->getMockBuilder(ilDBInterface::class)->getMock();
 
         $repository = new ilMailTemplateRepository($db);
 
@@ -33,20 +48,18 @@ class ilMailTemplateRepositoryTest extends ilMailBaseTest
 
         $repository->store($template);
 
-        $this->assertEquals($templateId, $template->getTplId());
+        $this->assertSame($templateId, $template->getTplId());
 
         return $template;
     }
 
     /**
      * @depends testEntityCanBeSaved
-     * @param ilMailTemplate $template
-     * @return ilMailTemplate
      * @throws ReflectionException
      */
-    public function testEntityCanBeModified(ilMailTemplate $template) : ilMailTemplate
+    public function testEntityCanBeModified(ilMailTemplate $template): ilMailTemplate
     {
-        $db = $this->getMockbuilder(ilDBInterface::class)->getMock();
+        $db = $this->getMockBuilder(ilDBInterface::class)->getMock();
 
         $repository = new ilMailTemplateRepository($db);
 
@@ -59,12 +72,11 @@ class ilMailTemplateRepositoryTest extends ilMailBaseTest
 
     /**
      * @depends testEntityCanBeModified
-     * @param ilMailTemplate $template
      * @throws ReflectionException
      */
-    public function testEntityCanBeDeleted(ilMailTemplate $template) : void
+    public function testEntityCanBeDeleted(ilMailTemplate $template): void
     {
-        $db = $this->getMockbuilder(ilDBInterface::class)->getMock();
+        $db = $this->getMockBuilder(ilDBInterface::class)->getMock();
 
         $repository = new ilMailTemplateRepository($db);
 
@@ -76,10 +88,10 @@ class ilMailTemplateRepositoryTest extends ilMailBaseTest
     /**
      * @throws ReflectionException
      */
-    public function testTemplateCanBeFoundById() : void
+    public function testTemplateCanBeFoundById(): void
     {
-        $db = $this->getMockbuilder(ilDBInterface::class)->getMock();
-        $statement = $this->getMockbuilder(ilDBStatement::class)->getMock();
+        $db = $this->getMockBuilder(ilDBInterface::class)->getMock();
+        $statement = $this->getMockBuilder(ilDBStatement::class)->getMock();
 
         $templateId = 666;
 
@@ -93,18 +105,18 @@ class ilMailTemplateRepositoryTest extends ilMailBaseTest
         $repository = new ilMailTemplateRepository($db);
         $template = $repository->findById(4711);
 
-        $this->assertEquals($templateId, $template->getTplId());
+        $this->assertSame($templateId, $template->getTplId());
     }
 
     /**
      * @throws ReflectionException
      */
-    public function testExceptionIsRaisedIfNoTemplateCanBeFoundById() : void
+    public function testExceptionIsRaisedIfNoTemplateCanBeFoundById(): void
     {
         $this->expectException(OutOfBoundsException::class);
 
-        $db = $this->getMockbuilder(ilDBInterface::class)->getMock();
-        $statement = $this->getMockbuilder(ilDBStatement::class)->getMock();
+        $db = $this->getMockBuilder(ilDBInterface::class)->getMock();
+        $statement = $this->getMockBuilder(ilDBStatement::class)->getMock();
 
         $db->expects($this->once())->method('queryF')->willReturn($statement);
         $db->expects($this->once())->method('numRows')->willReturn(0);

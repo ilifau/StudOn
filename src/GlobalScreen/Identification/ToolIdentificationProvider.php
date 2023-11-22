@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Identification;
 
 use LogicException;/**
@@ -30,7 +30,7 @@ class ToolIdentificationProvider extends CoreIdentificationProvider implements T
     /**
      * @inheritDoc
      */
-    public function contextAwareIdentifier(string $identifier_string, bool $ignore_context = false) : IdentificationInterface
+    public function contextAwareIdentifier(string $identifier_string, bool $ignore_context = false): IdentificationInterface
     {
         if ($ignore_context) {
             return parent::identifier($identifier_string);
@@ -48,7 +48,7 @@ class ToolIdentificationProvider extends CoreIdentificationProvider implements T
     /**
      * @inheritDoc
      */
-    public function identifier(string $identifier_string) : IdentificationInterface
+    public function identifier(string $identifier_string): IdentificationInterface
     {
         throw new LogicException('Tools must use contextAwareIdentifier');
     }

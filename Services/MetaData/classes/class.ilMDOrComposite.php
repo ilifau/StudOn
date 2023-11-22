@@ -1,68 +1,60 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
+declare(strict_types=1);
 
 /**
-* Meta Data class (element orComposite)
-* Extends MDRequirement
-*
-* @package ilias-core
-* @version $Id$
-*/
-include_once 'class.ilMDBase.php';
-include_once 'Services/MetaData/classes/class.ilMDRequirement.php';
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+/**
+ * Meta Data class (element orComposite)
+ * Extends MDRequirement
+ * @package ilias-core
+ * @version $Id$
+ */
 class ilMDOrComposite extends ilMDRequirement
 {
-    // SET/GET
-    public function setOrCompositeId($a_or_composite_id)
-    {
-        $this->or_composite_id = (int) $a_or_composite_id;
-    }
-    public function getOrCompositeId()
-    {
-        global $DIC;
+    private int $or_composite_id = 0;
 
-        $ilDB = $DIC['ilDB'];
-        
+    // SET/GET
+    public function setOrCompositeId(int $a_or_composite_id): void
+    {
+        $this->or_composite_id = $a_or_composite_id;
+    }
+
+    public function getOrCompositeId(): int
+    {
         if (!$this->or_composite_id) {
             $query = "SELECT MAX(or_composite_id) orc FROM il_meta_requirement " .
-                "WHERE rbac_id = " . $ilDB->quote($this->getRBACId(), 'integer') . " " .
-                "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
+                "WHERE rbac_id = " . $this->db->quote($this->getRBACId(), 'integer') . " " .
+                "AND obj_id = " . $this->db->quote($this->getObjId(), 'integer') . " ";
 
             $res = $this->db->query($query);
             while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
-                $this->or_composite_id = $row->orc;
+                $this->or_composite_id = (int) $row->orc;
             }
             ++$this->or_composite_id;
         }
         return $this->or_composite_id;
     }
 
-    public function &getRequirementIds()
+    /**
+     * @return int[]
+     */
+    public function getRequirementIds(): array
     {
-        include_once 'Services/MetaData/classes/class.ilMDRequirement.php';
-
         return ilMDRequirement::_getIds(
             $this->getRBACId(),
             $this->getObjId(),
@@ -72,12 +64,10 @@ class ilMDOrComposite extends ilMDRequirement
         );
     }
 
-    public function &getRequirement($a_requirement_id)
+    public function getRequirement(int $a_requirement_id): ?ilMDRequirement
     {
-        include_once 'Services/MetaData/classes/class.ilMDRequirement.php';
-
         if (!$a_requirement_id) {
-            return false;
+            return null;
         }
         $req = new ilMDRequirement();
         $req->setMetaId($a_requirement_id);
@@ -85,10 +75,8 @@ class ilMDOrComposite extends ilMDRequirement
         return $req;
     }
 
-    public function &addRequirement()
+    public function addRequirement(): ilMDRequirement
     {
-        include_once 'Services/MetaData/classes/class.ilMDRequirement.php';
-
         $req = new ilMDRequirement($this->getRBACId(), $this->getObjId(), $this->getObjType());
         $req->setParentId($this->getParentId());
         $req->setParentType('meta_technical');
@@ -97,16 +85,13 @@ class ilMDOrComposite extends ilMDRequirement
         return $req;
     }
 
-    /*
-     * Overwritten save method, to get new or_composite_id
-     *
-     */
-    public function save()
+    public function save(): int
     {
         echo 'Use ilMDOrcomposite::addRequirement()';
+        return 0;
     }
 
-    public function delete()
+    public function delete(): bool
     {
         foreach ($this->getRequirementIds() as $id) {
             $req = $this->getRequirement($id);
@@ -114,13 +99,8 @@ class ilMDOrComposite extends ilMDRequirement
         }
         return true;
     }
-                
-    /*
-     * XML Export of all meta data
-     * @param object (xml writer) see class.ilMD2XML.php
-     *
-     */
-    public function toXML(&$writer)
+
+    public function toXML(ilXmlWriter $writer): void
     {
         // For all requirements
         $writer->xmlStartTag('OrComposite');
@@ -131,20 +111,27 @@ class ilMDOrComposite extends ilMDRequirement
             $req->toXML($writer);
         }
         if (!count($reqs)) {
-            include_once 'Services/MetaData/classes/class.ilMDRequirement.php';
             $req = new ilMDRequirement($this->getRBACId(), $this->getObjId());
             $req->toXML($writer);
         }
         $writer->xmlEndTag('OrComposite');
     }
 
-
     // STATIC
-    public static function _getIds($a_rbac_id, $a_obj_id, $a_parent_id, $a_parent_type, $a_or_composite_id = 0)
-    {
+
+    /**
+     * @return int[]
+     */
+    public static function _getIds(
+        int $a_rbac_id,
+        int $a_obj_id,
+        int $a_parent_id,
+        string $a_parent_type,
+        int $a_or_composite_id = 0
+    ): array {
         global $DIC;
 
-        $ilDB = $DIC['ilDB'];
+        $ilDB = $DIC->database();
 
         $query = "SELECT DISTINCT(or_composite_id) or_composite_id FROM il_meta_requirement " .
             "WHERE rbac_id = " . $ilDB->quote($a_rbac_id, 'integer') . " " .
@@ -154,9 +141,10 @@ class ilMDOrComposite extends ilMDRequirement
             "AND or_composite_id > 0 ";
 
         $res = $ilDB->query($query);
+        $ids = [];
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
-            $ids[] = $row->or_composite_id;
+            $ids[] = (int) $row->or_composite_id;
         }
-        return $ids ? $ids : array();
+        return $ids;
     }
 }

@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Modal\InterruptiveItem;
+
 function base()
 {
     global $DIC;
@@ -10,13 +15,13 @@ function base()
     $modal = $factory->modal()->interruptive('My Title', $message, "#")
                      ->withAffectedItems(array(
                          $factory->modal()->interruptiveItem(
-                             10,
+                             '10',
                              'Title of the Item',
                              $icon,
                              'Note, this item is currently only to be used in interruptive Modal.'
                          ),
                          $factory->modal()->interruptiveItem(
-                             20,
+                             '20',
                              'Title of the other Item',
                              $icon,
                              'And another one.'

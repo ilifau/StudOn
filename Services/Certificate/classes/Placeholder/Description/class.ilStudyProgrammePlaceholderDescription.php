@@ -1,32 +1,33 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 class ilStudyProgrammePlaceholderDescription implements ilCertificatePlaceholderDescription
 {
-    /**
-     * @var ilDefaultPlaceholderDescription
-     */
-    private $defaultPlaceHolderDescriptionObject;
+    private ilDefaultPlaceholderDescription $defaultPlaceHolderDescriptionObject;
+    private ilLanguage $language;
+    private array $placeholder;
 
-    /**
-     * @var ilLanguage|null
-     */
-    private $language;
-
-    /**
-     * @var array
-     */
-    private $placeholder;
-
-    /**
-     * @param ilDefaultPlaceholderDescription|null $defaultPlaceholderDescriptionObject
-     * @param ilLanguage|null $language
-     * @param ilUserDefinedFieldsPlaceholderDescription|null $userDefinedFieldPlaceHolderDescriptionObject
-     */
     public function __construct(
-        ilDefaultPlaceholderDescription $defaultPlaceholderDescriptionObject = null,
-        ilLanguage $language = null,
-        ilUserDefinedFieldsPlaceholderDescription $userDefinedFieldPlaceHolderDescriptionObject = null
+        ?ilDefaultPlaceholderDescription $defaultPlaceholderDescriptionObject = null,
+        ?ilLanguage $language = null,
+        ?ilUserDefinedFieldsPlaceholderDescription $userDefinedFieldPlaceHolderDescriptionObject = null
     ) {
         global $DIC;
 
@@ -37,7 +38,10 @@ class ilStudyProgrammePlaceholderDescription implements ilCertificatePlaceholder
         $this->language = $language;
 
         if (null === $defaultPlaceholderDescriptionObject) {
-            $defaultPlaceholderDescriptionObject = new ilDefaultPlaceholderDescription($language, $userDefinedFieldPlaceHolderDescriptionObject);
+            $defaultPlaceholderDescriptionObject = new ilDefaultPlaceholderDescription(
+                $language,
+                $userDefinedFieldPlaceHolderDescriptionObject
+            );
         }
         $this->defaultPlaceHolderDescriptionObject = $defaultPlaceholderDescriptionObject;
 
@@ -50,15 +54,13 @@ class ilStudyProgrammePlaceholderDescription implements ilCertificatePlaceholder
         $this->placeholder['PRG_EXPIRES_AT'] = $this->language->txt('sp_certificate_progress_expires_at');
     }
 
-
     /**
      * This methods MUST return an array containing an array with
      * the the description as array value.
-     *
-     * @param null $template
-     * @return mixed - [PLACEHOLDER] => 'description'
+     * @param ilTemplate|null $template
+     * @return string - [PLACEHOLDER] => 'description'
      */
-    public function createPlaceholderHtmlDescription(ilTemplate $template = null) : string
+    public function createPlaceholderHtmlDescription(?ilTemplate $template = null): string
     {
         if (null === $template) {
             $template = new ilTemplate('tpl.default_description.html', true, true, 'Services/Certificate');
@@ -79,10 +81,9 @@ class ilStudyProgrammePlaceholderDescription implements ilCertificatePlaceholder
     /**
      * This method MUST return an array containing an array with
      * the the description as array value.
-     *
-     * @return mixed - [PLACEHOLDER] => 'description'
+     * @return array - [PLACEHOLDER] => 'description'
      */
-    public function getPlaceholderDescriptions() : array
+    public function getPlaceholderDescriptions(): array
     {
         return $this->placeholder;
     }

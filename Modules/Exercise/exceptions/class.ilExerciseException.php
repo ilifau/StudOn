@@ -1,23 +1,29 @@
 <?php
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
- 
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * Exercise exceptions class
  *
- * @author Alex Killing <alex.killing@hmx.de>, Roland Küstermann <roland@kuestermann.com>
- *
+ * @author Roland Küstermann <roland@kuestermann.com>
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilExerciseException extends ilException
 {
-    public static $ID_MISMATCH = 0;
-    public static $ID_DEFLATE_METHOD_MISMATCH = 1;
-    /**
-     * Constructor
-     *
-     * @param        string $a_message message
-     */
-    public function __construct($a_message, $a_code = 0)
-    {
-        parent::__construct($a_message, $a_code);
-    }
+    public static int $ID_MISMATCH = 0;
+    public static int $ID_DEFLATE_METHOD_MISMATCH = 1;
 }

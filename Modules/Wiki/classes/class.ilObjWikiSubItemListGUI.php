@@ -1,53 +1,33 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
-
-include_once './Services/Object/classes/class.ilSubItemListGUI.php';
-include_once './Modules/Wiki/classes/class.ilWikiPage.php';
-include_once './Modules/Wiki/classes/class.ilObjWikiGUI.php';
-include_once './Services/Link/classes/class.ilLink.php';
 
 /**
-* Show wiki pages
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*
-* @ingroup ModulesWiki
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Show wiki pages
+ *
+ * @author Stefan Meyer <meyer@leifos.com>
+ */
 class ilObjWikiSubItemListGUI extends ilSubItemListGUI
 {
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
+    protected ilObjUser $user;
 
-
-    /**
-     * Constructor
-     */
-    public function __construct($a_cmd_class)
-    {
+    public function __construct(
+        string $a_cmd_class
+    ) {
         global $DIC;
 
         parent::__construct($a_cmd_class);
@@ -55,39 +35,34 @@ class ilObjWikiSubItemListGUI extends ilSubItemListGUI
         $this->user = $DIC->user();
     }
 
-    /**
-     * get html
-     * @return
-     */
-    public function getHTML()
+    public function getHTML(): string
     {
         $lng = $this->lng;
-        $ilUser = $this->user;
-        
+
         $lng->loadLanguageModule('content');
         foreach ($this->getSubItemIds(true) as $sub_item) {
-            if (is_object($this->getHighlighter()) and strlen($this->getHighlighter()->getContent($this->getObjId(), $sub_item))) {
+            if (is_object($this->getHighlighter()) &&
+                $this->getHighlighter()->getContent($this->getObjId(), $sub_item) !== '') {
                 $this->tpl->setCurrentBlock('sea_fragment');
                 $this->tpl->setVariable('TXT_FRAGMENT', $this->getHighlighter()->getContent($this->getObjId(), $sub_item));
                 $this->tpl->parseCurrentBlock();
             }
-            
+
             $this->tpl->setCurrentBlock('subitem');
-            
+
             // TODO: subitem type must returned from lucene
-            if (($title = ilWikiPage::lookupTitle($sub_item)) !== false) {
+            $title = (string) ilWikiPage::lookupTitle($sub_item);
+            if ($title !== '') {
                 // Page
                 $this->tpl->setVariable('SUBITEM_TYPE', $lng->txt('obj_pg'));
                 $this->tpl->setVariable('SEPERATOR', ':');
 
-                include_once './Services/Search/classes/class.ilUserSearchCache.php';
                 $link = '&srcstring=1';
                 $link = ilObjWikiGUI::getGotoLink($this->getRefId(), $title) . $link;
-                
+
                 $this->tpl->setVariable('LINK', $link);
                 $this->tpl->setVariable('TARGET', $this->getItemListGUI()->getCommandFrame(''));
                 $this->tpl->setVariable('TITLE', $title);
-                $this->tpl->parseCurrentBlock();
             } else {
                 $this->tpl->setVariable('SUBITEM_TYPE', $lng->txt('obj_file'));
                 $this->tpl->setVariable('SEPERATOR', ':');
@@ -97,18 +72,18 @@ class ilObjWikiSubItemListGUI extends ilSubItemListGUI
                 $link = $this->getItemListGUI()->getCommandLink('downloadFile');
                 $this->tpl->setVariable('LINK', $link);
                 $this->tpl->setVariable('TITLE', ilObject::_lookupTitle($sub_item));
-                $this->tpl->parseCurrentBlock();
             }
+            $this->tpl->parseCurrentBlock();
 
             if (count($this->getSubItemIds(true)) > 1) {
                 $this->parseRelevance($sub_item);
             }
-            
+
             $this->tpl->parseCurrentBlock();
         }
-        
+
         $this->showDetailsLink();
-        
+
         return $this->tpl->get();
     }
 }

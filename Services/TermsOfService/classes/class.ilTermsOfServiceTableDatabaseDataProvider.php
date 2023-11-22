@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceTableDatabaseDataProvider
@@ -7,13 +24,8 @@
  */
 abstract class ilTermsOfServiceTableDatabaseDataProvider implements ilTermsOfServiceTableDataProvider
 {
-    /** @var ilDBInterface */
-    protected $db;
+    protected ilDBInterface $db;
 
-    /**
-     * ilTermsOfServiceTableDatabaseDataProvider constructor.
-     * @param ilDBInterface $db
-     */
     public function __construct(ilDBInterface $db)
     {
         $this->db = $db;
@@ -24,28 +36,28 @@ abstract class ilTermsOfServiceTableDatabaseDataProvider implements ilTermsOfSer
      * @param array $filter
      * @return string
      */
-    abstract protected function getSelectPart(array $params, array $filter) : string;
+    abstract protected function getSelectPart(array $params, array $filter): string;
 
     /**
      * @param array $params
      * @param array $filter
      * @return string
      */
-    abstract protected function getFromPart(array $params, array $filter) : string;
+    abstract protected function getFromPart(array $params, array $filter): string;
 
     /**
      * @param array $params
      * @param array $filter
      * @return string
      */
-    abstract protected function getWherePart(array $params, array $filter) : string;
+    abstract protected function getWherePart(array $params, array $filter): string;
 
     /**
      * @param array $params
      * @param array $filter
      * @return string
      */
-    abstract protected function getGroupByPart(array $params, array $filter) : string;
+    abstract protected function getGroupByPart(array $params, array $filter): string;
 
     /**
      * @param array $params
@@ -53,14 +65,14 @@ abstract class ilTermsOfServiceTableDatabaseDataProvider implements ilTermsOfSer
      * @return string
      * @abstract
      */
-    abstract protected function getHavingPart(array $params, array $filter) : string;
+    abstract protected function getHavingPart(array $params, array $filter): string;
 
     /**
      * @param array $params
      * @param array $filter
      * @return string
      */
-    abstract protected function getOrderByPart(array $params, array $filter) : string;
+    abstract protected function getOrderByPart(array $params, array $filter): string;
 
     /**
      * @param array $params
@@ -68,7 +80,7 @@ abstract class ilTermsOfServiceTableDatabaseDataProvider implements ilTermsOfSer
      * @return array
      * @throws InvalidArgumentException
      */
-    public function getList(array $params, array $filter) : array
+    public function getList(array $params, array $filter): array
     {
         $data = [
             'items' => [],
@@ -89,28 +101,26 @@ abstract class ilTermsOfServiceTableDatabaseDataProvider implements ilTermsOfSer
 
             if (!isset($params['offset'])) {
                 $params['offset'] = 0;
-            } else {
-                if (!is_numeric($params['offset'])) {
-                    throw new InvalidArgumentException('Please provide a valid numerical offset.');
-                }
+            } elseif (!is_numeric($params['offset'])) {
+                throw new InvalidArgumentException('Please provide a valid numerical offset.');
             }
 
             $this->db->setLimit($params['limit'], $params['offset']);
         }
 
-        $where = strlen($where) ? 'WHERE ' . $where : '';
-        $query = "SELECT {$select} FROM {$from} {$where}";
+        $where = $where !== '' ? 'WHERE ' . $where : '';
+        $query = "SELECT $select FROM $from $where";
 
-        if (strlen($group)) {
-            $query .= " GROUP BY {$group}";
+        if ($group !== '') {
+            $query .= " GROUP BY $group";
         }
 
-        if (strlen($having)) {
-            $query .= " HAVING {$having}";
+        if ($having !== '') {
+            $query .= " HAVING $having";
         }
 
-        if (strlen($order)) {
-            $query .= " ORDER BY {$order}";
+        if ($order !== '') {
+            $query .= " ORDER BY $order";
         }
 
         $res = $this->db->query($query);
@@ -119,9 +129,9 @@ abstract class ilTermsOfServiceTableDatabaseDataProvider implements ilTermsOfSer
         }
 
         if (isset($params['limit'])) {
-            $cnt_sql = "SELECT COUNT(*) cnt FROM ({$query}) subquery";
+            $cnt_sql = "SELECT COUNT(*) cnt FROM ($query) subquery";
             $row_cnt = $this->db->fetchAssoc($this->db->query($cnt_sql));
-            $data['cnt'] = $row_cnt['cnt'];
+            $data['cnt'] = (int) $row_cnt['cnt'];
         }
 
         return $data;

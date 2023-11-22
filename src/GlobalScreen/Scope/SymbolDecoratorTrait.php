@@ -26,6 +26,7 @@ use LogicException;
 use ReflectionFunction;
 use ReflectionType;
 use Throwable;
+use ILIAS\GlobalScreen\Scope\MainMenu\Factory\hasSymbol;
 use ILIAS\GlobalScreen\isGlobalScreenItem;
 
 /**
@@ -35,23 +36,20 @@ use ILIAS\GlobalScreen\isGlobalScreenItem;
  */
 trait SymbolDecoratorTrait
 {
-    /**
-     * @var \Closure|null
-     */
-    private $symbol_decorator;
+    private ?Closure $symbol_decorator = null;
 
     /**
      * @param Closure $symbol_decorator
      * @return isGlobalScreenItem
      */
-    public function addSymbolDecorator(Closure $symbol_decorator) : isGlobalScreenItem
+    public function addSymbolDecorator(Closure $symbol_decorator): isGlobalScreenItem
     {
         if (!$this->checkClosure($symbol_decorator)) {
             throw new LogicException('first argument and return type of closure must be type-hinted to \ILIAS\UI\Component\Symbol\Symbol');
         }
         if ($this->symbol_decorator instanceof Closure) {
             $existing = $this->symbol_decorator;
-            $this->symbol_decorator = static function (Symbol $c) use ($symbol_decorator, $existing) : Symbol {
+            $this->symbol_decorator = static function (Symbol $c) use ($symbol_decorator, $existing): Symbol {
                 $component = $existing($c);
 
                 return $symbol_decorator($component);
@@ -66,12 +64,12 @@ trait SymbolDecoratorTrait
     /**
      * @return Closure|null
      */
-    public function getSymbolDecorator() : ?Closure
+    public function getSymbolDecorator(): ?Closure
     {
         return $this->symbol_decorator;
     }
 
-    private function checkClosure(Closure $c) : bool
+    private function checkClosure(Closure $c): bool
     {
         try {
             $r = new ReflectionFunction($c);

@@ -1,6 +1,24 @@
-<?php declare(strict_types=1);
-require_once __DIR__ .'/bootstrap.php';
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+require_once __DIR__ . '/bootstrap.php';
 
 /**
  * Class iTinyMCETest
@@ -8,37 +26,28 @@ require_once __DIR__ .'/bootstrap.php';
  */
 class ilTinyMCETest extends ilRTEBaseTest
 {
-    protected $backupGlobals = false;
-    protected function setUp() : void
-    {
-
-        parent::setUp();
-    }
-
-    public function testAddPlugin()
+    public function testAddPlugin(): void
     {
         $tinymce = new ilTinyMCE();
         $tinymce->addPlugin('a_new_test_plugin');
         $plugins = $tinymce->getPlugins();
-        $this->assertTrue(in_array('a_new_test_plugin', $plugins));
-
+        $this->assertContains('a_new_test_plugin', $plugins);
     }
 
-    public function testTiny3xCodeHasbeenRemoved()
+    public function testTiny3xCodeHasbeenRemoved(): void
     {
-        $this->assertDirectoryNotExists('./Services/RTE/tiny_mce_3_4_7');
-        $this->assertDirectoryNotExists('./Services/RTE/tiny_mce_3_5_11');
+        $this->assertDirectoryDoesNotExist('./Services/RTE/tiny_mce_3_4_7');
+        $this->assertDirectoryDoesNotExist('./Services/RTE/tiny_mce_3_5_11');
     }
-    public function testRemovePlugin()
+
+    public function testRemovePlugin(): void
     {
         $tinymce = new ilTinyMCE();
-        $plugins_before_empty_removal=$tinymce->getPlugins();
-        
+        $plugins_before_empty_removal = $tinymce->getPlugins();
+
         $tinymce->removePlugin('');//empty name for the plugin
-        $this->assertEquals($plugins_before_empty_removal,$tinymce->getPlugins());
+        $this->assertEquals($plugins_before_empty_removal, $tinymce->getPlugins());
         $tinymce->removePlugin('link');
-        $this->assertFalse(array_key_exists('link',$tinymce->getPlugins()));       
-        
+        $this->assertArrayNotHasKey('link', $tinymce->getPlugins());
     }
-    
 }

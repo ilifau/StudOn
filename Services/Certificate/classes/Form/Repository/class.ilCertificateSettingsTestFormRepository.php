@@ -1,49 +1,47 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Filesystem\Exception\FileAlreadyExistsException;
+use ILIAS\Filesystem\Exception\IOException;
+use ILIAS\Filesystem\Exception\FileNotFoundException;
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateSettingsTestFormRepository implements ilCertificateFormRepository
 {
-    /**
-     * @var ilCertificateSettingsFormRepository
-     */
-    private $settingsFromFactory;
+    private ilCertificateSettingsFormRepository $settingsFormFactory;
+    private ilLanguage $language;
+    private ilObjTest $testObject;
 
-    /**
-     * @var ilLanguage
-     */
-    private $language;
-
-    /**
-     * @var ilObjTest
-     */
-    private $testObject;
-
-    /**
-     * @param int                                      $objectId
-     * @param string                                   $certificatePath
-     * @param bool                                     $hasAdditionalElements
-     * @param ilObjTest                                $testObject
-     * @param ilLanguage                               $language
-     * @param ilCtrl                                   $controller
-     * @param ilAccess                                 $access
-     * @param ilToolbarGUI                             $toolbar
-     * @param ilCertificatePlaceholderDescription      $placeholderDescriptionObject
-     * @param ilCertificateSettingsFormRepository|null $settingsFormRepository
-     */
     public function __construct(
         int $objectId,
         string $certificatePath,
         bool $hasAdditionalElements,
         ilObjTest $testObject,
         ilLanguage $language,
-        ilCtrl $controller,
+        ilCtrlInterface $ctrl,
         ilAccess $access,
         ilToolbarGUI $toolbar,
         ilCertificatePlaceholderDescription $placeholderDescriptionObject,
-        ilCertificateSettingsFormRepository $settingsFormRepository = null
+        ?ilCertificateSettingsFormRepository $settingsFormRepository = null
     ) {
         $this->testObject = $testObject;
         $this->language = $language;
@@ -54,49 +52,36 @@ class ilCertificateSettingsTestFormRepository implements ilCertificateFormReposi
                 $certificatePath,
                 $hasAdditionalElements,
                 $language,
-                $controller,
+                $ctrl,
                 $access,
                 $toolbar,
                 $placeholderDescriptionObject
             );
         }
-        $this->settingsFromFactory = $settingsFormRepository;
+        $this->settingsFormFactory = $settingsFormRepository;
     }
 
     /**
      * @param ilCertificateGUI $certificateGUI
-     * @param ilCertificate    $certificateObject
-     * @param string           $certificatePath
      * @return ilPropertyFormGUI
-     * @throws \ILIAS\Filesystem\Exception\FileAlreadyExistsException
-     * @throws \ILIAS\Filesystem\Exception\FileNotFoundException
-     * @throws \ILIAS\Filesystem\Exception\IOException
+     * @throws FileAlreadyExistsException
+     * @throws FileNotFoundException
+     * @throws IOException
      * @throws ilDatabaseException
      * @throws ilException
      * @throws ilWACException
      */
-    public function createForm(ilCertificateGUI $certificateGUI)
+    public function createForm(ilCertificateGUI $certificateGUI): ilPropertyFormGUI
     {
-        $form = $this->settingsFromFactory->createForm($certificateGUI);
-
-        return $form;
+        return $this->settingsFormFactory->createForm($certificateGUI);
     }
 
-    /**
-     * @param array $formFields
-     */
-    public function save(array $formFields)
+    public function save(array $formFields): void
     {
     }
 
-    /**
-     * @param string $content
-     * @return array|mixed
-     */
-    public function fetchFormFieldData(string $content)
+    public function fetchFormFieldData(string $content): array
     {
-        $formFields = $this->settingsFromFactory->fetchFormFieldData($content);
-
-        return $formFields;
+        return $this->settingsFormFactory->fetchFormFieldData($content);
     }
 }

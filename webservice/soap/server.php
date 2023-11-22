@@ -11,34 +11,30 @@
 */
 
 chdir("../..");
-define("ILIAS_MODULE", "webservice/soap");
-define("IL_SOAPMODE_NUSOAP", 0);
-define("IL_SOAPMODE_INTERNAL", 1);
+const ILIAS_MODULE = "webservice/soap";
+const IL_SOAPMODE_NUSOAP = 0;
+const IL_SOAPMODE_INTERNAL = 1;
 
 // php7 only SOAPMODE_INTERNAL
-define('IL_SOAPMODE', IL_SOAPMODE_INTERNAL);
+const IL_SOAPMODE = IL_SOAPMODE_INTERNAL;
 include_once "Services/Context/classes/class.ilContext.php";
 ilContext::init(ilContext::CONTEXT_SOAP);
-
-// fau: httpPath - use defined http path for web services
-$GLOBALS['USE_ILIAS_HTTP_PATH_FROM_INI'] = true;
-// fau.
 
 require_once("./Services/Init/classes/class.ilIniFile.php");
 $ilIliasIniFile = new ilIniFile("./ilias.ini.php");
 $ilIliasIniFile->read();
 
-if ((bool) $ilIliasIniFile->readVariable('https', 'auto_https_detect_enabled')) {
+if ($ilIliasIniFile->readVariable('https', 'auto_https_detect_enabled')) {
     $headerName = $ilIliasIniFile->readVariable('https', 'auto_https_detect_header_name');
     $headerValue = $ilIliasIniFile->readVariable('https', 'auto_https_detect_header_value');
 
     $headerName = "HTTP_" . str_replace("-", "_", strtoupper($headerName));
-    if (strcasecmp($_SERVER[$headerName], $headerValue) == 0) {
+    if (strcasecmp($_SERVER[$headerName], $headerValue) === 0) {
         $_SERVER['HTTPS'] = 'on';
     }
 }
 
-if (IL_SOAPMODE == IL_SOAPMODE_INTERNAL && strcasecmp($_SERVER["REQUEST_METHOD"], "post") == 0) {
+if (IL_SOAPMODE === IL_SOAPMODE_INTERNAL && strcasecmp($_SERVER["REQUEST_METHOD"], "post") === 0) {
     // This is a SOAP request
     include_once('webservice/soap/include/inc.soap_functions.php');
     $uri = ilSoapFunctions::buildHTTPPath() . '/webservice/soap/server.php';

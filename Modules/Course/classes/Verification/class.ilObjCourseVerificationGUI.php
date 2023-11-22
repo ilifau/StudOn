@@ -1,35 +1,57 @@
 <?php
 
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=0);
 
-include_once('./Services/Object/classes/class.ilObject2GUI.php');
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\DI\Container;
 
 /**
  * GUI class for course verification
- *
- * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
- *
+ * @author       Jörg Lützenkirchen <luetzenkirchen@leifos.com>
  * @ilCtrl_Calls ilObjCourseVerificationGUI: ilWorkspaceAccessGUI
  */
 class ilObjCourseVerificationGUI extends ilObject2GUI
 {
-    public function getType()
+    private Container $dic;
+    protected ilErrorHandling $error;
+
+    protected ilTabsGUI $tabs;
+
+    public function __construct(int $a_id = 0, int $a_id_type = self::REPOSITORY_NODE_ID, int $a_parent_node_id = 0)
+    {
+        global $DIC;
+        $this->dic = $DIC;
+        $this->error = $DIC->error();
+        $this->tabs = $DIC->tabs();
+
+        parent::__construct($a_id, $a_id_type, $a_parent_node_id);
+    }
+
+    public function getType(): string
     {
         return "crsv";
     }
 
-    /**
-     * List all tests in which current user participated
-     */
-    public function create()
+    public function create(): void
     {
-        global $DIC;
-
-        $ilTabs = $DIC['ilTabs'];
-
         $this->lng->loadLanguageModule("crsv");
 
-        $ilTabs->setBackTarget(
+        $this->tabs->setBackTarget(
             $this->lng->txt("back"),
             $this->ctrl->getLinkTarget($this, "cancel")
         );
@@ -38,36 +60,33 @@ class ilObjCourseVerificationGUI extends ilObject2GUI
         $this->tpl->setContent($table->getHTML());
     }
 
-    /**
-     * create new instance and save it
-     */
-    public function save()
+    public function save(): void
     {
-        global $DIC;
+        $ilUser = $this->dic->user();
 
-        $ilUser = $DIC['ilUser'];
-        
-        $objectId = $_REQUEST["crs_id"];
+        $objectId = $this->getRequestValue("crs_id");
         if ($objectId) {
             $certificateVerificationFileService = new ilCertificateVerificationFileService(
-                $DIC->language(),
-                $DIC->database(),
-                $DIC->logger()->root(),
+                $this->dic->language(),
+                $this->dic->database(),
+                $this->dic->logger()->root(),
                 new ilCertificateVerificationClassMap()
             );
 
             $userCertificateRepository = new ilUserCertificateRepository();
 
             $userCertificatePresentation = $userCertificateRepository->fetchActiveCertificateForPresentation(
-                (int) $ilUser->getId(),
+                $ilUser->getId(),
                 (int) $objectId
             );
 
+            $newObj = null;
             try {
                 $newObj = $certificateVerificationFileService->createFile($userCertificatePresentation);
-            } catch (\Exception $exception) {
-                ilUtil::sendFailure($this->lng->txt('error_creating_certificate_pdf'));
-                return $this->create();
+            } catch (Exception $exception) {
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('error_creating_certificate_pdf'));
+                $this->create();
+                return;
             }
 
             if ($newObj) {
@@ -77,89 +96,100 @@ class ilObjCourseVerificationGUI extends ilObject2GUI
 
                 $this->afterSave($newObj);
             } else {
-                ilUtil::sendFailure($this->lng->txt("msg_failed"));
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("msg_failed"));
             }
         } else {
-            ilUtil::sendFailure($this->lng->txt("select_one"));
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("select_one"));
         }
 
         $this->create();
     }
-    
-    public function deliver()
+
+    public function deliver(): void
     {
         $file = $this->object->getFilePath();
         if ($file) {
-            ilUtil::deliverFile($file, $this->object->getTitle() . ".pdf");
+            ilFileDelivery::deliverFileLegacy($file, $this->object->getTitle() . ".pdf");
         }
     }
-    
-    /**
-     * Render content
-     *
-     * @param bool $a_return
-     * @param string $a_url
-     */
-    public function render($a_return = false, $a_url = false)
-    {
-        global $DIC;
 
-        $ilUser = $DIC['ilUser'];
-        $lng = $DIC['lng'];
-        
+    public function render(bool $a_return = false, string $a_url = ''): string
+    {
+        $ilUser = $this->dic->user();
+        $lng = $this->dic->language();
+
         if (!$a_return) {
             $this->deliver();
         } else {
             $tree = new ilWorkspaceTree($ilUser->getId());
             $wsp_id = $tree->lookupNodeId($this->object->getId());
-            
+
             $caption = $lng->txt("wsp_type_crsv") . ' "' . $this->object->getTitle() . '"';
-            
+
             $valid = true;
+            $message = '';
             if (!file_exists($this->object->getFilePath())) {
                 $valid = false;
                 $message = $lng->txt("url_not_found");
             } elseif (!$a_url) {
-                include_once "Services/PersonalWorkspace/classes/class.ilWorkspaceAccessHandler.php";
                 $access_handler = new ilWorkspaceAccessHandler($tree);
                 if (!$access_handler->checkAccess("read", "", $wsp_id)) {
                     $valid = false;
                     $message = $lng->txt("permission_denied");
                 }
             }
-            
+
             if ($valid) {
                 if (!$a_url) {
                     $a_url = $this->getAccessHandler()->getGotoLink($wsp_id, $this->object->getId());
                 }
                 return '<div><a href="' . $a_url . '">' . $caption . '</a></div>';
-            } else {
-                return '<div>' . $caption . ' (' . $message . ')</div>';
             }
-        }
-    }
-    
-    public function downloadFromPortfolioPage(ilPortfolioPage $a_page)
-    {
-        global $DIC;
 
-        $ilErr = $DIC['ilErr'];
-        
-        include_once "Services/COPage/classes/class.ilPCVerification.php";
+            return '<div>' . $caption . ' (' . $message . ')</div>';
+        }
+
+        return "";
+    }
+
+    public function downloadFromPortfolioPage(ilPortfolioPage $a_page): void
+    {
         if (ilPCVerification::isInPortfolioPage($a_page, $this->object->getType(), $this->object->getId())) {
             $this->deliver();
         }
-        
-        $ilErr->raiseError($this->lng->txt('permission_denied'), $ilErr->MESSAGE);
+        $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
     }
-    
-    public static function _goto($a_target)
+
+    public static function _goto(string $a_target): void
     {
+        global $DIC;
+
+        $ctrl = $DIC->ctrl();
+
         $id = explode("_", $a_target);
-        
-        $_GET["baseClass"] = "ilsharedresourceGUI";
-        $_GET["wsp_id"] = $id[0];
-        include("ilias.php");
-        exit;
+
+        $ctrl->setParameterByClass(
+            ilSharedResourceGUI::class,
+            'wsp_id',
+            $id[0]
+        );
+        $ctrl->redirectByClass(ilSharedResourceGUI::class);
+    }
+
+    /**
+     * @param mixed  $default
+     * @return mixed|null
+     */
+    protected function getRequestValue(string $key, $default = null)
+    {
+        if (isset($this->request->getQueryParams()[$key])) {
+            return $this->request->getQueryParams()[$key];
+        }
+
+        if (isset($this->request->getParsedBody()[$key])) {
+            return $this->request->getParsedBody()[$key];
+        }
+
+        return $default ?? null;
     }
 }

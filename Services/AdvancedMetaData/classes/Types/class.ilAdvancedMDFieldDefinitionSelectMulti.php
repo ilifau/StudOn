@@ -1,39 +1,43 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once "Services/AdvancedMetaData/classes/Types/class.ilAdvancedMDFieldDefinitionSelect.php";
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * AMD field type select
- *
- * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
- * @version $Id$
- *
+ * @author  Jörg Lützenkirchen <luetzenkirchen@leifos.com>
  * @ingroup ServicesAdvancedMetaData
  */
 class ilAdvancedMDFieldDefinitionSelectMulti extends ilAdvancedMDFieldDefinitionSelect
 {
-    const XML_SEPARATOR = "~|~";
-    
-    //
-    // generic types
-    //
+    protected const XML_SEPARATOR = "~|~";
 
-    // search
-    public function getSearchQueryParserValue(ilADTSearchBridge $search_bridge)
+    public function getSearchQueryParserValue(ilADTSearchBridge $a_adt_search): string
     {
-        return $search_bridge->getADT()->getSelections()[0] ?? 0;
+        return (string) $a_adt_search->getADT()->getSelections()[0];
     }
 
-    
-    public function getType()
+    public function getType(): int
     {
         return self::TYPE_SELECT_MULTI;
     }
-    
-    
 
-    protected function initADTDefinition()
+    protected function initADTDefinition(): ilADTDefinition
     {
         $def = ilADTFactory::getInstance()->getDefinitionInstanceByType("MultiEnum");
         $def->setNumeric(false);
@@ -47,53 +51,27 @@ class ilAdvancedMDFieldDefinitionSelectMulti extends ilAdvancedMDFieldDefinition
         return $def;
     }
 
-    
-    
-    //
-    // definition (NOT ADT-based)
-    //
-
-    /**
-     * @param ilPropertyFormGUI $a_form
-     * @param string            $language
-     */
-    public function importCustomDefinitionFormPostValues(ilPropertyFormGUI $a_form, string $language = '')
+    public function importCustomDefinitionFormPostValues(ilPropertyFormGUI $a_form, string $language = ''): void
     {
         $this->importNewSelectOptions(false, $a_form, $language);
     }
 
-    
-    //
-    // definition CRUD
-    //
-    
-
-    
-    //
-    // import/export
-    //
-    
-    public function getValueForXML(ilADT $element)
+    public function getValueForXML(ilADT $element): string
     {
         return self::XML_SEPARATOR .
-            implode(self::XML_SEPARATOR, $element->getSelections()) .
+            implode(self::XML_SEPARATOR, (array) $element->getSelections()) .
             self::XML_SEPARATOR;
     }
-    
-    public function importValueFromXML($a_cdata)
+
+    public function importValueFromXML(string $a_cdata): void
     {
         $this->getADT()->setSelections(explode(self::XML_SEPARATOR, $a_cdata));
     }
-    
-    
-    //
-    // presentation
-    //
-    
-    public function prepareElementForEditor(ilADTFormBridge $a_enum)
+
+    public function prepareElementForEditor(ilADTFormBridge $a_bridge): void
     {
-        assert($a_enum instanceof ilADTMultiEnumFormBridge);
-        
-        $a_enum->setAutoSort(false);
+        assert($a_bridge instanceof ilADTMultiEnumFormBridge);
+
+        $a_bridge->setAutoSort(false);
     }
 }

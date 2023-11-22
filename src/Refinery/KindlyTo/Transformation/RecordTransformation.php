@@ -1,6 +1,22 @@
-<?php declare(strict_types=1);
+<?php
 
-/* Copyright (c) 2020 Luka K. A. Stocker, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Refinery\KindlyTo\Transformation;
 
@@ -14,10 +30,11 @@ class RecordTransformation implements Transformation
     use DeriveApplyToFromTransform;
     use DeriveInvokeFromTransform;
 
-    private $transformations;
+    /** @var array<string, Transformation> */
+    private array $transformations;
 
     /**
-     *@param Transformation[] $transformations
+     * @param array<string, Transformation> $transformations
      */
     public function __construct(array $transformations)
     {
@@ -45,12 +62,13 @@ class RecordTransformation implements Transformation
 
     /**
      * @inheritDoc
+     * @return array<string, mixed>
      */
-    public function transform($from)
+    public function transform($from): array
     {
         if (!is_array($from)) {
             throw new ConstraintViolationException(
-                sprintf('The value "%s" is no array.', $from),
+                sprintf('The value "%s" is no array.', var_export($from, true)),
                 'value_is_no_array',
                 $from
             );
@@ -67,6 +85,7 @@ class RecordTransformation implements Transformation
             }
             $result[$key] = $transformation->transform($from[$key]);
         }
+
         return $result;
     }
 }

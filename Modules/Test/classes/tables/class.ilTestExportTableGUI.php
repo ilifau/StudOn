@@ -1,8 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/Export/classes/class.ilExportTableGUI.php';
-require_once 'Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  *
@@ -11,19 +23,8 @@ require_once 'Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvance
  *
  * @ingroup ModulesTest
  */
-
 class ilTestExportTableGUI extends ilExportTableGUI
 {
-    protected $counter;
-    protected $confirmdelete;
-
-    /**
-     * Constructor
-     *
-     * @access public
-     * @param
-     * @return
-     */
     public function __construct($a_parent_obj, $a_parent_cmd, $a_exp_obj)
     {
         parent::__construct($a_parent_obj, $a_parent_cmd, $a_exp_obj);
@@ -33,11 +34,7 @@ class ilTestExportTableGUI extends ilExportTableGUI
         //$this->addCustomColumn($this->lng->txt('actions'), $this, 'formatActionsList');
     }
 
-    /**
-     * @param string $type
-     * @param string $filename
-     */
-    protected function formatActionsList($type, $filename)
+    protected function formatActionsList(string $type, string $filename): string
     {
         /**
          * @var $ilCtrl ilCtrl
@@ -53,10 +50,7 @@ class ilTestExportTableGUI extends ilExportTableGUI
         return $list->getHTML();
     }
 
-    /***
-     *
-     */
-    protected function initMultiCommands()
+    protected function initMultiCommands(): void
     {
         $this->addMultiCommand('confirmDeletion', $this->lng->txt('delete'));
     }
@@ -64,45 +58,35 @@ class ilTestExportTableGUI extends ilExportTableGUI
     /**
      * Overwrite method because data is passed from outside
      */
-    public function getExportFiles()
+    public function getExportFiles(): array
     {
         return array();
     }
 
-    /**
-     *
-     */
-    protected function initColumns()
+    protected function initColumns(): void
     {
         $this->addColumn($this->lng->txt(''), '', '1', true);
+        $this->addColumn($this->lng->txt('type'), 'type');
         $this->addColumn($this->lng->txt('file'), 'file');
         $this->addColumn($this->lng->txt('size'), 'size');
         $this->addColumn($this->lng->txt('date'), 'timestamp');
     }
 
-    /**
-     * @param string $column
-     * @return bool
-     */
-    public function numericOrdering($column)
+    public function numericOrdering(string $a_field): bool
     {
-        if (in_array($column, array('size', 'date'))) {
+        if (in_array($a_field, array('size', 'date'))) {
             return true;
         }
 
         return false;
     }
 
-    /**
-     * @param array $row
-     * @return string
-     */
-    protected function getRowId(array $row)
+    protected function getRowId(array $row): string
     {
         return $row['file'];
     }
 
-    public function resetFormats() : void
+    public function resetFormats(): void
     {
         $this->formats = [];
     }

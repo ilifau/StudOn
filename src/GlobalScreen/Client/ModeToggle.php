@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Client;
 
 use ILIAS\HTTP\Wrapper\WrapperFactory;
@@ -34,26 +34,11 @@ class ModeToggle
     public const MODE1 = "all";
     public const MODE2 = "none";
 
-    /**
-     * @var \ILIAS\HTTP\Wrapper\WrapperFactory
-     */
-    protected $wrapper;
-    /**
-     * @var \ILIAS\Refinery\Factory
-     */
-    protected $refinery;
-    /**
-     * @var \ilCtrlInterface
-     */
-    protected $ctrl;
-    /**
-     * @var \ILIAS\GlobalScreen\Services
-     */
-    protected $global_screen;
-    /**
-     * @var \ILIAS\HTTP\Services
-     */
-    protected $http;
+    protected WrapperFactory $wrapper;
+    protected Factory $refinery;
+    protected \ilCtrlInterface $ctrl;
+    protected \ILIAS\GlobalScreen\Services $global_screen;
+    protected \ILIAS\HTTP\Services $http;
 
     public function __construct()
     {
@@ -66,19 +51,19 @@ class ModeToggle
         $this->global_screen = $DIC->globalScreen();
     }
 
-    public function getMode() : string
+    public function getMode(): string
     {
         return $this->wrapper->cookie()->has(self::GS_MODE)
             ? $this->wrapper->cookie()->retrieve(self::GS_MODE, $this->refinery->to()->string())
             : self::MODE1;
     }
 
-    public function saveStateOfAll() : bool
+    public function saveStateOfAll(): bool
     {
         return $this->getMode() == ItemState::LEVEL_OF_TOOL;
     }
 
-    public function toggle() : void
+    public function toggle(): void
     {
         $current_mode = $this->getMode();
         $new_mode = $current_mode == self::MODE1 ? self::MODE2 : self::MODE1;

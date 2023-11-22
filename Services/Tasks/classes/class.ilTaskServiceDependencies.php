@@ -1,52 +1,49 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\DI\UIServices;
 
 /**
  * Task service dependencies
  *
- * @author killing@leifos.de
- * @ingroup ServiceTasks
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilTaskServiceDependencies
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected ilLanguage $lng;
 
-    /**
-     * @var \ILIAS\DI\UIServices
-     */
-    protected $ui;
+    protected UIServices $ui;
 
-    /**
-     * @var \ilObjUser
-     */
-    protected $user;
+    protected ilObjUser $user;
 
-    /**
-     * @var \ilAccessHandler
-     */
-    protected $access;
+    protected ilAccessHandler $access;
 
-    /**
-     * @var ilDerivedTaskProviderMasterFactory
-     */
-    protected $derived_task_provider_master_factory;
+    protected ilDerivedTaskProviderMasterFactory $derived_task_provider_master_factory;
 
     /**
      * Constructor
-     * @param ilObjUser $user
-     * @param ilLanguage $lng
-     * @param \ILIAS\DI\UIServices $ui
      */
     public function __construct(
         ilObjUser $user,
         ilLanguage $lng,
-        \ILIAS\DI\UIServices $ui,
-        \ilAccessHandler $access,
-        \ilDerivedTaskProviderMasterFactory $derived_task_provider_master_factory
+        UIServices $ui,
+        ilAccessHandler $access,
+        ilDerivedTaskProviderMasterFactory $derived_task_provider_master_factory
     ) {
         $this->lng = $lng;
         $this->ui = $ui;
@@ -57,50 +54,40 @@ class ilTaskServiceDependencies
 
     /**
      * Get derived task provider master factory
-     *
-     * @return ilDerivedTaskProviderMasterFactory
      */
-    public function getDerivedTaskProviderMasterFactory() : \ilDerivedTaskProviderMasterFactory
+    public function getDerivedTaskProviderMasterFactory(): ilDerivedTaskProviderMasterFactory
     {
         return $this->derived_task_provider_master_factory;
     }
 
     /**
      * Get language object
-     *
-     * @return \ilLanguage
      */
-    public function language() : \ilLanguage
+    public function language(): ilLanguage
     {
         return $this->lng;
     }
 
     /**
      * Get current user
-     *
-     * @return \ilObjUser
      */
-    public function user() : \ilObjUser
+    public function user(): ilObjUser
     {
         return $this->user;
     }
 
     /**
      * Get ui service
-     *
-     * @return \ILIAS\DI\UIServices
      */
-    public function ui() : \ILIAS\DI\UIServices
+    public function ui(): UIServices
     {
         return $this->ui;
     }
 
     /**
      * Get access
-     *
-     * @return \ilAccessHandler
      */
-    protected function getAccess() : \ilAccessHandler
+    protected function getAccess(): ilAccessHandler
     {
         return $this->access;
     }

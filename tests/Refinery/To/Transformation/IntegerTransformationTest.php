@@ -1,105 +1,113 @@
 <?php
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
 
 /**
- * @author  Niels Theen <ntheen@databay.de>
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Tests\Refinery\To\Transformation;
 
-require_once('./libs/composer/vendor/autoload.php');
-
 use ILIAS\Data\Result;
 use ILIAS\Refinery\To\Transformation\IntegerTransformation;
-use ILIAS\Refinery\ConstraintViolationException;
 use ILIAS\Tests\Refinery\TestCase;
+use UnexpectedValueException;
 
 class IntegerTransformationTest extends TestCase
 {
-    /**
-     * @var IntegerTransformation
-     */
-    private $transformation;
+    private IntegerTransformation $transformation;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->transformation = new IntegerTransformation();
     }
 
-    public function testIntegerToIntegerTransformation()
+    public function testIntegerToIntegerTransformation(): void
     {
         $transformedValue = $this->transformation->transform(200);
 
         $this->assertEquals(200, $transformedValue);
     }
 
-    public function testNegativeIntegerToIntegerTransformation()
+    public function testNegativeIntegerToIntegerTransformation(): void
     {
         $transformedValue = $this->transformation->transform(-200);
 
         $this->assertEquals(-200, $transformedValue);
     }
 
-    public function testZeroIntegerToIntegerTransformation()
+    public function testZeroIntegerToIntegerTransformation(): void
     {
         $transformedValue = $this->transformation->transform(0);
 
         $this->assertEquals(0, $transformedValue);
     }
 
-    public function testStringToIntegerTransformation()
+    public function testStringToIntegerTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform('hello');
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
 
         $this->fail();
     }
 
-    public function testFloatToIntegerTransformation()
+    public function testFloatToIntegerTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(10.5);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
 
         $this->fail();
     }
 
-    public function testPositiveBooleanToIntegerTransformation()
+    public function testPositiveBooleanToIntegerTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(true);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
 
         $this->fail();
     }
 
-    public function testNegativeBooleanToIntegerTransformation()
+    public function testNegativeBooleanToIntegerTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(false);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
 
         $this->fail();
     }
 
-    public function testStringToIntegerApply()
+    public function testStringToIntegerApply(): void
     {
         $resultObject = new Result\Ok('hello');
 
@@ -108,7 +116,7 @@ class IntegerTransformationTest extends TestCase
         $this->assertTrue($transformedObject->isError());
     }
 
-    public function testPositiveIntegerToIntegerApply()
+    public function testPositiveIntegerToIntegerApply(): void
     {
         $resultObject = new Result\Ok(200);
 
@@ -117,7 +125,7 @@ class IntegerTransformationTest extends TestCase
         $this->assertEquals(200, $transformedObject->value());
     }
 
-    public function testNegativeIntegerToIntegerApply()
+    public function testNegativeIntegerToIntegerApply(): void
     {
         $resultObject = new Result\Ok(-200);
 
@@ -126,7 +134,7 @@ class IntegerTransformationTest extends TestCase
         $this->assertEquals(-200, $transformedObject->value());
     }
 
-    public function testZeroIntegerToIntegerApply()
+    public function testZeroIntegerToIntegerApply(): void
     {
         $resultObject = new Result\Ok(0);
 
@@ -135,7 +143,7 @@ class IntegerTransformationTest extends TestCase
         $this->assertEquals(0, $transformedObject->value());
     }
 
-    public function testFloatToIntegerApply()
+    public function testFloatToIntegerApply(): void
     {
         $resultObject = new Result\Ok(10.5);
 
@@ -144,7 +152,7 @@ class IntegerTransformationTest extends TestCase
         $this->assertTrue($transformedObject->isError());
     }
 
-    public function testBooleanToIntegerApply()
+    public function testBooleanToIntegerApply(): void
     {
         $resultObject = new Result\Ok(true);
 

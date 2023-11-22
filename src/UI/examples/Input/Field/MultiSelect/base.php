@@ -1,19 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Field\MultiSelect;
+
 /**
  * Base example showing how to plug a Multi-Select into a form
  */
 function base()
 {
-
-    //Step 0: Declare dependencies
+    //declare dependencies
     global $DIC;
-
     $ui = $DIC->ui()->factory();
     $renderer = $DIC->ui()->renderer();
     $request = $DIC->http()->request();
-    $ctrl = $DIC->ctrl();
 
-    //Define the options.
+    //define options.
     $options = array(
         "1" => "Pick 1",
         "2" => "Pick 2",
@@ -21,22 +23,27 @@ function base()
         "4" => "Pick 4",
     );
 
-    //Step 1: define the select
+    //define the select
     $multi = $ui->input()->field()->multiselect("Take your picks", $options, "This is the byline text")
         ->withRequired(true);
 
-    //Step 2: define form and form actions
+    //define form and form actions
     $form = $ui->input()->container()->form()->standard('#', ['multi' => $multi]);
 
-    //Step 3: implement some form data processing.
+
+    //implement some form data processing.
     if ($request->getMethod() == "POST") {
-        $form = $form->withRequest($request);
-        $result = $form->getData();
+        try {
+            $form = $form->withRequest($request);
+            $result = $form->getData();
+        } catch (\InvalidArgumentException $e) {
+            $result = "No result. Probably, the other form was used.";
+        }
     } else {
         $result = "No result yet.";
     }
 
-    //Step 4: Render the select with the enclosing form.
+    //render the select with the enclosing form.
     return
         "<pre>" . print_r($result, true) . "</pre><br/>" .
         $renderer->render($form);

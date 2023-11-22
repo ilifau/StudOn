@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2016 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilSamlIdpTableGUI
@@ -7,30 +24,21 @@
  */
 class ilSamlIdpTableGUI extends ilTable2GUI
 {
-    /** @var ilCtrl */
-    protected $ctrl;
-    /** @var ILIAS\DI\Container */
-    protected $dic;
+    private ILIAS\DI\Container $dic;
+    private bool $hasWriteAccess;
 
-    /**
-     * ilSamlIdpTableGUI constructor.
-     * @param        $a_parent_obj
-     * @param string $a_parent_cmd
-     * @param string $a_template_context
-     */
-    public function __construct($a_parent_obj, $a_parent_cmd = "")
+    public function __construct(object $parent_gui, string $parent_cmd, bool $hasWriteAccess)
     {
         global $DIC;
 
         $this->dic = $DIC;
+        $this->hasWriteAccess = $hasWriteAccess;
 
-        $f = $DIC->ui()->factory();
-        $renderer = $DIC->ui()->renderer();
+        $f = $this->dic->ui()->factory();
+        $renderer = $this->dic->ui()->renderer();
 
         $this->setId('saml_idp_list');
-        parent::__construct($a_parent_obj, $a_parent_cmd, '');
-
-        $this->ctrl = $GLOBALS['DIC']->ctrl();
+        parent::__construct($parent_gui, $parent_cmd);
 
         $this->setTitle($this->lng->txt('auth_saml_idps'));
 
@@ -40,7 +48,10 @@ class ilSamlIdpTableGUI extends ilTable2GUI
             $this->lng->txt('auth_saml_idps_info'),
             'auth/saml/config/config.php',
             'auth/saml/config/authsources.php',
-            $renderer->render($f->link()->standard('https://simplesamlphp.org/docs/stable/simplesamlphp-sp', 'https://simplesamlphp.org/docs/stable/simplesamlphp-sp')),
+            $renderer->render($f->link()->standard(
+                'https://simplesamlphp.org/docs/stable/simplesamlphp-sp',
+                'https://simplesamlphp.org/docs/stable/simplesamlphp-sp'
+            )),
             $renderer->render($f->link()->standard($federationMdUrl, $federationMdUrl))
         ));
         $this->setRowTemplate('tpl.saml_idp_row.html', 'Services/Saml');
@@ -52,10 +63,7 @@ class ilSamlIdpTableGUI extends ilTable2GUI
         $this->getItems();
     }
 
-    /**
-     *
-     */
-    private function getItems() : void
+    private function getItems(): void
     {
         $idp_data = [];
 
@@ -66,10 +74,7 @@ class ilSamlIdpTableGUI extends ilTable2GUI
         $this->setData($idp_data);
     }
 
-    /**
-     * @param array $a_set
-     */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         if ($a_set['is_active']) {
             $this->tpl->setVariable('IMAGE_OK', ilUtil::getImagePath('icon_ok.svg'));
@@ -81,7 +86,7 @@ class ilSamlIdpTableGUI extends ilTable2GUI
 
         $this->tpl->setVariable('NAME', $a_set['entity_id']);
 
-        if ($this->dic->rbac()->system()->checkAccess('write', $_GET['ref_id'])) {
+        if ($this->hasWriteAccess) {
             $list = new ilAdvancedSelectionListGUI();
             $list->setSelectionHeaderClass('small');
             $list->setItemLinkClass('small');
@@ -89,13 +94,29 @@ class ilSamlIdpTableGUI extends ilTable2GUI
             $list->setListTitle($this->lng->txt('actions'));
 
             $this->ctrl->setParameter($this->getParentObject(), 'saml_idp_id', $a_set['idp_id']);
-            $list->addItem($this->lng->txt('edit'), '', $this->ctrl->getLinkTarget($this->getParentObject(), 'showIdpSettings'));
+            $list->addItem(
+                $this->lng->txt('edit'),
+                '',
+                $this->ctrl->getLinkTarget($this->getParentObject(), 'showIdpSettings')
+            );
             if ($a_set['is_active']) {
-                $list->addItem($this->lng->txt('deactivate'), '', $this->ctrl->getLinkTarget($this->getParentObject(), 'deactivateIdp'));
+                $list->addItem(
+                    $this->lng->txt('deactivate'),
+                    '',
+                    $this->ctrl->getLinkTarget($this->getParentObject(), 'deactivateIdp')
+                );
             } else {
-                $list->addItem($this->lng->txt('activate'), '', $this->ctrl->getLinkTarget($this->getParentObject(), 'activateIdp'));
+                $list->addItem(
+                    $this->lng->txt('activate'),
+                    '',
+                    $this->ctrl->getLinkTarget($this->getParentObject(), 'activateIdp')
+                );
             }
-            $list->addItem($this->lng->txt('delete'), '', $this->ctrl->getLinkTarget($this->getParentObject(), 'confirmDeleteIdp'));
+            $list->addItem(
+                $this->lng->txt('delete'),
+                '',
+                $this->ctrl->getLinkTarget($this->getParentObject(), 'confirmDeleteIdp')
+            );
             $this->ctrl->setParameter($this->getParentObject(), 'saml_idp_id', '');
 
             $this->tpl->setVariable('ACTIONS', $list->getHTML());

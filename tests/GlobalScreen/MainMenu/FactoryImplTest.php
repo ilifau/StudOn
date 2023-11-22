@@ -1,21 +1,5 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- *********************************************************************/
-
 namespace ILIAS\GlobalScreen\MainMenu;
 
 use ILIAS\GlobalScreen\Identification\IdentificationFactory;
@@ -37,28 +21,16 @@ require_once('./libs/composer/vendor/autoload.php');
  */
 class FactoryImplTest extends TestCase
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationInterface
-     */
-    protected $id;
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\MainMenu\Provider\StaticMainMenuProvider
-     */
-    protected $provider;
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationFactory
-     */
-    protected $identification;
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\MainMenu\Factory\MainMenuItemFactory
-     */
-    protected $factory;
+    protected IdentificationInterface $id;
+    protected StaticMainMenuProvider $provider;
+    protected IdentificationFactory $identification;
+    protected MainMenuItemFactory $factory;
 
 
     /**
      * @inheritDoc
      */
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -71,7 +43,7 @@ class FactoryImplTest extends TestCase
     }
 
 
-    public function testAvailableMethods() : void
+    public function testAvailableMethods(): void
     {
         $r = new ReflectionClass($this->factory);
 
@@ -96,7 +68,7 @@ class FactoryImplTest extends TestCase
     }
 
 
-    public function testInterchangeableContraints() : void
+    public function testInterchangeableContraints(): void
     {
         $this->assertInstanceOf(isInterchangeableItem::class, $this->factory->topLinkItem($this->id));
         $this->assertNotInstanceOf(isInterchangeableItem::class, $this->factory->topParentItem($this->id));

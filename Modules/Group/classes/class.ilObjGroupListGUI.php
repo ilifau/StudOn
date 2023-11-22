@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /*
     +-----------------------------------------------------------------------------+
     | ILIAS open source                                                           |
@@ -22,7 +24,6 @@
 */
 
 
-include_once "Services/Object/classes/class.ilObjectListGUI.php";
 
 /**
 * Class ilObjGroupListGUI
@@ -34,13 +35,20 @@ include_once "Services/Object/classes/class.ilObjectListGUI.php";
 */
 class ilObjGroupListGUI extends ilObjectListGUI
 {
+    protected ilRbacSystem $rbacsystem;
+
+    public function __construct(int $a_context = self::CONTEXT_REPOSITORY)
+    {
+        global $DIC;
+
+        $this->rbacsystem = $DIC->rbac()->system();
+        parent::__construct($a_context);
+    }
 
     /**
-    * initialisation
-    *
-    * this method should be overwritten by derived classes
+     * @inheritDoc
     */
-    public function init()
+    public function init(): void
     {
         $this->static_link_enabled = true;
         $this->delete_enabled = true;
@@ -56,58 +64,17 @@ class ilObjGroupListGUI extends ilObjectListGUI
         $this->enableSubstitutions($this->substitutions->isActive());
 
         // general commands array
-        include_once('./Modules/Group/classes/class.ilObjGroupAccess.php');
         $this->commands = ilObjGroupAccess::_getCommands();
     }
 
     /**
-     * @inheritdoc
-     */
-    public function initItem($a_ref_id, $a_obj_id, $type, $a_title = "", $a_description = "")
-    {
-        parent::initItem($a_ref_id, $a_obj_id, $type, $a_title, $a_description);
-
-
-        // fau: campoInfo - show info and links from campo
-        // use custom property to hide the display in the result list of campo search
-        global $DIC;
-        $info_gui = $DIC->fau()->study()->info();
-        $import_id = $DIC->fau()->study()->repo()->getImportId($this->obj_id)->withEventId(null);
-        if ($import_id->isForCampo()) {
-            if (!empty($line = $info_gui->getDatesLine($import_id))) {
-                $this->addCustomProperty('', $line, false, true);
-            }
-            if (!empty($line = $info_gui->getResponsiblesLine($import_id))) {
-                $this->addCustomProperty('', $line, false, true);
-            }
-            if (!empty($line = $info_gui->getDetailsLink($import_id, $this->ref_id, $this->lng->txt('fau_details_link')))) {
-                $this->addCustomProperty('', $line, false, true);
-            }
-        }
-
-        // fau.
-    }
-
-
-    /**
-    * Overwrite this method, if link target is not build by ctrl class
-    * (e.g. "lm_presentation.php", "forum.php"). This is the case
-    * for all links now, but bringing everything to ilCtrl should
-    * be realised in the future.
-    *
-    * @param	string		$a_cmd			command
-    *
+     * @inheritDoc
     */
-    public function getCommandLink($a_cmd)
+    public function getCommandLink(string $cmd): string
     {
-        global $DIC;
-
-        $ilCtrl = $DIC['ilCtrl'];
-        
-        switch ($a_cmd) {
+        switch ($cmd) {
             // BEGIN WebDAV: Mount Webfolder.
             case 'mount_webfolder':
-                require_once('Services/WebDAV/classes/class.ilDAVActivationChecker.php');
                 if (ilDAVActivationChecker::_isActive()) {
                     global $DIC;
                     $uri_builder = new ilWebDAVUriBuilder($DIC->http()->request());
@@ -119,39 +86,24 @@ class ilObjGroupListGUI extends ilObjectListGUI
             // no break
             case "edit":
             default:
-                $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $this->ref_id);
-                $cmd_link = $ilCtrl->getLinkTargetByClass("ilrepositorygui", $a_cmd);
-                $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $_GET["ref_id"]);
+                $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $this->ref_id);
+                $cmd_link = $this->ctrl->getLinkTargetByClass("ilrepositorygui", $cmd);
+                $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $this->requested_ref_id);
                 break;
         }
-
         return $cmd_link;
     }
 
 
     /**
-    * Get item properties
-    *
-    * @return	array		array of property arrays:
-    *						"alert" (boolean) => display as an alert property (usually in red)
-    *						"property" (string) => property name
-    *						"value" (string) => property value
+     * @inheritDoc
     */
-    public function getProperties()
+    public function getProperties(): array
     {
-        global $DIC;
-
-        $lng = $DIC['lng'];
-        $rbacsystem = $DIC['rbacsystem'];
-        $ilUser = $DIC['ilUser'];
-
         $props = parent::getProperties();
-
-
-        // fau: showMemLimit - adapted info about registration, membership limit and status
-        include_once './Modules/Group/classes/class.ilObjGroupAccess.php';
-        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id, $this->ref_id);
-        if ($info['reg_info_list_prop']) {
+        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id);
+        //var_dump($info);
+        if (isset($info['reg_info_list_prop'])) {
             $props[] = array(
                 'alert' => false,
                 'newline' => true,
@@ -159,25 +111,26 @@ class ilObjGroupListGUI extends ilObjectListGUI
                 'value' => $info['reg_info_list_prop']['value']
             );
         }
-        if ($info['reg_info_list_prop_limit']) {
+        if (isset($info['reg_info_list_prop_limit'])) {
             $props[] = array(
                 'alert' => false,
-                'newline' => true,
+                'newline' => false,
                 'property' => $info['reg_info_list_prop_limit']['property'],
                 'propertyNameVisible' => strlen($info['reg_info_list_prop_limit']['property']) ? true : false,
                 'value' => $info['reg_info_list_prop_limit']['value']
             );
         }
-        if ($info['reg_info_list_prop_status']) {
+
+
+
+        // waiting list
+        if (ilGroupWaitingList::_isOnList($this->user->getId(), $this->obj_id)) {
             $props[] = array(
-                'alert' => true,
-                'newline' => true,
-                'property' => $info['reg_info_list_prop_status']['property'],
-                'propertyNameVisible' => strlen($info['reg_info_list_prop_status']['property']) ? true : false,
-                'value' => $info['reg_info_list_prop_status']['value']
+                "alert" => true,
+                "property" => $this->lng->txt('member_status'),
+                "value" => $this->lng->txt('on_waiting_list')
             );
         }
-        // fau.
 
         // course period
         $info = ilObjGroupAccess::lookupPeriodInfo($this->obj_id);
@@ -189,48 +142,35 @@ class ilObjGroupListGUI extends ilObjectListGUI
                 'value' => $info['value']
             );
         }
-
-
-
         return $props;
     }
 
-    // BEGIN WebDAV mount_webfolder in _blank frame
     /**
-    * Get command target frame.
-    *
-    * Overwrite this method if link frame is not current frame
-    *
-    * @param	string		$a_cmd			command
-    *
-    * @return	string		command target frame
-    */
-    public function getCommandFrame($a_cmd)
+     * @inheritDoc
+     */
+    public function getCommandFrame(string $cmd): string
     {
         // begin-patch fm
-        return parent::getCommandFrame($a_cmd);
+        return parent::getCommandFrame($cmd);
         // end-patch fm
     }
-    
-    
+
+
     /**
-     * Workaround for course titles (linked if join or read permission is granted)
-     * @param type $a_permission
-     * @param type $a_cmd
-     * @param type $a_ref_id
-     * @param type $a_type
-     * @param type $a_obj_id
-     * @return type
+     * @inheritDoc
      */
-    public function checkCommandAccess($a_permission, $a_cmd, $a_ref_id, $a_type, $a_obj_id = "")
-    {
-        if ($a_permission == 'grp_linked') {
+    public function checkCommandAccess(
+        string $permission,
+        string $cmd,
+        int $ref_id,
+        string $type,
+        ?int $obj_id = null
+    ): bool {
+        if ($permission == 'grp_linked') {
             return
-                parent::checkCommandAccess('read', '', $a_ref_id, $a_type, $a_obj_id) ||
-                parent::checkCommandAccess('join', 'join', $a_ref_id, $a_type, $a_obj_id);
+                parent::checkCommandAccess('read', '', $ref_id, $type, $obj_id) ||
+                parent::checkCommandAccess('join', 'join', $ref_id, $type, $obj_id);
         }
-        return parent::checkCommandAccess($a_permission, $a_cmd, $a_ref_id, $a_type, $a_obj_id);
+        return parent::checkCommandAccess($permission, $cmd, $ref_id, $type, $obj_id);
     }
-    
-    // END WebDAV mount_webfolder in _blank frame
 } // END class.ilObjGroupListGUI

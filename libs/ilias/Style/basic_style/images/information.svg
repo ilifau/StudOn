@@ -1,26 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
-<g>
-	<g>
-		<g>
-			<defs>
-				<circle id="SVGID_13_" cx="16" cy="16" r="15.3"/>
-			</defs>
-			<use xlink:href="#SVGID_13_"  overflow="visible" fill="#BAE1FF"/>
-			<clipPath id="SVGID_1_">
-				<use xlink:href="#SVGID_13_"  overflow="visible"/>
-			</clipPath>
-			
-				<rect x="0.7" y="0.7" clip-path="url(#SVGID_1_)" fill="#BAE1FF" stroke="#161616" stroke-width="0.75" stroke-miterlimit="10" width="30.5" height="30.5"/>
-			<use xlink:href="#SVGID_13_"  overflow="visible" fill="none" stroke="#161616" stroke-width="0.75" stroke-miterlimit="10"/>
-		</g>
-	</g>
-	<g>
-		<circle fill="#333333" cx="16" cy="10.2" r="2.6"/>
-		<path fill="#333333" d="M19.5,23.5c0,0.4-0.3,0.8-0.8,0.8h-5.5c-0.4,0-0.8-0.3-0.8-0.8V22c0-0.4,0.3-0.8,0.8-0.8H14v-4h-0.8
-			c-0.4,0-0.8-0.3-0.8-0.8V15c0-0.4,0.3-0.8,0.8-0.8h4c0.4,0,0.8,0.3,0.8,0.8v6.2h0.8c0.4,0,0.8,0.3,0.8,0.8V23.5z"/>
-	</g>
-</g>
+<svg width="32" height="32" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M256 8C119.043 8 8 119.083 8 256C8 392.997 119.043 504 256 504C392.957 504 504 392.997 504 256C504 119.083 392.957 8 256 8ZM256 118C279.196 118 298 136.804 298 160C298 183.196 279.196 202 256 202C232.804 202 214 183.196 214 160C214 136.804 232.804 118 256 118ZM312 372C312 378.627 306.627 384 300 384H212C205.373 384 200 378.627 200 372V348C200 341.373 205.373 336 212 336H224V272H212C205.373 272 200 266.627 200 260V236C200 229.373 205.373 224 212 224H276C282.627 224 288 229.373 288 236V336H300C306.627 336 312 341.373 312 348V372Z" fill="#4C6586"/>
 </svg>

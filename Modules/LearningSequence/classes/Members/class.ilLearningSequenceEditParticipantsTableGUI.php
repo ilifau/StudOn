@@ -3,47 +3,33 @@
 declare(strict_types=1);
 
 /**
- * @author Daniel Weise <daniel.weise@concepts-and-training.de>
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilLearningSequenceEditParticipantsTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilLearningSequenceMembershipGUI
-     */
-    protected $parent_gui;
-
-    /**
-     * @var ilObjLearningSequence
-     */
-    protected $ls_object;
-
-    /**
-     * @var ilLearningSequenceParticipants
-     */
-    protected $ls_participants;
-
-    /**
-     * @var ilPrivacySettings
-     */
-    protected $privacy_settings;
-
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
+    protected ilLearningSequenceMembershipGUI $parent_gui;
+    protected ilObjLearningSequence $ls_object;
+    protected ilLearningSequenceParticipants $ls_participants;
+    protected ilPrivacySettings $privacy_settings;
 
     public function __construct(
         ilLearningSequenceMembershipGUI $parent_gui,
         ilObjLearningSequence $ls_object,
         ilLearningSequenceParticipants $ls_participants,
-        ilPrivacySettings $privacy_settings,
-        ilLanguage $lng,
-        ilCtrl $ctrl
+        ilPrivacySettings $privacy_settings
     ) {
         parent::__construct($parent_gui, 'editMembers');
 
@@ -51,8 +37,6 @@ class ilLearningSequenceEditParticipantsTableGUI extends ilTable2GUI
         $this->ls_object = $ls_object;
         $this->ls_participants = $ls_participants;
         $this->privacy_settings = $privacy_settings;
-        $this->lng = $lng;
-        $this->ctrl = $ctrl;
 
         $this->setFormName('participants');
         $this->setFormAction($this->ctrl->getFormAction($parent_gui));
@@ -76,20 +60,20 @@ class ilLearningSequenceEditParticipantsTableGUI extends ilTable2GUI
         $this->disable('select_all');
     }
 
-    public function fillRow($set)
+    protected function fillRow(array $a_set): void
     {
-        $this->tpl->setVariable('VAL_ID', $set['usr_id']);
-        $this->tpl->setVariable('VAL_NAME', $set['lastname'] . ', ' . $set['firstname']);
-        $this->tpl->setVariable('VAL_LOGIN', $set['login']);
-        $this->tpl->setVariable('VAL_NOTIFICATION_ID', $set['usr_id']);
-        $this->tpl->setVariable('VAL_NOTIFICATION_CHECKED', $set['notification'] ? 'checked="checked"' : '');
+        $this->tpl->setVariable('VAL_ID', $a_set['usr_id']);
+        $this->tpl->setVariable('VAL_NAME', $a_set['lastname'] . ', ' . $a_set['firstname']);
+        $this->tpl->setVariable('VAL_LOGIN', $a_set['login']);
+        $this->tpl->setVariable('VAL_NOTIFICATION_ID', $a_set['usr_id']);
+        $this->tpl->setVariable('VAL_NOTIFICATION_CHECKED', $a_set['notification'] ? 'checked="checked"' : '');
         $this->tpl->setVariable('NUM_ROLES', count($this->ls_participants->getRoles()));
 
         if ($this->privacy_settings->enabledLearningSequenceAccessTimes()) {
-            $this->tpl->setVariable('VAL_ACCESS', $set['access_time']);
+            $this->tpl->setVariable('VAL_ACCESS', $a_set['access_time']);
         }
 
-        $assigned = $this->ls_participants->getAssignedRoles($set['usr_id']);
+        $assigned = $this->ls_participants->getAssignedRoles((int) $a_set['usr_id']);
         foreach ($this->ls_object->getLocalLearningSequenceRoles(true) as $name => $role_id) {
             $this->tpl->setCurrentBlock('roles');
             $this->tpl->setVariable('ROLE_ID', $role_id);

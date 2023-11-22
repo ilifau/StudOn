@@ -1,35 +1,46 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/Table/classes/class.ilTable2GUI.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
-* TableGUI class for role assignment in user administration
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesUser
-*/
+ * TableGUI class for role assignment in user administration
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilRoleAssignmentTableGUI extends ilTable2GUI
 {
-    protected $path_gui;
-    protected $factory;
-    protected $renderer;
+    protected ilPathGUI $path_gui;
+    protected array $filter; // Missing array type.
+    protected \ILIAS\UI\Factory $factory;
+    protected \ILIAS\UI\Renderer $renderer;
 
-    /**
-    * Constructor
-    */
-    public function __construct($a_parent_obj, $a_parent_cmd)
-    {
+    protected ilObjectDefinition $objectDefinition;
+
+    public function __construct(
+        object $a_parent_obj,
+        string $a_parent_cmd
+    ) {
         global $DIC;
 
         $ilCtrl = $DIC['ilCtrl'];
         $lng = $DIC['lng'];
         $rbacsystem = $DIC['rbacsystem'];
-
+        $this->objectDefinition = $DIC['objDefinition'];
         $this->factory = $DIC->ui()->factory();
         $this->renderer = $DIC->ui()->renderer();
+
 
         $lng->loadLanguageModule('rbac');
         $this->setId("usrroleass");
@@ -61,18 +72,12 @@ class ilRoleAssignmentTableGUI extends ilTable2GUI
         $this->getPathGUI()->enableHideLeaf(false);
     }
 
-    /**
-     * @return ilPathGUI
-     */
-    public function getPathGUI()
+    public function getPathGUI(): ilPathGUI
     {
         return $this->path_gui;
     }
 
-    /**
-    * Init filter
-    */
-    public function initFilter()
+    public function initFilter(): void
     {
         global $DIC;
 
@@ -86,7 +91,6 @@ class ilRoleAssignmentTableGUI extends ilTable2GUI
         $option[4] = $lng->txt('internal_local_roles_only');
         $option[5] = $lng->txt('non_internal_local_roles_only');
 
-        include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
         $si = new ilSelectInputGUI($lng->txt("roles"), "role_filter");
         $si->setOptions($option);
         $this->addFilterItem($si);
@@ -94,10 +98,7 @@ class ilRoleAssignmentTableGUI extends ilTable2GUI
         $this->filter["role_filter"] = $si->getValue();
     }
 
-    /**
-    * Fill table row
-    */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void // Missing array type.
     {
         if (isset($a_set['checkbox']['id'])) {
             $this->tpl->setVariable('VAL_ID', $a_set['checkbox']['id']);
@@ -139,17 +140,18 @@ class ilRoleAssignmentTableGUI extends ilTable2GUI
         $this->tpl->setVariable('PATH', $a_set['path']);
     }
 
-    public function parse(int $usr_id)
+    public function parse(int $usr_id): void
     {
         global $DIC;
 
         $rbacreview = $DIC->rbac()->review();
         $tree = $DIC->repositoryTree();
         $ilUser = $DIC->user();
+        $assignable = false;        // @todo: check this
 
 
         // now get roles depending on filter settings
-        $role_list = $rbacreview->getRolesByFilter($this->filter["role_filter"], $usr_id);
+        $role_list = $rbacreview->getRolesByFilter((int) $this->filter["role_filter"], $usr_id);
         $assigned_roles = $rbacreview->assignedRoles($usr_id);
 
         $counter = 0;
@@ -180,7 +182,7 @@ class ilRoleAssignmentTableGUI extends ilTable2GUI
             $disabled = false;
             // disable checkbox for system role for the system user
             if (
-                ($usr_id === (int) SYSTEM_USER_ID && $role["obj_id"] === SYSTEM_ROLE_ID) ||
+                ($usr_id === (int) SYSTEM_USER_ID && $role["obj_id"] === (int) SYSTEM_ROLE_ID) ||
                 (!in_array(SYSTEM_ROLE_ID, $rbacreview->assignedRoles($ilUser->getId())) && $role["obj_id"] === (int) SYSTEM_ROLE_ID)
             ) {
                 $disabled = true;
@@ -193,7 +195,7 @@ class ilRoleAssignmentTableGUI extends ilTable2GUI
                 }
             }
 
-            if (substr($role["title"], 0, 3) == "il_") {
+            if (strpos($role["title"], "il_") === 0) {
                 if (!$assignable) {
                     $rolf_arr = $rbacreview->getFoldersAssignedToRole($role["obj_id"], true);
                     $rolf2 = $rolf_arr[0];
@@ -217,7 +219,6 @@ class ilRoleAssignmentTableGUI extends ilTable2GUI
             $title = ilObjRole::_getTranslation($role["title"]);
 
             $records[] = [
-                "path" => $path,
                 "description" => $role["description"],
                 "context" => $context,
                 "checkbox" => $checkbox,
@@ -232,27 +233,32 @@ class ilRoleAssignmentTableGUI extends ilTable2GUI
         $this->setData($records);
     }
 
-    /**
-     * @param int $ref_id
-     * @return string
-     */
-    protected function getTitleForReference(int $ref_id) : string
+    protected function getTitleForReference(int $ref_id): string
     {
         $type = ilObject::_lookupType($ref_id, true);
         $obj_id = ilObject::_lookupObjId($ref_id);
         $title = ilObject::_lookupTitle($obj_id);
 
-        $list = ilObjectListGUIFactory::_getListGUIByType($type);
-        $list->initItem(
-            $ref_id,
-            $obj_id,
-            $type,
-            $title
-        );
+        if ($this->objectDefinition->isAdministrationObject($type)) {
+            return $this->lng->txt('obj_' . $type);
+        }
 
-        ilDatePresentation::setUseRelativeDates(false);
-        $title = $list->getTitle();
-        ilDatePresentation::resetToDefaults();
-        return (string) $title;
+        try {
+            $list = ilObjectListGUIFactory::_getListGUIByType($type);
+            $list->initItem(
+                $ref_id,
+                $obj_id,
+                $type,
+                $title
+            );
+
+            ilDatePresentation::setUseRelativeDates(false);
+            $title = $list->getTitle();
+            ilDatePresentation::resetToDefaults();
+            return $title;
+        } catch (ilObjectException $e) {
+            // could be an administration object
+        }
+        return $title;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Notification\Provider;
 
 use ILIAS\DI\Container;
@@ -30,18 +30,9 @@ use ILIAS\GlobalScreen\Scope\Notification\Factory\NotificationFactory;
  */
 abstract class AbstractNotificationProvider extends AbstractProvider implements NotificationProvider
 {
-    /**
-     * @var \ILIAS\DI\Container
-     */
-    protected $dic;
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationProviderInterface
-     */
-    protected $if;
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\Notification\Factory\NotificationFactory
-     */
-    protected $notification_factory;
+    protected Container $dic;
+    protected IdentificationProviderInterface $if;
+    protected NotificationFactory $notification_factory;
 
     /**
      * @inheritDoc
@@ -56,7 +47,7 @@ abstract class AbstractNotificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getAdministrativeNotifications() : array
+    public function getAdministrativeNotifications(): array
     {
         return [];
     }

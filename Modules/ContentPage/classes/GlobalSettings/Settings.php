@@ -1,5 +1,6 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
 
 namespace ILIAS\ContentPage\GlobalSettings;
 
@@ -10,21 +11,14 @@ namespace ILIAS\ContentPage\GlobalSettings;
  */
 class Settings
 {
-    /** @var bool */
-    protected $readingTimeEnabled = false;
+    protected bool $readingTimeEnabled = false;
 
-    /**
-     * @return bool
-     */
-    public function isReadingTimeEnabled() : bool
+    public function isReadingTimeEnabled(): bool
     {
         return $this->readingTimeEnabled;
     }
 
-    /**
-     * @return $this
-     */
-    public function withEnabledReadingTime() : self
+    public function withEnabledReadingTime(): self
     {
         $clone = clone $this;
         $clone->readingTimeEnabled = true;
@@ -32,10 +26,7 @@ class Settings
         return $clone;
     }
 
-    /**
-     * @return $this
-     */
-    public function withDisabledReadingTime() : self
+    public function withDisabledReadingTime(): self
     {
         $clone = clone $this;
         $clone->readingTimeEnabled = false;

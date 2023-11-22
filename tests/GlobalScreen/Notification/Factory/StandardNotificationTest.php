@@ -26,7 +26,7 @@ require_once(__DIR__ . "/../BaseNotificationSetUp.php");
  */
 class StandardNotificationTest extends BaseNotificationSetUp
 {
-    public function testConstructByFactory() : void
+    public function testConstructByFactory(): void
     {
         $standard_notification = $this->factory->standard($this->id);
 
@@ -34,7 +34,7 @@ class StandardNotificationTest extends BaseNotificationSetUp
         $this->assertEquals($this->id, $standard_notification->getProviderIdentification());
     }
 
-    public function testWithNotificationItem() : void
+    public function testWithNotificationItem(): void
     {
         $icon = $this->getUIFactory()->symbol()->icon()->standard("mail", "mail");
         $item = $this->getUIFactory()->item()->notification("hello", $icon);
@@ -43,7 +43,7 @@ class StandardNotificationTest extends BaseNotificationSetUp
         $this->assertEquals($item, $standard_notification->getNotificationItem());
     }
 
-    public function testWithNewAmout() : void
+    public function testWithNewAmout(): void
     {
         $standard_notification = $this->factory->standard($this->id);
 
@@ -52,7 +52,7 @@ class StandardNotificationTest extends BaseNotificationSetUp
         $this->assertEquals(13, $standard_notification->getNewAmount());
     }
 
-    public function testWithOldAmout() : void
+    public function testWithOldAmout(): void
     {
         $standard_notification = $this->factory->standard($this->id);
 
@@ -64,13 +64,13 @@ class StandardNotificationTest extends BaseNotificationSetUp
     /**
      * Tests on AbstractBaseNotification
      */
-    public function testGetProviderIdentification() : void
+    public function testGetProviderIdentification(): void
     {
         $standard_notification = $this->factory->standard($this->id);
         $this->assertEquals($this->id, $standard_notification->getProviderIdentification());
     }
 
-    public function testGetRenderer() : void
+    public function testGetRenderer(): void
     {
         $standard_notification = $this->factory->standard($this->id);
         $this->assertInstanceOf(
@@ -79,20 +79,20 @@ class StandardNotificationTest extends BaseNotificationSetUp
         );
     }
 
-    public function testWithOpenedCallable() : void
+    public function testWithOpenedCallable(): void
     {
-        $callable = function () : string {
+        $callable = function (): string {
             return "something";
         };
         $standard_notification = $this->factory->standard($this->id);
-        $this->assertEquals(function () : void {
+        $this->assertEquals(function (): void {
         }, $standard_notification->getOpenedCallable());
         $standard_notification = $standard_notification->withOpenedCallable($callable);
         $this->assertEquals($callable, $standard_notification->getOpenedCallable());
     }
-    public function testWithClosedCallable() : void
+    public function testWithClosedCallable(): void
     {
-        $callable = function () : string {
+        $callable = function (): string {
             return "something";
         };
         $standard_notification = $this->factory->standard($this->id);
@@ -100,9 +100,9 @@ class StandardNotificationTest extends BaseNotificationSetUp
         $standard_notification = $standard_notification->withClosedCallable($callable);
         $this->assertEquals($callable, $standard_notification->getClosedCallable());
     }
-    public function testHasClosedCallable() : void
+    public function testHasClosedCallable(): void
     {
-        $callable = function () : string {
+        $callable = function (): string {
             return "something";
         };
         $standard_notification = $this->factory->standard($this->id);

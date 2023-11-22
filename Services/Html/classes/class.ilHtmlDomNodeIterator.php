@@ -1,91 +1,77 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilHtmlDomNodeIterator
  * @author Michael Jansen <mjansen@databay.de>
  */
-class ilHtmlDomNodeIterator implements \RecursiveIterator
+class ilHtmlDomNodeIterator implements RecursiveIterator
 {
-    /** @var Integer */
-    protected $position = 0;
+    protected int $position = 0;
+    protected DOMNodeList $nodeList;
 
-    /** @var \DOMNodeList */
-    protected $nodeList;
-
-    /**
-     * ilHtmlDomNodeIterator constructor.
-     * @param \DOMNode $el
-     */
-    public function __construct(\DOMNode $el)
+    public function __construct(DOMNode $el)
     {
         $this->position = 0;
-        if ($el instanceof \DOMDocument) {
+        if ($el instanceof DOMDocument) {
             $root = $el->documentElement;
+        } elseif ($el instanceof DOMElement) {
+            $root = $el;
         } else {
-            if ($el instanceof \DOMElement) {
-                $root = $el;
-            } else {
-                throw new \InvalidArgumentException("Invalid arguments, expected DOMElement or DOMDocument");
-            }
+            throw new InvalidArgumentException('Invalid arguments, expected DOMElement or DOMDocument');
         }
 
         $this->nodeList = $root->childNodes;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function key()
+    public function key(): int
     {
         return $this->position;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function next()
+    public function next(): void
     {
         $this->position++;
     }
 
-    /**
-     * @inheritdoc
-     * @return \DOMNode
-     */
-    public function current()
+    public function current(): DOMNode
     {
         return $this->nodeList->item($this->position);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function valid()
+    public function valid(): bool
     {
         return $this->position < $this->nodeList->length;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function hasChildren()
+    public function hasChildren(): bool
     {
         return $this->current()->hasChildNodes();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getChildren()
+    public function getChildren(): self
     {
         return new self($this->current());
     }

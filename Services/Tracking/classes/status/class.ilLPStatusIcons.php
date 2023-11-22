@@ -27,38 +27,23 @@ class ilLPStatusIcons
     public const ICON_VARIANT_SCORM = 2;
     public const ICON_VARIANT_DEFAULT = ilLPStatusIcons::ICON_VARIANT_LONG;
 
-    /**
-     * @var null|self
-     */
-    private static $instance_variant_long = null;
-    /**
-     * @var null|self
-     */
-    private static $instance_variant_short = null;
-    /**
-     * @var null|self
-     */
-    private static $instance_variant_scorm = null;
+    private static ?self $instance_variant_long = null;
+    private static ?self $instance_variant_short = null;
+    private static ?self $instance_variant_scorm = null;
 
-    private $image_path_in_progress = '';
-    private $image_path_completed = '';
-    private $image_path_not_attempted = '';
-    private $image_path_failed = '';
+    private string $image_path_in_progress = '';
+    private string $image_path_completed = '';
+    private string $image_path_not_attempted = '';
+    private string $image_path_failed = '';
 
     //The following two icons are not available as a long variant.
-    private $image_path_asset = '';
-    private $image_path_running = '';
+    private string $image_path_asset = '';
+    private string $image_path_running = '';
 
-    /**
-     * @var \ILIAS\UI\Factory
-     */
-    private $factory;
-    /**
-     * @var \ILIAS\UI\Renderer
-     */
-    private $renderer;
+    private \ILIAS\UI\Factory $factory;
+    private \ILIAS\UI\Renderer $renderer;
 
-    public static function getInstance(int $variant = ilLPStatusIcons::ICON_VARIANT_DEFAULT, ?\ILIAS\UI\Renderer $renderer = null, ?\ILIAS\UI\Factory $factory = null) : ilLPStatusIcons
+    public static function getInstance(int $variant = ilLPStatusIcons::ICON_VARIANT_DEFAULT, ?\ILIAS\UI\Renderer $renderer = null, ?\ILIAS\UI\Factory $factory = null): ilLPStatusIcons
     {
         if (!$renderer || !$factory) {
             global $DIC;
@@ -126,22 +111,22 @@ class ilLPStatusIcons
         }
     }
 
-    public function getImagePathInProgress() : string
+    public function getImagePathInProgress(): string
     {
         return $this->image_path_in_progress;
     }
 
-    public function getImagePathCompleted() : string
+    public function getImagePathCompleted(): string
     {
         return $this->image_path_completed;
     }
 
-    public function getImagePathNotAttempted() : string
+    public function getImagePathNotAttempted(): string
     {
         return $this->image_path_not_attempted;
     }
 
-    public function getImagePathFailed() : string
+    public function getImagePathFailed(): string
     {
         return $this->image_path_failed;
     }
@@ -149,7 +134,7 @@ class ilLPStatusIcons
     /**
      * A long variant of this icon is not available.
      */
-    public function getImagePathAsset() : string
+    public function getImagePathAsset(): string
     {
         if ($this->image_path_asset) {
             return $this->image_path_asset;
@@ -160,7 +145,7 @@ class ilLPStatusIcons
     /**
      * A long variant of this icon is not available.
      */
-    public function getImagePathRunning() : string
+    public function getImagePathRunning(): string
     {
         if ($this->image_path_running) {
             return $this->image_path_running;
@@ -168,7 +153,7 @@ class ilLPStatusIcons
         throw new ilLPException("A long variant of the 'running' LP icon does not exist.");
     }
 
-    public function renderIcon(string $path, string $alt) : string
+    public function renderIcon(string $path, string $alt): string
     {
         if ($this === self::$instance_variant_scorm) {
             throw new ilLPException("SCORM variants of the LP icons cannot be rendered.");
@@ -177,7 +162,7 @@ class ilLPStatusIcons
         return $this->renderer->render($this->getIconComponent($path, $alt));
     }
 
-    public function getIconComponent(string $path, string $alt) : \ILIAS\UI\Component\Symbol\Icon\Custom
+    public function getIconComponent(string $path, string $alt): \ILIAS\UI\Component\Symbol\Icon\Custom
     {
         return $this->factory->symbol()->icon()->custom($path, $alt, \ILIAS\UI\Component\Symbol\Icon\Icon::SMALL);
     }
@@ -185,7 +170,7 @@ class ilLPStatusIcons
     /**
      * @todo Check whether the default can be replaced by an exception.
      */
-    public function getImagePathForStatus(int $a_status) : string
+    public function getImagePathForStatus(int $a_status): string
     {
         switch ($a_status) {
             case ilLPStatus::LP_STATUS_IN_PROGRESS_NUM:
@@ -208,7 +193,7 @@ class ilLPStatusIcons
     /**
      * Returns the rendered icon with alt text.
      */
-    public function renderIconForStatus(int $a_status, ?ilLanguage $a_lng = null) : string
+    public function renderIconForStatus(int $a_status, ?ilLanguage $a_lng = null): string
     {
         return $this->renderIcon(
             $this->getImagePathForStatus($a_status),
@@ -219,7 +204,7 @@ class ilLPStatusIcons
     /**
      * Transforms the string constants for the status to their interger equivalent.
      */
-    public function lookupNumStatus(string $a_status) : int
+    public function lookupNumStatus(string $a_status): int
     {
         switch ($a_status) {
             case ilLPStatus::LP_STATUS_IN_PROGRESS:

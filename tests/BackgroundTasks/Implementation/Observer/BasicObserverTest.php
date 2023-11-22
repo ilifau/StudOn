@@ -21,6 +21,7 @@
  * Date: 20.04.17
  * Time: 16:50
  */
+
 namespace BackgroundTasks\Implementation\Observer;
 
 use ILIAS\BackgroundTasks\Exceptions\Exception;

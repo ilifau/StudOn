@@ -1,85 +1,62 @@
 <?php
 
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/News/classes/class.ilNewsItem.php");
-include_once("./Services/Feeds/classes/class.ilFeedItem.php");
-include_once("./Services/Feeds/classes/class.ilFeedWriter.php");
-
-/** @defgroup ServicesFeeds Services/Feeds
- */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
-* Feed writer for personal user feeds.
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-* @ingroup ServicesFeeds
-*/
+ * Feed writer for personal user feeds.
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilUserFeedWriter extends ilFeedWriter
 {
-    /**
-     * @var ilSetting
-     */
-    protected $settings;
+    protected ilSetting $settings;
+    protected ilLanguage $lng;
 
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    
-    public function __construct($a_user_id, $a_hash, $privFeed = false)
-    {
+    public function __construct(
+        int $a_user_id,
+        string $a_hash,
+        bool $privFeed = false
+    ) {
         global $DIC;
 
         $this->settings = $DIC->settings();
         $this->lng = $DIC->language();
         $ilSetting = $DIC->settings();
-        $lng = $DIC->language();
 
         parent::__construct();
-        
-        //$lng->loadLanguageModule("news");
-        
+
         if ($a_user_id == "" || $a_hash == "") {
             return;
         }
-        
+
         $news_set = new ilSetting("news");
         if (!$news_set->get("enable_rss_for_internal")) {
             return;
         }
 
-        include_once "Services/User/classes/class.ilObjUser.php";
-        // fau: shortRssLink - allow shortened feed hashes and password hashes
-        if ($privFeed) {
-            // private feeds are checked by feed password
-            $hash = substr(ilObjUser::_getFeedPass($a_user_id), 0, strlen($a_hash));
-        } else {
-            // public feeds are checked by feed hash
-            $hash = substr(ilObjUser::_lookupFeedHash($a_user_id), 0, strlen($a_hash));
-        }
-        // fau.
+        $hash = ilObjUser::_lookupFeedHash($a_user_id);
 
-        include_once("./Services/News/classes/class.ilNewsItem.php");
         $rss_period = ilNewsItem::_lookupRSSPeriod();
 
         if ($a_hash == $hash) {
-            // fau: shortRssLink - set ChannelAbout to the shortened feed URL
             if ($privFeed) {
                 //ilNewsItem::setPrivateFeedId($a_user_id);
                 $items = ilNewsItem::_getNewsItemsOfUser($a_user_id, false, true, $rss_period);
-                $this->setChannelAbout(
-                    ilLink::_getShortlinkBase('https://')
-                    . 'privfeed/' . $a_user_id . '/' . $a_hash . '.rss'
-                );
             } else {
                 $items = ilNewsItem::_getNewsItemsOfUser($a_user_id, true, true, $rss_period);
-                $this->setChannelAbout(
-                    ilLink::_getShortlinkBase('http://')
-                    . 'feed/' . $a_user_id . '/' . $a_hash . '.rss'
-                );
             }
 
             if ($ilSetting->get('short_inst_name') != "") {
@@ -87,11 +64,10 @@ class ilUserFeedWriter extends ilFeedWriter
             } else {
                 $this->setChannelTitle("ILIAS");
             }
-            //$this->setChannelAbout(ILIAS_HTTP_PATH);
-            // fau.
+
+            $this->setChannelAbout(ILIAS_HTTP_PATH);
             $this->setChannelLink(ILIAS_HTTP_PATH);
             //$this->setChannelDescription("ILIAS Channel Description");
-            $i = 0;
             foreach ($items as $item) {
                 $obj_id = ilObject::_lookupObjId($item["ref_id"]);
                 $obj_type = ilObject::_lookupType($obj_id);
@@ -99,13 +75,11 @@ class ilUserFeedWriter extends ilFeedWriter
 
                 // not nice, to do: general solution
                 if ($obj_type == "mcst") {
-                    include_once("./Modules/MediaCast/classes/class.ilObjMediaCastAccess.php");
                     if (!ilObjMediaCastAccess::_lookupOnline($obj_id)) {
                         continue;
                     }
                 }
 
-                $i++;
                 $feed_item = new ilFeedItem();
                 $title = ilNewsItem::determineNewsTitle(
                     $item["context_obj_type"],
@@ -117,7 +91,7 @@ class ilUserFeedWriter extends ilFeedWriter
 
                 // path
                 $loc = $this->getContextPath($item["ref_id"]);
-                
+
                 // title
                 if ($news_set->get("rss_title_format") == "news_obj") {
                     $feed_item->setTitle($this->prepareStr(str_replace("<br />", " ", $title)) .
@@ -127,28 +101,30 @@ class ilUserFeedWriter extends ilFeedWriter
                     $feed_item->setTitle($this->prepareStr($loc) . " " . $this->prepareStr($obj_title) .
                         ": " . $this->prepareStr(str_replace("<br />", " ", $title)));
                 }
-                                
+
                 // description
                 $content = $this->prepareStr(nl2br(
-                    ilNewsItem::determineNewsContent($item["context_obj_type"], $item["content"], $item["content_text_is_lang_var"])
+                    ilNewsItem::determineNewsContent(
+                        $item["context_obj_type"],
+                        $item["content"],
+                        $item["content_text_is_lang_var"]
+                    )
                 ));
                 $feed_item->setDescription($content);
 
                 // lm page hack, not nice
-                if (in_array($item["context_obj_type"], array("lm")) && $item["context_sub_obj_type"] == "pg"
+                if ($item["context_obj_type"] == "lm" && $item["context_sub_obj_type"] == "pg"
                     && $item["context_sub_obj_id"] > 0) {
                     $feed_item->setLink(ILIAS_HTTP_PATH . "/goto.php?client_id=" . CLIENT_ID .
                         "&amp;target=pg_" . $item["context_sub_obj_id"] . "_" . $item["ref_id"]);
                 } elseif ($item["context_obj_type"] == "wiki" && $item["context_sub_obj_type"] == "wpg"
                     && $item["context_sub_obj_id"] > 0) {
-                    include_once("./Modules/Wiki/classes/class.ilWikiPage.php");
                     $wptitle = ilWikiPage::lookupTitle($item["context_sub_obj_id"]);
                     $feed_item->setLink(ILIAS_HTTP_PATH . "/goto.php?client_id=" . CLIENT_ID .
                         "&amp;target=" . $item["context_obj_type"] . "_" . $item["ref_id"] . "_" . urlencode($wptitle)); // #14629
-                } elseif (in_array($item["context_obj_type"], array("frm")) && $item["context_sub_obj_type"] == "pos"
+                } elseif ($item["context_obj_type"] == "frm" && $item["context_sub_obj_type"] == "pos"
                     && $item["context_sub_obj_id"] > 0) {
                     // frm hack, not nice
-                    include_once("./Modules/Forum/classes/class.ilObjForumAccess.php");
                     $thread_id = ilObjForumAccess::_getThreadForPosting($item["context_sub_obj_id"]);
                     if ($thread_id > 0) {
                         $feed_item->setLink(ILIAS_HTTP_PATH . "/goto.php?client_id=" . CLIENT_ID .

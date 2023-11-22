@@ -1,44 +1,70 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\KioskMode\ControlBuilder;
 use ILIAS\UI\Component\Listing\Workflow\Step;
 use ILIAS\GlobalScreen\ScreenContext\ScreenContext;
+use ILIAS\UI\Factory;
+use ILIAS\Refinery;
+use ILIAS\UI\Component\Component;
+use ILIAS\HTTP\Wrapper\RequestWrapper;
 
 /**
  * Implementation of KioskMode Player
- *
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
  */
 class ilLSPlayer
 {
-    const PARAM_LSO_COMMAND = 'lsocmd';
-    const PARAM_LSO_PARAMETER = 'lsov';
+    public const PARAM_LSO_COMMAND = 'lsocmd';
+    public const PARAM_LSO_PARAMETER = 'lsov';
 
-    const LSO_CMD_NEXT = 'lsonext'; //with param directions
-    const LSO_CMD_GOTO = 'lsogoto'; //with param ref_id
-    const LSO_CMD_SUSPEND = 'lsosuspend';
-    const LSO_CMD_FINISH = 'lsofinish';
+    public const LSO_CMD_NEXT = 'lsonext'; //with param directions
+    public const LSO_CMD_GOTO = 'lsogoto'; //with param ref_id
+    public const LSO_CMD_SUSPEND = 'lsosuspend';
+    public const LSO_CMD_FINISH = 'lsofinish';
 
-    const GS_DATA_LS_KIOSK_MODE = 'ls_kiosk_mode';
-    const GS_DATA_LS_CONTENT = 'ls_content';
-    const GS_DATA_LS_MAINBARCONTROLS = 'ls_mainbar_controls';
-    const GS_DATA_LS_METABARCONTROLS = 'ls_metabar_controls';
+    public const GS_DATA_LS_KIOSK_MODE = 'ls_kiosk_mode';
+    public const GS_DATA_LS_CONTENT = 'ls_content';
+    public const GS_DATA_LS_MAINBARCONTROLS = 'ls_mainbar_controls';
+    public const GS_DATA_LS_METABARCONTROLS = 'ls_metabar_controls';
 
-    const RET_EXIT = 'EXIT::';
-    const RET_NOITEMS = 'NOITEMS';
+    protected ilLSLearnerItemsQueries $ls_items;
+    protected LSControlBuilder $control_builder;
+    protected LSUrlBuilder $url_builder;
+    protected ilLSCurriculumBuilder $curriculum_builder;
+    protected ilLSViewFactory $view_factory;
+    protected ilKioskPageRenderer $page_renderer;
+    protected Factory $ui_factory;
+    protected ScreenContext $current_context;
+    protected Refinery\Factory $refinery;
 
     public function __construct(
-        string $lso_title,
         ilLSLearnerItemsQueries $ls_items,
         LSControlBuilder $control_builder,
         LSUrlBuilder $url_builder,
         ilLSCurriculumBuilder $curriculum_builder,
         ilLSViewFactory $view_factory,
         ilKioskPageRenderer $renderer,
-        ILIAS\UI\Factory $ui_factory,
-        ScreenContext $current_context
+        Factory $ui_factory,
+        ScreenContext $current_context,
+        Refinery\Factory $refinery
     ) {
-        $this->lso_title = $lso_title;
         $this->ls_items = $ls_items;
         $this->control_builder = $control_builder;
         $this->url_builder = $url_builder;
@@ -47,18 +73,21 @@ class ilLSPlayer
         $this->page_renderer = $renderer;
         $this->ui_factory = $ui_factory;
         $this->current_context = $current_context;
+        $this->refinery = $refinery;
     }
 
-    public function play(array $get, array $post = null)
+    public function play(RequestWrapper $get): ?string
     {
         //init state and current item
         $items = $this->ls_items->getItems();
+
         if (count($items) === 0) {
-            return self::RET_NOITEMS;
+            return null;
         }
+
         $current_item = $this->getCurrentItem($items);
 
-        while ($current_item->getAvailability() !== \ILIAS\UI\Component\Listing\Workflow\Step::AVAILABLE) {
+        while ($current_item->getAvailability() !== Step::AVAILABLE) {
             $prev_item = $this->getNextItem($items, $current_item, -1);
             if ($prev_item === $current_item) {
                 throw new \Exception("Cannot view first LSO-item", 1);
@@ -68,28 +97,34 @@ class ilLSPlayer
 
         $view = $this->view_factory->getViewFor($current_item);
         $state = $this->ls_items->getStateFor($current_item, $view);
-        $state = $this->updateViewState($state, $view, $get, $post);
-        $items = $this->ls_items->getItems(); //reload items after update viewState
+        $state = $this->updateViewState($state, $view, $get);
+        //reload items after update viewState
+        $items = $this->ls_items->getItems();
 
         $current_item_ref_id = $current_item->getRefId();
         //now, digest parameter:
-        $command = $_GET[self::PARAM_LSO_COMMAND];
-        $param = (int) $_GET[self::PARAM_LSO_PARAMETER];
+        $command = null;
+        if ($get->has(self::PARAM_LSO_COMMAND)) {
+            $command = $get->retrieve(self::PARAM_LSO_COMMAND, $this->refinery->kindlyTo()->string());
+        }
+        $param = null;
+        if ($get->has(self::PARAM_LSO_PARAMETER)) {
+            $param = $get->retrieve(self::PARAM_LSO_PARAMETER, $this->refinery->kindlyTo()->int());
+        }
 
         switch ($command) {
             case self::LSO_CMD_SUSPEND:
             case self::LSO_CMD_FINISH:
-                //store state and exit
                 $this->ls_items->storeState($state, $current_item_ref_id, $current_item_ref_id);
                 return 'EXIT::' . $command;
             case self::LSO_CMD_NEXT:
                 $next_item = $this->getNextItem($items, $current_item, $param);
-                if ($next_item->getAvailability() !== \ILIAS\UI\Component\Listing\Workflow\Step::AVAILABLE) {
+                if ($next_item->getAvailability() !== Step::AVAILABLE) {
                     $next_item = $current_item;
                 }
                 break;
             case self::LSO_CMD_GOTO:
-                list($position, $next_item) = $this->findItemByRefId($items, $param);
+                list(, $next_item) = $this->findItemByRefId($items, $param);
                 break;
             default: //view-internal / unknown command
                 $next_item = $current_item;
@@ -105,13 +140,16 @@ class ilLSPlayer
 
         //content
         $obj_title = $next_item->getTitle();
-        $icon = $this->ui_factory->symbol()->icon()
-            ->standard($next_item->getType(), $next_item->getType(), 'medium');
+        $icon = $this->ui_factory->symbol()->icon()->standard(
+            $next_item->getType(),
+            $next_item->getType(),
+            'medium'
+        );
 
         $content = $this->renderComponentView($state, $view);
 
         $panel = $this->ui_factory->panel()->standard(
-            '', //panel_title
+            '',
             $content
         );
         $content = [$panel];
@@ -129,7 +167,6 @@ class ilLSPlayer
         $control_builder = $this->buildDefaultControls($control_builder, $item, $item_position, $items);
 
         $rendered_body = $this->page_renderer->render(
-            $this->lso_title,
             $control_builder,
             $obj_title,
             $icon,
@@ -140,7 +177,6 @@ class ilLSPlayer
             'exit' => $control_builder->getExitControl()
         ];
 
-        //curriculum
         $curriculum_slate = $this->page_renderer->buildCurriculumSlate(
             $this->curriculum_builder
                 ->getLearnerCurriculum(true)
@@ -150,7 +186,6 @@ class ilLSPlayer
             'curriculum' => $curriculum_slate
         ];
 
-        //ToC
         $toc = $control_builder->getToc();
         if ($toc) {
             $toc_slate = $this->page_renderer->buildToCSlate($toc, $icon);
@@ -162,30 +197,25 @@ class ilLSPlayer
         $cc->addAdditionalData(self::GS_DATA_LS_METABARCONTROLS, $metabar_controls);
         $cc->addAdditionalData(self::GS_DATA_LS_MAINBARCONTROLS, $mainbar_controls);
         $cc->addAdditionalData(self::GS_DATA_LS_CONTENT, $rendered_body);
-        return;
+
+        return null;
     }
 
     /**
      * @param array LSLearnerItem[]
      */
-    protected function getCurrentItem(array $items) : LSLearnerItem
+    protected function getCurrentItem(array $items): LSLearnerItem
     {
         $current_item = $items[0];
         $current_item_ref_id = $this->ls_items->getCurrentItemRefId();
         if ($current_item_ref_id !== 0) {
             $valid_ref_ids = array_map(
-                function ($item) {
-                    return $item->getRefId();
-                },
+                fn ($item) => $item->getRefId(),
                 array_values($this->ls_items->getItems())
             );
-            // fau: fixLsoResume - add check for read permission on current item
-            global $DIC;
-            if (in_array($current_item_ref_id, $valid_ref_ids)
-                && $DIC->access()->checkAccess('read', '', $current_item_ref_id)) {
-                list($position, $current_item) = $this->findItemByRefId($items, $current_item_ref_id);
+            if (in_array($current_item_ref_id, $valid_ref_ids)) {
+                list(, $current_item) = $this->findItemByRefId($items, $current_item_ref_id);
             }
-            // fau.
         }
         return $current_item;
     }
@@ -193,13 +223,11 @@ class ilLSPlayer
     protected function updateViewState(
         ILIAS\KioskMode\State $state,
         ILIAS\KioskMode\View $view,
-        array $get,
-        array $post = null
-    ) : ILIAS\KioskMode\State {
-        //get view internal command
-        $command = $_GET[self::PARAM_LSO_COMMAND];
-        $param = (int) $_GET[self::PARAM_LSO_PARAMETER];
-        if (!is_null($command)) {
+        RequestWrapper $get
+    ): ILIAS\KioskMode\State {
+        if ($get->has(self::PARAM_LSO_COMMAND) && $get->has(self::PARAM_LSO_PARAMETER)) {
+            $command = $get->retrieve(self::PARAM_LSO_COMMAND, $this->refinery->kindlyTo()->string());
+            $param = $get->retrieve(self::PARAM_LSO_PARAMETER, $this->refinery->kindlyTo()->int());
             $state = $view->updateGet($state, $command, $param);
         }
         return $state;
@@ -208,9 +236,9 @@ class ilLSPlayer
     /**
      * $direction is either -1 or 1;
      */
-    protected function getNextItem(array $items, LSLearnerItem $current_item, int $direction) : LSLearnerItem
+    protected function getNextItem(array $items, LSLearnerItem $current_item, int $direction): LSLearnerItem
     {
-        list($position, $item) = $this->findItemByRefId($items, $current_item->getRefId());
+        list($position) = $this->findItemByRefId($items, $current_item->getRefId());
         $next = $position + $direction;
         if ($next >= 0 && $next < count($items)) {
             return $items[$next];
@@ -221,7 +249,7 @@ class ilLSPlayer
     /**
      * @return array <int, LSLearnerItem> position=>item
      */
-    protected function findItemByRefId(array $items, int $ref_id) : array
+    protected function findItemByRefId(array $items, int $ref_id): array
     {
         foreach ($items as $index => $item) {
             if ($item->getRefId() === $ref_id) {
@@ -236,7 +264,7 @@ class ilLSPlayer
         LSLearnerItem $item,
         int $item_position,
         array $items
-    ) : ControlBuilder {
+    ): ControlBuilder {
         $is_first = $item_position === 0;
         $is_last = $item_position === count($items) - 1;
 
@@ -284,21 +312,18 @@ class ilLSPlayer
         return $control_builder;
     }
 
-    protected function renderComponentView(
-        $state,
-        ILIAS\KioskMode\View $view
-    ) {
-        $component = $view->render(
+    protected function renderComponentView($state, ILIAS\KioskMode\View $view): Component
+    {
+        return $view->render(
             $state,
             $this->ui_factory,
             $this->url_builder,
             []
         );
-        return $component;
     }
 
 
-    public function getCurrentItemLearningProgress()
+    public function getCurrentItemLearningProgress(): int
     {
         $item = $this->getCurrentItem($this->ls_items->getItems());
         return $item->getLearningProgressStatus();

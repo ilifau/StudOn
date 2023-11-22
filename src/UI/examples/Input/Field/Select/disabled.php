@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Field\Select;
+
 /**
  * Example showing how to plug a disabled Select into a form
  */

@@ -1,9 +1,27 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\BackgroundTasks\Types\SingleType;
 use ILIAS\BackgroundTasks\Implementation\Tasks\AbstractJob;
 use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\StringValue;
+use ILIAS\BackgroundTasks\Observer;
+use ILIAS\BackgroundTasks\Types\Type;
+use ILIAS\BackgroundTasks\Value;
 
 /**
  * Description of class class
@@ -13,21 +31,14 @@ use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\StringValue;
  */
 class ilSubmissionsZipJob extends AbstractJob
 {
-    private $logger = null;
-    
-    
-    /**
-     * Construct
-     */
+    protected ilLogger $logger;
+
     public function __construct()
     {
         $this->logger = $GLOBALS['DIC']->logger()->exc();
     }
-    
-    /**
-     * @inheritDoc
-     */
-    public function getInputTypes()
+
+    public function getInputTypes(): array
     {
         return
         [
@@ -35,38 +46,34 @@ class ilSubmissionsZipJob extends AbstractJob
         ];
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getOutputType()
+    public function getOutputType(): Type
     {
         return new SingleType(StringValue::class);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function isStateless()
+    public function isStateless(): bool
     {
         return true;
     }
 
     /**
-     * @inheritDoc
-     * @todo use filsystem service
+     * @throws \ILIAS\BackgroundTasks\Exceptions\InvalidArgumentException
+     *@todo use filesystem service
      */
-    public function run(array $input, \ILIAS\BackgroundTasks\Observer $observer)
-    {
+    public function run(
+        array $input,
+        Observer $observer
+    ): Value {
         $tmpdir = $input[0]->getValue();
 
         $this->logger->debug("Calling zip...");
         $this->logger->debug("... dir: " . $tmpdir);
         $this->logger->debug("... file: " . $tmpdir . '.zip');
-        ilUtil::zip($tmpdir, $tmpdir . '.zip');
-        
+        ilFileUtils::zip($tmpdir, $tmpdir . '.zip');
+
         // delete temp directory
         $this->logger->debug("Deleting dir: " . $tmpdir);
-        ilUtil::delDir($tmpdir);
+        ilFileUtils::delDir($tmpdir);
 
         $this->logger->debug("Check zip file exists.");
         if (is_file($tmpdir . '.zip')) {
@@ -80,10 +87,7 @@ class ilSubmissionsZipJob extends AbstractJob
         return $zip_file_name;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getExpectedTimeOfTaskInSeconds()
+    public function getExpectedTimeOfTaskInSeconds(): int
     {
         return 30;
     }

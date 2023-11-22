@@ -1,118 +1,66 @@
 <?php
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-
-include_once './Modules/Folder/classes/class.ilFolderXmlWriter.php';
-include_once './Services/Export/classes/class.ilXmlExporter.php';
+declare(strict_types=1);
 
 /**
-* Folder export
-*
-* @author Stefan Meyer <meyer@leifos.com>
-*
-* @version $Id$
-*
-* @ingroup ServicesBooking
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
+
+/**
+ * Folder export
+ * @author Stefan Meyer <meyer@leifos.com>
+ */
 class ilFolderExporter extends ilXmlExporter
 {
-    private $writer = null;
+    public function init(): void
+    {
+    }
 
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    }
-    
-    /**
-     * Init export
-     * @return
-     */
-    public function init()
-    {
-    }
-    
-    /**
-     * Get head dependencies
-     *
-     * @param		string		entity
-     * @param		string		target release
-     * @param		array		ids
-     * @return		array		array of array with keys "component", entity", "ids"
-     */
-    public function getXmlExportHeadDependencies($a_entity, $a_target_release, $a_ids)
+    public function getXmlExportHeadDependencies(string $a_entity, string $a_target_release, array $a_ids): array
     {
         // always trigger container because of co-page(s)
-        return array(
-            array(
+        return [
+            [
                 'component' => 'Services/Container',
                 'entity' => 'struct',
                 'ids' => $a_ids
-            )
-        );
-        
-        /*
-        include_once './Services/Export/classes/class.ilExportOptions.php';
-        $eo = ilExportOptions::getInstance();
-
-        $obj_id = end($a_ids);
-
-        if($eo->getOption(ilExportOptions::KEY_ROOT) != $obj_id)
-        {
-            return array();
-        }
-        if(count(ilExportOptions::getInstance()->getSubitemsForExport()) > 1)
-        {
-            return array(
-                array(
-                    'component'		=> 'Services/Container',
-                    'entity'		=> 'struct',
-                    'ids'			=> $a_ids
-                )
-            );
-        }
-        return array();
-        */
+            ]
+        ];
     }
-    
-    
-    /**
-     * Get xml
-     * @param object $a_entity
-     * @param object $a_schema_version
-     * @param object $a_id
-     * @return
-     */
-    public function getXmlRepresentation($a_entity, $a_schema_version, $a_id)
+
+    public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id): string
     {
         try {
-            $this->writer = new ilFolderXmlWriter(false);
-            $this->writer->setObjId($a_id);
-            $this->writer->write();
-            return $this->writer->xmlDumpMem(false);
+            $writer = null;
+            $writer = new ilFolderXmlWriter(false);
+            $writer->setObjId((int) $a_id);
+            $writer->write();
+            return $writer->xmlDumpMem(false);
         } catch (UnexpectedValueException $e) {
             $GLOBALS['ilLog']->write("Caught error: " . $e->getMessage());
             return '';
         }
     }
-    
-    /**
-     * Returns schema versions that the component can export to.
-     * ILIAS chooses the first one, that has min/max constraints which
-     * fit to the target release. Please put the newest on top.
-     *
-     * @return
-     */
-    public function getValidSchemaVersions($a_entity)
+
+    public function getValidSchemaVersions(string $a_entity): array
     {
-        return array(
-            "4.1.0" => array(
-                "namespace" => "http://www.ilias.de/Modules/Folder/fold/4_1",
+        return [
+            "4.1.0" => [
+                "namespace" => "https://www.ilias.de/Modules/Folder/fold/4_1",
                 "xsd_file" => "ilias_fold_4_1.xsd",
                 "uses_dataset" => false,
                 "min" => "4.1.0",
-                "max" => "")
-        );
+                "max" => ""
+            ]
+        ];
     }
 }

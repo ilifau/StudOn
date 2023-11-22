@@ -1,13 +1,12 @@
-<!-- fau: joinLink - add RAND_ID to allow more than one links on a page. -->
 <div class="ilPermalinkContainer input-group">
-    <label for="{RAND_ID}">
-	<a href="{LINK}" onclick="selectPermalink('{RAND_ID}'); return false;" class="permalink_label"><span class="glyphicon glyphicon-link"></span><span class="hidden-xs">{TXT_PERMA}</span></a></label>
-    <input class="form-control" id="{RAND_ID}" type="text" value="{LINK}" readonly="readonly" onclick="selectPermalink('{RAND_ID}'); return false;" />
+    <label for="current_perma_link">
+	<a href="{LINK}" onclick="selectPermalink(); return false;" class="permalink_label"><span class="glyphicon glyphicon-link"></span><span class="hidden-xs">{TXT_PERMA}</span></a></label>
+    <input class="form-control" id="current_perma_link" type="text" value="{LINK}" readonly="readonly" onclick="selectPermalink(); return false;" />
     <!-- BEGIN social_bookmarks --><div class="input-group-btn">{SELECTION_LIST}</div><!-- END social_bookmarks -->
 </div>
 <script>
-	function selectPermalink(randId) {
-		var pl = $("#" + randId);
+	function selectPermalink() {
+		var pl = $("#current_perma_link");
 		pl.attr("readOnly", false);
 		pl.focus().select();
 		document.execCommand('copy');

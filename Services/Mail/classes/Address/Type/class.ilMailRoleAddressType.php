@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2016 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilMailRoleAddressType
@@ -7,24 +24,10 @@
  */
 class ilMailRoleAddressType extends ilBaseMailAddressType
 {
-    /** @var ilRbacSystem */
-    protected $rbacsystem;
+    protected ilRbacSystem $rbacsystem;
+    protected ilRbacReview $rbacreview;
+    protected ilRoleMailboxSearch $roleMailboxSearch;
 
-    /** @var ilRbacReview */
-    protected $rbacreview;
-
-    /** @var ilRoleMailboxSearch */
-    protected $roleMailboxSearch;
-
-    /**
-     * ilMailRoleAddressType constructor.
-     * @param ilMailAddressTypeHelper $typeHelper
-     * @param ilMailAddress $address
-     * @param ilRoleMailboxSearch $roleMailboxSearch
-     * @param ilLogger $logger
-     * @param ilRbacSystem $rbacsystem
-     * @param ilRbacReview $rbacreview
-     */
     public function __construct(
         ilMailAddressTypeHelper $typeHelper,
         ilMailAddress $address,
@@ -41,10 +44,9 @@ class ilMailRoleAddressType extends ilBaseMailAddressType
     }
 
     /**
-     * @param ilMailAddress $address
      * @return int[]
      */
-    protected function getRoleIdsByAddress(ilMailAddress $address) : array
+    protected function getRoleIdsByAddress(ilMailAddress $address): array
     {
         $combinedAddress = (string) $address;
 
@@ -53,13 +55,9 @@ class ilMailRoleAddressType extends ilBaseMailAddressType
         return $roleIds;
     }
 
-    /**
-     * @param int $senderId
-     * @return bool
-     */
-    protected function maySendToGlobalRole(int $senderId) : bool
+    protected function maySendToGlobalRole(int $senderId): bool
     {
-        if ($senderId == ANONYMOUS_USER_ID) {
+        if ($senderId === ANONYMOUS_USER_ID) {
             return true;
         }
 
@@ -72,10 +70,7 @@ class ilMailRoleAddressType extends ilBaseMailAddressType
         return $maySendToGlobalRoles;
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function isValid(int $senderId) : bool
+    protected function isValid(int $senderId): bool
     {
         $roleIds = $this->getRoleIdsByAddress($this->address);
         if (!$this->maySendToGlobalRole($senderId)) {
@@ -87,10 +82,12 @@ class ilMailRoleAddressType extends ilBaseMailAddressType
             }
         }
 
-        if (count($roleIds) == 0) {
+        if ($roleIds === []) {
             $this->pushError('mail_recipient_not_found', [$this->address->getMailbox()]);
             return false;
-        } elseif (count($roleIds) > 1) {
+        }
+
+        if (count($roleIds) > 1) {
             $this->pushError('mail_multiple_role_recipients_found', [
                 $this->address->getMailbox(),
                 implode(',', $roleIds),
@@ -101,10 +98,7 @@ class ilMailRoleAddressType extends ilBaseMailAddressType
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function resolve() : array
+    public function resolve(): array
     {
         $usrIds = [];
 
@@ -113,7 +107,7 @@ class ilMailRoleAddressType extends ilBaseMailAddressType
         if (count($roleIds) > 0) {
             $this->logger->debug(sprintf(
                 "Found the following role ids for address '%s': %s",
-                (string) $this->address,
+                $this->address,
                 implode(', ', array_unique($roleIds))
             ));
 
@@ -126,19 +120,19 @@ class ilMailRoleAddressType extends ilBaseMailAddressType
             if (count($usrIds) > 0) {
                 $this->logger->debug(sprintf(
                     "Found the following user ids for roles determined by address '%s': %s",
-                    (string) $this->address,
+                    $this->address,
                     implode(', ', array_unique($usrIds))
                 ));
             } else {
                 $this->logger->debug(sprintf(
                     "Did not find any assigned users for roles determined by '%s'",
-                    (string) $this->address
+                    $this->address
                 ));
             }
         } else {
             $this->logger->debug(sprintf(
                 "Did not find any role (and user ids) for address '%s'",
-                (string) $this->address
+                $this->address
             ));
         }
 

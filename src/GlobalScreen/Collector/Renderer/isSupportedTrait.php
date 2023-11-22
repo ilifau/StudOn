@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Collector\Renderer;
 
 use ILIAS\UI\Component\Button\Bulky as BulkyButton;
@@ -35,7 +35,7 @@ trait isSupportedTrait
      * @param Component $component
      * @return bool
      */
-    protected function isComponentSupportedForCombinedSlate(Component $component) : bool
+    protected function isComponentSupportedForCombinedSlate(Component $component): bool
     {
         return ($component instanceof BulkyButton || $component instanceof Slate || $component instanceof BulkyLink || $component instanceof Horizontal);
     }
@@ -44,7 +44,7 @@ trait isSupportedTrait
      * @param Component $component
      * @return bool
      */
-    protected function isSupportedForMetaBar(Component $component) : bool
+    protected function isSupportedForMetaBar(Component $component): bool
     {
         return ($component instanceof BulkyButton || $component instanceof Slate);
     }

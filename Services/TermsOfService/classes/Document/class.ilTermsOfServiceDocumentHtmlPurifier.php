@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceDocumentHtmlPurifier
@@ -7,16 +24,14 @@
  */
 class ilTermsOfServiceDocumentHtmlPurifier extends ilHtmlPurifierAbstractLibWrapper
 {
-    /** @var array */
-    private $allowedTags = [];
-
-    /** @var string */
-    protected $cacheDirectory = '';
+    /** @var string[] */
+    private array $allowedTags;
+    protected string $cacheDirectory;
 
     /**
      * ilTermsOfServiceDocumentHtmlPurifier constructor.
-     * @param array|null $allowedTags
-     * @param string     $cacheDirectory
+     * @param string[]|null $allowedTags
+     * @param string|null $cacheDirectory
      */
     public function __construct(array $allowedTags = null, string $cacheDirectory = null)
     {
@@ -34,10 +49,7 @@ class ilTermsOfServiceDocumentHtmlPurifier extends ilHtmlPurifierAbstractLibWrap
         $this->allowedTags = $allowedTags;
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getPurifierConfigInstance() : HTMLPurifier_Config
+    protected function getPurifierConfigInstance(): HTMLPurifier_Config
     {
         $config = HTMLPurifier_Config::createDefault();
         $config->set('HTML.DefinitionID', 'ilias termsofservice document');

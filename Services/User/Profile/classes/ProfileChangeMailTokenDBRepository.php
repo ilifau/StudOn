@@ -24,7 +24,7 @@ class ProfileChangeMailTokenDBRepository implements ProfileChangeMailTokenReposi
 {
     private const TABLE_NAME = 'usr_change_email_token';
     private const VALIDITY = 300;
-    private $db;
+    private \ilDBInterface $db;
 
     public function __construct(
         \ilDBInterface $db
@@ -33,7 +33,7 @@ class ProfileChangeMailTokenDBRepository implements ProfileChangeMailTokenReposi
         $this->deleteExpiredEntries();
     }
 
-    public function getNewTokenForUser(\ilObjUser $user, string $new_email) : string
+    public function getNewTokenForUser(\ilObjUser $user, string $new_email): string
     {
         $token = hash('md5', $user->getId() . '-' . $user->getEmail());
         $result = $this->db->replace(
@@ -54,7 +54,7 @@ class ProfileChangeMailTokenDBRepository implements ProfileChangeMailTokenReposi
         return '';
     }
 
-    public function getNewEmailForUser(\ilObjUser $user, string $received_token) : string
+    public function getNewEmailForUser(\ilObjUser $user, string $received_token): string
     {
         if (hash('md5', $user->getId() . '-' . $user->getEmail()) !== $received_token) {
             return '';
@@ -75,13 +75,13 @@ class ProfileChangeMailTokenDBRepository implements ProfileChangeMailTokenReposi
         return '';
     }
 
-    public function deleteEntryByToken(string $token) : void
+    public function deleteEntryByToken(string $token): void
     {
         $query = 'DELETE FROM `' . self::TABLE_NAME . '` WHERE `token` = %s';
         $this->db->manipulateF($query, [\ilDBConstants::T_TEXT], [$token]);
     }
 
-    private function deleteExpiredEntries() : void
+    private function deleteExpiredEntries(): void
     {
         $query = 'DELETE FROM `' . self::TABLE_NAME . '` WHERE `valid_until` <= %s';
         $this->db->manipulateF($query, [\ilDBConstants::T_INTEGER], [time()]);

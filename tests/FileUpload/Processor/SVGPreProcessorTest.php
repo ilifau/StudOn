@@ -30,7 +30,7 @@ use ILIAS\FileUpload\DTO\ProcessingStatus;
  */
 class SVGPreProcessorTest extends TestCase
 {
-    public function maliciousSVGProvider() : array
+    public function maliciousSVGProvider(): array
     {
         return [
             [
@@ -77,7 +77,7 @@ aWUpJwpvbmVuZD0nYWxlcnQoIm9uZW5kIiknIHRvPSIjMDBGIiBiZWdpbj0iMXMiIGR1cj0iNXMiIC
     /**
      * @dataProvider maliciousSVGProvider
      */
-    public function testMaliciousSVG(string $malicious_svg, string $type) : void
+    public function testMaliciousSVG(string $malicious_svg, string $type): void
     {
         $preProcessor = new SVGBlacklistPreProcessor('The SVG file contains malicious code.');
         $stream = Streams::ofString($malicious_svg);
@@ -90,7 +90,7 @@ aWUpJwpvbmVuZD0nYWxlcnQoIm9uZW5kIiknIHRvPSIjMDBGIiBiZWdpbj0iMXMiIGR1cj0iNXMiIC
         $this->assertSame('The SVG file contains malicious code. (' . $type . ').', $result->getMessage());
     }
 
-    public function testSaneSVG() : void
+    public function testSaneSVG(): void
     {
         $svg = '<svg version="1.1" baseProfile="full"
 xmlns="http://www.w3.org/2000/svg">
@@ -108,7 +108,7 @@ xmlns="http://www.w3.org/2000/svg">
         $this->assertSame('SVG OK', $result->getMessage());
     }
 
-    public function provideSomeComplexSaneSVG() : array
+    public function provideSomeComplexSaneSVG(): array
     {
         return [
             ['./templates/default/images/bigplay.svg'],
@@ -123,7 +123,7 @@ xmlns="http://www.w3.org/2000/svg">
     /**
      * @dataProvider provideSomeComplexSaneSVG
      */
-    public function testSomeComplexSaneSVG(string $path) : void
+    public function testSomeComplexSaneSVG(string $path): void
     {
         $this->assertTrue(file_exists($path));
         $svg = file_get_contents($path);

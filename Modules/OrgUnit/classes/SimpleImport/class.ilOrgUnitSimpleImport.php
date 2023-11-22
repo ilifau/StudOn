@@ -1,26 +1,36 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 
 /**
  * Class ilOrgUnitSimpleImport
- *
  * @author: Oskar Truffer <ot@studer-raimann.ch>
  * @author: Martin Studer <ms@studer-raimann.ch>
- *
  */
 class ilOrgUnitSimpleImport extends ilOrgUnitImporter
 {
-    public function simpleImport($file_path)
+    public function simpleImport(string $file_path)
     {
-        global $DIC;
-        $lng = $DIC['lng'];
         $this->stats = array("created" => 0, "updated" => 0, "deleted" => 0);
         $a = file_get_contents($file_path, "r");
         $xml = new SimpleXMLElement($a);
 
         if (!count($xml->OrgUnit)) {
-            $this->addError("no_orgunit", null, null);
-
+            $this->addError("no_orgunit", $xml->external_id, null);
             return;
         }
 
@@ -29,12 +39,9 @@ class ilOrgUnitSimpleImport extends ilOrgUnitImporter
         }
     }
 
-
     public function simpleImportElement(SimpleXMLElement $o)
     {
         global $DIC;
-        $tree = $DIC['tree'];
-        $tpl = $DIC['tpl'];
         $ilUser = $DIC['ilUser'];
         $title = (string) $o->title;
         $description = (string) $o->description;
@@ -60,8 +67,7 @@ class ilOrgUnitSimpleImport extends ilOrgUnitImporter
 
         //see mantis 0024601
         if ($ou_id_type == 'external_id') {
-
-            if(strlen($external_id) == 0) {
+            if (strlen($external_id) == 0) {
                 $external_id = $ou_id;
             }
 
@@ -138,21 +144,18 @@ class ilOrgUnitSimpleImport extends ilOrgUnitImporter
             $object->create();
             $object->createReference();
             $object->putInTree($parent_ref_id);
-            $object->setPermissions($ou_parent_id);
+            $object->setPermissions($parent_ref_id);
             $this->stats["created"]++;
         } else {
             $this->addError("no_valid_action_given", $ou_id, $action);
         }
     }
 
-
     /**
-     * @param $ref_id        int
-     * @param $parent_ref_id int
-     * @param $ou_id         mixed This is only needed for displaying the warning.
-     * @param $external_id   mixed This is only needed for displaying the warning.
+     * @param string $ou_id this is only needed for displaying the warning.
+     * @param string $external_id this is only needed for displaying the warning.
      */
-    protected function moveObject($ref_id, $parent_ref_id, $ou_id, $external_id)
+    protected function moveObject(int $ref_id, int $parent_ref_id, string $ou_id, string $external_id)
     {
         global $DIC;
         $tree = $DIC['tree'];

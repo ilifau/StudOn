@@ -1,28 +1,33 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilSimpleSAMLphpWrapper
+ * @author Michael Jansen <mjansen@databay.de>
  */
 class ilSimpleSAMLphpWrapper implements ilSamlAuth
 {
-    /**
-     * @var SimpleSAML\Configuration
-     */
-    protected $config;
+    protected SimpleSAML\Configuration $config;
+    protected SimpleSAML\Auth\Simple $authSource;
 
-    /**
-     * @var SimpleSAML\Auth\Simple
-     */
-    protected $authSource;
-
-    /**
-     * ilSimpleSAMLphpWrapper constructor.
-     * @param string $authSourceName
-     * @param string $configurationPath
-     * @throws Exception
-     */
-    public function __construct($authSourceName, $configurationPath)
+    public function __construct(string $authSourceName, string $configurationPath)
     {
         $this->initConfigFiles($configurationPath);
 
@@ -33,26 +38,23 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
         $storageType = $this->config->getString('store.type', false);
 
         if (
-            $storageType == 'phpsession' || $sessionHandler == 'phpsession' ||
+            $storageType === 'phpsession' || $sessionHandler === 'phpsession' ||
             (empty($storageType) && empty($sessionHandler))
         ) {
-            throw new RuntimeException('Invalid SimpleSAMLphp session handler: Must not be phpsession');
+            throw new RuntimeException('Invalid SimpleSAMLphp session handler: Must not be phpsession or empty');
         }
 
         $this->authSource = new SimpleSAML\Auth\Simple($authSourceName);
     }
 
-    /**
-     * @param string $configurationPath
-     */
-    protected function initConfigFiles($configurationPath)
+    protected function initConfigFiles(string $configurationPath): void
     {
         global $DIC;
 
         $templateHandler = new ilSimpleSAMLphpConfigTemplateHandler($DIC->filesystem()->storage());
         $templateHandler->copy('./Services/Saml/lib/config.php.dist', 'auth/saml/config/config.php', [
             'DB_PATH' => rtrim($configurationPath, '/') . '/ssphp.sq3',
-            'SQL_INITIAL_PASSWORD' => function () {
+            'SQL_INITIAL_PASSWORD' => static function (): string {
                 return substr(str_replace('+', '.', base64_encode(ilPasswordUtils::getBytes(20))), 0, 10);
             },
             'COOKIE_PATH' => IL_COOKIE_PATH,
@@ -67,7 +69,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     /**
      * @inheritdoc
      */
-    public function getAuthId() : string
+    public function getAuthId(): string
     {
         return $this->authSource->getAuthSource()->getAuthId();
     }
@@ -75,7 +77,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     /**
      * @inheritdoc
      */
-    public function protectResource() : void
+    public function protectResource(): void
     {
         $this->authSource->requireAuth();
     }
@@ -83,7 +85,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     /**
      * @inheritdoc
      */
-    public function storeParam($key, $value)
+    public function storeParam(string $key, $value): void
     {
         $session = SimpleSAML\Session::getSessionFromRequest();
         $session->setData('ilias', $key, $value);
@@ -96,9 +98,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     {
         $session = SimpleSAML\Session::getSessionFromRequest();
 
-        $value = $session->getData('ilias', $key);
-
-        return $value;
+        return $session->getData('ilias', $key);
     }
 
     /**
@@ -116,7 +116,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     /**
      * @inheritdoc
      */
-    public function isAuthenticated() : bool
+    public function isAuthenticated(): bool
     {
         return $this->authSource->isAuthenticated();
     }
@@ -124,7 +124,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     /**
      * @inheritdoc
      */
-    public function getAttributes() : array
+    public function getAttributes(): array
     {
         return $this->authSource->getAttributes();
     }
@@ -132,7 +132,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     /**
      * @inheritdoc
      */
-    public function logout(string $returnUrl = '') : void
+    public function logout(string $returnUrl = ''): void
     {
         ilSession::set('used_external_auth', false);
 
@@ -141,7 +141,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
             'ReturnStateStage' => 'ilLogoutState'
         ];
 
-        if (strlen($returnUrl) > 0) {
+        if ($returnUrl !== '') {
             $params['ReturnTo'] = $returnUrl;
         }
 
@@ -151,7 +151,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     /**
      * @inheritdoc
      */
-    public function getIdpDiscovery() : ilSamlIdpDiscovery
+    public function getIdpDiscovery(): ilSamlIdpDiscovery
     {
         return new ilSimpleSAMLphplIdpDiscovery();
     }
@@ -159,7 +159,7 @@ class ilSimpleSAMLphpWrapper implements ilSamlAuth
     /**
      * @inheritDoc
      */
-    public function getAuthDataArray() : array
+    public function getAuthDataArray(): array
     {
         return $this->authSource->getAuthDataArray();
     }

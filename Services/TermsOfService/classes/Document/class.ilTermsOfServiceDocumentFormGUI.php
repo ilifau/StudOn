@@ -1,8 +1,24 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
 
-use ILIAS\FileSystem\Filesystem;
-use ILIAS\FileUpload\DTO\ProcessingStatus;
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Filesystem\Filesystem;
 use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\FileUpload;
 use ILIAS\FileUpload\Location;
@@ -13,51 +29,18 @@ use ILIAS\FileUpload\Location;
  */
 class ilTermsOfServiceDocumentFormGUI extends ilPropertyFormGUI
 {
-    /** @var ilTermsOfServiceDocument */
-    protected $document;
+    protected ilTermsOfServiceDocument $document;
+    protected ilObjUser $actor;
+    protected FileUpload $fileUpload;
+    protected Filesystem $tmpFileSystem;
+    protected string $formAction;
+    protected string $saveCommand;
+    protected string $cancelCommand;
+    protected bool $isEditable = false;
+    protected string $translatedError = '';
+    protected string $translatedInfo = '';
+    protected ilHtmlPurifierInterface $documentPurifier;
 
-    /** @var ilObjUser */
-    protected $actor;
-
-    /** @var FileUpload */
-    protected $fileUpload;
-
-    /** @var Filesystem */
-    protected $tmpFileSystem;
-
-    /** @var string */
-    protected $formAction;
-
-    /** @var string */
-    protected $saveCommand;
-
-    /** @var string */
-    protected $cancelCommand;
-
-    /** @var $bool */
-    protected $isEditable = false;
-
-    /** @var string */
-    protected $translatedError = '';
-
-    /** @var string */
-    protected $translatedInfo = '';
-
-    /** @var ilHtmlPurifierInterface */
-    protected $documentPurifier;
-
-    /**
-     * ilTermsOfServiceDocumentFormGUI constructor.
-     * @param ilTermsOfServiceDocument $document
-     * @param ilHtmlPurifierInterface  $documentPurifier
-     * @param ilObjUser                $actor
-     * @param Filesystem               $tmpFileSystem
-     * @param FileUpload               $fileUpload
-     * @param string                   $formAction
-     * @param string                   $saveCommand
-     * @param string                   $cancelCommand
-     * @param bool                     $isEditable
-     */
     public function __construct(
         ilTermsOfServiceDocument $document,
         ilHtmlPurifierInterface $documentPurifier,
@@ -84,18 +67,12 @@ class ilTermsOfServiceDocumentFormGUI extends ilPropertyFormGUI
         $this->initForm();
     }
 
-    /**
-     * @param bool $status
-     */
-    public function setCheckInputCalled(bool $status) : void
+    public function setCheckInputCalled(bool $status): void
     {
         $this->check_input_called = $status;
     }
 
-    /**
-     *
-     */
-    protected function initForm() : void
+    protected function initForm(): void
     {
         if ($this->document->getId() > 0) {
             $this->setTitle($this->lng->txt('tos_form_edit_doc_head'));
@@ -136,42 +113,27 @@ class ilTermsOfServiceDocumentFormGUI extends ilPropertyFormGUI
         $this->addCommandButton($this->cancelCommand, $this->lng->txt('cancel'));
     }
 
-    /**
-     * @return bool
-     */
-    public function hasTranslatedError() : bool
+    public function hasTranslatedError(): bool
     {
-        return strlen($this->translatedError) > 0;
+        return $this->translatedError !== '';
     }
 
-    /**
-     * @return string
-     */
-    public function getTranslatedError() : string
+    public function getTranslatedError(): string
     {
         return $this->translatedError;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasTranslatedInfo() : bool
+    public function hasTranslatedInfo(): bool
     {
-        return strlen($this->translatedInfo) > 0;
+        return $this->translatedInfo !== '';
     }
 
-    /**
-     * @return string
-     */
-    public function getTranslatedInfo() : string
+    public function getTranslatedInfo(): string
     {
         return $this->translatedInfo;
     }
 
-    /**
-     * @return bool
-     */
-    public function saveObject() : bool
+    public function saveObject(): bool
     {
         if (!$this->fillObject()) {
             $this->setValuesByPost();
@@ -183,10 +145,7 @@ class ilTermsOfServiceDocumentFormGUI extends ilPropertyFormGUI
         return true;
     }
 
-    /**
-     *
-     */
-    protected function fillObject() : bool
+    protected function fillObject(): bool
     {
         if (!$this->checkInput()) {
             return false;
@@ -196,15 +155,15 @@ class ilTermsOfServiceDocumentFormGUI extends ilPropertyFormGUI
             try {
                 $this->fileUpload->process();
 
-                /** @var UploadResult $uploadResult */
+                /** @var UploadResult|null $uploadResult */
                 $uploadResult = array_values($this->fileUpload->getResults())[0];
-                if (!$uploadResult) {
+                if (!($uploadResult instanceof UploadResult)) {
                     $this->getItemByPostVar('document')->setAlert($this->lng->txt('form_msg_file_no_upload'));
                     throw new ilException($this->lng->txt('form_input_not_valid'));
                 }
 
                 if (!$this->document->getId() || $uploadResult->getName() !== '') {
-                    if ($uploadResult->getStatus()->getCode() != ProcessingStatus::OK) {
+                    if (!$uploadResult->isOK()) {
                         $this->getItemByPostVar('document')->setAlert($uploadResult->getStatus()->getMessage());
                         throw new ilException($this->lng->txt('form_input_not_valid'));
                     }

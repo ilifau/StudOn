@@ -7,7 +7,7 @@ class ilStudyProgrammeSettingsTest extends \PHPUnit\Framework\TestCase
 {
     protected $backupGlobals = false;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         PHPUnit_Framework_Error_Deprecated::$enabled = false;
 

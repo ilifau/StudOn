@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Client;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
@@ -35,23 +35,11 @@ class ItemState
 
     public const LEVEL_OF_TOOL = 1;
     public const COOKIE_NS_GS = 'gs_active_items';
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationInterface
-     */
-    private $identification;
-    /**
-     * @var mixed[]
-     */
-    private $storage;
+    private IdentificationInterface $identification;
+    private array $storage;
 
-    /**
-     * @var \ILIAS\HTTP\Wrapper\WrapperFactory
-     */
-    protected $wrapper;
-    /**
-     * @var \ILIAS\Refinery\Factory
-     */
-    protected $refinery;
+    protected WrapperFactory $wrapper;
+    protected Factory $refinery;
 
     /**
      * ItemState constructor.
@@ -68,7 +56,7 @@ class ItemState
         $this->refinery = $DIC->refinery();
     }
 
-    public function isItemActive() : bool
+    public function isItemActive(): bool
     {
         $hash = $this->hash($this->identification->serialize());
         $b = isset($this->storage[$hash]) && $this->storage[$hash] == true;
@@ -79,7 +67,7 @@ class ItemState
     /**
      * @return mixed[]
      */
-    public function getStorage() : array
+    public function getStorage(): array
     {
         static $json_decode;
         if (!isset($json_decode)) {
@@ -87,7 +75,7 @@ class ItemState
                 ? $this->wrapper->cookie()->retrieve(self::COOKIE_NS_GS, $this->refinery->to()->string())
                 : '{}';
 
-            $json_decode = json_decode($cookie_value, true, 512);
+            $json_decode = json_decode($cookie_value, true);
             $json_decode = is_array($json_decode) ? $json_decode : [];
         }
 

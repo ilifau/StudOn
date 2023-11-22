@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Symbol\Glyph\Next;
+
 function next_glyph()
 {
     global $DIC;

@@ -1,29 +1,34 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Factory for derived task subservice
  *
- * @author killing@leifos.de
- * @ingroup ServiceTasks
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilDerivedTaskFactory
 {
-    /**
-     * @var ilTaskServiceDependencies
-     */
-    protected $_deps;
+    protected ilTaskServiceDependencies $_deps;
 
-    /**
-     * @var ilTaskService
-     */
-    protected $service;
+    protected ilTaskService $service;
 
     /**
      * Constructor
-     * @param ilTaskService $service
-     * @param ilTaskServiceDependencies $_deps
      */
     public function __construct(ilTaskService $service)
     {
@@ -33,26 +38,16 @@ class ilDerivedTaskFactory
 
     /**
      * Subservice for derived tasks
-     *
-     * @param string $title
-     * @param int $ref_id
-     * @param int $deadline
-     * @param int $starting_time
-     * @param int $wsp_id
-     * @return ilDerivedTask
      */
-    public function task(string $title, int $ref_id, int $deadline, int $starting_time, int $wsp_id = 0) : ilDerivedTask
+    public function task(string $title, int $ref_id, int $deadline, int $starting_time, int $wsp_id = 0): ilDerivedTask
     {
         return new ilDerivedTask($title, $ref_id, $deadline, $starting_time, $wsp_id);
     }
 
     /**
      * Entry collector
-     *
-     * @param
-     * @return
      */
-    public function collector()
+    public function collector(): ilDerivedTaskCollector
     {
         return new ilDerivedTaskCollector($this->service);
     }
@@ -61,10 +56,10 @@ class ilDerivedTaskFactory
      * Get all task providers
      *
      * @param bool $active_only get only active providers
-     * @param int $user_id get instances for user with user id
+     * @param int|null $user_id get instances for user with user id
      * @return ilLearningHistoryProviderInterface[]
      */
-    public function getAllProviders($active_only = false, $user_id = null)
+    public function getAllProviders(bool $active_only = false, int $user_id = null): array
     {
         $master_factory = $this->service->getDependencies()->getDerivedTaskProviderMasterFactory();
         return $master_factory->getAllProviders($active_only, $user_id);

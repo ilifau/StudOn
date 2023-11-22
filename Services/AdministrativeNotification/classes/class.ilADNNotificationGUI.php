@@ -1,6 +1,22 @@
 <?php
 
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
  * Class ilADNNotificationGUI
  * @ilCtrl_IsCalledBy ilADNNotificationGUI: ilObjAdministrativeNotificationGUI
  * @ilCtrl_IsCalledBy ilADNNotificationGUI: ilObjAdministrativeNotificationGUI
@@ -20,13 +36,12 @@ class ilADNNotificationGUI extends ilADNAbstractGUI
     public const CMD_CONFIRM_RESET = 'confirmReset';
     public const CMD_RESET = 'reset';
 
-    protected function dispatchCommand($cmd) : string
+    protected function dispatchCommand($cmd): string
     {
         $this->tab_handling->initTabs(
             ilObjAdministrativeNotificationGUI::TAB_MAIN,
             ilMMSubItemGUI::CMD_VIEW_SUB_ITEMS,
-            true,
-            self::class
+            true
         );
         switch ($cmd) {
             case self::CMD_ADD:
@@ -45,7 +60,8 @@ class ilADNNotificationGUI extends ilADNAbstractGUI
             case self::CMD_CONFIRM_RESET:
                 return $this->confirmReset();
             case self::CMD_RESET:
-                return $this->reset();
+                $this->reset();
+                break;
             case self::CMD_DEFAULT:
             default:
                 return $this->index();
@@ -55,7 +71,7 @@ class ilADNNotificationGUI extends ilADNAbstractGUI
         return "";
     }
 
-    protected function index() : string
+    protected function index(): string
     {
         if ($this->access->hasUserPermissionTo('write')) {
             $button = ilLinkButton::getInstance();
@@ -64,21 +80,19 @@ class ilADNNotificationGUI extends ilADNAbstractGUI
             $this->toolbar->addButtonInstance($button);
         }
 
-        $notMessageTableGUI = new ilADNNotificationTableGUI($this, self::CMD_DEFAULT);
-        return $notMessageTableGUI->getHTML();
+        return (new ilADNNotificationTableGUI($this, self::CMD_DEFAULT))->getHTML();
     }
 
-    protected function add() : string
+    protected function add(): string
     {
         $form = new ilADNNotificationUIFormGUI(
             new ilADNNotification(),
             $this->ctrl->getLinkTarget($this, self::CMD_CREATE)
         );
-        $form->fillForm();
         return $form->getHTML();
     }
 
-    protected function create() : string
+    protected function create(): string
     {
         $form = new ilADNNotificationUIFormGUI(
             new ilADNNotification(),
@@ -86,41 +100,40 @@ class ilADNNotificationGUI extends ilADNAbstractGUI
         );
         $form->setValuesByPost();
         if ($form->saveObject()) {
-            ilUtil::sendSuccess($this->lng->txt('msg_success_created'), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('msg_success_created'), true);
             $this->ctrl->redirect($this, self::CMD_DEFAULT);
         }
         return $form->getHTML();
     }
 
-    protected function cancel() : string
+    protected function cancel(): void
     {
         $this->ctrl->setParameter($this, self::IDENTIFIER, null);
         $this->ctrl->redirect($this, self::CMD_DEFAULT);
     }
 
-    protected function edit() : string
+    protected function edit(): string
     {
         $notification = $this->getNotificationFromRequest();
-        $this->ctrl->setParameter($this, ilADNNotificationGUI::IDENTIFIER, $notification->getId());
+        $this->ctrl->setParameter($this, ilADNAbstractGUI::IDENTIFIER, $notification->getId());
 
         $form = new ilADNNotificationUIFormGUI($notification, $this->ctrl->getLinkTarget($this, self::CMD_UPDATE));
-        $form->fillForm();
         return $form->getHTML();
     }
 
-    protected function update() : string
+    protected function update(): string
     {
         $notification = $this->getNotificationFromRequest();
         $form = new ilADNNotificationUIFormGUI($notification, $this->ctrl->getLinkTarget($this, self::CMD_UPDATE));
         $form->setValuesByPost();
         if ($form->saveObject()) {
-            ilUtil::sendSuccess($this->lng->txt('msg_success_updated'), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('msg_success_updated'), true);
             $this->ctrl->redirect($this, self::CMD_DEFAULT);
         }
         return $form->getHTML();
     }
 
-    protected function confirmDelete() : string
+    protected function confirmDelete(): string
     {
         $notification = $this->getNotificationFromRequest();
         $confirmation = new ilConfirmationGUI();
@@ -132,15 +145,15 @@ class ilADNNotificationGUI extends ilADNAbstractGUI
         return $confirmation->getHTML();
     }
 
-    protected function delete() : void
+    protected function delete(): void
     {
         $notification = $this->getNotificationFromRequest();
         $notification->delete();
-        ilUtil::sendSuccess($this->lng->txt('msg_success_deleted'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('msg_success_deleted'), true);
         $this->cancel();
     }
 
-    protected function confirmReset() : string
+    protected function confirmReset(): string
     {
         $notification = $this->getNotificationFromRequest();
         $confirmation = new ilConfirmationGUI();
@@ -152,26 +165,24 @@ class ilADNNotificationGUI extends ilADNAbstractGUI
         return $confirmation->getHTML();
     }
 
-    protected function reset()
+    protected function reset(): void
     {
         $notification = $this->getNotificationFromRequest();
 
         $notification->resetForAllUsers();
-        ilUtil::sendSuccess($this->lng->txt('msg_success_reset'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('msg_success_reset'), true);
         $this->cancel();
     }
 
-    /**
-     * @return ilADNNotification
-     */
-    protected function getNotificationFromRequest() : ActiveRecord
+    /** @noinspection PhpIncompatibleReturnTypeInspection */
+    protected function getNotificationFromRequest(): ilADNNotification
     {
         if (isset($this->http->request()->getParsedBody()[self::IDENTIFIER])) {
             $identifier = $this->http->request()->getParsedBody()[self::IDENTIFIER];
         } elseif (isset($this->http->request()->getParsedBody()['interruptive_items'][0])) {
             $identifier = $this->http->request()->getParsedBody()['interruptive_items'][0];
         } else {
-            $identifier = $this->http->request()->getQueryParams()[self::IDENTIFIER];
+            $identifier = $this->http->request()->getQueryParams()[self::IDENTIFIER] ?? null;
         }
 
         return ilADNNotification::findOrFail($identifier);

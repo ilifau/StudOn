@@ -1,23 +1,30 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
 
 /**
-* Class ilObjTestVerificationListGUI
-*
-* @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
-* $Id$
-*
-* @extends ilObjectListGUI
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
-include_once "Services/Object/classes/class.ilObjectListGUI.php";
-
+/**
+ * Class ilObjTestVerificationListGUI
+ * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
+ */
 class ilObjTestVerificationListGUI extends ilObjectListGUI
 {
-    /**
-    * initialisation
-    */
-    public function init()
+    public function init(): void
     {
         $this->delete_enabled = true;
         $this->cut_enabled = true;
@@ -25,22 +32,23 @@ class ilObjTestVerificationListGUI extends ilObjectListGUI
         $this->subscribe_enabled = false;
         $this->link_enabled = false;
         $this->info_screen_enabled = false;
-        $this->type = "tstv";
-        $this->gui_class_name = "ilobjtestverificationgui";
+        $this->type = 'tstv';
+        $this->gui_class_name = ilObjTestVerificationGUI::class;
 
-        // general commands array
-        include_once('./Modules/Test/classes/class.ilObjTestVerificationAccess.php');
         $this->commands = ilObjTestVerificationAccess::_getCommands();
     }
-    
-    public function getProperties()
+
+    public function getProperties(): array
     {
         global $DIC;
         $lng = $DIC['lng'];
-        
-        return array(
-            array("alert" => false, "property" => $lng->txt("type"),
-                "value" => $lng->txt("wsp_list_tstv"))
-        );
+
+        return [
+            [
+                'alert' => false,
+                'property' => $lng->txt('type'),
+                'value' => $lng->txt('wsp_list_tstv')
+            ]
+        ];
     }
-} // END class.ilObjTestVerificationListGUI
+}

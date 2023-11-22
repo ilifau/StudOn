@@ -17,8 +17,8 @@
 
 datepicker.regional.de = {
 	closeText: "Schließen",
-	prevText: "Zurück",
-	nextText: "Vor",
+	prevText: "&#x3C;Zurück",
+	nextText: "Vor&#x3E;",
 	currentText: "Heute",
 	monthNames: [ "Januar", "Februar", "März", "April", "Mai", "Juni",
 	"Juli", "August", "September", "Oktober", "November", "Dezember" ],

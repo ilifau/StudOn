@@ -18,6 +18,8 @@
 
 namespace ILIAS\Filesystem;
 
+use ILIAS\Refinery\String\UTFNormal;
+
 /**
  * This Util class is a collection of static helper methods to provide file system related functionality.
  * Currently you can use it to sanitize file names which are compatible with the ILIAS file system.
@@ -31,7 +33,7 @@ class Util
     private const SOFT_HYPHEN = "/\\x{00a0}/iu";
     private const CONTROL_CHARACTER = "/\\x{00a0}/iu";
 
-    public static function sanitizeFileName(string $filename) : string
+    public static function sanitizeFileName(string $filename): string
     {
         // remove control characters
         $filename = preg_replace('/[\x00-\x1F\x7F]/u', '', $filename);
@@ -43,6 +45,9 @@ class Util
         $filename = preg_replace(self::ZERO_JOINER, '', $filename);
 
         // UTF normalization form C
-        return \UtfNormal::NFC($filename);
+        $form_c = (new UTFNormal())->formC();
+        $filename = $form_c->transform($filename);
+
+        return $filename;
     }
 }

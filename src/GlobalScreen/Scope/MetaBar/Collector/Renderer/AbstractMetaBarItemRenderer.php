@@ -39,10 +39,7 @@ abstract class AbstractMetaBarItemRenderer implements MetaBarItemRenderer
     use ComponentDecoratorApplierTrait;
     use isSupportedTrait;
 
-    /**
-     * @var \ILIAS\DI\UIServices
-     */
-    protected $ui;
+    protected UIServices $ui;
 
     /**
      * BaseMetaBarItemRenderer constructor.
@@ -57,7 +54,7 @@ abstract class AbstractMetaBarItemRenderer implements MetaBarItemRenderer
      * @param string $uri_string
      * @return URI
      */
-    protected function getURI(string $uri_string) : URI
+    protected function getURI(string $uri_string): URI
     {
         if (strpos($uri_string, 'http') === 0) {
             return new URI($uri_string);
@@ -69,20 +66,20 @@ abstract class AbstractMetaBarItemRenderer implements MetaBarItemRenderer
     /**
      * @inheritDoc
      */
-    public function getComponentForItem(isItem $item) : Component
+    public function getComponentForItem(isItem $item): Component
     {
         $component = $this->getSpecificComponentForItem($item);
 
         return $this->applyDecorator($component, $item);
     }
 
-    abstract protected function getSpecificComponentForItem(isItem $item) : Component;
+    abstract protected function getSpecificComponentForItem(isItem $item): Component;
 
     /**
      * @param isItem $item
      * @return Symbol
      */
-    protected function buildIcon(isItem $item) : Symbol
+    protected function buildIcon(isItem $item): Symbol
     {
         if ($item instanceof hasSymbol && $item->hasSymbol()) {
             return $this->applySymbolDecorator($item->getSymbol(), $item);
@@ -94,13 +91,5 @@ abstract class AbstractMetaBarItemRenderer implements MetaBarItemRenderer
         }
 
         return $this->ui->factory()->symbol()->icon()->standard($abbr, $abbr, 'small', true)->withAbbreviation($abbr);
-    }
-
-    /**
-     * @deprecated use buildIcon() instead
-     */
-    protected function getStandardSymbol(isItem $item) : Symbol
-    {
-        return $this->buildIcon($item);
     }
 }

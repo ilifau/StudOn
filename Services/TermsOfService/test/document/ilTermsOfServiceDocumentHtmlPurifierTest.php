@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use org\bovigo\vfs;
 
@@ -9,28 +26,19 @@ use org\bovigo\vfs;
  */
 class ilTermsOfServiceDocumentHtmlPurifierTest extends ilTermsOfServiceCriterionBaseTest
 {
-    /**
-     * @return bool
-     */
-    private function isVsfStreamInstalled() : bool
+    private function isVsfStreamInstalled(): bool
     {
         return class_exists('org\bovigo\vfs\vfsStreamWrapper');
     }
 
-    /**
-     *
-     */
-    private function skipIfvfsStreamNotSupported() : void
+    private function skipIfvfsStreamNotSupported(): void
     {
         if (!$this->isVsfStreamInstalled()) {
-            $this->markTestSkipped('Skipped test, vfsStream (http://vfs.bovigo.org) required');
+            $this->markTestSkipped('Skipped test, vfsStream (https://github.com/bovigo/vfsStream) required');
         }
     }
 
-    /**
-     * @return array
-     */
-    public function documentTextProvider() : array
+    public function documentTextProvider(): array
     {
         return [
             'Simple HTML Elements' => [
@@ -56,9 +64,8 @@ class ilTermsOfServiceDocumentHtmlPurifierTest extends ilTermsOfServiceCriterion
      * @dataProvider documentTextProvider
      * @param string $text
      * @param string $expected
-     * @throws vfs\vfsStreamException
      */
-    public function testPurifyingWorksAsExpected(string $text, string $expected) : void
+    public function testPurifyingWorksAsExpected(string $text, string $expected): void
     {
         $this->skipIfvfsStreamNotSupported();
 
@@ -69,37 +76,37 @@ class ilTermsOfServiceDocumentHtmlPurifierTest extends ilTermsOfServiceCriterion
 
         $purifier = new ilTermsOfServiceDocumentHtmlPurifier(
             [
-                "a",
-                "blockquote",
-                "br",
-                "cite",
-                "code",
-                "dd",
-                "div",
-                "dl",
-                "dt",
-                "em",
-                "h1",
-                "h2",
-                "h3",
-                "h4",
-                "h5",
-                "h6",
-                "hr",
-                "img",
-                "li",
-                "ol",
-                "p",
-                "pre",
-                "span",
-                "strong",
-                "sub",
-                "sup",
-                "u",
-                "ul"
+                'a',
+                'blockquote',
+                'br',
+                'cite',
+                'code',
+                'dd',
+                'div',
+                'dl',
+                'dt',
+                'em',
+                'h1',
+                'h2',
+                'h3',
+                'h4',
+                'h5',
+                'h6',
+                'hr',
+                'img',
+                'li',
+                'ol',
+                'p',
+                'pre',
+                'span',
+                'strong',
+                'sub',
+                'sup',
+                'u',
+                'ul'
             ],
             vfs\vfsStream::url('root/HTMLPurifier')
         );
-        $this->assertEquals($expected, $purifier->purify($text));
+        $this->assertSame($expected, $purifier->purify($text));
     }
 }

@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -10,10 +27,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 abstract class ilTermsOfServiceEvaluationBaseTest extends ilTermsOfServiceBaseTest
 {
     /**
-     * @return MockObject|ilObjUser
-     * @throws ReflectionException
+     * @return MockObject&ilObjUser
      */
-    protected function getUserMock() : ilObjUser
+    protected function getUserMock(): ilObjUser
     {
         $user = $this
             ->getMockBuilder(ilObjUser::class)
@@ -22,12 +38,10 @@ abstract class ilTermsOfServiceEvaluationBaseTest extends ilTermsOfServiceBaseTe
             ->getMock();
 
         $user
-            ->expects($this->any())
             ->method('getId')
             ->willReturn(-1);
 
         $user
-            ->expects($this->any())
             ->method('getLogin')
             ->willReturn('phpunit');
 
@@ -35,10 +49,9 @@ abstract class ilTermsOfServiceEvaluationBaseTest extends ilTermsOfServiceBaseTe
     }
 
     /**
-     * @return MockObject|ilLogger
-     * @throws ReflectionException
+     * @return MockObject&ilLogger
      */
-    protected function getLogMock() : ilLogger
+    protected function getLogMock(): ilLogger
     {
         $log = $this
             ->getMockBuilder(ilLogger::class)
@@ -49,10 +62,9 @@ abstract class ilTermsOfServiceEvaluationBaseTest extends ilTermsOfServiceBaseTe
     }
 
     /**
-     * @return MockObject|ilTermsOfServiceDocumentCriteriaEvaluation
-     * @throws ReflectionException
+     * @return MockObject&ilTermsOfServiceDocumentCriteriaEvaluation
      */
-    protected function getEvaluatorMock() : ilTermsOfServiceDocumentCriteriaEvaluation
+    protected function getEvaluatorMock(): ilTermsOfServiceDocumentCriteriaEvaluation
     {
         $evaluator = $this
             ->getMockBuilder(ilTermsOfServiceDocumentCriteriaEvaluation::class)
@@ -63,10 +75,9 @@ abstract class ilTermsOfServiceEvaluationBaseTest extends ilTermsOfServiceBaseTe
     }
 
     /**
-     * @return MockObject|ilTermsOfServiceCriterionTypeFactoryInterface
-     * @throws ReflectionException
+     * @return MockObject&ilTermsOfServiceCriterionTypeFactoryInterface
      */
-    protected function getCriterionTypeFactoryMock() : ilTermsOfServiceCriterionTypeFactoryInterface
+    protected function getCriterionTypeFactoryMock(): ilTermsOfServiceCriterionTypeFactoryInterface
     {
         $criterionTypeFactory = $this
             ->getMockBuilder(ilTermsOfServiceCriterionTypeFactoryInterface::class)
@@ -77,17 +88,15 @@ abstract class ilTermsOfServiceEvaluationBaseTest extends ilTermsOfServiceBaseTe
 
     /**
      * @param string $typeIdent
-     * @return MockObject|ilTermsOfServiceCriterionType
-     * @throws ReflectionException
+     * @return MockObject&ilTermsOfServiceCriterionType
      */
-    protected function getCriterionTypeMock(string $typeIdent) : ilTermsOfServiceCriterionType
+    protected function getCriterionTypeMock(string $typeIdent): ilTermsOfServiceCriterionType
     {
         $criterionType = $this
             ->getMockBuilder(ilTermsOfServiceCriterionType::class)
             ->getMock();
 
         $criterionType
-            ->expects($this->any())
             ->method('getTypeIdent')
             ->willReturn($typeIdent);
 
@@ -96,18 +105,16 @@ abstract class ilTermsOfServiceEvaluationBaseTest extends ilTermsOfServiceBaseTe
 
     /**
      * @param ilTermsOfServiceCriterionType $criterionType
-     * @return MockObject|ilTermsOfServiceEvaluableCriterion
-     * @throws ReflectionException
+     * @return MockObject&ilTermsOfServiceEvaluableCriterion
      */
     protected function getCriterionAssignmentMock(
         ilTermsOfServiceCriterionType $criterionType
-    ) : ilTermsOfServiceEvaluableCriterion {
+    ): ilTermsOfServiceEvaluableCriterion {
         $criterionAssignment = $this
             ->getMockBuilder(ilTermsOfServiceEvaluableCriterion::class)
             ->getMock();
 
         $criterionAssignment
-            ->expects($this->any())
             ->method('getCriterionId')
             ->willReturn($criterionType->getTypeIdent());
 

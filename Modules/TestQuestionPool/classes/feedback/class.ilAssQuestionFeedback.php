@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * abstract parent feedback class for all question types
@@ -13,73 +28,40 @@
  */
 abstract class ilAssQuestionFeedback
 {
-    const CSS_CLASS_FEEDBACK_CORRECT = 'ilc_qfeedr_FeedbackRight';
-    const CSS_CLASS_FEEDBACK_WRONG = 'ilc_qfeedw_FeedbackWrong';
+    public const CSS_CLASS_FEEDBACK_CORRECT = 'ilc_qfeedr_FeedbackRight';
+    public const CSS_CLASS_FEEDBACK_WRONG = 'ilc_qfeedw_FeedbackWrong';
 
     /**
      * type for generic feedback page objects
      */
-    const PAGE_OBJECT_TYPE_GENERIC_FEEDBACK = 'qfbg';
+    public const PAGE_OBJECT_TYPE_GENERIC_FEEDBACK = 'qfbg';
 
     /**
      * type for specific feedback page objects
      */
-    const PAGE_OBJECT_TYPE_SPECIFIC_FEEDBACK = 'qfbs';
+    public const PAGE_OBJECT_TYPE_SPECIFIC_FEEDBACK = 'qfbs';
 
     /**
      * id for page object relating to generic incomplete solution feedback
      */
-    const FEEDBACK_SOLUTION_INCOMPLETE_PAGE_OBJECT_ID = 1;
+    public const FEEDBACK_SOLUTION_INCOMPLETE_PAGE_OBJECT_ID = 1;
 
     /**
      * id for page object relating to generic complete solution feedback
      */
-    const FEEDBACK_SOLUTION_COMPLETE_PAGE_OBJECT_ID = 2;
+    public const FEEDBACK_SOLUTION_COMPLETE_PAGE_OBJECT_ID = 2;
 
-    /**
-     * table name for specific feedback
-     */
-    const TABLE_NAME_GENERIC_FEEDBACK = 'qpl_fb_generic';
+    public const TABLE_NAME_GENERIC_FEEDBACK = 'qpl_fb_generic';
 
-    /**
-     * object instance of current question
-     *
-     * @access protected
-     * @var assQuestion
-     */
-    protected $questionOBJ = null;
+    protected assQuestion $questionOBJ;
 
-    /**
-     * global $ilCtrl
-     *
-     * @access protected
-     * @var ilCtrl
-     */
-    protected $ctrl = null;
+    protected ilCtrl $ctrl;
 
-    /**
-     * global $ilDB
-     *
-     * @access protected
-     * @var ilDBInterface
-     */
-    protected $db = null;
+    protected ilDBInterface $db;
 
-    /**
-     * global $lng
-     *
-     * @access protected
-     * @var ilLanguage
-     */
-    protected $lng = null;
+    protected ilLanguage $lng;
 
-    /**
-     * page object output mode
-     *
-     * @access protected
-     * @var string
-     */
-    protected $page_obj_output_mode = "presentation";
+    protected string $page_obj_output_mode = "presentation";
 
     /**
      * constructor
@@ -94,7 +76,6 @@ abstract class ilAssQuestionFeedback
     final public function __construct(assQuestion $questionOBJ, ilCtrl $ctrl, ilDBInterface $db, ilLanguage $lng)
     {
         $this->questionOBJ = $questionOBJ;
-
         $this->ctrl = $ctrl;
         $this->lng = $lng;
         $this->db = $db;
@@ -103,13 +84,8 @@ abstract class ilAssQuestionFeedback
     /**
      * returns the html of GENERIC feedback for the given question id for test presentation
      * (either for the complete solution or for the incomplete solution)
-     *
-     * @access public
-     * @param integer $questionId
-     * @param boolean $solutionCompleted
-     * @return string $genericFeedbackTestPresentationHTML
      */
-    public function getGenericFeedbackTestPresentation($questionId, $solutionCompleted)
+    public function getGenericFeedbackTestPresentation(int $questionId, bool $solutionCompleted): string
     {
         if ($this->page_obj_output_mode == "edit") {
             return "";
@@ -119,10 +95,20 @@ abstract class ilAssQuestionFeedback
                 $this->getGenericFeedbackPageObjectType(),
                 $this->getGenericFeedbackPageObjectId($questionId, $solutionCompleted)
             );
+
+            $doc = new DOMDocument('1.0', 'UTF-8');
+            if (@$doc->loadHTML('<html><body>' . $genericFeedbackTestPresentationHTML . '</body></html>')) {
+                $xpath = new DOMXPath($doc);
+                $nodes_after_comments = $xpath->query('//comment()/following-sibling::*[1]');
+                foreach ($nodes_after_comments as $node_after_comments) {
+                    if (trim($node_after_comments->nodeValue) === '') {
+                        return '';
+                    }
+                }
+            }
         } else {
             $genericFeedbackTestPresentationHTML = $this->getGenericFeedbackContent($questionId, $solutionCompleted);
         }
-
         return $genericFeedbackTestPresentationHTML;
     }
 
@@ -137,17 +123,13 @@ abstract class ilAssQuestionFeedback
      * @param integer $answerIndex
      * @return string $specificAnswerFeedbackTestPresentationHTML
      */
-    abstract public function getSpecificAnswerFeedbackTestPresentation($questionId, $questionIndex, $answerIndex);
+    abstract public function getSpecificAnswerFeedbackTestPresentation(int $questionId, int $questionIndex, int $answerIndex): string;
 
     /**
      * completes a given form object with the GENERIC form properties
      * required by all question types
-     *
-     * @final
-     * @access public
-     * @param ilPropertyFormGUI $form
      */
-    final public function completeGenericFormProperties(ilPropertyFormGUI $form)
+    final public function completeGenericFormProperties(ilPropertyFormGUI $form): void
     {
         $form->addItem($this->buildFeedbackContentFormProperty(
             $this->lng->txt('feedback_complete_solution'),
@@ -170,17 +152,13 @@ abstract class ilAssQuestionFeedback
      * @access public
      * @param ilPropertyFormGUI $form
      */
-    abstract public function completeSpecificFormProperties(ilPropertyFormGUI $form);
+    abstract public function completeSpecificFormProperties(ilPropertyFormGUI $form): void;
 
     /**
      * initialises a given form object's GENERIC form properties
      * relating to all question types
-     *
-     * @final
-     * @access public
-     * @param ilPropertyFormGUI $form
      */
-    final public function initGenericFormProperties(ilPropertyFormGUI $form)
+    final public function initGenericFormProperties(ilPropertyFormGUI $form): void
     {
         if ($this->questionOBJ->isAdditionalContentEditingModePageObject()) {
             $pageObjectType = $this->getGenericFeedbackPageObjectType();
@@ -213,48 +191,33 @@ abstract class ilAssQuestionFeedback
     /**
      * initialises a given form object's SPECIFIC form properties
      * relating to this question type
-     *
-     * @abstract
-     * @access public
-     * @param ilPropertyFormGUI $form
      */
-    abstract public function initSpecificFormProperties(ilPropertyFormGUI $form);
+    abstract public function initSpecificFormProperties(ilPropertyFormGUI $form): void;
 
     /**
      * saves a given form object's GENERIC form properties
      * relating to all question types
-     *
-     * @final
-     * @access public
-     * @param ilPropertyFormGUI $form
      */
-    final public function saveGenericFormProperties(ilPropertyFormGUI $form)
+    final public function saveGenericFormProperties(ilPropertyFormGUI $form): void
     {
         if (!$this->questionOBJ->isAdditionalContentEditingModePageObject()) {
-            $this->saveGenericFeedbackContent($this->questionOBJ->getId(), false, $form->getInput('feedback_incomplete'));
-            $this->saveGenericFeedbackContent($this->questionOBJ->getId(), true, $form->getInput('feedback_complete'));
+            $this->saveGenericFeedbackContent($this->questionOBJ->getId(), false, (string) $form->getInput('feedback_incomplete'));
+            $this->saveGenericFeedbackContent($this->questionOBJ->getId(), true, (string) $form->getInput('feedback_complete'));
         }
     }
 
     /**
      * saves a given form object's SPECIFIC form properties
      * relating to this question type
-     *
-     * @abstract
-     * @access public
-     * @param ilPropertyFormGUI $form
      */
-    abstract public function saveSpecificFormProperties(ilPropertyFormGUI $form);
+    abstract public function saveSpecificFormProperties(ilPropertyFormGUI $form): void;
 
     /**
      * returns the fact wether the feedback editing form is saveable in page object editing or not.
      * by default all properties are edited as page object unless there are additional settings
      * (this method can be overwritten per question type if required)
-     *
-     * @access public
-     * @return boolean $isSaveableInPageObjectEditingMode
      */
-    public function isSaveableInPageObjectEditingMode()
+    public function isSaveableInPageObjectEditingMode(): bool
     {
         return false;
     }
@@ -265,24 +228,13 @@ abstract class ilAssQuestionFeedback
      * depending on the given flag "asNonEditable" it returns a ...
      * - non editable gui
      * - textarea input gui
-     *
-     * @final
-     * @access protected
-     * @param string $label
-     * @param string $postVar
-     * @param boolean $asNonEditable
-     * @return ilTextAreaInputGUI|ilNonEditableValueGUI $formProperty
+     * @return ilTextAreaInputGUI|ilNonEditableValueGUI
      */
-    final protected function buildFeedbackContentFormProperty($label, $postVar, $asNonEditable)
+    final protected function buildFeedbackContentFormProperty(string $label, string $postVar, bool $asNonEditable): ilSubEnabledFormPropertyGUI
     {
         if ($asNonEditable) {
-            require_once 'Services/Form/classes/class.ilNonEditableValueGUI.php';
-
             $property = new ilNonEditableValueGUI($label, $postVar, true);
         } else {
-            require_once 'Services/Form/classes/class.ilTextAreaInputGUI.php';
-            require_once 'Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php';
-
             $property = new ilTextAreaInputGUI($label, $postVar);
             $property->setRequired(false);
             $property->setRows(10);
@@ -294,11 +246,9 @@ abstract class ilAssQuestionFeedback
                 $property->addButton("latex");
                 $property->addButton("pastelatex");
 
-                require_once 'Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php';
                 $property->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("assessment"));
                 $property->setRTESupport($this->questionOBJ->getId(), "qpl", "assessment");
             } else {
-                require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
                 $property->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
                 $property->setUseTagsForRteOnly(false);
             }
@@ -313,64 +263,32 @@ abstract class ilAssQuestionFeedback
      * returns the GENERIC feedback content for a given question state.
      * the state is either the completed solution (all answers correct)
      * of the question or at least one incorrect answer.
-     *
-     * @final
-     * @access public
-     * @param integer $questionId
-     * @param boolean $solutionCompleted
-     * @return string $feedbackContent
      */
-    final public function getGenericFeedbackContent($questionId, $solutionCompleted)
+    final public function getGenericFeedbackContent(int $questionId, bool $solutionCompleted): string
     {
-        require_once 'Services/RTE/classes/class.ilRTE.php';
-
-        $correctness = $solutionCompleted ? 1 : 0;
-
         $res = $this->db->queryF(
             "SELECT * FROM {$this->getGenericFeedbackTableName()} WHERE question_fi = %s AND correctness = %s",
             array('integer', 'text'),
-            array($questionId, $correctness)
+            array($questionId, (int) $solutionCompleted)
         );
 
-        $feedbackContent = null;
+        $feedbackContent = '';
 
-        while ($row = $this->db->fetchAssoc($res)) {
-            $feedbackContent = ilRTE::_replaceMediaObjectImageSrc($row['feedback'], 1);
-            break;
+        if ($this->db->numRows($res) > 0) {
+            $row = $this->db->fetchAssoc($res);
+            $feedbackContent = ilRTE::_replaceMediaObjectImageSrc(
+                $this->questionOBJ->getHtmlQuestionContentPurifier()->purify($row['feedback'] ?? ''),
+                1
+            );
         }
-
-        return is_null($feedbackContent) ? '' : $this->questionOBJ->getHtmlQuestionContentPurifier()->purify($feedbackContent);
+        return $feedbackContent;
     }
 
-    /**
-     * returns the SPECIFIC feedback content for a given question id and answer index.
-     *
-     * @abstract
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param integer $answerIndex
-     * @return string $feedbackContent
-     */
-    abstract public function getSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex);
+    abstract public function getSpecificAnswerFeedbackContent(int $questionId, int $questionIndex, int $answerIndex): string;
 
-    /**
-     * returns the SPECIFIC feedback content for a given question id and answer index.
-     *
-     * @abstract
-     * @access public
-     * @param integer $questionId
-     * @return string $feedbackContent
-     */
-    abstract public function getAllSpecificAnswerFeedbackContents($questionId);
+    abstract public function getAllSpecificAnswerFeedbackContents(int $questionId): string;
 
-    /**
-     * returns the fact wether any specific feedback content is available or not
-     *
-     * @param integer $questionId
-     * @return bool
-     */
-    public function isSpecificAnswerFeedbackAvailable($questionId)
+    public function isSpecificAnswerFeedbackAvailable(int $questionId): bool
     {
         $res = $this->db->queryF(
             "SELECT answer FROM {$this->getSpecificFeedbackTableName()} WHERE question_fi = %s",
@@ -395,19 +313,10 @@ abstract class ilAssQuestionFeedback
      * saves GENERIC feedback content for the given question id to the database.
      * Generic feedback is either feedback for the completed solution (all answers correct)
      * of the question or at least onen incorrect answer.
-     *
-     * @final
-     * @access public
-     * @param integer $questionId
-     * @param boolean $solutionCompleted
-     * @param string $feedbackContent
-     * @return integer $feedbackId
      */
-    final public function saveGenericFeedbackContent($questionId, $solutionCompleted, $feedbackContent)
+    final public function saveGenericFeedbackContent(int $questionId, bool $solutionCompleted, string $feedbackContent): int
     {
         require_once 'Services/RTE/classes/class.ilRTE.php';
-
-        $correctness = $solutionCompleted ? 1 : 0;
 
         $feedbackId = $this->getGenericFeedbackId($questionId, $solutionCompleted);
 
@@ -416,7 +325,7 @@ abstract class ilAssQuestionFeedback
             $feedbackContent = ilRTE::_replaceMediaObjectImageSrc($feedbackContent, 0);
         }
 
-        if ($feedbackId) {
+        if ($feedbackId != -1) {
             $this->db->update(
                 $this->getGenericFeedbackTableName(),
                 array(
@@ -433,7 +342,7 @@ abstract class ilAssQuestionFeedback
             $this->db->insert($this->getGenericFeedbackTableName(), array(
                 'feedback_id' => array('integer', $feedbackId),
                 'question_fi' => array('integer', $questionId),
-                'correctness' => array('text', $correctness), // text ?
+                'correctness' => array('text', (int) $solutionCompleted), // text ?
                 'feedback' => array('clob', $feedbackContent),
                 'tstamp' => array('integer', time())
             ));
@@ -442,29 +351,13 @@ abstract class ilAssQuestionFeedback
         return $feedbackId;
     }
 
-    /**
-     * saves SPECIFIC feedback content for the given question id and answer index to the database.
-     *
-     * @abstract
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param integer $answerIndex
-     * @param string $feedbackContent
-     * @return integer $feedbackId
-     */
-    abstract public function saveSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex, $feedbackContent);
+    abstract public function saveSpecificAnswerFeedbackContent(int $questionId, int $questionIndex, int $answerIndex, string $feedbackContent): int;
 
     /**
      * deletes all GENERIC feedback contents (and page objects if required)
      * for the given question id
-     *
-     * @final
-     * @access public
-     * @param integer $questionId
-     * @param boolean $isAdditionalContentEditingModePageObject
      */
-    final public function deleteGenericFeedbacks($questionId, $isAdditionalContentEditingModePageObject)
+    final public function deleteGenericFeedbacks(int $questionId, bool $isAdditionalContentEditingModePageObject): void
     {
         if ($isAdditionalContentEditingModePageObject) {
             $this->ensurePageObjectDeleted(
@@ -485,26 +378,13 @@ abstract class ilAssQuestionFeedback
         );
     }
 
-    /**
-     * deletes all SPECIFIC feedback contents for the given question id
-     *
-     * @abstract
-     * @access public
-     * @param integer $questionId
-     * @param boolean $isAdditionalContentEditingModePageObject
-     */
-    abstract public function deleteSpecificAnswerFeedbacks($questionId, $isAdditionalContentEditingModePageObject);
+    abstract public function deleteSpecificAnswerFeedbacks(int $questionId, bool $isAdditionalContentEditingModePageObject): void;
 
     /**
      * duplicates the feedback relating to the given original question id
      * and saves it for the given duplicate question id
-     *
-     * @final
-     * @access public
-     * @param integer $originalQuestionId
-     * @param integer $duplicateQuestionId
      */
-    final public function duplicateFeedback($originalQuestionId, $duplicateQuestionId)
+    final public function duplicateFeedback(int $originalQuestionId, int $duplicateQuestionId): void
     {
         $this->duplicateGenericFeedback($originalQuestionId, $duplicateQuestionId);
         $this->duplicateSpecificFeedback($originalQuestionId, $duplicateQuestionId);
@@ -513,13 +393,8 @@ abstract class ilAssQuestionFeedback
     /**
      * duplicates the GENERIC feedback relating to the given original question id
      * and saves it for the given duplicate question id
-     *
-     * @final
-     * @access private
-     * @param integer $originalQuestionId
-     * @param integer $duplicateQuestionId
      */
-    private function duplicateGenericFeedback($originalQuestionId, $duplicateQuestionId)
+    private function duplicateGenericFeedback(int $originalQuestionId, int $duplicateQuestionId): void
     {
         $res = $this->db->queryF(
             "SELECT * FROM {$this->getGenericFeedbackTableName()} WHERE question_fi = %s",
@@ -548,23 +423,13 @@ abstract class ilAssQuestionFeedback
     /**
      * duplicates the SPECIFIC feedback relating to the given original question id
      * and saves it for the given duplicate question id
-     *
-     * @abstract
-     * @access protected
-     * @param integer $originalQuestionId
-     * @param integer $duplicateQuestionId
      */
-    abstract protected function duplicateSpecificFeedback($originalQuestionId, $duplicateQuestionId);
+    abstract protected function duplicateSpecificFeedback(int $originalQuestionId, int $duplicateQuestionId): void;
 
     /**
      * syncs the feedback from a duplicated question back to the original question
-     *
-     * @final
-     * @access public
-     * @param integer $originalQuestionId
-     * @param integer $duplicateQuestionId
      */
-    final public function syncFeedback($originalQuestionId, $duplicateQuestionId)
+    final public function syncFeedback(int $originalQuestionId, int $duplicateQuestionId): void
     {
         $this->syncGenericFeedback($originalQuestionId, $duplicateQuestionId);
         $this->syncSpecificFeedback($originalQuestionId, $duplicateQuestionId);
@@ -572,13 +437,8 @@ abstract class ilAssQuestionFeedback
 
     /**
      * syncs the GENERIC feedback from a duplicated question back to the original question
-     *
-     * @final
-     * @access private
-     * @param integer $originalQuestionId
-     * @param integer $duplicateQuestionId
      */
-    private function syncGenericFeedback($originalQuestionId, $duplicateQuestionId)
+    private function syncGenericFeedback(int $originalQuestionId, int $duplicateQuestionId): void
     {
         // delete generic feedback of the original question
         $this->db->manipulateF(
@@ -610,14 +470,8 @@ abstract class ilAssQuestionFeedback
 
     /**
      * returns the SPECIFIC answer feedback ID for a given question id and answer index.
-     *
-     * @final
-     * @access protected
-     * @param integer $questionId
-     * @param boolean $answerIndex
-     * @return string $feedbackId
      */
-    final protected function getGenericFeedbackId($questionId, $solutionCompleted)
+    final protected function getGenericFeedbackId(int $questionId, bool $solutionCompleted): int
     {
         $res = $this->db->queryF(
             "SELECT feedback_id FROM {$this->getGenericFeedbackTableName()} WHERE question_fi = %s AND correctness = %s",
@@ -625,21 +479,16 @@ abstract class ilAssQuestionFeedback
             array($questionId, (int) $solutionCompleted)
         );
 
-        $feedbackId = null;
-
-        while ($row = $this->db->fetchAssoc($res)) {
-            $feedbackId = $row['feedback_id'];
-            break;
+        $feedbackId = -1;
+        if ($this->db->numRows($res)) {
+            $row = $this->db->fetchAssoc($res);
+            $feedbackId = (int) $row['feedback_id'];
         }
 
         return $feedbackId;
     }
 
-    /**
-     * @param int $feedbackId
-     * @return bool
-     */
-    protected function isGenericFeedbackId($feedbackId)
+    protected function isGenericFeedbackId(int $feedbackId): bool
     {
         $row = $this->db->fetchAssoc($this->db->queryF(
             "SELECT COUNT(feedback_id) cnt FROM {$this->getGenericFeedbackTableName()}
@@ -649,20 +498,12 @@ abstract class ilAssQuestionFeedback
         ));
 
 
-        return $row['cnt'];
+        return (bool) $row['cnt'];
     }
 
-    /**
-     * @param int $feedbackId
-     * @return bool
-     */
-    abstract protected function isSpecificAnswerFeedbackId($feedbackId);
+    abstract protected function isSpecificAnswerFeedbackId(int $feedbackId): bool;
 
-    /**
-     * @param int $feedbackId
-     * @return bool
-     */
-    final public function checkFeedbackParent($feedbackId)
+    final public function checkFeedbackParent(int $feedbackId): bool
     {
         if ($this->isGenericFeedbackId($feedbackId)) {
             return true;
@@ -677,21 +518,10 @@ abstract class ilAssQuestionFeedback
 
     /**
      * syncs the SPECIFIC feedback from a duplicated question back to the original question
-     *
-     * @abstract
-     * @access protected
-     * @param integer $originalQuestionId
-     * @param integer $duplicateQuestionId
      */
-    abstract protected function syncSpecificFeedback($originalQuestionId, $duplicateQuestionId);
+    abstract protected function syncSpecificFeedback(int $originalQuestionId, int $duplicateQuestionId): void;
 
-    /**
-     * returns the table name for specific feedback
-     *
-     * @final
-     * @return string $specificFeedbackTableName
-     */
-    final protected function getGenericFeedbackTableName()
+    final protected function getGenericFeedbackTableName(): string
     {
         return self::TABLE_NAME_GENERIC_FEEDBACK;
     }
@@ -699,14 +529,8 @@ abstract class ilAssQuestionFeedback
     /**
      * returns html content to be used as value for non editable value form properties
      * in feedback editing form
-     *
-     * @final
-     * @access protected
-     * @param string $pageObjectType
-     * @param integer $pageObjectId
-     * @return string $nonEditableValueHTML
      */
-    final protected function getPageObjectNonEditableValueHTML($pageObjectType, $pageObjectId)
+    final protected function getPageObjectNonEditableValueHTML(string $pageObjectType, int $pageObjectId): string
     {
         $link = $this->getPageObjectEditingLink($pageObjectType, $pageObjectId);
         $content = $this->getPageObjectContent($pageObjectType, $pageObjectId);
@@ -714,38 +538,19 @@ abstract class ilAssQuestionFeedback
         return "$link<br /><br />$content";
     }
 
-    /**
-     * Get class name by type
-     *
-     * @param
-     * @return
-     */
-    public function getClassNameByType($a_type, $a_gui = false)
+    public function getClassNameByType(string $a_type, bool $a_gui = false): string
     {
-        $gui = ($a_gui)
-            ? "GUI"
-            : "";
-        include_once("./Modules/TestQuestionPool/classes/feedback/class.ilAssQuestionFeedback.php");
+        $gui = ($a_gui) ? "GUI" : "";
+
         if ($a_type == ilAssQuestionFeedback::PAGE_OBJECT_TYPE_GENERIC_FEEDBACK) {
             return "ilAssGenFeedbackPage" . $gui;
         }
-        if ($a_type == ilAssQuestionFeedback::PAGE_OBJECT_TYPE_SPECIFIC_FEEDBACK) {
-            return "ilAssSpecFeedbackPage" . $gui;
-        }
+
+        //if ($a_type == ilAssQuestionFeedback::PAGE_OBJECT_TYPE_SPECIFIC_FEEDBACK) {
+        return "ilAssSpecFeedbackPage" . $gui;
     }
 
-
-    /**
-     * returns a link to page object editor for page object
-     * with given type and id
-     *
-     * @final
-     * @access private
-     * @param string $pageObjectType
-     * @param integer $pageObjectId
-     * @return string $pageObjectEditingLink
-     */
-    private function getPageObjectEditingLink($pageObjectType, $pageObjectId)
+    private function getPageObjectEditingLink(string $pageObjectType, int $pageObjectId): string
     {
         $cl = $this->getClassNameByType($pageObjectType, true);
         $this->ctrl->setParameterByClass($cl, 'feedback_type', $pageObjectType);
@@ -757,48 +562,23 @@ abstract class ilAssQuestionFeedback
         return "<a href='$linkHREF'>$linkTEXT</a>";
     }
 
-    /**
-     * Set page object output mode
-     *
-     * @param string $a_val page output mode
-     */
-    final public function setPageObjectOutputMode($a_val)
+    final public function setPageObjectOutputMode(string $page_obj_output_mode): void
     {
-        $this->page_obj_output_mode = $a_val;
+        $this->page_obj_output_mode = $page_obj_output_mode;
     }
 
-    /**
-     * Get page object output mode
-     *
-     * @return string page output mode
-     */
-    final public function getPageObjectOutputMode()
+    final public function getPageObjectOutputMode(): string
     {
         return $this->page_obj_output_mode;
     }
 
-    /**
-     * returns the content of page object with given type and id
-     *
-     * @final
-     * @access protected
-     * @param string $pageObjectType
-     * @param integer $pageObjectId
-     * @return string $pageObjectContent
-     */
-    final protected function getPageObjectContent($pageObjectType, $pageObjectId)
+    final protected function getPageObjectContent(string $pageObjectType, int $pageObjectId): string
     {
-        global $DIC;
-        $ilCtrl = $DIC['ilCtrl'];
-
         $cl = $this->getClassNameByType($pageObjectType, true);
-        require_once 'Modules/TestQuestionPool/classes/feedback/class.' . $cl . '.php';
 
         $this->ensurePageObjectExists($pageObjectType, $pageObjectId);
 
-        $mode = ($ilCtrl->isAsynch())
-            ? "presentation"
-            : $this->getPageObjectOutputMode();
+        $mode = ($this->ctrl->isAsynch()) ? "presentation" : $this->getPageObjectOutputMode();
 
         $pageObjectGUI = new $cl($pageObjectId);
         $pageObjectGUI->setOutputMode($mode);
@@ -806,19 +586,9 @@ abstract class ilAssQuestionFeedback
         return $pageObjectGUI->presentation($mode);
     }
 
-    /**
-     * returns the xml of page object with given type and id
-     *
-     * @final
-     * @access protected
-     * @param string $pageObjectType
-     * @param integer $pageObjectId
-     * @return string $pageObjectXML
-     */
-    final protected function getPageObjectXML($pageObjectType, $pageObjectId)
+    final protected function getPageObjectXML(string $pageObjectType, int $pageObjectId): string
     {
         $cl = $this->getClassNameByType($pageObjectType);
-        require_once 'Modules/TestQuestionPool/classes/feedback/class.' . $cl . '.php';
 
         $this->ensurePageObjectExists($pageObjectType, $pageObjectId);
 
@@ -826,15 +596,7 @@ abstract class ilAssQuestionFeedback
         return $pageObject->getXMLContent();
     }
 
-    /**
-     * ensures an existing page object with given type and id
-     *
-     * @final
-     * @access private
-     * @param string $pageObjectType
-     * @param integer $pageObjectId
-     */
-    private function ensurePageObjectExists($pageObjectType, $pageObjectId)
+    private function ensurePageObjectExists(string $pageObjectType, int $pageObjectId): void
     {
         if ($pageObjectType == ilAssQuestionFeedback::PAGE_OBJECT_TYPE_GENERIC_FEEDBACK
             && !ilAssGenFeedbackPage::_exists($pageObjectType, $pageObjectId, '', true)) {
@@ -852,20 +614,9 @@ abstract class ilAssQuestionFeedback
         }
     }
 
-    /**
-     * creates a new page object with given page object id and page object type
-     * and passed page object content
-     *
-     * @final
-     * @access protected
-     * @param string $pageObjectType
-     * @param integer $pageObjectId
-     * @param string $pageObjectContent
-     */
-    final protected function createPageObject($pageObjectType, $pageObjectId, $pageObjectContent)
+    final protected function createPageObject(string $pageObjectType, int $pageObjectId, string $pageObjectContent): void
     {
         $cl = $this->getClassNameByType($pageObjectType);
-        require_once 'Modules/TestQuestionPool/classes/feedback/class.' . $cl . '.php';
 
         $pageObject = new $cl();
         $pageObject->setParentId($this->questionOBJ->getId());
@@ -874,23 +625,11 @@ abstract class ilAssQuestionFeedback
         $pageObject->createFromXML();
     }
 
-    /**
-     * duplicates the page object with given type and original id
-     * to new page object with same type and given duplicate id and duplicate parent id
-     *
-     * @final
-     * @access protected
-     * @param string $pageObjectType
-     * @param integer $originalPageObjectId
-     * @param integer $duplicatePageObjectId
-     * @param integer $duplicatePageObjectParentId
-     */
-    final protected function duplicatePageObject($pageObjectType, $originalPageObjectId, $duplicatePageObjectId, $duplicatePageObjectParentId)
+    final protected function duplicatePageObject(string $pageObjectType, int $originalPageObjectId, int $duplicatePageObjectId, int $duplicatePageObjectParentId): void
     {
         $this->ensurePageObjectExists($pageObjectType, $originalPageObjectId);
 
         $cl = $this->getClassNameByType($pageObjectType);
-        require_once 'Modules/TestQuestionPool/classes/feedback/class.' . $cl . '.php';
 
         $pageObject = new $cl($originalPageObjectId);
         $pageObject->setParentId($duplicatePageObjectParentId);
@@ -898,25 +637,15 @@ abstract class ilAssQuestionFeedback
         $pageObject->createFromXML();
     }
 
-    /**
-     * ensures a no more existing page object for given type and id
-     *
-     * @final
-     * @access protected
-     * @param string $pageObjectType
-     * @param integer $pageObjectId
-     */
-    final protected function ensurePageObjectDeleted($pageObjectType, $pageObjectId)
+    final protected function ensurePageObjectDeleted(string $pageObjectType, int $pageObjectId): void
     {
         if ($pageObjectType == ilAssQuestionFeedback::PAGE_OBJECT_TYPE_GENERIC_FEEDBACK) {
-            include_once("./Modules/TestQuestionPool/classes/feedback/class.ilAssGenFeedbackPage.php");
             if (ilAssGenFeedbackPage::_exists($pageObjectType, $pageObjectId)) {
                 $pageObject = new ilAssGenFeedbackPage($pageObjectId);
                 $pageObject->delete();
             }
         }
         if ($pageObjectType == ilAssQuestionFeedback::PAGE_OBJECT_TYPE_SPECIFIC_FEEDBACK) {
-            include_once("./Modules/TestQuestionPool/classes/feedback/class.ilAssSpecFeedbackPage.php");
             if (ilAssSpecFeedbackPage::_exists($pageObjectType, $pageObjectId)) {
                 $pageObject = new ilAssSpecFeedbackPage($pageObjectId);
                 $pageObject->delete();
@@ -924,48 +653,25 @@ abstract class ilAssQuestionFeedback
         }
     }
 
-    /**
-     * returns the type for generic feedback page objects
-     * defined in local constant
-     *
-     * @final
-     * @access protected
-     * @return string $genericFeedbackPageObjectType
-     */
-    final protected function getGenericFeedbackPageObjectType()
+    final protected function getGenericFeedbackPageObjectType(): string
     {
         return self::PAGE_OBJECT_TYPE_GENERIC_FEEDBACK;
     }
 
-    /**
-     * returns the type for specific feedback page objects
-     * defined in local constant
-     *
-     * @final
-     * @access protected
-     * @return string $specificFeedbackPageObjectType
-     */
-    final protected function getSpecificAnswerFeedbackPageObjectType()
+    final protected function getSpecificAnswerFeedbackPageObjectType(): string
     {
         return self::PAGE_OBJECT_TYPE_SPECIFIC_FEEDBACK;
     }
 
     /**
-     * returns the fact wether the given page object type
+     * returns the fact whether the given page object type
      * relates to generic or specific feedback page objects
-     *
-     * @final
-     * @static
-     * @access public
-     * @param string $feedbackPageObjectType
-     * @return array $validFeedbackPageObjectTypes
      */
-    final public static function isValidFeedbackPageObjectType($feedbackPageObjectType)
+    final public static function isValidFeedbackPageObjectType(string $feedbackPageObjectType): bool
     {
         switch ($feedbackPageObjectType) {
             case self::PAGE_OBJECT_TYPE_GENERIC_FEEDBACK:
             case self::PAGE_OBJECT_TYPE_SPECIFIC_FEEDBACK:
-
                 return true;
         }
 
@@ -976,19 +682,13 @@ abstract class ilAssQuestionFeedback
      * returns a useable page object id for generic feedback page objects
      * for the given question id for either the complete or incomplete solution
      * (using the id sequence of non page object generic feedback)
-     *
-     * @final
-     * @access protected
-     * @param integer $questionId
-     * @param boolean $solutionCompleted
-     * @return integer $pageObjectId
      */
-    final protected function getGenericFeedbackPageObjectId($questionId, $solutionCompleted)
+    final protected function getGenericFeedbackPageObjectId(int $questionId, bool $solutionCompleted): int
     {
         $pageObjectId = $this->getGenericFeedbackId($questionId, $solutionCompleted);
 
-        if (!$pageObjectId) {
-            $pageObjectId = $this->saveGenericFeedbackContent($questionId, $solutionCompleted, null);
+        if ($pageObjectId == -1) {
+            $pageObjectId = $this->saveGenericFeedbackContent($questionId, $solutionCompleted, '');
         }
 
         return $pageObjectId;
@@ -997,13 +697,8 @@ abstract class ilAssQuestionFeedback
     /**
      * returns the generic feedback export presentation for given question id
      * either for solution completed or incompleted
-     *
-     * @access public
-     * @param integer $questionId
-     * @param boolean $solutionCompleted
-     * @return string $genericFeedbackExportPresentation
      */
-    public function getGenericFeedbackExportPresentation($questionId, $solutionCompleted)
+    public function getGenericFeedbackExportPresentation(int $questionId, bool $solutionCompleted): string
     {
         if ($this->questionOBJ->isAdditionalContentEditingModePageObject()) {
             $genericFeedbackExportPresentation = $this->getPageObjectXML(
@@ -1020,26 +715,14 @@ abstract class ilAssQuestionFeedback
     /**
      * returns the generic feedback export presentation for given question id
      * either for solution completed or incompleted
-     *
-     * @abstract
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param integer $answerIndex
-     * @return string $specificFeedbackExportPresentation
      */
-    abstract public function getSpecificAnswerFeedbackExportPresentation($questionId, $questionIndex, $answerIndex);
+    abstract public function getSpecificAnswerFeedbackExportPresentation(int $questionId, int $questionIndex, int $answerIndex): string;
 
     /**
      * imports the given feedback content as generic feedback for the given question id
      * for either the complete or incomplete solution
-     *
-     * @access public
-     * @param integer $questionId
-     * @param boolean $solutionCompleted
-     * @param string $feedbackContent
      */
-    public function importGenericFeedback($questionId, $solutionCompleted, $feedbackContent)
+    public function importGenericFeedback(int $questionId, bool $solutionCompleted, string $feedbackContent): void
     {
         if ($this->questionOBJ->isAdditionalContentEditingModePageObject()) {
             $pageObjectId = $this->getGenericFeedbackPageObjectId($questionId, $solutionCompleted);
@@ -1051,24 +734,9 @@ abstract class ilAssQuestionFeedback
         }
     }
 
-    /**
-     * imports the given feedback content as specific feedback
-     * for the given question id and answer index
-     *
-     * @abstract
-     * @access public
-     * @param integer $questionId
-     * @param integer $questionIndex
-     * @param integer $answerIndex
-     * @param string $feedbackContent
-     */
-    abstract public function importSpecificAnswerFeedback($questionId, $questionIndex, $answerIndex, $feedbackContent);
+    abstract public function importSpecificAnswerFeedback(int $questionId, int $questionIndex, int $answerIndex, string $feedbackContent): void;
 
-    /**
-     * @param ilAssSelfAssessmentMigrator $migrator
-     * @param integer $questionId
-     */
-    public function migrateContentForLearningModule(ilAssSelfAssessmentMigrator $migrator, $questionId)
+    public function migrateContentForLearningModule(ilAssSelfAssessmentMigrator $migrator, int $questionId): void
     {
         $this->saveGenericFeedbackContent($questionId, true, $migrator->migrateToLmContent(
             $this->getGenericFeedbackContent($questionId, true)

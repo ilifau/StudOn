@@ -3,16 +3,27 @@
 declare(strict_types=1);
 
 /**
- * Handle events.
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Handle events.
  */
 class ilLSEventHandler
 {
-    /**
-     * @var ilTree
-     */
-    protected $tree;
+    protected ilTree $tree;
 
     public function __construct(ilTree $tree)
     {
@@ -20,10 +31,10 @@ class ilLSEventHandler
     }
 
     /**
-     * Find out, if a subobject is about to be deleted.
+     * Find out, if a sub object is about to be deleted.
      * cleanup states.
      */
-    public function handleObjectDeletion(array $parameter)
+    public function handleObjectDeletion(array $parameter): void
     {
         $obj_deleted = $parameter['object'];
         $obj_ref_id = (int) $obj_deleted->getRefId();
@@ -33,7 +44,7 @@ class ilLSEventHandler
         }
 
         $parent_lso = $this->getParentLSOInfo($obj_ref_id);
-        if ($parent_lso) {
+        if (!is_null($parent_lso)) {
             $this->deleteLSOItem($obj_ref_id, (int) $parent_lso['ref_id']);
         }
     }
@@ -41,13 +52,13 @@ class ilLSEventHandler
     /**
      * @param  array  $parameter [obj_id, ref_id, old_parent_ref_id]
      */
-    public function handleObjectToTrash(array $parameter)
+    public function handleObjectToTrash(array $parameter): void
     {
         $obj_ref_id = (int) $parameter['ref_id'];
         $old_parent_ref_id = (int) $parameter['old_parent_ref_id'];
         $parent_lso = $this->getParentLSOInfo($obj_ref_id);
 
-        if (!$this->isExistingObject($obj_ref_id) || !$parent_lso) {
+        if (!$this->isExistingObject($obj_ref_id) || is_null($parent_lso)) {
             return;
         }
 
@@ -56,7 +67,7 @@ class ilLSEventHandler
         }
     }
 
-    protected function isExistingObject(int $ref_id) : bool
+    protected function isExistingObject(int $ref_id): bool
     {
         if (empty($ref_id) || !$this->tree->isInTree($ref_id)) {
             return false;
@@ -64,7 +75,7 @@ class ilLSEventHandler
         return true;
     }
 
-    protected function deleteLSOItem(int $obj_ref_id, int $parent_lso_ref_id)
+    protected function deleteLSOItem(int $obj_ref_id, int $parent_lso_ref_id): void
     {
         $lso = $this->getInstanceByRefId($parent_lso_ref_id);
         $lso->getStateDB()->deleteForItem(
@@ -73,41 +84,73 @@ class ilLSEventHandler
         );
     }
 
-    public function handleParticipantDeletion(int $obj_id, int $usr_id)
+    public function handleParticipantDeletion(int $obj_id, int $usr_id): void
     {
         $lso = $this->getInstanceByObjId($obj_id);
         $db = $lso->getStateDB();
         $db->deleteFor($lso->getRefId(), [$usr_id]);
     }
 
+    public function handleClonedObject(ilObject $new_obj, ilObject $origin_obj): void
+    {
+        if ($this->getParentLSOInfo($new_obj->getRefId())
+            && $this->getParentLSOInfo($origin_obj->getRefId())
+        ) {
+            $new_lso = $this->getInstanceByRefId(
+                (int)$this->getParentLSOInfo($new_obj->getRefId())['ref_id']
+            );
+            $post_condition_db = $new_lso->getDI()['db.postconditions'];
+            $post_condition = current($post_condition_db->select([$origin_obj->getRefId()]))
+                ->withRefId($new_obj->getRefId());
+            $post_condition_db->upsert([$post_condition]);
+        }
+    }
+
     /**
-     * get the LSO up from $child_ref_if
-     * @return int | false;
+     * get the LSO up from $child_ref_id
      */
-    protected function getParentLSOInfo(int $child_ref_id)
+    protected function getParentLSOInfo(int $child_ref_id): ?array
     {
         foreach ($this->tree->getPathFull($child_ref_id) as $hop) {
             if ($hop['type'] === 'lso') {
                 return $hop;
             }
         }
-        return false;
+        return null;
     }
 
-    protected function getRefIdsOfObjId(int $triggerer_obj_id) : array
+    /**
+     * @return array<int|string, int|string>
+     */
+    protected function getRefIdsOfObjId(int $triggerer_obj_id): array
     {
         return ilObject::_getAllReferences($triggerer_obj_id);
     }
 
-    protected function getInstanceByRefId(int $ref_id) : ilObject
+    protected function getInstanceByRefId(int $ref_id): ilObjLearningSequence
     {
-        return ilObjectFactory::getInstanceByRefId($ref_id);
+        /** @var ilObjLearningSequence $obj */
+        $obj = ilObjectFactory::getInstanceByRefId($ref_id);
+
+        if (!$obj instanceof ilObjLearningSequence) {
+            throw new LogicException("Object type should be ilObjLearningSequence. Actually is " . get_class($obj));
+        }
+
+        return $obj;
     }
 
-    protected function getInstanceByObjId(int $obj_id) : ilObjLearningSequence
+    protected function getInstanceByObjId(int $obj_id): ilObjLearningSequence
     {
-        $refs = \ilObject::_getAllReferences($obj_id);
-        $ref_id = array_shift(array_keys($refs));
-        return $this->getInstanceByRefId($ref_id);
+        $refs = array_keys(\ilObject::_getAllReferences($obj_id));
+        $ref_id = array_shift($refs);
+
+        /** @var ilObjLearningSequence $obj */
+        $obj = ilObjectFactory::getInstanceByRefId($ref_id);
+
+        if (!$obj instanceof ilObjLearningSequence) {
+            throw new LogicException("Object type should be ilObjLearningSequence. Actually is " . get_class($obj));
+        }
+
+        return $obj;
     }
 }

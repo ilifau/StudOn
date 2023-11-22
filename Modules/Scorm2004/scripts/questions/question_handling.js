@@ -289,7 +289,13 @@ ilias.questions.assTextQuestion = function(a_id) {
 	jQuery('#textarea'+a_id).prop("disabled",true);
 	jQuery('#feedback'+a_id).addClass("ilc_qfeedr_FeedbackRight");
 	jQuery('#feedback'+a_id).html('<b>Answer submitted!</b><br>');
-	jQuery('#feedback'+a_id).slideToggle();
+	const el = document.getElementById("feedback" + a_id);
+	if (el) {
+		el.style.display = '';
+		if (typeof MathJax != "undefined") {
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub, el]);
+		}
+	}
 	answers[a_id].passed = true;
 	ilias.questions.scormHandler(a_id,"neutral",jQuery('#textarea'+a_id).val());
 };
@@ -621,6 +627,18 @@ ilias.questions.assClozeTest = function(a_id) {
 
 ilias.questions.initClozeTest = function(a_id) {
 	var closecounter = 0;
+
+    let shuffleItems = (items) => {
+        let j, x, i;
+        for (i=items.length-1;i>0;i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            k = items[i];
+            items[i] = items[j];
+            items[j] = k;
+        }
+        return items;
+    };
+
 	_initClozeTestCallBack = function (found) {
 		var type = questions[a_id].gaps[closecounter].type;
 		var input;
@@ -640,15 +658,21 @@ ilias.questions.initClozeTest = function(a_id) {
 		}
 		if (type==1) {
 			input = jQuery.create('select', {'id': a_id+"_"+closecounter, 'class': 'ilc_qinput_ClozeGapSelect'});
-			for (var i=0;i<questions[a_id].gaps[closecounter].item.length;i++) {
-				var option = jQuery.create('option', {'id': i, 'value':i},questions[a_id].gaps[closecounter].item[i].value);
+
+            let items = questions[a_id].gaps[closecounter].item;
+            if (questions[a_id].shuffle === true) {
+                items = shuffleItems(items);
+            }
+			for (var i=0;i<items.length;i++) {
+				var option = jQuery.create('option', {'id': i, 'value':i},items[i].value);
 				input.append(option);
 			}
 		}
 		closecounter++;
 		return input.outerHTML();
 	 };
-	var parsed=jQuery("div#"+a_id).get(0).innerHTML.replace(/\[gap\][^\[]+\[\/gap\]/g,function(){return _initClozeTestCallBack();});
+	var parsed=jQuery("div#"+a_id).get(0).innerHTML.replace(/\[gap\][^\[]+\[\/gap\]/g,
+        () => {return _initClozeTestCallBack();});
 	jQuery("div#"+a_id).html(parsed);
 };
 
@@ -739,66 +763,78 @@ ilias.questions.selectErrorText = function(a_id, node) {
 	jQuery(node).blur();
 };
 
-ilias.questions.assErrorText =function(a_id) {
-
-	answers[a_id].wrong = 0;
+ilias.questions.assErrorText = function(a_id) {
+    answers[a_id].wrong = 0;
 	answers[a_id].passed = true;
-	answers[a_id].choice = [];
 
-	if(questions[a_id].selected === undefined)
-	{
+	if (questions[a_id].selected === undefined) {
 		answers[a_id].passed = false;
-	}
-	else
-	{
-		var found = 0;
-		for(var i=0;i<questions[a_id].answers.length;i++)
-		{
-			// is current word a correct answer == wrong word?
-			var text_select = questions[a_id].answers[i]["answertext"];
-			var is_wrong = false;
-			for(var j=0;j<questions[a_id].correct_answers.length;j++)
-			{
-				if(text_select == questions[a_id].correct_answers[j]["answertext_wrong"] &&
-					questions[a_id].correct_answers[j]["pos"] == questions[a_id].answers[i]["order"]) // #14115
-				{
-					is_wrong = true;
-				}
-			}
-
-			// word has been selected
-			if(jQuery.inArray(questions[a_id].answers[i]["order"], questions[a_id].selected) > -1)
-			{
-				// word is not a correct answer
-				if(is_wrong === false)
-				{
-					answers[a_id].wrong++;
-				}
-				// found correct answer
-				else
-				{
-					found++;
-				}
-			}
-			// word has not been selected
-			else if(is_wrong === true)
-			{
-				// should have been selected
-				answers[a_id].wrong++;
-			}
-		}
-		if(found < questions[a_id].correct_answers.length ||
-			answers[a_id].wrong > 0)
-		{
-			answers[a_id].passed = false;
-		}
+        ilias.questions.showFeedback(a_id);
+        return;
 	}
 
-	ilias.questions.showFeedback(a_id);
-}
+    let found = 0;
 
-ilias.questions.showFeedback =function(a_id) {
+    let selected_words = questions[a_id].selected.sort();
+    let correct_answers = [];
+    questions[a_id].correct_answers.forEach(
+        (v) => {
+            correct_answers[v.pos] = v;
+        }
+    );
 
+    let l = 0;
+    let i = void 0;
+    selected_words.forEach(
+        (v) => {
+            if (l === 0 && typeof correct_answers[v] === undefined) {
+               answers[a_id].wrong++;
+               return;
+            }
+            if (typeof correct_answers[v] !== 'undefined' && correct_answers[v].length === 1) {
+                found++;
+                l = 0;
+                return;
+            }
+            if (typeof correct_answers[v] !== 'undefined') {
+                l++;
+                i = v;
+                return;
+            }
+            if (typeof i === 'undefined') {
+                answers[a_id].wrong++;
+                l = 0;
+                return;
+            }
+            if (typeof correct_answers[i] === 'undefined') {
+                i = void 0;
+                answers[a_id].wrong++;
+                l = 0;
+                return;
+            }
+            if (correct_answers[i].length === l+1) {
+                found++;
+                l = void 0;
+                return;
+            }
+            if (correct_answers[i].length > ++l) {
+                return;
+            }
+
+            answers[a_id].wrong++;
+            i = void 0;
+            l = 0;
+        }
+    );
+
+    if (found < questions[a_id].correct_answers.length ||
+        answers[a_id].wrong > 0) {
+        answers[a_id].passed = false;
+    }
+    ilias.questions.showFeedback(a_id);
+};
+
+ilias.questions.showFeedback = function(a_id) {
 	jQuery('#feedback'+a_id).hide();
 
 	// "image map as single choice" not supported yet
@@ -822,78 +858,54 @@ ilias.questions.showFeedback =function(a_id) {
 
 	var fbtext = "";
 
-	if (answers[a_id].passed===true || (answers[a_id].tries >=questions[a_id].nr_of_tries && questions[a_id].nr_of_tries!=0))
-	{
+	if (answers[a_id].passed===true || (answers[a_id].tries >=questions[a_id].nr_of_tries && questions[a_id].nr_of_tries!=0)) {
 		jQuery('#button'+a_id).prop("disabled",true);
 
-		if (answers[a_id].passed===true)
-		{
+		if (answers[a_id].passed===true) {
 			jQuery('#feedback'+a_id).addClass("ilc_qfeedr_FeedbackRight");
 
-			if( answers[a_id].isBestSolution )
-			{
-				if (ilias.questions.default_feedback)
-				{
+			if( answers[a_id].isBestSolution ) {
+				if (ilias.questions.default_feedback) {
 					fbtext = '<b>' + ilias.questions.txt.all_answers_correct + '</b><br />';
 				}
 
-				if (questions[a_id].feedback['allcorrect'])
-				{
+				if (questions[a_id].feedback['allcorrect']) {
 					fbtext += questions[a_id].feedback['allcorrect'];
 				}
 
-				if( jQuery.inArray(questions[a_id].type, ilias.questions.enhancedQuestionTypes) == -1 )
-				{
-// fau: lmGapFeedback - add parameters
-					ilias.questions.showCorrectAnswers(a_id, answers, true);
-// fau.
+				if( jQuery.inArray(questions[a_id].type, ilias.questions.enhancedQuestionTypes) == -1 ) {
+					ilias.questions.showCorrectAnswers(a_id);
 				}
-			}
-			else
-			{
-				if (ilias.questions.default_feedback)
-				{
+			} else {
+				if (ilias.questions.default_feedback) {
 					fbtext = '<b>' + ilias.questions.txt.enough_answers_correct + '</b><br />'
 						+ txt_wrong_answers + '<br />' + ilias.questions.txt.correct_answers_shown;
-				}
-				else if (questions[a_id].feedback['allcorrect'])
-				{
+				} else if (questions[a_id].feedback['allcorrect']) {
 					fbtext += questions[a_id].feedback['allcorrect'];
 				}
 
-// fau: lmGapFeedback - add parameters
-				ilias.questions.showCorrectAnswers(a_id, answers, true);
-// fau.
+				ilias.questions.showCorrectAnswers(a_id);
 			}
 
 			ilias.questions.scormHandler(a_id,"correct",ilias.questions.toJSONString(answers[a_id]));
-		}
-		else
-		{
+		} else {
 			jQuery('#feedback'+a_id).addClass("ilc_qfeedw_FeedbackWrong");
 
-			if (ilias.questions.default_feedback)
-			{
+			if (ilias.questions.default_feedback) {
 				fbtext = '<b>' + ilias.questions.txt.nr_of_tries_exceeded + '</b><br />'
 							+ ilias.questions.txt.correct_answers_shown + '<br />';
 			}
 
-			if (questions[a_id].feedback['onenotcorrect'])
-			{
+			if (questions[a_id].feedback['onenotcorrect']) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
-// fau: lmGapFeedback - add answers parameter
-			ilias.questions.showCorrectAnswers(a_id, answers, true);
-// fau.
-			
+			ilias.questions.showCorrectAnswers(a_id);
+
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		}
-	}
-	else
-	{
-		if (questions[a_id].nr_of_tries!=0)
-		{
+	} else {
+		if (questions[a_id].nr_of_tries!=0) {
 			jQuery('#feedback'+a_id).addClass("ilc_qfeedw_FeedbackWrong");
 
 			var rem = questions[a_id].nr_of_tries - answers[a_id].tries;
@@ -908,48 +920,35 @@ ilias.questions.showFeedback =function(a_id) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
-// fau: lmGapFeedback - show intermediate feedback for gap questions
-            if (questions[a_id].type == "assClozeTest")
-            {
-                ilias.questions.showCorrectAnswers(a_id, answers, false);
-            }
-// fau.
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
-		}
-		else
-		{
+		} else {
 			jQuery('#feedback'+a_id).addClass("ilc_qfeedw_FeedbackWrong");
 
-			if (ilias.questions.default_feedback)
-			{
+			if (ilias.questions.default_feedback) {
 				fbtext = txt_wrong_answers + '<br /> ' + ilias.questions.txt.please_try_again + '<br />';
 			}
 
-			if (questions[a_id].feedback['onenotcorrect'])
-			{
+			if (questions[a_id].feedback['onenotcorrect']) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
-// fau: lmGapFeedback - show intermediate feedback for gap questions
-            if (questions[a_id].type == "assClozeTest")
-            {
-                ilias.questions.showCorrectAnswers(a_id, answers, false);
-            }
-// fau.
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		}
 	}
 
-	jQuery('#feedback'+a_id).html(fbtext);
-	jQuery('#feedback'+a_id).slideToggle(400, 'swing', function(){
+    fb = fbtext.replace(/&#123;/g, '{').replace(/&#125;/g, '}');
+    jQuery('#feedback'+a_id).html(fb);
+
+	const el = document.getElementById('feedback' + a_id);
+	if (el) {
+		el.style.display = '';
 		if (typeof MathJax != "undefined") {
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub, el]);
 		}
-	});
+	}
 
 	// update question overviews
-	if (typeof il.COPagePres != "undefined")
-	{
+	if (typeof il.COPagePres != "undefined") {
 		il.COPagePres.updateQuestionOverviews();
 	}
 
@@ -1041,10 +1040,9 @@ ilias.questions.determineSuccessStatus = function()
 	}
 	return status;
 }
-// fau: lmGapFeedback - add given_answers and is_final parameter
-ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
-// fau.
-	
+
+ilias.questions.showCorrectAnswers =function(a_id) {
+
 	switch (questions[a_id].type) {
 		case 'assSingleChoice':
 			var max = 0; // #10772
@@ -1104,12 +1102,6 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
 		//end assKprimChoice
 
 		case 'assImagemapQuestion':
-			//reinit map
-			jQuery(function() {
-// fau: fixLmImagemap - correct solution was not shown after last attempt
-//		  		jQuery('.cmap'+a_id).maphilight_mod({fade:true});
-// fau.
-			});
 			for (var i=0;i<questions[a_id].answers.length;i++) {
 				// display correct
 				if (questions[a_id].answers[i].points > 0) {
@@ -1161,58 +1153,36 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
 		//end assMatchingQuestion
 
 		case 'assClozeTest':
-// fau: lmGapFeedback - show all correct solutions behind the input field
-// this can be treated for all gap types in the same way
 			for (var i=0;i<questions[a_id].gaps.length;i++) {
 				var type = questions[a_id].gaps[i].type;
-
-                var cvalue = '';
-                var elem_type = type==1 ? 'select' : 'input';
-
-                //look for correct solutions
-                for (var j=0;j<questions[a_id].gaps[i].item.length;j++)
-                {
-                    if (questions[a_id].gaps[i].item[j].points > 0)
-                    {
-                        cvalue += cvalue.length ?  ' | ' : '';
-                        cvalue += questions[a_id].gaps[i].item[j].value;
-                    }
-                }
-
-                // delete last check symbol
-                jQuery('#ilAnswerCheck_'+a_id+'_'+i).remove();
-
-                // check if gap is correctly answered
-				// note that when the page is refreshed, all choices get lost
-                if (given_answers[a_id].answer[i] || given_answers[a_id].passed) {
-                    var is_correct = true;
-                    var checkchar = '<span id="ilAnswerCheck_'+a_id+'_'+i+'" style="color:green;">&#10004;</span>'; // or: 10003
-                }
-                else {
-                    var is_correct = false;
-                    var checkchar = '<span id="ilAnswerCheck_'+a_id+'_'+i+'" style="color:red;">&#10008;</span>'; // or: 10007
-                }
-
-                // disable final or already correct gaps
-                if (is_final || is_correct) {
-                    jQuery(elem_type+'#'+a_id+"_"+i).prop("disabled", true);
-                }
-
-                // add inline feedback
-                if (is_final) {
-                	// show solution when final
-                    jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar + ' <em> ['+ cvalue+ '] </em>');
-                }
-                else {
-                	// sho only symbol when not final
-                    jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar)
-                }
+				if (type==1) {
+					var cid;
+					//look for correct solution
+					for (var j=0;j<questions[a_id].gaps[i].item.length;j++)
+					{
+						if (questions[a_id].gaps[i].item[j].points>=1)
+						{
+							cid=j;
+						}
+					}
+					//jQuery('select#'+a_id+"_"+i+" option[id="+cid+"]").attr("selected","selected");
+					jQuery('select#'+a_id+"_"+i+" option[id="+cid+"]").prop('selected', true);
+					jQuery('select#'+a_id+"_"+i).prop("disabled",true);
+				}
+				if (type==0 || type==2) {
+					var cvalue;
+					//look for correct solution
+						for (var j=0;j<questions[a_id].gaps[i].item.length;j++)
+						{
+							if (questions[a_id].gaps[i].item[j].points > 0)
+							{
+								cvalue = questions[a_id].gaps[i].item[j].value;
+							}
+						}
+					jQuery('input#'+a_id+"_"+i).val(cvalue);
+					jQuery('input#'+a_id+"_"+i).prop("disabled",true);
+				}
 			}
-
-			if (typeof MathJax != "undefined") {
-				MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-			}
-// fau.
 		break;
 		//end assClozeTest
 
@@ -1312,32 +1282,19 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
 			//end assTextSubset
 
 		case 'assErrorText':
-			for(var i=0;i<questions[a_id].answers.length;i++)
-			{
-				var node = jQuery("div#container" + a_id + " span#" + questions[a_id].answers[i]["order"]);
-				if(node.length)
-				{
-					var is_wrong = false;
-					var correct = "";
-					for(var j=0;j<questions[a_id].correct_answers.length;j++)
-					{
-						if(questions[a_id].answers[i]["answertext"] == questions[a_id].correct_answers[j]["answertext_wrong"] &&
-							questions[a_id].correct_answers[j]["pos"] == questions[a_id].answers[i]["order"]) // #14115
-						{
-							is_wrong = true;
-							correct = questions[a_id].correct_answers[j]["answertext_correct"];
-						}
-					}
-					if(is_wrong == false)
-					{
-						jQuery(node).html(questions[a_id].answers[i]["answertext"]);
-					}
-					else
-					{
-						jQuery(node).html('<span class="ilc_qetcorr_ErrorTextCorrected">' +
-							questions[a_id].answers[i]["answertext"] + '</span>' + correct);
-					}
-				}
+            correct_answers = questions[a_id].correct_answers;
+            for (let i=0;i<correct_answers.length;i++) {
+                let node = document.getElementById(correct_answers[i]['pos']);
+                if (node.length === 0) {
+                    continue;
+                }
+                for (let j=1;j<correct_answers[i].length;j++) {
+                    node.parentNode.nextElementSibling.remove();
+                }
+
+                node.outerHTML = '<span class="ilc_qetcorr_ErrorTextCorrected">' +
+					correct_answers[i]["answertext_wrong"] + '</span>' + correct_answers[i]["answertext_correct"];
+
 			}
 			break;
 			//end assErrorText

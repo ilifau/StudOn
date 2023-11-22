@@ -3,25 +3,36 @@
 declare(strict_types=1);
 
 /**
- * Persistence for online/activation period
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Persistence for online/activation period
  */
 class ilLearningSequenceActivationDB
 {
-    const TABLE_NAME = 'lso_activation';
+    public const TABLE_NAME = 'lso_activation';
 
-    /**
-     * @var ilDBInterface
-     */
-    protected $database;
+    protected ilDBInterface $database;
 
     public function __construct(ilDBInterface $database)
     {
         $this->database = $database;
     }
 
-    public function getActivationForRefId(int $ref_id) : ilLearningSequenceActivation
+    public function getActivationForRefId(int $ref_id): ilLearningSequenceActivation
     {
         $data = $this->select($ref_id);
         if (count($data) == 0) {
@@ -54,7 +65,7 @@ class ilLearningSequenceActivationDB
         return $settings;
     }
 
-    public function deleteForRefId(int $ref_id)
+    public function deleteForRefId(int $ref_id): void
     {
         $query = "DELETE FROM " . static::TABLE_NAME . PHP_EOL
             . "WHERE ref_id = " . $this->database->quote($ref_id, "integer") . PHP_EOL
@@ -62,11 +73,11 @@ class ilLearningSequenceActivationDB
         $this->database->manipulate($query);
     }
 
-    public function store(ilLearningSequenceActivation $settings)
+    public function store(ilLearningSequenceActivation $settings): void
     {
-        $where = array(
-            "ref_id" => array("integer", $settings->getRefId())
-        );
+        $where = [
+            "ref_id" => ["integer", $settings->getRefId()]
+        ];
 
         $start = $settings->getActivationStart();
         $end = $settings->getActivationEnd();
@@ -74,38 +85,48 @@ class ilLearningSequenceActivationDB
         if ($start) {
             $start = $start->getTimestamp();
         }
+
         if ($end) {
             $end = $end->getTimestamp();
         }
-        $values = array(
-            "online" => array("integer", $settings->getIsOnline()),
-            "activation_start_ts" => array("integer", $start),
-            "activation_end_ts" => array("integer", $end)
-        );
+
+        $values = [
+            "online" => ["integer", $settings->getIsOnline()],
+            "activation_start_ts" => ["integer", $start],
+            "activation_end_ts" => ["integer", $end]
+        ];
+
         $this->database->update(static::TABLE_NAME, $values, $where);
     }
 
-    protected function insert(ilLearningSequenceActivation $settings)
+    protected function insert(ilLearningSequenceActivation $settings): void
     {
         $start = $settings->getActivationStart();
         $end = $settings->getActivationEnd();
+
         if ($start) {
             $start = $start->getTimestamp();
         }
+
         if ($end) {
             $end = $end->getTimestamp();
         }
-        $values = array(
-            "ref_id" => array("integer", $settings->getRefId()),
-            "online" => array("integer", $settings->getIsOnline()),
-            "effective_online" => array("integer", $settings->getEffectiveOnlineStatus()),
-            "activation_start_ts" => array("integer", $start),
-            "activation_end_ts" => array("integer", $end)
-        );
+
+        $values = [
+            "ref_id" => ["integer", $settings->getRefId()],
+            "online" => ["integer", $settings->getIsOnline()],
+            "effective_online" => ["integer", $settings->getEffectiveOnlineStatus()],
+            "activation_start_ts" => ["integer", $start],
+            "activation_end_ts" => ["integer", $end]
+        ];
+
         $this->database->insert(static::TABLE_NAME, $values);
     }
 
-    protected function select(int $ref_id) : array
+    /**
+     * @return string[]
+     */
+    protected function select(int $ref_id): array
     {
         $ret = [];
         $query =
@@ -116,7 +137,7 @@ class ilLearningSequenceActivationDB
 
         $result = $this->database->query($query);
 
-        if ($result->numRows() !== 0) {
+        if ($this->database->numRows($result) !== 0) {
             $ret = $this->database->fetchAssoc($result);
         }
 
@@ -129,7 +150,7 @@ class ilLearningSequenceActivationDB
         bool $effective_online = false,
         \DateTime $activation_start = null,
         \DateTime $activation_end = null
-    ) : ilLearningSequenceActivation {
+    ): ilLearningSequenceActivation {
         return new ilLearningSequenceActivation(
             $ref_id,
             $online,
@@ -139,15 +160,10 @@ class ilLearningSequenceActivationDB
         );
     }
 
-    public function setEffectiveOnlineStatus(int $ref_id, bool $status)
+    public function setEffectiveOnlineStatus(int $ref_id, bool $status): void
     {
-        $where = array(
-            "ref_id" => array("integer", $ref_id)
-        );
-
-        $values = array(
-            "effective_online" => array("integer", $status),
-        );
+        $where = ["ref_id" => ["integer", $ref_id]];
+        $values = ["effective_online" => ["integer", $status]];
 
         $this->database->update(static::TABLE_NAME, $values, $where);
     }

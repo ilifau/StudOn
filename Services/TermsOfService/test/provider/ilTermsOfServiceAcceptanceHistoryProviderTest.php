@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceAcceptanceHistoryProviderTest
@@ -7,11 +24,7 @@
  */
 class ilTermsOfServiceAcceptanceHistoryProviderTest extends ilTermsOfServiceBaseTest
 {
-    /**
-     * @throws ilTermsOfServiceMissingDatabaseAdapterException
-     * @throws ReflectionException
-     */
-    public function testHistoryProviderCanBeCreatedByFactory() : void
+    public function testHistoryProviderCanBeCreatedByFactory(): void
     {
         $factory = new ilTermsOfServiceTableDataProviderFactory();
         $factory->setDatabaseAdapter($this->getMockBuilder(ilDBInterface::class)->getMock());
@@ -23,11 +36,7 @@ class ilTermsOfServiceAcceptanceHistoryProviderTest extends ilTermsOfServiceBase
         $this->assertInstanceOf(ilTermsOfServiceTableDataProvider::class, $provider);
     }
 
-    /**
-     * @throws ReflectionException
-     * @throws ilTermsOfServiceMissingDatabaseAdapterException
-     */
-    public function testListCanBeRetrieved() : void
+    public function testListCanBeRetrieved(): void
     {
         $database = $this->getMockBuilder(ilDBInterface::class)->getMock();
         $result = $this->getMockBuilder(ilDBStatement::class)->getMock();
@@ -41,7 +50,7 @@ class ilTermsOfServiceAcceptanceHistoryProviderTest extends ilTermsOfServiceBase
             ->expects($this->exactly(2))
             ->method('query')
             ->with($this->stringContains('SELECT'))
-            ->will($this->returnValue($result));
+            ->willReturn($result);
 
         $database
             ->expects($this->exactly(4))
@@ -49,7 +58,6 @@ class ilTermsOfServiceAcceptanceHistoryProviderTest extends ilTermsOfServiceBase
             ->will($this->onConsecutiveCalls(['phpunit'], ['phpunit'], [], ['cnt' => 2]));
 
         $database
-            ->expects($this->any())
             ->method('like')
             ->with(
                 $this->isType('string'),
@@ -58,10 +66,11 @@ class ilTermsOfServiceAcceptanceHistoryProviderTest extends ilTermsOfServiceBase
             )->will($this->returnArgument(2));
 
         $database
-            ->expects($this->any())
             ->method('quote')
             ->with($this->anything(), $this->isType('string'))
-            ->will($this->returnArgument(0));
+            ->willReturnCallback(static function ($arg1): string {
+                return (string) $arg1;
+            });
 
         $data = $provider->getList(
             [
@@ -80,15 +89,13 @@ class ilTermsOfServiceAcceptanceHistoryProviderTest extends ilTermsOfServiceBase
         $this->assertArrayHasKey('items', $data);
         $this->assertArrayHasKey('cnt', $data);
         $this->assertCount(2, $data['items']);
-        $this->assertEquals(2, $data['cnt']);
+        $this->assertSame(2, $data['cnt']);
     }
 
     /**
      * @doesNotPerformAssertions
-     * @throws ilTermsOfServiceMissingDatabaseAdapterException
-     * @throws ReflectionException
      */
-    public function testRetrievingListThrowsExceptionsWhenInvalidArgumentsArePassed() : void
+    public function testRetrievingListThrowsExceptionsWhenInvalidArgumentsArePassed(): void
     {
         $database = $this->getMockBuilder(ilDBInterface::class)->getMock();
 
@@ -98,31 +105,31 @@ class ilTermsOfServiceAcceptanceHistoryProviderTest extends ilTermsOfServiceBase
         $provider = $factory->getByContext(ilTermsOfServiceTableDataProviderFactory::CONTEXT_ACCEPTANCE_HISTORY);
 
         try {
-            $provider->getList(array('limit' => 'phpunit'), array());
+            $provider->getList(['limit' => 'phpunit'], []);
             $this->fail('An expected exception has not been raised.');
         } catch (InvalidArgumentException $e) {
         }
 
         try {
-            $provider->getList(array('limit' => 5, 'offset' => 'phpunit'), array());
+            $provider->getList(['limit' => 5, 'offset' => 'phpunit'], []);
             $this->fail('An expected exception has not been raised.');
         } catch (InvalidArgumentException $e) {
         }
 
         try {
-            $provider->getList(array('order_field' => 'phpunit'), array());
+            $provider->getList(['order_field' => 'phpunit'], []);
             $this->fail('An expected exception has not been raised.');
         } catch (InvalidArgumentException $e) {
         }
 
         try {
-            $provider->getList(array('order_field' => 5), array());
+            $provider->getList(['order_field' => 5], []);
             $this->fail('An expected exception has not been raised.');
         } catch (InvalidArgumentException $e) {
         }
 
         try {
-            $provider->getList(array('order_field' => 'ts', 'order_direction' => 'phpunit'), array());
+            $provider->getList(['order_field' => 'ts', 'order_direction' => 'phpunit'], []);
             $this->fail('An expected exception has not been raised.');
         } catch (InvalidArgumentException $e) {
         }

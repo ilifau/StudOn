@@ -3,31 +3,30 @@
 declare(strict_types=1);
 
 /**
- * Handle LP-events.
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
- */
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+/**
+ * Handle LP-events.
+ */
 class ilLSLPEventHandler
 {
-    /**
-     * @var ilTree
-     */
-    protected $tree;
-    /**
-     * @var ilLPStatusWrapper
-     */
-    protected $lpstatus;
-
-    /**
-     * @var array
-     */
-    protected $cached_parent_lso = [];
-    /**
-     * @var array
-     */
-    protected $cached_refs_for_obj = [];
-
+    protected ilTree $tree;
+    protected ilLPStatusWrapper $lpstatus;
+    protected array $cached_parent_lso = [];
+    protected array $cached_refs_for_obj = [];
 
     public function __construct(
         ilTree $tree,
@@ -37,12 +36,12 @@ class ilLSLPEventHandler
         $this->lpstatus = $lp_status_wrapper;
     }
 
-    public function updateLPForChildEvent(array $parameter)
+    public function updateLPForChildEvent(array $parameter): void
     {
         $refs = $this->getRefIdsOfObjId((int) $parameter['obj_id']);
         foreach ($refs as $ref_id) {
             $lso_id = $this->getParentLSOObjId((int) $ref_id);
-            if ($lso_id !== false) {
+            if ($lso_id !== null) {
                 $usr_id = $parameter['usr_id'];
                 $this->lpstatus::_updateStatus($lso_id, $usr_id);
             }
@@ -51,9 +50,8 @@ class ilLSLPEventHandler
 
     /**
      * get the LSO up from $child_ref_if
-     * @return int | false;
      */
-    protected function getParentLSOObjId(int $child_ref_id)
+    protected function getParentLSOObjId(int $child_ref_id): ?int
     {
         if (!array_key_exists($child_ref_id, $this->cached_parent_lso)) {
             $this->cached_parent_lso[$child_ref_id] = $this->getParentLSOIdFromTree($child_ref_id);
@@ -61,16 +59,19 @@ class ilLSLPEventHandler
         return $this->cached_parent_lso[$child_ref_id];
     }
 
-    private function getParentLSOIdFromTree(int $child_ref_id)
+    private function getParentLSOIdFromTree(int $child_ref_id): ?int
     {
         $parent_nd = $this->tree->getParentNodeData($child_ref_id);
-        if ($parent_nd['type'] === 'lso') {
-            return $parent_nd['obj_id'];
+        if (isset($parent_nd['type']) && $parent_nd['type'] === 'lso') {
+            return (int) $parent_nd['obj_id'];
         }
-        return false;
+        return null;
     }
 
-    protected function getRefIdsOfObjId(int $triggerer_obj_id) : array
+    /**
+     * @return array<int|string>
+     */
+    protected function getRefIdsOfObjId(int $triggerer_obj_id): array
     {
         if (!array_key_exists($triggerer_obj_id, $this->cached_refs_for_obj)) {
             $this->cached_refs_for_obj[$triggerer_obj_id] = ilObject::_getAllReferences($triggerer_obj_id);

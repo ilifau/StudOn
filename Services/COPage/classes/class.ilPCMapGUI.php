@@ -1,48 +1,36 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2008 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
-
-require_once("./Services/COPage/classes/class.ilPCMap.php");
-require_once("./Services/COPage/classes/class.ilPageContentGUI.php");
 
 /**
-* Class ilPCMapGUI
-*
-* User Interface for Map Editing
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesCOPage
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Class ilPCMapGUI
+ * User Interface for Map Editing
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilPCMapGUI extends ilPageContentGUI
 {
+    protected ilPropertyFormGUI $form;
 
-    /**
-    * Constructor
-    * @access	public
-    */
-    public function __construct(&$a_pg_obj, &$a_content_obj, $a_hier_id, $a_pc_id = "")
-    {
+    public function __construct(
+        ilPageObject $a_pg_obj,
+        ?ilPageContent $a_content_obj,
+        string $a_hier_id,
+        string $a_pc_id = ""
+    ) {
         global $DIC;
 
         $this->tpl = $DIC["tpl"];
@@ -51,10 +39,7 @@ class ilPCMapGUI extends ilPageContentGUI
         parent::__construct($a_pg_obj, $a_content_obj, $a_hier_id, $a_pc_id);
     }
 
-    /**
-    * execute command
-    */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         // get next class that processes or forwards current command
         $next_class = $this->ctrl->getNextClass($this);
@@ -64,70 +49,50 @@ class ilPCMapGUI extends ilPageContentGUI
 
         switch ($next_class) {
             default:
-                $ret = $this->$cmd();
+                $this->$cmd();
                 break;
         }
-
-        return $ret;
     }
 
-    /**
-    * Insert new map form.
-    */
-    public function insert()
+    public function insert(): void
     {
         $tpl = $this->tpl;
-        
+
         $this->displayValidationError();
         $this->initForm("create");
         $tpl->setContent($this->form->getHTML());
     }
 
-    /**
-    * Edit map form.
-    */
-    public function edit($a_insert = false)
+    public function edit(): void
     {
-        $ilCtrl = $this->ctrl;
         $tpl = $this->tpl;
-        $lng = $this->lng;
-        
         $this->displayValidationError();
         $this->initForm("update");
         $this->getValues();
         $tpl->setContent($this->form->getHTML());
-
-        return $ret;
     }
 
-    /**
-    * Get values from object into form
-    */
-    public function getValues()
+    public function getValues(): void
     {
         $values = array();
-        
+
         $values["location"]["latitude"] = $this->content_obj->getLatitude();
         $values["location"]["longitude"] = $this->content_obj->getLongitude();
         $values["location"]["zoom"] = $this->content_obj->getZoom();
         $values["width"] = $this->content_obj->getWidth();
         $values["height"] = $this->content_obj->getHeight();
-        $values["caption"] = $this->content_obj->handleCaptionFormOutput($this->content_obj->getCaption());
+        $values["caption"] = ilPCMap::handleCaptionFormOutput($this->content_obj->getCaption());
         $values["horizontal_align"] = $this->content_obj->getHorizontalAlign();
-        
+
         $this->form->setValuesByArray($values);
     }
-    
-    /**
-    * Init map creation/update form
-    */
-    public function initForm($a_mode)
+
+    public function initForm(string $a_mode): void
     {
         $ilCtrl = $this->ctrl;
         $lng = $this->lng;
-        
+
         // edit form
-        include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $this->form = new ilPropertyFormGUI();
         $this->form->setFormAction($ilCtrl->getFormAction($this));
         if ($a_mode == "create") {
@@ -135,7 +100,7 @@ class ilPCMapGUI extends ilPageContentGUI
         } else {
             $this->form->setTitle($this->lng->txt("cont_update_map"));
         }
-        
+
         // location
         $loc_prop = new ilLocationInputGUI(
             $this->lng->txt("cont_location"),
@@ -143,7 +108,7 @@ class ilPCMapGUI extends ilPageContentGUI
         );
         $loc_prop->setRequired(true);
         $this->form->addItem($loc_prop);
-        
+
         // width
         $width_prop = new ilNumberInputGUI(
             $this->lng->txt("cont_width"),
@@ -154,7 +119,7 @@ class ilPCMapGUI extends ilPageContentGUI
         $width_prop->setRequired(true);
         $width_prop->setMinValue(250);
         $this->form->addItem($width_prop);
-        
+
         // height
         $height_prop = new ilNumberInputGUI(
             $this->lng->txt("cont_height"),
@@ -179,7 +144,7 @@ class ilPCMapGUI extends ilPageContentGUI
             "RightFloat" => $lng->txt("cont_right_float"));
         $align_prop->setOptions($options);
         $this->form->addItem($align_prop);
-        
+
         // caption
         $caption_prop = new ilTextAreaInputGUI(
             $this->lng->txt("cont_caption"),
@@ -195,16 +160,12 @@ class ilPCMapGUI extends ilPageContentGUI
             $this->form->addCommandButton("update_map", $lng->txt("save"));
             $this->form->addCommandButton("cancelUpdate", $lng->txt("cancel"));
         }
-        //$html = $form->getHTML();
     }
 
-    /**
-    * Create new Map.
-    */
-    public function create()
+    public function create(): void
     {
         $tpl = $this->tpl;
-        
+
         $this->initForm("create");
         if ($this->form->checkInput()) {
             $this->content_obj = new ilPCMap($this->getPage());
@@ -212,7 +173,7 @@ class ilPCMapGUI extends ilPageContentGUI
             $this->content_obj->create($this->pg_obj, $this->hier_id, $this->pc_id);
             $this->content_obj->setLatitude($location["latitude"]);
             $this->content_obj->setLongitude($location["longitude"]);
-            $this->content_obj->setZoom($location["zoom"]);
+            $this->content_obj->setZoom((int) $location["zoom"]);
             $this->content_obj->setLayout(
                 $this->form->getInput("width"),
                 $this->form->getInput("height"),
@@ -232,19 +193,16 @@ class ilPCMapGUI extends ilPageContentGUI
         $tpl->setContent($this->form->getHTML());
     }
 
-    /**
-    * Update Map.
-    */
-    public function update()
+    public function update(): void
     {
         $tpl = $this->tpl;
-        
+
         $this->initForm("update");
         if ($this->form->checkInput()) {
             $location = $this->form->getInput("location");
             $this->content_obj->setLatitude($location["latitude"]);
             $this->content_obj->setLongitude($location["longitude"]);
-            $this->content_obj->setZoom($location["zoom"]);
+            $this->content_obj->setZoom((int) $location["zoom"]);
             $this->content_obj->setLayout(
                 $this->form->getInput("width"),
                 $this->form->getInput("height"),

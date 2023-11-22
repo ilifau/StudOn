@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceTrimmedDocumentPurifierTest
@@ -7,10 +24,7 @@
  */
 class ilTermsOfServiceTrimmedDocumentPurifierTest extends ilTermsOfServiceCriterionBaseTest
 {
-    /**
-     * @return array[]
-     */
-    public function stringsToTrimProvider() : array
+    public function stringsToTrimProvider(): array
     {
         return [
             'Text with or without Spaces' => [' phpunit ', 'phpunit',],
@@ -18,10 +32,7 @@ class ilTermsOfServiceTrimmedDocumentPurifierTest extends ilTermsOfServiceCriter
         ];
     }
 
-    /**
-     * @return array[]
-     */
-    public function stringElementsArrayToTrimProvider() : array
+    public function stringElementsArrayToTrimProvider(): array
     {
         return [
             'Text with or without Spaces' => [[' phpunit '], ['phpunit'],],
@@ -33,9 +44,8 @@ class ilTermsOfServiceTrimmedDocumentPurifierTest extends ilTermsOfServiceCriter
      * @dataProvider stringsToTrimProvider
      * @param string $text
      * @param string $expectedResult
-     * @throws ReflectionException
      */
-    public function testSingleStringIsTrimmed(string $text, string $expectedResult) : void
+    public function testSingleStringIsTrimmed(string $text, string $expectedResult): void
     {
         $aggregated = $this
             ->getMockBuilder(ilHtmlPurifierInterface::class)
@@ -49,16 +59,15 @@ class ilTermsOfServiceTrimmedDocumentPurifierTest extends ilTermsOfServiceCriter
 
         $purifier = new ilTermsOfServiceTrimmedDocumentPurifier($aggregated);
 
-        $this->assertEquals($expectedResult, $purifier->purify($text));
+        $this->assertSame($expectedResult, $purifier->purify($text));
     }
 
     /**
      * @dataProvider stringElementsArrayToTrimProvider
      * @param string[] $texts
      * @param string[] $expectedResult
-     * @throws ReflectionException
      */
-    public function testArrayOfStringElementsIsTrimmed(array $texts, array $expectedResult) : void
+    public function testArrayOfStringElementsIsTrimmed(array $texts, array $expectedResult): void
     {
         $aggregated = $this
             ->getMockBuilder(ilHtmlPurifierInterface::class)
@@ -72,6 +81,6 @@ class ilTermsOfServiceTrimmedDocumentPurifierTest extends ilTermsOfServiceCriter
 
         $purifier = new ilTermsOfServiceTrimmedDocumentPurifier($aggregated);
 
-        $this->assertEquals($expectedResult, $purifier->purifyArray($texts));
+        $this->assertSame($expectedResult, $purifier->purifyArray($texts));
     }
 }

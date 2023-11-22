@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Composite for nesting multiple purifiers
@@ -7,20 +24,17 @@
  */
 class ilHtmlPurifierComposite implements ilHtmlPurifierInterface
 {
-    /**
-     * @var ilHtmlPurifierInterface[]
-     */
-    protected $purifiers = [];
+    /** @var ilHtmlPurifierInterface[]  */
+    protected array $purifiers = [];
 
     /**
      * Adds a node to composite
      * @param ilHtmlPurifierInterface $purifier Instance of ilHtmlPurifierInterface
      * @return bool True if instance could be added, otherwise false
      */
-    public function addPurifier(ilHtmlPurifierInterface $purifier) : bool
+    public function addPurifier(ilHtmlPurifierInterface $purifier): bool
     {
-        $key = array_search($purifier, $this->purifiers);
-        if (false === $key) {
+        if (false === in_array($purifier, $this->purifiers, true)) {
             $this->purifiers[] = $purifier;
             return true;
         }
@@ -33,9 +47,9 @@ class ilHtmlPurifierComposite implements ilHtmlPurifierInterface
      * @param ilHtmlPurifierInterface $purifier Instance of ilHtmlPurifierInterface
      * @return bool True if instance could be removed, otherwise false
      */
-    public function removePurifier(ilHtmlPurifierInterface $purifier) : bool
+    public function removePurifier(ilHtmlPurifierInterface $purifier): bool
     {
-        $key = array_search($purifier, $this->purifiers);
+        $key = array_search($purifier, $this->purifiers, true);
         if (false === $key) {
             return false;
         }
@@ -44,10 +58,7 @@ class ilHtmlPurifierComposite implements ilHtmlPurifierInterface
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function purify(string $html) : string
+    public function purify(string $html): string
     {
         foreach ($this->purifiers as $purifier) {
             $html = $purifier->purify($html);
@@ -56,11 +67,18 @@ class ilHtmlPurifierComposite implements ilHtmlPurifierInterface
         return $html;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function purifyArray(array $htmlCollection) : array
+    public function purifyArray(array $htmlCollection): array
     {
+        foreach ($htmlCollection as $key => $html) {
+            if (!is_string($html)) {
+                throw new InvalidArgumentException(sprintf(
+                    'The element on index %s is not of type string: %s',
+                    $key,
+                    print_r($html, true)
+                ));
+            }
+        }
+
         foreach ($htmlCollection as $key => $html) {
             foreach ($this->purifiers as $purifier) {
                 $html = $purifier->purify($html);

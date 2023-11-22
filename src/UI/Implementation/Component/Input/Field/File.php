@@ -1,113 +1,116 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 namespace ILIAS\UI\Implementation\Component\Input\Field;
 
+use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
+use ILIAS\UI\Component\Input\Field\UploadHandler;
+use ILIAS\UI\Component\Input\Field\FileUpload;
+use ILIAS\UI\Component\Input\Field\Input as InputInterface;
 use ILIAS\Data\Factory as DataFactory;
-use ILIAS\Refinery\Factory;
+use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Component as C;
-use ILIAS\UI\Implementation\Component\Input\InputData;
-use ILIAS\UI\Implementation\Component\JavaScriptBindable;
-use ILIAS\UI\Implementation\Component\Triggerer;
+use ILIAS\Refinery\Constraint;
+use Closure;
+use ilLanguage;
 
 /**
  * Class File
  * @package ILIAS\UI\Implementation\Component\Input\Field
  * @author  Fabian Schmid <fs@studer-raimann.ch>
+ * @author  Thibeau Fuhrer <thf@studer-raimann.ch>
  */
-class File extends Input implements C\Input\Field\File
+class File extends HasDynamicInputsBase implements C\Input\Field\File
 {
-    use JavaScriptBindable;
-    use Triggerer;
+    // ===============================================
+    // BEGIN IMPLEMENTATION OF FileUpload
+    // ===============================================
 
-    /**
-     * @var array
-     */
-    private $accepted_mime_types = [];
-    /**
-     * @var int
-     */
-    private $max_file_size = -1;
-    /**
-     * @var C\Input\Field\UploadHandler
-     */
-    private $upload_handler;
+    protected UploadLimitResolver $upload_limit_resolver;
+    protected UploadHandler $upload_handler;
+    protected array $accepted_mime_types = [];
+    protected bool $has_metadata_inputs = false;
+    protected int $max_file_amount = 1;
+    protected ?int $max_file_size = null;
 
     public function __construct(
+        ilLanguage $language,
         DataFactory $data_factory,
-        Factory $refinery,
+        Refinery $refinery,
+        UploadLimitResolver $upload_limit_resolver,
         C\Input\Field\UploadHandler $handler,
-        $label,
-        $byline
+        string $label,
+        ?InputInterface $metadata_input,
+        ?string $byline
     ) {
+        $this->upload_limit_resolver = $upload_limit_resolver;
+        $this->language = $language;
+        $this->data_factory = $data_factory;
+        $this->refinery = $refinery;
         $this->upload_handler = $handler;
-        parent::__construct($data_factory, $refinery, $label, $byline);
-    }
+        $this->value = [];
 
-    protected function getConstraintForRequirement()
-    {
-        return $this->refinery->custom()->constraint(
-            function ($value) {
-                return (is_array($value) && count($value) > 0);
-            },
-            function ($txt, $value) {
-                return $txt("msg_no_file");
-            },
+        parent::__construct(
+            $language,
+            $data_factory,
+            $refinery,
+            $label,
+            $this->createDynamicInputsTemplate($metadata_input),
+            $byline
         );
     }
 
-    protected function isClientSideValueOk($value) : bool
+    public function getUploadHandler(): UploadHandler
     {
-        if (null === $value) {
-            return true;
-        }
-        if (!is_array($value)) {
-            return false;
-        }
-        foreach ($value as $string) {
-            if (!is_string($string) && null !== $string) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->upload_handler;
     }
 
-    public function getUpdateOnLoadCode() : \Closure
+    public function withMaxFileSize(int $size_in_bytes): FileUpload
     {
-        return function ($id) {
-            return '';
-        };
-    }
+        $size_in_bytes = $this->upload_limit_resolver->min($size_in_bytes);
 
-    public function withMaxFileSize(int $size_in_bytes) : C\Input\Field\File
-    {
         $clone = clone $this;
         $clone->max_file_size = $size_in_bytes;
 
         return $clone;
     }
 
-    public function getMaxFileFize() : int
+    public function getMaxFileSize(): int
     {
-        return $this->max_file_size;
+        return $this->max_file_size ?? $this->upload_limit_resolver->getUploadLimit();
     }
 
-    public function withInput(InputData $input)
+    public function withMaxFiles(int $max_file_amount): FileUpload
     {
-        $value = $input->getOr($this->getName(), null);
-        if ($value === null) {
-            $this->value = null;
-        }
+        $clone = clone $this;
+        $clone->max_file_amount = $max_file_amount;
 
-        return parent::withInput($input);
+        return $clone;
     }
 
-    public function getUploadHandler() : C\Input\Field\UploadHandler
+    public function getMaxFiles(): int
     {
-        return $this->upload_handler;
+        return $this->max_file_amount;
     }
 
-    public function withAcceptedMimeTypes(array $mime_types) : \ILIAS\UI\Component\Input\Field\File
+    public function withAcceptedMimeTypes(array $mime_types): FileUpload
     {
         $clone = clone $this;
         $clone->accepted_mime_types = $mime_types;
@@ -115,8 +118,139 @@ class File extends Input implements C\Input\Field\File
         return $clone;
     }
 
-    public function getAcceptedMimeTypes() : array
+    public function getAcceptedMimeTypes(): array
     {
         return $this->accepted_mime_types;
+    }
+
+    // ===============================================
+    // END IMPLEMENTATION OF FileUpload
+    // ===============================================
+
+    // ===============================================
+    // BEGIN OVERWRITTEN METHODS OF HasDynamicInputs
+    // ===============================================
+
+    /**
+     * Maps generated dynamic inputs to their file-id, which must be
+     * provided in or as $value.
+     */
+    public function withValue($value): HasDynamicInputsBase
+    {
+        $this->checkArg("value", $this->isClientSideValueOk($value), "Display value does not match input type.");
+
+        $clone = clone $this;
+        $identifier_key = $clone->upload_handler->getFileIdentifierParameterName();
+        foreach ($value as $data) {
+            $file_id = ($clone->hasMetadataInputs()) ? $data[$identifier_key] : $data;
+
+            // that was not implicitly intended, but mapping dynamic inputs
+            // to the file-id is also a duplicate protection.
+            $clone->dynamic_inputs[$file_id] = $clone->dynamic_input_template->withValue($data);
+        }
+
+        return $clone;
+    }
+
+    // ===============================================
+    // END OVERWRITTEN METHODS OF HasDynamicInputs
+    // ===============================================
+
+    public function hasMetadataInputs(): bool
+    {
+        return $this->has_metadata_inputs;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getTranslations(): array
+    {
+        return [
+            'invalid_mime' => $this->language->txt('ui_file_input_invalid_mime'),
+            'invalid_size' => $this->language->txt('ui_file_input_invalid_size'),
+            'invalid_amount' => $this->language->txt('ui_file_input_invalid_amount'),
+            'general_error' => $this->language->txt('ui_file_input_general_error'),
+        ];
+    }
+
+    public function getUpdateOnLoadCode(): Closure
+    {
+        return static function () {
+        };
+    }
+
+    protected function getConstraintForRequirement(): ?Constraint
+    {
+        return $this->refinery->custom()->constraint(
+            function ($value) {
+                return (is_array($value) && count($value) > 0);
+            },
+            function ($txt, $value) {
+                return $txt("msg_no_files_selected");
+            },
+        );
+    }
+
+    protected function isClientSideValueOk($value): bool
+    {
+        if (!is_array($value)) {
+            return false;
+        }
+
+        foreach ($value as $data) {
+            // if no dynamic input template was provided, the values
+            // must all be strings (possibly file-ids).
+            if (!is_string($data) && !$this->hasMetadataInputs()) {
+                return false;
+            }
+
+            if ($this->hasMetadataInputs()) {
+                // if a dynamic input template was provided, the values
+                // must all contain the file-id as an array entry.
+                if (!array_key_exists($this->upload_handler->getFileIdentifierParameterName(), $data)) {
+                    return false;
+                }
+
+                // if a dynamic input template was provided, the values
+                // must be valid for the template input.
+                if (!$this->dynamic_input_template->isClientSideValueOk($data)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    protected function createDynamicInputsTemplate(?InputInterface $metadata_input): InputInterface
+    {
+        $default_metadata_input = new Hidden(
+            $this->data_factory,
+            $this->refinery
+        );
+
+        if (null === $metadata_input) {
+            return $default_metadata_input;
+        }
+
+        $inputs = ($metadata_input instanceof C\Input\Field\Group) ?
+            $metadata_input->getInputs() : [
+                $metadata_input,
+            ];
+
+        // map the file-id input to the UploadHandlers identifier key.
+        $inputs[$this->upload_handler->getFileIdentifierParameterName()] = $default_metadata_input;
+
+        // tell the input that it contains actual metadata inputs.
+        $this->has_metadata_inputs = true;
+
+        return new Group(
+            $this->data_factory,
+            $this->refinery,
+            $this->language,
+            $inputs,
+            ''
+        );
     }
 }

@@ -1,4 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\StorageHandler\FileSystemBased;
 
@@ -15,42 +33,26 @@ use ILIAS\ResourceStorage\Revision\FileStreamRevision;
 use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\Revision\UploadedFileRevision;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandler;
-use ILIAS\ResourceStorage\StorageHandler\PathGenerator\PathGenerator;
 
 /**
  * Class AbstractFileSystemStorageHandler
- * @author  Fabian Schmid <fs@studer-raimann.ch>
+ * @author  Fabian Schmid <fabian@sr.solutions>
  */
 abstract class AbstractFileSystemStorageHandler implements StorageHandler
 {
     protected const DATA = 'data';
-    /**
-     * @var PathGenerator
-     */
-    protected $path_generator;
-    /**
-     * @var Filesystem
-     */
-    protected $fs;
-    /**
-     * @var UniqueIDIdentificationGenerator
-     */
-    protected $id;
-    /**
-     * @var int
-     */
-    protected $location;
-    /**
-     * @var bool
-     */
-    protected $links_possible = false;
+    protected \ILIAS\ResourceStorage\StorageHandler\PathGenerator\PathGenerator $path_generator;
+    protected \ILIAS\ResourceStorage\Identification\IdentificationGenerator $id;
+    protected bool $links_possible = false;
+    protected Filesystem $fs;
+    protected int $location = Location::STORAGE;
 
     public function __construct(
-        Filesystem $filesystem,
+        Filesystem $fs,
         int $location = Location::STORAGE,
         bool $determine_linking_possible = false
     ) {
-        $this->fs = $filesystem;
+        $this->fs = $fs;
         $this->location = $location;
         $this->id = new UniqueIDIdentificationGenerator();
         if ($determine_linking_possible) {
@@ -58,20 +60,20 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
         }
     }
 
-    private function determineLinksPossible() : bool
+    private function determineLinksPossible(): bool
     {
         $random_filename = "test_" . random_int(10000, 99999);
 
         $original_filename = $this->getStorageLocationBasePath() . "/" . $random_filename . '_orig';
         $linked_filename = $this->getStorageLocationBasePath() . "/" . $random_filename . '_link';
-        $cleaner = function () use ($original_filename, $linked_filename) {
+        $cleaner = function () use ($original_filename, $linked_filename): void {
             try {
                 $this->fs->delete($original_filename);
-            } catch (\Throwable $t) {
+            } catch (\Throwable $exception) {
             }
             try {
                 $this->fs->delete($linked_filename);
-            } catch (\Throwable $t) {
+            } catch (\Throwable $exception) {
             }
         };
 
@@ -99,7 +101,7 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
                 return true;
             }
             $cleaner();
-        } catch (\Throwable $t) {
+        } catch (\Throwable $exception) {
             return false;
         }
         return false;
@@ -108,12 +110,12 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
     /**
      * @inheritDoc
      */
-    public function getIdentificationGenerator() : IdentificationGenerator
+    public function getIdentificationGenerator(): IdentificationGenerator
     {
         return $this->id;
     }
 
-    public function has(ResourceIdentification $identification) : bool
+    public function has(ResourceIdentification $identification): bool
     {
         return $this->fs->has($this->getFullContainerPath($identification));
     }
@@ -121,17 +123,21 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
     /**
      * @inheritDoc
      */
-    public function getStream(Revision $revision) : FileStream
+    public function getStream(Revision $revision): FileStream
     {
         return $this->fs->readStream($this->getRevisionPath($revision) . '/' . self::DATA);
     }
 
-    public function storeUpload(UploadedFileRevision $revision) : bool
+    public function storeUpload(UploadedFileRevision $revision): bool
     {
         global $DIC;
 
-        $DIC->upload()->moveOneFileTo($revision->getUpload(), $this->getRevisionPath($revision), $this->location,
-            self::DATA);
+        $DIC->upload()->moveOneFileTo(
+            $revision->getUpload(),
+            $this->getRevisionPath($revision),
+            $this->location,
+            self::DATA
+        );
 
         return true;
     }
@@ -139,7 +145,7 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
     /**
      * @inheritDoc
      */
-    public function storeStream(FileStreamRevision $revision) : bool
+    public function storeStream(FileStreamRevision $revision): bool
     {
         try {
             if ($revision->keepOriginal()) {
@@ -147,31 +153,41 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
                 $this->fs->writeStream($this->getRevisionPath($revision) . '/' . self::DATA, $stream);
                 $stream->close();
             } else {
-                $target = $revision->getStream()->getMetadata('uri');
+                $original_path = $revision->getStream()->getMetadata('uri');
                 if ($this->links_possible) {
                     $this->fs->createDir($this->getRevisionPath($revision));
-                    link($target, $this->getAbsoluteRevisionPath($revision) . '/' . self::DATA);
-                    unlink($target);
+                    link($original_path, $this->getAbsoluteRevisionPath($revision) . '/' . self::DATA);
+                    unlink($original_path);
                 } else {
-                    $this->fs->rename(LegacyPathHelper::createRelativePath($target),
-                        $this->getRevisionPath($revision) . '/' . self::DATA);
+                    $source_fs = LegacyPathHelper::deriveLocationFrom($original_path);
+                    if ($source_fs !== Location::STORAGE) {
+                        $stream = $revision->getStream();
+                        $this->fs->writeStream($this->getRevisionPath($revision) . '/' . self::DATA, $stream);
+                        $stream->close();
+                        unlink($original_path);
+                    } else {
+                        $this->fs->rename(
+                            LegacyPathHelper::createRelativePath($original_path),
+                            $this->getRevisionPath($revision) . '/' . self::DATA
+                        );
+                    }
                 }
                 $revision->getStream()->close();
             }
-        } catch (\Throwable $t) {
+        } catch (\Throwable $exception) {
             return false;
         }
 
         return true;
     }
 
-    public function cloneRevision(CloneRevision $revision) : bool
+    public function cloneRevision(CloneRevision $revision): bool
     {
         $stream = $this->getStream($revision->getRevisionToClone());
         try {
             $this->fs->writeStream($this->getRevisionPath($revision) . '/' . self::DATA, $stream);
             $stream->close();
-        } catch (\Throwable $t) {
+        } catch (\Throwable $exception) {
             return false;
         }
 
@@ -181,33 +197,30 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
     /**
      * @inheritDoc
      */
-    public function deleteRevision(Revision $revision) : void
+    public function deleteRevision(Revision $revision): void
     {
         try {
             $this->fs->deleteDir($this->getRevisionPath($revision));
-        } catch (\Throwable $t) {
-
+        } catch (\Throwable $exception) {
         }
-
     }
 
     /**
      * @inheritDoc
      */
-    public function deleteResource(StorableResource $resource) : void
+    public function deleteResource(StorableResource $resource): void
     {
         try {
             $this->fs->deleteDir($this->getFullContainerPath($resource->getIdentification()));
-        } catch (\Throwable $t) {
+        } catch (\Throwable $exception) {
         }
         try {
             $this->cleanUpContainer($resource);
-        } catch (\Throwable $t) {
+        } catch (\Throwable $exception) {
         }
-
     }
 
-    public function cleanUpContainer(StorableResource $resource) : void
+    public function cleanUpContainer(StorableResource $resource): void
     {
         $storage_path = $this->getStorageLocationBasePath();
         $container_path = $this->getContainerPathWithoutBase($resource->getIdentification());
@@ -221,35 +234,33 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
         }
     }
 
-    public function getBasePath(ResourceIdentification $identification) : string
+    public function getBasePath(ResourceIdentification $identification): string
     {
         return $this->getFullContainerPath($identification);
     }
 
-    public function getRevisionPath(Revision $revision) : string
+    public function getRevisionPath(Revision $revision): string
     {
         return $this->getFullContainerPath($revision->getIdentification()) . '/' . $revision->getVersionNumber();
     }
 
-    public function getFullContainerPath(ResourceIdentification $identification) : string
+    public function getFullContainerPath(ResourceIdentification $identification): string
     {
         return $this->getStorageLocationBasePath() . '/' . $this->getContainerPathWithoutBase($identification);
     }
 
-    public function getContainerPathWithoutBase(ResourceIdentification $identification) : string
+    public function getContainerPathWithoutBase(ResourceIdentification $identification): string
     {
         return $this->path_generator->getPathFor($identification);
     }
 
-    private function getAbsoluteRevisionPath(Revision $revision) : string
+    private function getAbsoluteRevisionPath(Revision $revision): string
     {
-        $str = rtrim(CLIENT_DATA_DIR, "/") . "/" . ltrim($this->getRevisionPath($revision), "/");
-        return $str;
+        return rtrim(CLIENT_DATA_DIR, "/") . "/" . ltrim($this->getRevisionPath($revision), "/");
     }
 
-    public function movementImplementation() : string
+    public function movementImplementation(): string
     {
         return $this->links_possible ? 'link' : 'rename';
     }
-
 }

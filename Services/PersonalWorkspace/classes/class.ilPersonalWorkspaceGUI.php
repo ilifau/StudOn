@@ -1,6 +1,23 @@
 <?php
 
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\PersonalWorkspace\StandardGUIRequest;
+use ILIAS\GlobalScreen\ScreenContext\ContextServices;
 
 /**
  * GUI class for personal workspace
@@ -17,118 +34,74 @@
  */
 class ilPersonalWorkspaceGUI
 {
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
+    protected ilSetting $settings;
+    protected ilCtrl $ctrl;
+    protected ilLanguage $lng;
+    protected ilHelpGUI $help;
+    protected ilObjectDefinition $obj_definition;
+    protected ilGlobalTemplateInterface $tpl;
+    protected ilObjUser $user;
+    protected ilTabsGUI $tabs;
+    protected ilLocatorGUI $locator;
+    protected ilTree $tree;
+    protected int $node_id; // [int]
+    protected ContextServices $tool_context;
+    protected StandardGUIRequest $std_request;
 
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilHelpGUI
-     */
-    protected $help;
-
-    /**
-     * @var ilObjectDefinition
-     */
-    protected $obj_definition;
-
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
-
-    /**
-     * @var ilMainMenuGUI
-     */
-    protected $main_menu;
-
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
-
-    /**
-     * @var ilTabsGUI
-     */
-    protected $tabs;
-
-    /**
-     * @var ilLocatorGUI
-     */
-    protected $locator;
-
-    /**
-     * @var ilTree
-     */
-    protected $tree;
-    protected $node_id; // [int]
-
-    /**
-     * @var \ILIAS\GlobalScreen\ScreenContext\ContextServices
-     */
-    protected $tool_context;
-    
-    /**
-     * constructor
-     */
     public function __construct()
     {
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
 
         $this->ctrl = $DIC->ctrl();
         $this->lng = $DIC->language();
         $this->help = $DIC["ilHelp"];
         $this->obj_definition = $DIC["objDefinition"];
-        $this->tpl = $DIC["tpl"];
-        $this->main_menu = $DIC["ilMainMenu"];
+        $this->tpl = $DIC->ui()->mainTemplate();
         $this->user = $DIC->user();
         $this->tabs = $DIC->tabs();
         $this->locator = $DIC["ilLocator"];
         $ilCtrl = $DIC->ctrl();
         $lng = $DIC->language();
-        $ilHelp = $DIC["ilHelp"];
         $this->settings = $DIC->settings();
 
         $lng->loadLanguageModule("wsp");
+
+        $this->std_request = new StandardGUIRequest(
+            $DIC->http(),
+            $DIC->refinery()
+        );
 
         $this->initTree();
 
         $ilCtrl->saveParameter($this, "wsp_id");
 
-        $this->node_id = (int) $_REQUEST["wsp_id"];
+        $this->node_id = $this->std_request->getWspId();
         if (!$this->node_id || !$this->tree->isInTree($this->node_id)) {
             $this->node_id = $this->tree->getRootId();
         }
         $this->tool_context = $DIC->globalScreen()->tool()->context();
     }
-    
-    /**
-     * execute command
-     */
-    public function executeCommand()
+
+    public function executeCommand(): void
     {
         $ilCtrl = $this->ctrl;
         $objDefinition = $this->obj_definition;
         $tpl = $this->tpl;
-        $ilMainMenu = $this->main_menu;
 
         if ($this->settings->get("disable_personal_workspace")) {
             throw new ilException($this->lng->txt("no_permission"));
         }
 
         $ilCtrl->setReturn($this, "render");
-        $cmd = $ilCtrl->getCmd();
 
         $this->tool_context->current()->addAdditionalData(ilWorkspaceGSToolProvider::SHOW_WS_TREE, true);
 
         // new type
-        if ($_REQUEST["new_type"]) {
-            $class_name = $objDefinition->getClassName($_REQUEST["new_type"]);
+        if ($this->std_request->getNewType()) {
+            $class_name = $objDefinition->getClassName(
+                $this->std_request->getNewType()
+            );
 
             // Only set the fixed cmdClass if the next class is different to
             // the GUI class of the new object.
@@ -136,7 +109,7 @@ class ilPersonalWorkspaceGUI
             // ilObjLinkResourceGUI tries to forward to ilLinkInputGUI (adding an internal link
             // when creating a link resource)
             // Without this fix, the cmdClass ilObjectCopyGUI would never be reached
-            if (strtolower($ilCtrl->getNextClass($this)) != strtolower("ilObj" . $class_name . "GUI")) {
+            if (strtolower($ilCtrl->getNextClass($this)) !== strtolower("ilObj" . $class_name . "GUI")) {
                 $ilCtrl->setCmdClass("ilObj" . $class_name . "GUI");
             }
         }
@@ -148,45 +121,40 @@ class ilPersonalWorkspaceGUI
             $next_class = "ilObj" . $objDefinition->getClassName($node["type"]) . "GUI";
             $ilCtrl->setCmdClass($next_class);
         }
-        
+
         //  if we do this here the object can still change the breadcrumb
         $this->renderLocator();
-        
+
         // current node
         $class_path = $ilCtrl->lookupClassPath($next_class);
         include_once($class_path);
         $class_name = $ilCtrl->getClassForClasspath($class_path);
-        if ($_REQUEST["new_type"]) {
-            $gui = new $class_name(null, ilObject2GUI::WORKSPACE_NODE_ID, $this->node_id);
+        if ($this->std_request->getNewType()) {
+            $gui = new $class_name(0, ilObject2GUI::WORKSPACE_NODE_ID, $this->node_id);
             $gui->setCreationMode();
         } else {
             $gui = new $class_name($this->node_id, ilObject2GUI::WORKSPACE_NODE_ID, false);
         }
         $ilCtrl->forwardCommand($gui);
-        if ($ilMainMenu->getMode() == ilMainMenuGUI::MODE_FULL) {
-            $this->renderBack();
-        }
+
+        //$this->renderBack();
 
         $tpl->setLocator();
     }
 
-    /**
-     * Init personal tree
-     */
-    protected function initTree()
+    protected function initTree(): void
     {
         $ilUser = $this->user;
 
         $user_id = $ilUser->getId();
 
-        include_once "Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php";
         $this->tree = new ilWorkspaceTree($user_id);
         if (!$this->tree->getRootId()) {
             $this->tree->createTreeForUser($user_id);
         }
     }
 
-    protected function renderBack()
+    protected function renderBack(): void
     {
         $lng = $this->lng;
         $ilTabs = $this->tabs;
@@ -226,20 +194,19 @@ class ilPersonalWorkspaceGUI
             }
         }
     }
-    
+
     /**
      * Build locator for current node
      */
-    protected function renderLocator()
+    protected function renderLocator(): void
     {
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
         $ilLocator = $this->locator;
-        $tpl = $this->tpl;
         $objDefinition = $this->obj_definition;
 
         $ilLocator->clearItems();
-        
+
         // we have no path if shared item
         $path = $this->tree->getPathFull($this->node_id);
         if ($path) {

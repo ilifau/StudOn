@@ -230,11 +230,4 @@ nav.il-maincontrols, nav.breadcrumbs {
 }
 
 
-/* fau: showBestSolutionBelow  - new style for solution (needed here and in ta.css)*/
-.questionPrintviewCorrectSolution {
-	border-left: 3px dotted green;
-	padding-left:10px;
-}
-/* fau. */
-
 }

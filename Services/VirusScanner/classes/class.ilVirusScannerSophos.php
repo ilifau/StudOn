@@ -1,70 +1,56 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
- * Interface to the sophos virus protector
- * @author    Fred Neumann <fred.neumann@fim.uni-erlangen.de>
- * @version   $Id$
- * @extends   ilVirusScanner
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
-require_once "./Services/VirusScanner/classes/class.ilVirusScanner.php";
+declare(strict_types=1);
 
 class ilVirusScannerSophos extends ilVirusScanner
 {
-    /**
-     * Constructor
-     * @access    public
-     * @param    string virus scanner command
-     */
-    public function __construct($a_scancommand, $a_cleancommand)
+    public function __construct(string $scan_command, string $clean_command)
     {
-        parent::__construct($a_scancommand, $a_cleancommand);
+        parent::__construct($scan_command, $clean_command);
         $this->type = "sophos";
         $this->scanZipFiles = true;
     }
 
-    /**
-     * scan a file for viruses
-     * @param    string    path of file to check
-     * @param    string    original name of the file to ckeck
-     * @return   string  virus message (empty if not infected)
-     * @access    public
-     */
-    public function scanFile($a_filepath, $a_origname = "")
+    public function scanFile(string $file_path, string $org_name = ""): string
     {
-        // This function should:
-        // - call the external scanner for a_filepath
-        // - set scanFilePath to a_filepath
-        // - set scanFileOrigName to a_origname
-        // - set scanFileIsInfected according the scan result
-        // - set scanResult to the scanner output message
-        // - call logScanResult() if file is infected
-        // - return the scanResult, if file is infected
-        // - return an empty string, if file is not infected
-
-        $this->scanFilePath = $a_filepath;
-        $this->scanFileOrigName = $a_origname;
+        $this->scanFilePath = $file_path;
+        $this->scanFileOrigName = $org_name;
 
         // Call of scan_file from Sophie (www.vanja.com/tools/sophie)
         // sophie must run as a process
-        $a_filepath = realpath($a_filepath);
-        $cmd = ilUtil::escapeShellCmd($this->scanCommand);
-        $args = ilUtil::escapeShellArg(" " . $a_filepath . " ");
+        $a_filepath = realpath($file_path);
+        $cmd = ilShellUtil::escapeShellCmd($this->scanCommand);
+        $args = ilShellUtil::escapeShellArg(" " . $a_filepath . " ");
         $cmd = $cmd .  " " . $args . " 2>&1";
         exec($cmd, $out, $ret);
         $this->scanResult = implode("\n", $out);
 
         // sophie could be called
-        if ($ret == 0) {
+        if ((int) $ret === 0) {
             if (preg_match("/FILE INFECTED/", $this->scanResult)) {
                 $this->scanFileIsInfected = true;
                 $this->logScanResult();
                 return $this->scanResult;
-            } else {
-                $this->scanFileIsInfected = false;
-                return "";
             }
+
+            $this->scanFileIsInfected = false;
+            return "";
         }
 
         // sophie has failed (probably the daemon doesn't run)
@@ -76,7 +62,7 @@ class ilVirusScannerSophos extends ilVirusScanner
         // -ss: Don't display anything except on error or virus
         // -archive: sweep inside archives
         unset($out, $ret);
-        $cmd = $this->cleanCommand . " -ss -archive " . $a_filepath . " 2>&1";
+        $cmd = $this->cleanCommand . " -ss -archive " . $file_path . " 2>&1";
         exec($cmd, $out, $ret);
         $this->scanResult = implode("\n", $out) . " [" . $ret . "]";
 
@@ -85,44 +71,27 @@ class ilVirusScannerSophos extends ilVirusScanner
         // 1  If  the user interrupts SWEEP (usually by pressing control-C) or kills the process.
         // 2  If some error preventing further execution is discovered.
         // 3  If viruses or virus fragments are discovered.
-        if ($ret == 0) {
-            $this->scanFileIsCleaned = false;
+        if ((int) $ret === 0) {
+            $this->cleanFileIsCleaned = false;
             return "";
-        } elseif ($ret == 3) {
+        } elseif ((int) $ret === 3) {
             $this->scanFileIsInfected = true;
             $this->logScanResult();
             return $this->scanResult;
-        } else {
-            $this->ilias->raiseError(
-                $this->lng->txt("virus_scan_error") . " "
-                . $this->lng->txt("virus_scan_message") . " "
-                . $this->scanResult,
-                $this->ilias->error_obj->WARNING
-            );
         }
+
+        $this->error->raiseError(
+            $this->lng->txt("virus_scan_error") . " "
+            . $this->lng->txt("virus_scan_message") . " "
+            . $this->scanResult,
+            $this->error->WARNING
+        );
     }
 
-    /**
-     * clean an infected file
-     * @param    string    path of file to check
-     * @param    string    original name of the file to check
-     * @return    string  clean message (empty if not cleaned)
-     * @access    public
-     */
-    public function cleanFile($a_filepath, $a_origname = "")
+    public function cleanFile(string $file_path, string $org_name = ""): string
     {
-        // This function should:
-        // - call the external cleaner
-        // - set cleanFilePath to a_filepath
-        // - set cleanFileOrigName to a_origname
-        // - set cleanFileIsCleaned according the clean result
-        // - set cleanResult to the cleaner output message
-        // - call logCleanResult in any case
-        // - return the cleanResult, if file is cleaned
-        // - return an empty string, if file is not cleaned
-
-        $this->cleanFilePath = $a_filepath;
-        $this->cleanFileOrigName = $a_origname;
+        $this->cleanFilePath = $file_path;
+        $this->cleanFileOrigName = $org_name;
 
         // Call of sweep from Sophos (www.sophos.com)
         // -di: Disinfect infected items
@@ -131,8 +100,7 @@ class ilVirusScannerSophos extends ilVirusScanner
         // -eec: Use extended error codes
         // -archive: sweep inside archives
 
-        $a_filepath = realpath($a_filepath);
-        $cmd = $this->cleanCommand . " -di -nc -ss -eec -archive " . $a_filepath . " 2>&1";
+        $cmd = $this->cleanCommand . " -di -nc -ss -eec -archive " . $file_path . " 2>&1";
         exec($cmd, $out, $ret);
         $this->cleanResult = implode("\n", $out) . " [" . $ret . "]";
 
@@ -150,12 +118,12 @@ class ilVirusScannerSophos extends ilVirusScanner
         // 32     If there has been an integrity check failure.
         // 36     If unsurvivable errors have occurred.
         // 40     If execution has been interrupted.
-        if ($ret == 20) {
+        if ((int) $ret === 20) {
             $this->cleanFileIsCleaned = true;
             return $this->cleanResult;
-        } else {
-            $this->cleanFileIsCleaned = false;
-            return "";
         }
+
+        $this->cleanFileIsCleaned = false;
+        return "";
     }
 }

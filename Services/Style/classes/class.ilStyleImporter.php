@@ -1,14 +1,25 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Export/classes/class.ilXmlImporter.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Importer class for style
  *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
- * @version $Id: $
- * @ingroup ServicesStyle
  */
 class ilStyleImporter extends ilXmlImporter
 {
@@ -17,11 +28,10 @@ class ilStyleImporter extends ilXmlImporter
      */
     protected $log;
 
-    public function init()
+    public function init(): void
     {
         $this->log = ilLoggerFactory::getLogger('styl');
 
-        include_once("./Services/Style/classes/class.ilStyleDataSet.php");
         $this->ds = new ilStyleDataSet();
         $this->ds->setDSPrefix("ds");
         $this->ds->setImportDirectory($this->getImportDirectory());
@@ -29,12 +39,11 @@ class ilStyleImporter extends ilXmlImporter
         $this->log->debug("initialized");
     }
 
-    public function importXmlRepresentation($a_entity, $a_id, $a_xml, $a_mapping)
+    public function importXmlRepresentation(string $a_entity, string $a_id, string $a_xml, ilImportMapping $a_mapping): void
     {
         $this->log->debug("import xml " . $a_entity);
 
         if (true) {
-            include_once("./Services/DataSet/classes/class.ilDataSetImportParser.php");
             $parser = new ilDataSetImportParser(
                 $a_entity,
                 $this->getSchemaVersion(),
@@ -51,30 +60,29 @@ class ilStyleImporter extends ilXmlImporter
             $a_xml = str_replace($hits[0], "", $a_xml);
             $a_xml = str_replace("</StyleSheetExport>", "", $a_xml);
         }
-        
+
         // temp xml-file
         $tmp_file = $this->getImportDirectory() . "/sty_" . $a_id . ".xml";
         file_put_contents($tmp_file, $a_xml);
-                
-        include_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+
         $style = new ilObjStyleSheet();
         $style->createFromXMLFile($tmp_file);
         $new_id = $style->getId();
-        
+
         unlink($tmp_file);
-        
+
         // images
         if ($path) {
             $source = $this->getImportDirectory() . "/" . $path;
             if (is_dir($source)) {
                 $target = $style->getImagesDirectory();
                 if (!is_dir($target)) {
-                    ilUtil::makeDirParents($target);
+                    ilFileUtils::makeDirParents($target);
                 }
-                ilUtil::rCopy($source, $target);
+                ilFileUtils::rCopy($source, $target);
             }
         }
-        
+
         $a_mapping->addMapping("Services/Style", "sty", $a_id, $new_id);
     }
 }

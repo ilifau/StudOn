@@ -21,14 +21,12 @@ namespace ILIAS\Filesystem\Util;
 use PHPUnit\Framework\TestCase;
 use ILIAS\Filesystem\Util;
 
-require_once("./include/Unicode/UtfNormal.php");
-
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */
 class FilenameSanitizing extends TestCase
 {
-    public function provideFilenames() : array
+    public function provideFilenames(): array
     {
         return [
             ["Control\u{00a0}Character", 'ControlCharacter'],
@@ -45,7 +43,7 @@ class FilenameSanitizing extends TestCase
     /**
      * @dataProvider provideFilenames
      */
-    public function testSanitize(string $filename, string $expected) : void
+    public function testSanitize(string $filename, string $expected): void
     {
         $this->assertEquals($expected, Util::sanitizeFilename($filename));
     }

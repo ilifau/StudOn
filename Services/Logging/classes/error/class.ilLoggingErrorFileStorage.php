@@ -1,8 +1,23 @@
 <?php
-/* Copyright (c) 2016 Stefan Hecken, Extended GPL, see docs/LICENSE */
-require_once './libs/composer/vendor/autoload.php';
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use Whoops\Exception\Formatter;
+use Whoops\Exception\Inspector;
 
 /**
  * Saves error informations into file
@@ -11,80 +26,64 @@ use Whoops\Exception\Formatter;
  */
 class ilLoggingErrorFileStorage
 {
-    const KEY_SPACE = 25;
-    const FILE_FORMAT = ".log";
+    protected const KEY_SPACE = 25;
+    protected const FILE_FORMAT = ".log";
+
+    protected Inspector $inspector;
+    protected string $file_path;
+    protected string $file_name;
 
 
-
-    // fau: logErrorFile - add error code as parameter
-    public function __construct($inspector, $file_path, $file_name, $err_code = 'unknown')
+    public function __construct(Inspector $inspector, string $file_path, string $file_name)
     {
         $this->inspector = $inspector;
         $this->file_path = $file_path;
         $this->file_name = $file_name;
-        $this->err_code = $err_code;
     }
-    // fau.
 
-    protected function createDir($path)
+    protected function createDir(string $path): void
     {
         if (!is_dir($this->file_path)) {
-            ilUtil::makeDirParents($this->file_path);
+            ilFileUtils::makeDirParents($this->file_path);
         }
     }
 
-    protected function content()
+    protected function content(): string
     {
         return $this->pageHeader()
               . $this->exceptionContent()
               . $this->tablesContent()
-              ;
+        ;
     }
 
-    public function write()
+    public function write(): void
     {
         $this->createDir($this->file_path);
 
         $file_name = $this->file_path . "/" . $this->file_name . self::FILE_FORMAT;
-        // fau: logErrorFile - append to file
-        $stream = fopen($file_name, 'a+');
-        // fau.
+        $stream = fopen($file_name, 'w+');
         fwrite($stream, $this->content());
         fclose($stream);
         chmod($file_name, 0755);
     }
 
-    /**
-     * Get the header for the page.
-     *
-     * @return string
-     */
-    protected function pageHeader()
+    protected function pageHeader(): string
     {
-        // fau: logErrorFile - use error code and date as header of an entry
-
-        return "-------------------------------\n"
-             . $this->file_name . '_' . $this->err_code . ' ' . @date('Y-m-d H:i:s') . "\n"
-             . "-------------------------------\n";
-        // fau.
+        return "";
     }
 
     /**
      * Get a short info about the exception.
-     *
-     * @return string
      */
-    protected function exceptionContent()
+    protected function exceptionContent(): string
     {
         return Formatter::formatExceptionPlain($this->inspector);
     }
 
     /**
      * Get the header for the page.
-     *
-     * @return string
      */
-    protected function tablesContent()
+    protected function tablesContent(): string
     {
         $ret = "";
         foreach ($this->tables() as $title => $content) {
@@ -116,10 +115,8 @@ class ilLoggingErrorFileStorage
 
     /**
      * Get the tables that should be rendered.
-     *
-     * @return array 	$title => $table
      */
-    protected function tables()
+    protected function tables(): array
     {
         $post = $_POST;
         $server = $_SERVER;
@@ -131,7 +128,7 @@ class ilLoggingErrorFileStorage
             , "POST Data" => $post
             , "Files" => $_FILES
             , "Cookies" => $_COOKIE
-            , "Session" => isset($_SESSION) ? $_SESSION : array()
+            , "Session" => $_SESSION ?? array()
             , "Server/Request Data" => $server
             , "Environment Variables" => $_ENV
             );
@@ -139,13 +136,10 @@ class ilLoggingErrorFileStorage
 
     /**
      * Replace passwort from post array with security message
-     *
-     * @param array $post
-     *
-     * @return array
      */
-    private function hidePassword(array $post)
+    private function hidePassword(array $post): array
     {
+        ilSystemStyleLessVariable::class;
         if (isset($post["password"])) {
             $post["password"] = "REMOVED FOR SECURITY";
         }
@@ -155,13 +149,12 @@ class ilLoggingErrorFileStorage
 
     /**
      * Shorts the php session id
-     *
-     * @param array 	$server
-     *
-     * @return array
      */
-    private function shortenPHPSessionId(array $server)
+    private function shortenPHPSessionId(array $server): array
     {
+        if (!isset($server["HTTP_COOKIE"])) {
+            return $server;
+        }
         $cookie_content = $server["HTTP_COOKIE"];
         $cookie_content = explode(";", $cookie_content);
 

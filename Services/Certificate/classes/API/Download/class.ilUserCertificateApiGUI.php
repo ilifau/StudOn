@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -9,31 +26,17 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class ilUserCertificateApiGUI
 {
-    const CMD_DOWNLOAD = 'download';
+    public const CMD_DOWNLOAD = 'download';
+    private ilLogger $certificateLogger;
+    private ServerRequestInterface $request;
+    private ilLanguage $language;
+    private ilCtrlInterface $ctrl;
 
-    /** @var ilLogger */
-    private $certificateLogger;
-
-    /** @var ServerRequestInterface */
-    private $request;
-
-    /** @var ilLanguage */
-    private $language;
-
-    /** @var ilCtrl */
-    private $controller;
-
-    /**
-     * @param ilLanguage|null $language
-     * @param ServerRequestInterface $request
-     * @param ilLogger $certificateLogger
-     * @param ilCtrl $controller
-     */
     public function __construct(
-        ilLanguage $language = null,
-        ServerRequestInterface $request = null,
-        ilLogger $certificateLogger = null,
-        ilCtrl $controller = null
+        ?ilLanguage $language = null,
+        ?ServerRequestInterface $request = null,
+        ?ilLogger $certificateLogger = null,
+        ?ilCtrlInterface $ctrl = null
     ) {
         global $DIC;
 
@@ -52,22 +55,17 @@ class ilUserCertificateApiGUI
         }
         $this->certificateLogger = $certificateLogger;
 
-        if ($controller === null) {
-            $controller = $DIC->ctrl();
+        if ($ctrl === null) {
+            $ctrl = $DIC->ctrl();
         }
-        $this->controller = $controller;
-
+        $this->ctrl = $ctrl;
 
         $this->language->loadLanguageModule('cert');
     }
 
-
-    /**
-     *
-     */
-    public function executeCommand() : void
+    public function executeCommand(): void
     {
-        $cmd = $this->controller->getCmd();
+        $cmd = $this->ctrl->getCmd();
 
         switch ($cmd) {
             case self::CMD_DOWNLOAD:
@@ -79,11 +77,7 @@ class ilUserCertificateApiGUI
         }
     }
 
-
-    /**
-     * @throws \ilException
-     */
-    public function download() : void
+    public function download(): void
     {
         $userCertificateRepository = new ilUserCertificateRepository(null, $this->certificateLogger);
         $pdfGenerator = new ilPdfGenerator($userCertificateRepository, $this->certificateLogger);

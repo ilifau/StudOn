@@ -1,63 +1,44 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
 
-namespace Certificate\API\Data;
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+namespace ILIAS\Certificate\API\Data;
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class UserCertificateDto
 {
-    /** @var string */
-    private $objectTitle = '';
-
+    private string $objectTitle = '';
     /** @var int[] */
-    private $objectRefIds = [];
+    private array $objectRefIds = [];
+    private int $objectId = 0;
+    private int $issuedOnTimestamp = 0;
+    private int $userId = 0;
+    private string $downloadLink = '';
+    private int $certificateId = 0;
+    private string $userFirstName = '';
+    private string $userLastName = '';
+    private string $userLogin = '';
+    private string $userEmail = '';
+    private string $userSecondEmail = '';
 
-    /** @var int */
-    private $objectId = 0;
-
-    /** @var int */
-    private $issuedOnTimestamp = 0;
-
-    /** @var int */
-    private $userId = 0;
-
-    /** @var string */
-    private $downloadLink = '';
-
-    /** @var int */
-    private $certificateId = 0;
-
-    /** @var string */
-    private $userFirstName = '';
-
-    /** @var string */
-    private $userLastName = '';
-
-    /** @var string */
-    private $userLogin = '';
-
-    /** @var string */
-    private $userEmail = '';
-
-    /** @var string */
-    private $userSecondEmail = '';
-
-    /**
-     * @param int $certificateId
-     * @param string $objectTitle
-     * @param int $objectId
-     * @param int $issuedOnTimestamp
-     * @param int $userId
-     * @param string $userFirstName
-     * @param string $userLastName
-     * @param string $userLogin
-     * @param string $userEmail
-     * @param string $userSecondEmail
-     * @param array $objectRefId
-     * @param string|null $downloadLink
-     */
     public function __construct(
         int $certificateId,
         string $objectTitle,
@@ -69,8 +50,8 @@ class UserCertificateDto
         string $userLogin,
         string $userEmail,
         string $userSecondEmail,
-        array $objectRefId = array(),
-        string $downloadLink = null
+        array $objectRefId = [],
+        ?string $downloadLink = null
     ) {
         $this->certificateId = $certificateId;
         $this->objectTitle = $objectTitle;
@@ -78,8 +59,7 @@ class UserCertificateDto
         $this->objectId = $objectId;
         $this->issuedOnTimestamp = $issuedOnTimestamp;
         $this->userId = $userId;
-        $this->downloadLink = $downloadLink;
-
+        $this->downloadLink = (string) $downloadLink;
         $this->userFirstName = $userFirstName;
         $this->userLastName = $userLastName;
         $this->userLogin = $userLogin;
@@ -87,50 +67,32 @@ class UserCertificateDto
         $this->userSecondEmail = $userSecondEmail;
     }
 
-    /**
-     * @return string
-     */
-    public function getObjectTitle() : string
+    public function getObjectTitle(): string
     {
         return $this->objectTitle;
     }
 
-    /**
-     * @return int
-     */
-    public function getObjectId() : int
+    public function getObjectId(): int
     {
         return $this->objectId;
     }
 
-    /**
-     * @return int
-     */
-    public function getIssuedOnTimestamp() : int
+    public function getIssuedOnTimestamp(): int
     {
         return $this->issuedOnTimestamp;
     }
 
-    /**
-     * @return int
-     */
-    public function getUserId() : int
+    public function getUserId(): int
     {
         return $this->userId;
     }
 
-    /**
-     * @return string
-     */
-    public function getDownloadLink() : string
+    public function getDownloadLink(): string
     {
         return $this->downloadLink;
     }
 
-    /**
-     * @return int
-     */
-    public function getCertificateId() : int
+    public function getCertificateId(): int
     {
         return $this->certificateId;
     }
@@ -138,55 +100,37 @@ class UserCertificateDto
     /**
      * @return int[]
      */
-    public function getObjectRefIds() : array
+    public function getObjectRefIds(): array
     {
         return $this->objectRefIds;
     }
 
-    /**
-     * @return string
-     */
-    public function getUserFirstName() : string
+    public function getUserFirstName(): string
     {
         return $this->userFirstName;
     }
 
-    /**
-     * @return string
-     */
-    public function getUserLastName() : string
+    public function getUserLastName(): string
     {
         return $this->userLastName;
     }
 
-    /**
-     * @return string
-     */
-    public function getUserLogin() : string
+    public function getUserLogin(): string
     {
         return $this->userLogin;
     }
 
-    /**
-     * @return string
-     */
-    public function getUserEmail() : string
+    public function getUserEmail(): string
     {
         return $this->userEmail;
     }
 
-    /**
-     *
-     */
-    public function addRefId(int $refId) : void
+    public function addRefId(int $refId): void
     {
         $this->objectRefIds[] = $refId;
     }
 
-    /**
-     * @return string
-     */
-    public function getUserSecondEmail() : string
+    public function getUserSecondEmail(): string
     {
         return $this->userSecondEmail;
     }

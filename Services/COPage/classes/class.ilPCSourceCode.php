@@ -1,7 +1,20 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once("./Services/COPage/classes/class.ilPCParagraph.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilPCSourceCode
@@ -10,39 +23,29 @@ require_once("./Services/COPage/classes/class.ilPCParagraph.php");
  *
  * @author Roland Küstermann
  * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- *
- * @ingroup ServicesCOPage
  */
 class ilPCSourceCode extends ilPCParagraph
 {
-    /**
-    * Init page content component.
-    */
-    public function init()
+    public function init(): void
     {
         $this->setType("src");
     }
-    
-    /**
-     * Get lang vars needed for editing
-     * @return array array of lang var keys
-     */
-    public static function getLangVars()
+
+    public static function getLangVars(): array
     {
         return array("ed_insert_code", "pc_code");
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function modifyPageContentPostXsl($a_output, $outputmode = "presentation", $a_abstract_only = false)
-    {
+    public function modifyPageContentPostXsl(
+        string $a_output,
+        string $a_mode = "presentation",
+        bool $a_abstract_only = false
+    ): string {
         $dom = $this->getPage()->getDom();
 
         $xpc = xpath_new_context($dom);
         $path = "//Paragraph"; //"[@Characteristic = 'Code']";
-        $res = &xpath_eval($xpc, $path);
+        $res = xpath_eval($xpc, $path);
         for ($i = 0; $i < count($res->nodeset); $i++) {
             $context_node = $res->nodeset[$i];
             $char = $context_node->get_attribute('Characteristic');
@@ -94,7 +97,7 @@ class ilPCSourceCode extends ilPCParagraph
                 },
                 $plain_content
             );
-            $content = utf8_encode($this->highlightText($plain_content, $subchar, $autoindent));
+            $content = utf8_encode($this->highlightText($plain_content, $subchar));
 
             $content = str_replace("&amp;lt;", "&lt;", $content);
             $content = str_replace("&amp;gt;", "&gt;", $content);
@@ -141,7 +144,7 @@ class ilPCSourceCode extends ilPCParagraph
             //echo htmlentities($newcontent);
             $a_output = str_replace("[[[[[Code;" . ($i + 1) . "]]]]]", $newcontent, $a_output);
 
-            if ($outputmode != "presentation" && is_object($this->getPage()->getOfflineHandler())
+            if ($a_mode != "presentation" && is_object($this->getPage()->getOfflineHandler())
                 && trim($downloadtitle) != "") {
                 // call code handler for offline versions
                 $this->getPage()->getOfflineHandler()->handleCodeParagraph($this->getPage()->getId(), $i + 1, $downloadtitle, $plain_content);
@@ -152,11 +155,12 @@ class ilPCSourceCode extends ilPCParagraph
     }
 
     /**
-     * Highligths Text with given ProgLang
+     * Highlights Text with given ProgLang
      */
-    public function highlightText($a_text, $proglang, $autoindent = "")
-    {
-        include_once("./Services/UIComponent/SyntaxHighlighter/classes/class.ilSyntaxHighlighter.php");
+    public function highlightText(
+        string $a_text,
+        string $proglang
+    ): string {
         $proglang = ilSyntaxHighlighter::getNewLanguageId($proglang);
         if (ilSyntaxHighlighter::isSupported($proglang)) {
             $highl = ilSyntaxHighlighter::getInstance($proglang);

@@ -26,10 +26,7 @@ namespace ILIAS\GlobalScreen\Identification;
  */
 class NullIdentification implements IdentificationInterface
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationInterface|null
-     */
-    protected $wrapped_identification;
+    protected ?IdentificationInterface $wrapped_identification = null;
 
     /**
      * NullIdentification constructor.
@@ -55,7 +52,7 @@ class NullIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function unserialize($serialized) : void
+    public function unserialize($serialized): void
     {
         // noting to do
     }
@@ -63,7 +60,7 @@ class NullIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getClassName() : string
+    public function getClassName(): string
     {
         if ($this->wrapped_identification !== null) {
             return $this->wrapped_identification->getClassName();
@@ -75,7 +72,7 @@ class NullIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getInternalIdentifier() : string
+    public function getInternalIdentifier(): string
     {
         if ($this->wrapped_identification !== null) {
             return $this->wrapped_identification->getInternalIdentifier();
@@ -87,7 +84,7 @@ class NullIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getProviderNameForPresentation() : string
+    public function getProviderNameForPresentation(): string
     {
         if ($this->wrapped_identification !== null) {
             return $this->wrapped_identification->getProviderNameForPresentation();
@@ -99,12 +96,12 @@ class NullIdentification implements IdentificationInterface
     /**
      * @return array{data: string|null}
      */
-    public function __serialize() : array
+    public function __serialize(): array
     {
         return ['data' => $this->serialize()];
     }
 
-    public function __unserialize(array $data) : void
+    public function __unserialize(array $data): void
     {
         $this->unserialize($data['data']);
     }

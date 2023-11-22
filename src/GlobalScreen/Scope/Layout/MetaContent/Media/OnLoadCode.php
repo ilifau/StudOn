@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Layout\MetaContent\Media;
 
 /**
@@ -25,10 +25,7 @@ namespace ILIAS\GlobalScreen\Scope\Layout\MetaContent\Media;
  */
 class OnLoadCode extends AbstractMedia
 {
-    /**
-     * @var int
-     */
-    private $batch;
+    private int $batch;
 
     /**
      * OnLoadCode constructor.
@@ -44,12 +41,12 @@ class OnLoadCode extends AbstractMedia
     /**
      * @return int
      */
-    public function getBatch() : int
+    public function getBatch(): int
     {
         return $this->batch;
     }
 
-    public function getContent() : string
+    public function getContent(): string
     {
         return 'try { ' . parent::getContent() . ' } catch (e) { console.log(e); }';
     }

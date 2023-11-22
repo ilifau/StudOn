@@ -1,8 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/Component/classes/class.ilPlugin.php';
-require_once 'Modules/Test/classes/class.ilTestExportFilename.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Abstract parent class for all event hook plugin classes.
@@ -21,7 +33,7 @@ abstract class ilTestExportPlugin extends ilPlugin
      * @var int
      */
     protected $timestmap = -1;
-    
+
     /**
      * @var array
      */
@@ -29,48 +41,15 @@ abstract class ilTestExportPlugin extends ilPlugin
         'xml',
         'csv'
     );
-    
-    /**
-     * Get Component Type
-     * @return        string        Component Type
-     */
-    final public function getComponentType()
-    {
-        return IL_COMP_MODULE;
-    }
-
-    /**
-     * Get Component Name.
-     * @return        string        Component Name
-     */
-    final public function getComponentName()
-    {
-        return "Test";
-    }
-
-    /**
-     * Get Slot Name.
-     * @return        string        Slot Name
-     */
-    final public function getSlot()
-    {
-        return "Export";
-    }
-
-    /**
-     * Get Slot ID.
-     * @return        string        Slot Id
-     */
-    final public function getSlotId()
-    {
-        return "texp";
-    }
-
-    /**
-     * Object initialization done by slot.
-     */
-    final protected function slotInit()
-    {
+    private \ilGlobalTemplateInterface $main_tpl;
+    public function __construct(
+        \ilDBInterface $db,
+        \ilComponentRepositoryWrite $component_repository,
+        string $id
+    ) {
+        parent::__construct($db, $component_repository, $id);
+        global $DIC;
+        $this->main_tpl = $DIC->ui()->mainTemplate();
     }
 
     /**
@@ -84,7 +63,7 @@ abstract class ilTestExportPlugin extends ilPlugin
     /**
      * @return ilObjTest
      */
-    final protected function getTest()
+    final protected function getTest(): ilObjTest
     {
         return $this->test;
     }
@@ -100,16 +79,16 @@ abstract class ilTestExportPlugin extends ilPlugin
     /**
      * @return int
      */
-    public function getTimestmap()
+    public function getTimestmap(): int
     {
         return $this->timestmap;
     }
-    
+
     /**
      * @return string
      * @throws ilException
      */
-    final public function getFormat()
+    final public function getFormat(): string
     {
         $format_id = $this->getFormatIdentifier();
 
@@ -153,14 +132,14 @@ abstract class ilTestExportPlugin extends ilPlugin
             $this->buildExportFile(new ilTestExportFilename($this->getTest()));
         } catch (ilException $e) {
             if ($this->txt($e->getMessage()) == '-' . $e->getMessage() . '-') {
-                ilUtil::sendFailure($e->getMessage(), true);
+                $this->main_tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             } else {
-                ilUtil::sendFailure($this->txt($e->getMessage()), true);
+                $this->main_tpl->setOnScreenMessage('failure', $this->txt($e->getMessage()), true);
             }
             $ilCtrl->redirectByClass('iltestexportgui');
         }
 
-        ilUtil::sendSuccess($lng->txt('exp_file_created'), true);
+        $this->main_tpl->setOnScreenMessage('success', $lng->txt('exp_file_created'), true);
         $ilCtrl->redirectByClass('iltestexportgui');
     }
 
@@ -179,11 +158,11 @@ abstract class ilTestExportPlugin extends ilPlugin
      *
      * @return string
      */
-    abstract protected function getFormatIdentifier();
+    abstract protected function getFormatIdentifier(): string;
 
     /**
      * This method should return a human readable label for your export
      * @return string
      */
-    abstract public function getFormatLabel();
+    abstract public function getFormatLabel(): string;
 }

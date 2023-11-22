@@ -1,30 +1,35 @@
 <?php
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * COPage page object definition handler
- *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- * @ingroup ServicesCOPage
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilCOPageObjDef
 {
-    public static $page_obj_def = null;
-    
-    /**
-     * Init
-     *
-     * @param
-     * @return
-     */
-    public static function init()
+    public static ?array $page_obj_def = null;
+
+    public static function init(): void
     {
         global $DIC;
 
         $db = $DIC->database();
-        
+
         if (self::$page_obj_def == null) {
             $set = $db->query("SELECT * FROM copg_pobj_def ");
             while ($rec = $db->fetchAssoc($set)) {
@@ -32,26 +37,20 @@ class ilCOPageObjDef
             }
         }
     }
-    
+
     /**
-     * Get definitions
-     *
-     * @param
-     * @return
+     * Get all definitios
      */
-    public function getDefinitions()
+    public function getDefinitions(): array
     {
         self::init();
         return self::$page_obj_def;
     }
-    
+
     /**
      * Get definition by parent type
-     *
-     * @param string $a_parent_type parent type
-     * @return array definition
      */
-    public static function getDefinitionByParentType($a_parent_type)
+    public static function getDefinitionByParentType(string $a_parent_type): array
     {
         self::init();
         return self::$page_obj_def[$a_parent_type];

@@ -1,66 +1,64 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once "Services/AdvancedMetaData/classes/class.ilAdvancedMDFieldDefinition.php";
+declare(strict_types=1);
 
 /**
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*
-* @ilCtrl_Calls
-* @ingroup ServicesAdvancedMetaData
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * @author  Stefan Meyer <meyer@leifos.com>
+ * @version $Id$
+ * @ilCtrl_Calls
+ * @ingroup ServicesAdvancedMetaData
+ */
 class ilAdvancedMDValues
 {
-    protected $record_id; // [int]
-    protected $obj_id; // [int]
-    protected $sub_id; // [int]
-    protected $sub_type; // [int]
+    protected int $record_id;
+    protected int $obj_id;
+    protected int $sub_id;
+    protected string $sub_type;
 
-    protected $defs; // [array]
-    protected $adt_group; // [ilADTGroup]
-    protected $active_record; // [ilADTActiveRecordByType]
-        
-    protected $disabled; // [array]
-    
-    protected static $preload_obj_records; // [array]
-    protected static $stored_record_map = [];
-    protected static $stored_fields_map = [];
+    protected ?array $defs = null;
+    protected ?ilADTGroup $adt_group = null;
+    protected ?ilADTActiveRecordByType $active_record = null;
 
-    /**
-     * Constructor
-     *
-     * @param int $a_record_id
-     * @param string $a_obj_id
-     * @param string $a_sub_type
-     * @param int $a_sub_id
-     * @return self
-     */
+    protected array $disabled = [];
+
+    protected static array $preload_obj_records = [];
+
     public function __construct($a_record_id, $a_obj_id, $a_sub_type = "-", $a_sub_id = 0)
     {
         $this->record_id = (int) $a_record_id;
         $this->obj_id = (int) $a_obj_id;
-        $this->sub_type = $a_sub_type ? $a_sub_type : "-";
+        $this->sub_type = $a_sub_type ?: "-";
         $this->sub_id = (int) $a_sub_id;
     }
-        
-    /**
-     * Get instances for given object id
-     *
-     * @param int $a_obj_id
-     * @param string $a_obj_type
-     * @return array
-     */
-    public static function getInstancesForObjectId($a_obj_id, $a_obj_type = null, $a_sub_type = "-", $a_sub_id = 0)
-    {
+
+    public static function getInstancesForObjectId(
+        int $a_obj_id,
+        ?string $a_obj_type = null,
+        string $a_sub_type = "-",
+        int $a_sub_id = 0
+    ): array {
         $res = array();
-        
+
         if (!$a_obj_type) {
             $a_obj_type = ilObject::_lookupType($a_obj_id);
         }
-        
+
         // @todo refactor
         $refs = ilObject::_getAllReferences($a_obj_id);
         foreach ($refs as $ref_id) {
@@ -70,7 +68,7 @@ class ilAdvancedMDValues
 
             foreach ($records as $record) {
                 $id = $record->getRecordId();
-                
+
                 if (!isset($res[$id])) {
                     $res[$id] = new self($id, $a_obj_id, $a_sub_type, $a_sub_id);
                 }
@@ -78,63 +76,47 @@ class ilAdvancedMDValues
         }
         return $res;
     }
-    
-    /**
-     * Set the primary values for active record
-     *
-     * @param int $a_obj_id
-     * @param string $a_sub_type
-     * @param int $a_sub_id
-     */
-    public function setActiveRecordPrimary($a_obj_id, $a_sub_type = "-", $a_sub_id = 0)
+
+    public function setActiveRecordPrimary(int $a_obj_id, string $a_sub_type = "-", int $a_sub_id = 0): void
     {
-        $this->obj_id = (int) $a_obj_id;
-        $this->sub_type = $a_sub_type ? $a_sub_type : "-";
-        $this->sub_id = (int) $a_sub_id;
-        
+        $this->obj_id = $a_obj_id;
+        $this->sub_type = $a_sub_type ?: "-";
+        $this->sub_id = $a_sub_id;
+
         // make sure they get used
         $this->active_record = null;
     }
-    
+
     /**
      * Get record field definitions
-     *
-     * @return array
+     * @return ilAdvancedMDFieldDefinition[]
      */
-    public function getDefinitions()
+    public function getDefinitions(): array
     {
         if (!is_array($this->defs)) {
             $this->defs = ilAdvancedMDFieldDefinition::getInstancesByRecordId($this->record_id);
         }
         return $this->defs;
     }
-    
-    /**
-     * Init ADT group for current record
-     *
-     * @return ilADTGroup
-     */
-    public function getADTGroup()
+
+    public function getADTGroup(): ilADTGroup
     {
         if (!$this->adt_group instanceof ilADTGroup) {
             $this->adt_group = ilAdvancedMDFieldDefinition::getADTGroupForDefinitions($this->getDefinitions());
         }
         return $this->adt_group;
     }
-    
+
     /**
      * Init ADT DB Bridge (aka active record helper class)
-     *
-     * @return ilADTActiveRecordByType
      */
-    protected function getActiveRecord()
+    protected function getActiveRecord(): ilADTActiveRecordByType
     {
         if (!$this->active_record instanceof ilADTActiveRecordByType) {
-            include_once "Services/ADT/classes/class.ilADTFactory.php";
             $factory = ilADTFactory::getInstance();
-            
+
             $adt_group_db = $factory->getDBBridgeForInstance($this->getADTGroup());
-                             
+
             $primary = array(
                 "obj_id" => array("integer", $this->obj_id),
                 "sub_type" => array("text", $this->sub_type),
@@ -142,7 +124,7 @@ class ilAdvancedMDValues
             );
             $adt_group_db->setPrimary($primary);
             $adt_group_db->setTable("adv_md_values");
-            
+
             // multi-enum fakes single in adv md
             foreach ($adt_group_db->getElements() as $element) {
                 if ($element->getADT()->getType() == "MultiEnum") {
@@ -153,55 +135,41 @@ class ilAdvancedMDValues
             $this->active_record = $factory->getActiveRecordByTypeInstance($adt_group_db);
             $this->active_record->setElementIdColumn("field_id", "integer");
         }
-        
+
         return $this->active_record;
     }
-    
+
     /**
      * Find all entries for object (regardless of sub-type/sub-id)
-     *
-     * @param int $a_obj_id
-     * @return array
      */
-    public static function findByObjectId($a_obj_id)
+    public static function findByObjectId(int $a_obj_id): ?array
     {
-        include_once "Services/ADT/classes/class.ilADTFactory.php";
         ilADTFactory::initActiveRecordByType();
         return ilADTActiveRecordByType::readByPrimary("adv_md_values", array("obj_id" => array("integer", $a_obj_id)));
     }
-    
-        
+
+
     //
     // disabled
     //
-    
+
     // to set disabled use self::write() with additional data
-    
-    /**
-     * Is element disabled?
-     *
-     * @param string $a_element_id
-     * @return bool
-     */
-    public function isDisabled($a_element_id)
+
+    public function isDisabled(string $a_element_id): ?bool
     {
         if (is_array($this->disabled)) {
             return in_array($a_element_id, $this->disabled);
         }
+        return null;
     }
-    
-    
-    //
-    // CRUD
-    //
-    
+
     /**
      * Get record values
      */
-    public function read()
+    public function read(): void
     {
         $this->disabled = array();
-        
+
         $tmp = $this->getActiveRecord()->read(true);
         if ($tmp) {
             foreach ($tmp as $element_id => $data) {
@@ -211,25 +179,22 @@ class ilAdvancedMDValues
             }
         }
     }
-    
+
     /**
      * Write record values
-     *
-     * @param array $a_additional_data
      */
-    public function write(array $a_additional_data = null)
+    public function write(array $a_additional_data = null): void
     {
         $this->getActiveRecord()->write($a_additional_data);
     }
-    
+
     /**
      * Delete values by field_id.
      * Typically called after deleting a field
-     *
      * @param int $a_field_id
      * @param ilADT $a_adt
      */
-    public static function _deleteByFieldId($a_field_id, ilADT $a_adt)
+    public static function _deleteByFieldId(int $a_field_id, ilADT $a_adt): void
     {
         ilADTFactory::getInstance()->initActiveRecordByType();
         ilADTActiveRecordByType::deleteByPrimary(
@@ -238,13 +203,11 @@ class ilAdvancedMDValues
             $a_adt->getType()
         );
     }
-        
+
     /**
      * Delete by objekt id
-     *
-     * @param int $a_obj_id
      */
-    public static function _deleteByObjId($a_obj_id)
+    public static function _deleteByObjId(int $a_obj_id)
     {
         ilADTFactory::getInstance()->initActiveRecordByType();
         ilADTActiveRecordByType::deleteByPrimary(
@@ -252,36 +215,28 @@ class ilAdvancedMDValues
             array("obj_id" => array("integer", $a_obj_id))
         );
     }
-    
-    
-    
-    //
-    // substitutions (aka list gui)
-    //
-    
+
     /**
      * Preload list gui data
-     *
-     * @param array $a_obj_ids
+     * @param int[] $a_obj_ids
      */
-    public static function preloadByObjIds(array $a_obj_ids)
+    public static function preloadByObjIds(array $a_obj_ids): void
     {
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         // preload values
         ilADTFactory::getInstance()->initActiveRecordByType();
         ilADTActiveRecordByType::preloadByPrimary(
             "adv_md_values",
             array("obj_id" => array("integer", $a_obj_ids))
         );
-        
-        
+
         // preload record ids for object types
-        
+
         self::$preload_obj_records = array();
-        
+
         // get active records for object types
         $query = "SELECT amro.*" .
             " FROM adv_md_record_objs amro" .
@@ -289,22 +244,23 @@ class ilAdvancedMDValues
             " WHERE active = " . $ilDB->quote(1, "integer");
         $set = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($set)) {
-            self::$preload_obj_records[$row["obj_type"]][] = array($row["record_id"], $row["optional"]);
+            self::$preload_obj_records[(string) $row["obj_type"]][] = array((int) $row["record_id"],
+                                                                            (int) $row["optional"]
+            );
         }
     }
-    
-    public static function preloadedRead($a_type, $a_obj_id)
+
+    public static function preloadedRead(string $a_type, int $a_obj_id): array
     {
         $res = array();
-        
+
         if (isset(self::$preload_obj_records[$a_type])) {
             foreach (self::$preload_obj_records[$a_type] as $item) {
                 $record_id = $item[0];
-                
+
                 // record is optional, check activation for object
                 if ($item[1]) {
                     $found = false;
-                    include_once "Services/AdvancedMetaData/classes/class.ilAdvancedMDRecord.php";
                     foreach (ilAdvancedMDRecord::_getSelectedRecordsByObject($a_type, $a_obj_id) as $record) {
                         if ($record->getRecordId() == $item[0]) {
                             $found = true;
@@ -314,31 +270,26 @@ class ilAdvancedMDValues
                         continue;
                     }
                 }
-                
+
                 $res[$record_id] = new self($record_id, $a_obj_id);
                 $res[$record_id]->read();
             }
         }
-        
+
         return $res;
     }
-    
-        
-    //
-    // copy/export (import: ilAdvancedMDValueParser)
-    //
-            
+
     /**
      * Clone Advanced Meta Data
-     *
-     * @param int source obj_id
-     * @param int target obj_id
-     * @param string sub_type (both source/target)
-     * @param int source sub_id
-     * @param int target sub_id
      */
-    public static function _cloneValues($a_source_id, $a_target_id, $a_sub_type = null, $a_source_sub_id = null, $a_target_sub_id = null, $use_stored_record_map = false)
-    {
+    public static function _cloneValues(
+        int $copy_id,
+        int $a_source_id,
+        int $a_target_id,
+        ?string $a_sub_type = null,
+        ?int $a_source_sub_id = null,
+        ?int $a_target_sub_id = null
+    ): void {
         global $DIC;
 
         $ilLog = $DIC['ilLog'];
@@ -346,32 +297,57 @@ class ilAdvancedMDValues
         // clone local records
 
         // new records are created automatically, only if source and target id differs.
-        include_once "Services/AdvancedMetaData/classes/class.ilAdvancedMDRecord.php";
         $new_records = $fields_map = array();
 
+        // if we have a sub object and are in a copy process,
+        // get mapping from parent
+        $parent_mapping = null;
+        if (!is_null($a_source_sub_id) && $copy_id > 0) {
+            $parent_mapping = self::getParentMapping($copy_id, (string) $a_target_id);
+            if (!is_null($parent_mapping)) {
+                $new_records = $parent_mapping["records"];
+                $fields_map = $parent_mapping["fields"];
+            }
+        }
+
+        $record_mapping = [];
         foreach (ilAdvancedMDRecord::_getRecords() as $record) {
-            if ($record->getParentObject() == $a_source_id && !$use_stored_record_map) {
+            if ($record->getParentObject() == $a_source_id && is_null($parent_mapping)) {
+
+                // if we have a sub object and are in a copy process,
+                // the main object must have already copied its records
+                if (!is_null($a_source_sub_id) && $copy_id > 0) {
+                    throw new ilException("ilAdvancedMDValues::_cloneValues must be called for parent object first.");
+                }
+
                 $tmp = array();
                 if ($a_source_id != $a_target_id) {
                     $new_records[$record->getRecordId()] = $record->_clone($tmp, $a_target_id);
+                    $record_mapping[$record->getRecordId()] = $new_records[$record->getRecordId()]->getRecordId();
                 } else {
                     $new_records[$record->getRecordId()] = $record->getRecordId();
                 }
                 $fields_map[$record->getRecordId()] = $tmp;
             }
         }
-        if (!$use_stored_record_map) {
-            self::$stored_record_map = $new_records;
-            self::$stored_fields_map = $fields_map;
-        } else {
-            $new_records = self::$stored_record_map;
-            $fields_map = self::$stored_fields_map;
+
+        // write mapping when not in sub-object
+        if ($copy_id > 0 && is_null($a_source_sub_id)) {
+            $cp_options = ilCopyWizardOptions::_getInstance($copy_id);
+            $cp_options->appendMapping(
+                $a_target_id . '_adv_rec',
+                $record_mapping
+            );
+            $cp_options->appendMapping(
+                $a_target_id . '_adv_rec_fields',
+                $fields_map
+            );
+            $cp_options->read();        // otherwise mapping will not be available for getMappings
         }
-        
-        
+
         // object record selection
-        
-        $source_sel = ilAdvancedMDRecord::getObjRecSelection($a_source_id, $a_sub_type);
+
+        $source_sel = ilAdvancedMDRecord::getObjRecSelection($a_source_id, (string) $a_sub_type);
         if ($source_sel) {
             $target_sel = array();
             foreach ($source_sel as $record_id) {
@@ -385,10 +361,10 @@ class ilAdvancedMDValues
         }
 
         // clone values
-        
+
         $source_primary = array("obj_id" => array("integer", $a_source_id));
         $target_primary = array("obj_id" => array("integer", $a_target_id));
-        
+
         // sub-type support
         if ($a_sub_type &&
             $a_source_sub_id &&
@@ -398,7 +374,7 @@ class ilAdvancedMDValues
             $target_primary["sub_type"] = array("text", $a_sub_type);
             $target_primary["sub_id"] = array("integer", $a_target_sub_id);
         }
-        
+
         ilADTFactory::getInstance()->initActiveRecordByType();
         $has_cloned = ilADTActiveRecordByType::cloneByPrimary(
             "adv_md_values",
@@ -412,10 +388,9 @@ class ilAdvancedMDValues
             $target_primary,
             array("disabled" => "integer")
         );
-        
-        
+
         // move values of local records to newly created fields
-        
+
         foreach ($fields_map as $source_record_id => $fields) {
             // just to make sure
             if (array_key_exists($source_record_id, $new_records)) {
@@ -445,38 +420,51 @@ class ilAdvancedMDValues
                 }
             }
         }
-        
+
         if (!$has_cloned) {
             $ilLog->write(__METHOD__ . ': No advanced meta data found.');
         } else {
             $ilLog->write(__METHOD__ . ': Start cloning advanced meta data.');
         }
-        return true;
     }
-    
+
+    protected static function getParentMapping(int $copy_id, string $target): ?array
+    {
+        $cp_options = ilCopyWizardOptions::_getInstance($copy_id);
+        $mappings = $cp_options->getMappings();
+        $key1 = $target . '_adv_rec';
+        $key2 = $target . '_adv_rec_fields';
+        if (is_array($mappings) && isset($mappings[$key1])) {
+            return [
+                "records" => $mappings[$key1],
+                "fields" => $mappings[$key2] ?? []
+            ];
+        }
+        return null;
+    }
+
     /**
      * Get xml of object values
-     *
      * @param ilXmlWriter $a_xml_writer
-     * @param int $a_obj_id
+     * @param int         $a_obj_id
      */
-    public static function _appendXMLByObjId(ilXmlWriter $a_xml_writer, $a_obj_id)
+    public static function _appendXMLByObjId(ilXmlWriter $a_xml_writer, int $a_obj_id): void
     {
         $a_xml_writer->xmlStartTag('AdvancedMetaData');
-            
+
         self::preloadByObjIds(array($a_obj_id));
         $values_records = self::preloadedRead(ilObject::_lookupType($a_obj_id), $a_obj_id);
-        
+
         foreach ($values_records as $values_record) {
             $defs = $values_record->getDefinitions();
             foreach ($values_record->getADTGroup()->getElements() as $element_id => $element) {
                 $def = $defs[$element_id];
-                
+
                 $value = null;
                 if (!$element->isNull()) {
                     $value = $def->getValueForXML($element);
                 }
-                
+
                 $a_xml_writer->xmlElement(
                     'Value',
                     array('id' => $def->getImportId()),
@@ -484,34 +472,30 @@ class ilAdvancedMDValues
                 );
             }
         }
-        
         $a_xml_writer->xmlEndTag('AdvancedMetaData');
     }
-    
-
-    //
-    // glossary (might be generic)
-    //
 
     /**
-     * Query data for given object records
-     *
-     * @param
-     * @return
+     * @todo refactor this
      */
-    public static function queryForRecords($adv_rec_obj_ref_id, $adv_rec_obj_type, $adv_rec_obj_subtype, $a_obj_id, $a_subtype, $a_records, $a_obj_id_key, $a_obj_subid_key, array $a_amet_filter = null)
-    {
+    public static function queryForRecords(
+        int $adv_rec_obj_ref_id,
+        string $adv_rec_obj_type,
+        string $adv_rec_obj_subtype,
+        array $a_obj_id,
+        string $a_subtype,
+        array $a_records,
+        string $a_obj_id_key,
+        string $a_obj_subid_key,
+        array $a_amet_filter = null
+    ): array {
         $results = array();
-        
-        if (!is_array($a_obj_id)) {
-            $a_obj_id = array($a_obj_id);
-        }
-            
+
         $sub_obj_ids = array();
         foreach ($a_records as $rec) {
             $sub_obj_ids[] = $rec[$a_obj_subid_key];
         }
-        
+
         // preload adv data for object id(s)
         ilADTFactory::getInstance()->initActiveRecordByType();
         ilADTActiveRecordByType::preloadByPrimary(
@@ -522,24 +506,28 @@ class ilAdvancedMDValues
                 "sub_id" => array("integer", $sub_obj_ids)
             )
         );
-        
+
         $record_groups = array();
-        
+
         foreach ($a_records as $rec) {
-            $obj_id = (int) $rec[$a_obj_id_key];
+            $obj_id = (int) ($rec[$a_obj_id_key] ?? 0);
             $sub_id = $rec[$a_obj_subid_key];
 
             // get adv records
-            foreach (ilAdvancedMDRecord::_getSelectedRecordsByObject($adv_rec_obj_type, $adv_rec_obj_ref_id, $adv_rec_obj_subtype) as $adv_record) {
+            foreach (ilAdvancedMDRecord::_getSelectedRecordsByObject(
+                $adv_rec_obj_type,
+                $adv_rec_obj_ref_id,
+                $adv_rec_obj_subtype
+            ) as $adv_record) {
                 $record_id = $adv_record->getRecordId();
-                
+
                 if (!isset($record_groups[$record_id])) {
                     $defs = ilAdvancedMDFieldDefinition::getInstancesByRecordId($record_id);
                     $record_groups[$record_id] = ilAdvancedMDFieldDefinition::getADTGroupForDefinitions($defs);
                     $record_groups[$record_id] = ilADTFactory::getInstance()->getDBBridgeForInstance($record_groups[$record_id]);
                     $record_groups[$record_id]->setTable("adv_md_values");
                 }
-                
+
                 // prepare ADT group for record id
                 $record_groups[$record_id]->setPrimary(array(
                     "obj_id" => array("integer", $obj_id),
@@ -552,19 +540,18 @@ class ilAdvancedMDValues
                         $element->setFakeSingle(true);
                     }
                 }
-                
+
                 // read (preloaded) data
                 $active_record = new ilADTActiveRecordByType($record_groups[$record_id]);
                 $active_record->setElementIdColumn("field_id", "integer");
                 $active_record->read();
-                    
-                $adt_group = $record_groups[$record_id]->getADT();
 
+                $adt_group = $record_groups[$record_id]->getADT();
                 // filter against amet values
                 if ($a_amet_filter) {
                     foreach ($a_amet_filter as $field_id => $element) {
-                        if ($adt_group->hasElement($field_id)) {
-                            if (!$element->isInCondition($adt_group->getElement($field_id))) {
+                        if ($adt_group->hasElement((string) $field_id)) {
+                            if (!$element->isInCondition($adt_group->getElement((string) $field_id))) {
                                 continue(3);
                             }
                         }
@@ -582,7 +569,7 @@ class ilAdvancedMDValues
                     }
                 }
             }
-            
+
             $results[] = $rec;
         }
 

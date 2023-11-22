@@ -1,45 +1,44 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 class ilICalWriter
 {
     protected const LINEBREAK = "\r\n";
+
     // minus one to fix multi line breaks.
     protected const LINE_SIZE = 74;
     protected const BEGIN_LINE_WHITESPACE = ' ';
     protected const EMPTY = '';
 
+
     /**
      * @var string[]
      */
-    protected $lines;
-    
+    protected array $lines;
+
     public function __construct()
     {
         $this->lines = [];
     }
-    
-    public static function escapeText($a_text)
+
+    public static function escapeText(string $a_text): string
     {
         $a_text = str_replace("\r\n", '\\n', $a_text);
 
@@ -48,22 +47,18 @@ class ilICalWriter
                 '/\\\/',
                 '/;/',
                 '/,/',
-                ),
+            ),
             array(
                 '\\',
                 '\;',
                 '\,',
-                ),
+            ),
             $a_text
         );
     }
 
-    public function addLine(string $a_line) : void
+    public function addLine(string $a_line): void
     {
-        //$chunks = str_split($a_line, self::LINE_SIZE);
-
-        include_once './Services/Utilities/classes/class.ilStr.php';
-
         // use multibyte split
         $chunks = [];
         $len = ilStr::strLen($a_line);
@@ -81,22 +76,22 @@ class ilICalWriter
         }
     }
 
-    public function byteCount() : int
+    public function byteCount(): int
     {
         return strlen($this->__toString());
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         $this->lines = [];
     }
 
-    public function append(ilICalWriter $other) : void
+    public function append(ilICalWriter $other): void
     {
         $this->lines = array_merge($this->lines, $other->lines);
     }
 
-    public function __toString() : string
+    public function __toString(): string
     {
         return implode('', $this->lines);
     }

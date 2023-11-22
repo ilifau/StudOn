@@ -1,93 +1,70 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
-require_once "./Services/Container/classes/class.ilContainerGUI.php";
+declare(strict_types=1);
 
 /**
-* Class ilObjRecoveryFolderGUI
-*
-* @author Sascha Hofmann <shofmann@databay.de>
-* @version $Id$
-*
-* @ilCtrl_Calls ilObjRecoveryFolderGUI: ilPermissionGUI
-*
-* @extends ilObjectGUI
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Administration\AdminGUIRequest;
+
+/**
+ * Class ilObjRecoveryFolderGUI
+ *
+ * @author Sascha Hofmann <shofmann@databay.de>
+ * @ilCtrl_Calls ilObjRecoveryFolderGUI: ilPermissionGUI
+ */
 class ilObjRecoveryFolderGUI extends ilContainerGUI
 {
-    /**
-     * @var ilRbacAdmin
-     */
-    protected $rbacadmin;
+    protected AdminGUIRequest $admin_request;
+    public ilRbacSystem $rbacsystem;
 
-    /**
-     * @var ilRbacSystem
-     */
-    protected $rbacsystem;
-
-    /**
-    * Constructor
-    * @access public
-    */
-    public function __construct($a_data, $a_id, $a_call_by_reference)
-    {
+    public function __construct(
+        $a_data,
+        int $a_id,
+        bool $a_call_by_reference
+    ) {
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
 
         $this->rbacadmin = $DIC->rbac()->admin();
         $this->rbacsystem = $DIC->rbac()->system();
         $this->type = "recf";
         parent::__construct($a_data, $a_id, $a_call_by_reference, false);
+
+        $this->admin_request = new AdminGUIRequest(
+            $DIC->http(),
+            $DIC->refinery()
+        );
     }
-    
-    /**
-    * save object
-    * @access	public
-    */
-    public function saveObject()
+
+    public function saveObject(): void
     {
-        $rbacadmin = $this->rbacadmin;
-
-        // create and insert forum in objecttree
-        $newObj = parent::saveObject();
-
-        // put here object specific stuff
-            
-        // always send a message
-        ilUtil::sendSuccess($this->lng->txt("object_added"), true);
+        parent::saveObject();
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("object_added"), true);
         exit();
     }
 
-    public function removeFromSystemObject()
+    public function removeFromSystemObject(): void
     {
-        $rbacsystem = $this->rbacsystem;
-        
-        include_once("./Services/Repository/classes/class.ilRepUtilGUI.php");
-        $ru = new ilRepUtilGUI($this);
-        $ru->removeObjectsFromSystem($_POST["id"], true);
+        $ru = new ilRepositoryTrashGUI($this);
+        $ru->removeObjectsFromSystem($this->admin_request->getSelectedIds(), true);
         $this->ctrl->redirect($this, "view");
     }
-    
-    public function executeCommand()
+
+    public function executeCommand(): void
     {
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
@@ -95,9 +72,8 @@ class ilObjRecoveryFolderGUI extends ilContainerGUI
 
         switch ($next_class) {
             case 'ilpermissiongui':
-                include_once("Services/AccessControl/classes/class.ilPermissionGUI.php");
                 $perm_gui = new ilPermissionGUI($this);
-                $ret = &$this->ctrl->forwardCommand($perm_gui);
+                $this->ctrl->forwardCommand($perm_gui);
                 break;
 
             default:
@@ -106,22 +82,16 @@ class ilObjRecoveryFolderGUI extends ilContainerGUI
                 }
                 $cmd .= "Object";
                 $this->$cmd();
-
                 break;
         }
-        return true;
     }
 
-    
-    public function showPossibleSubObjects()
+    protected function showPossibleSubObjects(): void
     {
         $this->sub_objects = "";
     }
-    
-    /**
-    * Get Actions
-    */
-    public function getActions()
+
+    public function getActions(): array
     {
         // standard actions for container
         return array(
@@ -130,4 +100,4 @@ class ilObjRecoveryFolderGUI extends ilContainerGUI
             "removeFromSystem" => array("name" => "removeFromSystem", "lng" => "btn_remove_system")
         );
     }
-} // END class.ilObjRecoveryFolderGUI
+}

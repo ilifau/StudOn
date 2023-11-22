@@ -1,45 +1,57 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateBackgroundImageDelete
 {
+    private string $certificatePath;
+    private ilCertificateBackgroundImageFileService $fileService;
 
-    /**
-     * @var string
-     */
-    private $certificatePath;
-
-    /**
-     * @var ilCertificateBackgroundImageFileService
-     */
-    private $fileService;
-
-    /**
-     * @param string                                  $certificatePath
-     * @param ilCertificateBackgroundImageFileService $fileService
-     */
     public function __construct(string $certificatePath, ilCertificateBackgroundImageFileService $fileService)
     {
         $this->certificatePath = $certificatePath;
         $this->fileService = $fileService;
     }
 
-    public function deleteBackgroundImage(string $version)
+    public function deleteBackgroundImage(?int $version): void
     {
-        if (file_exists($this->fileService->getBackgroundImageThumbPath())) {
+        if (is_file($this->fileService->getBackgroundImageThumbPath())) {
             unlink($this->fileService->getBackgroundImageThumbPath());
         }
 
-        $filename = $this->certificatePath . 'background_' . $version . '.jpg';
-        if (file_exists($filename)) {
+        $version_string = '';
+        if (is_int($version) && $version >= 0) {
+            $version_string = (string) $version;
+        }
+
+        $filename = $this->certificatePath . 'background_' . $version_string . '.jpg';
+        if (is_file($filename)) {
             unlink($filename);
         }
 
-        if (file_exists($this->fileService->getBackgroundImageTempfilePath())) {
-            unlink($this->fileService->getBackgroundImageTempfilePath());
+        foreach ($this->fileService->getValidBackgroundImageFileExtensions() as $extension) {
+            if (file_exists($this->fileService->getBackgroundImageTempfilePath($extension))) {
+                unlink($this->fileService->getBackgroundImageTempfilePath($extension));
+            }
         }
     }
 }

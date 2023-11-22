@@ -17,8 +17,8 @@
 
 datepicker.regional.es = {
 	closeText: "Cerrar",
-	prevText: "Ant",
-	nextText: "Sig",
+	prevText: "&#x3C;Ant",
+	nextText: "Sig&#x3E;",
 	currentText: "Hoy",
 	monthNames: [ "enero", "febrero", "marzo", "abril", "mayo", "junio",
 	"julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre" ],

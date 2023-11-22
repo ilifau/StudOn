@@ -35,7 +35,7 @@
 
 	const triggerMap = {
 		participantEvent: ['click', '[data-onscreenchat-userid]'],
-		onEmitCloseConversation: ['click', '[data-onscreenchat-close]'],
+		onEmitCloseConversation: ['click', '[data-onscreenchat-minimize]'],
 		submitEvent: ['click', '[data-action="onscreenchat-submit"]', 'keydown', '[data-onscreenchat-window]'],
 		addEvent: ['click', '[data-onscreenchat-add]'],
 		windowClicked: ['click', '[data-onscreenchat-window]'],
@@ -44,7 +44,8 @@
 		focusOut: ['focusout', '[data-onscreenchat-window]'],
 		emoticonClicked: ['click', '[data-onscreenchat-emoticon]'],
 		menuItemClicked: ['click', '[data-onscreenchat-menu-item]'],
-		menuItemRemovalRequest: ['click', '[data-onscreenchat-menu-remove-conversation]'],
+		menuItemRemovalRequest: [],
+		messageKeyUpEvent: ['keyup', '[data-onscreenchat-message]'],
 	};
 	$scope.il.OnScreenChatJQueryTriggers = {
 		triggers: mapObject(triggerMap, function(){return function(){};}),
@@ -85,19 +86,13 @@
 		participantsImages: {},
 		participantsNames: {},
 		chatWindowWidth: 278,
-		notificationItemId: '',
 		numWindows: Infinity,
-		notificationCenterConversationItems: {},
+		conversationItems: {},
 		conversationMessageTimes: {},
 		conversationToUiIdMap: {},
-		notificationItemsAdded: 0,
 
 		setConversationMessageTimes: function(timeInfo) {
 			getModule().conversationMessageTimes = timeInfo;
-		},
-
-		setNotificationItemId: function(id) {
-			getModule().notificationItemId = id;
 		},
 
 		addConversationToUiIdMapping: function(conversationId, uiId) {
@@ -176,11 +171,13 @@
 				});
 			}, 60000);
 
-			$chat.init(getConfig().userId, getConfig().username, getModule().onLogin);
+			$chat.init(getConfig().userId, getConfig().username, getModule().onLogin, getModule().onUnload);
 			$chat.receiveMessage(getModule().receiveMessage);
 			$chat.onParticipantsSuppressedMessages(getModule().onParticipantsSuppressedMessages);
 			$chat.onSenderSuppressesMessages(getModule().onSenderSuppressesMessages);
 			$chat.receiveConversation(getModule().onConversation);
+			$chat.onUserStartedTyping(getModule().onUserStartedTyping);
+			$chat.onUserStoppedTyping(getModule().onUserStoppedTyping);
 			$chat.onHistory(getModule().onHistory);
 			$chat.onGroupConversation(getModule().onConversationInit);
 			$chat.onGroupConversationLeft(getModule().onConversationLeft);
@@ -190,6 +187,7 @@
 				participantEvent:        getModule().startConversation,
 				onEmitCloseConversation: getModule().onEmitCloseConversation,
 				submitEvent:             getModule().handleSubmit,
+				messageKeyUpEvent:       getModule().onMessageKeyUp,
 				addEvent:                getModule().openInviteUser,
 				resizeChatWindow:        getModule().resizeMessageInput,
 				focusOut:                getModule().onFocusOut,
@@ -218,8 +216,13 @@
 			e.stopPropagation();
 
 			let link = $(this),
-				conversationId = $(link).attr('data-onscreenchat-conversation'),
-				conversation = getModule().storage.get(conversationId);
+				conversationId = $(link).attr('data-onscreenchat-conversation');
+
+			if (!conversationId && this.closest('[data-id]') !== null) {
+				conversationId = this.closest('[data-id]').dataset.id;
+			}
+
+			let conversation = getModule().storage.get(conversationId);
 
 			if (conversation == null) {
 				let participant = {
@@ -319,6 +322,7 @@
 				); 
 			}
 
+			conversationWindow.find("[aria-live]").attr("aria-live", "polite")
 			conversationWindow.show();
 
 			if(countOpenChatWindows() > getModule().numWindows) {
@@ -364,7 +368,7 @@
 		createWindow: function(conversation) {
 			var template = getModule().config.chatWindowTemplate;
 			if (conversation.isGroup) {
-				var participantsNames = getParticipantsNames(conversation, false);
+				var participantsNames = getParticipantsNames(conversation);
 				var partTooltipFormatter = new ParticipantsTooltipFormatter(participantsNames);
 				template = template.replace(/\[\[participants-tt\]\]/g, partTooltipFormatter.format());
 				template = template.replace(
@@ -372,13 +376,14 @@
 					il.Language.txt('chat_osc_head_grp_x_persons', participantsNames.length)
 				);
 			} else {
-				var participantsNames = getParticipantsNames(conversation);
+				var participantsNames = getParticipantsNames(conversation, function(usrId) {
+					return getModule().user === undefined || getModule().user.id != usrId;
+				});
 
 				template = template.replace(/\[\[participants-tt\]\]/g, participantsNames.join(', '));
 				template = template.replace(/\[\[participants-header\]\]/g, participantsNames.join(', '));
 			}
 			template = template.replace(/\[\[conversationId\]\]/g, conversation.id);
-			template = template.replace('#:#close#:#', il.Language.txt('close'));
 			template = template.replace('#:#chat_osc_write_a_msg#:#', il.Language.txt('chat_osc_write_a_msg'));
 
 			var $template = $(template);
@@ -389,111 +394,54 @@
 				"data-toggle":           "tooltip",
 				"data-placement":        "auto"
 			});
-			$template.find('.close').attr({
-				"title":                   il.Language.txt('close'),
-				"data-onscreenchat-close": conversation.id,
+			$template.find('.minimize').attr({
+				"title":                   il.Language.txt('chat_osc_minimize'),
+				"data-onscreenchat-minimize": conversation.id,
 				"data-toggle":             "tooltip",
 				"data-placement":          "auto"
 			});
 
 			return $template;
 		},
-
-		closeNotificationCenter: function() {
-			try {
-				let notificationContainer = il.UI.item.notification.getNotificationItemObject(
-					$("#" + getModule().notificationItemId)
-				);
-				notificationContainer.closeNotificationCenter();
-			} catch (e) {
-				console.error(e);
-			}
-		},
-
-		rerenderNotifications: function(conversation, withServerSideRendering = true) {
-			let currentNotificationItemsAdded = getModule().notificationItemsAdded;
-
-			let conversations = Object.values(getModule().notificationCenterConversationItems).filter(function(conversation) {
+		rerenderConversations: function(conversation) {
+			let conversations = Object.values(getModule().conversationItems).filter(function(conversation) {
 				return conversation.latestMessage !== null && (conversation.open === false || conversation.open === undefined);
 			}).sort(function(a, b) {
 				return b.latestMessage.timestamp - a.latestMessage.timestamp;
 			});
 
-			if (0 === currentNotificationItemsAdded && 0 === conversations.length) {
-				return;
-			}
-
 			try {
-				let $notificationRoot = $("#" + getModule().notificationItemId),
-					notificationContainer = il.UI.item.notification.getNotificationItemObject(
-						$notificationRoot
-					), doCloseNotificationCenter = false;
+				let conversationIds = conversations.map(function (conversation) {
+					return conversation.id;
+				}).join(",");
 
-				if (currentNotificationItemsAdded > 0 && 0 === conversations.length) {
-					doCloseNotificationCenter = true;
-				} else if (0 === currentNotificationItemsAdded && conversations.length > 0) {
-				}
-
-				getModule().notificationItemsAdded = conversations.length;
-
-				if (withServerSideRendering) {
-					let conversationIds = conversations.map(function (conversation) {
-						return conversation.id;
-					}).join(",");
-
-					notificationContainer.replaceByAsyncItem(getConfig().renderNotificationItemsURL, {
-						"ids": conversationIds
-					});
-				} else if (getModule().conversationToUiIdMap.hasOwnProperty(conversation.id)) {
-					try {
-						let $aggregateItem = $("#" + getModule().conversationToUiIdMap[conversation.id]),
-							aggregateNotificationItem = il.UI.item.notification.getNotificationItemObject(
-								$aggregateItem
-							);
-
-						aggregateNotificationItem.closeItem();
-						if (getModule().conversationMessageTimes.hasOwnProperty(conversation.id)) {
-							delete getModule().conversationMessageTimes[conversation.id];
-						}
-
-						notificationContainer.setItemDescription(function() {
-							if (0 === getModule().notificationItemsAdded) {
-								return il.Language.txt("chat_osc_nc_no_conv");
-							} else if (1 === getModule().notificationItemsAdded) {
-								return il.Language.txt("chat_osc_nc_conv_x_s");
-							}
-
-							return il.Language.txt("chat_osc_nc_conv_x_p", getModule().notificationItemsAdded);
-						}());
-
-						if (0 === conversations.length) {
-							notificationContainer.removeItemProperties();
-							if (doCloseNotificationCenter) {
-								getModule().closeNotificationCenter();
-							}
-						} else {
-							let latestTimestamp = Math.max(
-								Object
-									.keys(getModule().conversationMessageTimes)
-									.map(key => getModule().conversationMessageTimes[key].ts)
-							), formattedTimestamps = (function(obj, f) {
-								return Object
-									.keys(obj)
-									.filter(key => !f(obj[key]))
-									.map(key => obj[key].formatted);
-							})(getModule().conversationMessageTimes, e => e.ts !== latestTimestamp);
-
-							if (formattedTimestamps.length > 0) {
-								notificationContainer.setItemPropertyValueAtPosition(formattedTimestamps[0], 1);
-							}
-						}
-					} catch (e) {
-						console.error(e);
+				let xhr = new XMLHttpRequest();
+				xhr.open('GET', getConfig().renderConversationItemsURL + '&ids=' + conversationIds);
+				xhr.onload = function () {
+					if (xhr.status === 200) {
+						getModule().menuCollector.innerHTML = xhr.responseText;
+						getModule().menuCollector.querySelectorAll('script').forEach(element => {
+							eval(element.innerHTML);
+						})
+						$(getModule().menuCollector)
+							.off('click', '[data-id]')
+							.off('click', '[data-id] .close');
+						$(getModule().menuCollector)
+							.on('click', '[data-id]', $scope.il.OnScreenChatJQueryTriggers.triggers.menuItemClicked)
+							.on('click', '[data-id] .close', $scope.il.OnScreenChatJQueryTriggers.triggers.menuItemRemovalRequest);
+					} else {
+						il.OnScreenChat.menuCollector.innerHTML = '';
+						console.error(xhr.status + ': ' + xhr.responseText);
 					}
-				}
+				};
+				xhr.send();
 			} catch (e) {
 				console.error(e);
 			}
+		},
+
+		removeMenuEntry: () => {
+			event.target.closest('[data-id]').remove();
 		},
 
 		/**
@@ -501,13 +449,16 @@
 		 * @param conversation
 		 */
 		onRemoveConversation: function(conversation) {
-			$('[data-onscreenchat-window=' + conversation.id + ']').hide();
-			// Remove conversation/notification from notification center
+			const conversationWindow = $('[data-onscreenchat-window=' + conversation.id + ']');
 
-			if (getModule().notificationCenterConversationItems.hasOwnProperty(conversation.id)) {
-				delete getModule().notificationCenterConversationItems[conversation.id];
+			conversationWindow.find("[aria-live]").attr("aria-live", "off")
+			conversationWindow.hide();
+
+			// Remove conversation
+			if (getModule().conversationItems.hasOwnProperty(conversation.id)) {
+				delete getModule().conversationItems[conversation.id];
 			}
-			getModule().rerenderNotifications(conversation, false);
+			getModule().rerenderConversations(conversation);
 		},
 
 		/**
@@ -515,14 +466,17 @@
 		 * @param conversation
 		 */
 		onCloseConversation: function(conversation) {
-			$('[data-onscreenchat-window=' + conversation.id + ']').hide();
+			const conversationWindow = $('[data-onscreenchat-window=' + conversation.id + ']');
 
-			// Add or update conversation/notification to notification center
-			if (!getModule().notificationCenterConversationItems.hasOwnProperty(conversation.id)) {
-				getModule().notificationCenterConversationItems[conversation.id] = conversation;
+			conversationWindow.find("[aria-live]").attr("aria-live", "off")
+			conversationWindow.hide();
+
+			// Add or update conversation
+			if (!getModule().conversationItems.hasOwnProperty(conversation.id)) {
+				getModule().conversationItems[conversation.id] = conversation;
 			}
-			DeferredCallbackFactory('renderNotifications')(function () {
-				getModule().rerenderNotifications(conversation);
+			DeferredCallbackFactory('renderConversations')(function () {
+				getModule().rerenderConversations(conversation);
 			}, 100);
 		},
 
@@ -533,11 +487,12 @@
 		onOpenConversation: function(conversation) {
 			getModule().open(conversation);
 
-			// Remove conversation/notification from notification center
-			if (getModule().notificationCenterConversationItems.hasOwnProperty(conversation.id)) {
-				delete getModule().notificationCenterConversationItems[conversation.id];
+			// Remove conversation
+			if (getModule().conversationItems.hasOwnProperty(conversation.id)) {
+				delete getModule().conversationItems[conversation.id];
 			}
-			getModule().rerenderNotifications(conversation, false);
+
+			getModule().rerenderConversations(conversation);
 		},
 
 		/**
@@ -549,7 +504,7 @@
 			e.preventDefault();
 			e.stopPropagation();
 
-			var conversation = getModule().storage.get($(this).attr('data-onscreenchat-close'));
+			var conversation = getModule().storage.get($(this).attr('data-onscreenchat-minimize'));
 
 			conversation.action = ACTION_HIDE_CONV;
 			getModule().storage.save(conversation);
@@ -662,6 +617,72 @@
 			getModule().receiveMessage(messageObject);
 		},
 
+		onMessageKeyUp: function (event) {
+			if (getConfig().broadcast_typing !== true) {
+				return;
+			}
+
+			const conversationId = $(this).closest('[data-onscreenchat-window]').attr('data-onscreenchat-window');
+			const broadcaster = TypingBroadcasterFactory.getInstance(
+				conversationId,
+				function() {
+					$chat.userStartedTyping(conversationId);
+				},
+				function() {
+					$chat.userStoppedTyping(conversationId);
+				}
+			);
+
+			const keycode = event.keyCode || event.which;
+			if (keycode === 13) {
+				broadcaster.release();
+				return;
+			}
+
+			const input = $('[data-onscreenchat-window=' + conversationId + ']').find('[data-onscreenchat-message]');
+			if (input.val().trim() === "") {
+				return '';
+			}
+
+			broadcaster.registerTyping();
+		},
+
+		onUserStartedTyping: function (message) {
+			const generator = TypingUsersTextGeneratorFactory.getInstance(message.conversation.id);
+
+			generator.addTypingUser(message.participant.id);
+
+			getModule().renderTypingInfo(
+				message.conversation,
+				generator.text(
+					getModule().storage,
+					il.Language,
+					getParticipantsNames
+				)
+			);
+		},
+
+		onUserStoppedTyping: function (message) {
+			const generator = TypingUsersTextGeneratorFactory.getInstance(message.conversation.id);
+
+			generator.removeTypingUser(message.participant.id);
+
+			getModule().renderTypingInfo(
+				message.conversation,
+				generator.text(
+					getModule().storage,
+					il.Language,
+					getParticipantsNames
+				)
+			);
+		},
+		
+		renderTypingInfo: function (conversation, text) {
+			const container = $('[data-onscreenchat-window=' + conversation.id + ']');
+
+			container.find('[data-onscreenchat-typing]').text(text);
+		},
+
 		/**
 		 * 
 		 * @param conversation
@@ -731,6 +752,10 @@
 
 			if (!conversationId) {
 				conversationId = $trigger.closest('[data-onscreenchat-conversation]').data('onscreenchat-conversation');
+			}
+
+			if (!conversationId) {
+				conversationId = this.closest('[data-id]').dataset.id;
 			}
 
 			if (!conversationId) {
@@ -827,13 +852,15 @@
 					if (chatWindow.length !== 0) {
 						var participantsNames, header, tooltip;
 						if (conversation.isGroup) {
-							participantsNames = getParticipantsNames(conversation, false);
+							participantsNames = getParticipantsNames(conversation);
 
 							header = il.Language.txt('chat_osc_head_grp_x_persons', participantsNames.length);
 							var partTooltipFormatter = new ParticipantsTooltipFormatter(participantsNames);
 							tooltip = partTooltipFormatter.format();
 						} else {
-							participantsNames = getParticipantsNames(conversation);
+							participantsNames = getParticipantsNames(conversation, function(usrId) {
+								return getModule().user === undefined || getModule().user.id != usrId;
+							});
 							tooltip = header = participantsNames.join(', ');
 						}
 
@@ -891,6 +918,10 @@
 
 		onLogin: function(participant) {
 			getModule().user = participant;
+		},
+
+		onUnload: function(participant) {
+			TypingBroadcasterFactory.releaseAll();
 		},
 
 		openInviteUser: function(e) {
@@ -1413,14 +1444,13 @@
 		return ids;
 	};
 
-	const getParticipantsNames = function(conversation, ignoreMySelf) {
+	const getParticipantsNames = function(conversation, predicate = null) {
 		let names = [];
 
 		for (let key in conversation.participants) {
 			if (
 				conversation.participants.hasOwnProperty(key) && (
-					(getModule().user !== undefined && getModule().user.id != conversation.participants[key].id) ||
-					ignoreMySelf === false
+					null === predicate || predicate(conversation.participants[key].id)
 				)
 			) {
 				if (getModule().participantsNames.hasOwnProperty(conversation.participants[key].id)) {
@@ -1559,6 +1589,160 @@
 				.data("emoticons", this);
 		};
 	};
+
+	const TypingBroadcasterFactory = (function () {
+		let instances = {}, ms = 5000;
+
+		/**
+		 * 
+		 * @param {Function} onTypingStarted
+		 * @param {Function} onTypeingStopped
+		 * @constructor
+		 */
+		function TypingBroadcaster(onTypingStarted, onTypingStopped) {
+			this.is_typing = false;
+			this.timer = 0;
+			this.onTypingStarted = onTypingStarted;
+			this.onTypingStopped = onTypingStopped;
+		}
+
+		TypingBroadcaster.prototype.release = function() {
+			if (this.is_typing) {
+				window.clearTimeout(this.timer);
+				this.onTimeout();
+			}
+		}
+
+		TypingBroadcaster.prototype.onTimeout = function() {
+			this.is_typing = false;
+			this.onTypingStopped.call();
+		};
+
+		TypingBroadcaster.prototype.registerTyping = function() {
+			if (this.is_typing) {
+				window.clearTimeout(this.timer);
+				this.timer = window.setTimeout(this.onTimeout.bind(this), ms);
+			} else {
+				this.is_typing = true;
+				this.onTypingStarted.call();
+				this.timer = window.setTimeout(this.onTimeout.bind(this), ms);
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} conversationId
+		 * @param {Function} onTypingStarted
+		 * @param {Function} onTypingStopped
+		 * @returns {TypingBroadcaster}
+		 */
+		function createInstance(conversationId, onTypingStarted, onTypingStopped) {
+			return new TypingBroadcaster(onTypingStarted, onTypingStopped);
+		}
+
+		return {
+			/**
+			 * @param {String} conversationId
+			 * @param {Function} onTypingStarted
+			 * @param {Function} onTypingStopped
+			 * @returns {TypingBroadcaster}
+			 */
+			getInstance: function (conversationId, onTypingStarted, onTypingStopped) {
+				if (!instances.hasOwnProperty(conversationId)) {
+					instances[conversationId] = createInstance(conversationId, onTypingStarted, onTypingStopped);
+				}
+
+				return instances[conversationId];
+			},
+			releaseAll: function () {
+				for (let conversationId in instances) {
+					if (instances.hasOwnProperty(conversationId)) {
+						instances[conversationId].release();
+					}
+				}
+			}
+		};
+	})();
+
+	const TypingUsersTextGeneratorFactory = (function () {
+		let instances = {};
+
+		/**
+		 *
+		 * @param {String} conversationId
+		 * @constructor
+		 */
+		function TypingUsersTextGenerator(conversationId) {
+			this.conversationId = conversationId;
+			this.typingSet = new Set();
+		}
+
+		/**
+		 *
+		 * @param {Number} usrId
+		 */
+		TypingUsersTextGenerator.prototype.addTypingUser = function(usrId) {
+			if (!this.typingSet.has(usrId)) {
+				this.typingSet.add(usrId);
+			}
+		}
+
+		/**
+		 * 
+		 * @param {Number} usrId
+		 */
+		TypingUsersTextGenerator.prototype.removeTypingUser = function(usrId) {
+			if (this.typingSet.has(usrId)) {
+				this.typingSet.delete(usrId);
+			}
+		};
+
+		/**
+		 * 
+		 * @param {ConversationStorage} storage
+		 * @param {il.Language} language
+		 * @param {Function} usernameGenerator
+		 * @returns {string}
+		 */
+		TypingUsersTextGenerator.prototype.text = function (storage, language, usernameGenerator) {
+			const names = usernameGenerator(
+				storage.get(this.conversationId),
+				function(usrId) {
+					return this.typingSet.has(usrId);
+				}.bind(this)
+			);
+
+			if (names.length === 0) {
+				return '';
+			} else if (1 === names.length) {
+				return language.txt("chat_user_x_is_typing", names[0]);
+			}
+
+			return language.txt("chat_users_are_typing");
+		};
+
+		/**
+		 *
+		 * @param {String} conversationId
+		 * @returns {TypingUsersTextGenerator}
+		 */
+		function createInstance(conversationId) {
+			return new TypingUsersTextGenerator(conversationId);
+		}
+
+		return {
+			/**
+			 * @param {String} conversationId
+			 * @returns {TypingUsersTextGenerator}
+			 */
+			getInstance: function (conversationId) {
+				if (!instances.hasOwnProperty(conversationId)) {
+					instances[conversationId] = createInstance(conversationId);
+				}
+				return instances[conversationId];
+			}
+		};
+	})();
 
     function insertAtCursor(node, text){
         const lastCaretPosition = node.selectionStart;

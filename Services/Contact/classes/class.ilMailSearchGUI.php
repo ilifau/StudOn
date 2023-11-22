@@ -1,65 +1,54 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
- * @author Jens Conze
- * @version $Id$
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @ingroup ServicesMail
- */
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\HTTP\GlobalHttpState;
+use ILIAS\HTTP\Response\ResponseHeader;
+use ILIAS\Refinery\Factory as Refinery;
+
+/**
+* @author Jens Conze
+* @ingroup ServicesMail
+*/
 class ilMailSearchGUI
 {
+    private ilGlobalTemplateInterface $tpl;
+    private ilCtrlInterface $ctrl;
+    protected ilRbacReview $rbacreview;
+    protected ilObjectDataCache $object_data_cache;
+    private ilLanguage $lng;
+    private ilFormatMail $umail;
+    private bool $errorDelete = false;
     /**
-     * @var ilTemplate
+     * @var ilWorkspaceAccessHandler|null|ilPortfolioAccessHandler
      */
-    private $tpl;
-
-    /**
-     * @var ilCtrl
-     */
-    private $ctrl;
-
-    /**
-     * @var ilRbacReview
-     */
-    protected $rbacreview;
-
-    /**
-     * @var ilObjectDataCache
-     */
-    protected $object_data_cache;
+    private $wsp_access_handler = null;
+    private ?int $wsp_node_id = null;
+    private GlobalHttpState $http;
+    private Refinery $refinery;
 
     /**
-     * @var ilLanguage
+     * @param ilWorkspaceAccessHandler|null|ilPortfolioAccessHandler $wsp_access_handler
      */
-    private $lng;
-
-    private $umail = null;
-
-    private $errorDelete = false;
-
-    public function __construct($wsp_access_handler = null, $wsp_node_id = null)
+    public function __construct($wsp_access_handler = null, ?int $wsp_node_id = null)
     {
+        /** @var $DIC \ILIAS\DI\Container */
         global $DIC;
 
         $this->tpl = $DIC['tpl'];
@@ -67,18 +56,19 @@ class ilMailSearchGUI
         $this->lng = $DIC['lng'];
         $this->rbacreview = $DIC['rbacreview'];
         $this->object_data_cache = $DIC['ilObjDataCache'];
+        $this->http = $DIC->http();
+        $this->refinery = $DIC->refinery();
 
-        // personal workspace
         $this->wsp_access_handler = $wsp_access_handler;
         $this->wsp_node_id = $wsp_node_id;
 
-        $this->ctrl->saveParameter($this, "mobj_id");
-        $this->ctrl->saveParameter($this, "ref");
+        $this->ctrl->saveParameter($this, 'mobj_id');
+        $this->ctrl->saveParameter($this, 'ref');
 
         $this->umail = new ilFormatMail($DIC->user()->getId());
     }
 
-    public function executeCommand()
+    public function executeCommand(): bool
     {
         $forward_class = $this->ctrl->getNextClass($this);
         switch ($forward_class) {
@@ -90,75 +80,90 @@ class ilMailSearchGUI
                 $this->$cmd();
                 break;
         }
+
         return true;
     }
 
-    /**
-     * @return bool
-     */
-    private function isDefaultRequestContext() : bool
+    private function isDefaultRequestContext(): bool
     {
-        return !isset($_GET['ref']) || $_GET['ref'] !== 'wsp';
+        return (
+            !$this->http->wrapper()->query()->has('ref') ||
+            $this->http->wrapper()->query()->retrieve('ref', $this->refinery->kindlyTo()->string()) !== 'wsp'
+        );
     }
 
-    public function adopt()
+    public function adopt(): void
     {
-        $to_recipients = [];
+        $trafo = $this->refinery->kindlyTo()->int();
+        if ($this->isDefaultRequestContext()) {
+            $trafo = $this->refinery->kindlyTo()->string();
+        }
+
+        $recipients_to = [];
         foreach (['to', 'cc', 'bcc'] as $recipient_type) {
             $recipients = [];
-            $recipients = array_merge($recipients, (array) $_POST['search_name_' . $recipient_type . '_addr']);
-            $recipients = array_merge($recipients, (array) $_POST['search_name_' . $recipient_type . '_usr']);
-            $recipients = array_merge($recipients, (array) $_POST['search_name_' . $recipient_type . '_grp']);
-            $recipients = array_unique($recipients);
-            $_SESSION["mail_search_results_" . $recipient_type] = $recipients;
+            foreach (['addr', 'usr', 'grp'] as $search_type) {
+                if ($this->http->wrapper()->post()->has('search_name_' . $recipient_type . '_' . $search_type)) {
+                    $recipients[] = $this->http->wrapper()->post()->retrieve(
+                        'search_name_' . $recipient_type . '_' . $search_type,
+                        $this->refinery->kindlyTo()->listOf($trafo)
+                    );
+                }
+            }
+
+            $recipients = array_unique(array_merge(...$recipients));
+            ilSession::set('mail_search_results_' . $recipient_type, $recipients);
 
             if ('to' === $recipient_type) {
-                $to_recipients = $recipients;
+                $recipients_to = $recipients;
             }
         }
 
         if ($this->isDefaultRequestContext()) {
             $this->saveMailData();
         } else {
-            $this->addPermission($to_recipients);
+            $this->addPermission($recipients_to);
         }
 
         $this->ctrl->returnToParent($this);
     }
 
-    private function saveMailData()
+    private function saveMailData(): void
     {
         $mail_data = $this->umail->getSavedData();
-
         $this->umail->savePostData(
-            $mail_data["user_id"],
-            $mail_data["attachments"],
-            $mail_data["rcp_to"],
-            $mail_data["rcp_cc"],
-            $mail_data["rcp_bcc"],
-            $mail_data["m_email"],
-            $mail_data["m_subject"],
-            $mail_data["m_message"],
-            $mail_data["use_placeholders"],
+            (int) $mail_data['user_id'],
+            $mail_data['attachments'],
+            $mail_data['rcp_to'],
+            $mail_data['rcp_cc'],
+            $mail_data['rcp_bcc'],
+            $mail_data['m_subject'],
+            $mail_data['m_message'],
+            $mail_data['use_placeholders'],
             $mail_data['tpl_ctx_id'],
             $mail_data['tpl_ctx_params']
         );
     }
 
-    public function cancel()
+    public function cancel(): void
     {
         $this->ctrl->returnToParent($this);
     }
 
-    public function search()
+    public function search(): bool
     {
-        $_SESSION["mail_search_search"] = (string) $_POST["search"];
+        $search = '';
+        if ($this->http->wrapper()->post()->has('search')) {
+            $search = $this->http->wrapper()->post()->retrieve('search', $this->refinery->kindlyTo()->string());
+        }
 
-        if (strlen(trim($_SESSION["mail_search_search"])) == 0) {
-            ilUtil::sendInfo($this->lng->txt("mail_insert_query"));
-        } elseif (strlen(trim($_SESSION["mail_search_search"])) < 3) {
+        ilSession::set('mail_search_search', trim($search));
+
+        if (ilSession::get('mail_search_search') === '') {
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_insert_query'));
+        } elseif (strlen(ilSession::get('mail_search_search')) < 3) {
             $this->lng->loadLanguageModule('search');
-            ilUtil::sendInfo($this->lng->txt('search_minimum_three'));
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt('search_minimum_three'));
         }
 
         $this->showResults();
@@ -166,81 +171,82 @@ class ilMailSearchGUI
         return true;
     }
 
-    protected function initSearchForm()
+    protected function initSearchForm(): ilPropertyFormGUI
     {
         if ($this->isDefaultRequestContext()) {
             $this->saveMailData();
             $title = $this->lng->txt('search_recipients');
         } else {
-            $this->lng->loadLanguageModule("wsp");
-            $title = $this->lng->txt("wsp_share_search_users");
+            $this->lng->loadLanguageModule('wsp');
+            $title = $this->lng->txt('wsp_share_search_users');
         }
 
-        // searchform
-        include_once 'Services/Form/classes/class.ilPropertyFormGUI.php';
         $form = new ilPropertyFormGUI();
         $form->setTitle($title);
         $form->setId('search_rcp');
         $form->setFormAction($this->ctrl->getFormAction($this, 'search'));
 
-        $inp = new ilTextInputGUI($this->lng->txt("search_for"), 'search');
+        $inp = new ilTextInputGUI($this->lng->txt('search_for'), 'search');
         $inp->setSize(30);
         $dsDataLink = $this->ctrl->getLinkTarget($this, 'lookupRecipientAsync', '', true, false);
         $inp->setDataSource($dsDataLink);
 
         if (
-            isset($_SESSION["mail_search_search"]) &&
-            is_string($_SESSION["mail_search_search"]) &&
-            strlen(trim($_SESSION["mail_search_search"])) > 0
+            ilSession::get('mail_search_search') &&
+            is_string(ilSession::get('mail_search_search')) &&
+            ilSession::get('mail_search_search') !== ''
         ) {
-            $inp->setValue(ilUtil::prepareFormOutput(trim($_SESSION["mail_search_search"]), true));
+            $inp->setValue(
+                ilLegacyFormElementsUtil::prepareFormOutput(trim(ilSession::get('mail_search_search')), true)
+            );
         }
         $form->addItem($inp);
 
-        $form->addCommandButton('search', $this->lng->txt("search"));
-        $form->addCommandButton('cancel', $this->lng->txt("cancel"));
+        $form->addCommandButton('search', $this->lng->txt('search'));
+        $form->addCommandButton('cancel', $this->lng->txt('cancel'));
 
         return $form;
     }
 
-    public function lookupRecipientAsync()
+    public function lookupRecipientAsync(): void
     {
-        include_once 'Services/JSON/classes/class.ilJsonUtil.php';
-        include_once 'Services/Mail/classes/class.ilMailForm.php';
-        include_once 'Services/Utilities/classes/class.ilStr.php';
-
         $search = '';
-        if (isset($_GET["term"]) && is_string($_GET["term"])) {
-            $search = $_GET["term"];
+        if ($this->http->wrapper()->query()->has('term')) {
+            $search = $this->http->wrapper()->query()->retrieve(
+                'term',
+                $this->refinery->kindlyTo()->string()
+            );
         }
-        if (isset($_POST["term"]) && is_string($_POST["term"])) {
-            $search = $_POST["term"];
+        if ($this->http->wrapper()->post()->has('term')) {
+            $search = $this->http->wrapper()->post()->retrieve(
+                'term',
+                $this->refinery->kindlyTo()->string()
+            );
         }
 
         $search = trim($search);
 
-        $result = array();
-        if (\ilStr::strLen($search) < 3) {
-            echo json_encode($result);
-            exit;
+        $result = [];
+        if (ilStr::strLen($search) >= 3) {
+            // #14768
+            $quoted = ilUtil::stripSlashes($search);
+            $quoted = str_replace(['%', '_'], ['\%', '\_'], $quoted);
+
+            $mailFormObj = new ilMailForm();
+            $result = $mailFormObj->getRecipientAsync(
+                "%" . $quoted . "%",
+                ilUtil::stripSlashes($search),
+                $this->isDefaultRequestContext()
+            );
         }
 
-        // #14768
-        $quoted = ilUtil::stripSlashes($search);
-        $quoted = str_replace('%', '\%', $quoted);
-        $quoted = str_replace('_', '\_', $quoted);
-
-        $search_recipients = ($this->isDefaultRequestContext());
-
-        $mailFormObj = new ilMailForm;
-        $result = $mailFormObj->getRecipientAsync(
-            "%" . $quoted . "%",
-            ilUtil::stripSlashes($search),
-            $search_recipients
+        $this->http->saveResponse(
+            $this->http->response()
+                ->withHeader(ResponseHeader::CONTENT_TYPE, 'application/json')
+                ->withBody(\ILIAS\Filesystem\Stream\Streams::ofString(json_encode($result, JSON_THROW_ON_ERROR)))
         );
-
-        echo json_encode($result);
-        exit;
+        $this->http->sendResponse();
+        $this->http->close();
     }
 
     /**
@@ -252,8 +258,8 @@ class ilMailSearchGUI
         string $search_type,
         string $recipient_type,
         string $value
-    ) : void {
-        $result[$index]['check_' . $recipient_type] = ilUtil::formCheckbox(
+    ): void {
+        $result[$index]['check_' . $recipient_type] = ilLegacyFormElementsUtil::formCheckbox(
             false,
             'search_name_' . $recipient_type . '_' . $search_type . '[' . $index . ']',
             $value
@@ -263,20 +269,20 @@ class ilMailSearchGUI
         $result[$index]['txt_' . $recipient_type] = $this->lng->txt('mail_' . $recipient_type);
     }
 
-    public function showResults()
+    public function showResults(): void
     {
         $form = $this->initSearchForm();
 
-        $this->tpl->addBlockFile("ADM_CONTENT", "adm_content", "tpl.mail_search.html", "Services/Contact");
-        $this->tpl->setVariable("ACTION", $this->ctrl->getFormAction($this));
-        $this->tpl->setTitle($this->lng->txt("mail"));
+        $this->tpl->addBlockFile('ADM_CONTENT', 'adm_content', 'tpl.mail_search.html', 'Services/Contact');
+        $this->tpl->setVariable('ACTION', $this->ctrl->getFormAction($this));
+        $this->tpl->setTitle($this->lng->txt('mail'));
         $this->tpl->setVariable('SEARCHFORM', $form->getHtml());
 
         // #14109
         if (
-            !isset($_SESSION["mail_search_search"]) ||
-            !is_string($_SESSION["mail_search_search"]) ||
-            strlen(trim($_SESSION["mail_search_search"])) < 3
+            !ilSession::get('mail_search_search') ||
+            !is_string(ilSession::get('mail_search_search')) ||
+            strlen(ilSession::get('mail_search_search')) < 3
         ) {
             if ($this->isDefaultRequestContext()) {
                 $this->tpl->printToStdout();
@@ -284,27 +290,26 @@ class ilMailSearchGUI
             return;
         }
 
-        require_once 'Services/Contact/BuddySystem/classes/class.ilBuddyList.php';
         $relations = ilBuddyList::getInstanceByGlobalUser()->getLinkedRelations();
         if (count($relations)) {
             $contacts_search_result = new ilSearchResult();
 
-            $query_parser = new ilQueryParser(addcslashes($_SESSION['mail_search_search'], '%_'));
-            $query_parser->setCombination(QP_COMBINATION_AND);
+            $query_parser = new ilQueryParser(addcslashes(ilSession::get('mail_search_search'), '%_'));
+            $query_parser->setCombination(ilQueryParser::QP_COMBINATION_AND);
             $query_parser->setMinWordLength(3);
             $query_parser->parse();
 
             $user_search = ilObjectSearchFactory::_getUserSearchInstance($query_parser);
             $user_search->enableActiveCheck(true);
-            $user_search->setFields(array('login'));
+            $user_search->setFields(['login']);
             $result_obj = $user_search->performSearch();
             $contacts_search_result->mergeEntries($result_obj);
 
-            $user_search->setFields(array('firstname'));
+            $user_search->setFields(['firstname']);
             $result_obj = $user_search->performSearch();
             $contacts_search_result->mergeEntries($result_obj);
 
-            $user_search->setFields(array('lastname'));
+            $user_search->setFields(['lastname']);
             $result_obj = $user_search->performSearch();
             $contacts_search_result->mergeEntries($result_obj);
 
@@ -313,35 +318,34 @@ class ilMailSearchGUI
             $contacts_search_result->filter(ROOT_FOLDER_ID, true);
 
             // Filter users (depends on setting in user accounts)
-            include_once 'Services/User/classes/class.ilUserFilter.php';
             $users = ilUserFilter::getInstance()->filter($contacts_search_result->getResultIds());
             $users = array_intersect($users, $relations->getKeys());
 
-            $tbl_contacts = new ilMailSearchResultsTableGUI($this, 'contacts');
+            $tbl_contacts = new ilMailSearchResultsTableGUI($this, 'showResults', 'contacts');
             $tbl_contacts->setTitle($this->lng->txt('mail_addressbook'));
             $tbl_contacts->setRowTemplate('tpl.mail_search_addr_row.html', 'Services/Contact');
 
             $has_mail_addr = false;
-            $result = array();
+            $result = [];
             $counter = 0;
             foreach ($users as $user) {
                 $login = ilObjUser::_lookupLogin($user);
 
                 if ($this->isDefaultRequestContext()) {
                     foreach (['to', 'cc', 'bcc'] as $recipient_type) {
-                        $this->appendRecipientSelection($result, $counter, 'addr', $recipient_type, $login);
+                        $this->appendRecipientSelection($result, $counter, 'usr', $recipient_type, $login);
                     }
                 } else {
                     $this->appendRecipientSelection($result, $counter, 'addr', 'to', (string) $user);
                 }
 
                 $result[$counter]['login'] = $login;
-                if (ilObjUser::_lookupPref($user, 'public_email') == 'y') {
+                if (ilObjUser::_lookupPref($user, 'public_email') === 'y') {
                     $has_mail_addr = true;
-                    $result[$counter]['email'] = ilObjUser::_lookupEmail($user, 'email');
+                    $result[$counter]['email'] = ilObjUser::_lookupEmail($user);
                 }
 
-                if (in_array(ilObjUser::_lookupPref($user, 'public_profile'), array('y', "g"))) {
+                if (in_array(ilObjUser::_lookupPref($user, 'public_profile'), ['y', "g"])) {
                     $name = ilObjUser::_lookupName($user);
                     $result[$counter]['firstname'] = $name['firstname'];
                     $result[$counter]['lastname'] = $name['lastname'];
@@ -356,18 +360,18 @@ class ilMailSearchGUI
             if ($this->isDefaultRequestContext()) {
                 $tbl_contacts->addColumn(
                     $this->lng->txt('mail_to') . '/' . $this->lng->txt('mail_cc') . '/' . $this->lng->txt('mail_bcc'),
-                    '',
+                    'check',
                     '10%'
                 );
             } else {
-                $tbl_contacts->addColumn("", "", "1%", true);
+                $tbl_contacts->addColumn('', '', '1%', true);
             }
             $tbl_contacts->addColumn($this->lng->txt('login'), 'login', '15%');
             $tbl_contacts->addColumn($this->lng->txt('firstname'), 'firstname', '15%');
             $tbl_contacts->addColumn($this->lng->txt('lastname'), 'lastname', '15%');
             if ($has_mail_addr) {
                 foreach ($result as $key => $val) {
-                    if ($val['email'] == '') {
+                    if (!isset($val['email']) || (string) $val['email'] === '') {
                         $result[$key]['email'] = '&nbsp;';
                     }
                 }
@@ -386,22 +390,22 @@ class ilMailSearchGUI
 
         $all_results = new ilSearchResult();
 
-        $query_parser = new ilQueryParser(addcslashes($_SESSION['mail_search_search'], '%_'));
-        $query_parser->setCombination(QP_COMBINATION_AND);
+        $query_parser = new ilQueryParser(addcslashes(ilSession::get('mail_search_search'), '%_'));
+        $query_parser->setCombination(ilQueryParser::QP_COMBINATION_AND);
         $query_parser->setMinWordLength(3);
         $query_parser->parse();
 
         $user_search = ilObjectSearchFactory::_getUserSearchInstance($query_parser);
         $user_search->enableActiveCheck(true);
-        $user_search->setFields(array('login'));
+        $user_search->setFields(['login']);
         $result_obj = $user_search->performSearch();
         $all_results->mergeEntries($result_obj);
 
-        $user_search->setFields(array('firstname'));
+        $user_search->setFields(['firstname']);
         $result_obj = $user_search->performSearch();
         $all_results->mergeEntries($result_obj);
 
-        $user_search->setFields(array('lastname'));
+        $user_search->setFields(['lastname']);
         $result_obj = $user_search->performSearch();
         $all_results->mergeEntries($result_obj);
 
@@ -411,14 +415,13 @@ class ilMailSearchGUI
 
         // Filter users (depends on setting in user accounts)
         $has_mail_usr = false;
-        include_once 'Services/User/classes/class.ilUserFilter.php';
         $users = ilUserFilter::getInstance()->filter($all_results->getResultIds());
-        if (count($users)) {
-            $tbl_users = new ilMailSearchResultsTableGUI($this, 'usr');
+        if ($users !== []) {
+            $tbl_users = new ilMailSearchResultsTableGUI($this, 'showResults', 'usr');
             $tbl_users->setTitle($this->lng->txt('system') . ': ' . $this->lng->txt('persons'));
             $tbl_users->setRowTemplate('tpl.mail_search_users_row.html', 'Services/Contact');
 
-            $result = array();
+            $result = [];
             $counter = 0;
             foreach ($users as $user) {
                 $login = ilObjUser::_lookupLogin($user);
@@ -432,7 +435,7 @@ class ilMailSearchGUI
                 }
                 $result[$counter]['login'] = $login;
 
-                if (in_array(ilObjUser::_lookupPref($user, 'public_profile'), array('y', "g"))) {
+                if (in_array(ilObjUser::_lookupPref($user, 'public_profile'), ['y', "g"])) {
                     $name = ilObjUser::_lookupName($user);
                     $result[$counter]['firstname'] = $name['firstname'];
                     $result[$counter]['lastname'] = $name['lastname'];
@@ -441,7 +444,7 @@ class ilMailSearchGUI
                     $result[$counter]['lastname'] = '';
                 }
 
-                if (ilObjUser::_lookupPref($user, 'public_email') == 'y') {
+                if (ilObjUser::_lookupPref($user, 'public_email') === 'y') {
                     $has_mail_usr = true;
                     $result[$counter]['email'] = ilObjUser::_lookupEmail($user);
                 }
@@ -452,18 +455,18 @@ class ilMailSearchGUI
             if ($this->isDefaultRequestContext()) {
                 $tbl_users->addColumn(
                     $this->lng->txt('mail_to') . '/' . $this->lng->txt('mail_cc') . '/' . $this->lng->txt('mail_bcc'),
-                    '',
+                    'check',
                     '10%'
                 );
             } else {
-                $tbl_users->addColumn("", "", "1%");
+                $tbl_users->addColumn('', '', '1%');
             }
             $tbl_users->addColumn($this->lng->txt('login'), 'login', '15%');
             $tbl_users->addColumn($this->lng->txt('firstname'), 'firstname', '15%');
             $tbl_users->addColumn($this->lng->txt('lastname'), 'lastname', '15%');
-            if ($has_mail_usr == true) {
+            if ($has_mail_usr === true) {
                 foreach ($result as $key => $val) {
-                    if ($val['email'] == '') {
+                    if (!isset($val['email']) || (string) $val['email'] === '') {
                         $result[$key]['email'] = '&nbsp;';
                     }
                 }
@@ -480,20 +483,15 @@ class ilMailSearchGUI
             $this->tpl->setVariable('TABLE_USERS', $tbl_users->getHTML());
         }
 
-        include_once 'Services/Search/classes/class.ilQueryParser.php';
-        include_once 'Services/Search/classes/class.ilObjectSearchFactory.php';
-        include_once 'Services/Search/classes/class.ilSearchResult.php';
-        include_once 'Services/Membership/classes/class.ilParticipants.php';
-
         $group_results = new ilSearchResult();
 
-        $query_parser = new ilQueryParser(addcslashes($_SESSION['mail_search_search'], '%_'));
-        $query_parser->setCombination(QP_COMBINATION_AND);
+        $query_parser = new ilQueryParser(addcslashes(ilSession::get('mail_search_search'), '%_'));
+        $query_parser->setCombination(ilQueryParser::QP_COMBINATION_AND);
         $query_parser->setMinWordLength(3);
         $query_parser->parse();
 
         $search = ilObjectSearchFactory::_getObjectSearchInstance($query_parser);
-        $search->setFilter(array('grp'));
+        $search->setFilter(['grp']);
         $result = $search->performSearch();
         $group_results->mergeEntries($result);
         $group_results->setMaxHits(PHP_INT_MAX);
@@ -501,13 +499,13 @@ class ilMailSearchGUI
         $group_results->setRequiredPermission('read');
         $group_results->filter(ROOT_FOLDER_ID, true);
 
-        $visible_groups = array();
+        $visible_groups = [];
         if ($group_results->getResults()) {
-            $tbl_grp = new ilMailSearchResultsTableGUI($this, 'grp');
+            $tbl_grp = new ilMailSearchResultsTableGUI($this, 'showResults', 'grp');
             $tbl_grp->setTitle($this->lng->txt('system') . ': ' . $this->lng->txt('groups'));
             $tbl_grp->setRowTemplate('tpl.mail_search_groups_row.html', 'Services/Contact');
 
-            $result = array();
+            $result = [];
             $counter = 0;
 
             $this->object_data_cache->preloadReferenceCache(array_keys($group_results->getResults()));
@@ -519,14 +517,15 @@ class ilMailSearchGUI
                 }
 
                 if ($this->isDefaultRequestContext()) {
-                    $members = array();
+                    $members = [];
                     $roles = $this->rbacreview->getAssignableChildRoles($grp['ref_id']);
                     foreach ($roles as $role) {
-                        if (substr($role['title'], 0, 14) == 'il_grp_member_' ||
-                            substr($role['title'], 0, 13) == 'il_grp_admin_'
+                        if (
+                            strpos($role['title'], 'il_grp_member_') === 0 ||
+                            strpos($role['title'], 'il_grp_admin_') === 0
                         ) {
                             // FIX for Mantis: 7523
-                            array_push($members, '#' . $role['title']);
+                            $members[] = '#' . $role['title'];
                         }
                     }
                     $str_members = implode(',', $members);
@@ -537,8 +536,8 @@ class ilMailSearchGUI
                 } else {
                     $this->appendRecipientSelection($result, $counter, 'grp', 'to', (string) $grp['obj_id']);
                 }
-                $result[$counter]['title'] = $this->object_data_cache->lookupTitle($grp['obj_id']);
-                $result[$counter]['description'] = $this->object_data_cache->lookupDescription($grp['obj_id']);
+                $result[$counter]['title'] = $this->object_data_cache->lookupTitle((int) $grp['obj_id']);
+                $result[$counter]['description'] = $this->object_data_cache->lookupDescription((int) $grp['obj_id']);
 
                 ++$counter;
                 $visible_groups[] = $grp;
@@ -550,11 +549,11 @@ class ilMailSearchGUI
                 if ($this->isDefaultRequestContext()) {
                     $tbl_grp->addColumn(
                         $this->lng->txt('mail_to') . '/' . $this->lng->txt('mail_cc') . '/' . $this->lng->txt('mail_bcc'),
-                        '',
+                        'check',
                         '10%'
                     );
                 } else {
-                    $tbl_grp->addColumn("", "", "1%");
+                    $tbl_grp->addColumn('', '', '1%');
                 }
                 $tbl_grp->addColumn($this->lng->txt('title'), 'title', '15%');
                 $tbl_grp->addColumn($this->lng->txt('description'), 'description', '15%');
@@ -581,7 +580,7 @@ class ilMailSearchGUI
             }
         } else {
             $this->lng->loadLanguageModule('search');
-            ilUtil::sendInfo($this->lng->txt('search_no_match'));
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt('search_no_match'));
         }
 
         if ($this->isDefaultRequestContext()) {
@@ -589,22 +588,25 @@ class ilMailSearchGUI
         }
     }
 
-    protected function addPermission($a_obj_ids)
+    /**
+     * @param int[] $a_obj_ids
+     */
+    protected function addPermission(array $a_obj_ids): void
     {
         if (!is_array($a_obj_ids)) {
-            $a_obj_ids = array($a_obj_ids);
+            $a_obj_ids = [$a_obj_ids];
         }
 
         $existing = $this->wsp_access_handler->getPermissions($this->wsp_node_id);
         $added = false;
         foreach ($a_obj_ids as $object_id) {
-            if (!in_array($object_id, $existing)) {
+            if (!in_array($object_id, $existing, true)) {
                 $added = $this->wsp_access_handler->addPermission($this->wsp_node_id, $object_id);
             }
         }
 
         if ($added) {
-            ilUtil::sendSuccess($this->lng->txt("wsp_share_success"), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('wsp_share_success'), true);
         }
     }
 }

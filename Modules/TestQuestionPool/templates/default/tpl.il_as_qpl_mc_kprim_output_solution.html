@@ -2,9 +2,7 @@
 <div class="ilc_qtitle_Title">{QUESTIONTEXT}</div>
 <p class="ilAssKprimInstruction ilClearFloat">{INSTRUCTIONTEXT}</p>
 <div class="ilc_answers answers ilAssKprimChoiceTable ilClearFloat">
-<!-- fau: fixKprimOptionLabel  - add class for background color -->
-	<div class="row ilc_qanswer_Answer optionLabel">
-<!-- fau. -->
+	<div class="row ilc_qanswer_Answer">
 		<div class="col-xs-3 col-sm-2 col-md-3 col-lg-2 optionLabel">{OPTION_LABEL_TRUE}</div>
 		<div class="col-xs-3 col-sm-2 col-md-3 col-lg-2 optionLabel">{OPTION_LABEL_FALSE}</div>
 	</div>
@@ -37,12 +35,7 @@
 			{ANSWER_TEXT}
 		</div>
 		<div class="col-sm-1">
-			<!-- BEGIN icon_ok -->
-			<img src="{ICON_OK}" alt="{TEXT_OK}" title="{TEXT_OK}" />
-			<!-- END icon_ok -->
-			<!-- BEGIN icon_not_ok -->
-			<img src="{ICON_NOT_OK}" alt="{TEXT_NOT_OK}" title="{TEXT_NOT_OK}" />
-			<!-- END icon_not_ok -->
+			<!-- BEGIN icon_ok -->{ICON_OK}<!-- END icon_ok -->
 		</div>
 		<div class="col-sm-2">
 			<!-- BEGIN result_output -->

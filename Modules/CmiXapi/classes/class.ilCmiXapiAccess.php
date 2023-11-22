@@ -1,7 +1,22 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilCmiXapiAccess
@@ -14,15 +29,11 @@
  */
 class ilCmiXapiAccess
 {
-    /**
-     * @var ilObjCmiXapi
-     */
-    protected $object;
-    protected $access;
-    
+    protected ilObjCmiXapi $object;
+    protected ilAccessHandler $access;
+
     /**
      * ilCmiXapiAccess constructor.
-     * @param ilObjCmiXapi $object
      */
     public function __construct(ilObjCmiXapi $object)
     {
@@ -30,72 +41,58 @@ class ilCmiXapiAccess
         $this->object = $object;
         $this->access = $DIC->access();
     }
-    
-    /**
-     * @return bool
-     */
-    public function hasLearningProgressAccess()
+
+    public function hasLearningProgressAccess(): bool
     {
         return ilLearningProgressAccess::checkAccess($this->object->getRefId());
     }
-    
-    /**
-     * @return bool
-     */
-    public function hasWriteAccess($usrId = null)
-    {
-        if (isset($usrId)) {
-            return $this->access->checkAccessOfUser(
-                $usrId,
-                'write',
-                '',
-                $this->object->getRefId(),
-                $this->object->getType(),
-                $this->object->getId()
-            );
-        } else {
-            return $this->access->checkAccess(
-                'write',
-                '',
-                $this->object->getRefId(),
-                $this->object->getType(),
-                $this->object->getId()
-            );
-        }
-    }
-    
-    /**
-     * @return bool
-     */
-    public function hasEditPermissionsAccess($usrId = null)
-    {
-        if (isset($usrId)) {
-            return $this->access->checkAccessOfUser(
-                $usrId,
-                'edit_permission',
-                '',
-                $this->object->getRefId(),
-                $this->object->getType(),
-                $this->object->getId()
-            );
-        } else {
-            return $this->access->checkAccess(
-                'edit_permission',
-                '',
-                $this->object->getRefId(),
-                $this->object->getType(),
-                $this->object->getId()
-            );
-        }
-    }
-    
-    /**
-     * @return bool
-     */
-    public function hasOutcomesAccess($usrId = null)
-    {
-        global $DIC; /* @var \ILIAS\DI\Container $DIC */
 
+    public function hasWriteAccess(?int $usrId = null): bool
+    {
+        if (isset($usrId)) {
+            return $this->access->checkAccessOfUser(
+                $usrId,
+                'write',
+                '',
+                $this->object->getRefId(),
+                $this->object->getType(),
+                $this->object->getId()
+            );
+        } else {
+            return $this->access->checkAccess(
+                'write',
+                '',
+                $this->object->getRefId(),
+                $this->object->getType(),
+                $this->object->getId()
+            );
+        }
+    }
+
+    public function hasEditPermissionsAccess(?int $usrId = null): bool
+    {
+        if (isset($usrId)) {
+            return $this->access->checkAccessOfUser(
+                $usrId,
+                'edit_permission',
+                '',
+                $this->object->getRefId(),
+                $this->object->getType(),
+                $this->object->getId()
+            );
+        } else {
+            return $this->access->checkAccess(
+                'edit_permission',
+                '',
+                $this->object->getRefId(),
+                $this->object->getType(),
+                $this->object->getId()
+            );
+        }
+    }
+
+    public function hasOutcomesAccess(?int $usrId = null): bool
+    {
         if (isset($usrId)) {
             return $this->access->checkAccessOfUser(
                 $usrId,
@@ -115,36 +112,24 @@ class ilCmiXapiAccess
             );
         }
     }
-    
-    /**
-     * @return bool
-     */
-    public function hasStatementsAccess()
+
+    public function hasStatementsAccess(): bool
     {
         if ($this->object->isStatementsReportEnabled()) {
             return true;
         }
-        
         return false;
     }
-    
-    /**
-     * @return bool
-     */
-    public function hasHighscoreAccess()
+
+    public function hasHighscoreAccess(): bool
     {
         if ($this->object->getHighscoreEnabled()) {
             return true;
         }
-        
         return false;
     }
-    
-    /**
-     * @param ilObjCmiXapi $object
-     * @return ilCmiXapiAccess
-     */
-    public static function getInstance(ilObjCmiXapi $object)
+
+    public static function getInstance(ilObjCmiXapi $object): \ilCmiXapiAccess
     {
         return new self($object);
     }

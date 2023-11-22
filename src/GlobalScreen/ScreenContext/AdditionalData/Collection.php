@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\ScreenContext\AdditionalData;
 
 use LogicException;
@@ -27,15 +27,12 @@ use LogicException;
  */
 class Collection
 {
-    /**
-     * @var mixed[]
-     */
-    private $values = [];
+    private array $values = [];
 
     /**
      * @return array
      */
-    public function getData() : array
+    public function getData(): array
     {
         return $this->values;
     }
@@ -44,7 +41,7 @@ class Collection
      * @param string $key
      * @param        $value
      */
-    public function add(string $key, $value) : void
+    public function add(string $key, $value): void
     {
         if ($this->exists($key)) {
             throw new LogicException("Key $key already exists.");
@@ -66,7 +63,7 @@ class Collection
      * @param        $expected_value
      * @return bool
      */
-    public function is(string $key, $expected_value) : bool
+    public function is(string $key, $expected_value): bool
     {
         return ($this->exists($key) && $this->get($key) === $expected_value);
     }
@@ -75,7 +72,7 @@ class Collection
      * @param string $key
      * @return bool
      */
-    public function exists(string $key) : bool
+    public function exists(string $key): bool
     {
         return isset($this->values[$key]);
     }
@@ -84,7 +81,7 @@ class Collection
      * @param string $key
      * @param        $value
      */
-    public function replace(string $key, $value) : void
+    public function replace(string $key, $value): void
     {
         if (!$this->exists($key)) {
             throw new LogicException("Key $key does not exists.");

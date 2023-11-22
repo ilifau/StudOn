@@ -1,20 +1,19 @@
 /* Modules/Excercise */
 
 .ilExcAssignmentBody {
-	padding: 20px;
-	background-color: @il-main-dark-bg;
+	padding-left: @il-padding-xxlarge-horizontal;
+	padding-right: @il-padding-xxlarge-horizontal;
 }
 
 .ilExcAssignmentHead img {
 	display: block;
 	float: left;
-	margin-top: 4px;
+	margin: 0 @il-padding-base-horizontal 0 @il-padding-xs-horizontal;
 }
 
 .ilExcAssignmentHead .ilAssignmentHeader {
 	padding: 0;
-	margin: 1px 0 0 25px;
-	font-size: floor(@font-size-base*1.2);
+	font-size: @il-font-size-large;
 }
 
 .ilExcAssignmentHead, .ilAssignmentHeader {
@@ -23,7 +22,7 @@
 
 .ilExAssignmentHeadProperty {
 	margin: 4px 0 0 25px;
-	font-size: floor(@font-size-base*0.9);
+	font-size: @il-font-size-small;
 }
 
 .ilExcOverview .ilExcAssImageContainer {
@@ -49,4 +48,41 @@
 		padding-left: 30px;
 		margin: 0;
 	}
+}
+
+// show more text
+.read-more-state {
+	display: none;
+}
+
+.read-more-target {
+	opacity: 0;
+	max-height: 0;
+	font-size: 0;
+	transition: .25s ease;
+}
+
+.read-more-state:checked ~ .read-more-wrap .read-more-target {
+	opacity: 1;
+	font-size: inherit;
+	max-height: 999em;
+}
+
+.read-more-state ~ .read-more-trigger:before {
+	content: 'Show more';
+}
+
+.read-more-state:checked ~ .read-more-trigger:before {
+	content: 'Show less';
+}
+
+.read-more-trigger {
+	cursor: pointer;
+	display: inline-block;
+	padding: 0 .5em;
+	color: @il-neutral-light-color;
+	font-size: .9em;
+	line-height: 2;
+	border: 1px solid @il-main-border-color;
+	border-radius: .25em;
 }

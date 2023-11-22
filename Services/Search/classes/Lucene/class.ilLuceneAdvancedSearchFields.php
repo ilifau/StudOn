@@ -1,95 +1,85 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
+declare(strict_types=1);
 
-include_once './Services/Search/classes/Lucene/class.ilLuceneAdvancedSearchSettings.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
 * Field definitions of advanced meta data search
 *
 * @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
 *
 *
 * @ingroup ServicesSearch
 */
 class ilLuceneAdvancedSearchFields
 {
-    const ONLINE_QUERY = 1;
-    const OFFLINE_QUERY = 2;
-    
-    private static $instance = null;
-    private $settings = null;
-    
-    protected $lng = null;
-    
-    private static $fields = null;
-    private $active_fields = array();
-    
-    private static $sections = null;
-    private $active_sections = array();
-    
-    
+    public const ONLINE_QUERY = 1;
+    public const OFFLINE_QUERY = 2;
+
+    private static ?ilLuceneAdvancedSearchFields $instance = null;
+    private ilLuceneAdvancedSearchSettings $settings;
+
+    protected ilLanguage $lng;
+    protected ilObjUser $user;
+
+    private static array $fields = [];
+    private array $active_fields = [];
+
+    private static array $sections = [];
+    private array $active_sections = [];
+
+
     protected function __construct()
     {
         global $DIC;
 
-        $lng = $DIC['lng'];
-        
-        $this->settings = ilLuceneAdvancedSearchSettings::getInstance();
-        
-        $this->lng = $lng;
+        $this->lng = $DIC->language();
         $this->lng->loadLanguageModule('meta');
-        
+        $this->user = $DIC->user();
+
+        $this->settings = ilLuceneAdvancedSearchSettings::getInstance();
+
         $this->readFields();
         $this->readSections();
     }
-    
-    /**
-     * Get singleton instance
-     */
-    public static function getInstance()
+
+    public static function getInstance(): ilLuceneAdvancedSearchFields
     {
-        if (isset(self::$instance) and self::$instance) {
+        if (self::$instance instanceof ilLuceneAdvancedSearchFields) {
             return self::$instance;
         }
         return self::$instance = new ilLuceneAdvancedSearchFields();
     }
-    
+
     /**
      * Return an array of all meta data fields
+     * @return array<string, string>
      */
-    public static function getFields()
+    public static function getFields(): array
     {
         global $DIC;
 
         $lng = $DIC->language();
-        
+
         $lng->loadLanguageModule('meta');
-        
+
         $fields['lom_content'] = $lng->txt('content');
-        
-        include_once './Services/Search/classes/class.ilSearchSettings.php';
+
         if (ilSearchSettings::getInstance()->enabledLucene()) {
             $fields['general_offline'] = $lng->txt('lucene_offline_filter');
         }
@@ -115,39 +105,45 @@ class ilLuceneAdvancedSearchFields
         $fields['lom_copyright'] = $lng->txt('meta_copyright_and_other_restrictions');
         $fields['lom_purpose'] = $lng->txt('meta_purpose');
         $fields['lom_taxon'] = $lng->txt('meta_taxon');
-            
+
         // Append all advanced meta data fields
-        include_once './Services/AdvancedMetaData/classes/class.ilAdvancedMDRecord.php';
-        include_once './Services/AdvancedMetaData/classes/class.ilAdvancedMDFieldDefinition.php';
         foreach (ilAdvancedMDRecord::_getRecords() as $record) {
+            if ($record->getParentObject() > 0) {
+                if (!ilObject::_hasUntrashedReference($record->getParentObject())) {
+                    continue;
+                }
+            }
+
             foreach (ilAdvancedMDFieldDefinition::getInstancesByRecordId($record->getRecordId(), true) as $def) {
                 $field_translations = ilAdvancedMDFieldTranslations::getInstanceByRecordId($record->getRecordId());
                 $fields['adv_' . $def->getFieldId()] = $field_translations->getTitleForLanguage($def->getFieldId(), $lng->getLangKey());
             }
         }
+
         return $fields;
     }
-    
+
     /**
      * Get all active fields
+     * @return array<string, string>
      */
-    public function getActiveFields()
+    public function getActiveFields(): array
     {
-        return $this->active_fields ? $this->active_fields : array();
+        return $this->active_fields;
     }
-    
-    public function getActiveSections()
-    {
-        return $this->active_sections ? $this->active_sections : array();
-    }
-    
-    public function getFormElement($a_query, $a_field_name, ilPropertyFormGUI $a_form)
-    {
-        include_once './Services/MetaData/classes/class.ilMDUtilSelect.php';
 
+    public function getActiveSections(): array
+    {
+        return $this->active_sections;
+    }
+
+    /**
+     * @param string | array    $a_query
+     */
+    public function getFormElement($a_query, string $a_field_name, ilPropertyFormGUI $a_form): ?ilFormPropertyGUI
+    {
         $a_post_name = 'query[' . $a_field_name . ']';
-        
-        ilLoggerFactory::getLogger('sea')->debug('Query was: ' . print_r($a_query, true));
+
         if (!is_array($a_query)) {
             $a_query = array();
         }
@@ -161,33 +157,33 @@ class ilLuceneAdvancedSearchFields
                 );
                 $offline = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
                 $offline->setOptions($offline_options);
-                $offline->setValue($a_query['general_offline']);
+                $offline->setValue($a_query['general_offline'] ?? '');
                 return $offline;
-            
+
             case 'lom_content':
                 $text = new ilTextInputGUI($this->active_fields[$a_field_name], $a_post_name);
                 $text->setSubmitFormOnEnter(true);
-                $text->setValue($a_query['lom_content']);
+                $text->setValue($a_query['lom_content'] ?? '');
                 $text->setSize(30);
                 $text->setMaxLength(255);
                 return $text;
-            
+
             // General
             case 'lom_language':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_language']);
-                $select->setOptions(ilMDUtilSelect::_getLanguageSelect(
+                $select->setValue($a_query['lom_language'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getLanguageSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
                     true
                 ));
                 return $select;
-                            
+
             case 'lom_keyword':
                 $text = new ilTextInputGUI($this->active_fields[$a_field_name], $a_post_name);
                 $text->setSubmitFormOnEnter(true);
-                $text->setValue($a_query['lom_keyword']);
+                $text->setValue($a_query['lom_keyword'] ?? '');
                 $text->setSize(30);
                 $text->setMaxLength(255);
                 return $text;
@@ -195,15 +191,15 @@ class ilLuceneAdvancedSearchFields
             case 'lom_coverage':
                 $text = new ilTextInputGUI($this->active_fields[$a_field_name], $a_post_name);
                 $text->setSubmitFormOnEnter(true);
-                $text->setValue($a_query['lom_coverage']);
+                $text->setValue($a_query['lom_coverage'] ?? '');
                 $text->setSize(30);
                 $text->setMaxLength(255);
                 return $text;
 
             case 'lom_structure':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_structure']);
-                $select->setOptions(ilMDUtilSelect::_getStructureSelect(
+                $select->setValue($a_query['lom_structure'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getStructureSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
@@ -214,8 +210,8 @@ class ilLuceneAdvancedSearchFields
             // Lifecycle
             case 'lom_status':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_status']);
-                $select->setOptions(ilMDUtilSelect::_getStatusSelect(
+                $select->setValue($a_query['lom_status'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getStatusSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
@@ -226,34 +222,34 @@ class ilLuceneAdvancedSearchFields
             case 'lom_version':
                 $text = new ilTextInputGUI($this->active_fields[$a_field_name], $a_post_name);
                 $text->setSubmitFormOnEnter(true);
-                $text->setValue($a_query['lom_version']);
+                $text->setValue($a_query['lom_version'] ?? '');
                 $text->setSize(30);
                 $text->setMaxLength(255);
                 return $text;
-                
+
             case 'lom_contribute':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], 'query[' . 'lom_role' . ']');
-                $select->setValue($a_query['lom_role']);
-                $select->setOptions(ilMDUtilSelect::_getRoleSelect(
+                $select->setValue($a_query['lom_role'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getRoleSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
                     true
                 ));
-                    
+
                     $text = new ilTextInputGUI($this->lng->txt('meta_entry'), 'query[' . 'lom_role_entry' . ']');
-                    $text->setValue($a_query['lom_role_entry']);
+                    $text->setValue($a_query['lom_role_entry'] ?? '');
                     $text->setSize(30);
                     $text->setMaxLength(255);
-                
+
                 $select->addSubItem($text);
                 return $select;
 
             // Technical
             case 'lom_format':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_format']);
-                $select->setOptions(ilMDUtilSelect::_getFormatSelect(
+                $select->setValue($a_query['lom_format'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getFormatSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
@@ -263,8 +259,8 @@ class ilLuceneAdvancedSearchFields
 
             case 'lom_operating_system':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_operating_system']);
-                $select->setOptions(ilMDUtilSelect::_getOperatingSystemSelect(
+                $select->setValue($a_query['lom_operating_system'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getOperatingSystemSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
@@ -274,92 +270,92 @@ class ilLuceneAdvancedSearchFields
 
             case 'lom_browser':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_browser']);
-                $select->setOptions(ilMDUtilSelect::_getBrowserSelect(
+                $select->setValue($a_query['lom_browser'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getBrowserSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
                     true
                 ));
                 return $select;
-            
+
             // Education
             case 'lom_interactivity':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_interactivity']);
-                $select->setOptions(ilMDUtilSelect::_getInteractivityTypeSelect(
+                $select->setValue($a_query['lom_interactivity'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getInteractivityTypeSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
                     true
                 ));
                 return $select;
-            
+
             case 'lom_resource':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_resource']);
-                $select->setOptions(ilMDUtilSelect::_getLearningResourceTypeSelect(
+                $select->setValue($a_query['lom_resource'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getLearningResourceTypeSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
                     true
                 ));
                 return $select;
-            
+
             case 'lom_level':
                 $range = new ilCustomInputGUI($this->active_fields[$a_field_name]);
                 $html = $this->getRangeSelect(
                     $this->lng->txt('from'),
-                    ilMDUtilSelect::_getInteractivityLevelSelect(
-                        $a_query['lom_level_start'],
+                    (string) ilMDUtilSelect::_getInteractivityLevelSelect(
+                        $a_query['lom_level_start'] ?? '',
                         'query[' . 'lom_level_start' . ']',
                         array(0 => $this->lng->txt('search_any'))
                     ),
                     $this->lng->txt('until'),
-                    ilMDUtilSelect::_getInteractivityLevelSelect(
-                        $a_query['lom_level_end'],
+                    (string) ilMDUtilSelect::_getInteractivityLevelSelect(
+                        $a_query['lom_level_end'] ?? '',
                         'query[' . 'lom_level_end' . ']',
                         array(0 => $this->lng->txt('search_any'))
                     )
-                    );
-                $range->setHTML($html);
+                );
+                $range->setHtml($html);
                 return $range;
-                        
+
             case 'lom_density':
                 $range = new ilCustomInputGUI($this->active_fields[$a_field_name]);
                 $html = $this->getRangeSelect(
                     $this->lng->txt('from'),
-                    ilMDUtilSelect::_getSemanticDensitySelect(
-                        $a_query['lom_density_start'],
+                    (string) ilMDUtilSelect::_getSemanticDensitySelect(
+                        $a_query['lom_density_start'] ?? '',
                         'query[' . 'lom_density_start' . ']',
                         array(0 => $this->lng->txt('search_any'))
                     ),
                     $this->lng->txt('until'),
-                    ilMDUtilSelect::_getSemanticDensitySelect(
-                        $a_query['lom_density_end'],
+                    (string) ilMDUtilSelect::_getSemanticDensitySelect(
+                        $a_query['lom_density_end'] ?? '',
                         'query[' . 'lom_density_end' . ']',
                         array(0 => $this->lng->txt('search_any'))
                     )
-                    );
-                $range->setHTML($html);
+                );
+                $range->setHtml($html);
                 return $range;
 
-            
+
             case 'lom_user_role':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_user_role']);
-                $select->setOptions(ilMDUtilSelect::_getIntendedEndUserRoleSelect(
+                $select->setValue($a_query['lom_user_role'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getIntendedEndUserRoleSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
                     true
                 ));
                 return $select;
-            
+
             case 'lom_context':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_context']);
-                $select->setOptions(ilMDUtilSelect::_getContextSelect(
+                $select->setValue($a_query['lom_context'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getContextSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
@@ -371,26 +367,26 @@ class ilLuceneAdvancedSearchFields
                 $range = new ilCustomInputGUI($this->active_fields[$a_field_name]);
                 $html = $this->getRangeSelect(
                     $this->lng->txt('from'),
-                    ilMDUtilSelect::_getDifficultySelect(
-                        $a_query['lom_difficulty_start'],
+                    (string) ilMDUtilSelect::_getDifficultySelect(
+                        $a_query['lom_difficulty_start'] ?? '',
                         'query[' . 'lom_difficulty_start' . ']',
                         array(0 => $this->lng->txt('search_any'))
                     ),
                     $this->lng->txt('until'),
-                    ilMDUtilSelect::_getDifficultySelect(
-                        $a_query['lom_difficulty_end'],
+                    (string) ilMDUtilSelect::_getDifficultySelect(
+                        $a_query['lom_difficulty_end'] ?? '',
                         'query[' . 'lom_difficulty_end' . ']',
                         array(0 => $this->lng->txt('search_any'))
                     )
-                    );
-                $range->setHTML($html);
+                );
+                $range->setHtml($html);
                 return $range;
 
             // Rights
             case 'lom_costs':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_costs']);
-                $select->setOptions(ilMDUtilSelect::_getCostsSelect(
+                $select->setValue($a_query['lom_costs'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getCostsSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
@@ -400,7 +396,7 @@ class ilLuceneAdvancedSearchFields
 
             case 'lom_copyright':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_copyright']);
+                $select->setValue($a_query['lom_copyright'] ?? '');
                 $select->setOptions((array) ilMDUtilSelect::_getCopyrightAndOtherRestrictionsSelect(
                     '',
                     $a_field_name,
@@ -408,14 +404,14 @@ class ilLuceneAdvancedSearchFields
                     true
                 ));
                 return $select;
-                
+
 
 
             // Classification
             case 'lom_purpose':
                 $select = new ilSelectInputGUI($this->active_fields[$a_field_name], $a_post_name);
-                $select->setValue($a_query['lom_purpose']);
-                $select->setOptions(ilMDUtilSelect::_getPurposeSelect(
+                $select->setValue($a_query['lom_purpose'] ?? '');
+                $select->setOptions((array) ilMDUtilSelect::_getPurposeSelect(
                     '',
                     $a_field_name,
                     array(0 => $this->lng->txt('search_any')),
@@ -426,90 +422,90 @@ class ilLuceneAdvancedSearchFields
             case 'lom_taxon':
                 $text = new ilTextInputGUI($this->active_fields[$a_field_name], $a_post_name);
                 $text->setSubmitFormOnEnter(true);
-                $text->setValue($a_query['lom_taxon']);
+                $text->setValue($a_query['lom_taxon'] ?? '');
                 $text->setSize(30);
                 $text->setMaxLength(255);
                 return $text;
-                
+
             default:
                 if (substr($a_field_name, 0, 3) != 'adv') {
                     break;
                 }
-                    
+
                 // Advanced meta data
                 $field_id = substr($a_field_name, 4);
-                include_once './Services/AdvancedMetaData/classes/class.ilAdvancedMDFieldDefinition.php';
-                $field = ilAdvancedMDFieldDefinition::getInstance($field_id);
-                                
+                $field = ilAdvancedMDFieldDefinition::getInstance((int) $field_id);
+
                 $field_form = ilADTFactory::getInstance()->getSearchBridgeForDefinitionInstance($field->getADTDefinition(), true, false);
                 $field_form->setForm($a_form);
                 $field_form->setElementId($a_post_name);
                 $field_form->setTitle($this->active_fields[$a_field_name]);
                 $field_form->addToForm();
-                
+
                 // #17071 - reload search values
                 if (is_array($a_query) &&
                     array_key_exists($a_field_name, $a_query)) {
                     $field_form->importFromPost((array) $a_query);
                     $field_form->validate();
                 }
-                
-                return;
+                return null;
         }
         return null;
     }
-    
-    
+
+
     /**
      * Called from ilLuceneAdvancedQueryParser
      * Parse a field specific query
+     * @param string $a_field
+     * @param string | array $a_query
      */
-    public function parseFieldQuery($a_field, $a_query)
+    public function parseFieldQuery(string $a_field, $a_query): string
     {
         switch ($a_field) {
             case 'lom_content':
                 return $a_query;
-                
+
             case 'general_offline':
-                
+
                 switch ($a_query) {
                     case self::OFFLINE_QUERY:
                         return 'offline:1';
-                    
+
                     default:
                         return '-offline:1';
-                
+
                 }
-                return '';
-                
+
             // General
+            // no break
             case 'lom_language':
                 return 'lomLanguage:' . $a_query;
-                
+
             case 'lom_keyword':
                 return 'lomKeyword:' . $a_query;
-                
+
             case 'lom_coverage':
                 return 'lomCoverage:' . $a_query;
-                
+
             case 'lom_structure':
                 return 'lomStructure:' . $a_query;
-            
+
             // Lifecycle
             case 'lom_status':
                 return 'lomStatus:' . $a_query;
 
             case 'lom_version':
                 return 'lomVersion:' . $a_query;
-                
+
             // Begin Contribute
             case 'lom_role':
                 return 'lomRole:' . $a_query;
-                
+
             case 'lom_role_entry':
                 return 'lomRoleEntity:' . $a_query;
             // End contribute
-    
+
             // Technical
             case 'lom_format':
                 return 'lomFormat:' . $a_query;
@@ -526,11 +522,10 @@ class ilLuceneAdvancedSearchFields
 
             case 'lom_resource':
                 return 'lomResource:' . $a_query;
-                
+
             case 'lom_level_start':
                 $q_string = '';
-                include_once './Services/MetaData/classes/class.ilMDUtilSelect.php';
-                $options = ilMDUtilSelect::_getInteractivityLevelSelect(0, 'lom_level', array(), true);
+                $options = (array) ilMDUtilSelect::_getInteractivityLevelSelect(0, 'lom_level', array(), true);
                 for ($i = $a_query; $i <= count($options); $i++) {
                     if (strlen($q_string)) {
                         $q_string .= 'OR ';
@@ -538,11 +533,10 @@ class ilLuceneAdvancedSearchFields
                     $q_string .= ('lomLevel:"' . $options[$i] . '" ');
                 }
                 return $q_string;
-                
+
             case 'lom_level_end':
                 $q_string = '';
-                include_once './Services/MetaData/classes/class.ilMDUtilSelect.php';
-                $options = ilMDUtilSelect::_getInteractivityLevelSelect(0, 'lom_level', array(), true);
+                $options = (array) ilMDUtilSelect::_getInteractivityLevelSelect(0, 'lom_level', array(), true);
                 for ($i = 1; $i <= $a_query; $i++) {
                     if (strlen($q_string)) {
                         $q_string .= 'OR ';
@@ -553,8 +547,7 @@ class ilLuceneAdvancedSearchFields
 
             case 'lom_density_start':
                 $q_string = '';
-                include_once './Services/MetaData/classes/class.ilMDUtilSelect.php';
-                $options = ilMDUtilSelect::_getSemanticDensitySelect(0, 'lom_density', array(), true);
+                $options = (array) ilMDUtilSelect::_getSemanticDensitySelect(0, 'lom_density', array(), true);
                 for ($i = $a_query; $i <= count($options); $i++) {
                     if (strlen($q_string)) {
                         $q_string .= 'OR ';
@@ -562,11 +555,10 @@ class ilLuceneAdvancedSearchFields
                     $q_string .= ('lomDensity:"' . $options[$i] . '" ');
                 }
                 return $q_string;
-                
+
             case 'lom_density_end':
                 $q_string = '';
-                include_once './Services/MetaData/classes/class.ilMDUtilSelect.php';
-                $options = ilMDUtilSelect::_getSemanticDensitySelect(0, 'lom_density', array(), true);
+                $options = (array) ilMDUtilSelect::_getSemanticDensitySelect(0, 'lom_density', array(), true);
                 for ($i = 1; $i <= $a_query; $i++) {
                     if (strlen($q_string)) {
                         $q_string .= 'OR ';
@@ -580,11 +572,10 @@ class ilLuceneAdvancedSearchFields
 
             case 'lom_context':
                 return 'lomContext:' . $a_query;
-            
+
             case 'lom_difficulty_start':
                 $q_string = '';
-                include_once './Services/MetaData/classes/class.ilMDUtilSelect.php';
-                $options = ilMDUtilSelect::_getDifficultySelect(0, 'lom_difficulty', array(), true);
+                $options = (array) ilMDUtilSelect::_getDifficultySelect(0, 'lom_difficulty', array(), true);
                 for ($i = $a_query; $i <= count($options); $i++) {
                     if (strlen($q_string)) {
                         $q_string .= 'OR ';
@@ -592,11 +583,10 @@ class ilLuceneAdvancedSearchFields
                     $q_string .= ('lomDifficulty:"' . $options[$i] . '" ');
                 }
                 return $q_string;
-                
+
             case 'lom_difficulty_end':
                 $q_string = '';
-                include_once './Services/MetaData/classes/class.ilMDUtilSelect.php';
-                $options = ilMDUtilSelect::_getDifficultySelect(0, 'lom_difficulty', array(), true);
+                $options = (array) ilMDUtilSelect::_getDifficultySelect(0, 'lom_difficulty', array(), true);
                 for ($i = 1; $i <= $a_query; $i++) {
                     if (strlen($q_string)) {
                         $q_string .= 'OR ';
@@ -618,22 +608,21 @@ class ilLuceneAdvancedSearchFields
 
             case 'lom_taxon':
                 return 'lomTaxon:' . $a_query;
-                
+
             default:
                 if (substr($a_field, 0, 3) != 'adv') {
                     break;
                 }
-                    
+
                 // Advanced meta data
                 $field_id = substr($a_field, 4);
-                include_once './Services/AdvancedMetaData/classes/class.ilAdvancedMDFieldDefinition.php';
                 try {
                     // field might be invalid (cached query)
-                    $field = ilAdvancedMDFieldDefinition::getInstance($field_id);
+                    $field = ilAdvancedMDFieldDefinition::getInstance((int) $field_id);
                 } catch (Exception $ex) {
                     return '';
                 }
-                                
+
                 $adv_query = $field->getLuceneSearchString($a_query);
                 if ($adv_query) {
                     // #17558
@@ -648,13 +637,14 @@ class ilLuceneAdvancedSearchFields
                     }
                 }
         }
+        return '';
     }
-    
-    
+
+
     /**
      * Read active fields
      */
-    protected function readFields()
+    protected function readFields(): void
     {
         foreach (self::getFields() as $name => $translation) {
             if ($this->settings->isActive($name)) {
@@ -662,16 +652,12 @@ class ilLuceneAdvancedSearchFields
             }
         }
     }
-    
+
     /**
      * Read active sections
      */
-    protected function readSections()
+    protected function readSections(): void
     {
-        global $DIC;
-
-        $user = $DIC->user();
-
         foreach ($this->getActiveFields() as $field_name => $translation) {
             switch ($field_name) {
                 // Default section
@@ -679,17 +665,17 @@ class ilLuceneAdvancedSearchFields
                     $this->active_sections['default']['fields'][] = 'lom_content';
                     $this->active_sections['default']['name'] = '';
                     break;
-                
+
                 case 'general_offline':
                     $this->active_sections['default']['fields'][] = 'general_offline';
                     $this->active_sections['default']['name'] = '';
                     break;
-                
+
                 case 'lom_type':
                     $this->active_sections['default']['fields'][] = 'lom_type';
                     $this->active_sections['default']['name'] = '';
                     break;
-                
+
                 // General
                 case 'lom_language':
                     $this->active_sections['general']['fields'][] = 'lom_language';
@@ -707,7 +693,7 @@ class ilLuceneAdvancedSearchFields
                     $this->active_sections['general']['fields'][] = 'lom_structure';
                     $this->active_sections['general']['name'] = $this->lng->txt('meta_general');
                     break;
-                    
+
                 // Lifecycle
                 case 'lom_status':
                     $this->active_sections['lifecycle']['fields'][] = 'lom_status';
@@ -721,7 +707,7 @@ class ilLuceneAdvancedSearchFields
                     $this->active_sections['lifecycle']['fields'][] = 'lom_contribute';
                     $this->active_sections['lifecycle']['name'] = $this->lng->txt('meta_lifecycle');
                     break;
-                    
+
                 // Technical
                 case 'lom_format':
                     $this->active_sections['technical']['fields'][] = 'lom_format';
@@ -735,7 +721,7 @@ class ilLuceneAdvancedSearchFields
                     $this->active_sections['technical']['fields'][] = 'lom_browser';
                     $this->active_sections['technical']['name'] = $this->lng->txt('meta_technical');
                     break;
-                    
+
                 // Education
                 case 'lom_interactivity':
                     $this->active_sections['education']['fields'][] = 'lom_interactivity';
@@ -765,7 +751,7 @@ class ilLuceneAdvancedSearchFields
                     $this->active_sections['education']['fields'][] = 'lom_difficulty';
                     $this->active_sections['education']['name'] = $this->lng->txt('meta_education');
                     break;
-                    
+
                 // Rights
                 case 'lom_costs':
                     $this->active_sections['rights']['fields'][] = 'lom_costs';
@@ -775,7 +761,7 @@ class ilLuceneAdvancedSearchFields
                     $this->active_sections['rights']['fields'][] = 'lom_copyright';
                     $this->active_sections['rights']['name'] = $this->lng->txt('meta_rights');
                     break;
-                
+
                 // Classification
                 case 'lom_purpose':
                     $this->active_sections['classification']['fields'][] = 'lom_purpose';
@@ -785,7 +771,7 @@ class ilLuceneAdvancedSearchFields
                     $this->active_sections['classification']['fields'][] = 'lom_taxon';
                     $this->active_sections['classification']['name'] = $this->lng->txt('meta_classification');
                     break;
-                    
+
                 default:
                     if (substr($field_name, 0, 3) != 'adv') {
                         break;
@@ -793,24 +779,26 @@ class ilLuceneAdvancedSearchFields
 
                     // Advanced meta data
                     $field_id = substr($field_name, 4);
-                    include_once './Services/AdvancedMetaData/classes/class.ilAdvancedMDFieldDefinition.php';
-                    include_once './Services/AdvancedMetaData/classes/class.ilAdvancedMDRecord.php';
-                    $field = ilAdvancedMDFieldDefinition::getInstance($field_id);
+                    $field = ilAdvancedMDFieldDefinition::getInstance((int) $field_id);
                     $record_id = $field->getRecordId();
 
                     $translations = ilAdvancedMDRecordTranslations::getInstanceByRecordId($record_id);
                     $this->active_sections['adv_record_' . $record_id]['fields'][] = $field_name;
-                    $this->active_sections['adv_record_' . $record_id]['name'] = $translations->getTitleForLanguage($user->getLanguage());
+                    $this->active_sections['adv_record_' . $record_id]['name'] = $translations->getTitleForLanguage($this->user->getLanguage());
                     break;
             }
         }
     }
-    
+
     /**
      * get a range selection
      */
-    protected function getRangeSelect($txt_from, $select_from, $txt_until, $select_until)
-    {
+    protected function getRangeSelect(
+        string $txt_from,
+        string $select_from,
+        string $txt_until,
+        string $select_until
+    ): string {
         $tpl = new ilTemplate('tpl.range_search.html', true, true, 'Services/Search');
         $tpl->setVariable('TXT_FROM', $txt_from);
         $tpl->setVariable('FROM', $select_from);

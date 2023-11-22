@@ -1,22 +1,32 @@
 <?php
 
-/* Copyright (c) 1998-2014 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/User/Actions/Contexts/classes/class.ilUserActionContext.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Awareness context for user actions
  *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- * @ingroup ServicesUser
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilAwarenessUserActionContext extends ilUserActionContext
 {
     /**
      * @inheritdoc
      */
-    public function getComponentId()
+    public function getComponentId(): string
     {
         return "awrn";
     }
@@ -24,7 +34,7 @@ class ilAwarenessUserActionContext extends ilUserActionContext
     /**
      * @inheritdoc
      */
-    public function getContextId()
+    public function getContextId(): string
     {
         return "toplist";
     }

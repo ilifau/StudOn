@@ -1,5 +1,19 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 require_once 'Modules/TestQuestionPool/exceptions/class.ilTestQuestionPoolException.php';
 
@@ -13,7 +27,7 @@ require_once 'Modules/TestQuestionPool/exceptions/class.ilTestQuestionPoolExcept
  */
 class ilAssQuestionHint
 {
-    const PAGE_OBJECT_TYPE = 'qht';
+    public const PAGE_OBJECT_TYPE = 'qht';
 
     /**
      * this is the primary key for a hint single hint
@@ -72,7 +86,7 @@ class ilAssQuestionHint
      * @access	public
      * @return	integer	$id
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -83,7 +97,7 @@ class ilAssQuestionHint
      * @access	public
      * @param	integer	$id
      */
-    public function setId($id)
+    public function setId($id): void
     {
         $this->id = (int) $id;
     }
@@ -94,7 +108,7 @@ class ilAssQuestionHint
      * @access	public
      * @return	integer	$questionId
      */
-    public function getQuestionId()
+    public function getQuestionId(): ?int
     {
         return $this->questionId;
     }
@@ -105,7 +119,7 @@ class ilAssQuestionHint
      * @access	public
      * @param	integer	$questionId
      */
-    public function setQuestionId($questionId)
+    public function setQuestionId($questionId): void
     {
         $this->questionId = (int) $questionId;
     }
@@ -116,7 +130,7 @@ class ilAssQuestionHint
      * @access	public
      * @return	integer	$index
      */
-    public function getIndex()
+    public function getIndex(): ?int
     {
         return $this->index;
     }
@@ -127,7 +141,7 @@ class ilAssQuestionHint
      * @access	public
      * @param	integer	$index
      */
-    public function setIndex($index)
+    public function setIndex($index): void
     {
         $this->index = (int) $index;
     }
@@ -138,7 +152,7 @@ class ilAssQuestionHint
      * @access	public
      * @return	float	$points
      */
-    public function getPoints()
+    public function getPoints(): ?float
     {
         return $this->points;
     }
@@ -149,7 +163,7 @@ class ilAssQuestionHint
      * @access	public
      * @param	float   $points
      */
-    public function setPoints($points)
+    public function setPoints($points): void
     {
         $this->points = abs((float) $points);
     }
@@ -160,7 +174,7 @@ class ilAssQuestionHint
      * @access	public
      * @return	string	$text
      */
-    public function getText()
+    public function getText(): ?string
     {
         return $this->text;
     }
@@ -171,7 +185,7 @@ class ilAssQuestionHint
      * @access	public
      * @param	string	$text
      */
-    public function setText($text)
+    public function setText($text): void
     {
         if ($text !== null) {
             $this->text = $this->getHtmlQuestionContentPurifier()->purify($text);
@@ -187,7 +201,7 @@ class ilAssQuestionHint
      * @param	integer	$id
      * @return	boolean	$success
      */
-    public function load($id)
+    public function load($id): bool
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
@@ -228,7 +242,7 @@ class ilAssQuestionHint
      * @access	public
      * @return	boolean	$success
      */
-    public function save()
+    public function save(): bool
     {
         if ($this->getId()) {
             return $this->update();
@@ -245,7 +259,7 @@ class ilAssQuestionHint
      * @global	ilDBInterface	$ilDB
      * @return	boolean	$success
      */
-    private function update()
+    private function update(): bool
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
@@ -272,7 +286,7 @@ class ilAssQuestionHint
      * @global	ilDBInterface	$ilDB
      * @return	boolean	$success
      */
-    private function insert()
+    private function insert(): bool
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
@@ -294,7 +308,7 @@ class ilAssQuestionHint
      *
      * @return	integer	$affectedRows
      */
-    public function delete()
+    public function delete(): int
     {
         return self::deleteById($this->getId());
     }
@@ -308,7 +322,7 @@ class ilAssQuestionHint
      * @param	self	$questionHint
      * @param	array	$hintDbRow
      */
-    public static function assignDbRow(self $questionHint, $hintDbRow)
+    public static function assignDbRow(self $questionHint, $hintDbRow): void
     {
         foreach ($hintDbRow as $field => $value) {
             switch ($field) {
@@ -333,7 +347,7 @@ class ilAssQuestionHint
      * @param	integer	$hintId
      * @return	integer	$affectedRows
      */
-    public static function deleteById($hintId)
+    public static function deleteById($hintId): int
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
@@ -359,26 +373,25 @@ class ilAssQuestionHint
      * @param	integer	$hintId
      * @return	self	$hintInstance
      */
-    public static function getInstanceById($hintId)
+    public static function getInstanceById($hintId): ilAssQuestionHint
     {
         $questionHint = new self();
         $questionHint->load($hintId);
         return $questionHint;
     }
 
-    public function getPageObjectType()
+    public function getPageObjectType(): string
     {
         return self::PAGE_OBJECT_TYPE;
     }
 
-    public static function getHintIndexLabel(ilLanguage $lng, $hintIndex)
+    public static function getHintIndexLabel(ilLanguage $lng, $hintIndex): string
     {
         return sprintf($lng->txt('tst_question_hints_index_column_label'), $hintIndex);
     }
 
-
-    protected function getHtmlQuestionContentPurifier() : ilAssHtmlUserSolutionPurifier
+    protected function getHtmlQuestionContentPurifier(): ilAssHtmlUserSolutionPurifier
     {
-        return ilHtmlPurifierFactory::_getInstanceByType('qpl_usersolution');
+        return ilHtmlPurifierFactory::getInstanceByType('qpl_usersolution');
     }
 }

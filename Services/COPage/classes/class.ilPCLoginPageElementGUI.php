@@ -1,33 +1,37 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once './Services/COPage/classes/class.ilPageContentGUI.php';
-include_once './Services/COPage/classes/class.ilPCLoginPageElement.php';
 
 /**
-* Class ilLoginPageElementGUI
-*
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-* @ilCtrl_Calls ilPCLoginPageElementGUI:
-*
-* @ingroup ServicesCOPage
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Class ilLoginPageElementGUI
+ *
+ * @author Stefan Meyer <meyer@leifos.com>
+ * @ilCtrl_Calls ilPCLoginPageElementGUI:
+ */
 class ilPCLoginPageElementGUI extends ilPageContentGUI
 {
-    /**
-     * @var ilObjectDefinition
-     */
-    protected $obj_definition;
+    protected ilObjectDefinition $obj_definition;
 
-    /**
-    * Constructor
-    * @access	public
-    */
-    public function __construct($a_pg_obj, $a_content_obj, $a_hier_id, $a_pc_id = "")
-    {
+    public function __construct(
+        ilPageObject $a_pg_obj,
+        ?ilPageContent $a_content_obj,
+        string $a_hier_id,
+        string $a_pc_id = ""
+    ) {
         global $DIC;
 
         $this->ctrl = $DIC->ctrl();
@@ -41,19 +45,7 @@ class ilPCLoginPageElementGUI extends ilPageContentGUI
         }
     }
 
-    /**
-     * Get login page elements
-     * @return ilPCLoginPageElement $lp_elements
-     */
-    public function getLoginPageElements()
-    {
-        return $this->lp_elements;
-    }
-
-    /**
-    * execute command
-    */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         // get next class that processes or forwards current command
         $next_class = $this->ctrl->getNextClass($this);
@@ -63,35 +55,25 @@ class ilPCLoginPageElementGUI extends ilPageContentGUI
 
         switch ($next_class) {
             default:
-                $ret = $this->$cmd();
+                $this->$cmd();
                 break;
         }
-
-        return $ret;
     }
 
-    /**
-    * Insert new resources component form.
-    */
-    public function insert()
+    public function insert(): void
     {
         $this->edit(true);
     }
 
-    /**
-    * Edit resources form.
-    */
-    public function edit($a_insert = false)
+    public function edit(bool $a_insert = false): void
     {
         $ilCtrl = $this->ctrl;
         $tpl = $this->tpl;
         $lng = $this->lng;
-        $objDefinition = $this->obj_definition;
-        
+
         $this->displayValidationError();
-        
+
         // edit form
-        include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
         $form->setFormAction($ilCtrl->getFormAction($this));
         if ($a_insert) {
@@ -99,7 +81,7 @@ class ilPCLoginPageElementGUI extends ilPageContentGUI
         } else {
             $form->setTitle($this->lng->txt("cont_update_login_page"));
         }
-        
+
         // type selection
         $type_prop = new ilRadioGroupInputGUI($this->lng->txt("cont_type"), "type");
 
@@ -128,7 +110,7 @@ class ilPCLoginPageElementGUI extends ilPageContentGUI
         $align_prop->setValue($this->content_obj->getAlignment());
         $form->addItem($align_prop);
 
-        
+
         // save/cancel buttons
         if ($a_insert) {
             $form->addCommandButton("create_login_page_element", $lng->txt("save"));
@@ -139,19 +121,22 @@ class ilPCLoginPageElementGUI extends ilPageContentGUI
         }
         $html = $form->getHTML();
         $tpl->setContent($html);
-        return $ret;
     }
 
 
     /**
-    * Create new Login Page Element
-    */
-    public function create()
+     * Create new Login Page Element
+     */
+    public function create(): void
     {
         $this->content_obj = new ilPCLoginPageElement($this->getPage());
         $this->content_obj->create($this->pg_obj, $this->hier_id, $this->pc_id);
-        $this->content_obj->setLoginPageElementType($_POST["type"]);
-        $this->content_obj->setAlignment($_POST['horizontal_align']);
+        $this->content_obj->setLoginPageElementType(
+            $this->request->getString("type")
+        );
+        $this->content_obj->setAlignment(
+            $this->request->getString("horizontal_align")
+        );
 
         $this->updated = $this->pg_obj->update();
         if ($this->updated === true) {
@@ -162,12 +147,16 @@ class ilPCLoginPageElementGUI extends ilPageContentGUI
     }
 
     /**
-    * Update Login page element
-    */
-    public function update()
+     * Update Login page element
+     */
+    public function update(): void
     {
-        $this->content_obj->setLoginPageElementType($_POST["type"]);
-        $this->content_obj->setAlignment($_POST['horizontal_align']);
+        $this->content_obj->setLoginPageElementType(
+            $this->request->getString("type")
+        );
+        $this->content_obj->setAlignment(
+            $this->request->getString("horizontal_align")
+        );
         $this->updated = $this->pg_obj->update();
         if ($this->updated === true) {
             $this->ctrl->returnToParent($this, "jump" . $this->hier_id);

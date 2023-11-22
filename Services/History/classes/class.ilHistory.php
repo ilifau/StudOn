@@ -1,64 +1,75 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* This class methods for maintain history enties for objects
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * This class methods for maintain history enties for objects
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilHistory
 {
-
     /**
-    * Creates a new history entry for an object. The information text parameters
-    * have to be separated by comma. The information text has to be stored
-    * in a langage variable "hist_<object_type>_<action>". This text can contain
-    * placeholders %1, %2, ... for each parameter. The placehoders are replaced
-    * by the parameters in ilHistoryTableGUI.
-    *
-    * Please note that the object type must be specified, if the object is not
-    * derived from ilObject.
-    *
-    * @param	int			$a_obj_id		object id
-    * @param	string		$a_action		action
-    * @param	string		$a_info_params	information text parameters, separated by comma
-    *										or as an array
-    * @param	string		$a_obj_type		object type (must only be set, if object is not
-    *										in object_data table)
-    * @param	string		$a_user_comment	user comment
-    */
+     * Creates a new history entry for an object. The information text parameters
+     * have to be separated by comma. The information text has to be stored
+     * in a langage variable "hist_<object_type>_<action>". This text can contain
+     * placeholders %1, %2, ... for each parameter. The placehoders are replaced
+     * by the parameters in ilHistoryTableGUI.
+     *
+     * Please note that the object type must be specified, if the object is not
+     * derived from ilObject.
+     * @param int    $a_obj_id object id
+     * @param string $a_action
+     * @param array  $a_info_params information parameters
+     * @param string $a_obj_type object type (must only be set, if object is not in object_data table)
+     * @param string $a_user_comment
+     * @param bool   $a_update_last
+     */
     public static function _createEntry(
-        $a_obj_id,
-        $a_action,
-        $a_info_params = "",
-        $a_obj_type = "",
-        $a_user_comment = "",
-        $a_update_last = false
-    ) {
+        int $a_obj_id,
+        string $a_action,
+        array $a_info_params = [],
+        string $a_obj_type = "",
+        string $a_user_comment = "",
+        bool $a_update_last = false
+    ): void {
         global $DIC;
 
         $ilDB = $DIC->database();
         $ilUser = $DIC->user();
-        
+
         if ($a_obj_type == "") {
             $a_obj_type = ilObject::_lookupType($a_obj_id);
         }
-        
+
         if (is_array($a_info_params)) {
             foreach ($a_info_params as $key => $param) {
                 $a_info_params[$key] = str_replace(",", "&#044;", $param);
             }
             $a_info_params = implode(",", $a_info_params);
         }
-        
+
         // get last entry of object
         $last_entry_sql = "SELECT * FROM history WHERE " .
             " obj_id = " . $ilDB->quote($a_obj_id, "integer") . " AND " .
             " obj_type = " . $ilDB->quote($a_obj_type, "text") . " ORDER BY hdate DESC";
         $last_entry_set = $ilDB->query($last_entry_sql);
         $last_entry = $ilDB->fetchAssoc($last_entry_set);
-        
+
         // note: insert is forced if last entry already has a comment and a
         // new comment is given too OR
         // if entry should not be updated OR
@@ -77,33 +88,7 @@ class ilHistory
                 "info_params" => array("text", $a_info_params),
                 "user_comment" => array("clob", $a_user_comment)
                 ));
-
-        /*$query = "INSERT INTO history (id, obj_id, obj_type, action, hdate, usr_id, info_params, user_comment) VALUES ".
-            "(".
-            $ilDB->quote($id).", ".
-            $ilDB->quote($a_obj_id).", ".
-            $ilDB->quote($a_obj_type).", ".
-            $ilDB->quote($a_action).", ".
-            "now(), ".
-            $ilDB->quote($ilUser->getId()).", ".
-            $ilDB->quote($a_info_params).", ".
-            $ilDB->quote($a_user_comment).
-            ")";
-        $ilDB->query($query);*/
         } else {
-            // if entry should be updated, update user comment only
-            // if it is set (this means, user comment has been empty
-            // because if old and new comment are given, an INSERT is forced
-            // see if statement above)
-            //$uc_str = ($a_user_comment != "")
-            //	? ", user_comment = ".$ilDB->quote($a_user_comment)
-            //	: "";
-            /*$query = "UPDATE history SET ".
-                " hdate = now() ".
-                $uc_str.
-                " WHERE id = ".$ilDB->quote($last_entry["id"]);
-            $ilDB->query($query);*/
-
             $fields = array(
                 "hdate" => array("timestamp", ilUtil::now())
                 );
@@ -112,21 +97,21 @@ class ilHistory
             }
 
             $ilDB->update("history", $fields, array(
-                "id" => array("integer", $id)
+                "id" => array("integer", $last_entry["id"])
                 ));
         }
     }
-    
+
     /**
-    * get all history entries for an object
-    *
-    * @param	int		$a_obj_id		object id
-    *
-    * @return	array	array of history entries (arrays with keys
-    *					"date", "user_id", "obj_id", "action", "info_params")
-    */
-    public static function _getEntriesForObject($a_obj_id, $a_obj_type = "")
-    {
+     * get all history entries for an object
+     * @param int    $a_obj_id
+     * @param string $a_obj_type
+     * @return array array of history entries (arrays with keys "date", "user_id", "obj_id", "action", "info_params")
+     */
+    public static function _getEntriesForObject(
+        int $a_obj_id,
+        string $a_obj_type = ""
+    ): array {
         global $DIC;
 
         $ilDB = $DIC->database();
@@ -158,7 +143,7 @@ class ilHistory
                 " l.obj_id = h.obj_id AND " .
                 " (h.obj_type=" . $ilDB->quote($a_obj_type . ":pg", "text") . " OR h.obj_type=" . $ilDB->quote($a_obj_type . ":st", "text") . ") " .
                 " ORDER BY h.hdate DESC";
-                
+
             $hist_set = $ilDB->query($query);
             while ($hist_rec = $ilDB->fetchAssoc($hist_set)) {
                 $hist_items[] = array("date" => $hist_rec["hdate"],
@@ -179,7 +164,7 @@ class ilHistory
         return $hist_items;
     }
 
-    public static function _compareHistArray($a, $b)
+    public static function _compareHistArray(array $a, array $b): int
     {
         if ($a["date"] == $b["date"]) {
             return 0;
@@ -188,13 +173,9 @@ class ilHistory
     }
 
     /**
-    * remove all history entries for an object
-    *
-    * @param	int		$a_obj_id		object id
-    *
-    * @return	boolean
-    */
-    public static function _removeEntriesForObject($a_obj_id)
+     * remove all history entries for an object
+     */
+    public static function _removeEntriesForObject(int $a_obj_id): void
     {
         global $DIC;
 
@@ -202,19 +183,13 @@ class ilHistory
 
         $q = "DELETE FROM history WHERE obj_id = " .
             $ilDB->quote($a_obj_id, "integer");
-        $r = $ilDB->manipulate($q);
-        
-        return true;
+        $ilDB->manipulate($q);
     }
-    
+
     /**
-    * copy all history entries for an object
-    *
-    * @param	integer $a_src_id		source object id
-    * @param	integer $a_dst_id		destination object id
-    * @return	boolean
-    */
-    public static function _copyEntriesForObject($a_src_id, $a_dst_id)
+     * copy all history entries for an object
+     */
+    public static function _copyEntriesForObject(int $a_src_id, int $a_dst_id): void
     {
         global $DIC;
 
@@ -223,7 +198,7 @@ class ilHistory
         $q = "SELECT * FROM history WHERE obj_id = " .
             $ilDB->quote($a_src_id, "integer");
         $r = $ilDB->query($q);
-        
+
         while ($row = $ilDB->fetchObject($r)) {
             $id = $ilDB->nextId("history");
             $ilDB->insert("history", array(
@@ -236,31 +211,13 @@ class ilHistory
                 "info_params" => array("text", $row->info_params),
                 "user_comment" => array("clob", $row->user_comment)
                 ));
-
-            /*
-            $q = "INSERT INTO history (obj_id, obj_type, action, hdate, usr_id, info_params, user_comment) VALUES ".
-                 "(".
-                    $ilDB->quote($a_dst_id).", ".
-                    $ilDB->quote($row->obj_type).", ".
-                    $ilDB->quote($row->action).", ".
-                    $ilDB->quote($row->hdate).", ".
-                    $ilDB->quote($row->usr_id).", ".
-                    $ilDB->quote($row->info_params).", ".
-                    $ilDB->quote($row->user_comment).
-                 ")";
-
-            $ilDB->query($q);*/
         }
-        
-        return true;
     }
-    
+
     /**
      * returns a single history entry
-     *
-     *
      */
-    public static function _getEntryByHistoryID($a_hist_entry_id)
+    public static function _getEntryByHistoryID(int $a_hist_entry_id): array
     {
         global $DIC;
 
@@ -269,16 +226,14 @@ class ilHistory
         $q = "SELECT * FROM history WHERE id = " .
             $ilDB->quote($a_hist_entry_id, "integer");
         $r = $ilDB->query($q);
-        
+
         return $ilDB->fetchAssoc($r);
     }
-    
+
     /**
      * Removes a single entry from the history.
-     *
-     * @param int $a_hist_entry_id The id of the entry to remove.
      */
-    public static function _removeEntryByHistoryID($a_hist_entry_id)
+    public static function _removeEntryByHistoryID(int $a_hist_entry_id): void
     {
         global $DIC;
 
@@ -288,14 +243,11 @@ class ilHistory
             $ilDB->quote($a_hist_entry_id, "integer");
         $ilDB->manipulate($q);
     }
-    
+
     /**
      * Changes the user id of the specified history entry.
-     *
-     * @param int $a_hist_entry_id The history entry to change the user id.
-     * @param int $new_user_id The new user id.
      */
-    public static function _changeUserId($a_hist_entry_id, $new_user_id)
+    public static function _changeUserId(int $a_hist_entry_id, int $new_user_id): void
     {
         global $DIC;
 
@@ -307,4 +259,4 @@ class ilHistory
             array("id" => array("integer", $a_hist_entry_id))
         );
     }
-} // END class.ilHistory
+}

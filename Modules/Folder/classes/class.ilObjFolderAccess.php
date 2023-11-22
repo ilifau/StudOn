@@ -1,122 +1,92 @@
 <?php
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/Object/classes/class.ilObjectAccess.php");
+declare(strict_types=1);
 
 /**
-* Class ilObjFileAccess
-*
-*
-* @author 	Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
+
+/**
+ * Class ilObjFileAccess
+ *
+ * @author 	Stefan Meyer <meyer@leifos.com>
+ */
 class ilObjFolderAccess extends ilObjectAccess
 {
-    private static $folderSettings;
+    private static ?ilSetting $folderSettings = null;
 
-    private static function getFolderSettings()
+    private static function getFolderSettings(): ilSetting
     {
-        if (is_null(ilObjFolderAccess::$folderSettings)) {
-            ilObjFolderAccess::$folderSettings = new ilSetting('fold');
+        if (is_null(self::$folderSettings)) {
+            self::$folderSettings = new ilSetting('fold');
         }
-        return ilObjFolderAccess::$folderSettings;
+        return self::$folderSettings;
     }
-     
-    
-    /**
-     * get commands
-     *
-     * this method returns an array of all possible commands/permission combinations
-     *
-     * example:
-     * $commands = array
-     *	(
-     *		array("permission" => "read", "cmd" => "view", "lang_var" => "show"),
-     *		array("permission" => "write", "cmd" => "edit", "lang_var" => "edit"),
-     *	);
-     */
-    public static function _getCommands()
+
+    public function _checkAccess(string $cmd, string $permission, int $ref_id, int $obj_id, ?int $user_id = null): bool
     {
-        $commands = array();
-        $commands[] = array("permission" => "read", "cmd" => "view", "lang_var" => "show", "default" => true);
+        if ($cmd === "download" &&
+            !self::hasDownloadAction($ref_id)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function _getCommands(): array
+    {
+        $commands = [];
+        $commands[] = ["permission" => "read", "cmd" => "view", "lang_var" => "show", "default" => true];
 
         // why here, why read permission? it just needs info_screen_enabled = true in ilObjCategoryListGUI (alex, 30.7.2008)
         // this is not consistent, with all other objects...
         //$commands[] = array("permission" => "read", "cmd" => "showSummary", "lang_var" => "info_short", "enable_anonymous" => "false");
-        if (ilObjFolderAccess::hasDownloadAction($_GET["ref_id"])) {
-            $commands[] = array("permission" => "read", "cmd" => "download", "lang_var" => "download"); // #18805
-        }
+        $commands[] = ["permission" => "read", "cmd" => "download", "lang_var" => "download"]; // #18805
         // BEGIN WebDAV: Mount Webfolder.
-        include_once('Services/WebDAV/classes/class.ilDAVActivationChecker.php');
         if (ilDAVActivationChecker::_isActive()) {
-            include_once './Services/WebDAV/classes/class.ilWebDAVUtil.php';
-            if (ilWebDAVUtil::getInstance()->isLocalPasswordInstructionRequired()) {
-                $commands[] = array('permission' => 'read', 'cmd' => 'showPasswordInstruction', 'lang_var' => 'mount_webfolder', 'enable_anonymous' => 'false');
-            } else {
-                $commands[] = array("permission" => "read", "cmd" => "mount_webfolder", "lang_var" => "mount_webfolder", "enable_anonymous" => "false");
-            }
+            $webdav_obj = new ilObjWebDAV();
+            $commands[] = $webdav_obj->retrieveWebDAVCommandArrayForActionMenu();
         }
-        $commands[] = array("permission" => "write", "cmd" => "enableAdministrationPanel", "lang_var" => "edit_content");
-        $commands[] = array("permission" => "write", "cmd" => "edit", "lang_var" => "settings");
-        
+        $commands[] = ["permission" => "write", "cmd" => "enableAdministrationPanel", "lang_var" => "edit_content"];
+        $commands[] = ["permission" => "write", "cmd" => "edit", "lang_var" => "settings"];
+
         return $commands;
     }
 
-    
-    private static function hasDownloadAction($ref_id)
+
+    private static function hasDownloadAction(int $ref_id): bool
     {
-        global $DIC;
-
-        $tree = $DIC->repositoryTree();
-        $ilUser = $DIC->user();
-        $settings = ilObjFolderAccess::getFolderSettings();
-        // default value should reflect previous behaviour (-> 0)
-        if ($settings->get("enable_download_folder", 0) != 1) {
+        $settings = self::getFolderSettings();
+        if ((int) $settings->get("enable_download_folder", '0') !== 1) {
             return false;
         }
-            
-        /*
-         * deactivated check for now, because wrong ref_id here!
-
-         *
-        $children = $tree->getChildsByTypeFilter($ref_id, array("file","fold"));
-
-        // no children at all, so no download button
-        if (count ($children) == 0)
-            return false;
-        // check if at least one of the children has a read permission
-        foreach ($children as $child)
-        {
-            if ($rbacsystem->checkAccessOfUser($ilUser->getId(), "read", $child["ref_id"]))
-                return true;
-        }
-        return false;
-        */
         return true;
     }
 
-    /**
-     * check whether goto script will succeed
-     */
-    public static function _checkGoto($a_target)
+    public static function _checkGoto(string $target): bool
     {
         global $DIC;
 
         $ilAccess = $DIC->access();
 
-        $t_arr = explode("_", $a_target);
+        $t_arr = explode("_", $target);
 
-        if ($t_arr[0] != "fold" || ((int) $t_arr[1]) <= 0) {
+        if ($t_arr[0] !== "fold" || ((int) $t_arr[1]) <= 0) {
             return false;
         }
 
-        if ($ilAccess->checkAccess("read", "", $t_arr[1]) ||
-            $ilAccess->checkAccess("visible", "", $t_arr[1])) {
+        if ($ilAccess->checkAccess("read", "", (int) $t_arr[1]) ||
+            $ilAccess->checkAccess("visible", "", (int) $t_arr[1])) {
             return true;
         }
         return false;
     }
-
 }

@@ -31,6 +31,7 @@ use ILIAS\UI\Component\MainControls\Footer;
 use ILIAS\UI\Component\MainControls\MainBar;
 use ILIAS\UI\Component\MainControls\MetaBar;
 use ILIAS\UI\Component\MainControls\Slate\Combined;
+use ILIAS\UI\Component\Toast\Container as TContainer;
 use ilUserUtil;
 use ilUtil;
 use ILIAS\GlobalScreen\Services;
@@ -48,22 +49,10 @@ class StandardPagePartProvider implements PagePartProvider
     use isSupportedTrait;
     use SlateSessionStateCode;
 
-    /**
-     * @var \ILIAS\UI\Component\Legacy\Legacy
-     */
-    protected $content;
-    /**
-     * @var \ILIAS\GlobalScreen\Services
-     */
-    protected $gs;
-    /**
-     * @var \ILIAS\DI\UIServices
-     */
-    protected $ui;
-    /**
-     * @var \ilLanguage
-     */
-    protected $lang;
+    protected Legacy $content;
+    protected Services $gs;
+    protected UIServices $ui;
+    protected ilLanguage $lang;
 
     /**
      * @inheritDoc
@@ -79,7 +68,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getContent() : ?Legacy
+    public function getContent(): ?Legacy
     {
         return $this->content ?? $this->ui->factory()->legacy("");
     }
@@ -87,7 +76,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getMetaBar() : ?MetaBar
+    public function getMetaBar(): ?MetaBar
     {
         $this->gs->collector()->metaBar()->collectOnce();
         if (!$this->gs->collector()->metaBar()->hasItems()) {
@@ -110,7 +99,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getMainBar() : ?MainBar
+    public function getMainBar(): ?MainBar
     {
         // Collect all items which could be displayed in the main bar
         $this->gs->collector()->mainmenu()->collectOnce();
@@ -138,7 +127,8 @@ class StandardPagePartProvider implements PagePartProvider
         }
 
         // Tools
-        $grid_icon = $f->symbol()->icon()->custom(ilUtil::getImagePath("outlined/icon_tool.svg"), $this->lang->txt('more'));
+        $grid_icon = $f->symbol()->icon()->custom(ilUtil::getImagePath("icon_tool.svg"), $this->lang->txt('more'));
+
         if ($this->gs->collector()->tool()->hasItems()) {
             $tools_button = $f->button()->bulky($grid_icon, $this->lang->txt('tools'), "#")->withEngagedState(true);
             $main_bar = $main_bar->withToolsButton($tools_button);
@@ -176,7 +166,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getBreadCrumbs() : ?Breadcrumbs
+    public function getBreadCrumbs(): ?Breadcrumbs
     {
         // TODO this currently gets the items from ilLocatorGUI, should that serve be removed with
         // something like GlobalScreen\Scope\Locator\Item
@@ -197,7 +187,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getLogo() : ?Image
+    public function getLogo(): ?Image
     {
         $std_logo = ilUtil::getImagePath("HeaderIcon.svg");
 
@@ -209,7 +199,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getResponsiveLogo() : ?Image
+    public function getResponsiveLogo(): ?Image
     {
         $responsive_logo = ilUtil::getImagePath("HeaderIconResponsive.svg");
 
@@ -218,7 +208,15 @@ class StandardPagePartProvider implements PagePartProvider
                         ->withAction($this->getStartingPointAsUrl());
     }
 
-    protected function getStartingPointAsUrl() : string
+    /**
+     * @inheritDoc
+     */
+    public function getFaviconPath(): string
+    {
+        return ilUtil::getImagePath("favicon.ico");
+    }
+
+    protected function getStartingPointAsUrl(): string
     {
         $std_logo_link = ilUserUtil::getStartingPointAsUrl();
         if (!$std_logo_link) {
@@ -230,7 +228,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getSystemInfos() : array
+    public function getSystemInfos(): array
     {
         $system_infos = [];
 
@@ -244,7 +242,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getFooter() : ?Footer
+    public function getFooter(): ?Footer
     {
         return $this->ui->factory()->mainControls()->footer([]);
     }
@@ -252,7 +250,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return 'title';
     }
@@ -260,7 +258,7 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getShortTitle() : string
+    public function getShortTitle(): string
     {
         return 'short';
     }
@@ -268,8 +266,23 @@ class StandardPagePartProvider implements PagePartProvider
     /**
      * @inheritDoc
      */
-    public function getViewTitle() : string
+    public function getViewTitle(): string
     {
         return 'view';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getToastContainer(): TContainer
+    {
+        $toast_container = $this->ui->factory()->toast()->container();
+
+        foreach ($this->gs->collector()->toasts()->getToasts() as $toast) {
+            $renderer = $toast->getRenderer();
+            $toast_container = $toast_container->withAdditionalToast($renderer->getToastComponentForItem($toast));
+        }
+
+        return $toast_container;
     }
 }

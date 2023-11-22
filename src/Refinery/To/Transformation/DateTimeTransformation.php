@@ -1,45 +1,97 @@
 <?php
-/* Copyright (c) 2019 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Refinery\To\Transformation;
 
-use ILIAS\Data\Factory;
-use ILIAS\Data\Result;
-use ILIAS\Refinery\Transformation;
 use ILIAS\Refinery\DeriveApplyToFromTransform;
 use ILIAS\Refinery\DeriveInvokeFromTransform;
+use ILIAS\Refinery\Constraint;
+use ILIAS\Refinery\ProblemBuilder;
+use UnexpectedValueException;
+use DateTimeImmutable;
+use Exception;
 
 /**
  * Transform a string representing a datetime-value to php's DateTimeImmutable
  * see https://www.php.net/manual/de/datetime.formats.php
  */
-class DateTimeTransformation implements Transformation
+class DateTimeTransformation implements Constraint
 {
     use DeriveApplyToFromTransform;
     use DeriveInvokeFromTransform;
+    use ProblemBuilder;
+
+    private string $error = '';
 
     /**
-     * @var DataFactory
+     * @inheritDoc
      */
-    private $factory;
-
-    /**
-     * @param Factory $factory
-     */
-    public function __construct(Factory $factory)
+    public function transform($from): DateTimeImmutable
     {
-        $this->factory = $factory;
+        $this->check($from);
+        return new DateTimeImmutable($from);
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function transform($from)
+    public function getError(): string
+    {
+        return $this->error;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function check($value)
+    {
+        if (!$this->accepts($value)) {
+            throw new UnexpectedValueException($this->getErrorMessage($value));
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function accepts($value): bool
     {
         try {
-            return new \DateTimeImmutable($from);
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException($e->getMessage(), 1);
+            new DateTimeImmutable($value);
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+            return false;
         }
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function problemWith($value): ?string
+    {
+        if (!$this->accepts($value)) {
+            return $this->getErrorMessage($value);
+        }
+
+        return null;
     }
 }

@@ -28,8 +28,7 @@ use Closure;
 
 class AccessQuestionImage implements SimpleAccess
 {
-    /** @var Readable */
-    private $readable;
+    private Readable $readable;
 
     public function __construct(Readable $readable)
     {

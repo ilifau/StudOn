@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 1998-2016 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilExternalAuthUserAttributeMappingRule
@@ -7,65 +24,36 @@
  */
 class ilExternalAuthUserAttributeMappingRule
 {
-    /**
-     * @var string
-     */
-    protected $attribute = '';
+    protected string $attribute = '';
+    protected string $external_attribute = '';
+    protected bool $update_automatically = false;
 
-    /**
-     * @var string
-     */
-    protected $external_attribute = '';
-
-    /**
-     * @var bool
-     */
-    protected $update_automatically = false;
-
-    /**
-     * @return string
-     */
-    public function getExternalAttribute()
+    public function getExternalAttribute(): string
     {
         return $this->external_attribute;
     }
 
-    /**
-     * @param string $external_attribute
-     */
-    public function setExternalAttribute($external_attribute)
+    public function setExternalAttribute(string $external_attribute): void
     {
         $this->external_attribute = $external_attribute;
     }
 
-    /**
-     * @return string
-     */
-    public function getAttribute()
+    public function getAttribute(): string
     {
         return $this->attribute;
     }
 
-    /**
-     * @param string $attribute
-     */
-    public function setAttribute($attribute)
+    public function setAttribute(string $attribute): void
     {
         $this->attribute = $attribute;
     }
 
-    /**
-     * @return boolean
-     */
-    public function isAutomaticallyUpdated()
+    public function isAutomaticallyUpdated(): bool
     {
         return $this->update_automatically;
     }
 
-    /**
-     * @param boolean $update_automatically
-     */
-    public function updateAutomatically($update_automatically)
+    public function updateAutomatically(bool $update_automatically): void
     {
         $this->update_automatically = $update_automatically;
     }

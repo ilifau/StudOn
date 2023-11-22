@@ -32,22 +32,17 @@ use Closure;
  */
 abstract class AbstractBaseNotification implements isStandardItem
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationInterface
-     */
-    protected $provider_identification;
+    protected IdentificationInterface $provider_identification;
 
     /**
      * Callable to be executed, if the notification center has been opened.
-     * @var \Closure|null
      */
-    protected $handle_opened;
+    protected ?Closure $handle_opened = null;
 
     /**
      * Callable to be executed, if this specific item has been closed.
-     * @var \Closure|null
      */
-    protected $handle_closed;
+    protected ?Closure  $handle_closed = null;
 
     /**
      * StandardNotification constructor.
@@ -55,7 +50,7 @@ abstract class AbstractBaseNotification implements isStandardItem
      */
     public function __construct(IdentificationInterface $identification)
     {
-        $this->handle_opened = function () : void {
+        $this->handle_opened = function (): void {
         };
 
         $this->provider_identification = $identification;
@@ -64,7 +59,7 @@ abstract class AbstractBaseNotification implements isStandardItem
     /**
      * @inheritDoc
      */
-    public function getProviderIdentification() : IdentificationInterface
+    public function getProviderIdentification(): IdentificationInterface
     {
         return $this->provider_identification;
     }
@@ -72,7 +67,7 @@ abstract class AbstractBaseNotification implements isStandardItem
     /**
      * @inheritDoc
      */
-    public function getRenderer(UIFactory $factory) : NotificationRenderer
+    public function getRenderer(UIFactory $factory): NotificationRenderer
     {
         return new StandardNotificationRenderer($factory);
     }
@@ -80,7 +75,7 @@ abstract class AbstractBaseNotification implements isStandardItem
     /**
      * @inheritDoc
      */
-    public function withOpenedCallable(callable $handle_opened) : isItem
+    public function withOpenedCallable(callable $handle_opened): isItem
     {
         $clone = clone $this;
         $clone->handle_opened = $handle_opened;
@@ -90,7 +85,7 @@ abstract class AbstractBaseNotification implements isStandardItem
     /**
      * @inheritDoc
      */
-    public function getOpenedCallable() : callable
+    public function getOpenedCallable(): callable
     {
         return $this->handle_opened;
     }
@@ -98,7 +93,7 @@ abstract class AbstractBaseNotification implements isStandardItem
     /**
      * @inheritDoc
      */
-    public function withClosedCallable(callable $handle_closed) : isItem
+    public function withClosedCallable(callable $handle_closed): isItem
     {
         $clone = clone $this;
         $clone->handle_closed = $handle_closed;
@@ -108,7 +103,7 @@ abstract class AbstractBaseNotification implements isStandardItem
     /**
      * @inheritDoc
      */
-    public function getClosedCallable() : ?callable
+    public function getClosedCallable(): ?callable
     {
         return $this->handle_closed;
     }
@@ -116,7 +111,7 @@ abstract class AbstractBaseNotification implements isStandardItem
     /**
      * @inheritDoc
      */
-    public function hasClosedCallable() : bool
+    public function hasClosedCallable(): bool
     {
         return is_callable($this->handle_closed);
     }

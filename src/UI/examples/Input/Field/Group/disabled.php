@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Field\Group;
+
 /**
  * Example showing how disabled groups can be used.
  */
@@ -46,7 +51,7 @@ function disabled()
         if ($group->getError()) {
             $result = $group->getError();
         } else {
-            //The result is sumarized through the transformation
+            //The result is summarized through the transformation
             $result = $form->getData();
         }
     } else {

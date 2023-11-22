@@ -1,21 +1,5 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- *********************************************************************/
-
 namespace ILIAS\GlobalScreen\Scope\Layout;
 
 use PHPUnit\Framework\TestCase;
@@ -33,23 +17,17 @@ require_once('./libs/composer/vendor/autoload.php');
  */
 class MediaTest extends TestCase
 {
-    /**
-     * @var string
-     */
-    public $version;
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\Layout\MetaContent\MetaContent
-     */
-    public $meta_content;
+    public string $version;
+    public MetaContent $meta_content;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->version = '1.2.3.4.5.6.7.8.9';
         $this->meta_content = new MetaContent($this->version);
     }
 
-    public function testAddCssFile() : void
+    public function testAddCssFile(): void
     {
         $path = '/path/to/file.css';
         $this->meta_content->addCss($path);
@@ -61,7 +39,7 @@ class MediaTest extends TestCase
         $this->assertEquals(MetaContent::MEDIA_SCREEN, $first_item->getMedia());
     }
 
-    public function testAddCssFileWithQuery() : void
+    public function testAddCssFileWithQuery(): void
     {
         $path = '/path/to/file.css?my=query';
         $this->meta_content->addCss($path);
@@ -73,7 +51,7 @@ class MediaTest extends TestCase
         $this->assertEquals(MetaContent::MEDIA_SCREEN, $first_item->getMedia());
     }
 
-    public function testAddInlineCss() : void
+    public function testAddInlineCss(): void
     {
         $css = 'body {background-color:red;}';
         $this->meta_content->addInlineCss($css);
@@ -85,7 +63,7 @@ class MediaTest extends TestCase
         $this->assertEquals(MetaContent::MEDIA_SCREEN, $first_item->getMedia());
     }
 
-    public function testAddJsFile() : void
+    public function testAddJsFile(): void
     {
         $path = '/path/to/file.js';
         $this->meta_content->addJs($path);
@@ -97,7 +75,7 @@ class MediaTest extends TestCase
         $this->assertEquals(2, $first_item->getBatch());
     }
 
-    public function testAddJsFileWithQuery() : void
+    public function testAddJsFileWithQuery(): void
     {
         $path = '/path/to/file.js';
         $path_with_query = $path . '?my=query';

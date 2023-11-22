@@ -28,13 +28,13 @@ use Serializable;
  */
 interface IdentificationInterface extends Serializable
 {
-    public function getClassName() : string;
+    public function getClassName(): string;
 
-    public function getInternalIdentifier() : string;
+    public function getInternalIdentifier(): string;
 
-    public function getProviderNameForPresentation() : string;
+    public function getProviderNameForPresentation(): string;
 
-    public function __serialize() : array;
+    public function __serialize(): array;
 
-    public function __unserialize(array $data) : void;
+    public function __unserialize(array $data): void;
 }

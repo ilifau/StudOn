@@ -1,63 +1,44 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateQueueEntry
 {
-    /**
-     * @var int
-     */
-    private $objId;
+    private int $objId;
+    private int $userId;
+    private string $adapterClass;
+    private string $state;
+    private ?int $startedTimestamp;
+    private ?int $id;
+    private int $templateId;
 
-    /**
-     * @var int
-     */
-    private $userId;
-
-    /**
-     * @var string
-     */
-    private $adapterClass;
-
-    /**
-     * @var string
-     */
-    private $state;
-
-    /**
-     * @var int
-     */
-    private $startedTimestamp;
-
-    /**
-     * @var int|null
-     */
-    private $id;
-
-    /**
-     * @var int
-     */
-    private $templateId;
-
-    /**
-     * @param integer $objId
-     * @param integer $userId
-     * @param string $adapterClass
-     * @param string $state
-     * @param $templateId
-     * @param integer|null $startedTimestamp
-     * @param integer|null $id
-     */
     public function __construct(
         int $objId,
         int $userId,
         string $adapterClass,
         string $state,
         int $templateId,
-        int $startedTimestamp = null,
-        int $id = null
+        ?int $startedTimestamp = null,
+        ?int $id = null
     ) {
         $this->objId = $objId;
         $this->userId = $userId;
@@ -68,58 +49,37 @@ class ilCertificateQueueEntry
         $this->id = $id;
     }
 
-    /**
-     * @return int
-     */
-    public function getObjId() : int
+    public function getObjId(): int
     {
         return $this->objId;
     }
 
-    /**
-     * @return int
-     */
-    public function getUserId() : int
+    public function getUserId(): int
     {
         return $this->userId;
     }
 
-    /**
-     * @return string
-     */
-    public function getAdapterClass() : string
+    public function getAdapterClass(): string
     {
         return $this->adapterClass;
     }
 
-    /**
-     * @return string
-     */
-    public function getState() : string
+    public function getState(): string
     {
         return $this->state;
     }
 
-    /**
-     * @return int
-     */
-    public function getStartedTimestamp()
+    public function getStartedTimestamp(): int
     {
         return $this->startedTimestamp;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return int
-     */
-    public function getTemplateId() : int
+    public function getTemplateId(): int
     {
         return $this->templateId;
     }

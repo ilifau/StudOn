@@ -1,8 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php';
-require_once 'Modules/TestQuestionPool/classes/class.ilAssKprimChoiceAnswer.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author		Björn Heyser <bheyser@databay.de>
@@ -16,15 +28,14 @@ class assKprimChoiceImport extends assQuestionImport
      * @var assKprimChoice
      */
     public $object;
-    
-    public function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
+
+    public function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, $import_mapping): array
     {
         global $DIC;
         $ilUser = $DIC['ilUser'];
 
-        unset($_SESSION["import_mob_xhtml"]);
+        ilSession::clear('import_mob_xhtml');
 
-        $duration = $item->getDuration();
         $shuffle = 0;
         $answers = array();
 
@@ -74,7 +85,7 @@ class assKprimChoiceImport extends assQuestionImport
                                         $answertext = $this->object->QTIMaterialToString($mat);
                                     }
                                 }
-                                
+
                                 $answers[$ident] = array(
                                     "answertext" => $answertext,
                                     "imagefile" => $answerimage,
@@ -86,10 +97,10 @@ class assKprimChoiceImport extends assQuestionImport
                     break;
             }
         }
-        
+
         $feedbacks = array();
         $feedbacksgeneric = array();
-        
+
         foreach ($item->resprocessing as $resprocessing) {
             foreach ($resprocessing->outcomes->decvar as $decvar) {
                 if ($decvar->getVarname() == 'SCORE') {
@@ -102,13 +113,13 @@ class assKprimChoiceImport extends assQuestionImport
                     }
                 }
             }
-            
+
             foreach ($resprocessing->respcondition as $respcondition) {
                 if (!count($respcondition->setvar)) {
                     foreach ($respcondition->getConditionvar()->varequal as $varequal) {
                         $ident = $varequal->respident;
                         $answers[$ident]['correctness'] = (bool) $varequal->getContent();
-                        
+
                         break;
                     }
 
@@ -178,39 +189,37 @@ class assKprimChoiceImport extends assQuestionImport
                 }
             }
         }
-        
+
         $this->addGeneralMetadata($item);
-        
         $this->object->setTitle($item->getTitle());
-        $this->object->setNrOfTries($item->getMaxattempts());
+        $this->object->setNrOfTries((int) $item->getMaxattempts());
         $this->object->setComment($item->getComment());
         $this->object->setAuthor($item->getAuthor());
         $this->object->setOwner($ilUser->getId());
         $this->object->setQuestion($this->object->QTIMaterialToString($item->getQuestiontext()));
         $this->object->setObjId($questionpool_id);
-        $this->object->setEstimatedWorkingTime($duration["h"], $duration["m"], $duration["s"]);
         $this->object->setShuffleAnswersEnabled($shuffle);
         $this->object->setAnswerType($item->getMetadataEntry("answer_type"));
         $this->object->setOptionLabel($item->getMetadataEntry("option_label_setting"));
         $this->object->setCustomTrueOptionLabel($item->getMetadataEntry("custom_true_option_label"));
         $this->object->setCustomFalseOptionLabel($item->getMetadataEntry("custom_false_option_label"));
-        $this->object->setThumbSize($item->getMetadataEntry("thumb_size"));
+        $this->object->setThumbSize((int) $item->getMetadataEntry("thumb_size"));
 
         $this->object->saveToDb();
-        
+
         foreach ($answers as $answerData) {
             $answer = new ilAssKprimChoiceAnswer();
             $answer->setImageFsDir($this->object->getImagePath());
             $answer->setImageWebDir($this->object->getImagePathWeb());
-            
+
             $answer->setPosition($answerData['answerorder']);
             $answer->setAnswertext($answerData['answertext']);
             $answer->setCorrectness($answerData['correctness']);
-            
+
             if (isset($answerData['imagefile']['label'])) {
                 $answer->setImageFile($answerData['imagefile']['label']);
             }
-            
+
             $this->object->addAnswer($answer);
         }
         // additional content editing mode information
@@ -222,11 +231,10 @@ class assKprimChoiceImport extends assQuestionImport
 
         foreach ($answers as $answer) {
             if (is_array($answer["imagefile"]) && (count($answer["imagefile"]) > 0)) {
-                $image = &base64_decode($answer["imagefile"]["content"]);
+                $image = base64_decode($answer["imagefile"]["content"]);
                 $imagepath = $this->object->getImagePath();
-                include_once "./Services/Utilities/classes/class.ilUtil.php";
                 if (!file_exists($imagepath)) {
-                    ilUtil::makeDirParents($imagepath);
+                    ilFileUtils::makeDirParents($imagepath);
                 }
                 $imagepath .= $answer["imagefile"]["label"];
                 if ($fh = fopen($imagepath, "wb")) {
@@ -251,21 +259,19 @@ class assKprimChoiceImport extends assQuestionImport
             $feedbacksgeneric[$correctness] = $m;
         }
         $questiontext = $this->object->getQuestion();
-        $answers = &$this->object->getAnswers();
-        if (is_array($_SESSION["import_mob_xhtml"])) {
-            include_once "./Services/MediaObjects/classes/class.ilObjMediaObject.php";
-            include_once "./Services/RTE/classes/class.ilRTE.php";
-            foreach ($_SESSION["import_mob_xhtml"] as $mob) {
+        $answers = $this->object->getAnswers();
+        if (is_array(ilSession::get("import_mob_xhtml"))) {
+            foreach (ilSession::get("import_mob_xhtml") as $mob) {
                 if ($tst_id > 0) {
                     $importfile = $this->getTstImportArchivDirectory() . '/' . $mob["uri"];
                 } else {
                     $importfile = $this->getQplImportArchivDirectory() . '/' . $mob["uri"];
                 }
-                
+
                 global $DIC; /* @var ILIAS\DI\Container $DIC */
                 $DIC['ilLog']->write(__METHOD__ . ': import mob from dir: ' . $importfile);
 
-                $media_object = &ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, false);
+                $media_object = ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, false);
                 ilObjMediaObject::_saveUsage($media_object->getId(), "qpl:html", $this->object->getId());
                 $questiontext = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $questiontext);
                 foreach ($answers as $key => $value) {
@@ -309,12 +315,12 @@ class assKprimChoiceImport extends assQuestionImport
         }
         if ($tst_id > 0) {
             $q_1_id = $this->object->getId();
-            $question_id = $this->object->duplicate(true, null, null, null, $tst_id);
+            $question_id = $this->object->duplicate(true, "", "", "", $tst_id);
             $tst_object->questions[$question_counter++] = $question_id;
             $import_mapping[$item->getIdent()] = array("pool" => $q_1_id, "test" => $question_id);
         } else {
             $import_mapping[$item->getIdent()] = array("pool" => $this->object->getId(), "test" => 0);
         }
-        //$ilLog->write(strftime("%D %T") . ": finished import multiple choice question (single response)");
+        return $import_mapping;
     }
 }

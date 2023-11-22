@@ -1,5 +1,21 @@
 <?php
-/* Copyright (c) 2019 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Data\DateFormat;
 
@@ -9,23 +25,29 @@ namespace ILIAS\Data\DateFormat;
  */
 class DateFormat
 {
-    const DOT = '.';
-    const COMMA = ',';
-    const DASH = '-';
-    const SLASH = '/';
-    const SPACE = ' ';
-    const DAY = 'd';
-    const DAY_ORDINAL = 'jS';
-    const WEEKDAY = 'l';
-    const WEEKDAY_SHORT = 'D';
-    const WEEK = 'W';
-    const MONTH = 'm';
-    const MONTH_SPELLED = 'F';
-    const MONTH_SPELLED_SHORT = 'M';
-    const YEAR = 'Y';
-    const YEAR_TWO_DIG = 'y';
+    public const DOT = '.';
+    public const COMMA = ',';
+    public const DASH = '-';
+    public const SLASH = '/';
+    public const SPACE = ' ';
+    public const DAY = 'd';
+    public const DAY_ORDINAL = 'jS';
+    public const WEEKDAY = 'l';
+    public const WEEKDAY_SHORT = 'D';
+    public const WEEK = 'W';
+    public const MONTH = 'm';
+    public const MONTH_SPELLED = 'F';
+    public const MONTH_SPELLED_SHORT = 'M';
+    public const YEAR = 'Y';
+    public const YEAR_TWO_DIG = 'y';
+    public const HOURS12 = 'h';
+    public const HOURS24 = 'H';
+    public const MINUTES = 'i';
+    public const SECONDS = 's';
+    public const MERIDIEM = 'a';
+    public const COLON = ':';
 
-    const TOKENS = [
+    public const TOKENS = [
         self::DOT,
         self::COMMA,
         self::DASH,
@@ -40,13 +62,17 @@ class DateFormat
         self::MONTH_SPELLED,
         self::MONTH_SPELLED_SHORT,
         self::YEAR,
-        self::YEAR_TWO_DIG
+        self::YEAR_TWO_DIG,
+        self::HOURS12,
+        self::HOURS24,
+        self::MINUTES,
+        self::SECONDS,
+        self::MERIDIEM,
+        self::COLON
     ];
 
-    /**
-     * @var array
-     */
-    protected $format = [];
+    /** @var string[] */
+    protected array $format = [];
 
     public function __construct(array $format)
     {
@@ -54,10 +80,10 @@ class DateFormat
         $this->format = $format;
     }
 
-    public function validateFormatElelements(array $format)
+    public function validateFormatElelements(array $format): void
     {
         foreach ($format as $entry) {
-            if (!in_array($entry, self::TOKENS)) {
+            if (!in_array($entry, self::TOKENS, true)) {
                 throw new \InvalidArgumentException("not a valid token for date-format", 1);
             }
         }
@@ -65,19 +91,28 @@ class DateFormat
 
     /**
      * Get the elements of the format as array.
-     * @return array
+     * @return string[]
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return $this->format;
     }
 
     /**
      * Get the format as string.
-     * @return array
      */
-    public function toString() : string
+    public function toString(): string
     {
         return implode('', $this->format);
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
+    }
+
+    public function applyTo(\DateTimeImmutable $datetime): string
+    {
+        return $datetime->format($this->toString());
     }
 }

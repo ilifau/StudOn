@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Identification\Serializer;
 
 use ILIAS\GlobalScreen\Identification\CoreIdentificationProvider;
@@ -33,7 +33,7 @@ class CoreSerializer implements SerializerInterface
 {
     public const DIVIDER = '|';
 
-    public function serialize(IdentificationInterface $identification) : string
+    public function serialize(IdentificationInterface $identification): string
     {
         $divider = self::DIVIDER;
 
@@ -49,9 +49,9 @@ class CoreSerializer implements SerializerInterface
     /**
      * @inheritdoc
      */
-    public function unserialize(string $serialized_string, IdentificationMap $map, ProviderFactory $provider_factory) : IdentificationInterface
+    public function unserialize(string $serialized_string, IdentificationMap $map, ProviderFactory $provider_factory): IdentificationInterface
     {
-        [$class_name, $internal_identifier] = explode(self::DIVIDER, $serialized_string);
+        list($class_name, $internal_identifier) = explode(self::DIVIDER, $serialized_string);
 
         if (!$provider_factory->isInstanceCreationPossible($class_name) || !$provider_factory->isRegistered($class_name)) {
             return new LostIdentification($serialized_string);
@@ -65,7 +65,7 @@ class CoreSerializer implements SerializerInterface
     /**
      * @inheritDoc
      */
-    public function canHandle(string $serialized_identification) : bool
+    public function canHandle(string $serialized_identification): bool
     {
         return preg_match('/(.*?)\|(.*)/m', $serialized_identification) > 0;
     }

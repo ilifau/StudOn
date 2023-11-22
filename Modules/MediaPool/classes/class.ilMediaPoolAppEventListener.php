@@ -1,13 +1,26 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* Media Pool listener. Listens to events of other components.
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-* @ingroup ModulesMediaPool
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Media Pool listener. Listens to events of other components.
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilMediaPoolAppEventListener
 {
     /**
@@ -17,16 +30,16 @@ class ilMediaPoolAppEventListener
     * @param	string	$a_event		event e.g. "createUser", "updateUser", "deleteUser", ...
     * @param	array	$a_parameter	parameter array (assoc), array("name" => ..., "phone_office" => ...)
     */
-    public static function handleEvent($a_component, $a_event, $a_parameter)
-    {
-        include_once("./Services/Tagging/classes/class.ilTagging.php");
-        
+    public static function handleEvent(
+        string $a_component,
+        string $a_event,
+        array $a_parameter
+    ): void {
         switch ($a_component) {
             case "Services/Object":
                 switch ($a_event) {
                     case "update":
-                        if ($a_parameter["obj_type"] == "mob") {
-                            include_once("./Modules/MediaPool/classes/class.ilMediaPoolItem.php");
+                        if ($a_parameter["obj_type"] === "mob") {
                             ilMediaPoolItem::updateObjectTitle($a_parameter["obj_id"]);
                         }
                         break;

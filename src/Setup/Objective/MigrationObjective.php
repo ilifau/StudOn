@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace ILIAS\Setup\Objective;
 
 use ILIAS\Setup;
@@ -9,20 +27,10 @@ use ILIAS\Setup;
  */
 class MigrationObjective implements Setup\Objective
 {
-    /**
-     * @var Setup\Migration
-     */
-    protected $migration;
-    /**
-     * @var int
-     */
-    protected $steps;
+    protected Setup\Migration $migration;
+    protected int $steps;
 
-    /**
-     * MigrationObjective constructor.
-     * @param Setup\Migration $migration
-     */
-    public function __construct(Setup\Migration $migration, int $steps = null)
+    public function __construct(Setup\Migration $migration, ?int $steps = null)
     {
         $this->migration = $migration;
         $this->steps = $steps ?? $migration->getDefaultAmountOfStepsPerRun();
@@ -32,7 +40,7 @@ class MigrationObjective implements Setup\Objective
      * Uses hashed Path.
      * @inheritdocs
      */
-    public function getHash() : string
+    public function getHash(): string
     {
         return hash("sha256", self::class . '' . get_class($this->migration));
     }
@@ -40,7 +48,7 @@ class MigrationObjective implements Setup\Objective
     /**
      * @inheritdocs
      */
-    public function getLabel() : string
+    public function getLabel(): string
     {
         return $this->migration->getLabel();
     }
@@ -49,7 +57,7 @@ class MigrationObjective implements Setup\Objective
      * Defaults to 'true'.
      * @inheritdocs
      */
-    public function isNotable() : bool
+    public function isNotable(): bool
     {
         return true;
     }
@@ -57,7 +65,7 @@ class MigrationObjective implements Setup\Objective
     /**
      * @inheritdocs
      */
-    public function getPreconditions(Setup\Environment $environment) : array
+    public function getPreconditions(Setup\Environment $environment): array
     {
         return $this->migration->getPreconditions($environment);
     }
@@ -65,7 +73,7 @@ class MigrationObjective implements Setup\Objective
     /**
      * @inheritdocs
      */
-    public function achieve(Setup\Environment $environment) : Setup\Environment
+    public function achieve(Setup\Environment $environment): Setup\Environment
     {
         /**
          * @var $io Setup\CLI\IOWrapper
@@ -108,14 +116,13 @@ class MigrationObjective implements Setup\Objective
         else {
             $io->inform("{$remaining} step(s) remaining. Run again to proceed.");
         }
-
         return $environment;
     }
 
     /**
      * @inheritDoc
      */
-    public function isApplicable(Setup\Environment $environment) : bool
+    public function isApplicable(Setup\Environment $environment): bool
     {
         $this->migration->prepare($environment);
 

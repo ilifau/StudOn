@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceTableDataProviderFactory
@@ -7,11 +24,10 @@
  */
 class ilTermsOfServiceTableDataProviderFactory
 {
-    const CONTEXT_ACCEPTANCE_HISTORY = 'acceptance_history';
-    const CONTEXT_DOCUMENTS = 'documents';
+    public const CONTEXT_ACCEPTANCE_HISTORY = 'acceptance_history';
+    public const CONTEXT_DOCUMENTS = 'documents';
 
-    /** @var ilDBInterface|null */
-    protected $db;
+    protected ?ilDBInterface $db = null;
 
     /**
      * @param string $context
@@ -19,7 +35,7 @@ class ilTermsOfServiceTableDataProviderFactory
      * @throws ilTermsOfServiceMissingDatabaseAdapterException
      * @throws InvalidArgumentException
      */
-    public function getByContext(string $context) : ilTermsOfServiceTableDataProvider
+    public function getByContext(string $context): ilTermsOfServiceTableDataProvider
     {
         switch ($context) {
             case self::CONTEXT_ACCEPTANCE_HISTORY:
@@ -38,7 +54,7 @@ class ilTermsOfServiceTableDataProviderFactory
      * @param array $mandatoryMemberVariables
      * @throws ilTermsOfServiceMissingDatabaseAdapterException
      */
-    protected function validateConfiguration(array $mandatoryMemberVariables) : void
+    protected function validateConfiguration(array $mandatoryMemberVariables): void
     {
         foreach ($mandatoryMemberVariables as $member) {
             if (null === $this->{$member}) {
@@ -50,10 +66,10 @@ class ilTermsOfServiceTableDataProviderFactory
 
     /**
      * @param string $member
-     * @return ilTermsOfServiceMissingDatabaseAdapterException
+     * @return ilTermsOfServiceException
      * @throws InvalidArgumentException
      */
-    protected function getExceptionByMember(string $member)
+    protected function getExceptionByMember(string $member): ilTermsOfServiceException
     {
         switch ($member) {
             case 'db':
@@ -62,22 +78,16 @@ class ilTermsOfServiceTableDataProviderFactory
                 );
 
             default:
-                throw new InvalidArgumentException("Exception for member {$member} not supported");
+                throw new InvalidArgumentException("Exception for member $member not supported");
         }
     }
 
-    /**
-     * @param ilDBInterface|null $db
-     */
-    public function setDatabaseAdapter(?ilDBInterface $db)
+    public function setDatabaseAdapter(?ilDBInterface $db): void
     {
         $this->db = $db;
     }
 
-    /**
-     * @return ilDBInterface|null
-     */
-    public function getDatabaseAdapter() : ?ilDBInterface
+    public function getDatabaseAdapter(): ?ilDBInterface
     {
         return $this->db;
     }

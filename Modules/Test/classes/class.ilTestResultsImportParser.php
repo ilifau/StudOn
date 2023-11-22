@@ -1,14 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* Test results import parser
-*
-* @author Helmut Schottmüller <ilias@aurealis.de>
-* @version $Id$
-* @ingroup ModulesTest
-*/
-include_once("./Services/Xml/classes/class.ilSaxParser.php");
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 class ilTestResultsImportParser extends ilSaxParser
 {
@@ -18,14 +24,16 @@ class ilTestResultsImportParser extends ilSaxParser
     private $question_id_mapping;
     private $user_criteria_field;
     private $user_criteria_type;
-    private $user_criteria_checked = false;
-    
+    private bool $user_criteria_checked = false;
+
+    private $depth;
+
     protected $src_pool_def_id_mapping;
-    
+
     /**
     * Constructor
     */
-    public function __construct($a_xml_file, &$test_object)
+    public function __construct(?string $a_xml_file, &$test_object)
     {
         parent::__construct($a_xml_file, true);
         $this->tst_obj = &$test_object;
@@ -39,7 +47,7 @@ class ilTestResultsImportParser extends ilSaxParser
     /**
      * @return array
      */
-    public function getQuestionIdMapping()
+    public function getQuestionIdMapping(): array
     {
         return $this->question_id_mapping;
     }
@@ -47,7 +55,7 @@ class ilTestResultsImportParser extends ilSaxParser
     /**
      * @param array $question_id_mapping
      */
-    public function setQuestionIdMapping($question_id_mapping)
+    public function setQuestionIdMapping(array $question_id_mapping): void
     {
         $this->question_id_mapping = $question_id_mapping;
     }
@@ -55,7 +63,7 @@ class ilTestResultsImportParser extends ilSaxParser
     /**
      * @return array
      */
-    public function getSrcPoolDefIdMapping()
+    public function getSrcPoolDefIdMapping(): array
     {
         return $this->src_pool_def_id_mapping;
     }
@@ -63,7 +71,7 @@ class ilTestResultsImportParser extends ilSaxParser
     /**
      * @param array $src_pool_def_id_mapping
      */
-    public function setSrcPoolDefIdMapping($src_pool_def_id_mapping)
+    public function setSrcPoolDefIdMapping(array $src_pool_def_id_mapping): void
     {
         $this->src_pool_def_id_mapping = $src_pool_def_id_mapping;
     }
@@ -73,7 +81,7 @@ class ilTestResultsImportParser extends ilSaxParser
     * should be overwritten by inherited class
     * @access	private
     */
-    public function setHandlers($a_xml_parser)
+    public function setHandlers($a_xml_parser): void
     {
         xml_set_object($a_xml_parser, $this);
         xml_set_element_handler($a_xml_parser, 'handlerBeginTag', 'handlerEndTag');
@@ -83,17 +91,11 @@ class ilTestResultsImportParser extends ilSaxParser
     /**
     * handler for begin of element parser
     */
-    public function handlerBeginTag($a_xml_parser, $a_name, $a_attribs)
+    public function handlerBeginTag($a_xml_parser, $a_name, $a_attribs): void
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
-        $this->sametag = false;
-        $this->characterbuffer = "";
-        $this->depth[$a_xml_parser]++;
-        $this->path[$this->depth[$a_xml_parser]] = strtolower($a_name);
-        $this->qti_element = $a_name;
-        
+
         switch (strtolower($a_name)) {
             case "results":
                 break;
@@ -102,7 +104,7 @@ class ilTestResultsImportParser extends ilSaxParser
                     case 'tst_active':
                         if (!$this->user_criteria_checked) {
                             $this->user_criteria_checked = true;
-                            if ($ilDB->tableColumnExists('usr_data', $a_attribs['user_criteria'])) {
+                            if (isset($a_attribs['user_criteria']) && $ilDB->tableColumnExists('usr_data', $a_attribs['user_criteria'])) {
                                 $analyzer = new ilDBAnalyzer();
                                 $info = $analyzer->getFieldInformation('usr_data');
                                 $this->user_criteria_field = $a_attribs['user_criteria'];
@@ -110,7 +112,7 @@ class ilTestResultsImportParser extends ilSaxParser
                             }
                         }
                         $usr_id = ANONYMOUS_USER_ID;
-                        if (strlen($this->user_criteria_field)) {
+                        if (isset($this->user_criteria_field) && $this->user_criteria_field !== '') {
                             $result = $ilDB->queryF(
                                 "SELECT usr_id FROM usr_data WHERE " . $this->user_criteria_field . " =  %s",
                                 array($this->user_criteria_type),
@@ -122,7 +124,7 @@ class ilTestResultsImportParser extends ilSaxParser
                             }
                         }
                         $next_id = $ilDB->nextId('tst_active');
-                        
+
                         $ilDB->insert('tst_active', array(
                             'active_id' => array('integer', $next_id),
                             'user_fi' => array('integer', $usr_id),
@@ -144,8 +146,8 @@ class ilTestResultsImportParser extends ilSaxParser
                     case 'tst_test_rnd_qst':
                         $nextId = $ilDB->nextId('tst_test_rnd_qst');
                         $newActiveId = $this->active_id_mapping[$a_attribs['active_fi']];
-                        $newQuestionId = $this->question_id_mapping[$a_attribs['question_fi']];
-                        $newSrcPoolDefId = $this->src_pool_def_id_mapping[$a_attribs['src_pool_def_fi']];
+                        $newQuestionId = $this->question_id_mapping[$a_attribs['question_fi']] ?? 0;
+                        $newSrcPoolDefId = $this->src_pool_def_id_mapping[$a_attribs['src_pool_def_fi']] ?? 0;
                         $ilDB->insert('tst_test_rnd_qst', array(
                             'test_random_question_id' => array('integer', $nextId),
                             'active_fi' => array('integer', $newActiveId),
@@ -257,7 +259,7 @@ class ilTestResultsImportParser extends ilSaxParser
     /**
     * handler for end of element
     */
-    public function handlerEndTag($a_xml_parser, $a_name)
+    public function handlerEndTag($a_xml_parser, $a_name): void
     {
         switch (strtolower($a_name)) {
             case "tst_active":
@@ -276,43 +278,43 @@ class ilTestResultsImportParser extends ilSaxParser
     /**
       * handler for character data
       */
-    public function handlerParseCharacterData($a_xml_parser, $a_data)
+    public function handlerParseCharacterData($a_xml_parser, $a_data): void
     {
         // do nothing
     }
-    
+
     private function fetchAttribute($attributes, $name)
     {
         if (isset($attributes[$name])) {
             return $attributes[$name];
         }
-        
+
         return null;
     }
-    
-    private function fetchLastFinishedPass($attribs)
+
+    private function fetchLastFinishedPass($attribs): ?int
     {
         if (isset($attribs['last_finished_pass'])) {
-            return $attribs['last_finished_pass'];
+            return (int) $attribs['last_finished_pass'];
         }
-        
+
         if ($attribs['tries'] > 0) {
-            return $attribs['tries'] - 1;
+            return (int) $attribs['tries'] - 1;
         }
-        
+
         return null;
     }
-    
-    private function fetchLastStartedPass($attribs)
+
+    private function fetchLastStartedPass($attribs): ?int
     {
         if (isset($attribs['last_started_pass'])) {
             return $attribs['last_started_pass'];
         }
-        
+
         if ($attribs['tries'] > 0) {
-            return $attribs['tries'] - 1;
+            return (int) $attribs['tries'] - 1;
         }
-        
+
         return null;
     }
 }

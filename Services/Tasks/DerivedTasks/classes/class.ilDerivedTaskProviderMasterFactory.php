@@ -1,34 +1,46 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Survey\Tasks\DerivedTaskProviderFactory;
 
 /**
  * Derived task providers factory
  *
- * @author killing@leifos.de
- * @ingroup ServicesTasks
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilDerivedTaskProviderMasterFactory
 {
-    /**
-     * @var ilTaskService
-     */
-    protected $service;
+    protected ilTaskService $service;
 
     /**
      * @var ilDerivedTaskProviderFactory[]
      */
-    protected $default_provider_factories = array(
+    protected array $default_provider_factories = array(
         ilExerciseDerivedTaskProviderFactory::class,
-        \ilForumDerivedTaskProviderFactory::class,
-        \ILIAS\Survey\Tasks\DerivedTaskProviderFactory::class,
+        ilForumDerivedTaskProviderFactory::class,
+        DerivedTaskProviderFactory::class,
         ilBlogDerivedTaskProviderFactory::class
     );
 
     /**
      * @var ilDerivedTaskProviderFactory[]
      */
-    protected $provider_factories;
+    protected $provider_factories = [];
 
     /**
      * Constructor
@@ -36,9 +48,7 @@ class ilDerivedTaskProviderMasterFactory
     public function __construct(ilTaskService $service, $provider_factories = null)
     {
         if (is_null($provider_factories)) {
-            $this->provider_factories = array_map(function ($class) use ($service) {
-                return new $class($service);
-            }, $this->default_provider_factories);
+            $this->provider_factories = array_map(fn ($class): ilDerivedTaskProviderFactory => new $class($service), $this->default_provider_factories);
         } else {
             $this->provider_factories = $provider_factories;
         }
@@ -52,7 +62,7 @@ class ilDerivedTaskProviderMasterFactory
      * @param int $user_id get instances for user with user id
      * @return ilLearningHistoryProviderInterface[]
      */
-    public function getAllProviders($active_only = false, $user_id = null)
+    public function getAllProviders(bool $active_only = false, int $user_id = null): array
     {
         $providers = array();
 

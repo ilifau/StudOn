@@ -50,24 +50,15 @@ class RepositoryLink extends AbstractChildItem implements
     use SymbolDecoratorTrait;
     use isInterchangeableItemTrait;
 
-    /**
-     * @var int
-     */
-    protected $ref_id = 0;
-    /**
-     * @var string
-     */
-    protected $alt_text;
-    /**
-     * @var string
-     */
-    protected $title = '';
+    protected int $ref_id = 0;
+    protected string $alt_text;
+    protected string $title = '';
 
     /**
      * @param string $title
      * @return RepositoryLink
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -78,12 +69,12 @@ class RepositoryLink extends AbstractChildItem implements
     /**
      * @return string
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function withAltText(string $alt_text) : self
+    public function withAltText(string $alt_text): self
     {
         $clone = clone($this);
         $clone->alt_text = $alt_text;
@@ -94,7 +85,7 @@ class RepositoryLink extends AbstractChildItem implements
     /**
      * @return string
      */
-    public function getAltText() : string
+    public function getAltText(): string
     {
         return $this->alt_text;
     }
@@ -102,7 +93,7 @@ class RepositoryLink extends AbstractChildItem implements
     /**
      * @return string
      */
-    final public function getAction() : string
+    final public function getAction(): string
     {
         return ilLink::_getLink($this->ref_id);
     }
@@ -111,7 +102,7 @@ class RepositoryLink extends AbstractChildItem implements
      * @param string $action
      * @return hasAction
      */
-    public function withAction(string $action) : hasAction
+    public function withAction(string $action): hasAction
     {
         $clone = clone $this;
         $clone->ref_id = (int) $action;
@@ -119,7 +110,7 @@ class RepositoryLink extends AbstractChildItem implements
         return $clone;
     }
 
-    public function withRefId(int $ref_id) : self
+    public function withRefId(int $ref_id): self
     {
         $clone = clone $this;
         $clone->ref_id = $ref_id;
@@ -127,7 +118,7 @@ class RepositoryLink extends AbstractChildItem implements
         return $clone;
     }
 
-    public function getSymbol() : Symbol
+    public function getSymbol(): Symbol
     {
         return $this->symbol;
     }
@@ -135,7 +126,7 @@ class RepositoryLink extends AbstractChildItem implements
     /**
      * @return int
      */
-    public function getRefId() : int
+    public function getRefId(): int
     {
         return $this->ref_id;
     }
@@ -143,7 +134,7 @@ class RepositoryLink extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function withIsLinkToExternalAction(bool $is_external) : hasAction
+    public function withIsLinkToExternalAction(bool $is_external): hasAction
     {
         throw new LogicException("Repository-Links are always internal");
     }
@@ -151,7 +142,7 @@ class RepositoryLink extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function isLinkWithExternalAction() : bool
+    public function isLinkWithExternalAction(): bool
     {
         return false;
     }

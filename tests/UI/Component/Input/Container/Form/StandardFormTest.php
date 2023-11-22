@@ -22,24 +22,38 @@ require_once(__DIR__ . "/../../../../Base.php");
 require_once(__DIR__ . "/FormTest.php");
 
 use ILIAS\UI\Implementation\Component\SignalGenerator;
-use \ILIAS\Data;
+use ILIAS\Data;
+use ILIAS\UI\Component\Button\Factory;
+use ILIAS\UI\Implementation\Component as I;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\UI\Implementation\Component\Input\Container\Form;
+use ILIAS\UI\Implementation\Component\Input\NameSource;
 
 class WithButtonNoUIFactory extends NoUIFactory
 {
-    protected $button_factory;
+    protected Factory $button_factory;
 
-
-    public function __construct($button_factory)
+    public function __construct(Factory $button_factory)
     {
         $this->button_factory = $button_factory;
     }
 
-
-    public function button()
+    public function button(): Factory
     {
         return $this->button_factory;
+    }
+}
+
+class InputNameSource implements NameSource
+{
+    public int $count = 0;
+
+    public function getNewName(): string
+    {
+        $name = "form_input_{$this->count}";
+        $this->count++;
+
+        return $name;
     }
 }
 
@@ -48,17 +62,17 @@ class WithButtonNoUIFactory extends NoUIFactory
  */
 class StandardFormTest extends ILIAS_UI_TestBase
 {
-    protected function buildFactory()
+    protected function buildFactory(): I\Input\Container\Form\Factory
     {
-        return new ILIAS\UI\Implementation\Component\Input\Container\Form\Factory($this->buildInputFactory());
+        return new I\Input\Container\Form\Factory($this->buildInputFactory());
     }
 
-
-    protected function buildInputFactory()
+    protected function buildInputFactory(): I\Input\Field\Factory
     {
         $df = new Data\Factory();
-        $language = $this->createMock(\ilLanguage::class);
-        return new ILIAS\UI\Implementation\Component\Input\Field\Factory(
+        $language = $this->createMock(ilLanguage::class);
+        return new I\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new SignalGenerator(),
             $df,
             new \ILIAS\Refinery\Factory($df, $language),
@@ -66,19 +80,17 @@ class StandardFormTest extends ILIAS_UI_TestBase
         );
     }
 
-    protected function buildButtonFactory()
+    protected function buildButtonFactory(): I\Button\Factory
     {
-        return new ILIAS\UI\Implementation\Component\Button\Factory;
+        return new I\Button\Factory();
     }
 
-
-    public function getUIFactory()
+    public function getUIFactory(): WithButtonNoUIFactory
     {
         return new WithButtonNoUIFactory($this->buildButtonFactory());
     }
 
-
-    public function test_getPostURL()
+    public function test_getPostURL(): void
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -87,8 +99,7 @@ class StandardFormTest extends ILIAS_UI_TestBase
         $this->assertEquals($url, $form->getPostURL());
     }
 
-
-    public function test_render()
+    public function test_render(): void
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -107,8 +118,8 @@ class StandardFormTest extends ILIAS_UI_TestBase
       <div class="il-standard-form-cmd"><button class="btn btn-default" data-action="">save</button></div>
    </div>
    <div class="form-group row">
-      <label for="id_1" class="control-label col-sm-3">label</label>
-      <div class="col-sm-9">
+      <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
+      <div class="col-sm-8 col-md-9 col-lg-10">
          <input id="id_1" type="text" name="form_input_1" class="form-control form-control-sm"/>
          <div class="help-block">byline</div>
       </div>
@@ -121,7 +132,58 @@ class StandardFormTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-    public function test_render_no_url()
+    public function test_submit_caption(): void
+    {
+        $f = $this->buildFactory();
+        $if = $this->buildInputFactory();
+
+        $url = "MY_URL";
+        $form = $f->standard($url, [
+            $if->text("label", "byline"),
+        ]);
+
+        $this->assertNull($form->getSubmitCaption());
+
+        $caption = 'Caption';
+        $form = $form->withSubmitCaption($caption);
+
+        $this->assertEquals($caption, $form->getSubmitCaption());
+    }
+
+    public function test_submit_caption_render(): void
+    {
+        $f = $this->buildFactory();
+        $if = $this->buildInputFactory();
+
+        $url = "MY_URL";
+        $form = $f->standard($url, [
+            $if->text("label", "byline"),
+        ])->withSubmitCaption('create');
+
+        $r = $this->getDefaultRenderer();
+        $html = $this->brutallyTrimHTML($r->render($form));
+
+        $expected = $this->brutallyTrimHTML('
+<form role="form" class="il-standard-form form-horizontal" enctype="multipart/form-data" action="MY_URL" method="post" novalidate="novalidate">
+   <div class="il-standard-form-header clearfix">
+      <div class="il-standard-form-cmd"><button class="btn btn-default" data-action="">create</button></div>
+   </div>
+   <div class="form-group row">
+      <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
+      <div class="col-sm-8 col-md-9 col-lg-10">
+         <input id="id_1" type="text" name="form_input_1" class="form-control form-control-sm"/>
+         <div class="help-block">byline</div>
+      </div>
+   </div>
+   <div class="il-standard-form-footer clearfix">
+      <div class="il-standard-form-cmd"><button class="btn btn-default" data-action="">create</button></div>
+   </div>
+</form>
+        ');
+        $this->assertHTMLEquals($expected, $html);
+    }
+
+    public function test_render_no_url(): void
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -140,8 +202,8 @@ class StandardFormTest extends ILIAS_UI_TestBase
       <div class="il-standard-form-cmd"><button class="btn btn-default" data-action="">save</button></div>
    </div>
    <div class="form-group row">
-      <label for="id_1" class="control-label col-sm-3">label</label>
-      <div class="col-sm-9">
+      <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
+      <div class="col-sm-8 col-md-9 col-lg-10">
          <input id="id_1" type="text" name="form_input_1" class="form-control form-control-sm"/>
          <div class="help-block">byline</div>
       </div>
@@ -155,7 +217,7 @@ class StandardFormTest extends ILIAS_UI_TestBase
     }
 
 
-    public function testRenderWithErrorOnField()
+    public function testRenderWithErrorOnField(): void
     {
         $r = $this->getDefaultRenderer();
         $df = new Data\Factory();
@@ -168,6 +230,7 @@ class StandardFormTest extends ILIAS_UI_TestBase
         $refinery = new \ILIAS\Refinery\Factory($df, $language);
 
         $if = new ILIAS\UI\Implementation\Component\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new SignalGenerator(),
             $df,
             $refinery,
@@ -178,10 +241,10 @@ class StandardFormTest extends ILIAS_UI_TestBase
             return false;
         }, "This is invalid...");
         $input = $if->text("label", "byline");
-        
+
         $input = $input->withAdditionalTransformation($fail);
-        
-        $form = new Form\Standard($if, '', [$input]);
+
+        $form = new Form\Standard($if, new InputNameSource(), '', [$input]);
 
         $request = $this->createMock(ServerRequestInterface::class);
         $request
@@ -204,9 +267,9 @@ class StandardFormTest extends ILIAS_UI_TestBase
                 <div class="help-block alert alert-danger" role="alert">testing error message</div>
 
                 <div class="form-group row">
-                    <label for="id_1" class="control-label col-sm-3">label</label>
-                    <div class="col-sm-9">
-                        <div class="help-block alert alert-danger" role="alert">This is invalid...</div>
+                    <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
+                    <div class="col-sm-8 col-md-9 col-lg-10">
+                        <div class="help-block alert alert-danger" aria-describedby="id_1" role="alert">This is invalid...</div>
                         <input id="id_1" type="text" name="form_input_1" class="form-control form-control-sm" />
                         <div class="help-block">byline</div>
                     </div>
@@ -220,7 +283,7 @@ class StandardFormTest extends ILIAS_UI_TestBase
     }
 
 
-    public function testRenderWithErrorOnForm()
+    public function testRenderWithErrorOnForm(): void
     {
         $r = $this->getDefaultRenderer();
         $df = new Data\Factory();
@@ -228,6 +291,7 @@ class StandardFormTest extends ILIAS_UI_TestBase
         $refinery = new \ILIAS\Refinery\Factory($df, $language);
 
         $if = new ILIAS\UI\Implementation\Component\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new SignalGenerator(),
             $df,
             $refinery,
@@ -239,7 +303,7 @@ class StandardFormTest extends ILIAS_UI_TestBase
         }, "This is a fail on form.");
         $input = $if->text("label", "byline");
 
-        $form = new Form\Standard($if, '', [$input]);
+        $form = new Form\Standard($if, new InputNameSource(), '', [$input]);
         $form = $form->withAdditionalTransformation($fail);
 
         $request = $this->createMock(ServerRequestInterface::class);
@@ -263,8 +327,8 @@ class StandardFormTest extends ILIAS_UI_TestBase
                 <div class="help-block alert alert-danger" role="alert">This is a fail on form.</div>
 
                 <div class="form-group row">
-                    <label for="id_1" class="control-label col-sm-3">label</label>
-                    <div class="col-sm-9">
+                    <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
+                    <div class="col-sm-8 col-md-9 col-lg-10">
                         <input id="id_1" type="text" name="form_input_1" class="form-control form-control-sm" />
                         <div class="help-block">byline</div>
                     </div>
@@ -294,8 +358,8 @@ class StandardFormTest extends ILIAS_UI_TestBase
         <div class="il-standard-form-cmd"><button class="btn btn-default" data-action="">save</button></div>
     </div>
     <div class="form-group row">
-        <label for="id_1" class="control-label col-sm-3">label<span class="asterisk">*</span></label>
-        <div class="col-sm-9">
+        <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label<span class="asterisk">*</span></label>
+        <div class="col-sm-8 col-md-9 col-lg-10">
             <input id="id_1" type="text" name="form_input_1" class="form-control form-control-sm"/>
              <div class="help-block">byline</div>
         </div>

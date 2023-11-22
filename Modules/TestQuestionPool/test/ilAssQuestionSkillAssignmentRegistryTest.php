@@ -1,14 +1,27 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssQuestionSkillAssignmentRegistry.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilAssQuestionSkillAssignmentRegistryTest
  */
 class ilAssQuestionSkillAssignmentRegistryTest extends assBaseTestCase
 {
-    const TEST_KEY = 'phpunit_tst';
+    public const TEST_KEY = 'phpunit_tst';
 
     /**
      * @var array
@@ -18,7 +31,7 @@ class ilAssQuestionSkillAssignmentRegistryTest extends assBaseTestCase
     /**
      *
      */
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -32,10 +45,10 @@ class ilAssQuestionSkillAssignmentRegistryTest extends assBaseTestCase
      * @param callable $preCallback
      * @param callable $postCallback
      */
-    public function testSkillAssignmentsCanBetStoredAndFetchedBySerializationStrategy($value, $chunkSize, callable $preCallback, callable $postCallback)
+    public function testSkillAssignmentsCanBetStoredAndFetchedBySerializationStrategy($value, $chunkSize, callable $preCallback, callable $postCallback): void
     {
         require_once 'Services/Administration/classes/class.ilSetting.php';
-        $settingsMock = $this->getMockBuilder('ilSetting')->disableOriginalConstructor()->setMethods(array('set', 'get', 'delete'))->getMock();
+        $settingsMock = $this->getMockBuilder('ilSetting')->disableOriginalConstructor()->onlyMethods(array('set', 'get', 'delete'))->getMock();
 
         $settingsMock->expects($this->any())->method('set')->will(
             $this->returnCallback(function ($key, $value) {
@@ -45,7 +58,7 @@ class ilAssQuestionSkillAssignmentRegistryTest extends assBaseTestCase
 
         $settingsMock->expects($this->any())->method('get')->will(
             $this->returnCallback(function ($key, $value) {
-                return isset($this->storage[$key]) ? $this->storage[$key] : $value;
+                return $this->storage[$key] ?? $value;
             })
         );
 
@@ -71,10 +84,10 @@ class ilAssQuestionSkillAssignmentRegistryTest extends assBaseTestCase
     /**
      * @doesNotPerformAssertions
      */
-    public function testInvalidChunkSizeWillRaiseException()
+    public function testInvalidChunkSizeWillRaiseException(): void
     {
         require_once 'Services/Administration/classes/class.ilSetting.php';
-        $settingsMock = $this->getMockBuilder('ilSetting')->disableOriginalConstructor()->setMethods(array('set', 'get', 'delete'))->getMock();
+        $settingsMock = $this->getMockBuilder('ilSetting')->disableOriginalConstructor()->onlyMethods(array('set', 'get', 'delete'))->getMock();
 
         try {
             $registry = new \ilAssQuestionSkillAssignmentRegistry($settingsMock);
@@ -96,7 +109,7 @@ class ilAssQuestionSkillAssignmentRegistryTest extends assBaseTestCase
      * @param callable $post
      * @return array
      */
-    protected function getTestData(callable $pre, callable $post)
+    protected function getTestData(callable $pre, callable $post): array
     {
         $data = [];
 
@@ -138,7 +151,7 @@ class ilAssQuestionSkillAssignmentRegistryTest extends assBaseTestCase
     /**
      * @return array
      */
-    public function serializedData()
+    public function serializedData(): array
     {
         $pre = function ($value) {
             return \serialize($value);

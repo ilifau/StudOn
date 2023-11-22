@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Modal\Interruptive;
+
 function base()
 {
     global $DIC;

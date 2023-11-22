@@ -32,16 +32,16 @@ interface isGlobalScreenItem
     /**
      * @return IdentificationInterface
      */
-    public function getProviderIdentification() : IdentificationInterface;
+    public function getProviderIdentification(): IdentificationInterface;
 
     /**
      * @param Closure $component_decorator
      * @return isGlobalScreenItem
      */
-    public function addComponentDecorator(Closure $component_decorator) : isGlobalScreenItem;
+    public function addComponentDecorator(Closure $component_decorator): isGlobalScreenItem;
 
     /**
      * @return Closure|null
      */
-    public function getComponentDecorator() : ?Closure;
+    public function getComponentDecorator(): ?Closure;
 }

@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Provider;
 
 use ILIAS\GlobalScreen\Provider\StaticProvider;
@@ -34,16 +34,16 @@ interface StaticMainMenuProvider extends StaticProvider, MainMenuProviderInterfa
      * @return TopParentItem[] These are Slates which will be
      * available for configuration.
      */
-    public function getStaticTopItems() : array;
+    public function getStaticTopItems(): array;
 
     /**
      * @return isItem[] These are Entries which will be available for
      * configuration.
      */
-    public function getStaticSubItems() : array;
+    public function getStaticSubItems(): array;
 
     /**
      * @return TypeInformationCollection
      */
-    public function provideTypeInformation() : TypeInformationCollection;
+    public function provideTypeInformation(): TypeInformationCollection;
 }

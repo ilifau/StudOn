@@ -1,4 +1,6 @@
 @image_path: '../../../libs/ilias/Style/basic_style/images/';
+@import "../../../node_modules/bootstrap/less/variables.less";
+@import "../../../templates/default/less/variables.less";
 
 a.ilc_qetitem_ErrorTextItem
 {
@@ -8,7 +10,7 @@ a.ilc_qetitem_ErrorTextItem
 
 a.ilc_qetitem_ErrorTextItem:hover
 {
-	color: #000000;
+	color:  #141414;
 	text-decoration: none;
 	background-color: #D0D0D0;
 }
@@ -65,6 +67,11 @@ a.ilc_page_lnavlink_LeftNavigationLink
 	color: #FFFFFF;
 }
 
+a.ilc_page_lnavlink_LeftNavigationLink:hover {
+	color: #d9e0e9;
+	text-decoration: none;
+}
+
 a.ilc_marker_Marker
 {
 	position: absolute;
@@ -73,12 +80,12 @@ a.ilc_marker_Marker
 	display: block;
 	cursor: pointer;
 	background-repeat: no-repeat;
-	background-image: url("@{image_path}icon_pin.png");
+	background-image: url("@{image_path}icon_pin.svg");
 }
 
 a.ilc_marker_Marker:hover
 {
-	background-image: url("@{image_path}icon_pin_on.png");
+	background-image: url("@{image_path}icon_pin_on.svg");
 	background-repeat: no-repeat;
 }
 
@@ -87,6 +94,12 @@ a.ilc_page_rnavlink_RightNavigationLink
 	background-position: left center;
 	color: #FFFFFF;
 }
+
+a.ilc_page_rnavlink_RightNavigationLink:hover {
+	color: #d9e0e9;
+	text-decoration: none;
+}
+
 
 a.ilc_rte_mlink_RTELink
 {
@@ -145,7 +158,7 @@ div.ilc_section_Additional
 	margin-bottom: 10px;
 	margin-top: 10px;
 	padding-left: 60px;
-	background-image: url("@{image_path}additional.png");
+	background-image: url("@{image_path}additional.svg");
 	background-repeat: no-repeat;
 	background-position: 12px center;
 	background-color: #f5f7fa;
@@ -155,21 +168,6 @@ div.ilc_section_Additional
 	padding-bottom: 20px;
 }
 
-div.ilc_text_block_Additional
-,body.ilc_text_block_Additional
-{
-	margin-bottom: 10px;
-	margin-top: 10px;
-	padding-left: 60px;
-	padding-bottom: 20px;
-	background-repeat: no-repeat;
-	padding-top: 20px;
-	padding-right: 20px;
-	background-color: #f5f7fa;
-	background-image: url("@{image_path}additional.png");
-	background-position: 12px center;
-	border-style: none;
-}
 
 div.ilc_section_AdvancedKnowledge
 ,a.ilc_section_AdvancedKnowledge
@@ -182,13 +180,14 @@ div.ilc_section_AdvancedKnowledge
 	padding-top: 20px;
 	padding-right: 20px;
 	padding-left: 60px;
-	background-image: url("@{image_path}advknowledge.png");
+	background-image: url("@{image_path}advknowledge.svg");
 	background-repeat: no-repeat;
 }
 
 div.ilc_qanswer_Answer
 {
-	padding-left: 16px;
+	padding-left: 10px;
+	padding-right: 10px;
 	border-radius: 5px;
 	margin: 3px;
 }
@@ -205,30 +204,15 @@ div.ilc_section_Attention
 	padding-right: 20px;
 	padding-bottom: 20px;
 	padding-left: 60px;
-	background-image: url("@{image_path}attention.png");
+	background-image: url("@{image_path}attention.svg");
 }
 
-div.ilc_text_block_Attention
-,body.ilc_text_block_Attention
-{
-	padding-right: 20px;
-	padding-top: 20px;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	background-repeat: no-repeat;
-	background-position: 10px;
-	background-image: url("@{image_path}attention.png");
-	padding-left: 60px;
-	background-color: #fee6d4;
-	padding-bottom: 20px;
-}
 
 div.ilc_section_Background
 ,a.ilc_section_Background
 {
 	background-color: #FFFFFF;
 	padding-top: 10px;
-	margin-top: 20px;
 	margin-bottom: 20px;
 	padding-right: 20px;
 	padding-bottom: 10px;
@@ -254,6 +238,7 @@ div.ilc_page_bnav_BottomNavigation
 	padding-right: 5px;
 	color: #2e3c50;
 	padding-top: 15px;
+	background-image: url("@{image_path}header.png");
 	border-right-width: 1px;
 	border-style: none;
 	border-left-width: 1px;
@@ -275,12 +260,28 @@ div.ilc_text_block_Button:hover
 	background-color: #5774A0;
 }
 
-div.ilc_text_block_Citation
-,body.ilc_text_block_Citation
+
+div.ilc_section_Confirmation
+,a.ilc_section_Confirmation
+{
+	background-repeat: no-repeat;
+	background-position: 10px;
+	background-color: #f0f7ea;
+	background-image: url("@{image_path}checked.svg");
+	padding-left: 60px;
+	padding-right: 20px;
+	padding-bottom: 20px;
+	padding-top: 20px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+div.ilc_section_Citation
+,body.ilc_section_Citation
 {
 	background-repeat: no-repeat;
 	background-position: 12px center;
-	background-image: url("@{image_path}citation.png");
+	background-image: url("@{image_path}citation.svg");
 	background-color: #f5f7fa;
 	padding-left: 60px;
 	margin-bottom: 10px;
@@ -290,36 +291,6 @@ div.ilc_text_block_Citation
 	padding-bottom: 20px;
 }
 
-div.ilc_section_Confirmation
-,a.ilc_section_Confirmation
-{
-	background-repeat: no-repeat;
-	background-position: 10px;
-	background-color: #f0f7ea;
-	background-image: url("@{image_path}checked.png");
-	padding-left: 60px;
-	padding-right: 20px;
-	padding-bottom: 20px;
-	padding-top: 20px;
-	margin-bottom: 10px;
-	margin-top: 10px;
-}
-
-div.ilc_text_block_Confirmation
-,body.ilc_text_block_Confirmation
-{
-	border-width: thin;
-	background-color: #f0f7ea;
-	padding-left: 60px;
-	padding-bottom: 20px;
-	padding-right: 20px;
-	padding-top: 20px;
-	margin-bottom: 10px;
-	margin-top: 10px;
-	background-image: url("@{image_path}checked.png");
-	background-repeat: no-repeat;
-	background-position: 10px;
-}
 
 div.ilc_iim_ContentPopup
 {
@@ -330,7 +301,7 @@ div.ilc_iim_ContentPopup
 	border-style: solid;
 	border-width: 2px;
 	background-color: #FFFFFF;
-	border-color: #A0A0A0;
+	border-color: #A8A8A8;
 }
 
 div.ilc_qover_Correct
@@ -339,7 +310,7 @@ div.ilc_qover_Correct
 	background-position: 10px;
 	padding-left: 60px;
 	padding-bottom: 20px;
-	background-image: url("@{image_path}correct.png");
+	background-image: url("@{image_path}correct.svg");
 	padding-right: 20px;
 	margin-top: 10px;
 	margin-bottom: 10px;
@@ -359,31 +330,17 @@ div.ilc_section_Example
 	padding-top: 20px;
 	margin-bottom: 10px;
 	margin-top: 10px;
-	background-image: url("@{image_path}example.png");
+	background-image: url("@{image_path}example.svg");
 	background-repeat: no-repeat;
 }
 
-div.ilc_text_block_Example
-,body.ilc_text_block_Example
-{
-	background-position: 10px;
-	padding-left: 60px;
-	padding-bottom: 20px;
-	padding-right: 20px;
-	background-color: #f5f7fa;
-	padding-top: 20px;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	background-image: url("@{image_path}example.png");
-	background-repeat: no-repeat;
-}
 
 div.ilc_section_Excursus
 ,a.ilc_section_Excursus
 {
 	background-position: 10px center;
 	background-repeat: no-repeat;
-	background-image: url("@{image_path}excursus.png");
+	background-image: url("@{image_path}excursus.svg");
 	padding-bottom: 20px;
 	padding-top: 20px;
 	margin-left: 2em;
@@ -401,7 +358,7 @@ div.ilc_qfeedr_FeedbackRight
 {
 	background-repeat: no-repeat;
 	background-position: 10px;
-	background-image: url("@{image_path}correct.png");
+	background-image: url("@{image_path}correct.svg");
 	padding-right: 160px;
 	padding-bottom: 20px;
 	padding-left: 60px;
@@ -415,7 +372,7 @@ div.ilc_qfeedr_FeedbackRight
 div.ilc_qfeedw_FeedbackWrong
 {
 	background-repeat: no-repeat;
-	background-image: url("@{image_path}exclamation.png");
+	background-image: url("@{image_path}exclamation.svg");
 	padding-right: 160px;
 	background-position: 24px;
 	padding-bottom: 20px;
@@ -452,7 +409,7 @@ div.ilc_flist_head_FileListHeading
 	background-position: 10px;
 	margin-top: 0px;
 	background-color: #4C6586;
-	background-image: url("@{image_path}download.png");
+	background-image: url("@{image_path}download.svg");
 	font-weight: bold;
 	color: #FFFFFF;
 	text-align: left;
@@ -509,9 +466,9 @@ div.ilc_ha_ihead_HAccordIHead
 	/*height: auto !important;
 	height: 300px;*/
 	background-position: center 10px;
-	color: #909090;
+	color: #161616;
 	cursor: pointer;
-	background-color: #F9F9F9;
+	background-color: #f9f9f9;
 	padding-top: 13px;
 	padding-right: 15px;
 	padding-left: 23px;
@@ -521,7 +478,7 @@ div.ilc_ha_ihead_HAccordIHead
 
 div.ilc_ha_ihead_HAccordIHead:hover
 {
-	color: #909090;
+	color: #141414;
 	background-color: #FFFFD0;
 }
 
@@ -552,7 +509,7 @@ div.ilc_qover_Incorrect
 	padding-bottom: 20px;
 	background-position: 24px;
 	background-repeat: no-repeat;
-	background-image: url("@{image_path}exclamation.png");
+	background-image: url("@{image_path}exclamation.svg");
 	padding-left: 60px;
 	padding-top: 20px;
 	border-style: none;
@@ -569,25 +526,11 @@ div.ilc_section_Information
 	padding-bottom: 20px;
 	padding-left: 60px;
 	background-color: #f5f7fa;
-	background-image: url("@{image_path}information.png");
+	background-image: url("@{image_path}information.svg");
 	background-repeat: no-repeat;
 	background-position: 10px;
 }
 
-div.ilc_text_block_Information
-,body.ilc_text_block_Information
-{
-	background-position: 10px;
-	background-repeat: no-repeat;
-	background-image: url("@{image_path}information.png");
-	background-color: #f5f7fa;
-	padding-left: 60px;
-	padding-bottom: 20px;
-	padding-right: 20px;
-	padding-top: 20px;
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
 
 div.ilc_section_Interaction
 ,a.ilc_section_Interaction
@@ -599,7 +542,7 @@ div.ilc_section_Interaction
 	background-position: 12px;
 	background-color: #f5f7fa;
 	padding-left: 60px;
-	background-image: url("@{image_path}interaction.png");
+	background-image: url("@{image_path}interaction.svg");
 	padding-bottom: 20px;
 	padding-right: 20px;
 	margin-bottom: 10px;
@@ -636,28 +579,11 @@ div.ilc_section_Link
 	border-color: #4C6586;
 	border-style: dashed;
 	background-color: #FFFFFF;
-	background-image: url("@{image_path}link.png");
+	background-image: url("@{image_path}link.svg");
 	background-repeat: no-repeat;
 	background-position: 10px;
 }
 
-div.ilc_text_block_Link
-,body.ilc_text_block_Link
-{
-	border-color: #4C6586;
-	border-style: dashed;
-	border-width: 1px;
-	background-position: 10px;
-	text-decoration: underline;
-	background-repeat: no-repeat;
-	background-image: url("@{image_path}link.png");
-	padding-left: 60px;
-	padding-bottom: 20px;
-	padding-right: 20px;
-	padding-top: 20px;
-	margin-bottom: 10px;
-	margin-top: 10px;
-}
 
 div.ilc_text_block_List
 ,body.ilc_text_block_List
@@ -671,7 +597,7 @@ div.ilc_section_Literature
 {
 	background-position: 10px center;
 	background-repeat: no-repeat;
-	background-image: url("@{image_path}literature.png");
+	background-image: url("@{image_path}literature.svg");
 	background-color: #f5f7fa;
 	padding-left: 60px;
 	padding-bottom: 20px;
@@ -681,20 +607,6 @@ div.ilc_section_Literature
 	margin-top: 10px;
 }
 
-div.ilc_text_block_Literature
-,body.ilc_text_block_Literature
-{
-	background-repeat: no-repeat;
-	background-position: 10px center;
-	background-image: url("@{image_path}literature.png");
-	background-color: #f5f7fa;
-	padding-left: 60px;
-	padding-bottom: 20px;
-	padding-right: 20px;
-	padding-top: 20px;
-	margin-bottom: 10px;
-	margin-top: 10px;
-}
 
 div.ilc_media_caption_MediaCaption
 {
@@ -709,7 +621,7 @@ div.ilc_section_Mnemonic
 {
 	background-repeat: no-repeat;
 	background-position: 14px center;
-	background-image: url("@{image_path}mnemonic.png");
+	background-image: url("@{image_path}mnemonic.svg");
 	padding-left: 60px;
 	padding-bottom: 20px;
 	padding-right: 20px;
@@ -721,22 +633,6 @@ div.ilc_section_Mnemonic
 	padding-top: 20px;
 }
 
-div.ilc_text_block_Mnemonic
-,body.ilc_text_block_Mnemonic
-{
-	background-position: 16px center;
-	background-repeat: no-repeat;
-	background-image: url("@{image_path}mnemonic.png");
-	padding-left: 60px;
-	padding-bottom: 20px;
-	padding-right: 20px;
-	margin-bottom: 10px;
-	margin-top: 10px;
-	text-align: left;
-	background-color: #fcf7ca;
-	border-style: none;
-	padding-top: 20px;
-}
 
 div.ilc_page_Page
 {
@@ -749,7 +645,7 @@ div.ilc_page_cont_PageContainer
 {
 	background-color: #FFFFFF;
 	border-width: 1px;
-	border-color: #D6D6D6;
+	border-color: #dddddd;
 	padding: 20px;
 	margin: 0px;
 	border-style: solid;
@@ -757,8 +653,6 @@ div.ilc_page_cont_PageContainer
 
 div.ilc_page_frame_PageFrame
 {
-	padding-right: 15px;
-	padding-left: 15px;
 	color: #2e3c50;
 }
 
@@ -774,23 +668,9 @@ div.ilc_section_Remark
 	text-align: left;
 	background-color: #f5f7fa;
 	border-style: none;
-	background-image: url("@{image_path}remark.png");
+	background-image: url("@{image_path}remark.svg");
 }
 
-div.ilc_text_block_Remark
-,body.ilc_text_block_Remark
-{
-	padding-left: 60px;
-	background-position: 10px center;
-	padding-bottom: 20px;
-	padding-right: 20px;
-	margin-bottom: 10px;
-	margin-top: 10px;
-	background-repeat: no-repeat;
-	background-image: url("@{image_path}remark.png");
-	padding-top: 20px;
-	background-color: #f5f7fa;
-}
 
 div.ilc_page_rnav_RightNavigation
 {
@@ -829,17 +709,6 @@ div.ilc_section_Separator
 	margin-top: 10px;
 }
 
-div.ilc_text_block_Separator
-,body.ilc_text_block_Separator
-{
-	border-top-style: solid;
-	border-color: #4C6586;
-	padding-top: 20px;
-	padding-bottom: 20px;
-	border-width: 2px;
-	margin-bottom: 10px;
-	margin-top: 10px;
-}
 
 div.ilc_section_Special
 ,a.ilc_section_Special
@@ -858,13 +727,12 @@ div.ilc_question_Standard
 	background-repeat: no-repeat;
 	padding-top: 30px;
 	box-shadow: 0 3px 3px rgba(0,0,0,0.10), 0 6px 15px rgba(0,0,0,0.12);
-	background-image: url("@{image_path}question_mark_transp_big.png");
 	margin-bottom: 10px;
 	margin-top: 20px;
 	color: #2e3c50;
 	padding-bottom: 60px;
 	padding-left: 30px;
-	padding-right: 160px;
+	padding-right: 30px;
 	background-color: #fbfbfb;
 	background-position: right 15px;
 }
@@ -876,10 +744,23 @@ div.ilc_text_block_Standard
 	margin-bottom: 10px;
 }
 
-div.ilc_text_block_StandardCenter
-,body.ilc_text_block_StandardCenter
+div.ilc_text_block_Verse
+,body.ilc_text_block_Verse
 {
 	text-align: center;
+}
+
+div.ilc_text_block_Book
+,body.ilc_text_block_Book
+{
+	text-align: justify;
+	hyphens: auto;
+}
+
+div.ilc_text_block_Numbers
+,body.ilc_text_block_Numbers
+{
+	text-align: right;
 }
 
 div.ilc_qover_StatusMessage
@@ -904,9 +785,7 @@ div.ilc_text_block_TableContent
 div.ilc_qtitle_Title
 {
 	font-weight: normal;
-	// fau: contentStyle - changed size back to 100%
-	font-size: 100%;
-	// fau.
+	font-size: 140%;
 	margin-bottom: 20px;
 }
 
@@ -961,12 +840,10 @@ div.ilc_va_icont_VAccordICont
 
 div.ilc_va_ihead_VAccordIHead
 {
-	// fau: contentStyle - avoid uppcase in accordions
-	//text-transform: uppercase;
-	// fau.
+	text-transform: uppercase;
 	font-size: 20px;
 	padding-right: 3px;
-	background-color: #F9F9F9;
+	background-color: #f9f9f9;
 	background-position: 20px center;
 	border-style: none;
 	background-image: url("@{image_path}tree_col.svg");
@@ -976,7 +853,7 @@ div.ilc_va_ihead_VAccordIHead
 	padding-bottom: 3px;
 	padding-top: 3px;
 	padding-left: 54px;
-	color: #909090;
+	color: #161616;
 }
 
 div.ilc_va_ihead_VAccordIHead:hover
@@ -1076,7 +953,7 @@ img.ilc_page_lnavimage_LeftNavigationImage
 	font-size: 120%;
 	background-position: left center;
 	background-repeat: no-repeat;
-	background-image: url("@{image_path}play-button_left_white.png");
+	background-image: url("@{image_path}play-button_left_white.svg");
 	width: 20px;
 	height: 20px;
 }
@@ -1094,7 +971,7 @@ img.ilc_page_rnavimage_RightNavigationImage
 	font-size: 120%;
 	margin-left: 5px;
 	background-repeat: no-repeat;
-	background-image: url("@{image_path}play-button_right_white.png");
+	background-image: url("@{image_path}play-button_right_white.svg");
 	width: 20px;
 	background-position: 0px center;
 }
@@ -1121,7 +998,7 @@ li.ilc_qordli_OrderListItem
 	margin-top: 5px;
 	margin-bottom: 5px;
 	margin-left: 0px;
-	background-color: #f5f7fa;
+	background-color: #a6b2c3;
 	margin-right: 0px;
 	cursor: move;
 	padding: 10px;
@@ -1130,7 +1007,7 @@ li.ilc_qordli_OrderListItem
 li.ilc_qordli_OrderListItemHorizontal
 {
 	cursor: move;
-	background-color: #f5f7fa;
+	background-color: #a6b2c3;
 	padding: 10px;
 	margin-right: 10px;
 	margin-bottom: 5px;
@@ -1161,7 +1038,7 @@ span.ilc_text_inline_Emph
 span.ilc_qetcorr_ErrorTextCorrected
 {
 	text-decoration: line-through;
-	color: #808080;
+	color: #737373;
 }
 
 span.ilc_text_inline_Important
@@ -1458,10 +1335,10 @@ ul.ilc_qordul_OrderListHorizontal
 
 div.ilc_ha_iheada_HAccordIHeadActive
 {
-	color: #909090;
+	color: #161616;
 	padding-right: 15px;
 	padding-top: 13px;
-	background-color: #F9F9F9;
+	background-color: #f9f9f9;
 	padding-bottom: 3px;
 	padding-left: 25px;
 	background-image: url("@{image_path}tree_col.svg");
@@ -1469,7 +1346,7 @@ div.ilc_ha_iheada_HAccordIHeadActive
 
 div.ilc_ha_iheada_HAccordIHeadActive:hover
 {
-	color: #909090;
+	color: #141414;
 }
 
 div.ilc_va_iheada_VAccordIHeadActive
@@ -1479,16 +1356,14 @@ div.ilc_va_iheada_VAccordIHeadActive
 	padding-top: 3px;
 	font-size: 20px;
 	padding-bottom: 3px;
-	color: @il-text-color;
-	background-color: @il-main-dark-bg;
-	// fau: contentStyle - avoid uppcase in accordions
-	// text-transform: uppercase;
-	// fau.
+	color: #161616;
+	background-color: #f9f9f9;
+	text-transform: uppercase;
 	padding-right: 3px;
 }
 
 div.ilc_va_iheada_VAccordIHeadActive:hover
 {
-	color: #909090;
+	color: #141414;
 }
 

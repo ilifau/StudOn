@@ -1,6 +1,22 @@
-<?php declare(strict_types=1);
+<?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use OrgUnit\PublicApi\OrgUnitUserService;
 use OrgUnit\User\ilOrgUnitUser;
@@ -11,36 +27,29 @@ use OrgUnit\User\ilOrgUnitUser;
  */
 class ilMailTemplateContextTest extends ilMailBaseTest
 {
-    /**
-     * @param OrgUnitUserService $orgUnitUserService
-     * @param ilMailEnvironmentHelper $envHelper
-     * @param ilMailUserHelper $usernameHelper
-     * @param ilMailLanguageHelper $languageHelper
-     * @return ilMailTemplateContext
-     */
     public function getAnonymousTemplateContext(
         OrgUnitUserService $orgUnitUserService,
         ilMailEnvironmentHelper $envHelper,
         ilMailUserHelper $usernameHelper,
         ilMailLanguageHelper $languageHelper
-    ) : ilMailTemplateContext {
-        return new class($orgUnitUserService, $envHelper, $usernameHelper, $languageHelper) extends ilMailTemplateContext {
-            public function getId() : string
+    ): ilMailTemplateContext {
+        return new class ($orgUnitUserService, $envHelper, $usernameHelper, $languageHelper) extends ilMailTemplateContext {
+            public function getId(): string
             {
                 return 'phpunuit';
             }
 
-            public function getTitle() : string
+            public function getTitle(): string
             {
                 return 'phpunuit';
             }
 
-            public function getDescription() : string
+            public function getDescription(): string
             {
                 return 'phpunuit';
             }
 
-            public function getSpecificPlaceholders() : array
+            public function getSpecificPlaceholders(): array
             {
                 return [];
             }
@@ -50,18 +59,16 @@ class ilMailTemplateContextTest extends ilMailBaseTest
                 array $context_parameters,
                 ilObjUser $recipient = null,
                 bool $html_markup = false
-            ) : string {
+            ): string {
                 return '';
             }
         };
     }
 
     /**
-     * @param int $amount
-     * @return array
      * @throws ReflectionException
      */
-    private function generateOrgUnitUsers(int $amount) : array
+    private function generateOrgUnitUsers(int $amount): array
     {
         $users = [];
 
@@ -79,10 +86,9 @@ class ilMailTemplateContextTest extends ilMailBaseTest
     }
 
     /**
-     * @return array
      * @throws ReflectionException
      */
-    public function userProvider() : array
+    public function userProvider(): array
     {
         $testUsers = [];
 
@@ -90,7 +96,7 @@ class ilMailTemplateContextTest extends ilMailBaseTest
                      ['gender' => 'm', 'num_superiors' => 2,],
                      ['gender' => 'n', 'num_superiors' => 1,],
                      ['gender' => 'f', 'num_superiors' => 0,],
-                     ['gender' => '', 'num_superiors' => 3,]
+                     ['gender' => '', 'num_superiors' => 3,],
                  ] as $definition) {
             $user = $this->getMockBuilder(ilObjUser::class)
                 ->disableOriginalConstructor()
@@ -133,8 +139,6 @@ class ilMailTemplateContextTest extends ilMailBaseTest
 
     /**
      * @dataProvider userProvider
-     * @param ilObjUser $user
-     * @param ilOrgUnitUser $ouUser
      * @param ilOrgUnitUser[] $superiors
      * @throws ReflectionException
      */
@@ -142,7 +146,7 @@ class ilMailTemplateContextTest extends ilMailBaseTest
         ilObjUser $user,
         ilOrgUnitUser $ouUser,
         array $superiors
-    ) : void {
+    ): void {
         $ouService = $this->getMockBuilder(OrgUnitUserService::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getUsers',])
@@ -175,16 +179,16 @@ class ilMailTemplateContextTest extends ilMailBaseTest
         $lngHelper->expects($this->atLeastOnce())->method('getLanguageByIsoCode')->willReturn($lng);
         $lngHelper->expects($this->atLeastOnce())->method('getCurrentLanguage')->willReturn($lng);
 
-        $expectedIdsConstraint = self::logicalAnd(...array_map(function (ilOrgUnitUser $user) {
-            if (version_compare(\PHPUnit\Runner\Version::id(), '9.0', '>=')) {
+        if ($superiors === []) {
+            $expectedIdsConstraint = [];
+        } else {
+            $expectedIdsConstraint = self::logicalAnd(...array_map(static function (ilOrgUnitUser $user) {
                 return self::containsEqual($user->getUserId());
-            } else {
-                return self::contains($user->getUserId());
-            }
-        }, $superiors));
+            }, $superiors));
+        }
 
-        $firstAndLastnames = array_map(function (ilOrgUnitUser $user, int $key) {
-            return "PhpSup{$key} UnitSup{$key}";
+        $firstAndLastnames = array_map(static function (ilOrgUnitUser $user, int $key): string {
+            return "PhpSup$key UnitSup$key";
         }, $superiors, array_keys($superiors));
 
         $userHelper->expects($this->atLeastOnce())->method('getUsernameMapForIds')
@@ -206,7 +210,7 @@ class ilMailTemplateContextTest extends ilMailBaseTest
             '[TITLE]',
             '[FIRSTNAME_LASTNAME_SUPERIOR]',
             '[ILIAS_URL]',
-            '[CLIENT_NAME]',
+            '[INSTALLATION_NAME]',
         ]));
 
         $replaceMessage = $placeholderResolver->resolve($user);

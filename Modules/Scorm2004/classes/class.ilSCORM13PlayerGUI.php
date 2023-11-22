@@ -1,9 +1,24 @@
 <?php
 
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
 
-require_once("./Services/YUI/classes/class.ilYuiUtil.php");
-require_once("./Modules/Scorm2004/classes/class.ilObjSCORM2004LearningModule.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/** @noinspection ForgottenDebugOutputInspection */
 
 /**
 * @author  Hendrik Holtmann <holtmann@mac.com>, Alfred Kohnert <alfred.kohnert@bigfoot.com>, Uwe Kohnle <kohnle@internetlehrer-gmbh.de>
@@ -12,14 +27,17 @@ require_once("./Modules/Scorm2004/classes/class.ilObjSCORM2004LearningModule.php
 */
 class ilSCORM13PlayerGUI
 {
-    const ENABLE_GZIP = 0;
-    
-    const NONE = 0;
-    const READONLY = 1;
-    const WRITEONLY = 2;
-    const READWRITE = 3;
+    public const ENABLE_GZIP = 0;
 
-    private static $schema = array // order of entries matters!
+    public const NONE = 0;
+    public const READONLY = 1;
+    public const WRITEONLY = 2;
+    public const READWRITE = 3;
+
+    /**
+     * @var array<string, array<string, array<string, mixed>>>
+     */
+    private static array $schema = array // order of entries matters!
     (
         'package' => array(
             'user_id' => array('pattern' => null, 'permission' => self::NONE, 'default' => null, 'dbfield' => 'user_id'),
@@ -113,93 +131,87 @@ class ilSCORM13PlayerGUI
             'scope' => array('pattern' => null, 'permission' => self::READWRITE, 'default' => null, 'dbfield' => 'scope'),
         ),
     );
-    
-    private $userId;
-    public $packageId;
-    public $jsMode;
-    
-    public $slm;
-    public $tpl;
-    
+
+    private int $userId;
+    public int $packageId;
+    public bool $jsMode;
+
+    public ilObjSCORM2004LearningModule $slm;
+    public ilGlobalTemplate $tpl;
+    public int $ref_id;
+    public ilCtrl $ctrl;
+    protected ilLanguage $lng;
+    protected string $page = "";
+
     public function __construct()
     {
         global $DIC;
-        $tpl = $DIC['tpl'];
-        $ilCtrl = $DIC['ilCtrl'];
-        $ilUser = $DIC['ilUser'];
-        $lng = $DIC['lng'];
+        $this->ctrl = $DIC->ctrl();
+        $this->userId = $DIC->user()->getId();
+        $this->lng = $DIC->language();
 
-        //erase next?
-        // if ($_REQUEST['learnerId']) {
-        // $this->userId = $_REQUEST['learnerId'];
-        // } else {
-        // $this->userId = $GLOBALS['DIC']['USER']['usr_id'];
-        // }
-        $this->packageId = (int) $_REQUEST['packageId'];
+        //        $this->packageId = (int) $_REQUEST['packageId'];
         $this->jsMode = strpos($_SERVER['HTTP_ACCEPT'], 'text/javascript') !== false;
-        
-        $this->page = $_REQUEST['page'];
-        
-        $this->slm = new ilObjSCORM2004LearningModule($_GET["ref_id"], true);
-        
-            
-        $this->tpl = $tpl;
-        $this->ctrl = $ilCtrl;
-                
-        $this->packageId = ilObject::_lookupObjectId($_GET['ref_id']);
-        $this->ref_id = $_GET['ref_id'];
-        $this->userId = $ilUser->getID();
-    
-        if ($_GET['envEditor'] != null) {
-            $this->envEditor = $_GET['envEditor'];
-        } else {
-            $this->envEditor = 0;
+
+        if ($DIC->http()->wrapper()->query()->has('page')) {
+            $this->page = $DIC->http()->wrapper()->query()->retrieve('page', $DIC->refinery()->kindlyTo()->string());
         }
+
+        $this->ref_id = $DIC->http()->wrapper()->query()->retrieve('ref_id', $DIC->refinery()->kindlyTo()->int());
+        $this->slm = new ilObjSCORM2004LearningModule($this->ref_id, true);
+
+        $this->packageId = ilObject::_lookupObjectId($this->ref_id);
     }
 
     /**
      * execute command
      */
-    public function &executeCommand()
+    public function executeCommand(): void
     {
         global $DIC;
-        $ilAccess = $DIC['ilAccess'];
-        $lng = $DIC['lng'];
+        $ilAccess = $DIC->access();
+        $lng = $DIC->language();
         $ilErr = $DIC['ilErr'];
 
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
 
-        if (!$ilAccess->checkAccess("read", "", $_GET["ref_id"])) {
+        if (!$ilAccess->checkAccess("read", "", $this->ref_id)) {
             $ilErr->raiseError($lng->txt("permission_denied"), $ilErr->WARNING);
         }
-        
+
+        $nodeId = 0;
+        if ($DIC->http()->wrapper()->query()->has('node_id')) {
+            $nodeId = $DIC->http()->wrapper()->query()->retrieve('node_id', $DIC->refinery()->kindlyTo()->int());
+        }
+
+
         //$ilLog->write("SCORM2004 Player cmd: ".$cmd);
 
         switch ($cmd) {
-            
+
             case 'getRTEjs':
                 $this->getRTEjs();
                 break;
-                
+
             case 'cp':
                 $this->getCPData();
                 break;
-                
+
             case 'adlact':
                 $this->getADLActData();
                 break;
-                
+
             case 'suspend':
                 $this->suspendADLActData();
                 break;
-            
+
             case 'getSuspend':
                 $this->getSuspendData();
                 break;
-                
+
             case 'gobjective':
-//				$this->writeGObjective();
+                //				$this->writeGObjective();
                 break;
 
             case 'getGobjective':
@@ -207,32 +219,33 @@ class ilSCORM13PlayerGUI
                 break;
 
             case 'getSharedData':
-                $this->readSharedData($_GET['node_id']);
+                $this->readSharedData($nodeId);
                 break;
-                
+
             case 'setSharedData':
-                $this->writeSharedData($_GET['node_id']);
+                $this->writeSharedData($nodeId);
                 break;
-                
+
             case 'cmi':
 
-                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                    include_once './Modules/Scorm2004/classes/class.ilSCORM2004StoreData.php';
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ilSCORM2004StoreData::persistCMIData(
-                        $this->userId,
                         $this->packageId,
+                        $this->ref_id,
                         $this->slm->getDefaultLessonMode(),
                         $this->slm->getComments(),
                         $this->slm->getInteractions(),
                         $this->slm->getObjectives(),
-                        $this->slm->getTime_from_lms()
+                        $this->slm->getTime_from_lms(),
+                        null,
+                        $this->userId
                     );
-                //error_log("Saved CMI Data");
+                    //error_log("Saved CMI Data");
                 } else {
                     $this->fetchCMIData();
                 }
                 break;
-            
+
             case 'specialPage':
                 $this->specialPage();
                 break;
@@ -257,11 +270,10 @@ class ilSCORM13PlayerGUI
                 $this->pingSession();
                 break;
             case 'scormPlayerUnload':
-                include_once './Modules/Scorm2004/classes/class.ilSCORM2004StoreData.php';
-                ilSCORM2004StoreData::scormPlayerUnload($this->userId, $this->packageId, $this->slm->getTime_from_lms());
+                ilSCORM2004StoreData::scormPlayerUnload($this->packageId, $this->ref_id, $this->slm->getTime_from_lms(), $this->userId);
                 break;
-                
-            // case 'getConfigForPlayer':
+
+                // case 'getConfigForPlayer':
                 // $this->getConfigForPlayer();
                 // break;
             default:
@@ -269,8 +281,8 @@ class ilSCORM13PlayerGUI
                 break;
         }
     }
-    
-    public function getRTEjs()
+
+    public function getRTEjs(): void
     {
         $js_data = file_get_contents("./Modules/Scorm2004/scripts/buildrte/rte.js");
         if (self::ENABLE_GZIP == 1) {
@@ -281,21 +293,24 @@ class ilSCORM13PlayerGUI
         }
         echo $js_data;
     }
-    
-    
-    public function getDataDirectory()
+
+
+    public function getDataDirectory(): string
     {
         $webdir = str_replace("/ilias.php", "", $_SERVER["SCRIPT_NAME"]);
         //load ressources always with absolute URL..relative URLS fail on innersco navigation on certain browsers
-        $lm_dir = $webdir . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/lm_data" . "/lm_" . $this->packageId;
+        $lm_dir = $webdir . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/lm_data" . "/lm_" . (string) $this->packageId;
         return $lm_dir;
     }
-        
+
     //config data also used for SOP
-    public function getConfigForPlayer()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getConfigForPlayer(): array
     {
         global $DIC;
-        $ilUser = $DIC['ilUser'];
+        $ilUser = $DIC->user();
 
         $initSuspendData = null;
         $config = array(
@@ -326,7 +341,6 @@ class ilSCORM13PlayerGUI
             'adlact_data' => null,
             'globalobj_data' => null
         );
-        include_once './Modules/ScormAicc/classes/SCORM/class.ilObjSCORMInitData.php';
         $config['status'] = ilObjSCORMInitData::getStatus($this->packageId, $ilUser->getID(), $this->slm->getAuto_last_visited(), "2004");
         // $status['last_visited']=null;
         // if($this->slm->getAuto_last_visited())
@@ -338,18 +352,15 @@ class ilSCORM13PlayerGUI
         return $config;
     }
 
-    public function getPlayer()
+    public function getPlayer(): void
     {
         global $DIC;
-        $lng = $DIC['lng'];
-        $ilSetting = $DIC['ilSetting'];
-        
-        //WAC
-        require_once('./Services/WebAccessChecker/classes/class.ilWACSignedPath.php');
+        $lng = $DIC->language();
+        $ilSetting = $DIC->settings();
         ilWACSignedPath::signFolderOfStartFile($this->getDataDirectory() . '/imsmanifest.xml');
-        
+
         // player basic config data
-        
+
         $initSuspendData = null;
         $initAdlactData = null;
         if ($this->slm->getSequencing() == true) {
@@ -367,7 +378,7 @@ class ilSCORM13PlayerGUI
             if ($session_timeout > $max_idle) {
                 $session_timeout = $max_idle;
             }
-            $min_idle = (int) $ilSetting->get('session_min_idle', ilSessionControl::DEFAULT_MIN_IDLE) * 60;
+            $min_idle = (int) $ilSetting->get('session_min_idle', (string) ilSessionControl::DEFAULT_MIN_IDLE) * 60;
             if ($session_timeout > $min_idle) {
                 $session_timeout = $min_idle;
             }
@@ -378,38 +389,37 @@ class ilSCORM13PlayerGUI
         $config['session_ping'] = $session_timeout;
 
         //url strings
-        $store_url = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=cmi&ref_id=' . $_GET["ref_id"];
-        $unload_url = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=scormPlayerUnload&ref_id=' . $_GET["ref_id"];
+        $store_url = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=cmi&ref_id=' . $this->ref_id;
+        $unload_url = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=scormPlayerUnload&ref_id=' . $this->ref_id;
         if ($this->slm->getSessionDeactivated()) {
-            $store_url = 'storeScorm2004.php?package_id=' . $this->packageId . '&ref_id=' . $_GET["ref_id"] . '&client_id=' . CLIENT_ID . '&do=store';
-            $unload_url = 'storeScorm2004.php?package_id=' . $this->packageId . '&ref_id=' . $_GET["ref_id"] . '&client_id=' . CLIENT_ID . '&do=unload';
+            $store_url = 'storeScorm2004.php?package_id=' . $this->packageId . '&ref_id=' . $this->ref_id . '&client_id=' . CLIENT_ID . '&do=store';
+            $unload_url = 'storeScorm2004.php?package_id=' . $this->packageId . '&ref_id=' . $this->ref_id . '&client_id=' . CLIENT_ID . '&do=unload';
         }
-        $config['cp_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=cp&ref_id=' . $_GET["ref_id"];
-        $config['cmi_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=cmi&ref_id=' . $_GET["ref_id"];
+        $config['cp_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=cp&ref_id=' . $this->ref_id;
+        $config['cmi_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=cmi&ref_id=' . $this->ref_id;
         $config['store_url'] = $store_url;
-        $config['get_adldata_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=getSharedData&ref_id=' . $_GET["ref_id"];
-        $config['set_adldata_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=setSharedData&ref_id=' . $_GET["ref_id"];
-        $config['adlact_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=adlact&ref_id=' . $_GET["ref_id"];
-        $config['specialpage_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=specialPage&ref_id=' . $_GET["ref_id"];
-        $config['suspend_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=suspend&ref_id=' . $_GET["ref_id"];
-        $config['get_suspend_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=getSuspend&ref_id=' . $_GET["ref_id"];
+        $config['get_adldata_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=getSharedData&ref_id=' . $this->ref_id;
+        $config['set_adldata_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=setSharedData&ref_id=' . $this->ref_id;
+        $config['adlact_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=adlact&ref_id=' . $this->ref_id;
+        $config['specialpage_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=specialPage&ref_id=' . $this->ref_id;
+        $config['suspend_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=suspend&ref_id=' . $this->ref_id;
+        $config['get_suspend_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=getSuspend&ref_id=' . $this->ref_id;
         //next 2 lines could be deleted later
-        $config['gobjective_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=gobjective&ref_id=' . $_GET["ref_id"];
-        $config['get_gobjective_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=getGobjective&ref_id=' . $_GET["ref_id"];
-        $config['ping_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=pingSession&ref_id=' . $_GET["ref_id"];
+        $config['gobjective_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=gobjective&ref_id=' . $this->ref_id;
+        $config['get_gobjective_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=getGobjective&ref_id=' . $this->ref_id;
+        $config['ping_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=pingSession&ref_id=' . $this->ref_id;
         $config['scorm_player_unload_url'] = $unload_url;
-        $config['post_log_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=postLogEntry&ref_id=' . $_GET["ref_id"];
-        $config['livelog_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=liveLogContent&ref_id=' . $_GET["ref_id"];
+        $config['post_log_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=postLogEntry&ref_id=' . $this->ref_id;
+        $config['livelog_url'] = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=liveLogContent&ref_id=' . $this->ref_id;
         $config['package_url'] = $this->getDataDirectory() . "/";
 
         //editor
-        $config['envEditor'] = $this->envEditor;
-        
+        $config['envEditor'] = 0;
+
         //debug
         $config['debug'] = $this->slm->getDebug();
         $config['debug_fields'] = $this->getDebugValues();
         $config['debug_fields_test'] = $this->getDebugValues(true);
-
 
         //language strings
         $langstrings['btnStart'] = $lng->txt('scplayer_start');
@@ -423,16 +433,14 @@ class ilSCORM13PlayerGUI
         $langstrings['linkexpandTree'] = $lng->txt('scplayer_expandtree');
         $langstrings['linkcollapseTree'] = $lng->txt('scplayer_collapsetree');
         $langstrings['contCreditOff'] = $lng->txt('cont_credit_off');
-        if ($this->slm->getAutoReviewChar() == "s") {
+        if ($this->slm->getAutoReviewChar() === "s") {
             $langstrings['contCreditOff'] = $lng->txt('cont_sc_score_was_higher_message');
         }
         $config['langstrings'] = $langstrings;
-        
+
         //template variables
         //$this->tpl = new ilTemplate("tpl.scorm2004.player.html", false, false, "Modules/Scorm2004");
         $this->tpl = new ilGlobalTemplate("tpl.scorm2004.player.html", true, true, "Modules/Scorm2004");
-
-        include_once("./Services/jQuery/classes/class.iljQueryUtil.php");
         $this->tpl->setVariable("JS_FILE", iljQueryUtil::getLocaljQueryPath());
 
         // include ilias rte css, if given
@@ -449,7 +457,9 @@ class ilSCORM13PlayerGUI
         // $this->tpl->setVariable('YUI_PATH', ilYuiUtil::getLocalPath());
         // $this->tpl->setVariable('TREE_JS', "./Services/UIComponent/NestedList/js/ilNestedList.js");
         $this->tpl->setVariable('TREE_JS', "./Modules/Scorm2004/scripts/ilNestedList.js");
-        $this->tpl->setVariable($langstrings);
+        foreach ($langstrings as $key => $value) {
+            $this->tpl->setVariable($key, $value);
+        }
         $this->tpl->setVariable('DOC_TITLE', 'ILIAS: ' . $this->slm->getTitle());
         $this->tpl->setVariable("LOCATION_STYLESHEET", ilUtil::getStyleSheetLocation());
         $this->tpl->setVariable('INIT_CP_DATA', json_encode(json_decode($this->getCPDataInit())));
@@ -463,7 +473,7 @@ class ilSCORM13PlayerGUI
         $this->tpl->setVariable('TXT_COLLAPSE', $lng->txt('scplayer_collapsetree'));
         if ($this->slm->getDebug()) {
             $this->tpl->setVariable('TXT_DEBUGGER', $lng->txt('scplayer_debugger'));
-            $this->tpl->setVariable('DEBUG_URL', "PopupCenter('ilias.php?baseClass=ilSAHSPresentationGUI&cmd=debugGUI&ref_id=" . $_GET["ref_id"] . "','Debug',800,600);");
+            $this->tpl->setVariable('DEBUG_URL', "PopupCenter('ilias.php?baseClass=ilSAHSPresentationGUI&cmd=debugGUI&ref_id=" . $this->ref_id . "','Debug',800,600);");
         } else {
             $this->tpl->setVariable('TXT_DEBUGGER', '');
             $this->tpl->setVariable('DEBUG_URL', '');
@@ -474,13 +484,13 @@ class ilSCORM13PlayerGUI
 
         //include scripts
         if ($this->slm->getCacheDeactivated()) {
-            $this->tpl->setVariable('JS_SCRIPTS', 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=getRTEjs&ref_id=' . $_GET["ref_id"]);
+            $this->tpl->setVariable('JS_SCRIPTS', 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=getRTEjs&ref_id=' . $this->ref_id);
         } else {
             $this->tpl->setVariable('JS_SCRIPTS', './Modules/Scorm2004/scripts/buildrte/rte-min.js');
         }
 
         //disable top menu
-        if ($this->slm->getNoMenu() == "y") {
+        if ($this->slm->getNoMenu() === true) {
             $this->tpl->setVariable("VAL_DISPLAY", "style=\"display:none;\"");
         } else {
             $this->tpl->setVariable("VAL_DISPLAY", "");
@@ -488,14 +498,14 @@ class ilSCORM13PlayerGUI
 
 
         //check for max_attempts and raise error if max_attempts is exceeded
-        if ($this->get_max_attempts() != 0) {
-            if ($this->get_actual_attempts() >= $this->get_max_attempts()) {
-                header('Content-Type: text/html; charset=utf-8');
-                echo($lng->txt("cont_sc_max_attempt_exceed"));
-                exit;
-            }
-        }
-        
+        //        if ($this->get_max_attempts() != 0) {
+        //            if ($this->get_actual_attempts() >= $this->get_max_attempts()) {
+        //                header('Content-Type: text/html; charset=utf-8');
+        //                echo($lng->txt("cont_sc_max_attempt_exceed"));
+        //                exit;
+        //            }
+        //        }
+
         //count attempt
         $this->increase_attemptAndsave_module_version();
         $this->resetSharedData();
@@ -503,24 +513,21 @@ class ilSCORM13PlayerGUI
         $this->tpl->printToStdout("DEFAULT", false);
     }
 
-    /**
-     * Get inline css
-     */
-    public static function getInlineCSS()
+    public static function getInlineCSS(): string
     {
         $is_tpl = new ilTemplate("tpl.scorm2004.inlinecss.html", true, true, "Modules/Scorm2004");
-        $is_tpl->setVariable('IC_ASSET', ilUtil::getImagePath("scorm/asset.svg", false));
-        $is_tpl->setVariable('IC_COMPLETED', ilUtil::getImagePath("scorm/completed.svg", false));
-        $is_tpl->setVariable('IC_NOTATTEMPTED', ilUtil::getImagePath("scorm/not_attempted.svg", false));
-        $is_tpl->setVariable('IC_RUNNING', ilUtil::getImagePath("scorm/running.svg", false));
-        $is_tpl->setVariable('IC_INCOMPLETE', ilUtil::getImagePath("scorm/incomplete.svg", false));
-        $is_tpl->setVariable('IC_PASSED', ilUtil::getImagePath("scorm/passed.svg", false));
-        $is_tpl->setVariable('IC_FAILED', ilUtil::getImagePath("scorm/failed.svg", false));
-        $is_tpl->setVariable('IC_BROWSED', ilUtil::getImagePath("scorm/browsed.svg", false));
+        $is_tpl->setVariable('IC_ASSET', ilUtil::getImagePath("scorm/asset.svg", ""));
+        $is_tpl->setVariable('IC_COMPLETED', ilUtil::getImagePath("scorm/completed.svg", ""));
+        $is_tpl->setVariable('IC_NOTATTEMPTED', ilUtil::getImagePath("scorm/not_attempted.svg", ""));
+        $is_tpl->setVariable('IC_RUNNING', ilUtil::getImagePath("scorm/running.svg", ""));
+        $is_tpl->setVariable('IC_INCOMPLETE', ilUtil::getImagePath("scorm/incomplete.svg", ""));
+        $is_tpl->setVariable('IC_PASSED', ilUtil::getImagePath("scorm/passed.svg", ""));
+        $is_tpl->setVariable('IC_FAILED', ilUtil::getImagePath("scorm/failed.svg", ""));
+        $is_tpl->setVariable('IC_BROWSED', ilUtil::getImagePath("scorm/browsed.svg", ""));
         return $is_tpl->get();
     }
 
-    public function getCPData()
+    public function getCPData(): void
     {
         $jsdata = $this->getCPDataInit();
         if ($this->jsMode) {
@@ -532,10 +539,11 @@ class ilSCORM13PlayerGUI
             print_r($jsdata);
         }
     }
-    public function getCPDataInit()
+
+    public function getCPDataInit(): string
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
+        $ilDB = $DIC->database();
 
         $res = $ilDB->queryF(
             'SELECT jsdata FROM cp_package WHERE obj_id = %s',
@@ -552,11 +560,11 @@ class ilSCORM13PlayerGUI
         return $jsdata;
     }
 
-    
-    public function getADLActDataInit()
+
+    public function getADLActDataInit(): string
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
+        $ilDB = $DIC->database();
 
         $res = $ilDB->queryF(
             'SELECT activitytree FROM cp_package WHERE obj_id = %s',
@@ -564,16 +572,16 @@ class ilSCORM13PlayerGUI
             array($this->packageId)
         );
         $data = $ilDB->fetchAssoc($res);
-                
+
         $activitytree = $data['activitytree'];
-                
+
         if (!$activitytree) {
             $activitytree = 'null';
         }
         return $activitytree;
     }
 
-    public function getADLActData()
+    public function getADLActData(): void
     {
         $activitytree = $this->getADLActDataInit();
         if ($this->jsMode) {
@@ -585,22 +593,20 @@ class ilSCORM13PlayerGUI
             print_r($activitytree);
         }
     }
-    
-    public function pingSession()
+
+    public function pingSession(): void
     {
-        //WAC
-        require_once('./Services/WebAccessChecker/classes/class.ilWACSignedPath.php');
         ilWACSignedPath::signFolderOfStartFile($this->getDataDirectory() . '/imsmanifest.xml');
         //do nothing except returning header
         header('Content-Type: text/plain; charset=UTF-8');
         print("");
     }
 
-    public function getScope()
+    public function getScope(): string
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilUser = $DIC['ilUser'];
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
 
         $res = $ilDB->queryF(
             'SELECT global_to_system FROM cp_package WHERE obj_id = %s',
@@ -608,23 +614,23 @@ class ilSCORM13PlayerGUI
             array($this->packageId)
         );
         $data = $ilDB->fetchAssoc($res);
-        
+
         $gystem = $data['global_to_system'];
         if ($gystem == 1) {
             $gsystem = 'null';
         } else {
-            $gsystem = $this->packageId;
+            $gsystem = (string) $this->packageId;
         }
-            
+
         return $gsystem;
     }
 
-    public function getSuspendDataInit()
+    public function getSuspendDataInit(): string
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilUser = $DIC['ilUser'];
-        
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
+
         $res = $ilDB->queryF(
             'SELECT data FROM cp_suspend WHERE obj_id = %s AND user_id = %s',
             array('integer', 'integer'),
@@ -638,10 +644,13 @@ class ilSCORM13PlayerGUI
             array('integer', 'integer'),
             array($this->packageId, $ilUser->getId())
         );
-        return $data['data'];
+        if (is_array($data)) {
+            return $data['data'];
+        }
+        return "";
     }
 
-    public function getSuspendData()
+    public function getSuspendData(): void
     {
         $suspend_data = $this->getSuspendDataInit();
         if ($this->jsMode) {
@@ -653,12 +662,12 @@ class ilSCORM13PlayerGUI
             print_r($suspend_data);
         }
     }
-    
-    public function suspendADLActData()
+
+    public function suspendADLActData(): void
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilUser = $DIC['ilUser'];
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
 
         $res = $ilDB->queryF(
             'SELECT * FROM cp_suspend WHERE obj_id = %s	AND user_id = %s',
@@ -685,13 +694,13 @@ class ilSCORM13PlayerGUI
             );
         }
     }
-    
-    public function readGObjectiveInit()
+
+    public function readGObjectiveInit(): array
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilUser = $DIC['ilUser'];
-        
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
+
         //get json string
         $g_data = [];
 
@@ -731,37 +740,37 @@ class ilSCORM13PlayerGUI
                 } else {
                     $scope = $row['scope_id'];
                 }
-                
+
                 if ($row['satisfied'] != null) {
                     $toset = $row['satisfied'];
                     $g_data["satisfied"][$objective_id][$learner][$scope] = $toset;
                 }
-                
+
                 if ($row['measure'] != null) {
                     $toset = $row['measure'];
                     $g_data["measure"][$objective_id][$learner][$scope] = $toset;
                 }
-                
+
                 if ($row['score_raw'] != null) {
                     $toset = $row['score_raw'];
                     $g_data["score_raw"][$objective_id][$learner][$scope] = $toset;
                 }
-                
+
                 if ($row['score_min'] != null) {
                     $toset = $row['score_min'];
                     $g_data["score_min"][$objective_id][$learner][$scope] = $toset;
                 }
-                
+
                 if ($row['score_max'] != null) {
                     $toset = $row['score_max'];
                     $g_data["score_max"][$objective_id][$learner][$scope] = $toset;
                 }
-                
+
                 if ($row['progress_measure'] != null) {
                     $toset = $row['progress_measure'];
                     $g_data["progress_measure"][$objective_id][$learner][$scope] = $toset;
                 }
-                
+
                 if ($row['completion_status'] != null) {
                     $toset = $row['completion_status'];
                     $g_data["completion_status"][$objective_id][$learner][$scope] = $toset;
@@ -771,7 +780,7 @@ class ilSCORM13PlayerGUI
         return $g_data;
     }
 
-    public function readGObjective()
+    public function readGObjective(): void
     {
         $gobjective_data = json_encode($this->readGObjectiveInit());
         if ($this->jsMode) {
@@ -783,31 +792,31 @@ class ilSCORM13PlayerGUI
             print_r($gobjective_data);
         }
     }
-    
+
 
     //Read the shared datascores for a given SCO
-    public function readSharedData($sco_node_id)
+    public function readSharedData(int $sco_node_id): void
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilUser = $DIC['ilUser'];
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
         $dataStores = array( "data" => array(),
                              "permissions" => array());
         $readPermissions = array();
-        
+
         $query = 'SELECT target_id, read_shared_data, write_shared_data '
                . 'FROM cp_datamap '
                . 'WHERE slm_id = %s '
                . 'AND sco_node_id = %s '
                . 'GROUP BY target_id, read_shared_data, write_shared_data';
-               
-        
+
+
         $res = $ilDB->queryF(
             $query,
             array('integer', 'integer'),
             array($this->packageId, $sco_node_id)
         );
-        
+
         //Pass 1: Get all the shared data target_ids
         //		  for this content package
         while ($row = $ilDB->fetchAssoc($res)) {
@@ -820,67 +829,69 @@ class ilSCORM13PlayerGUI
                                     "writeSharedData" => $row['write_shared_data']);
             $dataStores["readPermissions"][$row['target_id']] = $row['read_shared_data'];
         }
-        
+
         if (count($dataStores) < 1) {
             //If there are no datastores, then return nothing
             echo "";
             exit();
-        } elseif ($dataStores["readPermissions"] != null && array_sum($dataStores["readPermissions"]) != 0) {
-            
+        }
+
+        if ($dataStores["readPermissions"] != null && array_sum($dataStores["readPermissions"]) != 0) {
+
             //If there exists at least one readSharedData permission, then
             //fill in the existing values (if any) already in the store.
-            
+
             //Create the params to add to the Pass 2 query (get existing values)
             $params = array("types" => array("integer", "integer"),
                             "values" => array($this->userId, $this->packageId));
-            
+
             $paramTemplate = '';
-            
+
             //See if readSharedData is set for each datamap.
             //If set to true, then add it to the search query
             foreach ($dataStores["data"] as $key => $val) {
                 if ($dataStores["readPermissions"][$key] == 1
-                    && $dataStores["data"][$key]["store"] != 'notWritten') {
+                    && $dataStores["data"][$key]["store"] !== 'notWritten') {
                     $params["types"][] = "text";
                     $params["values"][] = $key;
                     $paramTemplate .= '%s, ';
                 }
             }
-            
+
             //Get rid of the trailing ', '
-            $paramTemplate = substr($paramTemplate, 0, strlen($paramTemplate) - 2);
-            
+            $paramTemplate = substr($paramTemplate, 0, -2);
+
             //Pass 2: Query for values previously saved by the user
             $query = 'SELECT target_id, store '
                    . 'FROM adl_shared_data '
                    . 'WHERE user_id = %s '
                    . 'AND slm_id = %s '
                    . 'AND target_id IN (' . $paramTemplate . ')';
-                   
-            
+
+
             $res = $ilDB->queryF(
                 $query,
                 $params["types"],
                 $params["values"]
             );
-        
+
             while ($row = $ilDB->fetchAssoc($res)) {
                 $dataStores["data"][$row['target_id']]["store"] = $row['store'];
             }
         }
 
         header('Content-Type: text/javascript; charset=UTF-8');
-        
+
         echo json_encode($dataStores["data"]);
     }
-    
-    public function writeSharedData($sco_node_id)
+
+    public function writeSharedData(int $sco_node_id): void
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilUser = $DIC['ilUser'];
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
         $g_data = json_decode(file_get_contents('php://input'));
-            
+
         //Step 1: Get the writeable stores for this SCO that already have values
         $query = 'SELECT dm.target_id, sd.store '
                . 'FROM cp_datamap dm '
@@ -890,13 +901,13 @@ class ilSCORM13PlayerGUI
                . 'AND dm.slm_id = %s '
                . 'AND write_shared_data = 1 '
                . 'AND user_id = %s';
-        
+
         $res = $ilDB->QueryF(
             $query,
             array('integer', 'integer', 'integer'),
             array($sco_node_id, $this->packageId, $this->userId)
         );
-        
+
         $dataStores = array();
         $originalVals = array();
         while ($row = $ilDB->fetchAssoc($res)) {
@@ -904,14 +915,14 @@ class ilSCORM13PlayerGUI
             $dataStores[$id] = $g_data->{$id};
             $originalVals[$id] = $row['store'];
         }
-        
+
 
         //Step 2: Add the writeable stores
         foreach ($g_data as $key => $obj) {
             //If it's already created in adl_shared_data, we
             //need to update it.
             if (array_key_exists($key, $dataStores)) {
-                if ($obj == 'notWritten') {
+                if ($obj === 'notWritten') {
                     continue;
                 }
 
@@ -920,7 +931,7 @@ class ilSCORM13PlayerGUI
                        . 'WHERE user_id = %s '
                        . 'AND target_id = %s '
                        . 'AND slm_id = %s ';
-                
+
                 $ilDB->manipulateF(
                     $query,
                     array('text', 'integer', 'text', 'integer'),
@@ -937,12 +948,12 @@ class ilSCORM13PlayerGUI
                     array('text', 'integer', 'integer'),
                     array($key, $this->packageId, $sco_node_id)
                 );
-                
+
                 $row = $ilDB->fetchAssoc($res);
                 if ($row["write_shared_data"] != 1) {
                     continue;
                 }
-                
+
                 //If it's writeable, then add the new value into the database
                 $res = $ilDB->manipulateF(
                     'INSERT INTO adl_shared_data (slm_id, user_id, target_id, store, cp_node_id) VALUES (%s, %s, %s, %s, %s)',
@@ -952,14 +963,14 @@ class ilSCORM13PlayerGUI
             }
         }
         echo "1";
-        exit();
+        exit;
     }
-    
-    public function specialPage()
+
+    public function specialPage(): void
     {
         global $DIC;
-        $lng = $DIC['lng'];
-        
+        $lng = $DIC->language();
+
         $specialpages = array(
             "_COURSECOMPLETE_" => "seq_coursecomplete",
             "_ENDSESSION_" => "seq_endsession",
@@ -970,22 +981,23 @@ class ilSCORM13PlayerGUI
             "_INVALIDNAVREQ_" => "seq_invalidnavreq",
             "_SEQABANDON_" => "seq_abandon",
             "_SEQABANDONALL_" => "seq_abandonall",
-            "_TOC_" => "seq_toc"
+            "_TOC_" => "seq_toc",
+            "" => ""
         );
-        
+
         $this->tpl = new ilGlobalTemplate("tpl.scorm2004.specialpages.html", false, false, "Modules/Scorm2004");
         $this->tpl->setVariable("LOCATION_STYLESHEET", ilUtil::getStyleSheetLocation());
         $this->tpl->setVariable('TXT_SPECIALPAGE', $lng->txt($specialpages[$this->page]));
-        if ($this->page != "_TOC_" && $this->page != "_SEQABANDON_" && $this->page != "_SEQABANDONALL_") {
+        if ($this->page !== "_TOC_" && $this->page !== "_SEQABANDON_" && $this->page !== "_SEQABANDONALL_") {
             $this->tpl->setVariable('CLOSE_WINDOW', $lng->txt('seq_close'));
         } else {
             $this->tpl->setVariable('CLOSE_WINDOW', "");
         }
         $this->tpl->printToStdout("DEFAULT", false);
     }
-    
-    
-    public function fetchCMIData()
+
+
+    public function fetchCMIData(): void
     {
         $data = $this->getCMIData($this->userId, $this->packageId);
         if ($this->jsMode) {
@@ -996,28 +1008,31 @@ class ilSCORM13PlayerGUI
             print(var_export($data, true));
         }
     }
-    
+
+
+    //    /**
+    //     * maps API data structure type to internal datatype on a node
+    //     * and accepts only valid values, dropping invalid ones from input
+    //     */
+    //    private function normalizeFields($table, &$node) : void
+    //    {
+    //        return;
+    //        foreach (self::$schema[$table] as $k => $v) {
+    //            $value = $node->$k;
+    //            if (isset($value) && is_string($v) && !preg_match($v, $value)) {
+    //                unset($node->$k);
+    //            }
+    //        }
+    //    }
 
     /**
-     * maps API data structure type to internal datatype on a node
-     * and accepts only valid values, dropping invalid ones from input
+     * @return array<string, array<int|string, array<array|int|string>>>
      */
-    private function normalizeFields($table, &$node)
-    {
-        return;
-        foreach (self::$schema[$table] as $k => $v) {
-            $value = $node->$k;
-            if (isset($value) && is_string($v) && !preg_match($v, $value)) {
-                unset($node->$k);
-            }
-        }
-    }
-
-    public function getCMIData($userId, $packageId)
+    public function getCMIData(int $userId, int $packageId): array
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        
+        $ilDB = $DIC->database();
+
         $i_check = 0;
         $result = array(
             'schema' => array(),
@@ -1150,11 +1165,11 @@ class ilSCORM13PlayerGUI
                 while ($row = $ilDB->fetchAssoc($res)) {
                     $tmp_result = array();
                     foreach ($row as $key => $value) {
-                        if ($k == "comment" && $key == "c_timestamp" && strpos($value, ' ') == 10) {
+                        if ($k === "comment" && $key === "c_timestamp" && strpos($value, ' ') == 10) {
                             $value = str_replace(' ', 'T', $value);
                         }
                         $tmp_result[] = $value;
-                        if ($k == "node" && $key == "additional_tables" && $i_check < $value) {
+                        if ($k === "node" && $key === "additional_tables" && $i_check < $value) {
                             $i_check = $value;
                             //							$GLOBALS['DIC']['ilLog']->write($i_check);
                         }
@@ -1166,11 +1181,13 @@ class ilSCORM13PlayerGUI
         return $result;
     }
 
-    
-    public function quoteJSONArray($a_array)
+    /**
+     * @return mixed[]|string[]
+     */
+    public function quoteJSONArray(?array $a_array): array
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
+        $ilDB = $DIC->database();
 
         if (!is_array($a_array) or !count($a_array)) {
             return array("''");
@@ -1186,34 +1203,34 @@ class ilSCORM13PlayerGUI
 
         return $a_array;
     }
-    
-    /**
-     * estimate content type for a filename by extension
-     * first do it for common static web files from external list
-     * if not found peek into file by slow php function mime_content_type()
-     * @param $filename required
-     * @return string mimetype name e.g. image/jpeg
-     */
-    public function getMimetype($filename)
-    {
-        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-        return ilObjMediaObject::getMimeType($filename);
-    }
+
+    //    /**
+    //     * estimate content type for a filename by extension
+    //     * first do it for common static web files from external list
+    //     * if not found peek into file by slow php function mime_content_type()
+    //     * @param $filename required
+    //     * @return string mimetype name e.g. image/jpeg
+    //     */
+    //    public function getMimetype($filename)
+    //    {
+    //        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+    //        return ilObjMediaObject::getMimeType($filename);
+    //    }
 
 
-    /**
-    * Get max. number of attempts allowed for this package
-    */
-    public function get_max_attempts()
-    {
-        include_once "./Modules/ScormAicc/classes/SCORM/class.ilObjSCORMInitData.php";
-        return ilObjSCORMInitData::get_max_attempts($this->packageId);
-    }
-    
-    public function get_Module_Version()
+    //    /**
+    //    * Get max. number of attempts allowed for this package
+    //    */
+    //    public function get_max_attempts()
+    //    {
+    //        include_once "./Modules/ScormAicc/classes/SCORM/class.ilObjSCORMInitData.php";
+    //        return ilObjSCORMInitData::get_max_attempts($this->packageId);
+    //    }
+
+    public function get_Module_Version(): int
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
+        $ilDB = $DIC->database();
 
         $res = $ilDB->queryF(
             'SELECT module_version FROM sahs_lm WHERE id = %s',
@@ -1221,18 +1238,18 @@ class ilSCORM13PlayerGUI
             array($this->packageId)
         );
         $row = $ilDB->fetchAssoc($res);
-        
-        return $row['module_version'];
+
+        return (int) $row['module_version'];
     }
-    
+
     /**
     * Get number of actual attempts for the user
     */
-    public function get_actual_attempts()
+    public function get_actual_attempts(): int
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilUser = $DIC['ilUser'];
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
         $val_set = $ilDB->queryF(
             'SELECT package_attempts FROM sahs_user WHERE obj_id = %s AND user_id = %s',
             array('integer','integer'),
@@ -1243,17 +1260,17 @@ class ilSCORM13PlayerGUI
         if ($attempts == null) {
             $attempts = 0;
         }
-        return $attempts;
+        return (int) $attempts;
     }
-    
+
     /**
     * Increases attempts by one and saves module_version for this package
     */
-    public function increase_attemptAndsave_module_version()
+    public function increase_attemptAndsave_module_version(): void
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilUser = $DIC['ilUser'];
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
         $res = $ilDB->queryF(
             'SELECT package_attempts,count(*) cnt FROM sahs_user WHERE obj_id = %s AND user_id = %s GROUP BY package_attempts',
             array('integer','integer'),
@@ -1281,45 +1298,36 @@ class ilSCORM13PlayerGUI
         }
     }
 
-    public function resetSharedData()
+    public function resetSharedData(): void
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
+        $ilDB = $DIC->database();
         //Reset the shared data stores if sharedDataGlobalToSystem is false
         $res = $ilDB->queryF(
-            ' 
-					  SELECT shared_data_global_to_system   
-			   	      FROM cp_package  
-			          WHERE obj_id = %s',
+            'SELECT shared_data_global_to_system FROM cp_package WHERE obj_id = %s',
             array('integer'),
             array($this->packageId)
         );
 
         $shared_global_to_sys = $ilDB->fetchObject($res)->shared_data_global_to_system;
-        
+
         $res = $ilDB->queryF(
-            '
-					  SELECT data
-					  FROM cp_suspend
-					  WHERE obj_id = %s 
-					  AND user_id = %s',
+            'SELECT data FROM cp_suspend WHERE obj_id = %s AND user_id = %s',
             array('integer', 'integer'),
             array($this->packageId, $this->userId)
         );
-        
+
         $suspended = false;
-        
-        $dat = $ilDB->fetchObject($res)->data;
-        if ($dat != null && $dat != '') {
-            $suspended = true;
+        while ($data = $ilDB->fetchAssoc($res)) {
+            $dat = $data['data'];
+            if ($dat != null && $dat != '') {
+                $suspended = true;
+            }
         }
-        
+
         if ($shared_global_to_sys == 0 && !$suspended) {
             $ilDB->manipulateF(
-                '
-				DELETE FROM adl_shared_data 
-				WHERE slm_id = %s 
-				AND user_id = %s',
+                'DELETE FROM adl_shared_data WHERE slm_id = %s AND user_id = %s',
                 array('integer', 'integer'),
                 array($this->packageId, $this->userId)
             );
@@ -1327,17 +1335,19 @@ class ilSCORM13PlayerGUI
     }
 
     //debug extentions
-    
-    private function getNodeData($sco_id, $fh)
+    /**
+     * @return mixed[]
+     */
+    private function getNodeData(string $sco_id): array
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilLog = $DIC['ilLog'];
-        
+        $ilDB = $DIC->database();
+        $ilLog = ilLoggerFactory::getLogger('sc13');
+
         $fieldList = "cmi_node.cp_node_id, cmi_node.completion_threshold, cmi_node.c_exit, cmi_node.completion_status, cmi_node.progress_measure, cmi_node.success_status, cmi_node.scaled, cmi_node.session_time," .
                      "cmi_node.c_min, cmi_node.c_max, cmi_node.c_raw, cmi_node.location, cmi_node.suspend_data, cmi_node.scaled_passing_score, cmi_node.total_time";
-        
-        
+
+
         $res = $ilDB->queryF(
             '
 					  SELECT ' . $fieldList . '
@@ -1350,12 +1360,11 @@ class ilSCORM13PlayerGUI
             array('integer','text','integer'),
             array($this->packageId, $sco_id, $this->userId)
         );
-        $row = $ilDB->fetchAssoc($res);
-        $ilLog->write("DEBUG SQL" . $row);
-        return $row;
+        //        $ilLog->write("DEBUG SQL" . $row);
+        return $ilDB->fetchAssoc($res);
     }
 
-    private function logTmpName()
+    private function logTmpName(): string
     {
         $filename = $this->logDirectory() . "/" . $this->packageId . ".tmp";
         if (!file_exists($filename)) {
@@ -1366,8 +1375,8 @@ class ilSCORM13PlayerGUI
         }
         return $filename;
     }
-    
-    private function summaryFileName()
+
+    private function summaryFileName(): string
     {
         $filename = $this->logDirectory() . "/" . $this->packageId . "_summary_" . $this->get_actual_attempts();
         $adder = "0";
@@ -1378,7 +1387,7 @@ class ilSCORM13PlayerGUI
             $adder = (string) $i;
         }
         $retname = $filename . "_" . $adder . $suffix;
-        
+
         if (!file_exists($retname)) {
             umask(0000);
             $fHandle = fopen($retname, 'a') or die("can't open file");
@@ -1387,11 +1396,11 @@ class ilSCORM13PlayerGUI
         }
         return $retname;
     }
-    
-    private function logFileName()
+
+    private function logFileName(): string
     {
         global $DIC;
-        $lng = $DIC['lng'];
+        $lng = $DIC->language();
         $lng->loadLanguageModule("scormdebug");
 
         $filename = $this->logDirectory() . "/" . $this->packageId . "_" . $this->get_actual_attempts();
@@ -1549,7 +1558,7 @@ class ilSCORM13PlayerGUI
         return $filename;
     }
 
-    public function getDataDirectory2()
+    public function getDataDirectory2(): string
     {
         $webdir = str_replace("/ilias.php", "", $_SERVER["SCRIPT_NAME"]);
         //load ressources always with absolute URL..relative URLS fail on innersco navigation on certain browsers
@@ -1557,29 +1566,31 @@ class ilSCORM13PlayerGUI
         return $lm_dir;
     }
 
-    private function logDirectory()
+    private function logDirectory(): string
     {
         //		$logDir=ilUtil::getDataDir()."/SCORMlogs"."/lm_".$this->packageId;
         //		if (!file_exists($logDir)) ilUtil::makeDirParents($logDir);
         $logDir = $this->slm->getDataDirectory() . "/logs";
         if (!file_exists($logDir)) {
-            ilUtil::makeDir($logDir);
+            ilFileUtils::makeDir($logDir);
         }
         return $logDir;
     }
 
-    public function openLog()
+    public function openLog(): void
     {
-        $filename = $_GET['logFile'];
+        global $DIC;
+        $filename = ilUtil::stripSlashes($DIC->http()->wrapper()->query()->retrieve('logFile', $DIC->refinery()->kindlyTo()->string()));
         //Header
         header('Content-Type: text/html; charset=UTF-8');
         echo file_get_contents($this->logDirectory() . "/" . $filename);
         exit;
     }
-    
-    public function downloadLog()
+
+    public function downloadLog(): void
     {
-        $filename = $_GET['logFile'];
+        global $DIC;
+        $filename = ilUtil::stripSlashes($DIC->http()->wrapper()->query()->retrieve('logFile', $DIC->refinery()->kindlyTo()->string()));
         $filename = str_replace('/', '', $filename);
         //Header
         header("Expires: 0");
@@ -1593,7 +1604,10 @@ class ilSCORM13PlayerGUI
         exit;
     }
 
-    private function getLogFileList($s_delete, $s_download, $s_open)
+    /**
+     * @return array<int, array<string, string>>
+     */
+    private function getLogFileList(string $s_delete, string $s_download, string $s_open): array
     {
         $data = array();
         foreach (new DirectoryIterator($this->logDirectory()) as $fileInfo) {
@@ -1605,36 +1619,36 @@ class ilSCORM13PlayerGUI
             $fnameparts = preg_split('/_/', $parts['filename'], -1, PREG_SPLIT_NO_EMPTY);
             $deleteUrl = '&nbsp;<a href=#' . " onclick=\"javascript:deleteFile('" . $item['filename'] . "');\">" . $s_delete . "</a>";
             //no delete for most recent file
-            if ($this->get_actual_attempts() == $fnameparts[1]) {
+            if (isset($fnameparts[1]) && (string) $this->get_actual_attempts() == $fnameparts[1]) {
                 $deleteUrl = "";
             }
-            
-            $urlDownload = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=downloadLog&ref_id=' . $_GET["ref_id"] . '&logFile=' . $fileInfo->getFilename();
-            $urlOpen = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=openLog&ref_id=' . $_GET["ref_id"] . '&logFile=' . $fileInfo->getFilename();
+
+            $urlDownload = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=downloadLog&ref_id=' . $this->ref_id . '&logFile=' . $fileInfo->getFilename();
+            $urlOpen = 'ilias.php?baseClass=ilSAHSPresentationGUI' . '&cmd=openLog&ref_id=' . $this->ref_id . '&logFile=' . $fileInfo->getFilename();
             $item['date'] = date('Y/m/d H:i:s', $fileInfo->getCTime());
-            if ($parts['extension'] == "html") {
+            if ($parts['extension'] === "html") {
                 $item['action'] = $deleteUrl . "&nbsp;<a href=" . $urlDownload . ">" . $s_download . "</a>&nbsp;<a target=_new href=" . $urlOpen . ">" . $s_open . "</a>";
             } else {
                 $item['action'] = $deleteUrl . "&nbsp;<a href=" . $urlDownload . ">" . $s_download . "</a>";
             }
-            if ($parts['extension'] == "html" || $parts['extension'] == "csv") {
-                array_push($data, $item);
+            if ($parts['extension'] === "html" || $parts['extension'] === "csv") {
+                $data[] = $item;
             }
         }
         usort($data, "datecmp");
         return $data;
     }
-    
-    public function liveLogContent()
+
+    public function liveLogContent(): void
     {
         header('Content-Type: text/html; charset=UTF-8');
         print file_get_contents($this->logFileName() . ".html");
     }
-    
-    public function debugGUI()
+
+    public function debugGUI(): void
     {
         global $DIC;
-        $lng = $DIC['lng'];
+        $lng = $DIC->language();
         $lng->loadLanguageModule("scormdebug");
 
         /*		if ($_POST['password'] == $this->slm->getDebugPw()) {
@@ -1645,7 +1659,7 @@ class ilSCORM13PlayerGUI
                     $this->tpl->setVariable('SUBMIT', $lng->txt("debugwindow_submit"));
                     $this->tpl->setVariable('CANCEL', $lng->txt("debugwindow_cancel"));
                     $this->tpl->setVariable('PASSWORD_ENTER', $lng->txt("debugwindow_password_enter"));
-                    $this->tpl->setVariable('DEBUG_URL','ilias.php?baseClass=ilSAHSPresentationGUI' .'&cmd=debugGUI&ref_id='.$_GET["ref_id"]);
+                    $this->tpl->setVariable('DEBUG_URL','ilias.php?baseClass=ilSAHSPresentationGUI' .'&cmd=debugGUI&ref_id='.$this->ref_id);
                 } else {*/
         $this->tpl = new ilGlobalTemplate("tpl.scorm2004.debug.html", false, false, "./Modules/Scorm2004");
         $this->tpl->setVariable('CONSOLE', $lng->txt("debugwindow_console"));
@@ -1667,24 +1681,24 @@ class ilSCORM13PlayerGUI
         $logfile = $this->logFileName() . ".html";
         $this->tpl->setVariable('LOGFILE', $this->logFileName() . ".html");
         $this->tpl->setVariable('FILES_DATA', json_encode($this->getLogFileList($lng->txt("debugwindow_delete"), $lng->txt("debugwindow_download"), $lng->txt("debugwindow_open"))));
-            
-        // path to latest yui distribution
-        include_once "Services/YUI/classes/class.ilYuiUtil.php";
         $this->tpl->setVariable('PATH_YUI', ilYuiUtil::getLocalPath());
         //}
         echo $this->tpl->get("DEFAULT", true);
     }
-    
-    private function getLogTemplate()
+
+    private function getLogTemplate(): \ilTemplate
     {
         return new ilTemplate("tpl.scorm2004.debugtxt.txt", true, true, "Modules/Scorm2004");
     }
-    
-    private function getDebugValues($test_sco = false)
+
+    /**
+     * @return mixed[]
+     */
+    private function getDebugValues(?bool $test_sco = false): array
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
-        $ilLog = $DIC['ilLog'];
+        $ilDB = $DIC->database();
+        $ilLog = ilLoggerFactory::getLogger('sc13');
         $ini_array = null;
         $dvalues = array();
         /*
@@ -1707,110 +1721,111 @@ class ilSCORM13PlayerGUI
         }
         foreach ($ini_array as $key => $value) {
             if ($value == 1) {
-                array_push($dvalues, $key);
+                $dvalues[] = $key;
             }
         }
         return $dvalues;
     }
-    
-    public function postLogEntry()
+
+    public function postLogEntry(): void
     {
         global $DIC;
-        $ilLog = $DIC['ilLog'];
-        $lng = $DIC['lng'];
+        $ilLog = ilLoggerFactory::getLogger('sc13');
+        $lng = $DIC->language();
         $lng->loadLanguageModule("scormdebug");
-        
+
         $logdata = json_decode(file_get_contents('php://input'));
         $filename = $this->logFileName();
         $tmp_name = $this->logTmpName();
-                
+
         $fh_txt = fopen($filename . ".html", 'a') or die("can't open txt file");
         $fh_csv = fopen($filename . ".csv", 'a') or die("can't open csv file");
         $fh_tmp = fopen($tmp_name, 'r') or die("can't open tmp file");
-        
+
         //init tmp file
         if (filesize($tmp_name) > 0) {
-            $tmp_content = unserialize(fread($fh_tmp, filesize($tmp_name)));
+            $tmp_content = unserialize(fread($fh_tmp, filesize($tmp_name)));//Check Options - This may causes security issues if the serialized classess arent specified.
         } else {
             $tmp_content = null;
         }
-        
+
         fclose($fh_tmp);
-         
-        //reopen for writing
-        $fh_tmp2 = fopen($tmp_name, 'w') or die("can't open tmp file");
-
-        
-        //write tmp
-        $tmp_content[$logdata->scoid][$logdata->key]['value'] = $logdata->value;
-        $tmp_content[$logdata->scoid][$logdata->key]['status'] = $logdata->result;
-        $tmp_content[$logdata->scoid][$logdata->key]['action'] = $logdata->action;
-
-        fwrite($fh_tmp2, serialize($tmp_content));
-        fclose($fh_tmp2);
 
         $timestamp = date("d.m.Y H:i", time());
 
+        if ($logdata->action != "SUMMARY") {
+            //reopen for writing
+            $fh_tmp2 = fopen($tmp_name, 'w') or die("can't open tmp file");
 
-        $errorcode = $logdata->errorcode;
-        $fixedFailure = false;
-        $toleratedFailure = false;
-        $extraErrorDescription = "";
-        if ($errorcode == 200000) {
-            $errorcode = 0;
-            $toleratedFailure = true;
-            $extraErrorDescription = "tolerated failure";
-        }
-        if ($errorcode > 99999) {
-            $errorcode -= 100000;
-            $fixedFailure = true;
-            $extraErrorDescription = " failure corrected by ILIAS";
-        }
-        if (strpos($logdata->action, "ANALYZE") === false) {
-            $errorDescriptions = array("0" => "",
-                "101" => "General Exeption",
-                "102" => "General Initialization Failure",
-                "103" => "Already Initialized",
-                "104" => "Content Instance Terminated",
-                "111" => "General Termination Failure",
-                "112" => "Termination Before Initialization",
-                "113" => "Termination After Termination",
-                "122" => "Retrieve Data Before Initialization",
-                "123" => "Retrieve Data After Termination",
-                "132" => "Store Data Before Initialization",
-                "133" => "Store Data After Termination",
-                "142" => "Commit Before Initialization",
-                "143" => "Commit After Termination",
-                "201" => "General Argument Error",
-                "301" => "General Get Failure",
-                "351" => "General Set Failure",
-                "391" => "General Commit Failure",
-                "401" => "Undefined Data Model Element",
-                "402" => "Unimplemented Data Model Element",
-                "403" => "Data Model Element Value Not Initialized",
-                "404" => "Data Model Element Is Read Only",
-                "405" => "Data Model Element Is Write Only",
-                "406" => "Data Model Element Type Mismatch",
-                "407" => "Data Model Element Value Out Of Range",
-                "408" => "Data Model Dependency Not Established");
-            $csv_string = $this->packageId . ';"'
-                . $logdata->scoid . '";"'
-                . $logdata->scotitle . '";'
-                . date("d.m.Y H:i", time()) . ';"'
-                . $logdata->action . '";"'
-                . $logdata->key . '";"'
-                . str_replace("\"", "\"\"", $logdata->value) . '";"'
-                . str_replace("\"", "\"\"", $logdata->result) . '";'
-                . $errorcode . ';'
-                . $logdata->timespan . ';"'
-                . $errorDescriptions[$errorcode] . $extraErrorDescription . '"' . "\n";
-            fwrite($fh_csv, $csv_string);
+            //write tmp
+            $tmp_content[$logdata->scoid][$logdata->key]['value'] = $logdata->value;
+            $tmp_content[$logdata->scoid][$logdata->key]['status'] = $logdata->result;
+            $tmp_content[$logdata->scoid][$logdata->key]['action'] = $logdata->action;
+
+            fwrite($fh_tmp2, serialize($tmp_content));
+            fclose($fh_tmp2);
+
+            $errorcode = (int) $logdata->errorcode;
+            $fixedFailure = false;
+            $toleratedFailure = false;
+            $extraErrorDescription = "";
+            if ($errorcode == 200000) {
+                $errorcode = 0;
+                $toleratedFailure = true;
+                $extraErrorDescription = "tolerated failure";
+            }
+            if ($errorcode > 99999) {
+                $errorcode -= 100000;
+                $fixedFailure = true;
+                $extraErrorDescription = " failure corrected by ILIAS";
+            }
+            if (strpos($logdata->action, "ANALYZE") === false) {
+                $errorDescriptions = array("0" => "",
+                                           "101" => "General Exeption",
+                                           "102" => "General Initialization Failure",
+                                           "103" => "Already Initialized",
+                                           "104" => "Content Instance Terminated",
+                                           "111" => "General Termination Failure",
+                                           "112" => "Termination Before Initialization",
+                                           "113" => "Termination After Termination",
+                                           "122" => "Retrieve Data Before Initialization",
+                                           "123" => "Retrieve Data After Termination",
+                                           "132" => "Store Data Before Initialization",
+                                           "133" => "Store Data After Termination",
+                                           "142" => "Commit Before Initialization",
+                                           "143" => "Commit After Termination",
+                                           "201" => "General Argument Error",
+                                           "301" => "General Get Failure",
+                                           "351" => "General Set Failure",
+                                           "391" => "General Commit Failure",
+                                           "401" => "Undefined Data Model Element",
+                                           "402" => "Unimplemented Data Model Element",
+                                           "403" => "Data Model Element Value Not Initialized",
+                                           "404" => "Data Model Element Is Read Only",
+                                           "405" => "Data Model Element Is Write Only",
+                                           "406" => "Data Model Element Type Mismatch",
+                                           "407" => "Data Model Element Value Out Of Range",
+                                           "408" => "Data Model Dependency Not Established"
+                );
+                $csv_string = $this->packageId . ';"'
+                    . $logdata->scoid . '";"'
+                    . $logdata->scotitle . '";'
+                    . date("d.m.Y H:i", time()) . ';"'
+                    . $logdata->action . '";"'
+                    . $logdata->key . '";"'
+                    . str_replace("\"", "\"\"", $logdata->value) . '";"'
+                    . str_replace("\"", "\"\"", $logdata->result) . '";'
+                    . $errorcode . ';'
+                    . $logdata->timespan . ';"'
+                    . $errorDescriptions[(string) $errorcode] . $extraErrorDescription . '"' . "\n";
+                fwrite($fh_csv, $csv_string);
+            }
         }
 
         $sqlwrite = false;
-        if ($logdata->action == "Commit" || $logdata->action == "Terminate") {
+        if ($logdata->action === "Commit" || $logdata->action === "Terminate") {
             $sqlwrite = true;
-            $sql_data = $this->getNodeData($logdata->scoid, $fh_csv);
+            $sql_data = $this->getNodeData($logdata->scoid);
             if (count($sql_data) != 0) {
                 foreach ($sql_data as $key => $value) {
                     $sql_string = $this->packageId . ';"'
@@ -1818,20 +1833,20 @@ class ilSCORM13PlayerGUI
                         . $logdata->scotitle . '";'
                         . $timestamp . ';"SQL";"'
                         . $key . '";"'
-                        . str_replace("\"", "\"\"", $value) . '";;;;' . "\n";
+                        . str_replace("\"", "\"\"", (string) $value) . '";;;;' . "\n";
                     fwrite($fh_csv, $sql_string);
                 }
             }
         }
-        
+
         //delete files
-        if ($logdata->action == "DELETE") {
+        if ($logdata->action === "DELETE") {
             $filename = $logdata->value;
             $path = $this->logDirectory() . "/" . $filename;
             unlink($path);
             return;
         }
-        
+
         //write TXT
         $logtpl = $this->getLogTemplate();
         $color = "red";
@@ -1840,10 +1855,10 @@ class ilSCORM13PlayerGUI
 
         switch ($logdata->action) {
             case 'SetValue':
-                if ($logdata->result == "true" && $errorcode == 0) {
+                if ($logdata->result === "true" && $errorcode == 0) {
                     $color = "green";
                 }
-                if ($color == "green" && $logdata->key == "cmi.exit" && $logdata->value != "suspend") {
+                if ($color === "green" && $logdata->key === "cmi.exit" && $logdata->value !== "suspend") {
                     $color = "orange";
                 }
                 if ($fixedFailure == false && $errorcode != 406) {
@@ -1933,8 +1948,8 @@ class ilSCORM13PlayerGUI
                     $logtpl->setVariable("VALUE", "");
                 } else {
                     $tmpvalue = "SetValue(\"" . implode("\", ... ),<br/>SetValue(\"", $logdata->value) . "\", ... )";
-                    for ($i = 0; $i < count($ArGetValues); $i++) {
-                        $tmpvalue = str_replace("SetValue(\"cmi." . $ArGetValues[$i] . "\", ... )", "GetValue(\"cmi." . $ArGetValues[$i] . "\")", $tmpvalue);
+                    foreach ($ArGetValues as $value) {
+                        $tmpvalue = str_replace("SetValue(\"cmi." . $value . "\", ... )", "GetValue(\"cmi." . $value . "\")", $tmpvalue);
                     }
                     $logtpl->setVariable("ANALYZE_SUMMARY", $lng->txt("missing_API-calls"));
                     $logtpl->setVariable("VALUE", $tmpvalue);
@@ -1953,8 +1968,8 @@ class ilSCORM13PlayerGUI
                     $logtpl->setVariable("VALUE", "");
                 } else {
                     $tmpvalue = "SetValue(\"" . implode("\", ... ),<br/>SetValue(\"", $logdata->value) . "\", ... )";
-                    for ($i = 0; $i < count($ArGetValues); $i++) {
-                        $tmpvalue = str_replace("SetValue(\"cmi." . $ArGetValues[$i] . "\", ... )", "GetValue(\"cmi." . $ArGetValues[$i] . "\")", $tmpvalue);
+                    foreach ($ArGetValues as $value) {
+                        $tmpvalue = str_replace("SetValue(\"cmi." . $value . "\", ... )", "GetValue(\"cmi." . $value . "\")", $tmpvalue);
                     }
                     $logtpl->setVariable("ANALYZE_SUMMARY", $lng->txt("missing_API-calls"));
                     $logtpl->setVariable("VALUE", $tmpvalue);
@@ -1977,7 +1992,7 @@ class ilSCORM13PlayerGUI
                 $color = "orange";
                 break;
         }
-        if ($logdata->action == 'SetValue' || $logdata->action == 'GetValue') {
+        if ($logdata->action === 'SetValue' || $logdata->action === 'GetValue') {
             $logtpl->setCurrentBlock($logdata->action);
             $logtpl->setVariable("ACTION", $logdata->action);
             $logtpl->setVariable("TIMESPAN", $logdata->timespan);
@@ -1987,15 +2002,15 @@ class ilSCORM13PlayerGUI
             $logtpl->setVariable("ERRORCODE", $errorcode);
             $debugfields = $this->getDebugValues(true);
             $importantkey = 0;
-            for ($i = 0; $i < count($debugfields) ; $i++) {
-                if ($logdata->key == $debugfields[$i]) {
+            foreach ($debugfields as $value) {
+                if ($logdata->key == $value) {
                     $importantkey = 1;
                 }
             }
             $logtpl->setVariable("IMPORTANTKEY", "" . $importantkey);
             $logtpl->setVariable("COLOR", $color);
             $logtpl->parseCurrentBlock();
-        } elseif ($logdata->action != 'INFO' && $logdata->action != 'ANALYZE' && $logdata->action != 'ANALYZETEST' && $logdata->action != 'SUMMARY' && $logdata->action != 'COMMENT' && $logdata->action != 'GetDiagnostic' && $logdata->action != 'GetLastError') {
+        } elseif ($logdata->action !== 'INFO' && $logdata->action !== 'ANALYZE' && $logdata->action !== 'ANALYZETEST' && $logdata->action !== 'SUMMARY' && $logdata->action !== 'COMMENT' && $logdata->action !== 'GetDiagnostic' && $logdata->action !== 'GetLastError') {
             $logtpl->setCurrentBlock("defaultCall");
             $logtpl->setVariable("ACTION", $logdata->action);
             $logtpl->setVariable("TIMESPAN", $logdata->timespan);
@@ -2007,7 +2022,7 @@ class ilSCORM13PlayerGUI
             $logtpl->setVariable("COLOR", $color);
             $logtpl->parseCurrentBlock();
         }
-        
+
         /*
         if ($sqlwrite == true) {
             $ilLog->write("SQL WRITE");
@@ -2016,46 +2031,46 @@ class ilSCORM13PlayerGUI
             $logtpl->parseCurrentBlock();
         }
         */
-        
+
         //create summary
-        if ($logdata->action == "SUMMARY") {
+        if ($logdata->action === "SUMMARY") {
             $this->createSummary($tmp_content);
         }
-        
+
         fwrite($fh_txt, $logtpl->get());
         fclose($fh_txt);
         fclose($fh_csv);
     }
 
-    private function getStructureFlat($data)
+    private function getStructureFlat(array $data): void
     {
-        for ($i = 0; $i < count($data) ; $i++) {
+        foreach ($data as $i => $value) {
             $element = array();
-            $element['title'] = $data[$i]['title'];
-            $element['id'] = $data[$i]['id'];
-            if ($data[$i]['sco'] == 1) {
+            $element['title'] = $value['title'];
+            $element['id'] = $value['id'];
+            if ($value['sco'] == 1) {
                 $element['sco'] = "sco";
             } else {
-                $element['sco'] = "assset";
+                $element['sco'] = "asset";
             }
-            if ($data[$i]['href'] != null) {
-                array_push($this->flat_structure, $element);
+            if ($value['href'] != null) {
+                $this->flat_structure[] = $element;
             }
-            if ($data[$i]['item'] != null) {
-                $this->getStructureFlat($data[$i]['item']);
+            if (isset($value['item']) && $value['item'] != null) {
+                $this->getStructureFlat($value['item']);
             }
         }
     }
 
-    private function createSummary($api_data)
+    private function createSummary(array $api_data): void
     {
         global $DIC;
-        $ilDB = $DIC['ilDB'];
+        $ilDB = $DIC->database();
 
         $csv_data = null;
         //csv columns
         $columns_fixed = array('id','title','type','attempted');
-    
+
         $ini_data = parse_ini_file("./Modules/Scorm2004/scripts/rtemain/debug_default.ini", true);
         $ini_array = $ini_data['summary'];
         $colums_variable = array();
@@ -2063,54 +2078,55 @@ class ilSCORM13PlayerGUI
 
         foreach ($ini_array as $key => $value) {
             if ($value == 1) {
-                array_push($colums_variable, $key);
-                array_push($api_keys, $key);
-                array_push($colums_variable, "Status");
+                $colums_variable[] = $key;
+                $api_keys[] = $key;
+                $colums_variable[] = "Status";
             }
         }
-    
+
         $header_array = array_merge($columns_fixed, $colums_variable);
 
         $csv_header = implode(";", $header_array);
-    
+
         //get strcuture
         $res = $ilDB->queryF(
             'SELECT jsdata FROM cp_package WHERE obj_id = %s',
             array('integer'),
             array($this->packageId)
         );
-    
-        $packageData = $ilDB->fetchAssoc($res);
-                
-        $structure = json_decode($packageData['jsdata'], true);
-        
-    
-        $this->flat_structure = array();  //used for recursion
-        $this->getStructureFlat($structure['item']['item']);
 
-        foreach ($this->flat_structure as $tree_element) {
-            $csv_data = $csv_data . $tree_element['id'] . ";" . $tree_element['title'] . ";" . $tree_element['sco'] . ";";
-            if ($api_data[$tree_element['id']] != null) {
-                $csv_data = $csv_data . "X" . ";";
-            } else {
-                $csv_data = $csv_data . ";";
-            }
-        
-            //write api data
-            $id = $tree_element['id'];
-            foreach ($api_keys as $api_element) {
-                if ($api_data[$id] != null) {
-                    if ($api_data[$id][$api_element] != null) {
-                        $csv_data = $csv_data . $api_data[$id][$api_element]['value'] . ";" . $api_data[$id][$api_element]['status'] . ";";
-                    } else {
-                        $csv_data = $csv_data . ";;";
+        $packageData = $ilDB->fetchAssoc($res);
+
+        $structure = json_decode($packageData['jsdata'], true);
+
+
+        $this->flat_structure = array();  //used for recursion
+        if (isset($structure['item']) && isset($structure['item']['item'])) {
+            $this->getStructureFlat($structure['item']['item']);
+
+            foreach ($this->flat_structure as $tree_element) {
+                $csv_data = $csv_data . $tree_element['id'] . ";" . $tree_element['title'] . ";" . $tree_element['sco'] . ";";
+                if (isset($api_data[$tree_element['id']])) {
+                    $csv_data = $csv_data . "X" . ";";
+                } else {
+                    $csv_data = $csv_data . ";";
+                }
+
+                //write api data
+                $id = $tree_element['id'];
+                foreach ($api_keys as $api_element) {
+                    if (isset($api_data[$id])) {
+                        if (isset($api_data[$id][$api_element])) {
+                            $csv_data = $csv_data . $api_data[$id][$api_element]['value'] . ";" . $api_data[$id][$api_element]['status'] . ";";
+                        } else {
+                            $csv_data = $csv_data . ";;";
+                        }
                     }
                 }
+                $csv_data = $csv_data . "\n";
             }
-            $csv_data = $csv_data . "\n";
         }
-    
-        $fh = fopen($this->summaryFileName(), "w");
+        $fh = fopen($this->summaryFileName(), "wb"); //changed from w to wb
         fwrite($fh, $csv_header . "\n" . $csv_data);
         fclose($fh);
         unlink($this->logTmpName());
@@ -2121,21 +2137,21 @@ class ilSCORM13PlayerGUI
 
     // function get_last_visited($a_obj_id, $a_user_id)
     // {
-        // global $DIC;
-        // $ilDB = $DIC['ilDB'];
-        // $val_set = $ilDB->queryF('SELECT last_visited FROM sahs_user WHERE obj_id = %s AND user_id = %s',
-        // array('integer','integer'),
-        // array($a_obj_id,$a_user_id));
-        
-        // $val_rec = $ilDB->fetchAssoc($val_set);
-        // return $val_rec["last_visited"];
+    // global $DIC;
+    // $ilDB = $DIC->database();
+    // $val_set = $ilDB->queryF('SELECT last_visited FROM sahs_user WHERE obj_id = %s AND user_id = %s',
+    // array('integer','integer'),
+    // array($a_obj_id,$a_user_id));
+
+    // $val_rec = $ilDB->fetchAssoc($val_set);
+    // return $val_rec["last_visited"];
     // }
 }
 
-function datecmp($a, $b)
+function datecmp(array $a, array $b): int
 {
     if (strtotime($a['date']) == strtotime($b['date'])) {
         return 0;
     }
-    return (strtotime($a['date']) < strtotime($b['date'])) ? 1 :-1;
+    return (strtotime($a['date']) < strtotime($b['date'])) ? 1 : -1;
 }

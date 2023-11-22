@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Field\Section;
+
 /**
  * Example showing how sections can be used to attach transformation and constraints on
  * multiple fields at once. Note that sections have a standard way of displaying
@@ -44,7 +49,7 @@ function base()
     //Step 4, implement some form data processing.
     if ($request->getMethod() == "POST") {
         $form = $form->withRequest($request);
-        $result = $form->getData()[0];
+        $result = $form->getData()[0] ?? "";
     } else {
         $result = "No result yet.";
     }

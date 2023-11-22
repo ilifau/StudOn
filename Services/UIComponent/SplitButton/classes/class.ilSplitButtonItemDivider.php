@@ -1,19 +1,28 @@
 <?php
-/* Copyright (c) 1998-2015 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/UIComponent/SplitButton/interfaces/interface.ilSplitButtonSeparatorMenuItem.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilSplitButtonItemDivider
  * @author Michael Jansen <mjansen@databay.de>
- * @ingroup ServicesUIComponent
  */
 class ilSplitButtonItemDivider implements ilSplitButtonSeparatorMenuItem
 {
-    /**
-     * @return string
-     */
-    public function getContent()
+    public function getContent(): string
     {
         return '';
     }

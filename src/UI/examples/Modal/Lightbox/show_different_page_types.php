@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Modal\Lightbox;
+
 function show_different_page_types()
 {
     global $DIC;

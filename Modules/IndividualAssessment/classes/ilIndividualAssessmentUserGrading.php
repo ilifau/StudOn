@@ -1,63 +1,40 @@
 <?php
-/* Copyright (c) 2020 Daniel Weise <daniel.weise@concepts-and-training.de> Extended GPL, see docs/LICENSE */
 
 declare(strict_types=1);
 
-use \ILIAS\UI\Component\Input\Field;
-use \ILIAS\Refinery\Factory as Refinery;
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\UI\Component\Input\Field;
+use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Data\Factory as DataFactory;
+use ILIAS\FileUpload\Handler\AbstractCtrlAwareUploadHandler;
 
 class ilIndividualAssessmentUserGrading
 {
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $record;
-
-    /**
-     * @var string
-     */
-    protected $internal_note;
-
-    /**
-     * @var ?string
-     */
-    protected $file;
-
-    /**
-     * @var bool
-     */
-    protected $is_file_visible;
-
-    /**
-     * @var int
-     */
-    protected $learning_progress;
-
-    /**
-     * @var string
-     */
-    protected $place;
-
-    /**
-     * @var DateTimeImmutable|null
-     */
-    protected $event_time;
-
-    /**
-     * @var bool
-     */
-    protected $notify;
-
-    /**
-     * @var bool
-     */
-    protected $finalized;
+    protected string $name;
+    protected string $record;
+    protected string $internal_note;
+    protected ?string $file;
+    protected bool $is_file_visible;
+    protected int $learning_progress;
+    protected string $place;
+    protected ?DateTimeImmutable $event_time;
+    protected bool $notify;
+    protected bool $finalized;
 
     public function __construct(
         string $name,
@@ -83,69 +60,69 @@ class ilIndividualAssessmentUserGrading
         $this->finalized = $finalized;
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getRecord() : string
+    public function getRecord(): string
     {
         return $this->record;
     }
 
-    public function getInternalNote() : string
+    public function getInternalNote(): string
     {
         return $this->internal_note;
     }
 
-    public function getFile() : ?string
+    public function getFile(): ?string
     {
         return $this->file;
     }
 
-    public function hasFile() : bool
+    public function hasFile(): bool
     {
         return !empty($this->file);
     }
 
-    public function isFileVisible() : bool
+    public function isFileVisible(): bool
     {
         return $this->is_file_visible;
     }
 
-    public function getLearningProgress() : int
+    public function getLearningProgress(): int
     {
         return $this->learning_progress;
     }
 
-    public function getPlace() : string
+    public function getPlace(): string
     {
         return $this->place;
     }
 
-    public function getEventTime() : ?DateTimeImmutable
+    public function getEventTime(): ?DateTimeImmutable
     {
         return $this->event_time;
     }
 
-    public function isNotify() : bool
+    public function isNotify(): bool
     {
         return $this->notify;
     }
 
-    public function isFinalized() : bool
+    public function isFinalized(): bool
     {
         return $this->finalized;
     }
 
-    public function withFinalized(bool $finalize) : ilIndividualAssessmentUserGrading
+    public function withFinalized(bool $finalize): ilIndividualAssessmentUserGrading
     {
         $clone = clone $this;
         $clone->finalized = $finalize;
         return $clone;
     }
 
-    public function withFile(?string $file) : ilIndividualAssessmentUserGrading
+    public function withFile(?string $file): ilIndividualAssessmentUserGrading
     {
         $clone = clone $this;
         $clone->file = $file;
@@ -155,14 +132,15 @@ class ilIndividualAssessmentUserGrading
     public function toFormInput(
         Field\Factory $input,
         DataFactory $data_factory,
-        \ilLanguage $lng,
+        ilLanguage $lng,
         Refinery $refinery,
+        AbstractCtrlAwareUploadHandler $file_handler,
+        \ILIAS\Data\DateFormat\DateFormat $date_format,
         array $grading_options,
         bool $may_be_edited = true,
         bool $place_required = false,
-        bool $amend = false,
-        ilIndividualAssessmentMemberGUI $file_handler
-    ) : Field\Input {
+        bool $amend = false
+    ): Field\Input {
         $name = $input
             ->text($lng->txt('name'), '')
             ->withDisabled(true)
@@ -183,7 +161,7 @@ class ilIndividualAssessmentUserGrading
 
         $file = $input
             ->file($file_handler, $lng->txt('iass_upload_file'), $lng->txt('iass_file_dropzone'))
-            ->withValue($this->hasFile() ? [$this->getFile()] : null)
+            ->withValue($this->hasFile() ? [$this->getFile()] : [])
         ;
 
         $file_visible = $input
@@ -194,7 +172,7 @@ class ilIndividualAssessmentUserGrading
 
         $learning_progress = $input
             ->select($lng->txt('grading'), $grading_options)
-            ->withValue($this->getLearningProgress() ? $this->getLearningProgress() : ilIndividualAssessmentMembers::LP_IN_PROGRESS)
+            ->withValue($this->getLearningProgress() ?: ilIndividualAssessmentMembers::LP_IN_PROGRESS)
             ->withDisabled(!$may_be_edited)
             ->withRequired(true)
         ;
@@ -208,13 +186,16 @@ class ilIndividualAssessmentUserGrading
 
         $event_time = $input
             ->dateTime($lng->txt('iass_event_time'))
+            ->withUseTime(true)
+            ->withFormat($date_format)
             ->withRequired($place_required)
             ->withDisabled(!$may_be_edited)
         ;
 
         if (!is_null($this->getEventTime())) {
-            $format = $data_factory->dateFormat()->standard()->toString();
-            $event_time = $event_time->withValue($this->getEventTime()->format($format));
+            $event_time = $event_time->withValue(
+                $this->getEventTime()->format($date_format->toString() . ' HH:mm')
+            );
         }
 
         $notify = $input
@@ -255,7 +236,7 @@ class ilIndividualAssessmentUserGrading
                     $finalized = $values['finalized'];
                 }
 
-                $file = $this->getFile();
+                $file = null;
                 if (
                     isset($values['file'][0]) &&
                     trim($values['file'][0]) != ''

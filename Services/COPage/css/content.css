@@ -234,7 +234,7 @@ div.ilc_iim_ContentPopup {
   border-style: solid;
   border-width: 2px;
   background-color: #FFFFFF;
-  border-color: #757575;
+  border-color: #A8A8A8;
 }
 div.ilc_qover_Correct {
   background-repeat: no-repeat;
@@ -525,8 +525,6 @@ div.ilc_page_cont_PageContainer {
   border-style: solid;
 }
 div.ilc_page_frame_PageFrame {
-  padding-right: 15px;
-  padding-left: 15px;
   color: #2e3c50;
 }
 div.ilc_section_Remark,
@@ -583,13 +581,12 @@ div.ilc_question_Standard {
   background-repeat: no-repeat;
   padding-top: 30px;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.12);
-  background-image: url("../../../libs/ilias/Style/basic_style/images/question_mark_transp_big.svg");
   margin-bottom: 10px;
   margin-top: 20px;
   color: #2e3c50;
   padding-bottom: 60px;
   padding-left: 30px;
-  padding-right: 160px;
+  padding-right: 30px;
   background-color: #fbfbfb;
   background-position: right 15px;
 }
@@ -628,9 +625,7 @@ body.ilc_text_block_TableContent {
 }
 div.ilc_qtitle_Title {
   font-weight: normal;
-  /* fau: contentStyle: normal question title */
-  font-size: 100%;
-  /* fau. */
+  font-size: 140%;
   margin-bottom: 20px;
 }
 div.ilc_sco_title_Title {
@@ -673,7 +668,7 @@ div.ilc_va_icont_VAccordICont {
   background-color: #FFFFFF;
 }
 div.ilc_va_ihead_VAccordIHead {
-  /* fau: contentStyle - avoid uppcase in accordions */
+  text-transform: uppercase;
   font-size: 20px;
   padding-right: 3px;
   background-color: #f9f9f9;
@@ -821,7 +816,7 @@ span.ilc_text_inline_Emph {
 }
 span.ilc_qetcorr_ErrorTextCorrected {
   text-decoration: line-through;
-  color: #6f6f6f;
+  color: #7c7c7c;
 }
 span.ilc_text_inline_Important {
   text-decoration: underline;
@@ -1081,7 +1076,7 @@ div.ilc_va_iheada_VAccordIHeadActive {
   padding-bottom: 3px;
   color: #161616;
   background-color: #f9f9f9;
-  /* fau: contentStyle: no uppercase in accordions. */
+  text-transform: uppercase;
   padding-right: 3px;
 }
 div.ilc_va_iheada_VAccordIHeadActive:hover {

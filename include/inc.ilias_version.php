@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 1998-2020 ILIAS open source e-Learning e.V., Extended GPL, see docs/LICENSE */
 
 /**
@@ -9,10 +10,5 @@
 *
 * @package ilias-core
 */
-define("ILIAS_VERSION", "7.26 2023-10-23");
-define("ILIAS_VERSION_NUMERIC", "7.26");			// since version ILIAS 6 this must be always x.y: x and y are numbers
-
-// fau: versionSuffix - define a version with suffix for including css and js files
-// please increase a suffix number if a css or js file is locally changed!
-define("ILIAS_VERSION_SUFFIX", ILIAS_VERSION_NUMERIC . ".41");
-// fau.
+define("ILIAS_VERSION", "8.6 2023-10-23");
+define("ILIAS_VERSION_NUMERIC", "8.6");			// since version ILIAS 6 this must be always x.y: x and y are numbers

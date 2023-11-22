@@ -1,5 +1,21 @@
 <?php
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
  * Unit tests
  *
  * @author Guido Vollbach <gvollbachdatabay.de>
@@ -10,46 +26,39 @@ class assKprimChoiceTest extends assBaseTestCase
 {
     protected $backupGlobals = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
-        require_once './Modules/TestQuestionPool/classes/class.assKprimChoice.php';
-        require_once './Modules/TestQuestionPool/classes/class.ilAssKprimChoiceAnswer.php';
-        if (defined('ILIAS_PHPUNIT_CONTEXT')) {
-            include_once("./Services/PHPUnit/classes/class.ilUnitUtil.php");
-            ilUnitUtil::performInitialisation();
-        } else {
-            chdir(dirname(__FILE__));
-            chdir('../../../');
-        }
-        require_once './Services/Utilities/classes/class.ilUtil.php';
+        parent::setUp();
+        $this->setGlobalVariable('ilias', $this->getIliasMock());
+        $this->setGlobalVariable('tpl', $this->getGlobalTemplateMock());
     }
 
-    public function test_instantiateObject_shouldReturnInstance()
+    public function test_instantiateObject_shouldReturnInstance(): void
     {
         $instance = new assKprimChoice();
         $this->assertInstanceOf('assKprimChoice', $instance);
     }
 
-    public function test_getQuestionType_shouldReturnQuestionType()
+    public function test_getQuestionType_shouldReturnQuestionType(): void
     {
         $obj = new assKprimChoice();
         $this->assertEquals('assKprimChoice', $obj->getQuestionType());
     }
 
-    public function test_getAdditionalTableName_shouldReturnAdditionalTableName()
+    public function test_getAdditionalTableName_shouldReturnAdditionalTableName(): void
     {
         $obj = new assKprimChoice();
         $this->assertEquals('qpl_qst_kprim', $obj->getAdditionalTableName());
     }
 
-    public function test_getAnswerTableName_shouldReturnAnswerTableName()
+    public function test_getAnswerTableName_shouldReturnAnswerTableName(): void
     {
         $obj = new assKprimChoice();
         $this->assertEquals('qpl_a_kprim', $obj->getAnswerTableName());
     }
 
     /* Removed by @kergomard 17 NOV 2022, we should introduce this again
-    public function test_isCompleteWithoutAnswer_shouldReturnTrue()
+    public function test_isCompleteWithoutAnswer_shouldReturnTrue(): void
     {
         $obj = new assKprimChoice();
         $this->assertEquals(false, $obj->isComplete());
@@ -61,7 +70,7 @@ class assKprimChoiceTest extends assBaseTestCase
         $this->assertEquals(true, $obj->isComplete());
     }
 
-    public function test_isCompleteWithAnswer_shouldReturnTrue()
+    public function test_isCompleteWithAnswer_shouldReturnTrue(): void
     {
         $obj = new assKprimChoice();
         $this->assertEquals(false, $obj->isComplete());
@@ -78,23 +87,23 @@ class assKprimChoiceTest extends assBaseTestCase
         $ans->setAnswertext('Text');
         $obj->addAnswer($ans);
         $this->assertEquals(true, $obj->isComplete());
-    }*/
+    } */
 
-    public function test_isValidOptionLabel_shouldReturnTrue()
+    public function test_isValidOptionLabel_shouldReturnTrue(): void
     {
         $obj = new assKprimChoice();
         $this->assertEquals(false, $obj->isValidOptionLabel('not valid'));
         $this->assertEquals(true, $obj->isValidOptionLabel($obj::OPTION_LABEL_RIGHT_WRONG));
     }
 
-    public function test_isObligationPossible_shouldReturnTrue()
+    public function test_isObligationPossible_shouldReturnTrue(): void
     {
         $obj = new assKprimChoice();
         $this->assertEquals(true, $obj->isObligationPossible(1));
     }
 
     /* Removed by @kergomard 17 NOV 2022, we should introduce this again
-    public function test_getAnswer_shouldReturnAnswer()
+    public function test_getAnswer_shouldReturnAnswer(): void
     {
         $obj = new assKprimChoice();
         $ans = new ilAssKprimChoiceAnswer();
@@ -105,7 +114,7 @@ class assKprimChoiceTest extends assBaseTestCase
         $this->assertEquals(null, $obj->getAnswer(1));
     } */
 
-    public function test_isValidAnswerType_shouldReturnTrue()
+    public function test_isValidAnswerType_shouldReturnTrue(): void
     {
         $obj = new assKprimChoice();
         $this->assertEquals(false, $obj->isValidAnswerType('not valid'));

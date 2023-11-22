@@ -1,11 +1,22 @@
 <?php
+
 declare(strict_types=1);
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
-
 /**
- * @author  Niels Theen <ntheen@databay.de>
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Refinery\To;
 
@@ -21,18 +32,14 @@ use ILIAS\Refinery\To\Transformation\StringTransformation;
 use ILIAS\Refinery\To\Transformation\TupleTransformation;
 use ILIAS\Refinery\To\Transformation\DateTimeTransformation;
 use ILIAS\Refinery\Transformation;
+use ILIAS\Data\Factory;
+use InvalidArgumentException;
 
 class Group
 {
-    /**
-     * @var \ILIAS\Data\Factory
-     */
-    private $dataFactory;
+    private Factory $dataFactory;
 
-    /**
-     * @param \ILIAS\Data\Factory $dataFactory
-     */
-    public function __construct(\ILIAS\Data\Factory $dataFactory)
+    public function __construct(Factory $dataFactory)
     {
         $this->dataFactory = $dataFactory;
     }
@@ -40,9 +47,8 @@ class Group
     /**
      * Returns an object that allows to transform a value
      * to a string value
-     * @return StringTransformation
      */
-    public function string() : StringTransformation
+    public function string(): Transformation
     {
         return new StringTransformation();
     }
@@ -50,9 +56,8 @@ class Group
     /**
      * Returns an object that allows to transform a value
      * to an integer value
-     * @return IntegerTransformation
      */
-    public function int() : IntegerTransformation
+    public function int(): Transformation
     {
         return new IntegerTransformation();
     }
@@ -60,9 +65,8 @@ class Group
     /**
      * Returns an object that allows to transform a value
      * to a float value
-     * @return FloatTransformation
      */
-    public function float() : FloatTransformation
+    public function float(): Transformation
     {
         return new FloatTransformation();
     }
@@ -70,9 +74,8 @@ class Group
     /**
      * Returns an object that allows to transform a value
      * to a boolean value
-     * @return BooleanTransformation
      */
-    public function bool() : BooleanTransformation
+    public function bool(): Transformation
     {
         return new BooleanTransformation();
     }
@@ -84,11 +87,8 @@ class Group
      *
      * Using `ILIAS\Refinery\Factory::to()` will check if the value is identical
      * to the value after the transformation.
-     *
-     * @param Transformation $transformation
-     * @return Transformation
      */
-    public function listOf(Transformation $transformation) : Transformation
+    public function listOf(Transformation $transformation): Transformation
     {
         return new ListTransformation($transformation);
     }
@@ -100,11 +100,8 @@ class Group
      *
      * Using `ILIAS\Refinery\Factory::to()` will check if the value is identical
      * to the value after the transformation.
-     *
-     * @param Transformation $transformation
-     * @return Transformation
      */
-    public function dictOf(Transformation $transformation) : Transformation
+    public function dictOf(Transformation $transformation): Transformation
     {
         return new DictionaryTransformation($transformation);
     }
@@ -120,11 +117,10 @@ class Group
      *
      * Using `ILIAS\Refinery\Factory::to()` will check if the value is identical
      * to the value after the transformation.
-     *
-     * @param array $transformation
+     * @param Transformation[] $transformation
      * @return Transformation
      */
-    public function tupleOf(array $transformation) : Transformation
+    public function tupleOf(array $transformation): Transformation
     {
         return new TupleTransformation($transformation);
     }
@@ -142,11 +138,10 @@ class Group
      *
      * Using `ILIAS\Refinery\Factory::to()` will check if the value is identical
      * to the value after the transformation.
-     *
-     * @param array $transformations
+     * @param array<string, Transformation> $transformations
      * @return Transformation
      */
-    public function recordOf(array $transformations) : Transformation
+    public function recordOf(array $transformations): Transformation
     {
         return new RecordTransformation($transformations);
     }
@@ -156,15 +151,14 @@ class Group
      * existing class, with variations of constructor parameters OR returns
      * an transformation object to execute a certain method with variation of
      * parameters on the objects.
-     *
-     * @param $classNameOrArray
+     * @param string|array{0: object, 1: string} $classNameOrArray
      * @return Transformation
      */
-    public function toNew($classNameOrArray) : Transformation
+    public function toNew($classNameOrArray): Transformation
     {
         if (is_array($classNameOrArray)) {
             if (2 !== count($classNameOrArray)) {
-                throw new \InvalidArgumentException('The array MUST contain exactly two elements');
+                throw new InvalidArgumentException('The array MUST contain exactly two elements');
             }
             return new NewMethodTransformation($classNameOrArray[0], $classNameOrArray[1]);
         }
@@ -176,14 +170,13 @@ class Group
      *                           with the methods provided by the `\ILIAS\Data\Factory`
      * @return Transformation
      */
-    public function data(string $dataType) : Transformation
+    public function data(string $dataType): Transformation
     {
-        return $this->toNew(array($this->dataFactory, $dataType));
+        return $this->toNew([$this->dataFactory, $dataType]);
     }
 
-
-    public function dateTime() : DateTimeTransformation
+    public function dateTime(): Transformation
     {
-        return new DateTimeTransformation($this->dataFactory);
+        return new DateTimeTransformation();
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Notification\Factory;
 
 /**
@@ -34,24 +34,24 @@ interface hasAmount
      * @param int $amount
      * @return StandardNotification
      */
-    public function withOldAmount(int $amount = 0) : StandardNotification;
+    public function withOldAmount(int $amount = 0): StandardNotification;
 
     /**
      * Set the amount of new notes, the notification contains.
      * @param int $amount
      * @return StandardNotification
      */
-    public function withNewAmount(int $amount = 0) : StandardNotification;
+    public function withNewAmount(int $amount = 0): StandardNotification;
 
     /**
      * Get the amount of new notes, the notification contains.
      * @return int
      */
-    public function getOldAmount() : int;
+    public function getOldAmount(): int;
 
     /**
      * Get the amount of new notes, the notification contains.
      * @return int
      */
-    public function getNewAmount() : int;
+    public function getNewAmount(): int;
 }

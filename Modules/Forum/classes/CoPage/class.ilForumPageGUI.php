@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -14,9 +16,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
-
+ *********************************************************************/
 /**
  * @ilCtrl_Calls ilForumPageGUI: ilPageEditorGUI, ilEditClipboardGUI, ilMDEditorGUI
  * @ilCtrl_Calls ilForumPageGUI: ilPublicUserProfileGUI, ilNoteGUI
@@ -27,7 +27,7 @@ class ilForumPageGUI extends ilPageObjectGUI implements ilForumObjectConstants
     protected bool $isEmbeddedMode = false;
     protected string $language = '-';
 
-    public function __construct($a_id = 0, $a_old_nr = 0, $isEmbeddedMode = false, $language = '')
+    public function __construct(int $a_id = 0, int $a_old_nr = 0, bool $isEmbeddedMode = false, string $language = '')
     {
         parent::__construct(self::OBJ_TYPE, $a_id, $a_old_nr, false, $language);
         $this->setTemplateTargetVar('ADM_CONTENT');
@@ -35,7 +35,7 @@ class ilForumPageGUI extends ilPageObjectGUI implements ilForumObjectConstants
         $this->isEmbeddedMode = $isEmbeddedMode;
     }
 
-    public function getProfileBackUrl() : string
+    public function getProfileBackUrl(): string
     {
         if ($this->isEmbeddedMode) {
             return '';
@@ -44,12 +44,12 @@ class ilForumPageGUI extends ilPageObjectGUI implements ilForumObjectConstants
         return parent::getProfileBackUrl();
     }
 
-    public function finishEditing() : void
+    public function finishEditing(): void
     {
         $this->ctrl->redirectByClass(ilObjForumGUI::class, 'showThreads');
     }
 
-    public function setDefaultLinkXml() : void
+    public function setDefaultLinkXml(): void
     {
         parent::setDefaultLinkXml();
 
@@ -58,7 +58,7 @@ class ilForumPageGUI extends ilPageObjectGUI implements ilForumObjectConstants
 
             try {
                 $linkXml = str_replace('<LinkTargets></LinkTargets>', '', $linkXml);
-                
+
                 $domDoc = new DOMDocument();
                 $domDoc->loadXML('<?xml version="1.0" encoding="UTF-8"?>' . $linkXml);
 
@@ -67,14 +67,14 @@ class ilForumPageGUI extends ilPageObjectGUI implements ilForumObjectConstants
 
                 if ($links->length > 0) {
                     foreach ($links as $link) {
-                        /** @var $link DOMNode */
+                        /** @var DOMNode $link */
                         $link->attributes->getNamedItem('LinkTarget')->nodeValue = '_blank';
                     }
                 }
 
                 $linkXmlWithBlankTargets = $domDoc->saveXML();
 
-                $this->setLinkXML(str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $linkXmlWithBlankTargets));
+                $this->setLinkXml(str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $linkXmlWithBlankTargets));
             } catch (Throwable $e) {
                 $this->log->error(sprintf(
                     'Could not manipulate page editor link XML: %s / Error Message: %s',

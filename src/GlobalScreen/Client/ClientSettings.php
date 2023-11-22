@@ -28,23 +28,17 @@ use JsonSerializable;
  */
 class ClientSettings implements JsonSerializable
 {
-    /**
-     * @var bool
-     */
-    private $hashing = true;
-    /**
-     * @var bool
-     */
-    private $logging = false;
+    private bool $hashing = true;
+    private bool $logging = false;
 
-    public function setHashing(bool $hashing) : self
+    public function setHashing(bool $hashing): self
     {
         $this->hashing = $hashing;
 
         return $this;
     }
 
-    public function setLogging(bool $logging) : self
+    public function setLogging(bool $logging): self
     {
         $this->logging = $logging;
 

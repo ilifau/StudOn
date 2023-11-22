@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Layout\MetaContent\Media;
 
 /**
@@ -28,7 +28,7 @@ class CssCollection extends AbstractCollection
     /**
      * @param Css $item
      */
-    public function addItem(Css $item) : void
+    public function addItem(Css $item): void
     {
         $real_path = realpath(parse_url($item->getContent(), PHP_URL_PATH));
         foreach ($this->getItems() as $css) {
@@ -42,7 +42,7 @@ class CssCollection extends AbstractCollection
     /**
      * @return Css[]
      */
-    public function getItemsInOrderOfDelivery() : array
+    public function getItemsInOrderOfDelivery(): array
     {
         return parent::getItemsInOrderOfDelivery();
     }

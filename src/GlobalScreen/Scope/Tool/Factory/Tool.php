@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Tool\Factory;
 
 use Closure;
@@ -36,36 +36,18 @@ use LogicException;
  */
 class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTerminating
 {
-    /**
-     * @var string
-     */
-    protected $title;
-    /**
-     * @var \Closure|null
-     */
-    protected $terminated_callback;
-    /**
-     * @var \ILIAS\UI\Component\Symbol\Symbol|null
-     */
-    protected $symbol;
-    /**
-     * @var \ILIAS\UI\Component\Component|null
-     */
-    protected $content;
-    /**
-     * @var \Closure|null
-     */
-    protected $content_wrapper;
-    /**
-     * @var \Closure|null
-     */
-    protected $close_callback;
+    protected string $title;
+    protected ?Closure $terminated_callback = null;
+    protected ?Symbol $symbol = null;
+    protected ?Component $content = null;
+    protected ?Closure $content_wrapper = null;
+    protected ?Closure $close_callback = null;
 
     /**
      * @param string $title
      * @return Tool
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -76,7 +58,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @return string
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -84,7 +66,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @inheritDoc
      */
-    public function withContentWrapper(Closure $content_wrapper) : hasContent
+    public function withContentWrapper(Closure $content_wrapper): hasContent
     {
         $clone = clone($this);
         $clone->content_wrapper = $content_wrapper;
@@ -95,7 +77,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @inheritDoc
      */
-    public function withContent(Component $ui_component) : hasContent
+    public function withContent(Component $ui_component): hasContent
     {
         $clone = clone($this);
         $clone->content = $ui_component;
@@ -106,7 +88,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @inheritDoc
      */
-    public function getContent() : Component
+    public function getContent(): Component
     {
         if ($this->content_wrapper !== null) {
             $wrapper = $this->content_wrapper;
@@ -120,7 +102,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @inheritDoc
      */
-    public function withSymbol(Symbol $symbol) : hasSymbol
+    public function withSymbol(Symbol $symbol): hasSymbol
     {
         // bugfix mantis 25526: make aria labels mandatory
         if (($symbol instanceof Glyph\Glyph && $symbol->getAriaLabel() === "") ||
@@ -137,7 +119,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @inheritDoc
      */
-    public function getSymbol() : Symbol
+    public function getSymbol(): Symbol
     {
         return $this->symbol;
     }
@@ -145,7 +127,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @inheritDoc
      */
-    public function hasSymbol() : bool
+    public function hasSymbol(): bool
     {
         return ($this->symbol instanceof Symbol);
     }
@@ -153,7 +135,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @inheritDoc
      */
-    public function withTerminatedCallback(Closure $callback) : supportsTerminating
+    public function withTerminatedCallback(Closure $callback): supportsTerminating
     {
         $clone = clone $this;
         $clone->terminated_callback = $callback;
@@ -164,7 +146,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @return Closure|null
      */
-    public function getTerminatedCallback() : ?Closure
+    public function getTerminatedCallback(): ?Closure
     {
         return $this->terminated_callback;
     }
@@ -172,7 +154,7 @@ class Tool extends AbstractBaseTool implements isTopItem, hasContent, supportsTe
     /**
      * @return bool
      */
-    public function hasTerminatedCallback() : bool
+    public function hasTerminatedCallback(): bool
     {
         return $this->terminated_callback instanceof Closure;
     }

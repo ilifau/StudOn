@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceAcceptanceHistoryCriteriaBagTest
@@ -7,16 +24,11 @@
  */
 class ilTermsOfServiceAcceptanceHistoryCriteriaBagTest extends ilTermsOfServiceBaseTest
 {
-    /**
-     * @throws ilTermsOfServiceUnexpectedCriteriaBagContentException
-     * @throws ReflectionException
-     */
-    public function testCriteriaCanBePassedAsArray() : void
+    public function testCriteriaCanBePassedAsArray(): ilTermsOfServiceAcceptanceHistoryCriteriaBag
     {
         $configCrit1 = $this->getMockBuilder(ilTermsOfServiceCriterionConfig::class)->getMock();
 
         $configCrit1
-            ->expects($this->any())
             ->method('jsonSerialize')
             ->willReturn([
                 'usr_language' => 'de'
@@ -25,7 +37,6 @@ class ilTermsOfServiceAcceptanceHistoryCriteriaBagTest extends ilTermsOfServiceB
         $configCrit2 = $this->getMockBuilder(ilTermsOfServiceCriterionConfig::class)->getMock();
 
         $configCrit2
-            ->expects($this->any())
             ->method('jsonSerialize')
             ->willReturn([
                 'usr_global_role' => 4
@@ -34,24 +45,20 @@ class ilTermsOfServiceAcceptanceHistoryCriteriaBagTest extends ilTermsOfServiceB
         $criterion1 = $this->getMockBuilder(ilTermsOfServiceEvaluableCriterion::class)->getMock();
 
         $criterion1
-            ->expects($this->any())
             ->method('getCriterionId')
             ->willReturn('crit1');
 
         $criterion1
-            ->expects($this->any())
             ->method('getCriterionValue')
             ->willReturn($configCrit1);
 
         $criterion2 = $this->getMockBuilder(ilTermsOfServiceEvaluableCriterion::class)->getMock();
 
         $criterion2
-            ->expects($this->any())
             ->method('getCriterionId')
             ->willReturn('crit2');
 
         $criterion2
-            ->expects($this->any())
             ->method('getCriterionValue')
             ->willReturn($configCrit2);
 
@@ -69,29 +76,34 @@ class ilTermsOfServiceAcceptanceHistoryCriteriaBagTest extends ilTermsOfServiceB
         $this->assertArrayHasKey('value', $bag[0]);
         $this->assertArrayHasKey('id', $bag[1]);
         $this->assertArrayHasKey('value', $bag[1]);
-        $this->assertEquals(
+        $this->assertSame(
             '[{"id":"crit1","value":{"usr_language":"de"}},{"id":"crit2","value":{"usr_global_role":4}}]',
             $bag->toJson()
         );
+
+        return $bag;
     }
 
     /**
-     * @throws ilTermsOfServiceUnexpectedCriteriaBagContentException
-     * @throws ReflectionException
+     * @depends testCriteriaCanBePassedAsArray
      */
-    public function testExceptionIsRaisedWhenAtLeastOneNonCriterionIsPassedInArrayOnCreation() : void
+    public function testCriteriaCanBePassedAsString(ilTermsOfServiceAcceptanceHistoryCriteriaBag $bag): void
+    {
+        $newBag = new ilTermsOfServiceAcceptanceHistoryCriteriaBag($bag->toJson());
+        $this->assertSame($bag->toJson(), $newBag->toJson());
+    }
+
+    public function testExceptionIsRaisedWhenAtLeastOneNonCriterionIsPassedInArrayOnCreation(): void
     {
         $configCrit1 = $this->getMockBuilder(ilTermsOfServiceCriterionConfig::class)->getMock();
 
         $criterion1 = $this->getMockBuilder(ilTermsOfServiceEvaluableCriterion::class)->getMock();
 
         $criterion1
-            ->expects($this->any())
             ->method('getCriterionId')
             ->willReturn('crit1');
 
         $criterion1
-            ->expects($this->any())
             ->method('getCriterionValue')
             ->willReturn($configCrit1);
 
@@ -103,49 +115,64 @@ class ilTermsOfServiceAcceptanceHistoryCriteriaBagTest extends ilTermsOfServiceB
         ]);
     }
 
+    public function invalidJsonDataProvider(): array
+    {
+        $object = new stdClass();
+        $object->not_expected = 'phpunit';
+        $object->value = ['id' => $object->not_expected, 'value' => ['usr_language' => 'de']];
+
+        $data = [
+            'Float' => [json_encode(5.1, JSON_THROW_ON_ERROR)],
+            'Integer' => [json_encode(5, JSON_THROW_ON_ERROR)],
+            'String' => [json_encode('5', JSON_THROW_ON_ERROR)],
+            'Null' => [json_encode(null, JSON_THROW_ON_ERROR)],
+            'Object' => [json_encode($object, JSON_THROW_ON_ERROR)],
+            'Bool' => [json_encode(true, JSON_THROW_ON_ERROR)],
+        ];
+
+        $arrayOfTypes = [];
+
+        foreach ($data as $type => $values) {
+            $arrayOfTypes['Array of ' . $type] = [json_encode([json_decode($values[0], false, 512, JSON_THROW_ON_ERROR)], JSON_THROW_ON_ERROR)];
+        }
+
+        return $data + $arrayOfTypes;
+    }
+
     /**
-     * @throws ilTermsOfServiceUnexpectedCriteriaBagContentException
-     * @throws ReflectionException
+     * @dataProvider invalidJsonDataProvider
      */
-    public function testExceptionIsRaisedWhenInvalidJsonDataIsPassedOnImport() : void
+    public function testExceptionIsRaisedWhenInvalidJsonDataIsPassedOnImport($mixedData): void
     {
         $configCrit1 = $this->getMockBuilder(ilTermsOfServiceCriterionConfig::class)->getMock();
 
         $criterion1 = $this->getMockBuilder(ilTermsOfServiceEvaluableCriterion::class)->getMock();
 
         $criterion1
-            ->expects($this->any())
             ->method('getCriterionId')
             ->willReturn('crit1');
 
         $criterion1
-            ->expects($this->any())
             ->method('getCriterionValue')
             ->willReturn($configCrit1);
 
         $this->expectException(ilTermsOfServiceUnexpectedCriteriaBagContentException::class);
 
         $bag = new ilTermsOfServiceAcceptanceHistoryCriteriaBag();
-        $bag->fromJson('5');
+        $bag->fromJson($mixedData);
     }
 
-    /**
-     * @throws ilTermsOfServiceUnexpectedCriteriaBagContentException
-     * @throws ReflectionException
-     */
-    public function testExceptionIsRaisedWhenAtLeastOneInvalidElementIsPassedOnJsonStringImport() : void
+    public function testExceptionIsRaisedWhenAtLeastOneInvalidElementIsPassedOnJsonStringImport(): void
     {
         $configCrit1 = $this->getMockBuilder(ilTermsOfServiceCriterionConfig::class)->getMock();
 
         $criterion1 = $this->getMockBuilder(ilTermsOfServiceEvaluableCriterion::class)->getMock();
 
         $criterion1
-            ->expects($this->any())
             ->method('getCriterionId')
             ->willReturn('crit1');
 
         $criterion1
-            ->expects($this->any())
             ->method('getCriterionValue')
             ->willReturn($configCrit1);
 
@@ -155,10 +182,7 @@ class ilTermsOfServiceAcceptanceHistoryCriteriaBagTest extends ilTermsOfServiceB
         $bag->fromJson('[{"invalid":"crit1","value":{"usr_language":"de"}},{"id":"crit2","value":{"usr_global_role":4}}]');
     }
 
-    /**
-     * @throws ilTermsOfServiceUnexpectedCriteriaBagContentException
-     */
-    public function testCriteriaImportFromJsonStringWorksAsExpected() : void
+    public function testCriteriaImportFromJsonStringWorksAsExpected(): void
     {
         $bag = new ilTermsOfServiceAcceptanceHistoryCriteriaBag();
         $bag->fromJson('[{"id":"crit1","value":{"usr_language":"de"}},{"id":"crit2","value":{"usr_global_role":4}}]');
@@ -170,7 +194,7 @@ class ilTermsOfServiceAcceptanceHistoryCriteriaBagTest extends ilTermsOfServiceB
         $this->assertArrayHasKey('value', $bag[0]);
         $this->assertArrayHasKey('id', $bag[1]);
         $this->assertArrayHasKey('value', $bag[1]);
-        $this->assertEquals(
+        $this->assertSame(
             '[{"id":"crit1","value":{"usr_language":"de"}},{"id":"crit2","value":{"usr_global_role":4}}]',
             $bag->toJson()
         );

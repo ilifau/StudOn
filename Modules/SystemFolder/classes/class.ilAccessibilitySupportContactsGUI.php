@@ -7,7 +7,7 @@
  *
  * @author Thomas Famula <famula@leifos.de>
  */
-class ilAccessibilitySupportContactsGUI
+class ilAccessibilitySupportContactsGUI implements ilCtrlBaseClassInterface
 {
     /**
      * @var ilTemplate
@@ -25,7 +25,7 @@ class ilAccessibilitySupportContactsGUI
     protected $ctrl;
 
     /**
-     * @var \ILIAS\DI\HTTPServices
+     * @var \ILIAS\HTTP\Services
      */
     protected $http;
 
@@ -60,7 +60,7 @@ class ilAccessibilitySupportContactsGUI
     }
 
 
-    public function sendIssueMail() : void
+    public function sendIssueMail(): void
     {
         $back_url = $this->http->request()->getServerParams()['HTTP_REFERER'];
         $this->ctrl->redirectToURL(
@@ -80,7 +80,7 @@ class ilAccessibilitySupportContactsGUI
     /**
      * @return string
      */
-    private function getAccessibilityIssueMailMessage(string $back_url) : string
+    private function getAccessibilityIssueMailMessage(string $back_url): string
     {
         $sig = chr(13) . chr(10) . chr(13) . chr(10) . chr(13) . chr(10);
         $sig .= $this->lng->txt('report_accessibility_link');
@@ -96,7 +96,7 @@ class ilAccessibilitySupportContactsGUI
      *
      * @return string
      */
-    private function getContactLogins() : string
+    private function getContactLogins(): string
     {
         $logins = [];
 
@@ -125,7 +125,9 @@ class ilAccessibilitySupportContactsGUI
         $users = ilAccessibilitySupportContacts::getValidSupportContactIds();
         if (count($users) > 0) {
             if (!$user->getId() || $user->getId() == ANONYMOUS_USER_ID) {
-                $mails = ilUtil::prepareFormOutput(ilAccessibilitySupportContacts::getMailsToAddress());
+                $mails = ilLegacyFormElementsUtil::prepareFormOutput(
+                    ilAccessibilitySupportContacts::getMailsToAddress()
+                );
                 $request_scheme =
                     isset($http->request()->getServerParams()['HTTPS'])
                     && $http->request()->getServerParams()['HTTPS'] !== 'off'

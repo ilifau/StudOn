@@ -1,112 +1,62 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*
-* @ingroup ServicesAdvancedMetaData
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
-include_once 'Services/Search/classes/class.ilAbstractSearch.php';
-
+/**
+ * @author  Stefan Meyer <meyer@leifos.com>
+ * @ingroup ServicesAdvancedMetaData
+ */
 class ilAdvancedMDSearch extends ilAbstractSearch
 {
-    protected $definition;
-    protected $adt;
-    
-    /**
-     * Constructor
-     *
-     * @access public
-     * @param obj query parser
-     *
-     */
+    protected ?ilAdvancedMDFieldDefinition $definition = null;
+    protected ?ilADTSearchBridge $adt = null;
+
     public function __construct($query_parser)
     {
         parent::__construct($query_parser);
     }
-    
-    /**
-     * set Definition
-     *
-     * @access public
-     * @param obj field definition object
-     *
-     */
-    public function setDefinition($a_def)
+
+    public function setDefinition(ilAdvancedMDFieldDefinition $a_def): void
     {
         $this->definition = $a_def;
     }
-    
-    /**
-     * get definition
-     *
-     * @access public
-     *
-     */
-    public function getDefinition()
+
+    public function getDefinition(): ilAdvancedMDFieldDefinition
     {
         return $this->definition;
     }
-    
-    /**
-     * set search element
-     *
-     * @access public
-     * @param ilADTSearchBridge
-     *
-     */
-    public function setSearchElement($a_adt)
+
+    public function setSearchElement(ilADTSearchBridge $a_adt): void
     {
         $this->adt = $a_adt;
     }
-    
-    /**
-     * get search element
-     *
-     * @access public
-     * @return ilADTSearchBridge
-     */
-    public function getSearchElement()
+
+    public function getSearchElement(): ilADTSearchBridge
     {
         return $this->adt;
     }
-    
-    /**
-     * perform search
-     *
-     * @access public
-     * @param
-     *
-     */
-    public function performSearch()
+
+    public function performSearch(): ilSearchResult
     {
         $this->query_parser->parse();
 
-        $locate = null;
+        $locate = '';
         $parser_value = $this->getDefinition()->getSearchQueryParserValue($this->getSearchElement());
         if ($parser_value) {
             $this->setFields(
@@ -116,9 +66,9 @@ class ilAdvancedMDSearch extends ilAbstractSearch
             );
             $locate = $this->__createLocateString();
         }
-        
+
         $search_type = strtolower(substr(get_class($this), 12, -6));
-        
+
         $res_field = $this->getDefinition()->searchObjects(
             $this->getSearchElement(),
             $this->query_parser,
@@ -129,10 +79,11 @@ class ilAdvancedMDSearch extends ilAbstractSearch
 
         if (is_array($res_field)) {
             foreach ($res_field as $row) {
-                $found = is_array($row["found"]) ? $row["found"] : array();
-                $this->search_result->addEntry($row["obj_id"], $row["type"], $found);
+                $found = is_array($row["found"] ?? null) ? $row["found"] : [];
+                $this->search_result->addEntry((int) $row["obj_id"], $row["type"], $found);
             }
             return $this->search_result;
         }
+        return $this->search_result;
     }
 }

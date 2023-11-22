@@ -1,8 +1,22 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Modules/Chatroom/classes/class.ilChatroom.php';
-require_once 'Modules/Chatroom/classes/class.ilChatroomUser.php';
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilChatroomPrivateRoomGUI
@@ -12,62 +26,68 @@ require_once 'Modules/Chatroom/classes/class.ilChatroomUser.php';
  */
 class ilChatroomPrivateRoomGUI extends ilChatroomGUIHandler
 {
-    /**
-     * @inheritDoc
-     */
-    public function executeDefault($requestedMethod)
+    protected function exitIfEnterRoomIsNotAllowed(ilChatroom $room, int $subRoom, ilChatroomUser $chat_user): void
+    {
+        if (!$room->isAllowedToEnterPrivateRoom($chat_user->getUserId(), $subRoom)) {
+            $this->sendResponse([
+                'success' => false,
+                'reason' => 'not allowed enter to private room'
+            ]);
+        }
+    }
+
+    protected function exitIfNoRoomSubscription(ilChatroom $room, ilChatroomUser $chat_user): void
+    {
+        if (!$room->isSubscribed($chat_user->getUserId())) {
+            $this->sendResponse([
+                'success' => false,
+                'reason' => 'not subscribed'
+            ]);
+        }
+    }
+
+    public function executeDefault(string $requestedMethod): void
     {
     }
 
-    public function create()
+    public function create(): void
     {
         $this->redirectIfNoPermission('read');
 
-        $room = ilChatroom::byObjectId($this->gui->object->getId());
-        $chat_user = new ilChatroomUser($this->ilUser, $room);
-
+        $room = ilChatroom::byObjectId($this->gui->getObject()->getId());
         $this->exitIfNoRoomExists($room);
+
+        $chat_user = new ilChatroomUser($this->ilUser, $room);
         $this->exitIfNoRoomSubscription($room, $chat_user);
 
-        $title = $room->getUniquePrivateRoomTitle(ilUtil::stripSlashes((string) $_REQUEST['title']));
-        $subRoomId = $room->addPrivateRoom($title, $chat_user, array('public' => false));
+        $title = $room->getUniquePrivateRoomTitle(ilUtil::stripSlashes(
+            $this->getRequestValue('title', $this->refinery->kindlyTo()->string())
+        ));
+        $subRoomId = $room->addPrivateRoom($title, $chat_user, ['public' => false]);
 
         $connector = $this->gui->getConnector();
         $response = $connector->sendCreatePrivateRoom($room->getRoomId(), $subRoomId, $chat_user->getUserId(), $title);
 
         if ($this->isSuccessful($response)) {
-            $response = array(
+            $response = [
                 'success' => true,
                 'title' => $title,
                 'owner' => $chat_user->getUserId(),
                 'subRoomId' => $subRoomId
-            );
+            ];
         }
 
         $this->sendResponse($response);
     }
 
-    /**
-     * @param ilChatroom     $room
-     * @param ilChatroomUser $chat_user
-     */
-    protected function exitIfNoRoomSubscription($room, $chat_user)
+    public function delete(): void
     {
-        if (!$room->isSubscribed($chat_user->getUserId())) {
-            $this->sendResponse(array(
-                'success' => false,
-                'reason' => 'not subscribed'
-            ));
-        }
-    }
-
-    public function delete()
-    {
-        $room = ilChatroom::byObjectId($this->gui->object->getId());
-        $subRoom = $_REQUEST['sub'];
-        $chat_user = new ilChatroomUser($this->ilUser, $room);
+        $room = ilChatroom::byObjectId($this->gui->getObject()->getId());
 
         $this->exitIfNoRoomExists($room);
+
+        $subRoom = $this->getRequestValue('sub', $this->refinery->kindlyTo()->int());
+        $chat_user = new ilChatroomUser($this->ilUser, $room);
         $this->exitIfNoRoomSubscription($room, $chat_user);
 
         $room->closePrivateRoom($subRoom);
@@ -78,13 +98,16 @@ class ilChatroomPrivateRoomGUI extends ilChatroomGUIHandler
         $this->sendResponse($response);
     }
 
-    public function leave()
+    public function leave(): void
     {
-        $room = ilChatroom::byObjectId($this->gui->object->getId());
-        $chat_user = new ilChatroomUser($this->ilUser, $room);
-        $subRoom = $_REQUEST['sub'];
+        $this->redirectIfNoPermission('read');
+
+        $room = ilChatroom::byObjectId($this->gui->getObject()->getId());
 
         $this->exitIfNoRoomExists($room);
+
+        $subRoom = $this->getRequestValue('sub', $this->refinery->kindlyTo()->int());
+        $chat_user = new ilChatroomUser($this->ilUser, $room);
         $this->exitIfNoRoomSubscription($room, $chat_user);
 
         $connector = $this->gui->getConnector();
@@ -97,15 +120,15 @@ class ilChatroomPrivateRoomGUI extends ilChatroomGUIHandler
         $this->sendResponse($response);
     }
 
-    public function enter()
+    public function enter(): void
     {
         $this->redirectIfNoPermission('read');
 
-        $room = ilChatroom::byObjectId($this->gui->object->getId());
-        $subRoom = $_REQUEST['sub'];
-        $chat_user = new ilChatroomUser($this->ilUser, $room);
-
+        $room = ilChatroom::byObjectId($this->gui->getObject()->getId());
         $this->exitIfNoRoomExists($room);
+
+        $subRoom = $this->getRequestValue('sub', $this->refinery->kindlyTo()->int());
+        $chat_user = new ilChatroomUser($this->ilUser, $room);
         $this->exitIfEnterRoomIsNotAllowed($room, $subRoom, $chat_user);
 
         $connector = $this->gui->getConnector();
@@ -118,26 +141,16 @@ class ilChatroomPrivateRoomGUI extends ilChatroomGUIHandler
         $this->sendResponse($response);
     }
 
-    /**
-     * @param ilChatroom     $room
-     * @param int            $subRoom
-     * @param ilChatroomUser $chat_user
-     */
-    protected function exitIfEnterRoomIsNotAllowed($room, $subRoom, $chat_user)
+    public function listUsers(): void
     {
-        if (!$room->isAllowedToEnterPrivateRoom($chat_user->getUserId(), $subRoom)) {
-            $this->sendResponse(array(
-                'success' => false,
-                'reason' => 'not allowed enter to private room'
-            ));
-        }
-    }
+        $this->redirectIfNoPermission('read');
 
-    public function listUsers()
-    {
-        $room = ilChatroom::byObjectId($this->gui->object->getId());
+        $room = ilChatroom::byObjectId($this->gui->getObject()->getId());
+        $this->exitIfNoRoomExists($room);
 
-        $response = $room->listUsersInPrivateRoom($_REQUEST['sub']);
+        $response = $room->listUsersInPrivateRoom(
+            $this->getRequestValue('sub', $this->refinery->kindlyTo()->int())
+        );
         $this->sendResponse($response);
     }
 }

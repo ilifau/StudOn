@@ -1,6 +1,25 @@
 <?php
 
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
+
+use ILIAS\Skill\Service\SkillInternalFactoryService;
+use ILIAS\Skill\Profile\SkillProfile;
+use ILIAS\Skill\Profile\SkillProfileManager;
 
 /**
  * Skill usage
@@ -21,34 +40,39 @@
  */
 class ilSkillUsage implements ilSkillUsageInfo
 {
-    const TYPE_GENERAL = "gen";
-    const USER_ASSIGNED = "user";
-    const PERSONAL_SKILL = "pers";
-    const USER_MATERIAL = "mat";
-    const SELF_EVAL = "seval";
-    const PROFILE = "prof";
-    const RESOURCE = "res";
-    
-    // these classes implement the ilSkillUsageInfo interface
-    // currently this array is ok, we do not need any subscription model here
-    /*protected $classes = array("ilBasicSkill", "ilPersonalSkill",
-        "ilSkillSelfEvaluation", "ilSkillProfile", "ilSkillResources", "ilSkillUsage");*/
-    protected $classes = array("ilBasicSkill", "ilPersonalSkill", "ilSkillProfile",  "ilSkillResources", "ilSkillUsage");
-    
+    public const TYPE_GENERAL = "gen";
+    public const USER_ASSIGNED = "user";
+    public const PERSONAL_SKILL = "pers";
+    public const USER_MATERIAL = "mat";
+    public const SELF_EVAL = "seval";
+    public const PROFILE = "prof";
+    public const RESOURCE = "res";
+
     /**
-     * Set usage
-     *
-     * @param int $a_obj_id object id
-     * @param int $a_skill_id skill id
-     * @param int $a_tref_id tref id
-     * @param bool $a_use in use true/false
+     * @var ilSkillUsageInfo[]
      */
-    public static function setUsage($a_obj_id, $a_skill_id, $a_tref_id, $a_use = true)
+    protected array $classes = [ilBasicSkill::class, ilPersonalSkill::class, SkillProfile::class,
+                                ilSkillResources::class, ilSkillUsage::class];
+
+    protected ilSkillTreeRepository $tree_repo;
+    protected SkillInternalFactoryService $tree_factory;
+    protected SkillProfileManager $profile_manager;
+
+    public function __construct()
+    {
+        global $DIC;
+
+        $this->tree_repo = $DIC->skills()->internal()->repo()->getTreeRepo();
+        $this->tree_factory = $DIC->skills()->internal()->factory();
+        $this->profile_manager = $DIC->skills()->internal()->manager()->getProfileManager();
+    }
+
+    public static function setUsage(int $a_obj_id, int $a_skill_id, int $a_tref_id, bool $a_use = true): void
     {
         global $DIC;
 
         $ilDB = $DIC->database();
-        
+
         if ($a_use) {
             $ilDB->replace(
                 "skl_usage",
@@ -57,20 +81,19 @@ class ilSkillUsage implements ilSkillUsageInfo
                     "skill_id" => array("integer", $a_skill_id),
                     "tref_id" => array("integer", $a_tref_id)
                     ),
-                array()
-                );
+                []
+            );
         } else {
             $ilDB->manipulate(
                 $q = "DELETE FROM skl_usage WHERE " .
                 " obj_id = " . $ilDB->quote($a_obj_id, "integer") .
                 " AND skill_id = " . $ilDB->quote($a_skill_id, "integer") .
                 " AND tref_id = " . $ilDB->quote($a_tref_id, "integer")
-                );
-            //echo $q; exit;
+            );
         }
     }
-    
-    public static function removeUsagesFromObject($a_obj_id)
+
+    public static function removeUsagesFromObject(int $a_obj_id): void
     {
         global $DIC;
 
@@ -83,73 +106,64 @@ class ilSkillUsage implements ilSkillUsageInfo
     }
 
     /**
-     * Get usages
-     *
-     * @param int $a_skill_id skill id
-     * @param int $a_tref_id tref id
-     * @return array of int object ids
+     * @return int[]
      */
-    public static function getUsages($a_skill_id, $a_tref_id)
+    public static function getUsages(int $a_skill_id, int $a_tref_id): array
     {
         global $DIC;
 
         $ilDB = $DIC->database();
-        
+
         $set = $ilDB->query(
             "SELECT obj_id FROM skl_usage " .
             " WHERE skill_id = " . $ilDB->quote($a_skill_id, "integer") .
             " AND tref_id = " . $ilDB->quote($a_tref_id, "integer")
-            );
-        $obj_ids = array();
+        );
+        $obj_ids = [];
         while ($rec = $ilDB->fetchAssoc($set)) {
-            $obj_ids[] = $rec["obj_id"];
+            $obj_ids[] = (int) $rec["obj_id"];
         }
-        
+
         return $obj_ids;
     }
-    
-    /**
-     * Get usage info
-     *
-     * @param array $a_cskill_ids skill ids
-     * @param array $a_usages usages array
-     */
-    public static function getUsageInfo($a_cskill_ids, &$a_usages)
-    {
-        global $DIC;
 
-        $ilDB = $DIC->database();
-        
-        self::getUsageInfoGeneric(
+    /**
+     * @param array{skill_id: int, tref_id: int}[] $a_cskill_ids
+     *
+     * @return array<string, array<string, array{key: string}[]>>
+     */
+    public static function getUsageInfo(array $a_cskill_ids): array
+    {
+        return self::getUsageInfoGeneric(
             $a_cskill_ids,
-            $a_usages,
             ilSkillUsage::TYPE_GENERAL,
             "skl_usage",
             "obj_id"
         );
     }
-    
+
     /**
      * Get standard usage query
+     * @param array{skill_id: int, tref_id: int}[] $a_cskill_ids
      *
-     * @param array $a_cskill_ids skill ids
-     * @param array $a_usages usages array
+     * @return array<string, array<string, array{key: string}[]>>
      */
     public static function getUsageInfoGeneric(
-        $a_cskill_ids,
-        &$a_usages,
-        $a_usage_type,
-        $a_table,
-        $a_key_field,
-        $a_skill_field = "skill_id",
-        $a_tref_field = "tref_id"
-    ) {
+        array $a_cskill_ids,
+        string $a_usage_type,
+        string $a_table,
+        string $a_key_field,
+        string $a_skill_field = "skill_id",
+        string $a_tref_field = "tref_id"
+    ): array {
         global $DIC;
+
+        $a_usages = [];
 
         $ilDB = $DIC->database();
 
         if (count($a_cskill_ids) == 0) {
-            return;
+            return [];
         }
 
         $w = "WHERE";
@@ -166,54 +180,67 @@ class ilSkillUsage implements ilSkillUsageInfo
             $a_usages[$rec[$a_skill_field] . ":" . $rec[$a_tref_field]][$a_usage_type][] =
                     array("key" => $rec[$a_key_field]);
         }
+
+        return $a_usages;
     }
 
-    
     /**
-     * Get all usages info
-     *
-     * @param array of common skill ids ("skill_id" => skill_id, "tref_id" => tref_id)
-     * @return array usages
+     * @param array{skill_id: int, tref_id: int}[] $a_cskill_ids array of common skill ids ("skill_id" => skill_id, "tref_id" => tref_id)
+     * @return array<string, array<string, array{key: string}[]>>
      */
-    public function getAllUsagesInfo($a_cskill_ids)
+    public function getAllUsagesInfo(array $a_cskill_ids): array
     {
         $classes = $this->classes;
-        
-        $usages = array();
+
+        $usages = [];
         foreach ($classes as $class) {
-            $class::getUsageInfo($a_cskill_ids, $usages);
+            $usages = array_merge_recursive($usages, $class::getUsageInfo($a_cskill_ids));
         }
         return $usages;
     }
 
     /**
-     * Get all usages info of subtree
-     *
-     * @param int $a_skill_id skill node id
-     * @param int $a_tref_id tref id
-     * @return array usages
+     * @param array $a_tree_ids array of common skill ids ("skill_id" => skill_id, "tref_id" => tref_id)
+     * @return array<string, array<string, array{key: string}[]>>
      */
-    public function getAllUsagesInfoOfSubtree($a_skill_id, $a_tref_id = 0)
+    public function getAllUsagesInfoOfTrees(array $a_tree_ids): array
     {
         // get nodes
-        $vtree = new ilVirtualSkillTree();
+
+        $allnodes = [];
+        foreach ($a_tree_ids as $t) {
+            $vtree = $this->tree_factory->tree()->getGlobalVirtualTree();
+            $nodes = $vtree->getSubTreeForTreeId($t);
+            foreach ($nodes as $n) {
+                $allnodes[] = $n;
+            }
+        }
+
+        return $this->getAllUsagesInfo($allnodes);
+    }
+
+    /**
+     * @return array<string, array<string, array{key: string}[]>>
+     */
+    public function getAllUsagesInfoOfSubtree(int $a_skill_id, int $a_tref_id = 0): array
+    {
+        // get nodes
+        $vtree = $this->tree_repo->getVirtualTreeForNodeId($a_skill_id);
         $nodes = $vtree->getSubTreeForCSkillId($a_skill_id . ":" . $a_tref_id);
 
         return $this->getAllUsagesInfo($nodes);
     }
 
     /**
-     * Get all usages info of subtree
-     *
      * @param array $a_cskill_ids array of common skill ids ("skill_id" => skill_id, "tref_id" => tref_id)
-     * @return array usages
+     * @return array<string, array<string, array{key: string}[]>>
      */
-    public function getAllUsagesInfoOfSubtrees($a_cskill_ids)
+    public function getAllUsagesInfoOfSubtrees(array $a_cskill_ids): array
     {
         // get nodes
-        $vtree = new ilVirtualSkillTree();
-        $allnodes = array();
+        $allnodes = [];
         foreach ($a_cskill_ids as $s) {
+            $vtree = $this->tree_repo->getVirtualTreeForNodeId($s["skill_id"]);
             $nodes = $vtree->getSubTreeForCSkillId($s["skill_id"] . ":" . $s["tref_id"]);
             foreach ($nodes as $n) {
                 $allnodes[] = $n;
@@ -224,24 +251,21 @@ class ilSkillUsage implements ilSkillUsageInfo
     }
 
     /**
-     * Get all usages of template
-     *
-     * @param int $a_tempate_id template
-     * @return array usages array
+     * @return array<string, array<string, array{key: string}[]>>
      */
-    public function getAllUsagesOfTemplate($a_tempate_id)
+    public function getAllUsagesOfTemplate(int $a_template_id): array
     {
         $skill_logger = ilLoggerFactory::getLogger('skll');
-        $skill_logger->debug("ilSkillUsage: getAllUsagesOfTemplate(" . $a_tempate_id . ")");
+        $skill_logger->debug("ilSkillUsage: getAllUsagesOfTemplate(" . $a_template_id . ")");
 
         // get all trefs for template id
-        $trefs = ilSkillTemplateReference::_lookupTrefIdsForTemplateId($a_tempate_id);
+        $trefs = ilSkillTemplateReference::_lookupTrefIdsForTemplateId($a_template_id);
 
         // get all usages of subtrees of template_id:tref
-        $cskill_ids = array();
+        $cskill_ids = [];
         foreach ($trefs as $tref) {
-            $cskill_ids[] = array("skill_id" => $a_tempate_id, "tref_id" => $tref);
-            $skill_logger->debug("ilSkillUsage: ... skill_id: " . $a_tempate_id . ", tref_id: " . $tref . ".");
+            $cskill_ids[] = array("skill_id" => $a_template_id, "tref_id" => $tref);
+            $skill_logger->debug("ilSkillUsage: ... skill_id: " . $a_template_id . ", tref_id: " . $tref . ".");
         }
 
         $skill_logger->debug("ilSkillUsage: ... count cskill_ids: " . count($cskill_ids) . ".");
@@ -249,60 +273,44 @@ class ilSkillUsage implements ilSkillUsageInfo
         return $this->getAllUsagesInfoOfSubtrees($cskill_ids);
     }
 
-    /**
-     * Get type info string
-     *
-     * @param string $a_type usage type
-     * @return string lang string
-     */
-    public static function getTypeInfoString($a_type)
+    public static function getTypeInfoString(string $a_type): string
     {
         global $DIC;
 
         $lng = $DIC->language();
-        
+
         return $lng->txt("skmg_usage_type_info_" . $a_type);
     }
 
-    /**
-     * Get type info string
-     *
-     * @param
-     * @return
-     */
-    public static function getObjTypeString($a_type)
+    public static function getObjTypeString(string $a_type): string
     {
         global $DIC;
 
         $lng = $DIC->language();
-        
+
         switch ($a_type) {
             case self::TYPE_GENERAL:
             case self::RESOURCE:
                 return $lng->txt("skmg_usage_obj_objects");
-                break;
-            
+
             case self::USER_ASSIGNED:
             case self::PERSONAL_SKILL:
             case self::USER_MATERIAL:
             case self::SELF_EVAL:
                 return $lng->txt("skmg_usage_obj_users");
-                break;
 
             case self::PROFILE:
                 return $lng->txt("skmg_usage_obj_profiles");
-                break;
+
+            default:
+                return $lng->txt("skmg_usage_type_info_" . $a_type);
         }
-        
-        return $lng->txt("skmg_usage_type_info_" . $a_type);
     }
 
     /**
-     * @param int $a_skill_id
-     * @param int $a_tref_id
-     * @return array
+     * @return int[]
      */
-    public function getAssignedObjectsForSkill(int $a_skill_id, int $a_tref_id) : array
+    public function getAssignedObjectsForSkill(int $a_skill_id, int $a_tref_id): array
     {
         //$objects = $this->getAllUsagesInfoOfSubtree($a_skill_id, $a_tref_id);
         $objects = self::getUsages($a_skill_id, $a_tref_id);
@@ -311,29 +319,24 @@ class ilSkillUsage implements ilSkillUsageInfo
     }
 
     /**
-     * @param int $a_template_id
-     * @return array
+     * @return string[]
      */
-    public function getAssignedObjectsForSkillTemplate(int $a_template_id) : array
+    public function getAssignedObjectsForSkillTemplate(int $a_template_id): array
     {
         $usages = $this->getAllUsagesOfTemplate($a_template_id);
         $obj_usages = array_column($usages, "gen");
-        foreach ($obj_usages as $obj) {
-            $objects["objects"] = array_column($obj, "key");
-        }
 
-        return $objects["objects"];
+        return array_column(current(array_reverse($obj_usages)) ?: [], 'key');
     }
 
     /**
-     * @param int $a_profile_id
-     * @return array
+     * @return int[]
      */
-    public function getAssignedObjectsForSkillProfile(int $a_profile_id) : array
+    public function getAssignedObjectsForSkillProfile(int $a_profile_id): array
     {
-        $profile = new ilSkillProfile($a_profile_id);
+        $profile = $this->profile_manager->getById($a_profile_id);
         $skills = $profile->getSkillLevels();
-        $objects = array();
+        $objects = [];
 
         // usages for skills within skill profile
         foreach ($skills as $skill) {
@@ -346,7 +349,7 @@ class ilSkillUsage implements ilSkillUsageInfo
         }
 
         // courses and groups which are using skill profile
-        $roles = $profile->getAssignedRoles();
+        $roles = $this->profile_manager->getAssignedRoles($profile->getId());
         foreach ($roles as $role) {
             if (($role["object_type"] == "crs" || $role["object_type"] == "grp")
                 && !in_array($role["object_id"], $objects)) {

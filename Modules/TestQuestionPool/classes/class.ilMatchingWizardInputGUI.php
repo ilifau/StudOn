@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 require_once './Modules/TestQuestionPool/classes/class.ilSingleChoiceWizardInputGUI.php';
 require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
@@ -16,6 +31,7 @@ require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
  */
 class ilMatchingWizardInputGUI extends ilTextInputGUI
 {
+    private string $pending;
     protected $text_name = '';
     protected $image_name = '';
     protected $values = array();
@@ -24,19 +40,11 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
     protected $suffixes = array();
     protected $hideImages = false;
 
-    /**
-     * Constructor
-     *
-     * @param	string	$a_title	Title
-     * @param	string	$a_postvar	Post Variable
-     *
-     * @return \ilMatchingWizardInputGUI
-     */
     public function __construct($a_title = "", $a_postvar = "")
     {
         global $DIC;
         $lng = $DIC['lng'];
-        
+
         parent::__construct($a_title, $a_postvar);
         $this->setSuffixes(array("jpg", "jpeg", "png", "gif"));
         $this->setSize('40');
@@ -44,13 +52,13 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
         $this->text_name = $lng->txt('answer_text');
         $this->image_name = $lng->txt('answer_image');
     }
-    
+
     /**
     * Set Accepted Suffixes.
     *
     * @param	array	$a_suffixes	Accepted Suffixes
     */
-    public function setSuffixes($a_suffixes)
+    public function setSuffixes($a_suffixes): void
     {
         $this->suffixes = $a_suffixes;
     }
@@ -60,17 +68,17 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
     *
     * @return	array	Accepted Suffixes
     */
-    public function getSuffixes()
+    public function getSuffixes(): array
     {
         return $this->suffixes;
     }
-    
+
     /**
     * Set hide images.
     *
     * @param	bool	$a_hide	Hide images
     */
-    public function setHideImages($a_hide)
+    public function setHideImages($a_hide): void
     {
         $this->hideImages = $a_hide;
     }
@@ -80,7 +88,7 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
     *
     * @param	array	$a_value	Value
     */
-    public function setValues($a_values)
+    public function setValues($a_values): void
     {
         $this->values = $a_values;
     }
@@ -90,27 +98,27 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
     *
     * @return	array	Values
     */
-    public function getValues()
+    public function getValues(): array
     {
         return $this->values;
     }
 
-    public function setTextName($a_value)
+    public function setTextName($a_value): void
     {
         $this->text_name = $a_value;
     }
-    
-    public function setImageName($a_value)
+
+    public function setImageName($a_value): void
     {
         $this->image_name = $a_value;
     }
-    
+
     /**
     * Set question object
     *
     * @param	object	$a_value	test object
     */
-    public function setQuestionObject($a_value)
+    public function setQuestionObject($a_value): void
     {
         $this->qstObject = &$a_value;
     }
@@ -120,7 +128,7 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
     *
     * @return	object	Value
     */
-    public function getQuestionObject()
+    public function getQuestionObject(): ?object
     {
         return $this->qstObject;
     }
@@ -130,7 +138,7 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
     *
     * @param	boolean	$a_allow_move Allow move
     */
-    public function setAllowMove($a_allow_move)
+    public function setAllowMove($a_allow_move): void
     {
         $this->allowMove = $a_allow_move;
     }
@@ -140,24 +148,22 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
     *
     * @return	boolean	Allow move
     */
-    public function getAllowMove()
+    public function getAllowMove(): bool
     {
         return $this->allowMove;
     }
 
-    /**
-    * Set Value.
-    *
-    * @param	string	$a_value	Value
-    */
-    public function setValue($a_value)
+    public function setValue($a_value): void
     {
         $this->values = array();
         if (is_array($a_value)) {
             if (is_array($a_value['answer'])) {
                 foreach ($a_value['answer'] as $index => $value) {
-                    include_once "./Modules/TestQuestionPool/classes/class.assAnswerMatchingTerm.php";
-                    $answer = new assAnswerMatchingTerm($value, $a_value['imagename'][$index], $a_value['identifier'][$index]);
+                    $answer = new assAnswerMatchingTerm(
+                        $value,
+                        $a_value['imagename'][$index] ?? '',
+                        $a_value['identifier'][$index] ?? ''
+                    );
                     array_push($this->values, $answer);
                 }
             }
@@ -166,40 +172,45 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
 
     /**
     * Check input, strip slashes etc. set alert, if input is not ok.
-    *
     * @return	boolean		Input ok, true/false
     */
-    public function checkInput()
+    public function checkInput(): bool
     {
         global $DIC;
         $lng = $DIC['lng'];
         include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
         if (is_array($_POST[$this->getPostVar()])) {
-            $_POST[$this->getPostVar()] = ilUtil::stripSlashesRecursive($_POST[$this->getPostVar()], true, ilObjAdvancedEditing::_getUsedHTMLTagsAsString("assessment"));
+            $foundvalues = ilArrayUtil::stripSlashesRecursive(
+                $_POST[$this->getPostVar()],
+                true,
+                ilObjAdvancedEditing::_getUsedHTMLTagsAsString("assessment")
+            );
+        } else {
+            $foundvalues = $_POST[$this->getPostVar()];
         }
-        $foundvalues = $_POST[$this->getPostVar()];
         if (is_array($foundvalues)) {
             // check answers
             if (is_array($foundvalues['answer'])) {
                 foreach ($foundvalues['answer'] as $aidx => $answervalue) {
-                    if (((strlen($answervalue)) == 0) && (strlen($foundvalues['imagename'][$aidx]) == 0)) {
+                    if ($answervalue === '' && (
+                        (!isset($foundvalues['imagename'][$aidx]) || $foundvalues['imagename'][$aidx] === '') &&
+                        !isset($_FILES[$this->getPostVar()]['tmp_name']['image'][$aidx])
+                    )) {
+                        // If there is to text answer, no already staged image, and no uploaded image ...
                         $this->setAlert($lng->txt("msg_input_is_required"));
                         return false;
                     }
                 }
             }
+
             if (!$this->hideImages) {
                 if (is_array($_FILES[$this->getPostVar()]['error']['image'])) {
                     foreach ($_FILES[$this->getPostVar()]['error']['image'] as $index => $error) {
                         // error handling
                         if ($error > 0) {
                             switch ($error) {
-                                case UPLOAD_ERR_INI_SIZE:
-                                    $this->setAlert($lng->txt("form_msg_file_size_exceeds"));
-                                    return false;
-                                    break;
-
                                 case UPLOAD_ERR_FORM_SIZE:
+                                case UPLOAD_ERR_INI_SIZE:
                                     $this->setAlert($lng->txt("form_msg_file_size_exceeds"));
                                     return false;
                                     break;
@@ -211,7 +222,8 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
 
                                 case UPLOAD_ERR_NO_FILE:
                                     if ($this->getRequired()) {
-                                        if ((!strlen($foundvalues['imagename'][$index])) && (!strlen($foundvalues['answer'][$index]))) {
+                                        if ((!isset($foundvalues['imagename'][$index]) || $foundvalues['imagename'][$index] === '') &&
+                                            (!isset($foundvalues['answer'][$index]) && $foundvalues['answer'][$index] === '')) {
                                             $this->setAlert($lng->txt("form_msg_file_no_upload"));
                                             return false;
                                         }
@@ -241,16 +253,19 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
                     foreach ($_FILES[$this->getPostVar()]['tmp_name']['image'] as $index => $tmpname) {
                         $filename = $_FILES[$this->getPostVar()]['name']['image'][$index];
                         $filename_arr = pathinfo($filename);
-                        $suffix = $filename_arr["extension"];
+                        $suffix = '';
+                        if (isset($filename_arr['extension'])) {
+                            $suffix = $filename_arr["extension"];
+                        }
 
                         // check suffixes
                         if ($tmpname != '' && is_array($this->getSuffixes())) {
-                            $vir = ilUtil::virusHandling($tmpname, $filename);
+                            $vir = ilVirusScanner::virusHandling($tmpname, $filename);
                             if ($vir[0] == false) {
                                 $this->setAlert($lng->txt("form_msg_file_virus_found") . "<br />" . $vir[1]);
                                 return false;
                             }
-                            
+
                             if (!in_array(strtolower($suffix), $this->getSuffixes())) {
                                 $this->setAlert($lng->txt("form_msg_file_wrong_file_type"));
                                 return false;
@@ -265,29 +280,28 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
 
     /**
     * Insert property html
-    *
-    * @return	int	Size
+    * @return	void	Size
     */
-    public function insert($a_tpl)
+    public function insert(ilTemplate $a_tpl): void
     {
         global $DIC;
         $lng = $DIC['lng'];
-        
+
         $tpl = new ilTemplate("tpl.prop_matchingwizardinput.html", true, true, "Modules/TestQuestionPool");
         $i = 0;
         foreach ($this->values as $value) {
             if (!$this->hideImages) {
-                if (strlen($value->picture)) {
-                    $imagename = $this->qstObject->getImagePathWeb() . $value->picture;
+                if (strlen($value->getPicture())) {
+                    $imagename = $this->qstObject->getImagePathWeb() . $value->getPicture();
                     if ($this->qstObject->getThumbSize()) {
-                        if (@file_exists($this->qstObject->getImagePath() . $this->qstObject->getThumbPrefix() . $value->picture)) {
-                            $imagename = $this->qstObject->getImagePathWeb() . $this->qstObject->getThumbPrefix() . $value->picture;
+                        if (@file_exists($this->qstObject->getImagePath() . $this->qstObject->getThumbPrefix() . $value->getPicture())) {
+                            $imagename = $this->qstObject->getImagePathWeb() . $this->qstObject->getThumbPrefix() . $value->getPicture();
                         }
                     }
                     $tpl->setCurrentBlock('image');
                     $tpl->setVariable('SRC_IMAGE', $imagename);
-                    $tpl->setVariable('IMAGE_NAME', $value->picture);
-                    $tpl->setVariable('ALT_IMAGE', ilUtil::prepareFormOutput($value->text));
+                    $tpl->setVariable('IMAGE_NAME', $value->getPicture());
+                    $tpl->setVariable('ALT_IMAGE', ilLegacyFormElementsUtil::prepareFormOutput($value->getText()));
                     $tpl->setVariable("TXT_DELETE_EXISTING", $lng->txt("delete_existing_file"));
                     $tpl->setVariable("IMAGE_ROW_NUMBER", $i);
                     $tpl->setVariable("IMAGE_POST_VAR", $this->getPostVar());
@@ -304,7 +318,7 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
 
             if (is_object($value)) {
                 $tpl->setCurrentBlock("prop_text_propval");
-                $tpl->setVariable("PROPERTY_VALUE", ilUtil::prepareFormOutput($value->text));
+                $tpl->setVariable("PROPERTY_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($value->getText()));
                 $tpl->parseCurrentBlock();
             }
             // this block does not exist in the template
@@ -330,7 +344,7 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
             $tpl->setCurrentBlock("row");
             $tpl->setVariable("POST_VAR", $this->getPostVar());
             $tpl->setVariable("ROW_NUMBER", $i + 1);
-            $tpl->setVariable("ROW_IDENTIFIER", $value->identifier);
+            $tpl->setVariable("ROW_IDENTIFIER", $value->getIdentifier());
             $tpl->setVariable("ID", $this->getPostVar() . "[answer][$i]");
             $tpl->setVariable("CMD_ADD", "cmd[add" . $this->getFieldId() . "][$i]");
             $tpl->setVariable("CMD_REMOVE", "cmd[remove" . $this->getFieldId() . "][$i]");
@@ -353,7 +367,7 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
             }
             $tpl->setCurrentBlock("image_heading");
             $tpl->setVariable("ANSWER_IMAGE", $this->image_name);
-            $tpl->setVariable("TXT_MAX_SIZE", ilUtil::getFileSizeInfo());
+            $tpl->setVariable("TXT_MAX_SIZE", ilFileUtils::getFileSizeInfo());
             $tpl->parseCurrentBlock();
         }
 

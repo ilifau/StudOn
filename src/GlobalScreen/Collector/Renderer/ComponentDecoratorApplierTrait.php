@@ -30,7 +30,7 @@ use ILIAS\UI\Component\Symbol\Symbol;
  */
 trait ComponentDecoratorApplierTrait
 {
-    public function applyDecorator(Component $component, isGlobalScreenItem $item) : Component
+    public function applyDecorator(Component $component, isGlobalScreenItem $item): Component
     {
         $c = $item->getComponentDecorator();
         if ($c !== null) {
@@ -40,7 +40,7 @@ trait ComponentDecoratorApplierTrait
         return $component;
     }
 
-    public function applySymbolDecorator(Symbol $symbol, isGlobalScreenItem $item) : Symbol
+    public function applySymbolDecorator(Symbol $symbol, isGlobalScreenItem $item): Symbol
     {
         $c = $item->getSymbolDecorator();
         if ($c !== null) {

@@ -1,36 +1,64 @@
 <?php
 
-/* Copyright (c) 2018 Nils Haagen <nils.haagen@concepts.and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Layout\Page;
 
 use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
-use ILIAS\UI\Implementation\Render\ilTemplateWrapper as UITemplateWrapper;
-use ILIAS\UI\Component\Signal;
-use ILIAS\UI\Component\Image\Image;
+use ilGlobalPageTemplate;
+use ILIAS\UI\Implementation\Render\Template;
+use ILIAS\UI\Implementation\Render\ResourceRegistry;
+use iljQueryUtil;
+use ilUIFramework;
+use LogicException;
 
 class Renderer extends AbstractComponentRenderer
 {
     public const COOKIE_NAME_SLATES_ENGAGED = 'il_mb_slates';
+
     /**
      * @inheritdoc
      */
-    public function render(Component\Component $component, RendererInterface $default_renderer)
+    public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
         $this->checkComponent($component);
 
         if ($component instanceof Component\Layout\Page\Standard) {
             return $this->renderStandardPage($component, $default_renderer);
         }
+
+        throw new LogicException("Cannot render: " . get_class($component));
     }
 
-
-    protected function renderStandardPage(Component\Layout\Page\Standard $component, RendererInterface $default_renderer)
-    {
+    protected function renderStandardPage(
+        Component\Layout\Page\Standard $component,
+        RendererInterface $default_renderer
+    ): string {
         $tpl = $this->getTemplate("tpl.standardpage.html", true, true);
 
+        $tpl->setVariable('FAVICON_PATH', $component->getFaviconPath());
+
+        if ($component->hasOverlay()) {
+            $tpl->setVariable('OVERLAY', $default_renderer->render($component->getOverlay()));
+        }
         if ($component->hasMetabar()) {
             $tpl->setVariable('METABAR', $default_renderer->render($component->getMetabar()));
         }
@@ -60,6 +88,7 @@ class Renderer extends AbstractComponentRenderer
             $tpl->setVariable('RESPONSIVE_LOGO', $default_renderer->render($component->getLogo()));
         }
 
+        // There is a roadmap entry for this.
         $slates_cookie = $_COOKIE[self::COOKIE_NAME_SLATES_ENGAGED] ?? '';
         if ($slates_cookie && json_decode($slates_cookie, true)['engaged']) {
             $tpl->touchBlock('slates_engaged');
@@ -79,7 +108,7 @@ class Renderer extends AbstractComponentRenderer
         if ($component->getWithHeaders()) {
             $tpl = $this->setHeaderVars($tpl, $component->getIsUIDemo());
         }
-    
+
         foreach ($component->getMetaData() as $meta_key => $meta_value) {
             $tpl->setCurrentBlock('meta_datum');
             $tpl->setVariable('META_KEY', $meta_key);
@@ -92,7 +121,7 @@ class Renderer extends AbstractComponentRenderer
 
     protected function convertBreadcrumbsToDropdownLocator(
         Component\Breadcrumbs\Breadcrumbs $breadcrumbs
-    ) : Component\Dropdown\Dropdown {
+    ): Component\Dropdown\Dropdown {
         $f = $this->getUIFactory();
         $buttons = [];
         $items = array_reverse($breadcrumbs->getItems());
@@ -109,16 +138,11 @@ class Renderer extends AbstractComponentRenderer
 
     /**
      * When rendering the whole page, all resources must be included.
-     * This is for now and the page-demo to work, lateron this must be replaced
+     * This is for now and the page-demo to work, later on this must be replaced
      * with resources set as properties at the page or similar mechanisms.
      * Please also see ROADMAP.md, "Page-Layout and ilTemplate, CSS/JS Header".
-     *
-     * @param \ilGlobalPageTemplate $tpl
-     *
-     * @return \ilGlobalPageTemplate
-     * @throws \ILIAS\UI\NotImplementedException
      */
-    protected function setHeaderVars($tpl, bool $for_ui_demo = false)
+    protected function setHeaderVars(Template $tpl, bool $for_ui_demo = false): Template
     {
         global $DIC;
         $il_tpl = $DIC["tpl"] ?? null;
@@ -128,7 +152,7 @@ class Renderer extends AbstractComponentRenderer
         $css_files = [];
         $css_inline = [];
 
-        if ($il_tpl instanceof \ilGlobalPageTemplate) {
+        if ($il_tpl instanceof ilGlobalPageTemplate) {
             $layout = $DIC->globalScreen()->layout();
             foreach ($layout->meta()->getJs()->getItemsInOrderOfDelivery() as $js) {
                 $js_files[] = $js->getContent();
@@ -148,16 +172,16 @@ class Renderer extends AbstractComponentRenderer
             $base_url = '../../../../../../';
             $tpl->setVariable("BASE", $base_url);
 
-            array_unshift($js_files, './Services/JavaScript/js/Basic.js');
+            $additional_js_files = [
+                iljQueryUtil::getLocaljQueryPath(),
+                './Services/JavaScript/js/Basic.js',
+                ilUIFramework::BOWER_BOOTSTRAP_JS,
+                './libs/bower/bower_components/jquery-migrate/jquery-migrate.min.js',
+            ];
 
-            include_once("./Services/UICore/classes/class.ilUIFramework.php");
-            foreach (\ilUIFramework::getJSFiles() as $il_js_file) {
-                array_unshift($js_files, $il_js_file);
-            }
+            array_unshift($js_files, ...$additional_js_files);
 
-            include_once("./Services/jQuery/classes/class.iljQueryUtil.php");
-            array_unshift($js_files, './libs/bower/bower_components/jquery-migrate/jquery-migrate.min.js');
-            array_unshift($js_files, \iljQueryUtil::getLocaljQueryPath());
+            $css_files[] = ['file' => './templates/default/delos.css'];
         }
 
         foreach ($js_files as $js_file) {
@@ -174,14 +198,13 @@ class Renderer extends AbstractComponentRenderer
         $tpl->setVariable("CSS_INLINE", implode(PHP_EOL, $css_inline));
         $tpl->setVariable("OLCODE", implode(PHP_EOL, $js_inline));
 
-
         return $tpl;
     }
 
     /**
      * @inheritdoc
      */
-    public function registerResources(\ILIAS\UI\Implementation\Render\ResourceRegistry $registry)
+    public function registerResources(ResourceRegistry $registry): void
     {
         parent::registerResources($registry);
         $registry->register('./src/UI/templates/js/Page/stdpage.js');
@@ -190,7 +213,7 @@ class Renderer extends AbstractComponentRenderer
     /**
      * @inheritdoc
      */
-    protected function getComponentInterfaceName()
+    protected function getComponentInterfaceName(): array
     {
         return array(
             Component\Layout\Page\Standard::class

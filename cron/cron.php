@@ -1,23 +1,18 @@
 <?php
-chdir(dirname(__FILE__));
+
+declare(strict_types=1);
+
+chdir(__DIR__);
 chdir('..');
 
-include_once './Services/Cron/classes/class.ilCronStartUp.php';
+require_once './Services/Cron/classes/class.ilCronStartUp.php';
 
 if ($_SERVER['argc'] < 4) {
     echo "Usage: cron.php username password client\n";
     exit(1);
 }
 
-$client = $_SERVER['argv'][3];
-$login = $_SERVER['argv'][1];
-$password = $_SERVER['argv'][2];
-
-// fau: singleCronJob - get job id
-if (isset( $_SERVER['argv'][4])) {
-    $jobId = $_SERVER['argv'][4];
-}
-// fau.
+[$script, $login, $password, $client] = $_SERVER['argv'];
 
 $cron = new ilCronStartUp(
     $client,
@@ -26,27 +21,24 @@ $cron = new ilCronStartUp(
 );
 
 try {
+    global $DIC;
+
     $cron->authenticate();
 
-    $cronManager = new ilStrictCliCronManager(
-        new ilCronManager($DIC->settings(), $DIC->logger()->root())
+    $strictCronManager = new ilStrictCliCronManager(
+        $DIC->cron()->manager()
     );
+    $strictCronManager->runActiveJobs($DIC->user());
 
-    // fau: singleCronJob - run single job if id is given
-    if (!empty($jobId)) {
-        $cronManager->runSingleJob($jobId);
-    }
-    else {
-        $cronManager->runActiveJobs();
-    }
-    // fau.
-
-    // fau: avoidCronSessionError - don't logout to avoid "headers already sent" error at the end if cron made outputs
-    // $cron->logout();
+    $cron->logout();
 } catch (Exception $e) {
-    // $cron->logout();
-    // fau.
+    $cron->logout();
 
     echo $e->getMessage() . "\n";
+
+    if (defined('DEVMODE') && DEVMODE) {
+        echo $e->getTraceAsString() . "\n";
+    }
+
     exit(1);
 }

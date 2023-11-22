@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer;
 
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\isItem;
@@ -35,7 +35,7 @@ interface TypeRenderer
      * @param bool   $with_content
      * @return Component
      */
-    public function getComponentForItem(isItem $item, bool $with_content = true) : Component;
+    public function getComponentForItem(isItem $item, bool $with_content = true): Component;
 
     /**
      * This is called in cases when the Full Item with it's content is needed,
@@ -44,7 +44,7 @@ interface TypeRenderer
      * @param isItem $item
      * @return Component
      */
-    public function getComponentWithContent(isItem $item) : Component;
+    public function getComponentWithContent(isItem $item): Component;
 
     /**
      * This is called when only the relevant part of the item is needed during
@@ -53,5 +53,5 @@ interface TypeRenderer
      * @param isItem $item
      * @return Component
      */
-    public function getComponentWithoutContent(isItem $item) : Component;
+    public function getComponentWithoutContent(isItem $item): Component;
 }

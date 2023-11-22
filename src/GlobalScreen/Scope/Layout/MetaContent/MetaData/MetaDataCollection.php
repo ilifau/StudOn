@@ -31,14 +31,14 @@ class MetaDataCollection
     /**
      * @var MetaDatum[]
      */
-    protected $items = [];
+    protected array $items = [];
 
-    public function add(MetaDatum $meta_datum) : void
+    public function add(MetaDatum $meta_datum): void
     {
         $this->items[] = $meta_datum;
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         $this->items = [];
     }
@@ -46,7 +46,7 @@ class MetaDataCollection
     /**
      * @return Iterator|MetaDatum[]
      */
-    public function getItems() : Iterator
+    public function getItems(): Iterator
     {
         yield from $this->items;
     }
@@ -54,10 +54,10 @@ class MetaDataCollection
     /**
      * @return array
      */
-    public function getItemsAsKeyValuePairs() : array
+    public function getItemsAsKeyValuePairs(): array
     {
         $key_value_pairs = [];
-        array_walk($this->items, function (MetaDatum $d) use (&$key_value_pairs) : void {
+        array_walk($this->items, function (MetaDatum $d) use (&$key_value_pairs): void {
             $key_value_pairs[$d->getKey()] = $d->getValue();
         });
         return $key_value_pairs;

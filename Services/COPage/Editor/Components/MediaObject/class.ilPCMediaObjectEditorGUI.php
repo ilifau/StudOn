@@ -1,19 +1,35 @@
 <?php
 
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+use ILIAS\COPage\Editor\Components\PageComponentEditor;
+use ILIAS\COPage\Editor\Server\UIWrapper;
 
 /**
- *
  * @author Alexander Killing <killing@leifos.de>
  */
-class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageComponentEditor
+class ilPCMediaObjectEditorGUI implements PageComponentEditor
 {
-    /**
-     * @inheritDoc
-     */
-    public function getEditorElements(\ILIAS\COPage\Editor\Server\UIWrapper $ui_wrapper, string $page_type, ilPageObjectGUI $page_gui, int $style_id) : array
-    {
+    public function getEditorElements(
+        UIWrapper $ui_wrapper,
+        string $page_type,
+        ilPageObjectGUI $page_gui,
+        int $style_id
+    ): array {
         global $DIC;
         $lng = $DIC->language();
         $lng->loadLanguageModule("content");
@@ -26,21 +42,26 @@ class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageCo
         $acc->setBehaviour(ilAccordionGUI::FIRST_OPEN);
 
         return [
-            "creation_form" => $acc->getHTML(),
+            "creation_form" => $acc->getHTML(true),
             "icon" => $ui_wrapper->getRenderedIcon("pemed")
         ];
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getEditComponentForm(\ILIAS\COPage\Editor\Server\UIWrapper $ui_wrapper, string $page_type, \ilPageObjectGUI $page_gui, int $style_id, $pcid) : string
-    {
+    public function getEditComponentForm(
+        UIWrapper $ui_wrapper,
+        string $page_type,
+        \ilPageObjectGUI $page_gui,
+        int $style_id,
+        string $pcid
+    ): string {
         global $DIC;
         $lng = $DIC->language();
         $lng->loadLanguageModule("content");
 
-        $media_type = new ILIAS\MediaObjects\MediaType\MediaType();
+        $media_type = $DIC->mediaObjects()
+            ->internal()
+            ->domain()
+            ->mediaType();
 
         $form = new ilPropertyFormGUI();
         $form->setShowTopButtons(false);
@@ -58,7 +79,7 @@ class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageCo
             $pcid
         );
         $pc_media_gui->setStyleId($style_id);
-        $pc_media_gui->getCharacteristicsOfCurrentStyle("media_cont");
+        $pc_media_gui->getCharacteristicsOfCurrentStyle(["media_cont"]);
 
         $media = $pc_media->getMediaObject()->getMediaItem("Standard");
 
@@ -123,13 +144,27 @@ class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageCo
         return $html . $link;
     }
 
-    /**
-     * Get upload form
-     * @param
-     * @return
-     */
-    protected function getRenderedUploadForm(\ILIAS\COPage\Editor\Server\UIWrapper $ui_wrapper, $lng)
-    {
+    public function getRenderedUploadForm(
+        UIWrapper $ui_wrapper,
+        ilLanguage $lng,
+        ilPropertyFormGUI $form = null
+    ): string {
+        if (!$form) {
+            $form = $this->getUploadForm($lng);
+        }
+
+        $html = $ui_wrapper->getRenderedForm(
+            $form,
+            [["Page", "component.save", $lng->txt("insert")],
+             ["Page", "component.cancel", $lng->txt("cancel")]]
+        );
+
+        return $html;
+    }
+
+    public function getUploadForm(
+        $lng
+    ): ilPropertyFormGUI {
         $form = new ilPropertyFormGUI();
         $form->setShowTopButtons(false);
 
@@ -152,7 +187,20 @@ class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageCo
         $up = new ilFileInputGUI($lng->txt("cont_file"), "standard_file");
         $up->setSuffixes(ilObjMediaObject::getRestrictedFileTypes());
         $up->setForbiddenSuffixes(ilObjMediaObject::getForbiddenFileTypes());
+        $up->setRequired(true);
         $form->addItem($up);
+
+        return $form;
+    }
+
+    public function getRenderedUrlForm(
+        UIWrapper $ui_wrapper,
+        ilLanguage $lng,
+        ilPropertyFormGUI $form = null
+    ): string {
+        if (!$form) {
+            $form = $this->getUrlForm($lng);
+        }
 
         $html = $ui_wrapper->getRenderedForm(
             $form,
@@ -163,13 +211,9 @@ class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageCo
         return $html;
     }
 
-    /**
-     * Get upload form
-     * @param
-     * @return
-     */
-    protected function getRenderedUrlForm(\ILIAS\COPage\Editor\Server\UIWrapper $ui_wrapper, $lng)
-    {
+    public function getUrlForm(
+        ilLanguage $lng
+    ): ilPropertyFormGUI {
         $form = new ilPropertyFormGUI();
         $form->setShowTopButtons(false);
 
@@ -191,25 +235,16 @@ class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageCo
         // standard reference
         $ti = new ilTextInputGUI($lng->txt("url"), "standard_reference");
         $ti->setInfo($lng->txt("cont_url_info"));
+        $ti->setRequired(true);
         $form->addItem($ti);
 
-
-        $html = $ui_wrapper->getRenderedForm(
-            $form,
-            [["Page", "component.save", $lng->txt("insert")],
-             ["Page", "component.cancel", $lng->txt("cancel")]]
-        );
-
-        return $html;
+        return $form;
     }
 
-    /**
-     * Get pool link
-     * @param
-     * @return
-     */
-    protected function getRenderedPoolBar(\ILIAS\COPage\Editor\Server\UIWrapper $ui_wrapper, $lng)
-    {
+    protected function getRenderedPoolBar(
+        UIWrapper $ui_wrapper,
+        ilLanguage $lng
+    ): string {
         global $DIC;
 
         $ui = $DIC->ui();
@@ -241,16 +276,11 @@ class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageCo
         return $ui_wrapper->getRenderedFormFooter($buttons);
     }
 
-    /**
-     * Get pool link
-     * @param \ILIAS\COPage\Editor\Server\UIWrapper $ui_wrapper
-     * @param                                       $lng
-     * @param                                       $page_gui
-     * @return string
-     */
-    protected function getRenderedClipboardBar(\ILIAS\COPage\Editor\Server\UIWrapper $ui_wrapper, $lng,
-        $page_gui)
-    {
+    protected function getRenderedClipboardBar(
+        UIWrapper $ui_wrapper,
+        ilLanguage $lng,
+        ilPageObjectGUI $page_gui
+    ): string {
         global $DIC;
 
         $ctrl = $DIC->ctrl();
@@ -280,5 +310,4 @@ class ilPCMediaObjectEditorGUI implements \ILIAS\COPage\Editor\Components\PageCo
 
         return $ui_wrapper->getRenderedFormFooter($buttons);
     }
-
 }

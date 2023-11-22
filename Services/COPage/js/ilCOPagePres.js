@@ -1,5 +1,19 @@
 
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 il.COPagePres =
 {
@@ -13,6 +27,7 @@ il.COPagePres =
 		this.initMapAreas();
 		this.initAdvancedContent();
 		this.initAudioVideo();
+		this.initAccordions();
 	},
 	
 	//
@@ -28,6 +43,14 @@ il.COPagePres =
 		if (cookiePos > -1 && document.cookie.charAt(cookiePos + 11) == 1)
 		{
 			this.toggleToc();
+		}
+	},
+
+	initAccordions: function () {
+		if (typeof ilAccordionsInits !== "undefined") {
+			for (var i = 0; i < ilAccordionsInits.length; i++) {
+				il.Accordion.add(ilAccordionsInits[i]);
+			}
 		}
 	},
 
@@ -72,7 +95,6 @@ il.COPagePres =
 	 */
 	initInteractiveImages: function () {
 		// preload overlay images (necessary?)
-		
 		// add onmouseover event to all map areas
 		$("map.iim > area").mouseover(this.overBaseArea);
 		$("map.iim > area").mouseout(this.outBaseArea);
@@ -81,6 +103,64 @@ il.COPagePres =
 		$("a.ilc_marker_Marker").mouseover(this.overMarker);
 		$("a.ilc_marker_Marker").mouseout(this.outMarker);
 		$("a.ilc_marker_Marker").click(this.clickMarker);
+
+		// add areas
+		document.querySelectorAll("[data-copg-iim-data-type='area']").forEach(el => {
+			const d = el.dataset;
+			il.COPagePres.addIIMArea({
+				area_id: d.copgIimAreaId,
+				iim_id: d.copgIimId,
+				tr_nr: d.copgIimTrNr,
+				title: d.copgIimTitle
+			});
+		});
+
+		// add trigger for overlays/popups
+		document.querySelectorAll("[data-copg-iim-data-type='trigger']").forEach(el => {
+			const d = el.dataset;
+			il.COPagePres.addIIMTrigger({
+				iim_id: d.copgIimId,
+				type: d.copgIimType,
+				title: d.copgIimTitle,
+				ovx: d.copgIimOvx,
+				ovy: d.copgIimOvy,
+				markx: d.copgIimMarkx,
+				marky: d.copgIimMarky,
+				popup_nr: d.copgIimPopupNr,
+				nr: d.copgIimNr,
+				popx: d.copgIimPopx,
+				popy: d.copgIimPopy,
+				popwidth: d.copgIimPopwidth,
+				popheight: d.copgIimPopheight,
+				tr_id: d.copgIimTrId
+			});
+		});
+
+		// add markers
+		document.querySelectorAll("[data-copg-iim-data-type='marker']").forEach(el => {
+			const d = el.dataset;
+			il.COPagePres.addIIMMarker({
+				iim_id: d.copgIimId,
+				m_id: d.copgIimMId,
+				markx: d.copgIimMarkx,
+				marky: d.copgIimMarky,
+				tr_nr: d.copgIimTrNr,
+				tr_id: d.copgIimTrId,
+				edit_mode: d.copgIimEditMode
+			});
+		});
+
+		// add popups
+		document.querySelectorAll("[data-copg-iim-data-type='popup']").forEach(el => {
+			const d = el.dataset;
+			il.COPagePres.addIIMPopup({
+				iim_id: d.copgIimId,
+				pop_id: d.copgIimPopId,
+				div_id: d.copgIimDivId,
+				nr: d.copgIimNr,
+				title: d.copgIimTitle
+			});
+		});
 
 		$(document).on("il.accordion.start-opening", function (ev, el) {
 			il.COPagePres.fixMarkerPositions();
@@ -133,7 +213,6 @@ il.COPagePres =
 	 */
 	handleOverEvent: function (iim_id, area_tr_nr, is_marker)
 	{
-//console.log("over enter");
 		var k, j, tr, coords, ovx, ovy, base, ov, base_map_name, c, k2, i2, tr2;
 		
 		if (this.dragging) {
@@ -178,7 +257,6 @@ il.COPagePres =
 				if (tr.map_initialized == null && !is_marker)
 				{
 					tr.map_initialized = true;
-//console.log(tr);
 					$("map[name='" + base_map_name + "'] > area").each(
 						function (i,el) {
 							// if title is the same, add area to overlay map
@@ -252,7 +330,6 @@ il.COPagePres =
 	 */
 	handleOutEvent: function (iim_id, area_tr_nr)
 	{
-//console.log("out");
 		var k, tr;
 		
 		if (this.dragging) {
@@ -279,7 +356,6 @@ il.COPagePres =
 			return;
 		}
 
-//console.log("overOvArea " + k + ":" + ov_id);
 		il.COPagePres.iim_trigger[k].over_ov_area = value;
 		if (value) {
 			$("img#" + ov_id).css('display', '');
@@ -357,9 +433,7 @@ il.COPagePres =
 				"auto_hide":false});
 		}
 		
-//console.log("showing trigger " + tr_id);
-//console.log("iim_popup_" + tr['iim_id'] + "_" + tr['popup_nr']);
-		
+
 		// show the overlay
 		base = $("img#base_img_" + il.COPagePres.iim_trigger[tr_id].iim_id);
 		pos = base.offset();
@@ -382,12 +456,10 @@ il.COPagePres =
 	},
 
 	addIIMTrigger: function(tr) {
-//console.log(tr);
 		this.iim_trigger[tr.tr_id] = tr;
 	},
 	
 	addIIMArea: function(a) {
-//console.log(a);
 		this.iim_area[a.area_id] = a;
 	},
 	
@@ -549,7 +621,6 @@ il.COPagePres =
 						
 						base = $("img#base_img_" + cpop.iim_id);
 						bpos = base.offset();
-//console.log(dtr);
 						popx = bpos.left + parseInt(dtr.popx, 10);
 						popy = bpos.top + parseInt(dtr.popy, 10);
 						pdummy.css("position", "absolute");
@@ -771,24 +842,13 @@ il.COPagePres =
 				var def, cfg;
 
 				def = $(el).find("track[default='default']").first().attr("srclang");
-				// fau: jumpMedia - activate skipback and jumpforward links
-				cfg = {features: ['playpause', 'current', 'progress', 'skipback', 'jumpforward', 'volume', 'fullscreen'], skipBackInterval: 10, jumpForwardInterval: 10};
-				// fau.
+				cfg = {};
 				if (def != ""){
 					cfg.startLanguage = def;
 				}
 				$(el).mediaelementplayer(cfg);
 			});
 		}
-
-		// fau: preventContextMenu - prevent context menu for media
-		$('video').bind('contextmenu', function(e) {
-			return false;
-		});
-		$('audio').bind('contextmenu', function(e) {
-			return false;
-		});
-        // fau.
 	},
 
 	accordionRerender: function (acc_el) {
@@ -809,8 +869,20 @@ il.COPagePres =
 		});
 	},
 
+	inIframe: function () {
+		try {
+			return window.self !== window.top;
+		} catch (e) {
+			return true;
+		}
+	},
+
 	openFullScreenModal: function (target) {
-		console.log("openFullScreenModal: " + target);
+		// see 32198
+		if (il.COPagePres.inIframe()) {
+			window.parent.il.COPagePres.openFullScreenModal(target);
+			return;
+		}
 		$("#il-copg-mob-fullscreen" + il.COPagePres.fullscreen_suffix).attr("src", target);
 		$(document).trigger(il.COPagePres.fullscreen_signal, {
 			id: il.COPagePres.fullscreen_signal,

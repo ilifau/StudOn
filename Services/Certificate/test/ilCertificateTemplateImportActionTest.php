@@ -1,38 +1,53 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
 {
-    public function testCertificateCanBeImportedWithBackgroundImage()
+    public function testCertificateCanBeImportedWithBackgroundImage(): void
     {
-        $placeholderDescriptionObject = $this->getMockBuilder('ilCertificatePlaceholderDescription')
+        $placeholderDescriptionObject = $this->getMockBuilder(ilCertificatePlaceholderDescription::class)
             ->getMock();
 
-        $logger = $this->getMockBuilder('ilLogger')
+        $logger = $this->getMockBuilder(ilLogger::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $filesystem = $this->getMockBuilder('ILIAS\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
             ->getMock();
 
         $filesystem
             ->expects($this->once())
             ->method('deleteDir');
 
-        $templateRepository = $this->getMockBuilder('ilCertificateTemplateRepository')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $templateRepository = $this->getMockBuilder(ilCertificateTemplateRepository::class)->getMock();
 
-        $objectHelper = $this->getMockBuilder('ilCertificateObjectHelper')
+        $objectHelper = $this->getMockBuilder(ilCertificateObjectHelper::class)
             ->getMock();
 
         $objectHelper->method('lookupType')
             ->willReturn('crs');
 
-        $utilHelper = $this->getMockBuilder('ilCertificateUtilHelper')
+        $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
             ->getMock();
 
         $utilHelper
@@ -45,22 +60,22 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
 
         $utilHelper
             ->method('getDir')
-            ->willReturn(array(
-                array(
+            ->willReturn([
+                [
                     'type' => 'file',
                     'entry' => 'background.jpg'
-                ),
-                array(
+                ],
+                [
                     'type' => 'file',
                     'entry' => 'certificate.xml'
-                )
-            ));
+                ]
+            ]);
 
         $utilHelper
             ->expects($this->once())
             ->method('convertImage');
 
-        $database = $this->getMockBuilder('ilDBInterface')
+        $database = $this->getMockBuilder(ilDBInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -85,36 +100,34 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             'someInstallationId'
         );
 
-        $this->assertEquals(true, $result);
+        $this->assertTrue($result);
     }
 
-    public function testCertificateCanBeImportedWithoutBackgroundImage()
+    public function testCertificateCanBeImportedWithoutBackgroundImage(): void
     {
-        $placeholderDescriptionObject = $this->getMockBuilder('ilCertificatePlaceholderDescription')
+        $placeholderDescriptionObject = $this->getMockBuilder(ilCertificatePlaceholderDescription::class)
             ->getMock();
 
-        $logger = $this->getMockBuilder('ilLogger')
+        $logger = $this->getMockBuilder(ilLogger::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $filesystem = $this->getMockBuilder('ILIAS\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
             ->getMock();
 
         $filesystem
             ->expects($this->once())
             ->method('deleteDir');
 
-        $templateRepository = $this->getMockBuilder('ilCertificateTemplateRepository')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $templateRepository = $this->getMockBuilder(ilCertificateTemplateRepository::class)->getMock();
 
-        $objectHelper = $this->getMockBuilder('ilCertificateObjectHelper')
+        $objectHelper = $this->getMockBuilder(ilCertificateObjectHelper::class)
             ->getMock();
 
         $objectHelper->method('lookupType')
             ->willReturn('crs');
 
-        $utilHelper = $this->getMockBuilder('ilCertificateUtilHelper')
+        $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
             ->getMock();
 
         $utilHelper
@@ -127,14 +140,14 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
 
         $utilHelper
             ->method('getDir')
-            ->willReturn(array(
-                array(
+            ->willReturn([
+                [
                     'type' => 'file',
                     'entry' => 'certificate.xml'
-                )
-            ));
+                ]
+            ]);
 
-        $database = $this->getMockBuilder('ilDBInterface')
+        $database = $this->getMockBuilder(ilDBInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -159,33 +172,31 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             'someInstallationId'
         );
 
-        $this->assertEquals(true, $result);
+        $this->assertTrue($result);
     }
 
-    public function testNoXmlFileInUplodadZipFolder()
+    public function testNoXmlFileInUplodadZipFolder(): void
     {
-        $placeholderDescriptionObject = $this->getMockBuilder('ilCertificatePlaceholderDescription')
+        $placeholderDescriptionObject = $this->getMockBuilder(ilCertificatePlaceholderDescription::class)
             ->getMock();
 
-        $logger = $this->getMockBuilder('ilLogger')
+        $logger = $this->getMockBuilder(ilLogger::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $filesystem = $this->getMockBuilder('ILIAS\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
             ->getMock();
 
         $filesystem
             ->expects($this->once())
             ->method('deleteDir');
 
-        $templateRepository = $this->getMockBuilder('ilCertificateTemplateRepository')
-            ->disableOriginalConstructor()
+        $templateRepository = $this->getMockBuilder(ilCertificateTemplateRepository::class)->getMock();
+
+        $objectHelper = $this->getMockBuilder(ilCertificateObjectHelper::class)
             ->getMock();
 
-        $objectHelper = $this->getMockBuilder('ilCertificateObjectHelper')
-            ->getMock();
-
-        $utilHelper = $this->getMockBuilder('ilCertificateUtilHelper')
+        $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
             ->getMock();
 
         $utilHelper
@@ -198,9 +209,9 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
 
         $utilHelper
             ->method('getDir')
-            ->willReturn(array());
+            ->willReturn([]);
 
-        $database = $this->getMockBuilder('ilDBInterface')
+        $database = $this->getMockBuilder(ilDBInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -225,41 +236,39 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             'someInstallationId'
         );
 
-        $this->assertEquals(false, $result);
+        $this->assertFalse($result);
     }
 
-    public function testZipfileCouldNoBeMoved()
+    public function testZipfileCouldNoBeMoved(): void
     {
-        $placeholderDescriptionObject = $this->getMockBuilder('ilCertificatePlaceholderDescription')
+        $placeholderDescriptionObject = $this->getMockBuilder(ilCertificatePlaceholderDescription::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $logger = $this->getMockBuilder('ilLogger')
+        $logger = $this->getMockBuilder(ilLogger::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $filesystem = $this->getMockBuilder('ILIAS\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
             ->getMock();
 
         $filesystem
             ->expects($this->once())
             ->method('deleteDir');
 
-        $templateRepository = $this->getMockBuilder('ilCertificateTemplateRepository')
-            ->disableOriginalConstructor()
+        $templateRepository = $this->getMockBuilder(ilCertificateTemplateRepository::class)->getMock();
+
+        $objectHelper = $this->getMockBuilder(ilCertificateObjectHelper::class)
             ->getMock();
 
-        $objectHelper = $this->getMockBuilder('ilCertificateObjectHelper')
-            ->getMock();
-
-        $utilHelper = $this->getMockBuilder('ilCertificateUtilHelper')
+        $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
             ->getMock();
 
         $utilHelper
             ->method('moveUploadedFile')
             ->willReturn(false);
 
-        $database = $this->getMockBuilder('ilDBInterface')
+        $database = $this->getMockBuilder(ilDBInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -284,6 +293,6 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             'someInstallationId'
         );
 
-        $this->assertEquals(false, $result);
+        $this->assertFalse($result);
     }
 }

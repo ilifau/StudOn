@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2018 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\MainControls\Slate;
 
@@ -14,9 +30,6 @@ use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\ReplaceSignal as ReplaceSignalImplementation;
 use ILIAS\UI\Implementation\Component\Triggerer;
 
-/**
- * Slate
- */
 abstract class Slate implements ISlate\Slate
 {
     use ComponentHelper;
@@ -27,60 +40,24 @@ abstract class Slate implements ISlate\Slate
     public const MENU = 'menu';
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var Symbol
-     */
-    protected $symbol;
-
-    /**
-     * @var Signal
-     */
-    protected $toggle_signal;
-
-    /**
-     * @var Signal
-     */
-    protected $engage_signal;
-
-    /**
-     * @var ReplaceSignal
-     */
-    protected $replace_signal;
-
-    /**
-     * @var bool
-     */
-    protected $engaged = false;
-
-    /**
-     * @var string
-     */
-    protected $mainbar_tree_position;
-
-    /**
-     * @var string
-     */
-    protected $aria_role;
-
-    /**
      * @var string[]
      */
-    protected static $allowed_aria_roles = array(
+    protected static array $allowed_aria_roles = array(
         self::MENU
     );
 
-    /**
-     * @var SignalGeneratorInterface
-     */
-    protected $signal_generator;
+    protected string $name;
+    protected Symbol $symbol;
+    protected Signal $toggle_signal;
+    protected Signal $engage_signal;
+    protected ?Signal $replace_signal = null;
+    protected bool $engaged = false;
+    protected ?string $mainbar_tree_position = null;
+    protected ?string $aria_role = null;
+    protected SignalGeneratorInterface $signal_generator;
 
     /**
      * @param string 	$name 	name of the slate, also used as label
-     * @param Symbol	$symbol
      */
     public function __construct(
         SignalGeneratorInterface $signal_generator,
@@ -97,17 +74,18 @@ abstract class Slate implements ISlate\Slate
     /**
      * Set the signals for this component.
      */
-    protected function initSignals()
+    protected function initSignals(): void
     {
         $this->toggle_signal = $this->signal_generator->create();
         $this->engage_signal = $this->signal_generator->create();
-        $this->replace_signal = $this->signal_generator->create(ReplaceSignalImplementation::class);
+        $signal = $this->signal_generator->create(ReplaceSignalImplementation::class);
+        $this->replace_signal = $signal;
     }
 
     /**
      * @inheritdoc
      */
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -115,7 +93,7 @@ abstract class Slate implements ISlate\Slate
     /**
      * @inheritdoc
      */
-    public function getSymbol() : Symbol
+    public function getSymbol(): Symbol
     {
         return $this->symbol;
     }
@@ -123,7 +101,7 @@ abstract class Slate implements ISlate\Slate
     /**
      * @inheritdoc
      */
-    public function getToggleSignal() : Signal
+    public function getToggleSignal(): Signal
     {
         return $this->toggle_signal;
     }
@@ -131,7 +109,7 @@ abstract class Slate implements ISlate\Slate
     /**
      * @inheritdoc
      */
-    public function getEngageSignal() : Signal
+    public function getEngageSignal(): Signal
     {
         return $this->engage_signal;
     }
@@ -139,7 +117,7 @@ abstract class Slate implements ISlate\Slate
     /**
      * @inheritdoc
      */
-    public function withEngaged(bool $state) : ISlate\Slate
+    public function withEngaged(bool $state): ISlate\Slate
     {
         $clone = clone $this;
         $clone->engaged = $state;
@@ -149,7 +127,7 @@ abstract class Slate implements ISlate\Slate
     /**
      * @inheritdoc
      */
-    public function getEngaged() : bool
+    public function getEngaged(): bool
     {
         return $this->engaged;
     }
@@ -157,12 +135,12 @@ abstract class Slate implements ISlate\Slate
     /**
      * @inheritdoc
      */
-    abstract public function getContents() : array;
+    abstract public function getContents(): array;
 
     /**
      * @inheritdoc
      */
-    public function getReplaceSignal() : ReplaceSignal
+    public function getReplaceSignal(): ?Signal
     {
         return $this->replace_signal;
     }
@@ -170,33 +148,30 @@ abstract class Slate implements ISlate\Slate
     /**
      * @inheritdoc
      */
-    public function appendOnInView(Signal $signal) : \ILIAS\UI\Component\MainControls\Slate\Slate
+    public function appendOnInView(Signal $signal): ISlate\Slate
     {
         return $this->appendTriggeredSignal($signal, 'in_view');
     }
 
 
-    abstract public function withMappedSubNodes(callable $f);
+    abstract public function withMappedSubNodes(callable $f): ISlate\Slate;
 
     /**
      * @inheritdoc
      */
-    public function withMainBarTreePosition(string $tree_pos)
+    public function withMainBarTreePosition(string $tree_pos): ISlate\Slate
     {
         $clone = clone $this;
         $clone->mainbar_tree_position = $tree_pos;
         return $clone;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getMainBarTreePosition()
+    public function getMainBarTreePosition(): ?string
     {
         return $this->mainbar_tree_position;
     }
 
-    public function getMainBarTreeDepth()
+    public function getMainBarTreeDepth(): int
     {
         $pos = explode(':', $this->mainbar_tree_position);
         return count($pos) - 1;
@@ -204,11 +179,8 @@ abstract class Slate implements ISlate\Slate
 
     /**
      * Get a slate like this, but with an additional ARIA role.
-     *
-     * @param string $aria_role
-     * @return Slate
      */
-    public function withAriaRole(string $aria_role) : Slate
+    public function withAriaRole(string $aria_role): ISlate\Slate
     {
         $this->checkArgIsElement(
             "role",
@@ -223,10 +195,8 @@ abstract class Slate implements ISlate\Slate
 
     /**
      * Get the ARIA role on the slate.
-     *
-     * @return string|null
      */
-    public function getAriaRole() : ?string
+    public function getAriaRole(): ?string
     {
         return $this->aria_role;
     }

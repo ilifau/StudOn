@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 2017 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Table;
 
@@ -8,6 +25,9 @@ use ILIAS\UI\Implementation\Component\ComponentHelper;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Implementation\Component\Signal;
+use ILIAS\UI\Component\Button\Button;
+use ILIAS\UI\Component\Dropdown\Dropdown;
+use ILIAS\UI\Component\Listing\Descriptive;
 
 class PresentationRow implements T\PresentationRow
 {
@@ -15,64 +35,21 @@ class PresentationRow implements T\PresentationRow
     use JavaScriptBindable;
 
     /**
-     * @var Signal
+     * @var	Button|Dropdown|null
      */
-    protected $show_signal;
+    private $action = null;
 
-    /**
-     * @var Signal
-     */
-    protected $close_signal;
-
-    /**
-     * @var Signal
-     */
-    protected $toggle_signal;
-
-    /**
-     * @var	string|null
-     */
-    private $headline;
-
-    /**
-     * @var	string|null
-     */
-    private $subheadline;
-
-    /**
-     * @var	\ILIAS\UI\Component\Button\Button|\ILIAS\UI\Component\Dropdown\Dropdown|null
-     */
-    private $action;
-
-    /**
-     * @var	array
-     */
-    private $important_fields = [];
-
-    /**
-     * @var
-     */
-    private $content;
-
-    /**
-     * @var	string
-     */
-    private $further_fields_headline;
-
-    /**
-     * @var	array
-     */
-    private $further_fields = [];
-
-    /**
-     * @var	array
-     */
-    private $data;
-
-    /**
-     * @var SignalGeneratorInterface
-     */
-    protected $signal_generator;
+    protected Signal $show_signal;
+    protected Signal $close_signal;
+    protected Signal $toggle_signal;
+    private ?string $headline = null;
+    private ?string $subheadline = null;
+    private array $important_fields = [];
+    private Descriptive $content;
+    private ?string $further_fields_headline = null;
+    private array $further_fields = [];
+    private array $data;
+    protected SignalGeneratorInterface $signal_generator;
 
     public function __construct(SignalGeneratorInterface $signal_generator)
     {
@@ -83,7 +60,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function withResetSignals()
+    public function withResetSignals(): T\PresentationRow
     {
         $clone = clone $this;
         $clone->initSignals();
@@ -93,7 +70,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * Set the signals for this component.
      */
-    protected function initSignals()
+    protected function initSignals(): void
     {
         $this->show_signal = $this->signal_generator->create();
         $this->close_signal = $this->signal_generator->create();
@@ -103,7 +80,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getShowSignal()
+    public function getShowSignal(): Signal
     {
         return $this->show_signal;
     }
@@ -111,7 +88,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getCloseSignal()
+    public function getCloseSignal(): Signal
     {
         return $this->close_signal;
     }
@@ -120,7 +97,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getToggleSignal()
+    public function getToggleSignal(): Signal
     {
         return $this->toggle_signal;
     }
@@ -129,7 +106,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function withHeadline($headline)
+    public function withHeadline($headline): T\PresentationRow
     {
         $this->checkStringArg("string", $headline);
         $clone = clone $this;
@@ -140,7 +117,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getHeadline()
+    public function getHeadline(): ?string
     {
         return $this->headline;
     }
@@ -148,7 +125,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function withSubheadline($subheadline)
+    public function withSubheadline($subheadline): T\PresentationRow
     {
         $this->checkStringArg("string", $subheadline);
         $clone = clone $this;
@@ -159,7 +136,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getSubheadline()
+    public function getSubheadline(): ?string
     {
         return $this->subheadline;
     }
@@ -167,7 +144,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function withImportantFields(array $fields)
+    public function withImportantFields(array $fields): T\PresentationRow
     {
         $clone = clone $this;
         $clone->important_fields = $fields;
@@ -177,7 +154,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getImportantFields()
+    public function getImportantFields(): array
     {
         return $this->important_fields;
     }
@@ -186,7 +163,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function withContent(\ILIAS\UI\Component\Listing\Descriptive $content)
+    public function withContent(Descriptive $content): T\PresentationRow
     {
         $clone = clone $this;
         $clone->content = $content;
@@ -196,7 +173,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getContent()
+    public function getContent(): Descriptive
     {
         return $this->content;
     }
@@ -205,7 +182,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function withFurtherFieldsHeadline($headline)
+    public function withFurtherFieldsHeadline($headline): T\PresentationRow
     {
         $this->checkStringArg("string", $headline);
         $clone = clone $this;
@@ -216,7 +193,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getFurtherFieldsHeadline()
+    public function getFurtherFieldsHeadline(): ?string
     {
         return $this->further_fields_headline;
     }
@@ -224,7 +201,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function withFurtherFields(array $fields)
+    public function withFurtherFields(array $fields): T\PresentationRow
     {
         $clone = clone $this;
         $clone->further_fields = $fields;
@@ -234,7 +211,7 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function getFurtherFields()
+    public function getFurtherFields(): array
     {
         return $this->further_fields;
     }
@@ -243,12 +220,12 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-    public function withAction($action)
+    public function withAction($action): T\PresentationRow
     {
         $check =
             is_null($action)
-            || $action instanceof \ILIAS\UI\Component\Button\Button
-            || $action instanceof \ILIAS\UI\Component\Dropdown\Dropdown;
+            || $action instanceof Button
+            || $action instanceof Dropdown;
 
         $expected =
             " NULL or " .

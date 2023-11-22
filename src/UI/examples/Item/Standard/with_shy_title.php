@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Item\Standard;
+
 /**
  * With shy button as title
  */

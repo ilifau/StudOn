@@ -1,46 +1,54 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use ILIAS\ContentPage\PageMetrics\PageMetricsService;
-use ILIAS\ContentPage\PageMetrics\PageMetricsRepositoryImp;
-use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\ContentPage\PageMetrics\Command\StorePageMetricsCommand;
+declare(strict_types=1);
 
 /**
- * Class ilObjContentPage
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\ContentPage\PageMetrics\Command\StorePageMetricsCommand;
+use ILIAS\ContentPage\PageMetrics\PageMetricsRepositoryImp;
+use ILIAS\ContentPage\PageMetrics\PageMetricsService;
+use ILIAS\Style\Content\DomainService;
+
 class ilObjContentPage extends ilObject2 implements ilContentPageObjectConstants
 {
-    /** @var int */
-    protected $styleId = 0;
-    /** @var ilObjectTranslation */
-    protected $objTrans;
-    /** @var PageMetricsService */
-    private $pageMetricsService;
+    protected int $styleId = 0;
+    protected ?ilObjectTranslation $objTrans = null;
+    private PageMetricsService $pageMetricsService;
+    protected DomainService $content_style_domain;
 
-    /**
-     * @inheritDoc
-     */
-    public function __construct($a_id = 0, $a_reference = true)
+    public function __construct(int $a_id = 0, bool $a_reference = true)
     {
         global $DIC;
 
         parent::__construct($a_id, $a_reference);
         $this->initTranslationService();
         $this->initPageMetricsService($DIC->refinery());
+        $this->content_style_domain = $DIC->contentStyle()
+            ->domain();
     }
 
-    private function initTranslationService() : void
+    private function initTranslationService(): void
     {
-        if ($this->getId() > 0 && null === $this->objTrans) {
+        if (null === $this->objTrans && $this->getId() > 0) {
             $this->objTrans = ilObjectTranslation::getInstance($this->getId());
         }
     }
 
-    /**
-     * @param Refinery $refinery
-     */
-    private function initPageMetricsService(ILIAS\Refinery\Factory $refinery) : void
+    private function initPageMetricsService(ILIAS\Refinery\Factory $refinery): void
     {
         $this->pageMetricsService = new PageMetricsService(
             new PageMetricsRepositoryImp($this->db),
@@ -48,58 +56,19 @@ class ilObjContentPage extends ilObject2 implements ilContentPageObjectConstants
         );
     }
 
-    /**
-     * @return ilObjectTranslation|null
-     */
-    public function getObjectTranslation() : ? ilObjectTranslation
+    public function getObjectTranslation(): ilObjectTranslation
     {
         return $this->objTrans;
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function initType()
+    protected function initType(): void
     {
         $this->type = self::OBJ_TYPE;
     }
 
-    /**
-     * @return int
-     */
-    public function getStyleSheetId() : int
+    protected function doCloneObject(ilObject2 $new_obj, int $a_target_id, ?int $a_copy_id = null): void
     {
-        return (int) $this->styleId;
-    }
-
-    /**
-     * @param int $styleId
-     */
-    public function setStyleSheetId(int $styleId)
-    {
-        $this->styleId = $styleId;
-    }
-
-    /**
-     * @param int $styleId
-     */
-    public function writeStyleSheetId(int $styleId) : void
-    {
-        $this->db->manipulateF(
-            'UPDATE content_object SET stylesheet = %s WHERE id = %s',
-            ['integer', 'integer'],
-            [(int) $styleId, $this->getId()]
-        );
-
-        $this->setStyleSheetId($styleId);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null)
-    {
-        /** @var $new_obj self */
+        assert($new_obj instanceof ilObjContentPage);
         parent::doCloneObject($new_obj, $a_target_id, $a_copy_id);
 
         $ot = ilObjectTranslation::getInstance($this->getId());
@@ -120,84 +89,63 @@ class ilObjContentPage extends ilObject2 implements ilContentPageObjectConstants
 
                 $this->pageMetricsService->store(
                     new StorePageMetricsCommand(
-                        (int) $new_obj->getId(),
+                        $new_obj->getId(),
                         $duplicatePageObject->getLanguage()
                     )
                 );
             }
         }
 
-        $styleId = $this->getStyleSheetId();
-        if ($styleId > 0 && !ilObjStyleSheet::_lookupStandard($styleId)) {
-            $style = ilObjectFactory::getInstanceByObjId($styleId, false);
-            if ($style) {
-                $new_id = $style->ilClone();
-                $new_obj->setStyleSheetId($new_id);
-                $new_obj->update();
-            }
-        }
+        $style = $this->content_style_domain->styleForObjId($this->getId());
+        $style->cloneTo($new_obj->getId());
 
         ilContainer::_writeContainerSetting(
             $new_obj->getId(),
             ilObjectServiceSettingsGUI::INFO_TAB_VISIBILITY,
-            ilContainer::_lookupContainerSetting(
+            (string) ((bool) ilContainer::_lookupContainerSetting(
                 $this->getId(),
                 ilObjectServiceSettingsGUI::INFO_TAB_VISIBILITY,
-                true
-            )
+                '1'
+            ))
         );
 
         $lpSettings = new ilLPObjSettings($this->getId());
         $lpSettings->cloneSettings($new_obj->getId());
+
+        $cwo = ilCopyWizardOptions::_getInstance($a_copy_id);
+        //copy online status if object is not the root copy object
+        if (!$cwo->isRootNode($this->getRefId())) {
+            $new_obj->setOfflineStatus($this->getOfflineStatus());
+        } else {
+            $new_obj->setOfflineStatus(true);
+        }
+        $new_obj->update();
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function doRead()
+    protected function doRead(): void
     {
         parent::doRead();
 
         $this->initTranslationService();
-
-        $res = $this->db->queryF(
-            'SELECT * FROM content_page_data WHERE content_page_id = %s',
-            ['integer'],
-            [$this->getId()]
-        );
-
-        while ($data = $this->db->fetchAssoc($res)) {
-            $this->setStyleSheetId((int) $data['stylesheet']);
-        }
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function doCreate()
+    protected function doCreate(bool $clone_mode = false): void
     {
-        parent::doCreate();
+        parent::doCreate($clone_mode);
 
         $this->initTranslationService();
 
         $this->db->manipulateF(
-            '
-			INSERT INTO content_page_data 
-			( 
-			 	content_page_id,
-				stylesheet
-			)
-			VALUES(%s, %s)',
+            'INSERT INTO content_page_data (content_page_id, stylesheet ) VALUES(%s, %s)',
             ['integer', 'integer'],
             [$this->getId(), 0]
         );
+
+        $this->setOfflineStatus(true);
+        $this->update();
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    protected function doUpdate()
+    protected function doUpdate(): void
     {
         parent::doUpdate();
 
@@ -207,22 +155,9 @@ class ilObjContentPage extends ilObject2 implements ilContentPageObjectConstants
         $trans->setDefaultTitle($this->getTitle());
         $trans->setDefaultDescription($this->getLongDescription());
         $trans->save();
-
-        $this->db->manipulateF(
-            '
-			UPDATE content_page_data
-			SET
-				stylesheet = %s
-			WHERE content_page_id = %s',
-            ['integer', 'integer'],
-            [$this->getStyleSheetId(), $this->getId()]
-        );
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function doDelete()
+    protected function doDelete(): void
     {
         parent::doDelete();
 
@@ -250,11 +185,11 @@ class ilObjContentPage extends ilObject2 implements ilContentPageObjectConstants
     /**
      * @return int[]
      */
-    public function getPageObjIds() : array
+    public function getPageObjIds(): array
     {
         $pageObjIds = [];
 
-        $sql = "SELECT DISTINCT page_id FROM page_object WHERE parent_id = %s AND parent_type = %s";
+        $sql = 'SELECT DISTINCT page_id FROM page_object WHERE parent_id = %s AND parent_type = %s';
         $res = $this->db->queryF(
             $sql,
             ['integer', 'text'],
@@ -262,33 +197,19 @@ class ilObjContentPage extends ilObject2 implements ilContentPageObjectConstants
         );
 
         while ($row = $this->db->fetchAssoc($res)) {
-            $pageObjIds[] = $row['page_id'];
+            $pageObjIds[] = (int) $row['page_id'];
         }
 
         return $pageObjIds;
     }
 
-    /**
-     * @param int $usrId
-     */
-    public function trackProgress(int $usrId) : void
+    public function trackProgress(int $usrId): void
     {
-        ilChangeEvent::_recordReadEvent(
-            $this->getType(),
-            $this->getRefId(),
+        ilLearningProgress::_tracProgress(
+            $usrId,
             $this->getId(),
-            $usrId
+            $this->getRefId(),
+            $this->getType()
         );
-
-        $lp = ilObjectLP::getInstance($this->getId());
-        if ($lp->isActive() && ((int) $lp->getCurrentMode() === ilLPObjSettings::LP_MODE_CONTENT_VISITED)) {
-            $current_status = (int) ilLPStatus::_lookupStatus($this->getId(), $usrId, false);
-            if ($current_status !== ilLPStatus::LP_STATUS_COMPLETED_NUM) {
-                ilLPStatusWrapper::_updateStatus(
-                    $this->getId(),
-                    $usrId
-                );
-            }
-        }
     }
 }

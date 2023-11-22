@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2016 Timon Amstutz <timon.amstutz@ilub.unibe.ch> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Panel;
 
@@ -17,7 +33,7 @@ class Renderer extends AbstractComponentRenderer
     /**
      * @inheritdocs
      */
-    public function render(Component\Component $component, RendererInterface $default_renderer)
+    public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
         /**
          * @var Component\Panel\Panel $component
@@ -41,12 +57,7 @@ class Renderer extends AbstractComponentRenderer
         return $this->renderReport($component, $default_renderer);
     }
 
-    /**
-     * @param Component\Component $component
-     * @param RendererInterface $default_renderer
-     * @return string
-     */
-    protected function getContentAsString(Component\Component $component, RendererInterface $default_renderer)
+    protected function getContentAsString(Component\Component $component, RendererInterface $default_renderer): string
     {
         $content = "";
         foreach ($component->getContent() as $item) {
@@ -55,12 +66,7 @@ class Renderer extends AbstractComponentRenderer
         return $content;
     }
 
-    /**
-     * @param Component\Panel\Standard $component
-     * @param RendererInterface $default_renderer
-     * @return string
-     */
-    protected function renderStandard(Component\Panel\Standard $component, RendererInterface $default_renderer)
+    protected function renderStandard(Component\Panel\Standard $component, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate("tpl.standard.html", true, true);
 
@@ -84,12 +90,7 @@ class Renderer extends AbstractComponentRenderer
         return $tpl->get();
     }
 
-    /**
-     * @param Component\Panel\Sub $component
-     * @param RendererInterface $default_renderer
-     * @return string
-     */
-    protected function renderSub(Component\Panel\Sub $component, RendererInterface $default_renderer)
+    protected function renderSub(Component\Panel\Sub $component, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate("tpl.sub.html", true, true);
 
@@ -108,13 +109,13 @@ class Renderer extends AbstractComponentRenderer
             $tpl->parseCurrentBlock();
         }
 
-        if ($component->getCard()) {
-            $tpl->setCurrentBlock("with_card");
+        if ($component->getFurtherInformation()) {
+            $tpl->setCurrentBlock("with_further_information");
             $tpl->setVariable("BODY", $this->getContentAsString($component, $default_renderer));
-            $tpl->setVariable("CARD", $default_renderer->render($component->getCard()));
+            $tpl->setVariable("INFO", $default_renderer->render($component->getFurtherInformation()));
             $tpl->parseCurrentBlock();
         } else {
-            $tpl->setCurrentBlock("no_card");
+            $tpl->setCurrentBlock("no_further_information");
             $tpl->setVariable("BODY", $this->getContentAsString($component, $default_renderer));
             $tpl->parseCurrentBlock();
         }
@@ -122,12 +123,7 @@ class Renderer extends AbstractComponentRenderer
         return $tpl->get();
     }
 
-    /**
-     * @param Component\Panel\Report $component
-     * @param RendererInterface $default_renderer
-     * @return string
-     */
-    protected function renderReport(Component\Panel\Report $component, RendererInterface $default_renderer)
+    protected function renderReport(Component\Panel\Report $component, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate("tpl.report.html", true, true);
         $tpl->setVariable("TITLE", $component->getTitle());
@@ -138,7 +134,7 @@ class Renderer extends AbstractComponentRenderer
     /**
      * @inheritdocs
      */
-    protected function getComponentInterfaceName()
+    protected function getComponentInterfaceName(): array
     {
         return [Component\Panel\Panel::class];
     }

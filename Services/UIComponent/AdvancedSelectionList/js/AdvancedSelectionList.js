@@ -1,5 +1,19 @@
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 il.AdvancedSelectionList =
 {
@@ -14,14 +28,6 @@ il.AdvancedSelectionList =
 		this.items[id] = {};
 		// this.showAnchor(cfg.anchor_id);
 
-		/* trying to get rid of overlay - obsolete because of bootstrap
-		il.Overlay.add('ilAdvSelListTable_' + id,
-			{yuicfg: {visible: false, context: [cfg.anchor_id, 'tl', 'bl', ["beforeShow", "windowResize"]]},
-			trigger: cfg.anchor_id, trigger_event: cfg.trigger_event, anchor_id: cfg.anchor_id,
-			toggle_el: cfg.toggle_el, toggle_class_on: cfg.toggle_class_on,
-			asynch: cfg.asynch, asynch_url: cfg.asynch_url, auto_hide: cfg.auto_hide});
-		*/
-	   
 	    // hide all overlays on trigger
 	   	$("#ilAdvSelListAnchorText_" + id).click(function(e) {			
 			if (typeof il.Overlay != "undefined") {
@@ -62,7 +68,6 @@ il.AdvancedSelectionList =
 		this.setHiddenInput(id, hid_name, hid_val);
 		anchor_text = document.getElementById("ilAdvSelListAnchorText_" + id);
 		anchor_text.innerHTML = title + ' <span class="caret"></span>';
-		// il.Overlay.hide(null, 'ilAdvSelListTable_' + id);
 		if (this.lists[id]['select_callback'] != null)
 		{
 			eval(this.lists[id]['select_callback'] + '(this.items[id][hid_val]);');
@@ -73,7 +78,6 @@ il.AdvancedSelectionList =
 
 	clickNop: function (id, hid_name, hid_val, title)
 	{
-		// il.Overlay.hide(null, 'ilAdvSelListTable_' + id);
 		if (this.lists[id]['select_callback'] != null)
 		{
 			eval(this.lists[id]['select_callback'] + '(this.items[id][hid_val]);');

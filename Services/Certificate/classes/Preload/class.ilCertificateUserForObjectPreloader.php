@@ -1,41 +1,42 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateUserForObjectPreloader
 {
-    /**
-     * @var array
-     */
-    private static $certificates = array();
+    /** @var array<int, int[]> */
+    private static array $certificates = [];
+    private ilUserCertificateRepository $userCertificateRepository;
+    private ilCertificateActiveValidator $activeValidator;
 
-    /**
-     * @var ilUserCertificateRepository
-     */
-    private $userCertificateRepository;
-
-    /**
-     * @var ilCertificateActiveValidator
-     */
-    private $activeValidator;
-
-    /**
-     * @param ilUserCertificateRepository $userCertificateRepository
-     * @param ilCertificateActiveValidator $activeValidator
-     */
-    public function __construct(ilUserCertificateRepository $userCertificateRepository, ilCertificateActiveValidator $activeValidator)
-    {
+    public function __construct(
+        ilUserCertificateRepository $userCertificateRepository,
+        ilCertificateActiveValidator $activeValidator
+    ) {
         $this->userCertificateRepository = $userCertificateRepository;
         $this->activeValidator = $activeValidator;
     }
 
-    /**
-     * @param int $objectId
-     * @param array $userIds
-     */
-    public function preLoadDownloadableCertificates(int $objectId)
+    public function preLoadDownloadableCertificates(int $objectId): void
     {
         if (true === $this->activeValidator->validate()) {
             $objectIdsWithUserCertificate = $this->userCertificateRepository->fetchUserIdsWithCertificateForObject($objectId);
@@ -43,18 +44,13 @@ class ilCertificateUserForObjectPreloader
         }
     }
 
-    /**
-     * @param int $objId
-     * @param int $userId
-     * @return bool
-     */
-    public function isPreloaded(int $objId, int $userId)
+    public function isPreloaded(int $objId, int $userId): bool
     {
         if (false === array_key_exists($objId, self::$certificates)) {
             return false;
         }
 
-        if (true === in_array($userId, self::$certificates[$objId])) {
+        if (true === in_array($userId, self::$certificates[$objId], true)) {
             return true;
         }
 

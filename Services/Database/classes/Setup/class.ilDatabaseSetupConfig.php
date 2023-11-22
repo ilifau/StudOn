@@ -1,69 +1,60 @@
 <?php
 
-/* Copyright (c) 2019 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\Setup;
 use ILIAS\Data\Password;
 
 class ilDatabaseSetupConfig implements Setup\Config
 {
-    const DEFAULT_COLLATION = "utf8_general_ci";
-    const DEFAULT_PATH_TO_DB_DUMP = "./setup/sql/ilias3.sql";
+    public const DEFAULT_COLLATION = "utf8_general_ci";
+    public const DEFAULT_PATH_TO_DB_DUMP = "./setup/sql/ilias3.sql";
 
-    /**
-     * @var	mixed
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string
-     */
-    protected $host;
+    protected string $host;
 
-    /**
-     * @var string|null
-     */
-    protected $port;
+    protected ?int $port = null;
 
-    /**
-     * @var	string
-     */
-    protected $database;
+    protected string $database;
 
-    /**
-     * @var bool
-     */
-    protected $create_database;
+    protected bool $create_database;
 
-    /**
-     * @var string|null
-     */
-    protected $collation;
+    protected string $collation;
 
-    /**
-     * @var	string
-     */
-    protected $user;
+    protected string $user;
 
-    /**
-     * @var	Password|null
-     */
-    protected $password;
+    protected ?\ILIAS\Data\Password $password = null;
 
-    /**
-     * @var	string|null
-     */
-    protected $path_to_db_dump;
+    protected string $path_to_db_dump;
+
+    public ilDatabaseSetupConfig $config;
 
     public function __construct(
-        $type,
+        string $type,
         string $host,
         string $database,
         string $user,
         Password $password = null,
         bool $create_database = true,
         string $collation = null,
-        string $port = null,
+        int $port = null,
         string $path_to_db_dump = null
     ) {
         if (!in_array($type, \ilDBConstants::getInstallableTypes())) {
@@ -81,53 +72,53 @@ class ilDatabaseSetupConfig implements Setup\Config
         $this->database = trim($database);
         $this->user = trim($user);
         $this->password = $password;
-        $this->create_database = trim($create_database);
+        $this->create_database = $create_database;
         $this->collation = $collation ? trim($collation) : self::DEFAULT_COLLATION;
         $this->port = $port;
         $this->path_to_db_dump = $path_to_db_dump ?? self::DEFAULT_PATH_TO_DB_DUMP;
     }
 
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function getHost() : string
+    public function getHost(): string
     {
         return $this->host;
     }
 
-    public function getPort() : ?string
+    public function getPort(): ?int
     {
         return $this->port;
     }
 
-    public function getDatabase() : string
+    public function getDatabase(): string
     {
         return $this->database;
     }
 
-    public function getCreateDatabase() : bool
+    public function getCreateDatabase(): bool
     {
         return $this->create_database;
     }
 
-    public function getCollation() : string
+    public function getCollation(): string
     {
         return $this->collation;
     }
 
-    public function getUser() : string
+    public function getUser(): string
     {
         return $this->user;
     }
 
-    public function getPassword() : ?Password
+    public function getPassword(): ?Password
     {
         return $this->password;
     }
 
-    public function getPathToDBDump() : string
+    public function getPathToDBDump(): string
     {
         return $this->path_to_db_dump;
     }
@@ -135,17 +126,17 @@ class ilDatabaseSetupConfig implements Setup\Config
     /**
      * Adapter to current database-handling via a mock of \ilIniFile.
      */
-    public function toMockIniFile() : \ilIniFile
+    public function toMockIniFile(): \ilIniFile
     {
-        return new class($this) extends \ilIniFile {
+        return new class ($this) extends \ilIniFile {
             /**
-            * reads a single variable from a group
-            * @access	public
-            * @param	string		group name
-            * @param	string		value
-            * @return	mixed		return value string or boolean 'false' on failure
-            */
-            public function readVariable($a_group, $a_var_name)
+             * reads a single variable from a group
+             * @access	public
+             * @param	string		group name
+             * @param	string		value
+             * @return mixed|void return value string or boolean 'false' on failure
+             */
+            public function readVariable(string $a_group, string $a_var_name): string
             {
                 if ($a_group !== "db") {
                     throw new \LogicException(
@@ -158,85 +149,82 @@ class ilDatabaseSetupConfig implements Setup\Config
                     case "host":
                         return $this->config->getHost();
                     case "port":
-                        return $this->config->getPort();
+                        return (string) $this->config->getPort();
                     case "pass":
                         $pw = $this->config->getPassword();
-                        return $pw ? $pw->toString() : null;
+                        return $pw ? $pw->toString() : "";
                     case "name":
                         return $this->config->getDatabase();
                     case "type":
                         return $this->config->getType();
-                        // fau: waitTimeout: provide setting for the setup
-                    case "wait_timeout":
-                        return 0;
-                        // fau.
                     default:
                         throw new \LogicException(
                             "Cannot provide variable '$a_var_name'"
                         );
                 }
             }
+
             public function __construct(\ilDatabaseSetupConfig $config)
             {
                 $this->config = $config;
             }
-            public function read()
+            public function read(): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function parse()
+            public function parse(): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function fixIniFile()
+            public function fixIniFile(): void
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function write()
+            public function write(): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function show()
+            public function show(): string
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function getGroupCount()
+            public function getGroupCount(): int
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function readGroups()
+            public function readGroups(): array
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function groupExists($a_group_name)
+            public function groupExists(string $a_group_name): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function readGroup($a_group_name)
+            public function readGroup(string $a_group_name): array
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function addGroup($a_group_name)
+            public function addGroup(string $a_group_name): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function removeGroup($a_group_name)
+            public function removeGroup(string $a_group_name): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function variableExists($a_group, $a_var_name)
+            public function variableExists(string $a_group, string $a_var_name): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function setVariable($a_group_name, $a_var_name, $a_var_value)
+            public function setVariable(string $a_group_name, string $a_var_name, string $a_var_value): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function error($a_errmsg)
+            public function error(string $a_errmsg): bool
             {
                 throw new \LogicException("Just a mock here...");
             }
-            public function getError()
+            public function getError(): string
             {
                 throw new \LogicException("Just a mock here...");
             }

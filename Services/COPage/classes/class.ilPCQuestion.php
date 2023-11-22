@@ -1,46 +1,38 @@
 <?php
 
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-
-require_once("./Services/COPage/classes/class.ilPageContent.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
-* Class ilPCQuestion
-*
-* Assessment Question of ilPageObject
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesCOPage
-*/
+ * Class ilPCQuestion
+ * Assessment Question of ilPageObject
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilPCQuestion extends ilPageContent
 {
+    protected ilLanguage $lng;
+    protected ilCtrl $ctrl;
+    protected ilObjUser $user;
+    public php4DOMElement $q_node;
+    protected static bool $initial_done = false;
+
     /**
-     * @var ilLanguage
+     * Init page content component.
      */
-    protected $lng;
-
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
-
-    public $dom;
-    public $q_node;			// node of Paragraph element
-
-    protected static $initial_done; // [bool]
-
-    /**
-    * Init page content component.
-    */
-    public function init()
+    public function init(): void
     {
         global $DIC;
 
@@ -50,45 +42,32 @@ class ilPCQuestion extends ilPageContent
         $this->setType("pcqst");
     }
 
-    /**
-    * Set node
-    */
-    public function setNode($a_node)
+    public function setNode(php4DOMElement $a_node): void
     {
         parent::setNode($a_node);		// this is the PageContent node
         $this->q_node = $a_node->first_child();		//... and this the Question
     }
 
-    /**
-    * Set Question Reference.
-    *
-    * @param	string	$a_questionreference	Question Reference
-    */
-    public function setQuestionReference($a_questionreference)
+    public function setQuestionReference(string $a_questionreference): void
     {
         if (is_object($this->q_node)) {
             $this->q_node->set_attribute("QRef", $a_questionreference);
         }
     }
 
-    /**
-    * Get Question Reference.
-    *
-    * @return	string	Question Reference
-    */
-    public function getQuestionReference()
+    public function getQuestionReference(): ?string
     {
         if (is_object($this->q_node)) {
-            return $this->q_node->get_attribute("QRef", $a_questionreference);
+            return $this->q_node->get_attribute("QRef");
         }
-        return false;
+        return null;
     }
 
-    /**
-    * Create Question Element
-    */
-    public function create(&$a_pg_obj, $a_hier_id)
-    {
+    public function create(
+        ilPageObject $a_pg_obj,
+        string $a_hier_id,
+        string $a_pc_id = ""
+    ): void {
         $this->createPageContentNode();
         $a_pg_obj->insertContent($this, $a_hier_id, IL_INSERT_AFTER);
         $this->q_node = $this->dom->create_element("Question");
@@ -98,98 +77,38 @@ class ilPCQuestion extends ilPageContent
 
     /**
      * Copy question from pool into page
-     *
-     * @param
-     * @return
      */
-    public function copyPoolQuestionIntoPage($a_q_id, $a_hier_id)
-    {
-        include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
-        include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
-        $question = assQuestion::_instanciateQuestion($a_q_id);
+    public function copyPoolQuestionIntoPage(
+        string $a_q_id,
+        string $a_hier_id
+    ): void {
+        $question = assQuestion::instantiateQuestion($a_q_id);
         $duplicate_id = $question->copyObject(0, $question->getTitle());
-        $duplicate = assQuestion::_instanciateQuestion($duplicate_id);
+        $duplicate = assQuestion::instantiateQuestion($duplicate_id);
         $duplicate->setObjId(0);
 
-        /* PATCH-BEGIN: moved cleanup code to central place ilAssSelfAssessmentQuestionFormatter */
-        /*
-        // we remove everything not supported by the non-tiny self
-        // assessment question editor
-        $q = $duplicate->getQuestion();
-
-        // we try to save all latex tags
-        $try = true;
-        $ls = '<span class="latex">';
-        $le = '</span>';
-        while ($try)
-        {
-            // search position of start tag
-            $pos1 = strpos($q, $ls);
-            if (is_int($pos1))
-            {
-                $pos2 = strpos($q, $le, $pos1);
-                if (is_int($pos2))
-                {
-                    // both found: replace end tag
-                    $q = substr($q, 0, $pos2)."[/tex]".substr($q, $pos2+7);
-                    $q = substr($q, 0, $pos1)."[tex]".substr($q, $pos1+20);
-                }
-                else
-                {
-                    $try = false;
-                }
-            }
-            else
-            {
-                $try = false;
-            }
-        }
-
-        $tags = assQuestionGUI::getSelfAssessmentTags();
-        $tstr = "";
-        foreach ($tags as $t)
-        {
-            $tstr.="<".$t.">";
-        }
-        $q = ilUtil::secureString($q, true, $tstr);
-        // self assessment uses nl2br, not p
-        $duplicate->setQuestion($q);
-
-        $duplicate->saveQuestionDataToDb();
-        */
-
-        require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
         ilAssSelfAssessmentQuestionFormatter::prepareQuestionForLearningModule($duplicate);
-
-        /* PATCH-END: moved cleanup code to central place ilAssSelfAssessmentQuestionFormatter */
 
         $this->q_node->set_attribute("QRef", "il__qst_" . $duplicate_id);
     }
 
-    /**
-     * Get lang vars needed for editing
-     * @return array array of lang var keys
-     */
-    public static function getLangVars()
+    public static function getLangVars(): array
     {
         return array("ed_insert_pcqst", "empty_question", "pc_qst");
     }
 
     /**
      * After page has been updated (or created)
-     *
-     * @param object page object
-     * @param DOMDocument $a_domdoc dom document
-     * @param string xml
-     * @param bool true on creation, otherwise false
      */
-    public static function afterPageUpdate($a_page, DOMDocument $a_domdoc, $a_xml, $a_creation)
-    {
+    public static function afterPageUpdate(
+        ilPageObject $a_page,
+        DOMDocument $a_domdoc,
+        string $a_xml,
+        bool $a_creation
+    ): void {
         global $DIC;
 
         $ilDB = $DIC->database();
-
-        include_once("./Services/Link/classes/class.ilInternalLink.php");
 
         $ilDB->manipulateF(
             "DELETE FROM page_question WHERE page_parent_type = %s " .
@@ -226,13 +145,9 @@ class ilPCQuestion extends ilPageContent
         }
     }
 
-    /**
-     * Before page is being deleted
-     *
-     * @param object page object
-     */
-    public static function beforePageDelete($a_page)
-    {
+    public static function beforePageDelete(
+        ilPageObject $a_page
+    ): void {
         global $DIC;
 
         $ilDB = $DIC->database();
@@ -245,11 +160,11 @@ class ilPCQuestion extends ilPageContent
         );
     }
 
-    /**
-     * Get all questions of a page
-     */
-    public static function _getQuestionIdsForPage($a_parent_type, $a_page_id, $a_lang = "-")
-    {
+    public static function _getQuestionIdsForPage(
+        string $a_parent_type,
+        int $a_page_id,
+        string $a_lang = "-"
+    ): array {
         global $DIC;
 
         $ilDB = $DIC->database();
@@ -270,14 +185,10 @@ class ilPCQuestion extends ilPageContent
         return $q_ids;
     }
 
-    /**
-     * Get page for question id
-     *
-     * @param
-     * @return array
-     */
-    public static function _getPageForQuestionId($a_q_id, $a_parent_type = "")
-    {
+    public static function _getPageForQuestionId(
+        int $a_q_id,
+        string $a_parent_type = ""
+    ): ?array {
         global $DIC;
 
         $ilDB = $DIC->database();
@@ -291,14 +202,14 @@ class ilPCQuestion extends ilPageContent
                 return array("page_id" => $rec["page_id"], "parent_type" => $rec["page_parent_type"]);
             }
         }
-        return false;
+        return null;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function modifyPageContentPostXsl($a_output, $a_mode, $a_abstract_only = false)
-    {
+    public function modifyPageContentPostXsl(
+        string $a_output,
+        string $a_mode,
+        bool $a_abstract_only = false
+    ): string {
         $lng = $this->lng;
 
         $qhtml = "";
@@ -306,8 +217,7 @@ class ilPCQuestion extends ilPageContent
         if ($this->getPage()->getPageConfig()->getEnableSelfAssessment()) {
             // #14154
             $q_ids = $this->getPage()->getQuestionIds();
-            if (sizeof($q_ids)) {
-                include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
+            if (count($q_ids)) {
                 foreach ($q_ids as $q_id) {
                     $q_gui = assQuestionGUI::_getQuestionGUI("", $q_id);
                     // object check due to #16557
@@ -321,9 +231,8 @@ class ilPCQuestion extends ilPageContent
                 }
 
                 // this exports the questions which is needed below
-                $qhtml = $this->getQuestionJsOfPage(($a_mode == "edit") ? true : false, $a_mode);
+                $qhtml = $this->getQuestionJsOfPage($a_mode == "edit", $a_mode);
 
-                require_once './Modules/Scorm2004/classes/class.ilQuestionExporter.php';
                 $a_output = "<script>" . ilQuestionExporter::questionsJS($q_ids) . "</script>" . $a_output;
                 if (!self::$initial_done) {
                     $a_output = "<script>var ScormApi=null; var questions = new Array();</script>" . $a_output;
@@ -338,7 +247,7 @@ class ilPCQuestion extends ilPageContent
             if (!is_array($qhtml) || count($qhtml) == 0) {
                 // #14154
                 $q_ids = $this->getPage()->getQuestionIds();
-                if (sizeof($q_ids)) {
+                if (count($q_ids)) {
                     foreach ($q_ids as $k) {
                         $a_output = str_replace("{{{{{Question;il__qst_$k" . "}}}}}", " " . $lng->txt("copg_questions_not_supported_here"), $a_output);
                     }
@@ -358,15 +267,12 @@ class ilPCQuestion extends ilPageContent
     /**
      * Reset initial state (for exports)
      */
-    public static function resetInitialState()
+    public static function resetInitialState(): void
     {
         self::$initial_done = false;
     }
 
-    /**
-     * Get Javascript files
-     */
-    public function getJavascriptFiles($a_mode)
+    public function getJavascriptFiles(string $a_mode): array
     {
         $js_files = array();
 
@@ -390,10 +296,7 @@ class ilPCQuestion extends ilPageContent
         return $js_files;
     }
 
-    /**
-     * Get css files
-     */
-    public function getCssFiles($a_mode)
+    public function getCssFiles(string $a_mode): array
     {
         if ($this->getPage()->getPageConfig()->getEnableSelfAssessment()) {
             return array("./Modules/Scorm2004/templates/default/question_handling.css",
@@ -402,10 +305,7 @@ class ilPCQuestion extends ilPageContent
         return array();
     }
 
-    /**
-     * Get on load code
-     */
-    public function getOnloadCode($a_mode)
+    public function getOnloadCode(string $a_mode): array
     {
         $ilCtrl = $this->ctrl;
         $ilUser = $this->user;
@@ -427,14 +327,20 @@ class ilPCQuestion extends ilPageContent
             $code[] = self::getJSTextInitCode($this->getPage()->getPageConfig()->getLocalizationLanguage()) . ' il.COPagePres.updateQuestionOverviews();';
         }
 
+        $q_ids = $this->getPage()->getQuestionIds();
+
+        // call renderers
+        foreach ($q_ids as $q_id) {
+            $code[] = "renderILQuestion$q_id();";
+        }
+
+        // init answer status
         $get_stored_tries = $this->getPage()->getPageConfig()->getUseStoredQuestionTries();
         if ($get_stored_tries) {
-            $q_ids = $this->getPage()->getQuestionIds();
             if (count($q_ids) > 0) {
                 foreach ($q_ids as $q_id) {
-                    include_once("./Services/COPage/classes/class.ilPageQuestionProcessor.php");
                     $as = ilPageQuestionProcessor::getAnswerStatus($q_id, $ilUser->getId());
-                    $code[] = "ilias.questions.initAnswer(" . $q_id . ", " . (int) $as["try"] . ", " . ($as["passed"] ? "true" : "null") . ");";
+                    $code[] = "ilias.questions.initAnswer(" . $q_id . ", " . (int) ($as["try"] ?? 0) . ", " . ($as["passed"] ? "true" : "null") . ");";
                 }
             }
         }
@@ -443,11 +349,8 @@ class ilPCQuestion extends ilPageContent
 
     /**
      * Get js txt init code
-     *
-     * @param
-     * @return
      */
-    public static function getJSTextInitCode($a_lang)
+    public static function getJSTextInitCode(string $a_lang): string
     {
         global $DIC;
 
@@ -481,18 +384,16 @@ class ilPCQuestion extends ilPageContent
 			';
     }
 
-    /**
-     * Get question js
-     */
-    public function getQuestionJsOfPage($a_no_interaction, $a_mode)
-    {
-        require_once './Modules/Scorm2004/classes/class.ilQuestionExporter.php';
+    public function getQuestionJsOfPage(
+        bool $a_no_interaction,
+        string $a_mode
+    ): array {
         $q_ids = $this->getPage()->getQuestionIds();
         $js = array();
         if (count($q_ids) > 0) {
             foreach ($q_ids as $q_id) {
                 $q_exporter = new ilQuestionExporter($a_no_interaction);
-                $image_path = null;
+                $image_path = "";
                 if ($a_mode == "offline") {
                     if ($this->getPage()->getParentType() == "sahs") {
                         $image_path = "./objects/";
@@ -501,7 +402,6 @@ class ilPCQuestion extends ilPageContent
                         $image_path = "./assessment/0/" . $q_id . "/images/";
                     }
                 }
-
                 $js[$q_id] = $q_exporter->exportQuestion($q_id, $image_path, $a_mode);
             }
         }

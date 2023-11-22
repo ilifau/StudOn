@@ -40,26 +40,17 @@ class TopLinkItem extends AbstractChildItem implements hasTitle, hasAction, isTo
     use hasSymbolTrait;
     use isInterchangeableItemTrait;
 
-    /**
-     * @var bool
-     */
-    protected $is_external_action = false;
+    protected bool $is_external_action = false;
 
-    /**
-     * @var string
-     */
-    protected $title = '';
+    protected string $title = '';
 
-    /**
-     * @var string
-     */
-    protected $action = '';
+    protected string $action = '';
 
     /**
      * @param string $title
      * @return hasTitle|TopLinkItem
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -70,7 +61,7 @@ class TopLinkItem extends AbstractChildItem implements hasTitle, hasAction, isTo
     /**
      * @return string
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -79,7 +70,7 @@ class TopLinkItem extends AbstractChildItem implements hasTitle, hasAction, isTo
      * @param string $action
      * @return hasAction|TopLinkItem
      */
-    public function withAction(string $action) : hasAction
+    public function withAction(string $action): hasAction
     {
         $clone = clone($this);
         $clone->action = $action;
@@ -90,7 +81,7 @@ class TopLinkItem extends AbstractChildItem implements hasTitle, hasAction, isTo
     /**
      * @return string
      */
-    public function getAction() : string
+    public function getAction(): string
     {
         return $this->action;
     }
@@ -99,7 +90,7 @@ class TopLinkItem extends AbstractChildItem implements hasTitle, hasAction, isTo
      * @param bool $is_external
      * @return TopLinkItem
      */
-    public function withIsLinkToExternalAction(bool $is_external) : hasAction
+    public function withIsLinkToExternalAction(bool $is_external): hasAction
     {
         $clone = clone $this;
         $clone->is_external_action = $is_external;
@@ -110,7 +101,7 @@ class TopLinkItem extends AbstractChildItem implements hasTitle, hasAction, isTo
     /**
      * @return bool
      */
-    public function isLinkWithExternalAction() : bool
+    public function isLinkWithExternalAction(): bool
     {
         return $this->is_external_action;
     }

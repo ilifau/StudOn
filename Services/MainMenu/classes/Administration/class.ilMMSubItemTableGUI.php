@@ -1,5 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\Hasher;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\hasTitle;
 
@@ -11,24 +29,17 @@ class ilMMSubItemTableGUI extends ilTable2GUI
 {
     use Hasher;
 
-    const IDENTIFIER = 'identifier';
-    const F_TABLE_SHOW_INACTIVE = 'table_show_inactive';
-    const F_TABLE_ENTRY_STATUS = 'entry_status';
-    const F_TABLE_ALL_VALUE = 1;
-    const F_TABLE_ONLY_ACTIVE_VALUE = 2;
-    const F_TABLE_ONLY_INACTIVE_VALUE = 3;
-    /**
-     * @var ilObjMainMenuAccess
-     */
-    private $access;
-    /**
-     * @var array
-     */
-    private $filter;
-    /**
-     * @var ilMMCustomProvider
-     */
-    private $item_repository;
+    public const IDENTIFIER = 'identifier';
+    public const F_TABLE_SHOW_INACTIVE = 'table_show_inactive';
+    public const F_TABLE_ENTRY_STATUS = 'entry_status';
+    public const F_TABLE_ALL_VALUE = 1;
+    public const F_TABLE_ONLY_ACTIVE_VALUE = 2;
+    public const F_TABLE_ONLY_INACTIVE_VALUE = 3;
+
+    private ilObjMainMenuAccess $access;
+
+    private array $filter;
+    private ilMMItemRepository $item_repository;
 
     /**
      * ilMMSubItemTableGUI constructor.
@@ -57,7 +68,7 @@ class ilMMSubItemTableGUI extends ilTable2GUI
         $this->setRowTemplate('tpl.sub_items.html', 'Services/MainMenu');
     }
 
-    protected function addFilterItems()
+    protected function addFilterItems(): void
     {
         $table_entry_status = new ilSelectInputGUI(
             $this->lng->txt(self::F_TABLE_ENTRY_STATUS),
@@ -73,11 +84,11 @@ class ilMMSubItemTableGUI extends ilTable2GUI
         $this->addAndReadFilterItem($table_entry_status);
     }
 
-    /**
-     * @param $field
-     */
-    protected function addAndReadFilterItem(ilFormPropertyGUI $field)
+    protected function addAndReadFilterItem(ilFormPropertyGUI $field): void
     {
+        if (!$field instanceof ilTableFilterItem) {
+            return;
+        }
         $this->addFilterItem($field);
         $field->readFromSession();
         if ($field instanceof ilCheckboxInputGUI) {
@@ -87,7 +98,7 @@ class ilMMSubItemTableGUI extends ilTable2GUI
         }
     }
 
-    private function initColumns()
+    private function initColumns(): void
     {
         $this->addColumn($this->lng->txt('sub_parent'));
         $this->addColumn($this->lng->txt('sub_position'));
@@ -102,7 +113,7 @@ class ilMMSubItemTableGUI extends ilTable2GUI
     /**
      * @inheritDoc
      */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         static $position;
         static $parent_identification_string;
@@ -115,7 +126,7 @@ class ilMMSubItemTableGUI extends ilTable2GUI
          * @var $item_facade ilMMItemFacadeInterface
          */
         $item_facade = $a_set['facade'];
-    
+
         if ($item_facade->isChild()) {
             if (!$parent_identification_string ||
                 $parent_identification_string !== $item_facade->getParentIdentificationString()) {
@@ -123,10 +134,18 @@ class ilMMSubItemTableGUI extends ilTable2GUI
                 $current_parent_identification = $this->item_repository->resolveIdentificationFromString(
                     $parent_identification_string
                 );
-                $current_parent_item = $this->item_repository->getSingleItemFromFilter($current_parent_identification);
+                $current_parent_item = $this->item_repository->getSingleItem($current_parent_identification);
                 $this->tpl->setVariable(
                     "PARENT_TITLE",
                     $current_parent_item instanceof hasTitle ? $current_parent_item->getTitle() : "-"
+                );
+                $this->tpl->setVariable(
+                    "NATIVE_PARENT_ID",
+                    $current_parent_item->getProviderIdentification()->serialize()
+                );
+                $this->tpl->setVariable(
+                    "PARENT_ID",
+                    $this->hash($current_parent_item->getProviderIdentification()->serialize())
                 );
                 $position = 1;
             }
@@ -152,7 +171,7 @@ class ilMMSubItemTableGUI extends ilTable2GUI
 
         $this->ctrl->setParameterByClass(
             ilMMSubItemGUI::class,
-            ilMMSubItemGUI::IDENTIFIER,
+            ilMMAbstractItemGUI::IDENTIFIER,
             $this->hash($a_set['identification'])
         );
         $this->ctrl->setParameterByClass(
@@ -177,7 +196,7 @@ class ilMMSubItemTableGUI extends ilTable2GUI
             );
 
             $delete_modal = "";
-            if ($item_facade->isCustom()) {
+            if ($item_facade->isDeletable()) {
                 $action = $this->ctrl->getFormActionByClass(ilMMSubItemGUI::class, ilMMSubItemGUI::CMD_DELETE);
                 $m = $factory->modal()
                              ->interruptive(
@@ -223,7 +242,7 @@ class ilMMSubItemTableGUI extends ilTable2GUI
      * @param ilMMItemFacadeInterface $child
      * @return ilSelectInputGUI
      */
-    private function getSelect(ilMMItemFacadeInterface $child) : ilSelectInputGUI
+    private function getSelect(ilMMItemFacadeInterface $child): ilSelectInputGUI
     {
         $s = new ilSelectInputGUI('', self::IDENTIFIER . "[{$this->hash($child->getId())}][parent]");
         $s->setOptions($this->getPossibleParentsForFormAndTable());
@@ -235,7 +254,7 @@ class ilMMSubItemTableGUI extends ilTable2GUI
     /**
      * @return array
      */
-    public function getPossibleParentsForFormAndTable() : array
+    public function getPossibleParentsForFormAndTable(): array
     {
         $parents = [];
         foreach ($this->item_repository->getPossibleParentsForFormAndTable() as $identification => $name) {
@@ -245,13 +264,13 @@ class ilMMSubItemTableGUI extends ilTable2GUI
         return $parents;
     }
 
-    private function resolveData() : array
+    private function resolveData(): array
     {
         global $DIC;
         $sub_items_for_table = $this->item_repository->getSubItemsForTable();
 
         // populate with facade
-        array_walk($sub_items_for_table, function (& $item) use ($DIC) {
+        array_walk($sub_items_for_table, function (&$item) use ($DIC) {
             $item_ident = $DIC->globalScreen()->identification()->fromSerializedIdentification($item['identification']);
             $item_facade = $this->item_repository->repository()->getItemFacade($item_ident);
             $item['facade'] = $item_facade;

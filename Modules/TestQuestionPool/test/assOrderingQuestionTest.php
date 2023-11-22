@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
 * Unit tests
@@ -12,35 +27,30 @@ class assOrderingQuestionTest extends assBaseTestCase
 {
     protected $backupGlobals = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
-        if (defined('ILIAS_PHPUNIT_CONTEXT')) {
-            include_once("./Services/PHPUnit/classes/class.ilUnitUtil.php");
-            ilUnitUtil::performInitialisation();
-        } else {
-            chdir(dirname(__FILE__));
-            chdir('../../../');
+        parent::setUp();
 
-            parent::setUp();
+        $ilCtrl_mock = $this->getMockBuilder(ilCtrl::class)
+                            ->disableOriginalConstructor()
+                            ->getMock();
+        $ilCtrl_mock->method('saveParameter');
+        $ilCtrl_mock->method('saveParameterByClass');
+        $this->setGlobalVariable('ilCtrl', $ilCtrl_mock);
 
-            require_once './Services/UICore/classes/class.ilCtrl.php';
-            $ilCtrl_mock = $this->createMock('ilCtrl');
-            $ilCtrl_mock->expects($this->any())->method('saveParameter');
-            $ilCtrl_mock->expects($this->any())->method('saveParameterByClass');
-            $this->setGlobalVariable('ilCtrl', $ilCtrl_mock);
+        $lng_mock = $this->getMockBuilder(ilLanguage::class)
+                         ->disableOriginalConstructor()
+                         ->onlyMethods(['txt'])
+                         ->getMock();
+        $lng_mock->method('txt')->will($this->returnValue('Test'));
+        $this->setGlobalVariable('lng', $lng_mock);
 
-            require_once './Services/Language/classes/class.ilLanguage.php';
-            $lng_mock = $this->createMock('ilLanguage', array('txt'), array(), '', false);
-            //$lng_mock->expects( $this->once() )->method( 'txt' )->will( $this->returnValue('Test') );
-            $this->setGlobalVariable('lng', $lng_mock);
-
-            $this->setGlobalVariable('ilias', $this->getIliasMock());
-            $this->setGlobalVariable('tpl', $this->getGlobalTemplateMock());
-            $this->setGlobalVariable('ilDB', $this->getDatabaseMock());
-        }
+        $this->setGlobalVariable('ilias', $this->getIliasMock());
+        $this->setGlobalVariable('tpl', $this->getGlobalTemplateMock());
+        $this->setGlobalVariable('ilDB', $this->getDatabaseMock());
     }
 
-    public function test_instantiateObject_shouldReturnInstance()
+    public function test_instantiateObject_shouldReturnInstance(): void
     {
         // Arrange
         require_once './Modules/TestQuestionPool/classes/class.assOrderingQuestion.php';
@@ -51,7 +61,7 @@ class assOrderingQuestionTest extends assBaseTestCase
         $this->assertInstanceOf('assOrderingQuestion', $instance);
     }
 
-    public function testOrderingElementListDefaults() : ilAssOrderingElementList
+    public function testOrderingElementListDefaults(): ilAssOrderingElementList
     {
         $question_id = 7;
         $list = new ilAssOrderingElementList($question_id);
@@ -70,7 +80,7 @@ class assOrderingQuestionTest extends assBaseTestCase
         $this->assertNotEquals($original, $list->withElements([]));
     }
 
-    public function testOrderingElementDefaults() : ilAssOrderingElement
+    public function testOrderingElementDefaults(): ilAssOrderingElement
     {
         $element_id = 12;
         $element = new ilAssOrderingElement($element_id);
@@ -94,11 +104,11 @@ class assOrderingQuestionTest extends assBaseTestCase
         $element = $original->withSolutionIdentifier($val);
         $this->assertNotEquals($original, $element);
         $this->assertEquals($val, $element->getSolutionIdentifier());
-        
+
         $element = $original->withPosition($val);
         $this->assertNotEquals($original, $element);
         $this->assertEquals($val, $element->getPosition());
-        
+
         $element = $original->withIndentation($val);
         $this->assertNotEquals($original, $element);
         $this->assertEquals($val, $element->getIndentation());

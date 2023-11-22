@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /* Copyright (c) 2018 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Data;
@@ -12,26 +15,14 @@ namespace ILIAS\Data;
  */
 class Password
 {
+    private string $pass;
 
-    /**
-     * @var string
-     */
-    private $pass;
-
-    public function __construct($pass)
+    public function __construct(string $pass)
     {
-        if (!is_string($pass)) {
-            throw new \InvalidArgumentException('Invalid value for $pass');
-        }
         $this->pass = $pass;
     }
 
-    /**
-     * Get the password-string.
-     *
-     * @return  string
-     */
-    public function toString()
+    public function toString(): string
     {
         return $this->pass;
     }

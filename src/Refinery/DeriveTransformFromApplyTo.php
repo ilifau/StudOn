@@ -1,26 +1,37 @@
 <?php
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
 
 /**
- * @author  Niels Theen <ntheen@databay.de>
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Refinery;
 
 use ILIAS\Data\Result;
+use Exception;
 
 trait DeriveTransformFromApplyTo
 {
     /**
-     * @param Result $result
-     * @return Result
+     * @inheritDoc
      */
-    abstract public function applyTo(Result $result) : Result;
+    abstract public function applyTo(Result $result): Result;
 
     /**
-     * @param mixed $from
-     * @return mixed
-     * @throws \Exception
+     * @inheritDoc
      */
     public function transform($from)
     {
@@ -29,11 +40,11 @@ trait DeriveTransformFromApplyTo
         if (true === $result->isError()) {
             $error = $result->error();
 
-            if ($error instanceof \Exception) {
+            if ($error instanceof Exception) {
                 throw $error;
             }
 
-            throw new \Exception($error);
+            throw new Exception($error);
         }
         return $result->value();
     }

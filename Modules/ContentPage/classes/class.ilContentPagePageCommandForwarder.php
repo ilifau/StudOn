@@ -1,81 +1,95 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use Psr\Http\Message\ServerRequestInterface;
-use ILIAS\ContentPage\PageMetrics\Event\PageUpdatedEvent;
+declare(strict_types=1);
 
 /**
- * Class ilContentPagePageCommandForwarder
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\ContentPage\PageMetrics\Event\PageUpdatedEvent;
+use ILIAS\HTTP\GlobalHttpState;
+use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\Style\Content\Object\ObjectFacade;
+
 class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
 {
     /**
      * presentation mode for authoring
      */
-    const PRESENTATION_MODE_EDITING = 'PRESENTATION_MODE_EDITING';
+    public const PRESENTATION_MODE_EDITING = 'PRESENTATION_MODE_EDITING';
 
     /**
      * presentation mode for requesting
      */
-    const PRESENTATION_MODE_PRESENTATION = 'PRESENTATION_MODE_PRESENTATION';
+    public const PRESENTATION_MODE_PRESENTATION = 'PRESENTATION_MODE_PRESENTATION';
 
     /**
      * presentation mode for embedded presentation, e.g. in a kiosk mode
      */
-    const PRESENTATION_MODE_EMBEDDED_PRESENTATION = 'PRESENTATION_MODE_EMBEDDED_PRESENTATION';
+    public const PRESENTATION_MODE_EMBEDDED_PRESENTATION = 'PRESENTATION_MODE_EMBEDDED_PRESENTATION';
     public const PRESENTATION_MODE_PREVIEW = 'PRESENTATION_MODE_PREVIEW';
 
-    /** @var string */
-    protected $presentationMode = self::PRESENTATION_MODE_EDITING;
-    /** @var ilCtrl */
-    protected $ctrl;
-    /** @var ilLanguage */
-    protected $lng;
-    /** @var ilTabsGUI */
-    protected $tabs;
-    /** @var ilObjContentPage */
-    protected $parentObject;
-    /** @var string */
-    protected $backUrl = '';
-    /** @var ilObjUser */
-    protected $actor;
+    protected string $presentationMode = self::PRESENTATION_MODE_EDITING;
+    protected ilCtrlInterface $ctrl;
+    protected ilLanguage $lng;
+    protected ilTabsGUI $tabs;
+    protected ilObjContentPage $parentObject;
+    protected string $backUrl = '';
+    protected ilObjUser $actor;
     /** @var callable[] */
-    protected $updateListeners = [];
-    protected $isMediaRequest = false;
+    protected array $updateListeners = [];
+    protected GlobalHttpState $http;
+    protected Refinery $refinery;
+    protected ObjectFacade $content_style_domain;
+    protected bool $isMediaRequest = false;
 
-    /**
-     * ilContentPagePageCommandForwarder constructor.
-     * @param ServerRequestInterface $request
-     * @param ilCtrl $ctrl
-     * @param ilTabsGUI $tabs
-     * @param ilLanguage $lng
-     * @param ilObjContentPage $parentObject
-     * @param ilObjUser $actor
-     */
     public function __construct(
-        ServerRequestInterface $request,
-        ilCtrl $ctrl,
+        GlobalHttpState $http,
+        ilCtrlInterface $ctrl,
         ilTabsGUI $tabs,
         ilLanguage $lng,
         ilObjContentPage $parentObject,
-        ilObjUser $actor
+        ilObjUser $actor,
+        Refinery $refinery,
+        ObjectFacade $content_style_domain
     ) {
+        $this->http = $http;
         $this->ctrl = $ctrl;
         $this->tabs = $tabs;
         $this->lng = $lng;
         $this->parentObject = $parentObject;
         $this->actor = $actor;
+        $this->refinery = $refinery;
+        $this->content_style_domain = $content_style_domain;
 
         $this->lng->loadLanguageModule('content');
 
-        $this->backUrl = $request->getQueryParams()['backurl'] ?? '';
+        $this->backUrl = '';
+        if ($this->http->wrapper()->query()->has('backurl')) {
+            $this->backUrl = $this->http->wrapper()->query()->retrieve(
+                'backurl',
+                $this->refinery->kindlyTo()->string()
+            );
+        }
 
-        if (strlen($this->backUrl) > 0) {
-            $this->ctrl->setParameterByClass('ilcontentpagepagegui', 'backurl', rawurlencode($this->backUrl));
+        if ($this->backUrl !== '') {
+            $this->ctrl->setParameterByClass(ilContentPagePageGUI::class, 'backurl', rawurlencode($this->backUrl));
         }
     }
 
-    public function setIsMediaRequest(bool $isMediaRequest) : void
+    public function setIsMediaRequest(bool $isMediaRequest): void
     {
         $this->isMediaRequest = $isMediaRequest;
     }
@@ -83,75 +97,56 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
     /**
      * @param array<string, mixed> $parameters
      */
-    public function onPageUpdate(array $parameters) : void
+    public function onPageUpdate(array $parameters): void
     {
         foreach ($this->updateListeners as $listener) {
-            call_user_func_array(
-                $listener,
-                [
-                    new PageUpdatedEvent($parameters['page'])
-                ]
-            );
+            $listener(new PageUpdatedEvent($parameters['page']));
         }
     }
 
-    public function addPageTabs() : void
+    public function addPageTabs(): void
     {
-        $this->ctrl->setParameterByClass(ilObjContentPageGUI::class, self::HTTP_PARAM_PAGE_EDITOR_STYLE_CONTEXT, '1');
+        $this->ctrl->setParameterByClass(ilObjectContentStyleSettingsGUI::class, self::HTTP_PARAM_PAGE_EDITOR_STYLE_CONTEXT, '1');
         $this->tabs->addTarget(
             'obj_sty',
-            $this->ctrl->getLinkTargetByClass([
-                ilRepositoryGUI::class,
-                ilObjContentPageGUI::class
-            ], self::UI_CMD_STYLES_EDIT),
-            self::UI_CMD_STYLES_EDIT
+            $this->ctrl->getLinkTargetByClass(ilObjectContentStyleSettingsGUI::class),
+            'editStyleProperties',
+            strtolower(ilObjectContentStyleSettingsGUI::class)
         );
         $this->ctrl->setParameterByClass(ilObjContentPageGUI::class, self::HTTP_PARAM_PAGE_EDITOR_STYLE_CONTEXT, null);
     }
 
     /**
-     * @param callable $updateListener
+     * @param array<string, mixed> $parameters
      */
-    public function addUpdateListener(callable $updateListener) : void
+    public function updateContentPageOnPageUpdate(array $parameters): void
+    {
+        $this->parentObject->update();
+    }
+
+    public function addUpdateListener(callable $updateListener): void
     {
         $this->updateListeners[] = $updateListener;
     }
 
-    /**
-     * @param string $language
-     * @param bool $isEmbedded
-     * @return ilContentPagePageGUI
-     */
-    protected function getPageObjectGUI(string $language, bool $isEmbedded = false) : ilContentPagePageGUI
+    protected function getPageObjectGUI(string $language, bool $isEmbedded = false): ilContentPagePageGUI
     {
         $pageObjectGUI = new ilContentPagePageGUI($this->parentObject->getId(), 0, $isEmbedded, $language);
-        // fau: inheritContentStyle - add ref_id
         $pageObjectGUI->setStyleId(
-            ilObjStyleSheet::getEffectiveContentStyleId(
-                $this->parentObject->getStyleSheetId(),
-                $this->parentObject->getType(),
-                $this->parentObject->getRefId()
-            )
+            $this->content_style_domain->getEffectiveStyleId()
         );
-        // fau.
-        $pageObjectGUI->obj->addUpdateListener($this->parentObject, 'update');
+
+        $pageObjectGUI->obj->addUpdateListener($this, 'updateContentPageOnPageUpdate', []);
 
         return $pageObjectGUI;
     }
 
-    /**
-     * @param string $language
-     * @return bool|mixed
-     */
-    protected function doesPageExistsForLanguage(string $language) : bool
+    protected function doesPageExistsForLanguage(string $language): bool
     {
         return ilContentPagePage::_exists($this->parentObject->getType(), $this->parentObject->getId(), $language);
     }
 
-    /**
-     * @param string $language
-     */
-    protected function ensurePageObjectExists(string $language)
+    protected function ensurePageObjectExists(string $language): void
     {
         if (!$this->doesPageExistsForLanguage($language)) {
             $pageObject = new ilContentPagePage();
@@ -162,13 +157,10 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
         }
     }
 
-    /**
-     *
-     */
-    protected function setBackLinkTab() : void
+    protected function setBackLinkTab(): void
     {
         $backUrl = $this->ctrl->getLinkTargetByClass(ilContentPagePageGUI::class, self::UI_CMD_COPAGE_EDIT);
-        if (strlen($this->backUrl) > 0) {
+        if ($this->backUrl !== '') {
             $backUrlParts = parse_url(ilUtil::stripSlashes($this->backUrl));
 
             $script = basename($backUrlParts['path']);
@@ -181,11 +173,7 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
         $this->tabs->setBackTarget($this->lng->txt('back'), $backUrl);
     }
 
-    /**
-     * @param string $language
-     * @return ilContentPagePageGUI
-     */
-    protected function buildEditingPageObjectGUI(string $language) : ilContentPagePageGUI
+    protected function buildEditingPageObjectGUI(string $language): ilContentPagePageGUI
     {
         $this->tabs->clearTargets();
 
@@ -204,40 +192,28 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
         return $pageObjectGUI;
     }
 
-    /**
-     * @param string $language
-     * @return ilContentPagePageGUI
-     */
-    protected function buildPresentationPageObjectGUI(string $language) : ilContentPagePageGUI
+    protected function buildPresentationPageObjectGUI(string $language): ilContentPagePageGUI
     {
         $this->ensurePageObjectExists($language);
 
         $pageObjectGUI = $this->getPageObjectGUI($language);
         $pageObjectGUI->setEnabledTabs(false);
 
-        // fau: inheritContentStyle - add ref_id
         $pageObjectGUI->setStyleId(
-            ilObjStyleSheet::getEffectiveContentStyleId(
-                $this->parentObject->getStyleSheetId(),
-                $this->parentObject->getType(),
-                $this->parentObject->getRefId()
-            )
+            $this->content_style_domain->getEffectiveStyleId()
         );
-        // fau.
+
         return $pageObjectGUI;
     }
 
-    protected function buildPreviewPageObjectGUI(string $language) : ilContentPagePageGUI
+    protected function buildPreviewPageObjectGUI(string $language): ilContentPagePageGUI
     {
         $this->ensurePageObjectExists($language);
 
         $pageObjectGUI = $this->getPageObjectGUI($language);
 
         $pageObjectGUI->setStyleId(
-            ilObjStyleSheet::getEffectiveContentStyleId(
-                $this->parentObject->getStyleSheetId(),
-                $this->parentObject->getType()
-            )
+            $this->content_style_domain->getEffectiveStyleId()
         );
 
         $pageObjectGUI->setTabHook($this, 'addPageTabs');
@@ -245,33 +221,21 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
         return $pageObjectGUI;
     }
 
-    /**
-     * @param string $language
-     * @return ilContentPagePageGUI
-     */
-    protected function buildEmbeddedPresentationPageObjectGUI(string $language) : ilContentPagePageGUI
+    protected function buildEmbeddedPresentationPageObjectGUI(string $language): ilContentPagePageGUI
     {
         $this->ensurePageObjectExists($language);
 
         $pageObjectGUI = $this->getPageObjectGUI($language, true);
         $pageObjectGUI->setEnabledTabs(false);
 
-        // fau: inheritContentStyle - add ref_id
         $pageObjectGUI->setStyleId(
-            ilObjStyleSheet::getEffectiveContentStyleId(
-                $this->parentObject->getStyleSheetId(),
-                $this->parentObject->getType(),
-                $this->parentObject->getRefId()
-            )
+            $this->content_style_domain->getEffectiveStyleId()
         );
-        // fau.
+
         return $pageObjectGUI;
     }
 
-    /**
-     * @param string $presentationMode
-     */
-    public function setPresentationMode(string $presentationMode) : void
+    public function setPresentationMode(string $presentationMode): void
     {
         $this->presentationMode = $presentationMode;
     }
@@ -282,7 +246,7 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
      * @throws ilCtrlException
      * @throws ilException
      */
-    public function forward(string $ctrlLink = '') : string
+    public function forward(string $ctrlLink = ''): string
     {
         $ot = ilObjectTranslation::getInstance($this->parentObject->getId());
         $language = $ot->getEffectiveContentLang($this->actor->getCurrentLanguage(), $this->parentObject->getType());
@@ -295,12 +259,12 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
 
             case self::PRESENTATION_MODE_PREVIEW:
                 $pageObjectGui = $this->buildPreviewPageObjectGUI($this->isMediaRequest ? $language : '');
-                return (string) $this->ctrl->getHTML($pageObjectGui);
+                return $this->ctrl->getHTML($pageObjectGui);
 
             case self::PRESENTATION_MODE_PRESENTATION:
                 $pageObjectGUI = $this->buildPresentationPageObjectGUI($language);
 
-                if (is_string($ctrlLink) && strlen($ctrlLink) > 0) {
+                if (is_string($ctrlLink) && $ctrlLink !== '') {
                     $pageObjectGUI->setFileDownloadLink($ctrlLink . '&cmd=' . self::UI_CMD_COPAGE_DOWNLOAD_FILE);
                     $pageObjectGUI->setFullscreenLink($ctrlLink . '&cmd=' . self::UI_CMD_COPAGE_DISPLAY_FULLSCREEN);
                     $pageObjectGUI->setSourcecodeDownloadScript($ctrlLink . '&cmd=' . self::UI_CMD_COPAGE_DOWNLOAD_PARAGRAPH);
@@ -311,7 +275,7 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
             case self::PRESENTATION_MODE_EMBEDDED_PRESENTATION:
                 $pageObjectGUI = $this->buildEmbeddedPresentationPageObjectGUI($language);
 
-                if (is_string($ctrlLink) && strlen($ctrlLink) > 0) {
+                if (is_string($ctrlLink) && $ctrlLink !== '') {
                     $pageObjectGUI->setFileDownloadLink($ctrlLink . '&cmd=' . self::UI_CMD_COPAGE_DOWNLOAD_FILE);
                     $pageObjectGUI->setFullscreenLink($ctrlLink . '&cmd=' . self::UI_CMD_COPAGE_DISPLAY_FULLSCREEN);
                     $pageObjectGUI->setSourcecodeDownloadScript($ctrlLink . '&cmd=' . self::UI_CMD_COPAGE_DOWNLOAD_PARAGRAPH);

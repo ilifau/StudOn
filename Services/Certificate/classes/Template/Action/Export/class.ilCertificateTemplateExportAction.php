@@ -1,58 +1,47 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\Filesystem\Filesystem;
+use ILIAS\Filesystem\Exception\FileAlreadyExistsException;
+use ILIAS\Filesystem\Exception\FileNotFoundException;
+use ILIAS\Filesystem\Exception\IOException;
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateTemplateExportAction
 {
-    /**
-     * @var int
-     */
-    private $objectId;
+    private int $objectId;
+    private string $certificatePath;
+    private ilCertificateTemplateRepository $templateRepository;
+    private Filesystem $filesystem;
+    private ilCertificateObjectHelper $objectHelper;
+    private ilCertificateUtilHelper $utilHelper;
 
-    /**
-     * @var string
-     */
-    private $certificatePath;
-
-    /**
-     * @var ilCertificateTemplateRepository
-     */
-    private $templateRepository;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    /**
-     * @var ilCertificateObjectHelper|null
-     */
-    private $objectHelper;
-
-    /**
-     * @var ilCertificateUtilHelper|null
-     */
-    private $utilHelper;
-
-    /**
-     * @param integer $objectId
-     * @param string $certificatePath
-     * @param ilCertificateTemplateRepository $templateRepository
-     * @param Filesystem $filesystem
-     * @param ilCertificateObjectHelper|null $objectHelper
-     * @param ilCertificateUtilHelper|null $utilHelper
-     */
     public function __construct(
         int $objectId,
         string $certificatePath,
         ilCertificateTemplateRepository $templateRepository,
         Filesystem $filesystem,
-        ilCertificateObjectHelper $objectHelper = null,
-        ilCertificateUtilHelper $utilHelper = null
+        ?ilCertificateObjectHelper $objectHelper = null,
+        ?ilCertificateUtilHelper $utilHelper = null
     ) {
         $this->objectId = $objectId;
         $this->certificatePath = $certificatePath;
@@ -71,14 +60,14 @@ class ilCertificateTemplateExportAction
     }
 
     /**
-     * Creates an downloadable file via the browser
+     * Creates a downloadable file via the browser
      * @param string $rootDir
      * @param string $installationId
-     * @throws \ILIAS\Filesystem\Exception\FileAlreadyExistsException
-     * @throws \ILIAS\Filesystem\Exception\FileNotFoundException
-     * @throws \ILIAS\Filesystem\Exception\IOException
+     * @throws FileAlreadyExistsException
+     * @throws FileNotFoundException
+     * @throws IOException
      */
-    public function export($rootDir = CLIENT_WEB_DIR, $installationId = IL_INST_ID)
+    public function export(string $rootDir = CLIENT_WEB_DIR, string $installationId = IL_INST_ID): void
     {
         $time = time();
 
@@ -87,7 +76,7 @@ class ilCertificateTemplateExportAction
 
         $exportPath = $this->certificatePath . $time . '__' . $installationId . '__' . $type . '__' . $certificateId . '__certificate/';
 
-        $this->filesystem->createDir($exportPath, \ILIAS\Filesystem\Visibility::PUBLIC_ACCESS);
+        $this->filesystem->createDir($exportPath);
 
         $template = $this->templateRepository->fetchCurrentlyUsedCertificate($this->objectId);
 
@@ -96,17 +85,13 @@ class ilCertificateTemplateExportAction
         $this->filesystem->put($exportPath . 'certificate.xml', $xslContent);
 
         $backgroundImagePath = $template->getBackgroundImagePath();
-        if ($backgroundImagePath !== '') {
-            if (true === $this->filesystem->has($backgroundImagePath)) {
-                $this->filesystem->copy($backgroundImagePath, $exportPath . 'background.jpg');
-            }
+        if ($backgroundImagePath !== '' && true === $this->filesystem->has($backgroundImagePath)) {
+            $this->filesystem->copy($backgroundImagePath, $exportPath . 'background.jpg');
         }
 
         $thumbnailImagePath = $template->getThumbnailImagePath();
-        if ($thumbnailImagePath !== '') {
-            if (true === $this->filesystem->has($backgroundImagePath)) {
-                $this->filesystem->copy($thumbnailImagePath, $exportPath . 'thumbnail.svg');
-            }
+        if ($thumbnailImagePath !== '' && true === $this->filesystem->has($backgroundImagePath)) {
+            $this->filesystem->copy($thumbnailImagePath, $exportPath . 'thumbnail.svg');
         }
 
         $objectType = $this->objectHelper->lookupType($this->objectId);

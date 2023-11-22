@@ -1,67 +1,67 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class ilAuthFrontendCredentialsSaml
+ * @author Michael Jansen <mjansen@databay.de>
  */
-class ilAuthFrontendCredentialsSaml extends ilAuthFrontendCredentials implements ilAuthCredentials
+class ilAuthFrontendCredentialsSaml extends ilAuthFrontendCredentials
 {
-    /** @var array */
-    protected $attributes = [];
-    /** @var string */
-    protected $return_to = '';
-    /** @var ilSamlAuth */
-    protected $auth;
+    private ilSamlAuth $auth;
+    private ServerRequestInterface $request;
+    private string $return_to = '';
+    private array $attributes = [];
 
-    /**
-     * ilAuthFrontendCredentialsSaml constructor.
-     * @param ilSamlAuth $auth
-     */
-    public function __construct(ilSamlAuth $auth)
+    public function __construct(ilSamlAuth $auth, ServerRequestInterface $request)
     {
         parent::__construct();
 
         $this->auth = $auth;
+        $this->request = $request;
 
         $this->setAttributes($this->auth->getAttributes());
     }
 
-    /**
-     * Init credentials from request
-     */
-    public function initFromRequest() : void
+    public function initFromRequest(): void
     {
-        $this->setReturnTo(isset($_GET['target']) ? $_GET['target'] : '');
+        $this->setReturnTo((string) ($this->request->getQueryParams()['target'] ?? ''));
     }
 
-    /**
-     * @param array $attributes
-     */
-    public function setAttributes(array $attributes) : void
+    public function setAttributes(array $attributes): void
     {
         $this->attributes = $attributes;
     }
 
-    /**
-     * @return array
-     */
-    public function getAttributes() : array
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
 
-    /**
-     * @return string
-     */
-    public function getReturnTo() : string
+    public function getReturnTo(): string
     {
         return $this->return_to;
     }
 
-    /**
-     * @param string $return_to
-     */
-    public function setReturnTo(string $return_to) : void
+    public function setReturnTo(string $return_to): void
     {
         $this->return_to = $return_to;
     }

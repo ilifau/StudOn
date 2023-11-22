@@ -1,7 +1,21 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Modules/TestQuestionPool/classes/forms/class.ilAssQuestionAuthoringFormGUI.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * @author        Björn Heyser <bheyser@databay.de>
  * @version        $Id$
@@ -10,7 +24,7 @@ require_once 'Modules/TestQuestionPool/classes/forms/class.ilAssQuestionAuthorin
  */
 class ilAssOrderingQuestionAuthoringFormGUI extends ilAssQuestionAuthoringFormGUI
 {
-    const COMMAND_BUTTON_PREFIX = 'assOrderingQuestionBtn_';
+    public const COMMAND_BUTTON_PREFIX = 'assOrderingQuestionBtn_';
 
     protected $availableCommandButtonIds = null;
 
@@ -39,7 +53,7 @@ class ilAssOrderingQuestionAuthoringFormGUI extends ilAssQuestionAuthoringFormGU
         ");
     }
 
-    protected function setAvailableCommandButtonIds($availableCommandButtonIds)
+    protected function setAvailableCommandButtonIds($availableCommandButtonIds): void
     {
         $this->availableCommandButtonIds = $availableCommandButtonIds;
     }
@@ -49,7 +63,7 @@ class ilAssOrderingQuestionAuthoringFormGUI extends ilAssQuestionAuthoringFormGU
         return $this->availableCommandButtonIds;
     }
 
-    public function addSpecificOrderingQuestionCommandButtons(assOrderingQuestion $questionOBJ)
+    public function addSpecificOrderingQuestionCommandButtons(assOrderingQuestion $questionOBJ): void
     {
         if ($questionOBJ->isImageOrderingType()) {
             $cmd = assOrderingQuestionGUI::CMD_SWITCH_TO_TERMS;
@@ -63,9 +77,6 @@ class ilAssOrderingQuestionAuthoringFormGUI extends ilAssQuestionAuthoringFormGU
         $this->addCommandButton($cmd, $label, $id);
     }
 
-    /**
-     * @return ilIdentifiedMultiValuesInputGUI
-     */
     public function getOrderingElementInputField()
     {
         return $this->getItemByPostVar(
@@ -73,12 +84,12 @@ class ilAssOrderingQuestionAuthoringFormGUI extends ilAssQuestionAuthoringFormGU
         );
     }
 
-    public function prepareValuesReprintable(assOrderingQuestion $questionOBJ)
+    public function prepareValuesReprintable(assOrderingQuestion $questionOBJ): void
     {
         $this->getOrderingElementInputField()->prepareReprintable($questionOBJ);
     }
 
-    public function ensureReprintableFormStructure(assOrderingQuestion $questionOBJ)
+    public function ensureReprintableFormStructure(assOrderingQuestion $questionOBJ): void
     {
         $this->renewOrderingElementInput($questionOBJ);
         $this->renewOrderingCommandButtons($questionOBJ);
@@ -88,7 +99,7 @@ class ilAssOrderingQuestionAuthoringFormGUI extends ilAssQuestionAuthoringFormGU
      * @param assOrderingQuestion $questionOBJ
      * @throws ilTestQuestionPoolException
      */
-    protected function renewOrderingElementInput(assOrderingQuestion $questionOBJ)
+    protected function renewOrderingElementInput(assOrderingQuestion $questionOBJ): void
     {
         $replacingInput = $questionOBJ->buildOrderingElementInputGui();
         $questionOBJ->initOrderingElementAuthoringProperties($replacingInput);
@@ -97,12 +108,12 @@ class ilAssOrderingQuestionAuthoringFormGUI extends ilAssQuestionAuthoringFormGU
         $this->replaceFormItemByPostVar($replacingInput);
     }
 
-    protected function buildCommandButtonId($id)
+    protected function buildCommandButtonId($id): string
     {
         return self::COMMAND_BUTTON_PREFIX . $id;
     }
 
-    protected function renewOrderingCommandButtons(assOrderingQuestion $questionOBJ)
+    protected function renewOrderingCommandButtons(assOrderingQuestion $questionOBJ): void
     {
         $this->clearCommandButtons();
         $this->addSpecificOrderingQuestionCommandButtons($questionOBJ);

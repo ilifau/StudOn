@@ -84,14 +84,11 @@ il.Search = {
 		
 		// cdates
 		ctype = $('input[name=screation]').is(':checked');
-
-		$('#sop_cd_on').hide();
-		$('#sop_cd_off').hide();
 		if(!ctype) {
-			$('#sop_cd').html($('#sop_cd_off').html());
+			$('#sop_cd').html(il.Search.search_filter_by_cd_off);
 		}
 		else {
-			$('#sop_cd').html($('#sop_cd_on').html());
+			$('#sop_cd').html('<b>On</b>');
 		}
 		
 		var area = $('a[name=area_anchor]').html();

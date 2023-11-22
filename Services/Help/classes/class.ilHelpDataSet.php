@@ -1,50 +1,41 @@
 <?php
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/DataSet/classes/class.ilDataSet.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Help system data set class
  *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- * @ingroup ServicesHelp
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilHelpDataSet extends ilDataSet
 {
-
-    /**
-     * Get supported versions
-     *
-     * @param
-     * @return
-     */
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return array("4.3.0");
     }
-    
-    /**
-     * Get xml namespace
-     *
-     * @param
-     * @return
-     */
-    public function getXmlNamespace($a_entity, $a_schema_version)
+
+    protected function getXmlNamespace(string $a_entity, string $a_schema_version): string
     {
-        return "http://www.ilias.de/xml/Services/Help/" . $a_entity;
+        return "https://www.ilias.de/xml/Services/Help/" . $a_entity;
     }
-    
-    /**
-     * Get field types for entity
-     *
-     * @param
-     * @return
-     */
-    protected function getTypes($a_entity, $a_version)
+
+    protected function getTypes(string $a_entity, string $a_version): array
     {
-        if ($a_entity == "help_map") {
+        if ($a_entity === "help_map") {
             switch ($a_version) {
                 case "4.3.0":
                     return array(
@@ -57,7 +48,7 @@ class ilHelpDataSet extends ilDataSet
             }
         }
 
-        if ($a_entity == "help_tooltip") {
+        if ($a_entity === "help_tooltip") {
             switch ($a_version) {
                 case "4.3.0":
                     return array(
@@ -69,23 +60,14 @@ class ilHelpDataSet extends ilDataSet
                     );
             }
         }
+        return [];
     }
 
-    /**
-     * Read data
-     *
-     * @param
-     * @return
-     */
-    public function readData($a_entity, $a_version, $a_ids, $a_field = "")
+    public function readData(string $a_entity, string $a_version, array $a_ids): void
     {
         $ilDB = $this->db;
 
-        if (!is_array($a_ids)) {
-            $a_ids = array($a_ids);
-        }
-                
-        if ($a_entity == "help_map") {
+        if ($a_entity === "help_map") {
             switch ($a_version) {
                 case "4.3.0":
                     $this->getDirectDataFromQuery("SELECT chap, component, screen_id, screen_sub_id, perm " .
@@ -95,38 +77,27 @@ class ilHelpDataSet extends ilDataSet
                     break;
             }
         }
-        
-        if ($a_entity == "help_tooltip") {
+
+        if ($a_entity === "help_tooltip") {
             switch ($a_version) {
                 case "4.3.0":
-                    $this->getDirectDataFromQuery("SELECT id, tt_text, tt_id, comp, lang FROM help_tooltip");
+                    $this->getDirectDataFromQuery("SELECT id, tt_text, tt_id, comp, lang FROM help_tooltip " .
+                        " WHERE module_id = " . $ilDB->quote(0, "integer"));
                     break;
             }
         }
     }
-    
-    /**
-     * Determine the dependent sets of data
-     */
-    protected function getDependencies($a_entity, $a_version, $a_rec, $a_ids)
-    {
-        return false;
-    }
-    
-    
-    /**
-     * Import record
-     *
-     * @param
-     * @return
-     */
-    public function importRecord($a_entity, $a_types, $a_rec, $a_mapping, $a_schema_version)
-    {
+
+    public function importRecord(
+        string $a_entity,
+        array $a_types,
+        array $a_rec,
+        ilImportMapping $a_mapping,
+        string $a_schema_version
+    ): void {
         switch ($a_entity) {
             case "help_map":
-                
-                include_once("./Services/Help/classes/class.ilHelpMapping.php");
-                
+
                 // without module ID we do nothing
                 $module_id = $a_mapping->getMapping('Services/Help', 'help_module', 0);
                 $t = $a_mapping->getAllMappings();
@@ -138,7 +109,7 @@ class ilHelpDataSet extends ilDataSet
                     );
 
                     // new import (5.1): get chapter from learning module import mapping
-                    if ($new_chap == 0) {
+                    if ((int) $new_chap === 0) {
                         $new_chap = $a_mapping->getMapping(
                             'Modules/LearningModule',
                             'lm_tree',
@@ -158,11 +129,9 @@ class ilHelpDataSet extends ilDataSet
                     }
                 }
                 break;
-                
+
             case "help_tooltip":
-                
-                include_once("./Services/Help/classes/class.ilHelp.php");
-                
+
                 // without module ID we do nothing
                 $module_id = $a_mapping->getMapping('Services/Help', 'help_module', 0);
                 if ($module_id) {

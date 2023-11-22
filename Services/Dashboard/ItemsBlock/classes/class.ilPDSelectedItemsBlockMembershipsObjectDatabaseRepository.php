@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -23,17 +25,9 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
         'crs',
         'grp',
     ];
-    
-    /** @var ilDBInterface */
-    private $db;
-    /** @var int */
-    private $recoveryFolderId;
 
-    // fau: filterMyMem - class variable for term
-    /** @var string */
-    private $filterTermId;
-    // fau.
-
+    private ilDBInterface $db;
+    private int $recoveryFolderId;
 
     public function __construct(ilDBInterface $db, int $recoveryFolderId)
     {
@@ -41,17 +35,10 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
         $this->recoveryFolderId = $recoveryFolderId;
     }
 
-    // fau: filterMyMem - new function setFilterTermId
-    public function setFilterTermId(string $filterTermId)
-    {
-        $this->filterTermId = $filterTermId;
-    }
-    // fau.
-
     /**
      * @return string[]
      */
-    public function getValidObjectTypes() : array
+    public function getValidObjectTypes(): array
     {
         return self::VALID_OBJECT_TYPES;
     }
@@ -59,7 +46,7 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
     /**
      * @inheritDoc
      */
-    public function getForUser(ilObjUser $user, array $objTypes, string $actorLanguageCode) : Generator
+    public function getForUser(ilObjUser $user, array $objTypes, string $actorLanguageCode): Generator
     {
         $objTypes = array_intersect($objTypes, self::VALID_OBJECT_TYPES);
         if ($objTypes === []) {
@@ -72,19 +59,6 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
             false,
             'text'
         );
-
-        // fau: filterMyMem - add term filter to query, if defined
-        $termFilter = '';
-        if (!empty($this->filterTermId)) {
-            if ($this->filterTermId == 'none') {
-                // former or no term
-                $termFilter = ' AND (od.import_id IS NULL OR od.import_id NOT LIKE ' . $this->db->quote('FAU/Term%%', 'text') . ')';
-            }
-            else {
-                // with term
-                $termFilter = ' AND od.import_id LIKE ' . $this->db->quote('FAU/Term=' . $this->filterTermId . '%%', 'text');
-            }
-        }
 
         $res = $this->db->queryF(
             "
@@ -135,13 +109,11 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
                 LEFT JOIN grp_settings ON grp_settings.obj_id = od.obj_id
                 LEFT JOIN crs_settings ON crs_settings.obj_id = od.obj_id
                 LEFT JOIN object_translation trans ON trans.obj_id = od.obj_id AND trans.lang_code = %s
-                WHERE ua.usr_id = %s 
-                $termFilter
+                WHERE ua.usr_id = %s
             ",
             ['text', 'integer', 'integer', 'text', 'integer'],
             ['y', 1, $this->recoveryFolderId, $actorLanguageCode, $user->getId()]
         );
-        // fau.
 
         while ($row = $this->db->fetchAssoc($res)) {
             $periodStart = null;

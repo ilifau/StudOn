@@ -1,859 +1,234 @@
 <?php
-/*
-        +-----------------------------------------------------------------------------+
-        | ILIAS open source                                                           |
-        +-----------------------------------------------------------------------------+
-        | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-        |                                                                             |
-        | This program is free software; you can redistribute it and/or               |
-        | modify it under the terms of the GNU General Public License                 |
-        | as published by the Free Software Foundation; either version 2              |
-        | of the License, or (at your option) any later version.                      |
-        |                                                                             |
-        | This program is distributed in the hope that it will be useful,             |
-        | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-        | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-        | GNU General Public License for more details.                                |
-        |                                                                             |
-        | You should have received a copy of the GNU General Public License           |
-        | along with this program; if not, write to the Free Software                 |
-        | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-        +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
-* Base class for course and group waiting lists
-*
-* @author Stefan Meyer <smeyer.ilias@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesMembership
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+/**
+ * Base class for course and group waiting lists
+ * @author  Stefan Meyer <smeyer.ilias@gmx.de>
+ * @ingroup ServicesMembership
+ */
 abstract class ilWaitingList
 {
-    // fau: fairSub - class constants for confirmation status
-    const REQUEST_NOT_ON_LIST = -1;
-    const REQUEST_NOT_TO_CONFIRM = 0;
-    const REQUEST_TO_CONFIRM = 1;
-    const REQUEST_CONFIRMED = 2;
-    // fau.
+    public static array $is_on_list = [];
+    private int $obj_id = 0;
+    private array $user_ids = [];
+    private array $users = [];
+    protected ilDBInterface $db;
+    protected ilAppEventHandler $eventHandler;
 
-    private $db = null;
-    private $obj_id = 0;
-    private $user_ids = array();
-    private $users = array();
-    
-    // fau: fairSub - class variable for users to confirm
-    private $to_confirm_ids = array();
-    // fau.
-
-    // fau: fairSub - class variable for first blocled places
-    private $first_blocked_places = 0;
-    // fau.
-
-
-    // fau: fairSub - class variable for users on a waiting list position	(position => user_id[])
-    private $position_ids = array();
-    // fau.
-
-    public static $is_on_list = array();
-
-    // fau: fairSub - static array variable for confirmation status
-    public static $to_confirm = array();
-    // fau.
-
-    /**
-     * Constructor
-     *
-     * @access public
-     * @param int obj_id
-     */
-    public function __construct($a_obj_id)
+    public function __construct(int $a_obj_id)
     {
         global $DIC;
 
-        $ilDB = $DIC['ilDB'];
-
-        $this->db = $ilDB;
+        $this->db = $DIC->database();
+        $this->eventHandler = $DIC->event();
         $this->obj_id = $a_obj_id;
-
-        $this->read();
+        if ($a_obj_id) {
+            $this->read();
+        }
     }
 
-    // fau: limitSub - new function _countUniqueSubscribers()
-    /**
-    * Count unique subscribers for several objects
-    *
-    * @param    array   object ids
-    * @return   array   user ids
-    */
-    public static function _countUniqueSubscribers($a_obj_ids = array())
-    {
-        global $ilDB;
-
-        $query = "SELECT COUNT(DISTINCT usr_id) users FROM crs_waiting_list WHERE "
-        . $ilDB->in('obj_id', $a_obj_ids, false, 'integer');
-
-        $result = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($result);
-
-        return $row['users'];
-    }
-    // fau.
-
-
-    /**
-     * Lookup waiting lit size
-     * @param int $a_obj_id
-     */
-    public static function lookupListSize($a_obj_id)
+    public static function lookupListSize(int $a_obj_id): int
     {
         global $DIC;
 
-        $ilDB = $DIC['ilDB'];
-        
+        $ilDB = $DIC->database();
         $query = 'SELECT count(usr_id) num from crs_waiting_list WHERE obj_id = ' . $ilDB->quote($a_obj_id, 'integer');
         $res = $ilDB->query($query);
-        
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             return (int) $row->num;
         }
         return 0;
     }
-    
-    /**
-     * delete all
-     *
-     * @access public
-     * @param int obj_id
-     * @static
-     */
-    public static function _deleteAll($a_obj_id)
+
+    public static function _deleteAll(int $a_obj_id): void
     {
         global $DIC;
 
-        $ilDB = $DIC['ilDB'];
+        $ilDB = $DIC->database();
 
         $query = "DELETE FROM crs_waiting_list WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer') . " ";
         $res = $ilDB->manipulate($query);
-
-        return true;
     }
-    
-    /**
-     * Delete user
-     *
-     * @access public
-     * @param int user_id
-     * @static
-     */
-    public static function _deleteUser($a_usr_id)
+
+    public static function _deleteUser(int $a_usr_id): void
     {
         global $DIC;
 
-        $ilDB = $DIC['ilDB'];
-
+        $ilDB = $DIC->database();
         $query = "DELETE FROM crs_waiting_list WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer');
         $res = $ilDB->manipulate($query);
-
-        return true;
     }
-    
-    /**
-     * Delete one user entry
-     * @param int $a_usr_id
-     * @param int $a_obj_id
-     * @return
-     */
-    public static function deleteUserEntry($a_usr_id, $a_obj_id)
+
+    public static function deleteUserEntry(int $a_usr_id, int $a_obj_id): void
     {
         global $DIC;
 
-        $ilDB = $DIC['ilDB'];
-        
+        $ilDB = $DIC->database();
         $query = "DELETE FROM crs_waiting_list " .
             "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . ' ' .
             "AND obj_id = " . $ilDB->quote($a_obj_id, 'integer');
         $ilDB->query($query);
-        return true;
     }
-    
 
-    /**
-     * get obj id
-     *
-     * @access public
-     * @return int obj_id
-     */
-    public function getObjId()
+    public function getObjId(): int
     {
         return $this->obj_id;
     }
 
-    // fau: fairSub - add subject, to_confirm and sub_time as parameter, avoid re-reading
-    /**
-     * add to list
-     *
-     * @param 	int 		$a_usr_id
-     * @param 	string		$a_subject
-     * @param	int 		$a_to_confirm
-     * @param	int			$a_sub_time
-     * @return bool
-     */
-    public function addToList($a_usr_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null)
+    public function addToList(int $a_usr_id): bool
     {
-        global $DIC;
-
-        $ilDB = $DIC['ilDB'];
-        
         if ($this->isOnList($a_usr_id)) {
             return false;
         }
-
-        $a_sub_time = empty($a_sub_time) ? time() : $a_sub_time;
-
-        $query = "INSERT INTO crs_waiting_list (obj_id,usr_id,sub_time, subject, to_confirm) " .
+        $query = "INSERT INTO crs_waiting_list (obj_id,usr_id,sub_time) " .
             "VALUES (" .
-            $ilDB->quote($this->getObjId(), 'integer') . ", " .
-            $ilDB->quote($a_usr_id, 'integer') . ", " .
-            $ilDB->quote($a_sub_time, 'integer') . ", " .
-            $ilDB->quote($a_subject, 'text') . ", " .
-            $ilDB->quote($a_to_confirm, 'integer') . " " .
+            $this->db->quote($this->getObjId(), 'integer') . ", " .
+            $this->db->quote($a_usr_id, 'integer') . ", " .
+            $this->db->quote(time(), 'integer') . " " .
             ")";
-        $res = $ilDB->manipulate($query);
-
-
-        if ($res == 0) {
-            return false;
-        } else {
-            $this->users[$a_usr_id]['time'] = $a_sub_time;
-            $this->users[$a_usr_id]['usr_id'] = $a_usr_id;
-            $this->users[$a_usr_id]['subject'] = $a_subject;
-            $this->users[$a_usr_id]['to_confirm'] = $a_to_confirm;
-            $this->recalculate();
-            return true;
-        }
-    }
-    // fau.
-
-    // fau: fairSub - new function addWithChecks
-    /**
-     * adds a user to the waiting list with check for membership
-     *
-     * @access public
-     * @param 	int 	$a_usr_id
-     * @param 	int		$a_rol_id
-     * @param 	string	$a_subject
-     * @param	int 	$a_to_confirm
-     * @param	int		$a_sub_time
-     * @return bool
-     */
-    public function addWithChecks($a_usr_id, $a_rol_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null)
-    {
-        global $ilDB;
-
-        if ($this->isOnList($a_usr_id)) {
-            return false;
-        }
-
-        $a_sub_time = empty($a_sub_time) ? time() : $a_sub_time;
-
-        // insert user only on the waiting list if not in member role and not on list
-        $query = "INSERT INTO crs_waiting_list (obj_id, usr_id, sub_time, subject, to_confirm) "
-                . " SELECT %s obj_id, %s usr_id, %s sub_time, %s subject, %s to_confirm FROM DUAL "
-                . " WHERE NOT EXISTS (SELECT 1 FROM rbac_ua WHERE usr_id = %s AND rol_id = %s) "
-                . " AND NOT EXISTS (SELECT 1 FROM crs_waiting_list WHERE obj_id = %s AND usr_id = %s)";
-
-        $res = $ilDB->manipulateF(
-            $query,
-            array(	'integer', 'integer', 'integer', 'text', 'integer',
-                                'integer', 'integer',
-                                'integer', 'integer'),
-            array(	$this->getObjId(), $a_usr_id, $a_sub_time, $a_subject, $a_to_confirm,
-                                $a_usr_id, $a_rol_id,
-                                $this->getObjId(), $a_usr_id)
-        );
-
-        if ($res == 0) {
-            return false;
-        } else {
-            $this->users[$a_usr_id]['time'] = $a_sub_time;
-            $this->users[$a_usr_id]['usr_id'] = $a_usr_id;
-            $this->users[$a_usr_id]['subject'] = $a_subject;
-            $this->users[$a_usr_id]['to_confirm'] = $a_to_confirm;
-            $this->recalculate();
-            return true;
-        }
-    }
-    // fau.
-
-
-    /**
-     * update subscription time
-     *
-     * @access public
-     * @param int usr_id
-     * @param int subsctription time
-     */
-    public function updateSubscriptionTime($a_usr_id, $a_subtime)
-    {
-        global $DIC;
-
-        $ilDB = $DIC['ilDB'];
-        
-        $query = "UPDATE crs_waiting_list " .
-            "SET sub_time = " . $ilDB->quote($a_subtime, 'integer') . " " .
-            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
-            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
-        $res = $ilDB->manipulate($query);
-
-        // fau: fairSub - recalculate after updating time
-        $this->users[$a_usr_id]['time'] = (int) $a_subtime;
-        $this->recalculate();
-        // fau.
-
+        $res = $this->db->manipulate($query);
+        $this->read();
         return true;
     }
 
-    // fau: campoSub - new functions getModuleId, updateModuleId
-    /**
-     * Get the module id
-     * @param int $a_usr_id
-     * @return	int
-     */
-    public function getModuleId($a_usr_id)
+    public function updateSubscriptionTime(int $a_usr_id, int $a_subtime): void
     {
-        return $this->users[$a_usr_id]['module_id'] ?? null;
-    }
-
-    /**
-     * Update the module id
-     * @param int $a_usr_id
-     * @param int|null $a_module_id
-     */
-    public function updateModuleId($a_usr_id, $a_module_id)
-    {
-        global $ilDB;
-
         $query = "UPDATE crs_waiting_list " .
-            "SET module_id = " . $ilDB->quote((int) $a_module_id, 'integer') . " " .
-            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
-            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
-        $ilDB->manipulate($query);
-
-        $this->users[$a_usr_id]['module_id'] = $a_module_id;
-    }
-    // fau.
-
-
-
-    // fau: fairSub - new function updateSubject(), acceptOnList()
-    /**
-     * update subject
-     * @param int $a_usr_id
-     * @param string $a_subject
-     * @return true
-     */
-    public function updateSubject($a_usr_id, $a_subject)
-    {
-        global $ilDB;
-
-        $query = "UPDATE crs_waiting_list " .
-            "SET subject = " . $ilDB->quote($a_subject, 'text') . " " .
-            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
-            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
-        $res = $ilDB->manipulate($query);
-
-        $this->users[$a_usr_id]['subject'] = $a_subject;
-        return true;
+            "SET sub_time = " . $this->db->quote($a_subtime, 'integer') . " " .
+            "WHERE usr_id = " . $this->db->quote($a_usr_id, 'integer') . " " .
+            "AND obj_id = " . $this->db->quote($this->getObjId(), 'integer') . " ";
+        $res = $this->db->manipulate($query);
     }
 
-
-    /**
-     * Accept a subscription request on the list
-     * @param int $a_usr_id
-     * @return bool
-     */
-    public function acceptOnList($a_usr_id)
+    public function removeFromList(int $a_usr_id): bool
     {
-        global $ilDB;
-
-        $query = "UPDATE crs_waiting_list " .
-            "SET to_confirm = " . $ilDB->quote(self::REQUEST_CONFIRMED, 'integer') . " " .
-            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
-            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer');
-        $res = $ilDB->manipulate($query);
-
-        $this->users[$a_usr_id]['to_confirm'] = self::REQUEST_CONFIRMED;
-        $this->recalculate();
-        return true;
-    }
-
-    // fau.
-
-    /**
-     * remove usr from list
-     *
-     * @access public
-     * @param int usr_id
-     * @return
-     */
-    public function removeFromList($a_usr_id)
-    {
-        global $DIC;
-
-        $ilDB = $DIC['ilDB'];
-        
         $query = "DELETE FROM crs_waiting_list " .
-            " WHERE obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " " .
-            " AND usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " ";
-        $res = $ilDB->manipulate($query);
-
-        // fau: fairSub - avoid multiple reading
-        unset($this->users[$a_usr_id]);
-        $this->recalculate();
-        // fau.
-        return true;
+            " WHERE obj_id = " . $this->db->quote($this->getObjId(), 'integer') . " " .
+            " AND usr_id = " . $this->db->quote($a_usr_id, 'integer') . " ";
+        $affected = $this->db->manipulate($query);
+        $this->read();
+        return $affected > 0;
     }
 
-    /**
-     * check if is on waiting list
-     *
-     * @access public
-     * @param int usr_id
-     * @return
-     */
-    public function isOnList($a_usr_id)
+    public function isOnList(int $a_usr_id): bool
     {
-        return isset($this->users[$a_usr_id]) ? true : false;
+        return isset($this->users[$a_usr_id]);
     }
-    
-    /**
-     * Check if a user on the waiting list
-     * @return bool
-     * @param int $a_usr_id
-     * @param int $a_obj_id
-     * @access public
-     * @static
-     */
-    public static function _isOnList($a_usr_id, $a_obj_id)
+
+    public static function _isOnList(int $a_usr_id, int $a_obj_id): bool
     {
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
         if (isset(self::$is_on_list[$a_usr_id][$a_obj_id])) {
             return self::$is_on_list[$a_usr_id][$a_obj_id];
         }
-        
+
         $query = "SELECT usr_id " .
             "FROM crs_waiting_list " .
             "WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer') . " " .
             "AND usr_id = " . $ilDB->quote($a_usr_id, 'integer');
         $res = $ilDB->query($query);
-        return $res->numRows() ? true : false;
+        return (bool) $res->numRows();
     }
-
-    // fau: fairSub - new static function _getStatus()
-    /**
-     * Get the status of a user
-     * @return bool
-     * @param int $a_usr_id
-     * @param int $a_obj_id
-     * @access public
-     * @static
-     */
-    public static function _getStatus($a_usr_id, $a_obj_id)
-    {
-        global $ilDB;
-
-        if (isset(self::$to_confirm[$a_usr_id][$a_obj_id])) {
-            return self::$to_confirm[$a_usr_id][$a_obj_id];
-        }
-
-        $query = "SELECT to_confirm " .
-            "FROM crs_waiting_list " .
-            "WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer') . " " .
-            "AND usr_id = " . $ilDB->quote($a_usr_id, 'integer');
-        $res = $ilDB->query($query);
-        if ($res->numRows()) {
-            $row = $ilDB->fetchAssoc($res);
-            return $row['to_confirm'];
-        } else {
-            return self::REQUEST_NOT_ON_LIST;
-        }
-    }
-    // fau.
-
 
     /**
      * Preload on list info. This is used, e.g. in the repository
      * to prevent multiple reads on the waiting list table.
      * The function is triggered in the preload functions of ilObjCourseAccess
      * and ilObjGroupAccess.
-     *
-     * @param array $a_usr_ids array of user ids
-     * @param array $a_obj_ids array of object ids
      */
-    public static function _preloadOnListInfo($a_usr_ids, $a_obj_ids)
+    public static function _preloadOnListInfo(array $a_usr_ids, array $a_obj_ids): void
     {
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
-        if (!is_array($a_usr_ids)) {
-            $a_usr_ids = array($a_usr_ids);
-        }
-        if (!is_array($a_obj_ids)) {
-            $a_obj_ids = array($a_obj_ids);
-        }
-        // fau: fairSub - fill also to_confirm info at preload
         foreach ($a_usr_ids as $usr_id) {
             foreach ($a_obj_ids as $obj_id) {
                 self::$is_on_list[$usr_id][$obj_id] = false;
-                self::$to_confirm[$usr_id][$obj_id] = self::REQUEST_NOT_ON_LIST;
             }
         }
-        $query = "SELECT usr_id, obj_id, to_confirm " .
+        $query = "SELECT usr_id, obj_id " .
             "FROM crs_waiting_list " .
             "WHERE " .
             $ilDB->in("obj_id", $a_obj_ids, false, "integer") . " AND " .
             $ilDB->in("usr_id", $a_usr_ids, false, "integer");
         $res = $ilDB->query($query);
         while ($rec = $ilDB->fetchAssoc($res)) {
-            self::$is_on_list[$rec["usr_id"]][$rec["obj_id"]] = true;
-            self::$to_confirm[$rec["usr_id"]][$rec["obj_id"]] = $rec['to_confirm'];
+            self::$is_on_list[(int) $rec["usr_id"]][(int) $rec["obj_id"]] = true;
         }
-        // fau.
     }
-    
 
-    /**
-     * get number of users
-     *
-     * @access public
-     * @return int number of users
-     */
-    public function getCountUsers()
+    public function getCountUsers(): int
     {
         return count($this->users);
     }
 
-    // fau: fairSub - new function getCountToConfirm()
-    /**
-     * get number of users that need a confirmation
-     *
-     * @access public
-     * @return int number of users
-     */
-    public function getCountToConfirm()
-    {
-        return count($this->to_confirm_ids);
-    }
-    // fau.
-
-
-    // fau: fairSub - new function getFirstBlockedPlaces()
-    /**
-     * Get the number of places that must be kept free before the first user can be added from the list
-     * This is the number of pending confirmation with earlier or equal submision time than the first user without
-     * Is can be compared with the free places to decide if at least one free place can be filled
-     *
-     * Don't use this to calculate the whole amount of places that can be filled!
-     * After the first user is added, other pending confirmations may block further users
-     * So the recalculate() function has to be called after adding a user from the list
-     *
-     * @see self::recalculate()
-     */
-    public function getFirstBlockedPlaces() : int
-    {
-        return $this->first_blocked_places;
-    }
-    // fau.
-
-    /**
-     * get position
-     *
-     * @access public
-     * @param int usr_id
-     * @return position of user otherwise -1
-     */
-    public function getPosition($a_usr_id)
+    public function getPosition(int $a_usr_id): int
     {
         return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['position'] : -1;
     }
 
-
-    // fau: fairSub - new function getPositionUsers(), getEffectivePosition(), getPositionOthers()
-
-    /**
-     * Get all position numbers
-     */
-    public function getAllPositions()
-    {
-        return array_keys($this->position_ids);
-    }
-
-
-    /**
-     * get the count of users sharing a waiting list position
-     * @param int $a_position	waiting list position
-     * @return array 			user_id[]
-     */
-    public function getPositionUsers($a_position)
-    {
-        return (array) $this->position_ids[$a_position];
-    }
-
-    /**
-     * Get the effective waiting list position
-     * This counts all users sharing lower positions
-     * @param int		$a_usr_id
-     * @return int
-     */
-    public function getEffectivePosition($a_usr_id)
-    {
-        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['effective'] : -1;
-    }
-
-    /**
-     * Get information about waiting list position
-     * @param int			$a_usr_id	user id
-     * @param ilLanguage 	$a_lng		defaults to current user language, but may be be other for email notification
-     * @return string					the effective position and info about others sharing it
-     */
-    public function getPositionInfo($a_usr_id, $a_lng = null)
-    {
-        global $lng;
-
-        if (!isset($a_lng)) {
-            $a_lng = $lng;
-        }
-
-        if (!isset($this->users[$a_usr_id])) {
-            return $a_lng->txt('sub_fair_not_on_list');
-        }
-
-        $effective = $this->getEffectivePosition($a_usr_id);
-        $others = count($this->getPositionUsers((int) $this->getPosition($a_usr_id))) - 1;
-
-        if ($others == 0) {
-            return (string) $effective;
-        } else {
-            return sprintf($a_lng->txt($others == 1 ? 'sub_fair_position_with_other' : 'sub_fair_position_with_others'), $effective, $others);
-        }
-    }
-    // fau.
-
-    // fau: fairSub - new functions getSubject(), isToConfirm(), getStatus()
-    /**
-     * Get the message of the entry
-     * @param int $a_usr_id
-     * @return	string	subject
-     */
-    public function getSubject($a_usr_id)
-    {
-        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['subject'] : '';
-    }
-
-
-    /**
-     * Get if a user needs a confirmation
-     * @param int $a_usr_id
-     * @return	boolean
-     */
-    public function isToConfirm($a_usr_id)
-    {
-        return isset($this->users[$a_usr_id]) ? ($this->users[$a_usr_id]['to_confirm'] == self::REQUEST_TO_CONFIRM) : false;
-    }
-
-    /**
-     * Get the status of a user on the list
-     */
-    public function getStatus($a_usr_id)
-    {
-        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['to_confirm'] : self::REQUEST_NOT_ON_LIST;
-    }
-    // fau.
-
     /**
      * get all users on waiting list
-     *
      * @access public
-     * @return array array(position,time,usr_id)
+     * @return array<int, array<{position: int, time: int, usr_id: int}>>
      */
-    public function getAllUsers()
+    public function getAllUsers(): array
     {
-        return $this->users ? $this->users : array();
+        return $this->users;
     }
-    
+
     /**
      * get user
-     *
-     * @access public
      * @param int usr_id
-     * @return
+     * @return array<{position: int, time: int, usr_id: int}>
      */
-    public function getUser($a_usr_id)
+    public function getUser(int $a_usr_id): array
     {
-        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id] : false;
-    }
-    
-    /**
-     * Get all user ids of users on waiting list
-     *
-     *
-     */
-    public function getUserIds()
-    {
-        return $this->user_ids ? $this->user_ids : array();
+        return $this->users[$a_usr_id] ?? [];
     }
 
     /**
-     * Read waiting list
-     *
-     * @access private
-     * @param
-     * @return
+     * @return int[]
      */
-    private function read()
+    public function getUserIds(): array
     {
-        global $DIC;
+        return $this->user_ids;
+    }
 
-        $ilDB = $DIC['ilDB'];
-        
-        $this->users = array();
-
-        // fau: fairSub - get subject and to_confirm
-        // fau: fairSub - recalculate after reading, sorting is done there
-        // fau: campoSub - read the module id
-
+    private function read(): void
+    {
+        $this->users = [];
         $query = "SELECT * FROM crs_waiting_list " .
-            "WHERE obj_id = " . $ilDB->quote($this->getObjId(), 'integer');
+            "WHERE obj_id = " . $this->db->quote($this->getObjId(), 'integer') . " ORDER BY sub_time";
 
         $res = $this->db->query($query);
-
-        while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
-            $this->users[$row->usr_id]['time'] = $row->sub_time;
-            $this->users[$row->usr_id]['usr_id'] = $row->usr_id;
-            $this->users[$row->usr_id]['subject'] = $row->subject;
-            $this->users[$row->usr_id]['to_confirm'] = $row->to_confirm;
-            $this->users[$row->usr_id]['module_id'] = $row->module_id;
-        }
-        $this->recalculate();
-        // fau.
-        return true;
-    }
-
-    // fau: fairSub - new function recalculate()
-    /**
-     * Re-calculated additional data based on the raw data
-     * This can ce called after manipulating the users array
-     *  - shared waiting position
-     *  - effective waiting position
-     *  - list of all user_ids
-     *  - list of user_ids on a shared position
-     *  - list of users to be confirmed
-     */
-    private function recalculate()
-    {
-        // sort the users by subscription time
-        $sort = array();
-        foreach ($this->users as $user_id => $user) {
-            $sort[$user['time']][] = $user_id;
-        }
-        ksort($sort, SORT_NUMERIC);
-
-        // init calculated data
         $counter = 0;
-        $position = 0;
-        $previous = 0;
-        $effective = 0;
-        $count_first_blocked = true;
-        $this->user_ids = array();
-        $this->position_ids = array();
-        $this->to_confirm_ids = array();
-        $this->first_blocked_places = 0;
+        while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+            ++$counter;
+            $this->users[(int) $row->usr_id]['position'] = $counter;
+            $this->users[(int) $row->usr_id]['time'] = (int) $row->sub_time;
+            $this->users[(int) $row->usr_id]['usr_id'] = (int) $row->usr_id;
 
-        // calculate
-        foreach ($sort as $sub_time => $user_ids) {
-            $position++;
-            $pos_has_addable = false;
-            foreach ($user_ids as $user_id) {
-                $counter++;
-                if ($position > $previous) {
-                    $effective = $counter;
-                    $previous = $position;
-                }
-
-                $this->users[$user_id]['position'] = $position; 	// shared waiting list position
-                $this->users[$user_id]['effective'] = $effective;	// effective waiting list position (counting all users of lower positions)
-
-                $this->user_ids[] = $user_id;
-                $this->position_ids[$position][] = $user_id;
-                if ($this->users[$user_id]['to_confirm'] == self::REQUEST_TO_CONFIRM) {
-                    $this->to_confirm_ids[] = $user_id;
-                    if ($count_first_blocked) {
-                        $this->first_blocked_places++;
-                    }
-                } else {
-                    $pos_has_addable = true;
-                }
-            }
-            // stop counting the first blocked places if position has at least one user without confirmation meed
-            if ($pos_has_addable) {
-                $count_first_blocked = false;
-            }
+            $this->user_ids[] = (int) $row->usr_id;
         }
-    }
-    // fau.
-
-    /**
-     * Check if the fair subscription period can be changed
-     * This is not allowed if gegistrations are affected by a reduced period
-     * @param integer $a_obj_id
-     * @param integer $a_old_time
-     * @param integer $a_new_time
-     * @return bool
-     */
-    public static function _changeFairTimeAllowed($a_obj_id, $a_old_time, $a_new_time)
-    {
-        global $ilDB;
-
-        if ($a_new_time < $a_old_time) {
-            $query = "SELECT count(*) affected FROM crs_waiting_list " .
-                " WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer') .
-                " AND sub_time <= " . $ilDB->quote($a_old_time, 'integer') .
-                " AND sub_time > " . $ilDB->quote($a_new_time, 'integer');
-
-            $result = $ilDB->query($query);
-            $row = $ilDB->fetchAssoc($result);
-
-            if ($row['affected'] > 0) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Change the period of fair subscriptions
-     * This will set the date of all registrations before to the new end time
-     * @param integer $a_obj_id
-     * @param integer $a_old_time
-     * @param integer $a_new_time
-     */
-    public static function _changeFairTime($a_obj_id, $a_old_time, $a_new_time)
-    {
-        global $ilDB;
-
-        $query = "UPDATE crs_waiting_list " .
-            " SET sub_time = " . $ilDB->quote($a_new_time, 'integer') .
-            " WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer') .
-            " AND sub_time < " . $ilDB->quote($a_new_time, 'integer');
-
-        $ilDB->manipulate($query);
     }
 }

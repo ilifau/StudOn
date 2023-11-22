@@ -1,7 +1,20 @@
 <?php
 
-require_once "Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/Exception/ilAssLacMissingBracket.php";
-require_once "Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/Exception/ilAssLacConditionParserException.php";
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ConditionParser
@@ -13,7 +26,6 @@ require_once "Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/Ex
  */
 class ilAssLacConditionParser
 {
-
     /**
      * The condition which should be parsed into a ParserComposite to match a branch condition
      *
@@ -67,11 +79,12 @@ class ilAssLacConditionParser
      * @param $condition
      *
      * @see CompositeBuilder::create()
-     * @return array
+     * @return ilAssLacAbstractComposite
      */
-    public function parse($condition)
+    public function parse($condition): ilAssLacAbstractComposite
     {
         $this->condition = $condition;
+        $this->index = 0;
         $this->checkBrackets();
         $this->fetchExpressions();
         $this->fetchOperators();
@@ -88,7 +101,7 @@ class ilAssLacConditionParser
      * @see ExpressionManufacturer::getPattern()
      * @see Parser::$expressions
      */
-    protected function fetchExpressions()
+    protected function fetchExpressions(): void
     {
         $manufacturer = ilAssLacExpressionManufacturer::_getInstance();
         $this->expressions = $manufacturer->match($this->condition);
@@ -101,7 +114,7 @@ class ilAssLacConditionParser
      * @see OperationManufacturer::getPattern()
      * @see Parser::$operators
      */
-    protected function fetchOperators()
+    protected function fetchOperators(): void
     {
         $manufacturer = ilAssLacOperationManufacturer::_getInstance();
         $this->operators = $manufacturer->match($this->condition);
@@ -114,7 +127,7 @@ class ilAssLacConditionParser
      * <br />
      * (n o n) o (n o n) o n
      */
-    protected function cannonicalizeCondition()
+    protected function cannonicalizeCondition(): void
     {
         $manufacturer = ilAssLacExpressionManufacturer::_getInstance();
         $this->condition = preg_replace($manufacturer->getPattern(), 'n', $this->condition);
@@ -130,7 +143,7 @@ class ilAssLacConditionParser
         }
     }
 
-    protected function checkBrackets()
+    protected function checkBrackets(): void
     {
         $num_brackets_open = substr_count($this->condition, "(");
         $num_brackets_close = substr_count($this->condition, ")");
@@ -165,7 +178,7 @@ class ilAssLacConditionParser
      *
      * @return array
      */
-    protected function createNodeArray()
+    protected function createNodeArray(): array
     {
         $expected = array("n", "(", "!");
         $group = array();
@@ -205,7 +218,7 @@ class ilAssLacConditionParser
     /**
      * @return array
      */
-    public function getExpressions()
+    public function getExpressions(): array
     {
         return $this->expressions;
     }
@@ -213,7 +226,7 @@ class ilAssLacConditionParser
     /**
      * @param int $index
      */
-    protected function surroundNegationExpression($index)
+    protected function surroundNegationExpression($index): void
     {
         $start = strpos($this->condition, "n", $index + 1);
         $end = false;
@@ -237,6 +250,6 @@ class ilAssLacConditionParser
         $next_bracket = strpos($this->condition, "(", $index + 1);
         $next_expression = strpos($this->condition, "n", $index + 1);
 
-        return $next_bracket !== false & $next_bracket < $next_expression;
+        return $next_bracket !== false && $next_bracket < $next_expression;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Provider;
 
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Information\ItemInformation;
@@ -31,7 +31,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function getModificationProvider() : array
+    public function getModificationProvider(): array
     {
         return [];
     }
@@ -39,7 +39,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function getMainBarProvider() : array
+    public function getMainBarProvider(): array
     {
         return [];
     }
@@ -47,7 +47,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function getMainBarItemInformation() : ItemInformation
+    public function getMainBarItemInformation(): ItemInformation
     {
         return new  NullItemInformation();
     }
@@ -55,7 +55,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function getToolProvider() : array
+    public function getToolProvider(): array
     {
         return [];
     }
@@ -63,7 +63,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function getMetaBarProvider() : array
+    public function getMetaBarProvider(): array
     {
         return [];
     }
@@ -71,7 +71,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function getNotificationsProvider() : array
+    public function getNotificationsProvider(): array
     {
         return [];
     }
@@ -79,7 +79,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function getProviderByClassName(string $class_name) : Provider
+    public function getProviderByClassName(string $class_name): Provider
     {
         return new NullProvider();
     }
@@ -87,7 +87,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function isInstanceCreationPossible(string $class_name) : bool
+    public function isInstanceCreationPossible(string $class_name): bool
     {
         return false;
     }
@@ -95,7 +95,7 @@ class NullProviderFactory implements ProviderFactory
     /**
      * @inheritDoc
      */
-    public function isRegistered(string $class_name) : bool
+    public function isRegistered(string $class_name): bool
     {
         return false;
     }

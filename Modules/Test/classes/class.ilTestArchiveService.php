@@ -1,9 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once './Modules/Test/classes/class.ilTestServiceGUI.php';
-require_once './Modules/Test/classes/class.ilTestPDFGenerator.php';
-require_once './Modules/Test/classes/class.ilTestArchiver.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author		Björn Heyser <bheyser@databay.de>
@@ -32,7 +43,7 @@ class ilTestArchiveService
     /**
      * @return ilTestParticipantData
      */
-    public function getParticipantData()
+    public function getParticipantData(): ?ilTestParticipantData
     {
         return $this->participantData;
     }
@@ -70,7 +81,7 @@ class ilTestArchiveService
      * @param $pass
      * @return string
      */
-    private function renderOverviewContent($activeId, $pass)
+    private function renderOverviewContent($activeId, $pass): string
     {
         $results = $this->testOBJ->getTestResult(
             $activeId,
@@ -102,9 +113,9 @@ class ilTestArchiveService
      * @param $pass
      * @return string
      */
-    private function buildOverviewFilename($activeId, $pass)
+    private function buildOverviewFilename($activeId, $pass): string
     {
-        $tmpFileName = ilUtil::ilTempnam();
+        $tmpFileName = ilFileUtils::ilTempnam();
         return dirname($tmpFileName) . '/scores-' . $this->testOBJ->getId() . '-' . $activeId . '-' . $pass . '.pdf';
     }
 }

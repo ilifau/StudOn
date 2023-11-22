@@ -47,28 +47,16 @@ class Link extends AbstractChildItem implements
     use hasSymbolTrait;
     use isInterchangeableItemTrait;
 
-    /**
-     * @var bool
-     */
-    protected $is_external_action = false;
-    /**
-     * @var string
-     */
-    protected $action = '';
-    /**
-     * @var string
-     */
-    protected $alt_text = '';
-    /**
-     * @var string
-     */
-    protected $title = '';
+    protected bool $is_external_action = false;
+    protected string $action = '';
+    protected string $alt_text = '';
+    protected string $title = '';
 
     /**
      * @param string $title
      * @return Link
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -79,12 +67,12 @@ class Link extends AbstractChildItem implements
     /**
      * @return string
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function withAltText(string $alt_text) : self
+    public function withAltText(string $alt_text): self
     {
         $clone = clone($this);
         $clone->alt_text = $alt_text;
@@ -95,7 +83,7 @@ class Link extends AbstractChildItem implements
     /**
      * @return string
      */
-    public function getAltText() : string
+    public function getAltText(): string
     {
         return $this->alt_text;
     }
@@ -104,7 +92,7 @@ class Link extends AbstractChildItem implements
      * @param string $action
      * @return Link
      */
-    public function withAction(string $action) : hasAction
+    public function withAction(string $action): hasAction
     {
         $clone = clone($this);
         $clone->action = $action;
@@ -115,7 +103,7 @@ class Link extends AbstractChildItem implements
     /**
      * @return string
      */
-    public function getAction() : string
+    public function getAction(): string
     {
         return $this->action;
     }
@@ -124,7 +112,7 @@ class Link extends AbstractChildItem implements
      * @param bool $is_external
      * @return Link
      */
-    public function withIsLinkToExternalAction(bool $is_external) : hasAction
+    public function withIsLinkToExternalAction(bool $is_external): hasAction
     {
         $clone = clone $this;
         $clone->is_external_action = $is_external;
@@ -135,7 +123,7 @@ class Link extends AbstractChildItem implements
     /**
      * @return bool
      */
-    public function isLinkWithExternalAction() : bool
+    public function isLinkWithExternalAction(): bool
     {
         return $this->is_external_action;
     }

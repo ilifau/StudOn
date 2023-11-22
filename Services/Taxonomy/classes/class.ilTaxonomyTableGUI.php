@@ -1,67 +1,80 @@
 <?php
 
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/Table/classes/class.ilTable2GUI.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * TableGUI class for taxonomies
- *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- *
- * @ingroup Services
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilTaxonomyTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
+    protected ilAccessHandler $access;
+    protected string $requested_tax_node;
+    protected ilTaxonomyTree $tree;
+    protected ilObjTaxonomy $tax;
+    protected int $node_id;
 
     /**
      * Constructor
      */
     public function __construct(
-        $a_parent_obj,
-        $a_parent_cmd,
-        $a_tree,
-        $a_node_id,
-        $a_tax
+        object $a_parent_obj,
+        string $a_parent_cmd,
+        ilTaxonomyTree $a_tree,
+        int $a_node_id,
+        ilObjTaxonomy $a_tax
     ) {
         global $DIC;
-
         $this->ctrl = $DIC->ctrl();
         $this->lng = $DIC->language();
         $this->access = $DIC->access();
 
+        // @todo introduce request wrapper
+        $params = $DIC->http()->request()->getQueryParams();
+
+        $this->requested_tax_node = $params["tax_node"] ?? "";
+
         $ilCtrl = $DIC->ctrl();
         $lng = $DIC->language();
-        
+
         if ($a_node_id == "") {
             $a_node_id = $a_tree->readRootId();
         }
-        
+
         $this->tree = $a_tree;
         $this->tax = $a_tax;
         $this->node_id = $a_node_id;
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
-        
+
         $childs = $this->tree->getChildsByTypeFilter(
             $a_node_id,
             array("taxn")
         );
-        
+
         if ($a_tax->getSortingMode() == ilObjTaxonomy::SORT_MANUAL) {
-            $childs = ilUtil::sortArray($childs, "order_nr", "asc", false);
+            $childs = ilArrayUtil::sortArray($childs, "order_nr", "asc", false);
         } else {
-            $childs = ilUtil::sortArray($childs, "title", "asc", false);
+            $childs = ilArrayUtil::sortArray($childs, "title", "asc", false);
         }
         $this->setData($childs);
-        
+
         $this->setTitle($lng->txt("tax_nodes"));
-        
+
         $this->addColumn($this->lng->txt(""), "", "1px", true);
         if ($this->tax->getSortingMode() == ilObjTaxonomy::SORT_MANUAL) {
             $this->addColumn($this->lng->txt("tax_order"), "order_nr", "1px");
@@ -69,10 +82,7 @@ class ilTaxonomyTableGUI extends ilTable2GUI
             $this->setDefaultOrderDirection("asc");
         }
         $this->addColumn($this->lng->txt("title"));
-        // fau: taxDesc - add column for description
-        $this->addColumn($this->lng->txt("description"));
-        // fau.
-        
+
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj));
         $this->setRowTemplate("tpl.tax_row.html", "Services/Taxonomy");
 
@@ -80,31 +90,22 @@ class ilTaxonomyTableGUI extends ilTable2GUI
         $this->addMultiCommand("moveItems", $lng->txt("move"));
         $this->addCommandButton("saveSorting", $lng->txt("save"));
     }
-    
-        
-    /**
-    * Should this field be sorted numeric?
-    *
-    * @return	boolean		numeric ordering; default is false
-    */
-    public function numericOrdering($a_field)
+
+    public function numericOrdering(string $a_field): bool
     {
-        if (in_array($a_field, array("order_nr"))) {
+        if ($a_field == "order_nr") {
             return true;
         }
+        return false;
     }
-    
-    /**
-     * Fill table row
-     */
-    protected function fillRow($a_set)
+
+    protected function fillRow(array $a_set): void
     {
-        $lng = $this->lng;
         $ilCtrl = $this->ctrl;
 
         $ilCtrl->setParameter($this->parent_obj, "tax_node", $a_set["child"]);
         $ret = $ilCtrl->getLinkTargetByClass("ilobjtaxonomygui", "listNodes");
-        $ilCtrl->setParameter($this->parent_obj, "tax_node", $_GET["tax_node"]);
+        $ilCtrl->setParameter($this->parent_obj, "tax_node", $this->requested_tax_node);
         if ($this->tax->getSortingMode() == ilObjTaxonomy::SORT_MANUAL) {
             $this->tpl->setCurrentBlock("order");
             $this->tpl->setVariable("ORDER_NR", $a_set["order_nr"]);
@@ -113,11 +114,8 @@ class ilTaxonomyTableGUI extends ilTable2GUI
         }
 
         $this->tpl->setVariable("HREF_TITLE", $ret);
-        
-        $this->tpl->setVariable("TITLE", ilUtil::prepareFormOutput($a_set["title"]));
-        // fau: taxDesc - set template var
-        $this->tpl->setVariable("DESCRIPTION", ilUtil::prepareFormOutput($a_set["description"]));
-        // fau.
+
+        $this->tpl->setVariable("TITLE", ilLegacyFormElementsUtil::prepareFormOutput($a_set["title"]));
         $this->tpl->setVariable("NODE_ID", $a_set["child"]);
     }
 }

@@ -29,59 +29,59 @@ class ilQuestionPageParser extends ilMDSaxParser
     /**
      * @var false
      */
-    protected $in_properties;
+    protected bool $in_properties;
     /**
      * @var false
      */
-    protected $in_glossary_definition = false;
-    protected $media_meta_cache = [];
-    protected $media_meta_start = false;
-    protected $pg_mapping = [];
-    protected $mobs_with_int_links = [];
-    protected $inside_code = false;
-    protected $coType = "";
-    protected $import_dir = "";
-    public $tree;
-    public $cnt = [];				// counts open elements
-    public $current_element = [];	// store current element type
-    public $learning_module = null;	// current learning module
-    public $page_object = null;		// current page object
-    public $lm_page_object = null;
-    public $structure_objects = [];	// array of current structure objects
-    public $media_object = null;
-    public $current_object = null;	// at the time a LearningModule, PageObject or StructureObject
-    public $lm_tree = null;
-    public $pg_into_tree = [];
-    public $st_into_tree = [];
-    public $container = [];
-    public $in_page_object = false;	// are we currently within a PageObject? true/false
-    public $in_meta_data = false;		// are we currently within MetaData? true/false
-    public $in_media_object = false;
-    public $in_file_item = false;
-    public $in_glossary = false;
-    public $in_map_area = false;
-    public $content_object = null;
-    public $glossary_object = null;
-    public $file_item = null;
-    public $pages_to_parse = [];
-    public $mob_mapping = [];
-    public $file_item_mapping = [];
-    public $subdir = "";
-    public $media_item = null;		// current media item
-    public $loc_type = "";			// current location type
-    public $map_area = null;			// current map area
-    public $link_targets = [];		// stores all objects by import id
-    public $qst_mapping = [];
-    public $metadata_parsing_disabled = false;
-    public $in_meta_meta_data = false;
-    protected $glossary_term_map = [];
-    protected $log;
-    protected $glossary_term = null;
-    protected $mapping = null;
-    protected $cur_qid = "";
-    protected $glossary_definition = null;
-    protected $chr_data = "";
-    protected $in_media_item = false;
+    protected bool $in_glossary_definition = false;
+    protected array $media_meta_cache = [];
+    protected bool $media_meta_start = false;
+    protected array $pg_mapping = [];
+    protected array $mobs_with_int_links = [];
+    protected bool $inside_code = false;
+    protected string $coType = "";
+    protected string $import_dir = "";
+    public ilTree $tree;
+    public array $cnt = [];				// counts open elements
+    public array $current_element = [];	// store current element type
+    public ?ilObjLearningModule $learning_module = null;	// current learning module
+    public ?ilPageObject $page_object = null;		// current page object
+    public ?ilLMPageObject $lm_page_object = null;
+    public array $structure_objects = [];	// array of current structure objects
+    public ?ilObjMediaObject $media_object = null;
+    public ?object $current_object = null;	// at the time a LearningModule, PageObject or StructureObject
+    public ?ilLMTree $lm_tree = null;
+    public array $pg_into_tree = [];
+    public array $st_into_tree = [];
+    public array $container = [];
+    public bool $in_page_object = false;	// are we currently within a PageObject? true/false
+    public bool $in_meta_data = false;		// are we currently within MetaData? true/false
+    public bool $in_media_object = false;
+    public bool $in_file_item = false;
+    public bool $in_glossary = false;
+    public bool $in_map_area = false;
+    public ?ilObject $content_object = null;
+    public ?ilObjGlossary $glossary_object = null;
+    public ?ilObjFile $file_item = null;
+    public array $pages_to_parse = [];
+    public array $mob_mapping = [];
+    public array $file_item_mapping = [];
+    public string $subdir = "";
+    public ?ilMediaItem $media_item = null;		// current media item
+    public string $loc_type = "";			// current location type
+    public ?ilMapArea $map_area = null;			// current map area
+    public array $link_targets = [];		// stores all objects by import id
+    public array $qst_mapping = [];
+    public bool $metadata_parsing_disabled = false;
+    public bool $in_meta_meta_data = false;
+    protected array $glossary_term_map = [];
+    protected ilLogger $log;
+    protected ?ilGlossaryTerm $glossary_term = null;
+    protected ?ilImportMapping $mapping = null;
+    protected string $cur_qid = "";
+    protected ?ilGlossaryDefinition $glossary_definition = null;
+    protected string $chr_data = "";
+    protected bool $in_media_item = false;
 
     public function __construct(
         ilObject $a_content_object,
@@ -130,19 +130,19 @@ class ilQuestionPageParser extends ilMDSaxParser
     /**
      * @param resource $a_xml_parser
      */
-    public function setHandlers($a_xml_parser) : void
+    public function setHandlers($a_xml_parser): void
     {
         xml_set_object($a_xml_parser, $this);
         xml_set_element_handler($a_xml_parser, 'handlerBeginTag', 'handlerEndTag');
         xml_set_character_data_handler($a_xml_parser, 'handlerCharacterData');
     }
 
-    public function setImportMapping(ilImportMapping $mapping = null) : void
+    public function setImportMapping(ilImportMapping $mapping = null): void
     {
         $this->mapping = $mapping;
     }
 
-    public function startParsing() : void
+    public function startParsing(): void
     {
         $this->log->debug("start");
 
@@ -162,7 +162,7 @@ class ilQuestionPageParser extends ilMDSaxParser
     /**
      * insert StructureObjects and PageObjects into tree
      */
-    public function storeTree() : void
+    public function storeTree(): void
     {
         $ilLog = $this->log;
 
@@ -198,7 +198,7 @@ class ilQuestionPageParser extends ilMDSaxParser
     /**
      * parse pages that contain files, mobs and/or internal links
      */
-    public function processPagesToParse() : void
+    public function processPagesToParse(): void
     {
         // outgoin internal links
         foreach ($this->pages_to_parse as $page_id) {
@@ -294,7 +294,7 @@ class ilQuestionPageParser extends ilMDSaxParser
     /**
      * copy multimedia object files from import zip file to mob directory
      */
-    public function copyMobFiles() : void
+    public function copyMobFiles(): void
     {
         $imp_dir = $this->import_dir;
         foreach ($this->mob_mapping as $origin_id => $mob_id) {
@@ -304,14 +304,14 @@ class ilQuestionPageParser extends ilMDSaxParser
 
             $obj_dir = $origin_id;
             $source_dir = $imp_dir . "/" . $this->subdir . "/objects/" . $obj_dir;
-            $target_dir = ilUtil::getWebspaceDir() . "/mobs/mm_" . $mob_id;
+            $target_dir = ilFileUtils::getWebspaceDir() . "/mobs/mm_" . $mob_id;
 
             if (is_dir($source_dir)) {
-                ilUtil::makeDir($target_dir);
+                ilFileUtils::makeDir($target_dir);
 
                 if (is_dir($target_dir)) {
                     ilLoggerFactory::getLogger("mob")->debug("s:-$source_dir-,t:-$target_dir-");
-                    ilUtil::rCopy(realpath($source_dir), realpath($target_dir));
+                    ilFileUtils::rCopy(realpath($source_dir), realpath($target_dir));
                 }
             }
         }
@@ -320,7 +320,7 @@ class ilQuestionPageParser extends ilMDSaxParser
     /**
      * copy files of file items
      */
-    public function copyFileItems() : void
+    public function copyFileItems(): void
     {
         $imp_dir = $this->import_dir;
         foreach ($this->file_item_mapping as $origin_id => $file_id) {
@@ -347,12 +347,12 @@ class ilQuestionPageParser extends ilMDSaxParser
                  * set question import ident to pool/test question id mapping
                  * @param mixed[] $a_map
                  */
-    public function setQuestionMapping(array $a_map) : void
+    public function setQuestionMapping(array $a_map): void
     {
         $this->qst_mapping = $a_map;
     }
 
-    public function beginElement(string $a_name) : void
+    public function beginElement(string $a_name): void
     {
         if (!isset($this->status["$a_name"])) {
             $this->cnt[$a_name] = 1;
@@ -362,18 +362,18 @@ class ilQuestionPageParser extends ilMDSaxParser
         $this->current_element[count($this->current_element)] = $a_name;
     }
 
-    public function endElement(string $a_name) : void
+    public function endElement(string $a_name): void
     {
         $this->cnt[$a_name]--;
         unset($this->current_element[count($this->current_element) - 1]);
     }
 
-    public function getCurrentElement() : string
+    public function getCurrentElement(): string
     {
         return ($this->current_element[count($this->current_element) - 1] ?? "");
     }
 
-    public function getOpenCount(string $a_name) : int
+    public function getOpenCount(string $a_name): int
     {
         if (isset($this->cnt[$a_name])) {
             return $this->cnt[$a_name];
@@ -385,7 +385,7 @@ class ilQuestionPageParser extends ilMDSaxParser
         string $type,
         string $name,
         array $attr = []
-    ) : string {
+    ): string {
         $tag = "<";
 
         if ($type == "end") {
@@ -405,7 +405,7 @@ class ilQuestionPageParser extends ilMDSaxParser
         return $tag;
     }
 
-    public function handlerBeginTag($a_xml_parser, $a_name, $a_attribs) : void
+    public function handlerBeginTag($a_xml_parser, string $a_name, array $a_attribs): void
     {
         switch ($a_name) {
             case "ContentObject":
@@ -875,7 +875,7 @@ class ilQuestionPageParser extends ilMDSaxParser
         }
     }
 
-    public function processMeta() : bool
+    public function processMeta(): bool
     {
         // do not process second meta block in (ilias3) glossaries
         // which comes right after the "Glossary" tag
@@ -889,7 +889,7 @@ class ilQuestionPageParser extends ilMDSaxParser
     }
 
 
-    public function handlerEndTag($a_xml_parser, $a_name) : void
+    public function handlerEndTag($a_xml_parser, string $a_name): void
     {
         // call meta data handler
         if ($this->in_meta_data && $this->processMeta()) {
@@ -1303,7 +1303,7 @@ class ilQuestionPageParser extends ilMDSaxParser
         $this->chr_data = "";
     }
 
-    public function handlerCharacterData($a_xml_parser, $a_data) : void
+    public function handlerCharacterData($a_xml_parser, string $a_data): void
     {
         // call meta data handler
         if ($this->in_meta_data && $this->processMeta()) {
@@ -1358,7 +1358,7 @@ class ilQuestionPageParser extends ilMDSaxParser
     /**
      * @param resource $a_xml_parser
      */
-    public function emptyMediaMetaCache($a_xml_parser) : void
+    public function emptyMediaMetaCache($a_xml_parser): void
     {
         foreach ($this->media_meta_cache as $cache_entry) {
             switch ($cache_entry["type"]) {
@@ -1393,7 +1393,7 @@ class ilQuestionPageParser extends ilMDSaxParser
     /**
                  * @return mixed[]
                  */
-    public function getGlossaryTermMap() : array
+    public function getGlossaryTermMap(): array
     {
         return $this->glossary_term_map;
     }

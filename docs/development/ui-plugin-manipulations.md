@@ -54,7 +54,7 @@ With that key you can select the factory you want to exchange:
 ```php
 public function exchangeUIFactoryAfterInitialization(string $dic_key, \ILIAS\DI\Container $dic) : Closure
     if($key == "ui.factory.nameOfFactory"){
-        return function(\ILIAS\DI\Container  $c){
+        return function(\ILIAS\DI\Container  $c): \ILIAS\UI\Factory {
             return new CustomFactory($c['ui.signal_generator'],$c['ui.factory.maincontrols.slate']);
         };
     }
@@ -93,7 +93,7 @@ If you finished your manipulation all you have to do is to provide your renderer
     public function exchangeUIRendererAfterInitialization(Container $dic): Closure
     {
         $renderer = $dic->raw('ui.renderer');
-        return function () use ($dic, $renderer) {
+        return function () use ($dic, $renderer): \ILIAS\UI\Renderer {
             return new ExampleRenderer($renderer($dic));
         };
     }
@@ -118,7 +118,7 @@ ILIAS core renderer with your own.
 ```php
     public function exchangeUIRendererAfterInitialization(Container $dic): Closure
     {
-        return function () use ($dic) {
+        return function () use ($dic): \ILIAS\UI\Renderer {
             return new CustomRenderer($dic);
         };
     }

@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Symbol\Glyph\Briefcase;
+
 function briefcase()
 {
     global $DIC;

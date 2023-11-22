@@ -1,40 +1,33 @@
 <?php
 
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
 
 /**
  * Handles general notification settings, see e.g.
  * https://www.ilias.de/docu/goto_docu_wiki_wpage_3457_1357.html
- *
- * @author Alex Killing <alex.killing@gmx.de>
- * @ingroup ServiceNotification
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilObjNotificationSettingsGUI
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected ilObjNotificationSettings $settings;
+    protected int $ref_id;
+    protected ilLanguage $lng;
+    protected ilCtrl $ctrl;
+    protected ilGlobalTemplateInterface $tpl;
+    protected int $obj_id;
 
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
-
-    /**
-     * @var int
-     */
-    protected $obj_id;
-
-    /**
-     * Constructor
-     */
-    public function __construct($a_ref_id)
+    public function __construct(int $a_ref_id)
     {
         global $DIC;
 
@@ -43,14 +36,10 @@ class ilObjNotificationSettingsGUI
         $this->tpl = $DIC["tpl"];
         $this->ref_id = $a_ref_id;
         $this->obj_id = ilObject::_lookupObjId($a_ref_id);
-        include_once("./Services/Notification/classes/class.ilObjNotificationSettings.php");
         $this->settings = new ilObjNotificationSettings($this->obj_id);
     }
 
-    /**
-     * Execute command
-     */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $ctrl = $this->ctrl;
 
@@ -65,10 +54,7 @@ class ilObjNotificationSettingsGUI
         }
     }
 
-    /**
-     * Show form
-     */
-    protected function show()
+    protected function show(): void
     {
         $tpl = $this->tpl;
 
@@ -76,17 +62,11 @@ class ilObjNotificationSettingsGUI
         $tpl->setContent($form->getHTML());
     }
 
-
-    /**
-     * Init settings form
-     * @return ilPropertyFormGUI
-     */
-    protected function initForm()
+    protected function initForm(): ilPropertyFormGUI
     {
         $ctrl = $this->ctrl;
         $lng = $this->lng;
 
-        include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
 
         $form->setFormAction($ctrl->getFormAction($this, 'save'));
@@ -107,10 +87,10 @@ class ilObjNotificationSettingsGUI
         $opt_0->addSubItem($chb_2);
         $form->addItem($radio_grp);
 
-        if ($this->settings->getMode() == ilObjNotificationSettings::MODE_DEF_ON_OPT_OUT) {
+        if ($this->settings->getMode() === ilObjNotificationSettings::MODE_DEF_ON_OPT_OUT) {
             $radio_grp->setValue('1');
         }
-        if ($this->settings->getMode() == ilObjNotificationSettings::MODE_DEF_ON_NO_OPT_OUT) {
+        if ($this->settings->getMode() === ilObjNotificationSettings::MODE_DEF_ON_NO_OPT_OUT) {
             $radio_grp->setValue('1');
             $chb_2->setChecked(true);
         }
@@ -122,17 +102,14 @@ class ilObjNotificationSettingsGUI
         return $form;
     }
 
-    /**
-     * Save
-     */
-    protected function save()
+    protected function save(): void
     {
         $ctrl = $this->ctrl;
 
         $form = $this->initForm();
         if ($form->checkInput()) {
             $this->settings->setMode(ilObjNotificationSettings::MODE_DEF_OFF_USER_ACTIVATION);
-            if ($_POST['notification_type'] == "1") {
+            if ($form->getInput('notification_type') === "1") {
                 if ((int) $form->getInput('no_opt_out')) {
                     $this->settings->setMode(ilObjNotificationSettings::MODE_DEF_ON_NO_OPT_OUT);
                 } else {
@@ -140,7 +117,7 @@ class ilObjNotificationSettingsGUI
                 }
             }
             $this->settings->save();
-            ilUtil::sendSuccess($this->lng->txt('saved_successfully'), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);
             $ctrl->redirect($this, "show");
         }
 

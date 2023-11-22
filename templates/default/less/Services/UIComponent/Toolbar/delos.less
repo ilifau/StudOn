@@ -17,10 +17,10 @@
 	.form-control{
 		width: auto;
 		display: inline-block;
-		vertical-align: top;
+		vertical-align: middle;
 	}
 	.input-group  {
-		vertical-align: top;
+		vertical-align: middle;
 	}
 	input[type="file"] {
 		display: inline-block;
@@ -58,7 +58,9 @@
 			}
 		}
 	}
-
+	.btn, a{
+		vertical-align: middle;
+	}
 	.btn[disabled]{
 		padding:  @padding-small-vertical @padding-small-horizontal;
 	}
@@ -70,7 +72,7 @@
 			margin-top: 0;
 			margin-bottom: 0;
 			.open .dropdown-menu > li > a {
-				padding-left: 10px;
+				padding-left: @il-padding-large-horizontal;
 			}
 		}
 		> li {
@@ -92,15 +94,28 @@
 			}
 		}
 	}
+
+	#il-add-new-item-gl {
+		.row {
+			margin-left: 0;
+			margin-right: 0;
+		}
+		li {
+			&:not(.dropdown-header ){
+				border-bottom: 0;
+			}
+			margin-right: 0;
+		}
+	}
 }
 //See #https://mantis.ilias.de/view.php?id=30615
 .ilToolbarContainer + .ilFilterContainer{
-	margin-top: -20px;
+	margin-top: -@il-line-height-computed;
 }
 @media only screen and (max-width: @grid-float-breakpoint-max) {
 	.ilToolbar {
 		.container-fluid {
-			padding-left: 15px;
+			padding-left: @il-padding-xlarge-horizontal;
 		}
 		li {
 			border-bottom: @il-toolbar-border;
@@ -114,4 +129,12 @@
 			}
 		}
 	}
+}
+
+.ilToolbar .navbar-form .modal .radio {
+	display: block;
+}
+
+.ilToolbar .navbar-form .modal .form-group {
+	display: block;
 }

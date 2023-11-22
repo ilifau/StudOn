@@ -1,75 +1,48 @@
 <?php
 
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Administration\AdminGUIRequest;
 
 /**
-* Handles Administration commands (cut, delete paste)
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*
-* @ingroup ServicesAdministration
-*/
+ * Handles Administration commands (cut, delete paste)
+ *
+ * @author Stefan Meyer <meyer@leifos.com>
+ */
 class ilAdministrationCommandGUI
 {
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
+    protected ilGlobalTemplateInterface $tpl;
+    protected ilSetting $settings;
+    protected ilErrorHandling $error;
+    protected ilTree $tree;
+    protected ilObjectDefinition$obj_definition;
+    protected ?ilCtrl $ctrl = null;
+    protected ?ilLanguage $lng = null;
+    private ilAdministrationCommandHandling $container;
+    protected AdminGUIRequest $request;
 
-    /**
-     * @var ilSetting
-     */
-    protected $settings;
-
-    /**
-     * @var ilErrorHandling
-     */
-    protected $error;
-
-    /**
-     * @var ilTree
-     */
-    protected $tree;
-
-    /**
-     * @var ilObjectDefinition
-     */
-    protected $obj_definition;
-
-    protected $ctrl = null;
-    protected $lng = null;
-    private $container = null;
-
-    /**
-     * Constructor
-     */
-    public function __construct($a_container)
+    public function __construct(ilAdministrationCommandHandling $a_container)
     {
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
 
-        $this->tpl = $DIC["tpl"];
+        $this->tpl = $DIC->ui()->mainTemplate();
         $this->settings = $DIC->settings();
         $this->error = $DIC["ilErr"];
         $this->tree = $DIC->repositoryTree();
@@ -80,20 +53,19 @@ class ilAdministrationCommandGUI
         $this->container = $a_container;
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
+
+        $this->request = new AdminGUIRequest(
+            $DIC->http(),
+            $DIC->refinery()
+        );
     }
 
-    /**
-     * Get container object
-     */
-    public function getContainer()
+    public function getContainer(): ilAdministrationCommandHandling
     {
         return $this->container;
     }
 
-    /**
-     * Show delete confirmation
-     */
-    public function delete()
+    public function delete(): void
     {
         $tpl = $this->tpl;
         $ilSetting = $this->settings;
@@ -101,22 +73,12 @@ class ilAdministrationCommandGUI
 
         $this->ctrl->setReturnByClass(get_class($this->getContainer()), '');
 
-        $to_delete = array();
-        if ((int) $_GET['item_ref_id']) {
-            $to_delete = array(
-                (int) $_GET['item_ref_id']
-            );
-        }
+        $to_delete = $this->request->getSelectedIds();
 
-        if (isset($_POST['id']) and is_array($_POST['id'])) {
-            $to_delete = $_POST['id'];
-        }
-
-        if (!$to_delete) {
+        if (count($to_delete) === 0) {
             $ilErr->raiseError($this->lng->txt('no_checkbox'), $ilErr->MESSAGE);
         }
 
-        include_once('./Services/Utilities/classes/class.ilConfirmationGUI.php');
         $confirm = new ilConfirmationGUI();
         $confirm->setFormAction($this->ctrl->getFormActionByClass(get_class($this->getContainer()), 'cancel'));
         $confirm->setHeaderText('');
@@ -124,160 +86,126 @@ class ilAdministrationCommandGUI
         $confirm->setConfirm($this->lng->txt('delete'), 'performDelete');
 
         foreach ($to_delete as $delete) {
-            $obj_id = ilObject :: _lookupObjId($delete);
-            $type = ilObject :: _lookupType($obj_id);
-            
+            $obj_id = ilObject::_lookupObjId($delete);
+            $type = ilObject::_lookupType($obj_id);
+
             $confirm->addItem(
                 'id[]',
-                $delete,
+                (string) $delete,
                 call_user_func(array(ilObjectFactory::getClassByType($type),'_lookupTitle'), $obj_id),
-                ilUtil :: getTypeIconPath($type, $obj_id)
+                ilObject::_getIcon($obj_id, 'small', $type)
             );
         }
 
         $msg = $this->lng->txt("info_delete_sure");
-            
+
         if (!$ilSetting->get('enable_trash')) {
             $msg .= "<br/>" . $this->lng->txt("info_delete_warning_no_trash");
         }
-        ilUtil::sendQuestion($msg);
+        $this->tpl->setOnScreenMessage('question', $msg);
 
         $tpl->setContent($confirm->getHTML());
     }
 
-    /**
-     * Perform delete
-     */
-    public function performDelete()
+    public function performDelete(): void
     {
         $this->ctrl->setReturnByClass(get_class($this->getContainer()), '');
 
-        include_once './Services/Object/classes/class.ilObjectGUI.php';
-        $_SESSION['saved_post'] = $_POST['id'];
+        ilSession::set("saved_post", $this->request->getSelectedIds());
+
         $object = new ilObjectGUI(array(), 0, false, false);
         $object->confirmedDeleteObject();
-        return true;
     }
 
-    /**
-     * Cut object
-     */
-    public function cut()
+    public function cut(): void
     {
         $tree = $this->tree;
-        
+
         $this->ctrl->setReturnByClass(get_class($this->getContainer()), '');
 
-        $_GET['ref_id'] = $tree->getParentId((int) $_GET['item_ref_id']);
+        $ref_id = $tree->getParentId($this->request->getItemRefId());
 
-        include_once './Services/Container/classes/class.ilContainerGUI.php';
-        $container = new ilContainerGUI(array(), 0, false, false);
+        $container = new ilContainerGUI(array(), $ref_id, true, false);
         $container->cutObject();
-        return true;
     }
-    
-    /**
-     * Show target selection
-     * @return
-     */
-    public function showPasteTree()
+
+    // Show target selection
+    public function showMoveIntoObjectTree(): void
     {
         $objDefinition = $this->obj_definition;
 
         $this->ctrl->setReturnByClass(get_class($this->getContainer()), '');
 
-        $obj_id = ilObject :: _lookupObjId((int) $_GET['ref_id']);
-        $type = ilObject :: _lookupType($obj_id);
+        $obj_id = ilObject::_lookupObjId($this->request->getRefId());
+        $type = ilObject::_lookupType($obj_id);
 
-        $location = $objDefinition->getLocation($type);
         $class_name = "ilObj" . $objDefinition->getClassName($type) . 'GUI';
 
         // create instance
-        include_once($location . "/class." . $class_name . ".php");
-        $container = new $class_name(array(), (int) $_GET['ref_id'], true, false);
-        $container->showPasteTreeObject();
-        return true;
+        $container = new $class_name(array(), $this->request->getRefId(), true, false);
+        $container->showMoveIntoObjectTreeObject();
     }
-    
-    /**
-     * Target selection
-     * @return
-     */
-    public function showLinkIntoMultipleObjectsTree()
+
+    // Target selection
+    public function showLinkIntoMultipleObjectsTree(): void
     {
         $objDefinition = $this->obj_definition;
 
         $this->ctrl->setReturnByClass(get_class($this->getContainer()), '');
 
-        $obj_id = ilObject :: _lookupObjId((int) $_GET['ref_id']);
-        $type = ilObject :: _lookupType($obj_id);
+        $obj_id = ilObject::_lookupObjId($this->request->getRefId());
+        $type = ilObject::_lookupType($obj_id);
 
-        $location = $objDefinition->getLocation($type);
         $class_name = "ilObj" . $objDefinition->getClassName($type) . 'GUI';
 
         // create instance
-        include_once($location . "/class." . $class_name . ".php");
-        $container = new $class_name(array(), (int) $_GET['ref_id'], true, false);
+        $container = new $class_name(array(), $this->request->getRefId(), true, false);
         $container->showLinkIntoMultipleObjectsTreeObject();
-        return true;
     }
 
-    /**
-     * Start linking object
-     */
-    public function link()
+    // Start linking object
+    public function link(): void
     {
         $tree = $this->tree;
-        
+
         $this->ctrl->setReturnByClass(get_class($this->getContainer()), '');
 
-        $_GET['ref_id'] = $tree->getParentId((int) $_GET['item_ref_id']);
+        $ref_id = $tree->getParentId($this->request->getItemRefId());
 
-        include_once './Services/Container/classes/class.ilContainerGUI.php';
-        $container = new ilContainerGUI(array(), 0, false, false);
+        $container = new ilContainerGUI(array(), $ref_id, true, false);
         $container->linkObject();
-        return true;
     }
 
-    /**
-     * Paste object
-     */
-    public function paste()
+    // Paste object
+    public function paste(): void
     {
         $objDefinition = $this->obj_definition;
 
         $this->ctrl->setReturnByClass(get_class($this->getContainer()), '');
-        $_GET['ref_id'] = (int) $_GET['item_ref_id'];
 
-        $obj_id = ilObject :: _lookupObjId((int) $_GET['item_ref_id']);
-        $type = ilObject :: _lookupType($obj_id);
+        $obj_id = ilObject::_lookupObjId($this->request->getItemRefId());
+        $type = ilObject::_lookupType($obj_id);
 
-        $location = $objDefinition->getLocation($type);
         $class_name = "ilObj" . $objDefinition->getClassName($type) . 'GUI';
 
         // create instance
-        include_once($location . "/class." . $class_name . ".php");
-        $container = new $class_name(array(), (int) $_GET['item_ref_id'], true, false);
+        $container = new $class_name(array(), $this->request->getItemRefId(), true, false);
         $container->pasteObject();
-        return true;
     }
-    
-    public function performPasteIntoMultipleObjects()
+
+    public function performPasteIntoMultipleObjects(): void
     {
         $objDefinition = $this->obj_definition;
 
         $this->ctrl->setReturnByClass(get_class($this->getContainer()), '');
 
-        $obj_id = ilObject :: _lookupObjId((int) $_GET['ref_id']);
-        $type = ilObject :: _lookupType($obj_id);
+        $obj_id = ilObject::_lookupObjId($this->request->getRefId());
+        $type = ilObject::_lookupType($obj_id);
 
-        $location = $objDefinition->getLocation($type);
         $class_name = "ilObj" . $objDefinition->getClassName($type) . 'GUI';
 
         // create instance
-        include_once($location . "/class." . $class_name . ".php");
-        $container = new $class_name(array(), (int) $_GET['ref_id'], true, false);
+        $container = new $class_name(array(), $this->request->getRefId(), true, false);
         $container->performPasteIntoMultipleObjectsObject();
-        return true;
     }
 }

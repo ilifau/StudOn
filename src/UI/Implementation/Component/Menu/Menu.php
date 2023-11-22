@@ -1,14 +1,28 @@
 <?php
+
 declare(strict_types=1);
 
-/* Copyright (c) 2019 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Menu;
 
 use ILIAS\UI\Component;
 use ILIAS\UI\Component\Menu as IMenu;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
-use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 
 /**
  * Basic Menu Control
@@ -16,24 +30,34 @@ use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 abstract class Menu implements IMenu\Menu
 {
     use ComponentHelper;
-    use JavaScriptBindable;
+
     /**
-     * @var \ILIAS\UI\Component\Component []
+     * @var string
      */
-    protected $items = [];
+    protected $label;
+
+    /**
+     * @var Component\Component[]
+     */
+    protected array $items = [];
 
     /**
      * @inheritdoc
      */
-    public function getItems() : array
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getItems(): array
     {
         return $this->items;
     }
 
-    /**
-     * @param array	$items
-     */
-    protected function checkItemParameter(array $items)
+    protected function checkItemParameter(array $items): void
     {
         $classes = [
             Sub::class,

@@ -20,18 +20,24 @@ namespace ILIAS\ResourceStorage\Policy;
 
 /**
  * Class WhiteAndBlacklistedFileNamePolicy
+ *
  * @author Fabian Schmid <fs@studer-raimann.ch>
- * TODO: refactor to make the renaming internal, it uses ilFileUtil currrently
  */
-class WhiteAndBlacklistedFileNamePolicy implements FileNamePolicy
+abstract class WhiteAndBlacklistedFileNamePolicy implements FileNamePolicy
 {
-    protected $blacklisted = [];
-    protected $whitelisted = [];
+    /**
+     * @var string[]
+     */
+    protected array $blacklisted = [];
+    /**
+     * @var string[]
+     */
+    protected array $whitelisted = [];
 
     /**
      * WhiteAndBlacklistedFileNamePolicy constructor.
-     * @param array $blacklisted
-     * @param array $whitelisted
+     * @param string[] $blacklisted
+     * @param string[] $whitelisted
      */
     public function __construct(array $blacklisted = [], array $whitelisted = [])
     {
@@ -39,36 +45,21 @@ class WhiteAndBlacklistedFileNamePolicy implements FileNamePolicy
         $this->whitelisted = $whitelisted;
     }
 
-    public function isValidExtension(string $extension) : bool
+    public function isValidExtension(string $extension): bool
     {
-        return \ilFileUtils::hasValidExtension('file.' . $extension);
+        $extension = strtolower($extension);
+
+        return in_array($extension, $this->whitelisted) && !in_array($extension, $this->blacklisted);
     }
 
-    public function isBlockedExtension(string $extension) : bool
+    public function isBlockedExtension(string $extension): bool
     {
-        $haystack = \ilFileUtils::getExplicitlyBlockedFiles();
-        return in_array($extension, $haystack, true);
+        $extension = strtolower($extension);
+
+        return in_array($extension, $this->blacklisted);
     }
 
-    public function prepareFileNameForConsumer(string $filename_with_extension) : string
-    {
-        global $DIC;
-        $as_ascii = (bool) !$DIC->clientIni()->readVariable(
-            'file_access',
-            'disable_ascii'
-        );
-        $valid_filename = \ilFileUtils::getValidFilename($filename_with_extension);
-
-        // remove all control characters, see https://mantis.ilias.de/view.php?id=34975
-        $valid_filename = preg_replace('/&#.*;/U', '_', $valid_filename, 1);
-
-        if ($as_ascii) {
-            return \ilUtil::getASCIIFilename($valid_filename);
-        }
-        return $valid_filename;
-    }
-
-    public function check(string $extension) : bool
+    public function check(string $extension): bool
     {
         if ($this->isBlockedExtension($extension)) {
             throw new FileNamePolicyException("Extension '$extension' is blacklisted.");

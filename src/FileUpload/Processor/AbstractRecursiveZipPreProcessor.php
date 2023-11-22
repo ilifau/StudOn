@@ -36,13 +36,13 @@ abstract class AbstractRecursiveZipPreProcessor implements PreProcessor
      * @param string $path to a file
      * @return bool false leads to rejection, true to accept
      */
-    abstract protected function checkPath(string $path) : bool;
+    abstract protected function checkPath(string $path): bool;
 
-    abstract protected function getRejectionMessage() : string;
+    abstract protected function getRejectionMessage(): string;
 
-    abstract protected function getOKMessage() : string;
+    abstract protected function getOKMessage(): string;
 
-    final public function process(FileStream $stream, Metadata $metadata)
+    public function process(FileStream $stream, Metadata $metadata): ProcessingStatus
     {
         if ($this->isFileAZip($metadata)) {
             try {
@@ -69,7 +69,7 @@ abstract class AbstractRecursiveZipPreProcessor implements PreProcessor
         return new ProcessingStatus(ProcessingStatus::OK, $this->getOKMessage());
     }
 
-    private function isFileAZip(Metadata $metadata) : bool
+    private function isFileAZip(Metadata $metadata): bool
     {
         return $this->isMimeTypeOrExtension(
             $metadata,

@@ -1,4 +1,4 @@
-# Reviewer
+# Review
 
 A review is given by a reviewer on code contributions (see: [contributing.md](contributing.md)) of 
 a reviewee. There are no guidelines on how review has to be performed in ILIAS, however here we propose a pattern
@@ -27,7 +27,7 @@ Please answer the following questions:
 - [ ] [question2]? [optional: reasoning behind the question]
 - ...
 
-Please consider the following suggestions. You do not need to follow those, but but please indicate shortly why you prefer to do otherwise:
+Please consider the following suggestions. You do not need to follow those, but please indicate shortly why you prefer to do otherwise:
 - [ ] [suggestion1] [optional: reasoning behind the suggestion]
 - [ ] [suggestion2] [optional: reasoning behind the suggestion]
 - ...

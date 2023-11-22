@@ -1,38 +1,39 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-require_once("./Services/COPage/classes/class.ilPCContentInclude.php");
-require_once("./Services/COPage/classes/class.ilPageContentGUI.php");
 
 /**
-* Class ilPCContentIncludeGUI
-*
-* User Interface for Content Includes (Snippets) Editing
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesCOPage
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Class ilPCContentIncludeGUI
+ * User Interface for Content Includes (Snippets) Editing
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilPCContentIncludeGUI extends ilPageContentGUI
 {
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
-
-    /**
-     * @var ilTabsGUI
-     */
-    protected $tabs;
+    protected ilAccessHandler $access;
+    protected ilTabsGUI $tabs;
 
 
-    /**
-    * Constructor
-    * @access	public
-    */
-    public function __construct(&$a_pg_obj, &$a_content_obj, $a_hier_id, $a_pc_id = "")
-    {
+    public function __construct(
+        ilPageObject $a_pg_obj,
+        ?ilPageContent $a_content_obj,
+        string $a_hier_id,
+        string $a_pc_id = ""
+    ) {
         global $DIC;
 
         $this->ctrl = $DIC->ctrl();
@@ -43,10 +44,7 @@ class ilPCContentIncludeGUI extends ilPageContentGUI
         parent::__construct($a_pg_obj, $a_content_obj, $a_hier_id, $a_pc_id);
     }
 
-    /**
-    * execute command
-    */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         // get next class that processes or forwards current command
         $next_class = $this->ctrl->getNextClass($this);
@@ -56,19 +54,17 @@ class ilPCContentIncludeGUI extends ilPageContentGUI
 
         switch ($next_class) {
             default:
-                $ret = $this->$cmd();
+                $this->$cmd();
                 break;
         }
-
-        return $ret;
     }
 
     /**
-    * Insert new resources component form.
-    */
-    public function insert()
+     * Insert new resources component form.
+     */
+    public function insert(): void
     {
-        switch ($_GET["subCmd"]) {
+        switch ($this->sub_command) {
             case "selectPool":
                 $this->selectPool();
                 break;
@@ -78,27 +74,24 @@ class ilPCContentIncludeGUI extends ilPageContentGUI
                 break;
 
             default:
-                $this->insertFromPool($a_post_cmd, $a_submit_cmd);
+                $this->insertFromPool();
                 break;
         }
     }
-    
+
     /**
-    * Insert page snippet from media pool
-    */
-    public function insertFromPool($a_post_cmd = "edpost", $a_submit_cmd = "create_mob")
+     * Insert page snippet from media pool
+     */
+    public function insertFromPool(): void
     {
         $ilCtrl = $this->ctrl;
         $ilAccess = $this->access;
-        $ilTabs = $this->tabs;
         $tpl = $this->tpl;
         $lng = $this->lng;
-        
 
-        if ($_SESSION["cont_media_pool"] != "" &&
-            $ilAccess->checkAccess("write", "", $_SESSION["cont_media_pool"])
-            && ilObject::_lookupType(ilObject::_lookupObjId($_SESSION["cont_media_pool"])) == "mep") {
-            $html = "";
+        if ($this->edit_repo->getMediaPool() > 0 &&
+            $ilAccess->checkAccess("write", "", $this->edit_repo->getMediaPool())
+            && ilObject::_lookupType(ilObject::_lookupObjId($this->edit_repo->getMediaPool())) == "mep") {
             $tb = new ilToolbarGUI();
 
             $ilCtrl->setParameter($this, "subCmd", "poolSelection");
@@ -111,9 +104,7 @@ class ilPCContentIncludeGUI extends ilPageContentGUI
 
             $ilCtrl->setParameter($this, "subCmd", "");
 
-            include_once("./Modules/MediaPool/classes/class.ilObjMediaPool.php");
-            include_once("./Modules/MediaPool/classes/class.ilMediaPoolTableGUI.php");
-            $pool = new ilObjMediaPool($_SESSION["cont_media_pool"]);
+            $pool = new ilObjMediaPool($this->edit_repo->getMediaPool());
             $ilCtrl->setParameter($this, "subCmd", "insertFromPool");
             $mpool_table = new ilMediaPoolTableGUI(
                 $this,
@@ -133,17 +124,13 @@ class ilPCContentIncludeGUI extends ilPageContentGUI
     }
 
     /**
-    * Pool Selection
-    */
-    public function poolSelection()
+     * Pool Selection
+     */
+    public function poolSelection(): void
     {
         $tpl = $this->tpl;
         $ilCtrl = $this->ctrl;
 
-        //		$this->getTabs($ilTabs, true);
-        //		$ilTabs->setSubTabActive("cont_mob_from_media_pool");
-
-        include_once "./Services/COPage/classes/class.ilPoolSelectorGUI.php";
         $ilCtrl->setParameter($this, "subCmd", "poolSelection");
         $exp = new ilPoolSelectorGUI($this, "insert");
 
@@ -157,22 +144,22 @@ class ilPCContentIncludeGUI extends ilPageContentGUI
     }
 
     /**
-    * create new content include in dom and update page in db
-    */
-    public function create()
+     * create new content include in dom and update page in db
+     */
+    public function create(): void
     {
-        $ilCtrl = $this->ctrl;
-        $lng = $this->lng;
-        
-        if (is_array($_POST["id"])) {
-            for ($i = count($_POST["id"]) - 1; $i >= 0; $i--) {
+        $ids = $this->request->getIntArray("id");
+        if (count($ids) > 0) {
+            for ($i = count($ids) - 1; $i >= 0; $i--) {
                 // similar code in ilpageeditorgui::insertFromClipboard
-                include_once("./Modules/MediaPool/classes/class.ilMediaPoolItem.php");
-                include_once("./Services/COPage/classes/class.ilPCMediaObject.php");
                 $this->content_obj = new ilPCContentInclude($this->getPage());
-                $this->content_obj->create($this->pg_obj, $_GET["hier_id"], $this->pc_id);
+                $this->content_obj->create(
+                    $this->pg_obj,
+                    $this->request->getHierId(),
+                    $this->pc_id
+                );
                 $this->content_obj->setContentType("mep");
-                $this->content_obj->setContentId($_POST["id"][$i]);
+                $this->content_obj->setContentId($ids[$i]);
             }
             $this->updated = $this->pg_obj->update();
         }
@@ -184,13 +171,13 @@ class ilPCContentIncludeGUI extends ilPageContentGUI
     }
 
     /**
-    * Select concrete pool
-    */
-    public function selectPool()
+     * Select concrete pool
+     */
+    public function selectPool(): void
     {
         $ilCtrl = $this->ctrl;
-        
-        $_SESSION["cont_media_pool"] = $_GET["pool_ref_id"];
+
+        $this->edit_repo->setMediaPool($this->request->getInt("pool_ref_id"));
         $ilCtrl->setParameter($this, "subCmd", "insertFromPool");
         $ilCtrl->redirect($this, "insert");
     }

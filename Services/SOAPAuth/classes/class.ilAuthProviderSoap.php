@@ -1,40 +1,41 @@
 <?php
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
+
+declare(strict_types=1);
 
 /**
  * Class ilAuthProviderSoap
  * @author Michael Jansen <mjansen@databay.de>
  */
-class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterface
+class ilAuthProviderSoap extends ilAuthProvider
 {
-    /** @var string */
-    protected $server_host = '';
-    /** @var string */
-    protected $server_port = '';
-    /** @var string */
-    protected $server_uri = '';
-    /** @var string */
-    protected $server_https = '';
-    /** @var string */
-    protected $server_nms = '';
-    /** @var string */
-    protected $use_dot_net = false;
-    /** @var string */
-    protected $uri = '';
-    /** @var nusoap_client */
-    protected $client;
-    /** @var ilLogger */
-    protected $logger;
-    /** @var ilSetting */
-    protected $settings;
-    /** @var ilLanguage */
-    protected $language;
-    /** @var ilRbacAdmin */
-    protected $rbacAdmin;
+    protected string $server_host = '';
+    protected string $server_port = '';
+    protected string $server_uri = '';
+    protected bool $server_https = false;
+    protected string $server_nms = '';
+    protected bool $use_dot_net = false;
+    protected string $uri = '';
+    protected nusoap_client $client;
+    protected ilLogger $logger;
+    protected ilSetting $settings;
+    protected ilLanguage $language;
+    protected ilRbacAdmin $rbacAdmin;
 
-    /**
-     * @inheritDoc
-     */
     public function __construct(ilAuthCredentials $credentials)
     {
         global $DIC;
@@ -47,17 +48,14 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
         parent::__construct($credentials);
     }
 
-    /**
-     *
-     */
-    private function initClient()
+    private function initClient(): void
     {
         $this->server_host = (string) $this->settings->get('soap_auth_server', '');
         $this->server_port = (string) $this->settings->get('soap_auth_port', '');
         $this->server_uri = (string) $this->settings->get('soap_auth_uri', '');
         $this->server_nms = (string) $this->settings->get('soap_auth_namespace', '');
-        $this->server_https = (bool) $this->settings->get('soap_auth_use_https', false);
-        $this->use_dot_net = (bool) $this->settings->get('use_dotnet', false);
+        $this->server_https = (bool) $this->settings->get('soap_auth_use_https', '0');
+        $this->use_dot_net = (bool) $this->settings->get('use_dotnet', '0');
 
         $this->uri = $this->server_https ? 'https://' : 'http://';
         $this->uri .= $this->server_host;
@@ -76,7 +74,7 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
     /**
      * @inheritDoc
      */
-    public function doAuthentication(ilAuthStatus $status)
+    public function doAuthentication(ilAuthStatus $status): bool
     {
         try {
             $this->initClient();
@@ -86,7 +84,7 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
             $status->setTranslatedReason($e->getMessage());
         }
 
-        if ($status->getAuthenticatedUserId() > 0) {
+        if ($status->getAuthenticatedUserId() > 0 && $status->getAuthenticatedUserId() !== ANONYMOUS_USER_ID) {
             $this->logger->info('Successfully authenticated user via SOAP: ' . $this->getCredentials()->getUsername());
             $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);
             ilSession::set('used_external_auth', true);
@@ -99,11 +97,7 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
         return false;
     }
 
-    /**
-     * @param ilAuthStatus $status
-     * @return bool
-     */
-    private function handleSoapAuth(ilAuthStatus $status) : bool
+    private function handleSoapAuth(ilAuthStatus $status): bool
     {
         $this->logger->debug(sprintf(
             'Login observer called for SOAP authentication request of ext_account "%s" and auth_mode "%s".',
@@ -122,7 +116,7 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
         );
 
         $isNewUser = false;
-        if ('' === $internalLogin || false === $internalLogin) {
+        if ('' === $internalLogin || null === $internalLogin) {
             $isNewUser = true;
         }
 
@@ -144,6 +138,10 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
             $soapAction
         );
 
+        if (!is_array($valid)) {
+            $valid = ['valid' => false];
+        }
+
         if ($valid['valid'] !== true) {
             $valid['valid'] = false;
         }
@@ -156,7 +154,9 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
         if (!$isNewUser) {
             $status->setAuthenticatedUserId(ilObjUser::_lookupId($internalLogin));
             return true;
-        } elseif (!$this->settings->get('soap_auth_create_users')) {
+        }
+
+        if (!$this->settings->get('soap_auth_create_users')) {
             // Translate the reasons, otherwise the default failure is displayed
             $status->setTranslatedReason($this->language->txt('err_valid_login_account_creation_disabled'));
             return false;
@@ -171,14 +171,14 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
         $usrData['email'] = $valid['email'];
         $usrData['login'] = $internalLogin;
         $usrData['passwd'] = '';
-        $usrData['passwd_type'] = IL_PASSWD_CRYPTED;
+        $usrData['passwd_type'] = ilObjUser::PASSWD_CRYPTED;
 
         $password = '';
         if ($this->settings->get('soap_auth_allow_local')) {
-            $passwords = ilUtil::generatePasswords(1);
+            $passwords = ilSecuritySettingsChecker::generatePasswords(1);
             $password = $passwords[0];
             $usrData['passwd'] = $password;
-            $usrData['passwd_type'] = IL_PASSWD_PLAIN;
+            $usrData['passwd_type'] = ilObjUser::PASSWD_PLAIN;
         }
 
         $usrData['auth_mode'] = 'soap';
@@ -191,22 +191,22 @@ class ilAuthProviderSoap extends ilAuthProvider implements ilAuthProviderInterfa
         $userObj->setLanguage($this->language->getDefaultLanguage());
 
         $userObj->setTimeLimitOwner(USER_FOLDER_ID);
-        $userObj->setTimeLimitUnlimited(1);
+        $userObj->setTimeLimitUnlimited(true);
         $userObj->setTimeLimitFrom(time());
         $userObj->setTimeLimitUntil(time());
         $userObj->setOwner(0);
         $userObj->create();
-        $userObj->setActive(1);
+        $userObj->setActive(true);
         $userObj->updateOwner();
-        $userObj->saveAsNew(false);
+        $userObj->saveAsNew();
         $userObj->writePrefs();
 
         $this->rbacAdmin->assignUser(
-            $this->settings->get('soap_auth_user_default_role', 4),
+            (int) $this->settings->get('soap_auth_user_default_role', '4'),
             $userObj->getId()
         );
 
-        if ($this->settings->get('soap_auth_account_mail', false)) {
+        if ($this->settings->get('soap_auth_account_mail', '0')) {
             $registrationSettings = new ilRegistrationSettings();
             $registrationSettings->setPasswordGenerationStatus(true);
 

@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MetaBar\Collector\Renderer;
 
 use ILIAS\GlobalScreen\Scope\MetaBar\Factory\isItem;
@@ -32,7 +32,7 @@ class BaseMetaBarItemRenderer extends AbstractMetaBarItemRenderer implements Met
      * @param isItem $item
      * @return Component
      */
-    protected function getSpecificComponentForItem(isItem $item) : Component
+    protected function getSpecificComponentForItem(isItem $item): Component
     {
         return $this->ui->factory()->legacy("no renderer found");
     }

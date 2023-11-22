@@ -39,18 +39,23 @@ the "jour fixe"-label.
 ```
 - Commit the changes in packages.json and package-lock.json and node_modules.
 
+If you like to install a dependency from a particular branch of a public GitHub repository,
+you can use the following syntax (example):
+
+```
+npm install ILIAS-eLearning/tinymce-dist#master
+```
+
+For an update you'll have to use:
+
+```
+npm uninstall tinymce && npm install ILIAS-eLearning/tinymce-dist#master
+```
+
 ## Dependencies for development
 - Install the new library, e.g. "npm install webpack --save-dev"
 - Commit the changes in packages.json and package-lock.json
-- Also commit the changes in node_modules.
 
-Currently commit the node_modes directory, this will most probably be abendoned from the git repo in the future.
+- Commit the changes in packages.json and package-lock.json and node_modules.
 
-## Custom Patches on Dependencies
-If a patch on a library is requried, use the "patch-packages"-module.
-To create the patch, modify the file (in src!) and run
-```
-npx patch-package [package-name]
-```
-Commit the new patch-file.
-There is a hook in package.json/scripts that will apply the patch on installation of the library.
+Currently, commit the node_modes directory, this will most probably be abandoned from the git repo in the future.

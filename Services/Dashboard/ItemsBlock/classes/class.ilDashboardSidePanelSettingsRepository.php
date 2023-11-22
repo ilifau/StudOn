@@ -1,22 +1,32 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
 
 /**
  * Dashboard side panel settings Repo
  *
- * @author killing@leifos.de
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilDashboardSidePanelSettingsRepository
 {
-    const CALENDAR = "cal";
-    const NEWS = "news";
-    const MAIL = "mail";
-    const TASKS = "task";
+    public const CALENDAR = "cal";
+    public const NEWS = "news";
+    public const MAIL = "mail";
+    public const TASKS = "task";
 
-    /**
-     * Constructor
-     */
+    protected ilSetting $setting;
+
     public function __construct(ilSetting $dashboard_settings = null)
     {
         $this->setting = is_null($dashboard_settings)
@@ -24,12 +34,7 @@ class ilDashboardSidePanelSettingsRepository
             : $dashboard_settings;
     }
 
-    /**
-     * Get valid modules
-     *
-     * @return array
-     */
-    public function getValidModules() : array
+    public function getValidModules(): array
     {
         return [
             self::CALENDAR,
@@ -39,37 +44,22 @@ class ilDashboardSidePanelSettingsRepository
         ];
     }
 
-    /**
-     *
-     * @param string $mod
-     * @return bool
-     */
-    protected function isValidModule(string $mod) : bool
+    protected function isValidModule(string $mod): bool
     {
         return in_array($mod, $this->getValidModules());
     }
 
 
-    /**
-     * Enable
-     *
-     * @param string $mod
-     * @param bool $active
-     */
-    public function enable(string $mod, bool $active)
+    // Enable module
+    public function enable(string $mod, bool $active): void
     {
         if ($this->isValidModule($mod)) {
             $this->setting->set("enable_" . $mod, (int) $active);
         }
     }
 
-    /**
-     * Is enabled
-     *
-     * @param string $mod
-     * @return bool
-     */
-    public function isEnabled(string $mod) : bool
+    // Is module enabled?
+    public function isEnabled(string $mod): bool
     {
         if ($this->isValidModule($mod)) {
             return (bool) $this->setting->get("enable_" . $mod, true);

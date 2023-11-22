@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Notification\Collector\Renderer;
 
 use ILIAS\Data\URI;
@@ -36,7 +36,7 @@ class AdministrativeNotificationRenderer extends AbstractBaseNotificationRendere
     /**
      * @inheritDoc
      */
-    public function getNotificationComponentForItem(isItem $item) : \ILIAS\UI\Component\Component
+    public function getNotificationComponentForItem(isItem $item): \ILIAS\UI\Component\Component
     {
         /**
          * @var $item AdministrativeNotification

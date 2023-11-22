@@ -1,36 +1,44 @@
 <?php
 
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * external link search bridge
- *
- * @author Stefan Meyer <meyer@leifos.com>
+ * @author  Stefan Meyer <meyer@leifos.com>
  * @ingroup ServicesADT
  */
 class ilADTExternalLinkSearchBridgeSingle extends ilADTSearchBridgeSingle
 {
-    const SQL_STRICT = 1;
-    const SQL_LIKE = 2;
-    const SQL_LIKE_END = 3;
-    const SQL_LIKE_START = 4;
-
-    
     /**
      * Is valid type
      * @param ilADT $a_adt
      * @return bool
      */
-    protected function isValidADTDefinition(\ilADTDefinition $a_adt_def)
+    protected function isValidADTDefinition(\ilADTDefinition $a_adt_def): bool
     {
         return $a_adt_def instanceof ilADTExternalLinkDefinition;
     }
 
-
     /**
      * Load from filter
      */
-    public function loadFilter()
+    public function loadFilter(): void
     {
         $value = $this->readFilter();
         if ($value !== null) {
@@ -41,94 +49,93 @@ class ilADTExternalLinkSearchBridgeSingle extends ilADTSearchBridgeSingle
     /**
      * add external link property to form
      */
-    public function addToForm()
+    public function addToForm(): void
     {
-        $def = $this->getADT()->getCopyOfDefinition();
-
         $url = new ilTextInputGUI($this->getTitle(), $this->getElementId());
         $url->setSize(255);
         $url->setValue($this->getADT()->getUrl());
         $this->addToParentElement($url);
     }
 
-    /**
-     * Import from post
-     * @param array $a_post
-     */
-    public function importFromPost(array $a_post = null)
+    public function importFromPost(array $a_post = null): bool
     {
         $post = $this->extractPostValues($a_post);
 
         if ($post && $this->shouldBeImportedFromPost($post)) {
-
             if ($this->getForm() instanceof ilPropertyFormGUI) {
                 $item = $this->getForm()->getItemByPostVar($this->getElementId());
                 $item->setValue($post);
-                $this->getADT()->setUrl($post);
             } elseif (array_key_exists($this->getElementId(), $this->table_filter_fields)) {
                 $this->table_filter_fields[$this->getElementId()]->setValue($post);
                 $this->writeFilter($post);
-                $this->getADT()->setUrl($post);
             }
+
+            $this->getADT()->setUrl($post);
+        } elseif (array_key_exists($this->getElementId(), $this->table_filter_fields)) {
+            $this->table_filter_fields[$this->getElementId()]->setValue($post);
+            $this->writeFilter($post);
+            $this->getADT()->setUrl($post);
         } else {
-            $this->getADT()->setUrl(null);
             $this->writeFilter();
+            $this->getADT()->setUrl(null);
         }
+        return true;
     }
 
     /**
      * Get sql condition
-     * @param int $a_element_id
+     * @param string $a_element_id
+     * @param int    $mode
+     * @param array  $quotedWords
      * @return string
      */
-    public function getSQLCondition($a_element_id, $a_mode = self::SQL_LIKE, $a_value = null)
+    public function getSQLCondition(string $a_element_id, int $mode = self::SQL_LIKE, array $quotedWords = []): string
     {
-        $db = $GLOBALS['DIC']->database();
-
-        if (!$a_value) {
+        if (!$quotedWords) {
             if ($this->isNull() || !$this->isValid()) {
-                return;
+                return '';
             }
-            $a_value = $this->getADT()->getUrl();
+            $quotedWords = $this->getADT()->getUrl();
         }
 
-        switch ($a_mode) {
+        switch ($mode) {
             case self::SQL_STRICT:
-                if (!is_array($a_value)) {
-                    return $a_element_id . " = " . $db->quote($a_value, "text");
+                if (!is_array($quotedWords)) {
+                    return $a_element_id . " = " . $this->db->quote($quotedWords, "text");
                 } else {
-                    return $db->in($a_element_id, $a_value, "", "text");
+                    return $this->db->in($a_element_id, $quotedWords, false, "text");
                 }
-                break;
 
+                // no break
             case self::SQL_LIKE:
-                if (!is_array($a_value)) {
-                    return $db->like($a_element_id, "text", "%" . $a_value . "%");
+                if (!is_array($quotedWords)) {
+                    return $this->db->like($a_element_id, "text", "%" . $quotedWords . "%");
                 } else {
                     $tmp = array();
-                    foreach ($a_value as $word) {
+                    foreach ($quotedWords as $word) {
                         if ($word) {
-                            $tmp[] = $db->like($a_element_id, "text", "%" . $word . "%");
+                            $tmp[] = $this->db->like($a_element_id, "text", "%" . $word . "%");
                         }
                     }
-                    if (sizeof($tmp)) {
+                    if (count($tmp)) {
                         return "(" . implode(" OR ", $tmp) . ")";
                     }
                 }
                 break;
 
             case self::SQL_LIKE_END:
-                if (!is_array($a_value)) {
-                    return $db->like($a_element_id, "text", $a_value . "%");
+                if (!is_array($quotedWords)) {
+                    return $this->db->like($a_element_id, "text", $quotedWords . "%");
                 }
                 break;
 
             case self::SQL_LIKE_START:
-                if (!is_array($a_value)) {
-                    return $db->like($a_element_id, "text", "%" . $a_value);
+                if (!is_array($quotedWords)) {
+                    return $this->db->like($a_element_id, "text", "%" . $quotedWords);
                 }
                 break;
         }
+        return '';
     }
 
     /**
@@ -136,7 +143,7 @@ class ilADTExternalLinkSearchBridgeSingle extends ilADTSearchBridgeSingle
      * @param ilADT $a_adt
      * @return bool
      */
-    public function isInCondition(ilADT $a_adt)
+    public function isInCondition(ilADT $a_adt): bool
     {
         if ($this->getADT()->getCopyOfDefinition()->isComparableTo($a_adt)) {
             return
@@ -148,20 +155,21 @@ class ilADTExternalLinkSearchBridgeSingle extends ilADTSearchBridgeSingle
 
     /**
      * get serialized value
-     * @return type
+     * @return string
      */
-    public function getSerializedValue()
+    public function getSerializedValue(): string
     {
         if (!$this->isNull() && $this->isValid()) {
             return serialize(array($this->getADT()->getUrl()));
         }
+        return '';
     }
 
     /**
      * Set serialized value
      * @param string $a_value
      */
-    public function setSerializedValue($a_value)
+    public function setSerializedValue(string $a_value): void
     {
         $a_value = unserialize($a_value);
         if (is_array($a_value)) {

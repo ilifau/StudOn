@@ -1,15 +1,32 @@
 <?php
 
-/* Copyright (c) 2018 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Input\Field;
 
 use ILIAS\UI\Component as C;
-use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Implementation\Component\Input\InputData;
-use ILIAS\UI\Implementation\Component\Input\NameSource;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\Triggerer;
+use ILIAS\Refinery\Constraint;
+use LogicException;
+use Closure;
 
 /**
  * This implements the radio input.
@@ -22,17 +39,17 @@ class Radio extends Input implements C\Input\Field\Radio
     /**
      * @var array <string,string> {$value => $label}
      */
-    protected $options = [];
+    protected array $options = [];
 
     /**
      * @var array <string,array> {$option_value => $bylines}
      */
-    protected $bylines = [];
+    protected array $bylines = [];
 
     /**
      * @inheritdoc
      */
-    protected function isClientSideValueOk($value) : bool
+    protected function isClientSideValueOk($value): bool
     {
         return ($value === '' || array_key_exists($value, $this->getOptions()));
     }
@@ -40,7 +57,7 @@ class Radio extends Input implements C\Input\Field\Radio
     /**
      * @inheritdoc
      */
-    protected function getConstraintForRequirement()
+    protected function getConstraintForRequirement(): ?Constraint
     {
         return null;
     }
@@ -48,7 +65,7 @@ class Radio extends Input implements C\Input\Field\Radio
     /**
      * @inheritdoc
      */
-    public function withOption(string $value, string $label, string $byline = null) : C\Input\Field\Radio
+    public function withOption(string $value, string $label, string $byline = null): C\Input\Field\Radio
     {
         $clone = clone $this;
         $clone->options[$value] = $label;
@@ -61,13 +78,13 @@ class Radio extends Input implements C\Input\Field\Radio
     /**
      * @inheritdoc
      */
-    public function getOptions() : array
+    public function getOptions(): array
     {
         return $this->options;
     }
 
 
-    public function getBylineFor(string $value)
+    public function getBylineFor(string $value): ?string
     {
         if (!array_key_exists($value, $this->bylines)) {
             return null;
@@ -78,13 +95,13 @@ class Radio extends Input implements C\Input\Field\Radio
     /**
      * @inheritdoc
      */
-    public function withInput(InputData $post_input)
+    public function withInput(InputData $input): C\Input\Field\Input
     {
         if ($this->getName() === null) {
-            throw new \LogicException("Can only collect if input has a name.");
+            throw new LogicException("Can only collect if input has a name.");
         }
         if (!$this->isDisabled()) {
-            $value = $post_input->getOr($this->getName(), "");
+            $value = $input->getOr($this->getName(), "");
             $clone = $this->withValue($value);
         } else {
             $value = $this->getValue();
@@ -108,14 +125,11 @@ class Radio extends Input implements C\Input\Field\Radio
     /**
      * @inheritdoc
      */
-    public function getUpdateOnLoadCode() : \Closure
+    public function getUpdateOnLoadCode(): Closure
     {
-        return function ($id) {
-            $code = "$('#$id').on('input', function(event) {
+        return fn ($id) => "$('#$id').on('input', function(event) {
 				il.UI.input.onFieldUpdate(event, '$id', $('#$id input:checked').val());
 			});
 			il.UI.input.onFieldUpdate(event, '$id', $('#$id input:checked').val());";
-            return $code;
-        };
     }
 }

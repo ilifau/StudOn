@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -14,19 +14,21 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
+
 class ilObjLanguageDBAccess
 {
-    protected $ilDB;
-    protected $key;
-    protected $content;
-    protected $scope;
-    protected $local_changes;
-    protected $change_date = null;
-    protected $separator;
-    protected $comment_separator;
-    
+    protected ilDBInterface $ilDB;
+    protected string $key;
+    protected array $content;
+    protected string $scope;
+    protected array $local_changes;
+    protected ?string $change_date = null;
+    protected string $separator;
+    protected string $comment_separator;
+
     public function __construct(ilDBInterface $ilDB, string $key, array $content, array $local_changes, string $scope = "", string $separator = "#:#", string $comment_separator = "###")
     {
         $this->ilDB = $ilDB;
@@ -40,13 +42,13 @@ class ilObjLanguageDBAccess
         $this->separator = $separator;
         $this->comment_separator = $comment_separator;
     }
-    
+
     public function insertLangEntries(string $lang_file): array
     {
         // initialize the array for updating lng_modules below
         $lang_array = array();
         $lang_array["common"] = array();
-        
+
         $double_checker = [];
         $query_check = false;
         $query = "INSERT INTO lng_data (module,identifier,lang_key,value,local_change,remarks) VALUES ";
@@ -62,10 +64,10 @@ class ilObjLanguageDBAccess
                 $separated[3] = substr($separated[2], $pos + strlen($this->comment_separator));
                 $separated[2] = substr($separated[2], 0, $pos);
             }
-            
+
             // check if the value has a local change
             $local_value = $this->local_changes[$separated[0]][$separated[1]] ?? "";
-            
+
             if (empty($this->scope)) {
                 // import of a global language file
                 if ($local_value !== "" && $local_value !== $separated[2]) {
@@ -91,7 +93,7 @@ class ilObjLanguageDBAccess
                 );
             }
             $double_checker[$separated[0]][$separated[1]][$this->key] = true;
-            
+
             $query .= sprintf(
                 "(%s,%s,%s,%s,%s,%s),",
                 $this->ilDB->quote($separated[0], "text"),
@@ -104,14 +106,14 @@ class ilObjLanguageDBAccess
             $query_check = true;
             $lang_array[$separated[0]][$separated[1]] = $separated[2];
         }
-        $query = rtrim($query, ",") . " ON DUPLICATE KEY UPDATE value=VALUES(value),remarks=VALUES(remarks);";
+        $query = rtrim($query, ",") . " ON DUPLICATE KEY UPDATE value=VALUES(value),local_change=VALUES(local_change),remarks=VALUES(remarks);";
         if ($query_check) {
             $this->ilDB->manipulate($query);
         }
-        
+
         return $lang_array;
     }
-    
+
     public function replaceLangModules(array $lang_array): void
     {
         // avoid flushing the whole cache (see mantis #28818)
@@ -135,7 +137,7 @@ class ilObjLanguageDBAccess
                 "(%s,%s,%s),",
                 $this->ilDB->quote($module, "text"),
                 $this->ilDB->quote($this->key, "text"),
-                $this->ilDB->quote(serialize($lang_arr), "clob")
+                $this->ilDB->quote(serialize($lang_arr), "clob"),
             );
             $modules_to_delete[] = $module;
         }
@@ -152,7 +154,7 @@ class ilObjLanguageDBAccess
         // see mantis #20046 and #19140
         $this->checkModules();
     }
-    
+
     protected function checkModules(): void
     {
         $result = $this->ilDB->queryF(
@@ -160,7 +162,7 @@ class ilObjLanguageDBAccess
             array("text"),
             array($this->key)
         );
-        
+
         foreach ($this->ilDB->fetchAll($result) as $module) {
             $unserialied = unserialize($module["lang_array"], ["allowed_classes" => false]);
             if (!is_array($unserialied)) {

@@ -1,26 +1,34 @@
 <?php
 
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 
 /**
  * Class ilDclIliasReferenceRecordFieldModel
- *
  * @author  Martin Studer <ms@studer-raimann.ch>
  * @author  Marcel Raimann <mr@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @author  Oskar Truffer <ot@studer-raimann.ch>
  * @version $Id:
- *
  * @ingroup ModulesDataCollection
  */
 class ilDclIliasReferenceRecordFieldModel extends ilDclBaseRecordFieldModel
 {
-
-    /**
-     * @var int
-     */
-    protected $dcl_obj_id;
-
+    protected int $dcl_obj_id;
 
     public function __construct(ilDclBaseRecordModel $record, ilDclBaseFieldModel $field)
     {
@@ -30,14 +38,19 @@ class ilDclIliasReferenceRecordFieldModel extends ilDclBaseRecordFieldModel
         $this->dcl_obj_id = $dclTable->getCollectionObject()->getId();
     }
 
-
+    /**
+     * @return false|object
+     */
     public function getStatus()
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $ilUser = $DIC['ilUser'];
-        $usr_id = $ilUser->getId();
         $obj_ref = $this->getValue();
+        if (!$obj_ref) {
+            return false;
+        }
+        $usr_id = $ilUser->getId();
         $obj_id = ilObject2::_lookupObjectId($obj_ref);
         $query
             = "  SELECT status_changed, status
@@ -48,26 +61,18 @@ class ilDclIliasReferenceRecordFieldModel extends ilDclBaseRecordFieldModel
         return ($result->numRows() == 0) ? false : $result->fetchRow(ilDBConstants::FETCHMODE_OBJECT);
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    public function getValueForRepresentation()
+    public function getValueForRepresentation(): string
     {
         $ref_id = $this->getValue();
 
-        // fau: dclPerformance - prevent a lookup for non-existing references
-        if (!empty($ref_id)) {
+        if ($ref_id) {
             return ilObject2::_lookupTitle(ilObject2::_lookupObjectId($ref_id)) . ' [' . $ref_id . ']';
+        } else {
+            return "";
         }
-        // fau.
     }
 
-
-    /**
-     * @return int|string
-     */
-    public function getExportValue()
+    public function getExportValue(): string
     {
         $link = ilLink::_getStaticLink($this->getValue());
 

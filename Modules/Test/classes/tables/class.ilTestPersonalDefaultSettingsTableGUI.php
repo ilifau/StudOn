@@ -1,7 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/Table/classes/class.ilTable2GUI.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTestPersonalDefaultSettingsTableGUI
@@ -16,7 +29,7 @@ class ilTestPersonalDefaultSettingsTableGUI extends ilTable2GUI
         global $DIC;
         $ilCtrl = $DIC['ilCtrl'];
 
-        $this->setId('tst_pers_def_set_' . $parentObj->object->getId());
+        $this->setId('tst_pers_def_set_' . $parentObj->getObject()->getId());
 
         parent::__construct($parentObj, $cmd);
 
@@ -34,34 +47,25 @@ class ilTestPersonalDefaultSettingsTableGUI extends ilTable2GUI
         $this->initColumns();
     }
 
-    /**
-     *
-     */
-    private function initColumns()
+    private function initColumns(): void
     {
         $this->addColumn('', '', '1px', true);
         $this->addColumn($this->lng->txt('title'), 'name', '80%');
         $this->addColumn($this->lng->txt('date'), 'tstamp', '19%');
     }
 
-    /**
-     * @param array $row
-     */
-    public function fillRow($row)
+    public function fillRow(array $a_set): void
     {
         parent::fillRow(array(
-            'name' => $row['name'],
-            'checkbox' => ilUtil::formCheckbox(false, 'chb_defaults[]', $row['test_defaults_id']),
-            'tstamp' => ilDatePresentation::formatDate(new ilDateTime($row['tstamp'], IL_CAL_UNIX))
+            'name' => $a_set['name'],
+            'checkbox' => ilLegacyFormElementsUtil::formCheckbox(false, 'chb_defaults[]', $a_set['test_defaults_id']),
+            'tstamp' => ilDatePresentation::formatDate(new ilDateTime($a_set['tstamp'], IL_CAL_UNIX))
         ));
     }
 
-    /**
-     * @return bool
-     */
-    public function numericOrdering($field)
+    public function numericOrdering(string $a_field): bool
     {
-        return in_array($field, array(
+        return in_array($a_field, array(
             'tstamp'
         ));
     }

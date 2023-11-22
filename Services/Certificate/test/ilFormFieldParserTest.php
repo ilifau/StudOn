@@ -1,14 +1,31 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilFormFieldParserTest extends ilCertificateBaseTestCase
 {
-    public function testA4()
+    public function testA4(): void
     {
-        $xlstProcess = $this->getMockBuilder('ilCertificateXlstProcess')
+        $xlstProcess = $this->getMockBuilder(ilCertificateXlstProcess::class)
             ->getMock();
 
         $content = '';
@@ -16,8 +33,8 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
         $parser = new ilFormFieldParser($xlstProcess);
         $formFields = $parser->fetchDefaultFormFields($content);
 
-        $this->assertEquals(
-            array(
+        $this->assertSame(
+            [
                 'pageformat' => 'a4',
                 'pagewidth' => '21cm',
                 'pageheight' => '29.7cm',
@@ -26,14 +43,14 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
                 'margin_body_bottom' => '0cm',
                 'margin_body_left' => '2cm',
                 'certificate_text' => ''
-            ),
+            ],
             $formFields
         );
     }
 
-    public function testCustomPageWidth()
+    public function testCustomPageWidth(): void
     {
-        $xlstProcess = $this->getMockBuilder('ilCertificateXlstProcess')
+        $xlstProcess = $this->getMockBuilder(ilCertificateXlstProcess::class)
             ->getMock();
 
         $xlstProcess
@@ -45,8 +62,8 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
         $parser = new ilFormFieldParser($xlstProcess);
         $formFields = $parser->fetchDefaultFormFields($content);
 
-        $this->assertEquals(
-            array(
+        $this->assertSame(
+            [
                 'pageformat' => 'custom',
                 'pagewidth' => '210mm',
                 'pageheight' => '310mm',
@@ -55,14 +72,14 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
                 'margin_body_bottom' => '3cm',
                 'margin_body_left' => '4cm',
                 'certificate_text' => ''
-            ),
+            ],
             $formFields
         );
     }
 
-    public function testA5()
+    public function testA5(): void
     {
-        $xlstProcess = $this->getMockBuilder('ilCertificateXlstProcess')
+        $xlstProcess = $this->getMockBuilder(ilCertificateXlstProcess::class)
             ->getMock();
 
         $xlstProcess
@@ -74,8 +91,8 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
         $parser = new ilFormFieldParser($xlstProcess);
         $formFields = $parser->fetchDefaultFormFields($content);
 
-        $this->assertEquals(
-            array(
+        $this->assertSame(
+            [
                 'pageformat' => 'a5',
                 'pagewidth' => '14.8cm',
                 'pageheight' => '21cm',
@@ -84,14 +101,14 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
                 'margin_body_bottom' => '3cm',
                 'margin_body_left' => '4cm',
                 'certificate_text' => ''
-            ),
+            ],
             $formFields
         );
     }
 
-    public function testA5Landscape()
+    public function testA5Landscape(): void
     {
-        $xlstProcess = $this->getMockBuilder('ilCertificateXlstProcess')
+        $xlstProcess = $this->getMockBuilder(ilCertificateXlstProcess::class)
             ->getMock();
 
         $xlstProcess
@@ -103,8 +120,8 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
         $parser = new ilFormFieldParser($xlstProcess);
         $formFields = $parser->fetchDefaultFormFields($content);
 
-        $this->assertEquals(
-            array(
+        $this->assertSame(
+            [
                 'pageformat' => 'a5landscape',
                 'pagewidth' => '21cm',
                 'pageheight' => '14.8cm',
@@ -113,14 +130,14 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
                 'margin_body_bottom' => '3cm',
                 'margin_body_left' => '4cm',
                 'certificate_text' => ''
-            ),
+            ],
             $formFields
         );
     }
 
-    public function testA4Landscape()
+    public function testA4Landscape(): void
     {
-        $xlstProcess = $this->getMockBuilder('ilCertificateXlstProcess')
+        $xlstProcess = $this->getMockBuilder(ilCertificateXlstProcess::class)
             ->getMock();
 
         $xlstProcess
@@ -132,8 +149,8 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
         $parser = new ilFormFieldParser($xlstProcess);
         $formFields = $parser->fetchDefaultFormFields($content);
 
-        $this->assertEquals(
-            array(
+        $this->assertSame(
+            [
                 'pageformat' => 'a4landscape',
                 'pagewidth' => '29.7cm',
                 'pageheight' => '21cm',
@@ -142,14 +159,14 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
                 'margin_body_bottom' => '3cm',
                 'margin_body_left' => '4cm',
                 'certificate_text' => ''
-            ),
+            ],
             $formFields
         );
     }
 
-    public function testLetterLandscape()
+    public function testLetterLandscape(): void
     {
-        $xlstProcess = $this->getMockBuilder('ilCertificateXlstProcess')
+        $xlstProcess = $this->getMockBuilder(ilCertificateXlstProcess::class)
             ->getMock();
 
         $xlstProcess
@@ -161,8 +178,8 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
         $parser = new ilFormFieldParser($xlstProcess);
         $formFields = $parser->fetchDefaultFormFields($content);
 
-        $this->assertEquals(
-            array(
+        $this->assertSame(
+            [
                 'pageformat' => 'letterlandscape',
                 'pagewidth' => '11in',
                 'pageheight' => '8.5in',
@@ -171,14 +188,14 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
                 'margin_body_bottom' => '3cm',
                 'margin_body_left' => '4cm',
                 'certificate_text' => ''
-            ),
+            ],
             $formFields
         );
     }
 
-    public function testLetter()
+    public function testLetter(): void
     {
-        $xlstProcess = $this->getMockBuilder('ilCertificateXlstProcess')
+        $xlstProcess = $this->getMockBuilder(ilCertificateXlstProcess::class)
             ->getMock();
 
         $xlstProcess
@@ -190,8 +207,8 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
         $parser = new ilFormFieldParser($xlstProcess);
         $formFields = $parser->fetchDefaultFormFields($content);
 
-        $this->assertEquals(
-            array(
+        $this->assertSame(
+            [
                 'pageformat' => 'letter',
                 'pagewidth' => '8.5in',
                 'pageheight' => '11in',
@@ -200,7 +217,7 @@ class ilFormFieldParserTest extends ilCertificateBaseTestCase
                 'margin_body_bottom' => '3cm',
                 'margin_body_left' => '4cm',
                 'certificate_text' => ''
-            ),
+            ],
             $formFields
         );
     }

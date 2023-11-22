@@ -2,160 +2,133 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 use ILIAS\KioskMode\ControlBuilder;
 use ILIAS\KioskMode\LocatorBuilder;
 use ILIAS\KioskMode\TOCBuilder;
-use ILIAS\KioskMode\URLBuilder;
-
 use ILIAS\UI\Factory;
+use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Signal;
+use ILIAS\UI\Component\JavaScriptBindable;
 
-/**
- * Class LSControlBuilder
- */
 class LSControlBuilder implements ControlBuilder
 {
-    const CMD_START_OBJECT = 'start_legacy_obj';
-    const CMD_CHECK_CURRENT_ITEM_LP = 'ccilp';
-
-    /**
-     * @var Component|null
-     */
-    protected $exit_control;
-
-    /**
-     * @var Component|null
-     */
-    protected $previous_control;
-
-    /**
-     * @var Component|null
-     */
-    protected $next_control;
-
-    /**
-     * @var Component|null
-     */
-    protected $done_control;
+    public const CMD_START_OBJECT = 'start_legacy_obj';
+    public const CMD_CHECK_CURRENT_ITEM_LP = 'ccilp';
 
     /**
      * @var Component[]
      */
-    protected $controls = [];
+    protected array $controls = [];
 
     /**
      * @var Component[]
      */
-    protected $toggles = [];
+    protected array $toggles = [];
 
     /**
      * @var Component[]
      */
-    protected $mode_controls = [];
+    protected array $mode_controls = [];
 
-    /**
-     * @var TOCBuilder|null
-     */
-    protected $toc;
-
-    /**
-     * @var LocatorBuilder|null
-     */
-    protected $loc;
-
-    /**
-     * @var Factory
-     */
-    protected $ui_factory;
-
-    /**
-     * @var URLBuilder
-     */
-    protected $url_builder;
-
-    /**
-     * @var Component|null
-     */
-    protected $start;
-
-    // fau: lsoManualRefresh - variable for refresh control
-    /**
-     * @var Component|null
-     */
-    protected $refresh;
-    // fau.
-
-    /**
-     * @var string | null
-     */
-    protected $additional_js;
-
-    /**
-     * @var LSGlobalSettings
-     */
-    protected $global_settings;
+    protected ?Component $exit_control = null;
+    protected ?Component $previous_control = null;
+    protected ?Component $next_control = null;
+    protected ?Component $done_control = null;
+    protected ?TOCBuilder $toc = null;
+    protected ?LocatorBuilder $loc = null;
+    protected ?JavaScriptBindable $start = null;
+    protected ?string $additional_js = null;
+    protected Factory $ui_factory;
+    protected LSURLBuilder $url_builder;
+    protected ilLanguage $lng;
+    protected LSGlobalSettings $global_settings;
+    protected LSURLBuilder $lp_url_builder;
 
     public function __construct(
         Factory $ui_factory,
         LSURLBuilder $url_builder,
         ilLanguage $language,
-        LSGlobalSettings $global_settings
+        LSGlobalSettings $global_settings,
+        LSURLBuilder $lp_url_builder
     ) {
         $this->ui_factory = $ui_factory;
         $this->url_builder = $url_builder;
         $this->lng = $language;
         $this->global_settings = $global_settings;
+        $this->lp_url_builder = $lp_url_builder;
     }
 
-    public function getExitControl()
-    {
-        return $this->exit_control;
-    }
-
-    public function getPreviousControl()
-    {
-        return $this->previous_control;
-    }
-
-    public function getNextControl()
-    {
-        return $this->next_control;
-    }
-
-    public function getDoneControl()
-    {
-        return $this->done_control;
-    }
-
-    public function getToggles()
+    /**
+     * @return \ILIAS\UI\Component\Component[]
+     */
+    public function getToggles(): array
     {
         return $this->toggles;
     }
 
-    public function getModeControls()
+    /**
+     * @return \ILIAS\UI\Component\Component[]
+     */
+    public function getModeControls(): array
     {
         return $this->mode_controls;
     }
 
-    public function getControls() : array
+    /**
+     * @return \ILIAS\UI\Component\Component[]
+     */
+    public function getControls(): array
     {
         return $this->controls;
     }
 
-    public function getLocator()
+    public function getExitControl(): ?Component
     {
-        return $this->loc;
+        return $this->exit_control;
     }
 
-    public function getToc()
+    public function getPreviousControl(): ?Component
+    {
+        return $this->previous_control;
+    }
+
+    public function getNextControl(): ?Component
+    {
+        return $this->next_control;
+    }
+
+    public function getDoneControl(): ?Component
+    {
+        return $this->done_control;
+    }
+
+    public function getToc(): ?TOCBuilder
     {
         return $this->toc;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function exit(string $command) : ControlBuilder
+    public function getLocator(): ?LocatorBuilder
+    {
+        return $this->loc;
+    }
+
+    public function exit(string $command): ControlBuilder
     {
         if ($this->exit_control) {
             throw new \LogicException("Only one exit-control per view...", 1);
@@ -177,10 +150,7 @@ class LSControlBuilder implements ControlBuilder
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function next(string $command, int $parameter = null) : ControlBuilder
+    public function next(string $command, int $parameter = null): ControlBuilder
     {
         if ($this->next_control) {
             throw new \LogicException("Only one next-control per view...", 1);
@@ -195,10 +165,7 @@ class LSControlBuilder implements ControlBuilder
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function previous(string $command, int $parameter = null) : ControlBuilder
+    public function previous(string $command, int $parameter = null): ControlBuilder
     {
         if ($this->previous_control) {
             throw new \LogicException("Only one previous-control per view...", 1);
@@ -213,10 +180,7 @@ class LSControlBuilder implements ControlBuilder
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function done(string $command, int $parameter = null) : ControlBuilder
+    public function done(string $command, int $parameter = null): ControlBuilder
     {
         if ($this->done_control) {
             throw new \LogicException("Only one done-control per view...", 1);
@@ -228,40 +192,26 @@ class LSControlBuilder implements ControlBuilder
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function generic(string $label, string $command, int $parameter = null) : ControlBuilder
+    public function generic(string $label, string $command, int $parameter = null): ControlBuilder
     {
         $cmd = $this->url_builder->getHref($command, $parameter);
         $this->controls[] = $this->ui_factory->button()->standard($label, $cmd);
         return $this;
     }
 
-    public function genericWithSignal(string $label, Signal $signal) : ControlBuilder
+    public function genericWithSignal(string $label, Signal $signal): ControlBuilder
     {
         $this->controls[] = $this->ui_factory->button()->standard($label, '')
             ->withOnClick($signal);
         return $this;
     }
 
-    /**
-     * A toggle can be used to switch some behaviour in the view on or of.
-     */
-    public function toggle(string $label, string $on_command, string $off_command) : ControlBuilder
+    public function toggle(string $label, string $on_command, string $off_command): ControlBuilder
     {
         throw new \Exception("NYI: Toggles", 1);
-
-        $cmd_on = $this->url_builder->getHref($on_command, 0);
-        $cmd_off = $this->url_builder->getHref($off_command, 0);
-        //build toggle and add to $this->toggles
-        //return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function mode(string $command, array $labels) : ControlBuilder
+    public function mode(string $command, array $labels): ControlBuilder
     {
         $actions = [];
         foreach ($labels as $parameter => $label) {
@@ -271,10 +221,7 @@ class LSControlBuilder implements ControlBuilder
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function locator(string $command) : LocatorBuilder
+    public function locator(string $command): LocatorBuilder
     {
         if ($this->loc) {
             throw new \LogicException("Only one locator per view...", 1);
@@ -283,15 +230,12 @@ class LSControlBuilder implements ControlBuilder
         return $this->loc;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function tableOfContent(
         string $label,
         string $command,
         int $parameter = null,
         $state = null
-    ) : TOCBuilder {
+    ): TOCBuilder {
         if ($this->toc) {
             throw new \LogicException("Only one ToC per view...", 1);
         }
@@ -306,55 +250,37 @@ class LSControlBuilder implements ControlBuilder
      *
      * The start-control is exclusively used to open an ILIAS-Object in a new windwow/tab.
      */
-    public function start(string $label, string $url, int $parameter = null) : ControlBuilder
+    public function start(string $label, string $url, int $obj_id): ControlBuilder
     {
         if ($this->start) {
             throw new \LogicException("Only one start-control per view...", 1);
         }
-        $this_cmd = $this->url_builder->getHref(self::CMD_START_OBJECT, $parameter);
-        $lp_cmd = str_replace(
-            '&cmd=view&',
-            '&cmd=' . self::CMD_CHECK_CURRENT_ITEM_LP . '&',
-            $this_cmd
-        );
+
+        $this_cmd = $this->url_builder->getHref(self::CMD_START_OBJECT, 0);
+        $lp_cmd = $this->lp_url_builder->getHref(self::CMD_CHECK_CURRENT_ITEM_LP, $obj_id);
 
         $this->setListenerJS($lp_cmd, $this_cmd);
         $this->start = $this->ui_factory->button()
             ->primary($label, '')
             ->withOnLoadCode(function ($id) use ($url) {
                 $interval = $this->global_settings->getPollingIntervalMilliseconds();
-                return "$('#{$id}').on('click', function(ev) {
-					var il_ls_win = window.open('$url');
-					window._lso_current_item_lp = -1;
-                    // fau: lsoManualRefresh - don't trigger lso_checkLPOfObject per timer
-					   lso_checkLPOfObject();
-                    // window.setInterval(lso_checkLPOfObject, $interval);
-                    // fau. 
-				})";
+                return "$('#$id').on('click', function(ev) {
+                    var _lso_win = window.open('$url');
+				});
+                window._lso_current_item_lp = -1;
+                window.setInterval(lso_checkLPOfObject, $interval);
+                ";
             });
 
         return $this;
     }
 
-    public function getStartControl()
+    public function getStartControl(): ?JavaScriptBindable
     {
         return $this->start;
     }
 
-    // fau: lsoManualRefresh - build controls for a manual refresh
-    public function refresh($label) : ControlBuilder
-    {
-        $this->refresh = $this->ui_factory->button()->standard($label,'javascript:lso_refreshPage();');
-        return $this;
-    }
-
-    public function getRefreshControl()
-    {
-        return $this->refresh;
-    }
-    // fau.
-
-    public function getAdditionalJS() : string
+    public function getAdditionalJS(): ?string
     {
         return $this->additional_js;
     }
@@ -362,7 +288,7 @@ class LSControlBuilder implements ControlBuilder
     protected function setListenerJS(
         string $check_lp_url,
         string $on_lp_change_url
-    ) {
+    ): void {
         $this->additional_js =
 <<<JS
 function lso_checkLPOfObject()
@@ -382,13 +308,6 @@ function lso_checkLPOfObject()
 		}
 	});
 }
-
-// fau: lsoManualRefresh - new function to refresh the page
-function lso_refreshPage() {
-    location.replace('$on_lp_change_url');
-}
-// fau.
-
 JS;
     }
 }

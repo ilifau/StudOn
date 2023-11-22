@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Notification\Provider;
 
 use ILIAS\GlobalScreen\Provider\Provider;
@@ -32,10 +32,10 @@ interface NotificationProvider extends Provider
     /**
      * @return isItem[]
      */
-    public function getNotifications() : array;
+    public function getNotifications(): array;
 
     /**
      * @return AdministrativeNotification[]
      */
-    public function getAdministrativeNotifications() : array;
+    public function getAdministrativeNotifications(): array;
 }

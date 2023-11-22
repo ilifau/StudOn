@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2014 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilBasePasswordEncoder
@@ -9,7 +26,7 @@
 abstract class ilBasePasswordEncoder implements ilPasswordEncoder
 {
     /** @var int Maximum password length */
-    const MAX_PASSWORD_LENGTH = 4096;
+    private const MAX_PASSWORD_LENGTH = 4096;
 
     /**
      * Compares two passwords.
@@ -18,9 +35,9 @@ abstract class ilBasePasswordEncoder implements ilPasswordEncoder
      * @url http://codahale.com/a-lesson-in-timing-attacks/
      * @param string $knownString The first password
      * @param string $userString  The second password
-     * @return Boolean true if the two passwords are the same, false otherwise
+     * @return bool true if the two passwords are the same, false otherwise
      */
-    protected function comparePasswords(string $knownString, string $userString) : bool
+    protected function comparePasswords(string $knownString, string $userString): bool
     {
         $knownString .= chr(0);
         $userString .= chr(0);
@@ -30,44 +47,29 @@ abstract class ilBasePasswordEncoder implements ilPasswordEncoder
 
         $result = $known_string_length - $user_string_length;
 
-        for ($i = 0; $i < $user_string_length; $i++) {
+        for ($i = 0; $i < $user_string_length; ++$i) {
             $result |= (ord($knownString[$i % $known_string_length]) ^ ord($userString[$i]));
         }
 
-        // They are only identical strings if $result is exactly 0...
         return 0 === $result;
     }
 
-    /**
-     * Checks if the password is too long.
-     * @param string $password The password
-     * @return bool true if the password is too long, false otherwise
-     */
-    protected function isPasswordTooLong(string $password) : bool
+    protected function isPasswordTooLong(string $password): bool
     {
         return strlen($password) > self::MAX_PASSWORD_LENGTH;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function isSupportedByRuntime() : bool
+    public function isSupportedByRuntime(): bool
     {
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function requiresSalt() : bool
+    public function requiresSalt(): bool
     {
         return false;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function requiresReencoding(string $encoded) : bool
+    public function requiresReencoding(string $encoded): bool
     {
         return false;
     }

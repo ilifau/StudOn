@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Identification;
 
 /**
@@ -39,11 +39,11 @@ interface IdentificationProviderInterface
      * @return IdentificationInterface use this CoreIdentification to put into your
      *                                  GlobalScreen-elements.
      */
-    public function identifier(string $identifier_string) : IdentificationInterface;
+    public function identifier(string $identifier_string): IdentificationInterface;
 
     /**
      * @param string $serialized_string
      * @return IdentificationInterface
      */
-    public function fromSerializedString(string $serialized_string) : IdentificationInterface;
+    public function fromSerializedString(string $serialized_string): IdentificationInterface;
 }

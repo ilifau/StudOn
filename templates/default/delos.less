@@ -10,7 +10,6 @@
 bdo[dir="ltr"] { direction: ltr; unicode-bidi: bidi-override; }
 bdo[dir="rtl"] { direction: rtl; unicode-bidi: bidi-override; }
 
-
 /*
 /* rtl-review */
 /* with specifics imports
@@ -38,12 +37,8 @@ All parts that aren't checked yet are actually marked with "rtl-review"
 // Core CSS
 @import "@{bsbase}scaffolding.less";
 @import "@{bsbase}type.less";
-@import "@{bsbase}code.less";
-@import "@{bsbase}grid.less";
 @import "@{bsbase}tables.less";
-@import "@{bsbase}forms.less";
 @import "@{bsbase}buttons.less";
-
 
 // Components
 @import "@{bsbase}component-animations.less";
@@ -51,7 +46,6 @@ All parts that aren't checked yet are actually marked with "rtl-review"
 @import "@{bsbase}button-groups.less";
 @import "@{bsbase}input-groups.less";
 @import "@{bsbase}navs.less";
-@import "@{bsbase}navbar.less";
 @import "@{bsbase}pagination.less";
 @import "@{bsbase}pager.less";
 @import "@{bsbase}labels.less";
@@ -65,7 +59,6 @@ All parts that aren't checked yet are actually marked with "rtl-review"
 @import "@{bsbase}panels.less";
 @import "@{bsbase}responsive-embed.less";
 @import "@{bsbase}wells.less";
-@import "@{bsbase}close.less";
 @import "@{bsbase}breadcrumbs.less";
 
 // Components w/ JavaScript
@@ -77,6 +70,16 @@ All parts that aren't checked yet are actually marked with "rtl-review"
 // Utility classes
 @import "@{bsbase}utilities.less";
 @import "@{bsbase}responsive-utilities.less";
+
+// Bootstrap overrides
+@boostrap_delos: "less/bootstrap/";
+@import "@{boostrap_delos}focus-mixin.less";
+@import "@{boostrap_delos}code.less";
+@import "@{boostrap_delos}bootstrap-variables.less"; //Boostrap Variales, overwritten by ILIAS
+@import "@{boostrap_delos}screenreader-only-mixins.less";
+@import "@{boostrap_delos}grid.less";
+@import "@{boostrap_delos}forms.less";
+@import "@{boostrap_delos}navbar.less";
 
 // UI framework
 @uibase: "../../src/UI/templates/default/";
@@ -106,9 +109,10 @@ All parts that aren't checked yet are actually marked with "rtl-review"
 @import "@{uibase}Menu/menu.less";
 @import "@{uibase}Symbol/symbol.less";
 @import "@{uibase}Link/link.less";
+@import "@{uibase}Toast/toast.less";
+@import "@{uibase}Player/player.less";
 
 @import "less/variables.less"; //ILIAS Less variables
-@import "less/bootstrap-variables.less"; //Boostrap Variales, overwritten by ILIAS
 
 // UI framework components which make use of variables from less/variables.less
 // Note: These files need to be imported after less/variables.less
@@ -124,8 +128,7 @@ All parts that aren't checked yet are actually marked with "rtl-review"
 // general multi line cap
 @import "less/multi-line-cap.less";
 
-// tab focus ilias mixin
-@import "less/focus-mixin.less";
+
 
 /* flex grid support start */
 
@@ -152,6 +155,10 @@ All parts that aren't checked yet are actually marked with "rtl-review"
     }
   }
   .col(1); // kickstart it
+}
+
+script {
+	display: none!important;
 }
 
 .row-flex {
@@ -289,7 +296,7 @@ All parts that aren't checked yet are actually marked with "rtl-review"
 
 // warning inline text
 span.ilAlert {
-	color: @brand-warning;
+	color: @il-warning-color;
 }
 
 /* Drop Downs */
@@ -306,7 +313,7 @@ span.ilAlert {
 }
 .dropdown-menu {
 	background-color: @dropdown-bg;
-	font-weight: normal;
+	font-weight: @il-font-weight-base;
 	border: 0 none;
     .box-shadow(3px 9px 9px 0 rgba(0,0,0,0.3));
 	// Links within the dropdown menu
@@ -314,7 +321,7 @@ span.ilAlert {
 		display: block;
 		clear: both;
 		padding: 3px 10px;
-		font-weight: normal;
+		font-weight: @il-font-weight-base;
 		font-size: @il-font-size-dropdown;
 		line-height: @line-height-base;
 		background-color: @dropdown-link-bg;
@@ -358,7 +365,6 @@ span.ilAlert {
 	margin-bottom: 0;
 }
 
-
 /* ILIAS part candidates */
 
 html, body {
@@ -366,6 +372,7 @@ html, body {
 	overflow: hidden;
 }
 html {
+	font-size: 100%;
 	@media only screen and (max-width: @grid-float-breakpoint-max) {
 		-webkit-text-size-adjust: none;
 	}
@@ -417,57 +424,6 @@ div.ilFrame {
 	}
 }
 
-/*
-	it would be good to limit the content width in some cases
-	- for many forms 1400px is too wide
-	- but not for all (e.g. question editing if tiny is used)
-	- screens that use tables often need the full width
-	- screens with (container) item lists often look ugly on 1400px (title <-> action arrow distance)
-	1028px is the current max. width of the center column if at least one other column
-	is displayed. This or any higher value could be set for the center column as a max-width,
-	but not for all screens, options:
-	- introduce a limiting class for center col and set this as "default", add another class that deactivates the
-	  limit (-> screens that have wide content need to activate this class)
-	- keep the current wide center col, introduce only a limiting class (-> screens that want a narrow view need
-	  to activate the class)
-	- use a limiting class only on some UI elements, e.g. forms and container item lists
-*/
-#il_center_col {
-	/* max-width: 1028px; */
-}
-
-/* left navigation area (used, e.g. for explorer trees) */
-.ilLeftNav {
-	top: 0;
-	bottom:	0;
-	width: 300px;
-	float: left;
-	position: absolute;
-	padding: 5px;
-	margin-left: 15px;
-	overflow: auto;
-	background-color: @il-main-bg;
-	border-right: 3px solid lighten(@il-neutral-color, 33%);
-	z-index: 100;
-	position: fixed;
-	top: @il-header-height;
-	@media only screen and (max-width: @screen-lg-min) {
-		/* at last temporary, since it overlaps content */
-        display: none;
-    }
-}
-[dir="rtl"] .ilLeftNav {
-	float: right;
-	margin-left: 0;
-	margin-right: 15px;
-	border-right: none;
-	//See 20986 with according JF decision
-	border-left: 3px solid lighten(@il-neutral-color, 33%);
-}
-
-/* --------------------------------------------------------------
-	"Classic" delos part
--------------------------------------------------------------- */
 
 
 /* --------------------------------------------------------------
@@ -494,7 +450,7 @@ ul ul, ol ol {
 }
 
 small, sub, sup {
-	font-size: .8em;
+	font-size: @il-font-size-xsmall;
 }
 
 em, i {
@@ -519,7 +475,7 @@ sub, sup {
 }
 
 strong, b {
-	font-weight: bold;
+	font-weight: @il-font-weight-bold;
 }
 
 a {
@@ -546,7 +502,7 @@ hr {
 }
 
 table {
-	font-size: 100%;
+	font-size: @il-font-size-base;
 }
 
 img {
@@ -573,7 +529,7 @@ tr, td {
 
 code {
 	font-family: Pragmata, Menlo, 'DejaVu LGC Sans Mono', 'DejaVu Sans Mono', Consolas, 'Everson Mono', 'Lucida Console', 'Andale Mono', 'Nimbus Mono L', 'Liberation Mono', FreeMono, 'Osaka Monospaced', Courier, 'New Courier', monospace;
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	color: @il-text-light-color;
 }
 
@@ -723,7 +679,7 @@ div.input {
 	border: 1px solid @il-main-border-dark-color;
 	padding: 3px;
 	text-decoration: none;
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	background-color: white;
 	overflow: auto;
 }
@@ -777,7 +733,7 @@ div.ilAdminRow {
 
 table.std {
 	color: @il-text-color;
-	background-color: #bbb;
+	background-color: @il-main-dark-bg;
 	border-spacing: 0;
 	border-collapse: collapse;
 	border: 1px solid #9eadba;
@@ -833,7 +789,7 @@ tr.std {
 th {
 	text-align: left;
 	vertical-align: bottom;
-	font-weight: normal;
+	font-weight: @il-font-weight-base;
 }
 
 td.std, th.std {
@@ -854,7 +810,7 @@ th.option, td.option {
 	background-color: @il-main-bg;
 	color: @il-text-color;
 	padding: 3px;
-	font-weight : bold;
+	font-weight : @il-font-weight-bold;
 	vertical-align: top;
 	text-align: right;
 	border-top: 1px solid #9eadba;
@@ -868,7 +824,7 @@ td.sub_option {
 	background-color: white;
 	color: @il-text-color;
 	padding: 3px;
-	font-weight : bold;
+	font-weight : @il-font-weight-bold;
 	vertical-align: top;
 	border-top: 1px solid #9eadba;
 }
@@ -900,7 +856,7 @@ td.option_desc, p.option_desc {
 	color: @il-text-color;
 	padding: 3px;
 	font-style: italic;
-	font-weight: normal;
+	font-weight: @il-font-weight-base;
 	vertical-align: top;
 	text-align: left;
 }
@@ -916,11 +872,11 @@ td.boxed {
 /*Link, Visited, Hover, Focus, Activ*/
 a.il_ContainerItemCommand2:link, a.il_ContainerItemCommand2:visited,
 a.il_ContainerItemCommand:link, a.il_ContainerItemCommand:visited {
-	font-size: 80%;
+	font-size: @il-font-size-small;
 	text-decoration: none;
 	margin: 0 3px 0 0;
 	white-space: nowrap;
-	font-weight: normal;
+	font-weight: @il-font-weight-base;
 }
 
 [dir="rtl"] a.il_ContainerItemCommand2:link,
@@ -951,8 +907,8 @@ div.il_ContainerItemCommands {
 h3.il_ContainerItemTitle {
 	padding: 0;
 	margin: 0;
-	font-weight: normal;
-	font-size: 100%;
+	font-weight: @il-font-weight-base;
+	font-size: @il-font-size-base;
 	display: inline;
 }
 
@@ -969,8 +925,8 @@ div.il_ContainerItemTitle {
 div.il_ItemProperties {
 	margin: 2px 0 5px;
 	text-align: left;
-	font-weight: normal;
-	font-size: 90%;
+	font-weight: @il-font-weight-base;
+	font-size: @il-font-size-small;
 }
 
 [dir="rtl"] div.il_ItemProperties {
@@ -980,8 +936,8 @@ div.il_ItemProperties {
 div.il_ItemNotice {
 	margin: 2px 0 5px;
 	text-align: left;
-	font-weight: normal;
-	font-size: 90%;
+	font-weight: @il-font-weight-base;
+	font-size: @il-font-size-small;
 	color: green;
 }
 
@@ -991,23 +947,24 @@ div.il_ItemNotice {
 
 a.il_ItemProperty:link, a.il_ItemProperty:visited {
 	text-decoration: none;
-	font-weight: normal;
+	font-weight: @il-font-weight-base;
 }
 
 a.il_ItemProperty:hover {
 	color: black;
+	text-decoration: underline;
 }
 
 span.il_ItemAlertProperty {
-	color: @brand-warning;
+	color: @il-warning-color;
 }
 
 /* Table Links */
 /* --- description text ---*/
 div.il_Description, td.il_Description {
 	margin: 2px 0 5px;
-	font-size: 90%;
-	font-weight: normal;
+	font-size: @il-font-size-small;
+	font-weight: @il-font-weight-base;
 	text-align: left;
 }
 
@@ -1017,7 +974,7 @@ div.il_Description, td.il_Description {
 }
 
 div.il_Description_no_margin, td.il_Description_no_margin {
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	font-style: italic;
 	text-align: left;
 }
@@ -1028,7 +985,7 @@ div.il_Description_no_margin, td.il_Description_no_margin {
 }
 
 div.il_info {
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	text-align: left;
 }
 
@@ -1038,17 +995,13 @@ div.il_info {
 
 
 /* ---------------- headlines ------------------ */
-
-a#il_mhead_t_focus {
-	color: darken(@il-secondary-color, 20%);
+h1.il-page-content-header  {
+	color: @il-neutral-color;
 	vertical-align: middle;
-	font-size: 26px;
-    cursor: default;
+	font-size: @il-font-size-h1;
+	font-weight: @il-font-weight-bold;
 	@media only screen and (max-width: @grid-float-breakpoint-max) {
-        font-size: 20px;
-    }
-    &[href] {
-        cursor: pointer;
+        font-size: @il-font-size-xxlarge;
     }
 }
 
@@ -1060,11 +1013,11 @@ h1.ilHeader {
 }
 
 h2.ilHeader {
-	font-weight: normal;
+	font-weight: @il-font-weight-bold;
 	padding: 0;
 	margin: 0;
 	display: inline;
-	font-size: @font-size-h3;
+	font-size: @il-font-size-xlarge;
 	color: @il-neutral-color;
 }
 
@@ -1110,18 +1063,22 @@ div.ilHeadAction a:hover {
 	text-decoration: none;
 }
 
+div.ilHeadAction ul.dropdown-menu button {
+	text-decoration: none;
+	border: none;
+	padding-left: 10px;
+}
+
 div.ilHeaderDesc {
-	font-size: 90%;
+	font-size: @il-font-size-base;
 	padding: 0;
 	color: @il-text-color;
-	font-weight: 300;
 }
 
 div.ilHeaderAlert {
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	padding: 0;
-	font-weight: 300;
-	color: @brand-warning;
+	color: @il-warning-color;
 }
 
 div.il_HeaderInner {
@@ -1150,7 +1107,7 @@ div.il_TreeIcons {
 /* ----------------- permanent link  ------------- */
 #current_perma_link {
 	color: @il-text-color;
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	
 	&:focus-visible {
 		outline: @il-focus-outline-inner-width solid @il-focus-protection-color;
@@ -1203,71 +1160,6 @@ div.ilPermanentLinkWrapper {
 	}
 }
 
-div.il_Footer {
-	padding: 10px 0;
-	font-size: 90%;
-	text-align: center;
-}
-
-footer.ilFooter {
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: -1px !important;
-	font-size: 0.9em;
-	height: 70px;
-	margin: 0 auto;
-	padding: 20px 0 0;
-	text-align: left;
-	background-color: @il-footer-bg-color;
-	color: @il-footer-color;
-	@media only screen and (max-width: @grid-float-breakpoint-max) {
-		height: auto;
-	}
-	div.ilFooterContainer {
-		color: @il-footer-color;
-		//float: left;
-		line-height: 1.75;
-		padding: 0 15px;
-	}
-	a.permalink_label,
-	div.ilFooterContainer > a {
-		color: @il-footer-color;
-		white-space: nowrap;
-		&:hover {
-			color: @il-footer-color;
-		}
-	}
-	a.permalink_label {
-		> span.glyphicon {
-			@media only screen and (max-width: @grid-float-breakpoint-max) {
-				display: inline;
-			}
-		}
-	}
-	.ilPermalinkContainer {
-		width: auto;
-		> label {
-			display: table-cell;
-			vertical-align: middle;
-			padding-right: 5px;
-			@media only screen and (max-width: @grid-float-breakpoint-max) {
-				padding-right: 0;
-				width: 24px;
-			}
-		}
-		padding-right: 5px;
-		line-height: 22px;
-		@media only screen and (max-width: @grid-float-breakpoint-max) {
-			padding-right: 0;
-		}
-	}
-}
-
-[dir="rtl"] footer.ilFooter {
-	text-align: right;
-}
-
 /* ----------------- invisible border ------------- */
 div.invisible_border {
 	margin: 15px;
@@ -1279,80 +1171,85 @@ div.invisible_border {
 
 /* ------- Helptext --------- */
 span.il_Helptext {
-	font-size: 90%;
-	font-weight: normal;
+	font-size: @il-font-size-small;
+	font-weight: @il-font-weight-base;
 }
 
 /* ----------------- alternative text styles ------------- */
+.base {
+	text-decoration: none;
+	font-size: @il-font-size-base;
+}
+
 .small {
 	text-decoration: none;
-	font-size: 90%;
+	font-size: @il-font-size-small;
 }
 
 .xsmall {
 	text-decoration: none;
-	font-size: 80%;
+	font-size: @il-font-size-xsmall;
 }
 
 .smallgreen {
 	text-decoration: none;
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	color: green;
 }
 
 .smallred {
 	text-decoration: none;
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	color: @il-danger-color;
 }
 
 .obligatory {
-	font-weight: normal;
+	font-weight: @il-font-weight-base;
 	color: #800000;
 	font-variant: normal;
 }
 
 .warning {
 	text-decoration: none;
-	font-weight: bold;
+	font-weight: @il-font-weight-bold;
 	color: @il-danger-color;
 }
 
 div.Access {
 	text-decoration: none;
-	font-weight: bold;
+	font-weight: @il-font-weight-bold;
 	text-decoration: underline;
 	color: @il-danger-color;
 }
 
 .asterisk {
 	color: @il-danger-color;
-	font-size: 90%;
+	font-size: @il-font-size-small;
 }
 
 .default {
 	text-decoration: none;
-	font-weight: normal;
+	font-weight: @il-font-weight-base;
 }
 
 
 .quote {
 	font-style: italic;
-	font-weight: normal;
+	font-weight: @il-font-weight-base;
 }
 
 .subtitle {
 	font-style: italic;
-	font-weight: normal;
-	font-size: 90%;
+	font-weight: @il-font-weight-base;
+	font-size: @il-font-size-small;
 }
 
 .questiontext {
-	font-weight: bold;
+	font-weight: @il-font-weight-bold;
 }
 
 .bold {
-	font-weight: bold;
+	font-weight: @il-font-weight-bold;
 }
 
 .light {
@@ -1497,7 +1394,7 @@ div.ilRightPanel {
 	right: -2000px;
 }
 
-a.ilAccAnchor, a.ilAccAnchor:hover {
+div.ilAccAnchor, div.ilAccAnchor:hover {
 	text-decoration: none;
 	color: inherit;
 }
@@ -1550,47 +1447,6 @@ div.ilBox {
 	margin-bottom: 20px;
 }
 
-/* Top-Bar */
-div.ilTopBar {
-	background-color: @il-top-bar-bg;
-	color: @il-top-bar-color;
-	padding: 5px 10px;
-	a {
-		color: @il-top-bar-link-color;
-			&:hover,
-			&:active,
-			&:focus {
-				color: @il-top-bar-link-hover-color;
-		}
-	}
-}
-
-div.ilTopBarLeft {
-	float: left;
-}
-
-[dir="rtl"] div.ilTopBarLeft {
-	float: right;
-}
-
-div.ilTopBarRight {
-	float: right;
-}
-
-[dir="rtl"] div.ilTopBarRight {
-	float: left;
-}
-
-div.ilTopBarRight span#ilAdvSelListAnchorElement_asl {
-	margin-right: 25px;
-	color: black;
-}
-
-[dir="rtl"] div.ilTopBarRight span#ilAdvSelListAnchorElement_asl {
-	margin-right: 0;
-	margin-left: 25px;
-}
-
 div.ilSideBarHead{
 	margin-top: 10px;
 	margin-bottom: 5px;
@@ -1598,7 +1454,7 @@ div.ilSideBarHead{
 }
 
 div.ilSideBarHead h3, div.ilSideBarHead h1 {
-	font-size: 110%;
+	font-size: @il-font-size-large;
 	color: @il-text-color;
 	display: inline;
 	padding: 0;
@@ -1617,7 +1473,7 @@ div.ilSideBarContent{
 	float: left;
 	background-color: @dropdown-bg;
 	border: 1px solid @il-main-border-color;
-	font-size: 90%;
+	font-size: @il-font-size-small;
 	z-index: 5;
     .box-shadow(2px 2px 4px #c0c0c0);
 	.ui-menu-item {
@@ -1653,7 +1509,7 @@ div.ilSideBarContent{
 		float: left;
 		clear: left;
 		width: 100%;
-		font-weight: bold;
+		font-weight: @il-font-weight-bold;
 	}
 	.ui-menu-more {
 		display: block;
@@ -1669,22 +1525,6 @@ div.ilSideBarContent{
 		&:hover {
 			background-color: white;
 		}
-	}
-}
-
-[dir="rtl"] .ui-menu {
-	float: right;
-	.ui-menu-item {
-		float: right;
-		clear: right;
-	}
-	.ui-menu-category {
-		float: right;
-		clear: right;
-	}
-	.ui-menu-more {
-		float: right;
-		clear: right;
 	}
 }
 
@@ -1724,7 +1564,7 @@ img.ilSmallIcon {
 }
 
 /* Component Imports */
-
+@import "less/Services/AccessControl/delos.less";
 @import "less/Services/Accordion/delos.less";
 @import "less/Modules/ScormAicc/delos.less";
 @import "less/Services/Form/delos.less";
@@ -1734,7 +1574,6 @@ img.ilSmallIcon {
 @import "less/Services/COPage/delos.less";
 @import "less/Services/Calendar/delos.less";
 @import "less/Modules/Wiki/delos.less";
-@import "less/Services/MainMenu/delos.less";
 @import "less/Services/UIComponent/Tabs/delos.less";
 @import "less/Services/UIComponent/GroupedList/delos.less";
 @import "less/Services/Table/delos.less";
@@ -1748,7 +1587,6 @@ img.ilSmallIcon {
 @import "less/Modules/Bibliographic/delos.less";
 @import "less/Services/MediaObjects/delos.less";
 @import "less/Services/Chart/delos.less";
-@import "less/Services/Captcha/delos.less";
 @import "less/Services/User/delos.less";
 @import "less/Services/Style/delos.less";
 @import "less/Modules/Course/delos.less";
@@ -1783,6 +1621,7 @@ img.ilSmallIcon {
 @import "less/Services/Certificate/delos.less";
 @import "less/Services/TermsOfService/delos.less";
 @import "less/Services/UIComponent/Modal/delos.less";
+@import "less/Services/UIComponent/SplitButton/delos.less";
 @import "less/Services/Badge/delos.less";
 @import "less/Services/Calendar/bootstrap-datetimepicker.less";
 @import "less/Modules/OrgUnit/delos.less";
@@ -1793,6 +1632,7 @@ img.ilSmallIcon {
 @import "less/Services/Preview/delos.less";
 @import "less/Services/WebDAV/delos.less";
 @import "less/Modules/Test/delos.less";
+@import "less/Modules/MediaCast/delos.less";
 
 .noMargin {
 	margin: 0;
@@ -1807,19 +1647,8 @@ div.editLink {
 	padding-left: 1em;
 }
 
-img[src$="icon_checked.svg"] {
-	height: 11px;
-    margin: 0 6px 0 5px;
-    opacity: 0.5;
-    width: 11px;
-}
-
-[dir="rtl"] img[src$="icon_checked.svg"] {
-    margin: 0 5px 0 6px;
-}
-
 .glyphicon-ok {
-    font-size: 11px;
+    font-size: @il-font-size-small;
 	text-align: center;
 }
 
@@ -1935,181 +1764,5 @@ div.ilGoogleMap {
 	}
 
 }
-/* basic responsiveness (beta)
-	no more specific section. no more delos_sm.less data (treated as bug)
-	"Responsive" code has to be inserted like:
-	.myClass {
-		...
-		@media only screen and (max-width: @grid-float-breakpoint-max) {
-			...
-		}
-	}
-*/
 
-
-/* print css */
-@media print {
-    //bootstrap print.less
-    * {
-		/* see bug 0022342 */
-        /* text-shadow: none !important;
-        color: black !important; // Black prints faster: h5bp.com/s
-        background: transparent !important;
-        box-shadow: none !important; */
-    }
-
-    a,
-    a:visited {
-        text-decoration: underline;
-    }
-
-    a[href]:after {
-        content: " (" attr(href) ")";
-    }
-
-    abbr[title]:after {
-        content: " (" attr(title) ")";
-    }
-
-    // Don't show links for images, or javascript/internal links
-    a[href^="javascript:"]:after,
-    a[href^="#"]:after {
-        content: "";
-    }
-
-    pre,
-    blockquote {
-        border: 1px solid @il-main-border-dark-color;
-        page-break-inside: avoid;
-    }
-
-    thead {
-        display: table-header-group; // h5bp.com/t
-    }
-
-    tr,
-    img {
-        page-break-inside: avoid;
-    }
-
-    img {
-        max-width: 100% !important;
-    }
-
-    p,
-    h2,
-    h3 {
-        orphans: 3;
-        widows: 3;
-    }
-
-    h2,
-    h3 {
-        page-break-after: avoid;
-    }
-
-    // Chrome (OSX) fix for https://github.com/twbs/bootstrap/issues/11245
-    // Once fixed, we can just straight up remove this.
-    select {
-        background: white !important;
-    }
-
-    // Bootstrap components
-    .navbar {
-        display: none;
-    }
-    .table {
-        td,
-        th {
-            background-color: white !important;
-        }
-    }
-    .btn,
-    .dropup > .btn {
-        > .caret {
-            border-top-color: black !important;
-        }
-    }
-    .label {
-        border: 1px solid black;
-    }
-
-    .table {
-        border-collapse: collapse !important;
-    }
-    .table-bordered {
-        th,
-        td {
-            border: 1px solid @il-main-border-color !important;
-        }
-    }
-
-    //i also duplicate the selectors  untill the class hidden-print is used
-    #ilTopBar,
-    .osdNotificationContainer,
-    .ilMainHeader,
-    .ilMainMenu,
-    .ilTreeView,
-    .btn,
-    #ilTab,
-    #ilSubTab,
-    #minheight,
-    #ilFooter {
-        display: none;
-    }
-    #mainspacekeeper {
-        padding: 0;
-    }
-    .ilLeftNavSpace {
-        margin-left: 0 !important;
-    }
-	div.ilTabContentOuter {
-		border: none;
-	}
-
-	div.ilFileDropTargetOverlay {
-		display: none;
-	}
-
-	// overwrite bootstrap href printing
-	a[href]:after {
-		content: "";
-	}
-}
-
-// show more text
-.read-more-state {
-	display: none;
-}
-
-.read-more-target {
-	opacity: 0;
-	max-height: 0;
-	font-size: 0;
-	transition: .25s ease;
-}
-
-.read-more-state:checked ~ .read-more-wrap .read-more-target {
-	opacity: 1;
-	font-size: inherit;
-	max-height: 999em;
-}
-
-.read-more-state ~ .read-more-trigger:before {
-	content: 'Show more';
-}
-
-.read-more-state:checked ~ .read-more-trigger:before {
-	content: 'Show less';
-}
-
-.read-more-trigger {
-	cursor: pointer;
-	display: inline-block;
-	padding: 0 .5em;
-	color: @il-neutral-light-color;
-	font-size: .9em;
-	line-height: 2;
-	border: 1px solid @il-main-border-color;
-	border-radius: .25em;
-}
+@import "less/print.less"; 

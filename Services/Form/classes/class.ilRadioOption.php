@@ -1,139 +1,100 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2007 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
-* This class represents an option in a radio group
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-* @ingroup	ServicesForm
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * This class represents an option in a radio group
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilRadioOption
 {
-    protected $title;
-    protected $value;
-    protected $info;
-    protected $sub_items = array();
-    protected $disabled;
-    
-    public function __construct($a_title = "", $a_value = "", $a_info = "")
-    {
+    protected string $title = "";
+    protected string $value = "";
+    protected string $info = "";
+    protected array $sub_items = array();
+    protected bool $disabled = false;
+
+    public function __construct(
+        string $a_title = "",
+        string $a_value = "",
+        string $a_info = ""
+    ) {
         $this->setTitle($a_title);
         $this->setValue($a_value);
         $this->setInfo($a_info);
     }
-    
-    /**
-    * Set Title.
-    *
-    * @param	string	$a_title	Title
-    */
-    public function setTitle($a_title)
+
+    public function setTitle(string $a_title): void
     {
         $this->title = $a_title;
     }
 
-    /**
-    * Get Title.
-    *
-    * @return	string	Title
-    */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-    * Set Info.
-    *
-    * @param	string	$a_info	Info
-    */
-    public function setInfo($a_info)
+    public function setInfo(string $a_info): void
     {
         $this->info = $a_info;
     }
 
-    /**
-    * Get Info.
-    *
-    * @return	string	Info
-    */
-    public function getInfo()
+    public function getInfo(): string
     {
         return $this->info;
     }
 
-    /**
-    * Set Value.
-    *
-    * @param	string	$a_value	Value
-    */
-    public function setValue($a_value)
+    public function setValue(string $a_value): void
     {
         $this->value = $a_value;
     }
 
-    /**
-    * Get Value.
-    *
-    * @return	string	Value
-    */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
-    
-    public function setDisabled($a_disabled)
+
+    public function setDisabled(bool $a_disabled): void
     {
         $this->disabled = $a_disabled;
     }
-    
-    public function getDisabled()
+
+    public function getDisabled(): bool
     {
         return $this->disabled;
     }
 
     /**
-    * Add Subitem
-    *
-    * @param	object	$a_item		Item
-    */
-    public function addSubItem($a_item)
+     * @param ilFormPropertyGUI|ilFormSectionHeaderGUI $a_item
+     */
+    public function addSubItem($a_item): void
     {
         $this->sub_items[] = $a_item;
     }
 
-    /**
-    * Get Subitems
-    *
-    * @return	array	Array of items
-    */
-    public function getSubItems()
+    public function getSubItems(): array
     {
         return $this->sub_items;
     }
 
-    public function getSubInputItemsRecursive()
+    public function getSubInputItemsRecursive(): array
     {
         $subInputItems = array();
 

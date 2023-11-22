@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Interface ilTermsOfServiceSequentialDocumentEvaluation
@@ -7,24 +24,14 @@
  */
 class ilTermsOfServiceSequentialDocumentEvaluation implements ilTermsOfServiceDocumentEvaluation
 {
-    /** @var ilTermsOfServiceDocumentCriteriaEvaluation */
-    protected $evaluation;
-    /** @var ilObjUser */
-    protected $user;
+    protected ilTermsOfServiceDocumentCriteriaEvaluation $evaluation;
+    protected ilObjUser $user;
     /** @var array<int, ilTermsOfServiceDocument[]> */
-    protected $matchingDocumentsByUser = [];
+    protected array $matchingDocumentsByUser = [];
     /** @var ilTermsOfServiceSignableDocument[] */
-    protected $possibleDocuments = [];
-    /** @var ilLogger */
-    protected $log;
+    protected array $possibleDocuments = [];
+    protected ilLogger $log;
 
-    /**
-     * ilTermsOfServiceDocumentLogicalAndCriteriaEvaluation constructor.
-     * @param ilTermsOfServiceDocumentCriteriaEvaluation $evaluation
-     * @param ilObjUser                                  $user
-     * @param ilLogger                                   $log
-     * @param ilTermsOfServiceSignableDocument[]         $possibleDocuments
-     */
     public function __construct(
         ilTermsOfServiceDocumentCriteriaEvaluation $evaluation,
         ilObjUser $user,
@@ -37,10 +44,7 @@ class ilTermsOfServiceSequentialDocumentEvaluation implements ilTermsOfServiceDo
         $this->possibleDocuments = $possibleDocuments;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function withContextUser(ilObjUser $user) : ilTermsOfServiceDocumentEvaluation
+    public function withContextUser(ilObjUser $user): ilTermsOfServiceDocumentEvaluation
     {
         $clone = clone $this;
         $clone->user = $user;
@@ -52,10 +56,10 @@ class ilTermsOfServiceSequentialDocumentEvaluation implements ilTermsOfServiceDo
     /**
      * @return ilTermsOfServiceSignableDocument[]
      */
-    protected function getMatchingDocuments() : array
+    protected function getMatchingDocuments(): array
     {
-        if (!array_key_exists((int) $this->user->getId(), $this->matchingDocumentsByUser)) {
-            $this->matchingDocumentsByUser[(int) $this->user->getId()] = [];
+        if (!array_key_exists($this->user->getId(), $this->matchingDocumentsByUser)) {
+            $this->matchingDocumentsByUser[$this->user->getId()] = [];
 
             $this->log->debug(sprintf(
                 'Evaluating document for user "%s" (id: %s) ...',
@@ -65,31 +69,25 @@ class ilTermsOfServiceSequentialDocumentEvaluation implements ilTermsOfServiceDo
 
             foreach ($this->possibleDocuments as $document) {
                 if ($this->evaluateDocument($document)) {
-                    $this->matchingDocumentsByUser[(int) $this->user->getId()][] = $document;
+                    $this->matchingDocumentsByUser[$this->user->getId()][] = $document;
                 }
             }
 
             $this->log->debug(sprintf(
                 '%s matching document(s) found',
-                count($this->matchingDocumentsByUser[(int) $this->user->getId()])
+                count($this->matchingDocumentsByUser[$this->user->getId()])
             ));
         }
 
-        return $this->matchingDocumentsByUser[(int) $this->user->getId()];
+        return $this->matchingDocumentsByUser[$this->user->getId()];
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function evaluateDocument(ilTermsOfServiceSignableDocument $document) : bool
+    public function evaluateDocument(ilTermsOfServiceSignableDocument $document): bool
     {
         return $this->evaluation->evaluate($document);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function document() : ilTermsOfServiceSignableDocument
+    public function document(): ilTermsOfServiceSignableDocument
     {
         $matchingDocuments = $this->getMatchingDocuments();
         if (count($matchingDocuments) > 0) {
@@ -103,10 +101,7 @@ class ilTermsOfServiceSequentialDocumentEvaluation implements ilTermsOfServiceDo
         ));
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function hasDocument() : bool
+    public function hasDocument(): bool
     {
         return count($this->getMatchingDocuments()) > 0;
     }

@@ -1,7 +1,26 @@
-<?php declare(strict_types=1);
+<?php
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
+
+declare(strict_types=1);
 
 use ILIAS\Setup;
 use ILIAS\DI;
+use ILIAS\COPage\Setup\ilCOPageDBUpdateSteps;
 
 class ilComponentDefinitionsStoredObjective implements Setup\Objective
 {
@@ -18,7 +37,7 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getHash() : string
+    public function getHash(): string
     {
         return hash("sha256", self::class);
     }
@@ -26,7 +45,7 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getLabel() : string
+    public function getLabel(): string
     {
         return "Module- and Servicedefinitions are stored. Events are initialized.";
     }
@@ -34,7 +53,7 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function isNotable() : bool
+    public function isNotable(): bool
     {
         return true;
     }
@@ -42,23 +61,33 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getPreconditions(Setup\Environment $environment) : array
+    public function getPreconditions(Setup\Environment $environment): array
     {
         return [
-            new \ilDatabaseUpdatedObjective()
+            new \ilDatabaseUpdatedObjective(),
+            new \ilDatabaseUpdateStepsExecutedObjective(new ilCOPageDBUpdateSteps()),
+            new \ilSettingsFactoryExistsObjective(),
+            new \ilComponentRepositoryExistsObjective(),
+            new \ilComponentFactoryExistsObjective(),
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function achieve(Setup\Environment $environment) : Setup\Environment
+    public function achieve(Setup\Environment $environment): Setup\Environment
     {
         $ilias_path = __DIR__ . "/../../../..";
 
         $db = $environment->getResource(Setup\Environment::RESOURCE_DATABASE);
         $ini = $environment->getResource(Setup\Environment::RESOURCE_ILIAS_INI);
         $client_ini = $environment->getResource(Setup\Environment::RESOURCE_CLIENT_INI);
+        /** @var ilComponentRepository $component_repository  */
+        $component_repository = $environment->getResource(Setup\Environment::RESOURCE_COMPONENT_REPOSITORY);
+        /** @var ilComponentFactory $component_factory  */
+        $component_factory = $environment->getResource(Setup\Environment::RESOURCE_COMPONENT_FACTORY);
+        /** @var ilSettingsFactory $settings_factory */
+        $settings_factory = $environment->getResource(Setup\Environment::RESOURCE_SETTINGS_FACTORY);
 
         // ATTENTION: This is a total abomination. It only exists to allow various
         // sub components of the various readers to run. This is a memento to the
@@ -71,32 +100,32 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
         $GLOBALS["DIC"]["ilClientIniFile"] = $client_ini;
         $GLOBALS["DIC"]["ilBench"] = null;
         $GLOBALS["DIC"]["ilObjDataCache"] = null;
-        $GLOBALS["DIC"]["lng"] = new class() {
-            public function loadLanguageModule()
+        $GLOBALS["DIC"]["lng"] = new class () {
+            public function loadLanguageModule(): void
             {
             }
         };
-        $GLOBALS["DIC"]["ilLog"] = new class() {
-            public function write()
+        $GLOBALS["DIC"]["ilLog"] = new class () {
+            public function write(): void
             {
             }
-            public function debug()
+            public function debug(): void
             {
             }
         };
-        $GLOBALS["DIC"]["ilLoggerFactory"] = new class() {
+        $GLOBALS["DIC"]["ilLoggerFactory"] = new class () {
             public function getRootLogger()
             {
-                return new class() {
-                    public function write()
+                return new class () {
+                    public function write(): void
                     {
                     }
                 };
             }
             public function getLogger()
             {
-                return new class() {
-                    public function write()
+                return new class () {
+                    public function write(): void
                     {
                     }
                 };
@@ -108,35 +137,27 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
         if (!defined("ILIAS_ABSOLUTE_PATH")) {
             define("ILIAS_ABSOLUTE_PATH", dirname(__FILE__, 5));
         }
- 
-        $mr = new \ilModuleReader("", "", "", $db);
-        $mr->clearTables();
-        $modules = \ilModule::getAvailableCoreModules();
 
-        foreach ($modules as $module) {
-            $mr = new ilModuleReader(
-                $ilias_path . "/Modules/" . $module["subdir"] . "/module.xml",
-                $module["subdir"],
-                "Modules",
-                $db
-            );
-            $mr->getModules();
-            unset($mr);
-        }
-
-        $sr = new \ilServiceReader("", "", "", $db);
-        $sr->clearTables();
-        $services = \ilService::getAvailableCoreServices();
-        foreach ($services as $service) {
-            $sr = new ilServiceReader(
-                $ilias_path . "/Services/" . $service["subdir"] . "/service.xml",
-                $service["subdir"],
-                "Services",
-                $db
-            );
-            $sr->getServices();
-            unset($sr);
-        }
+        $reader = new \ilComponentDefinitionReader(
+            new \ilBadgeDefinitionProcessor($db),
+            new \ilCOPageDefinitionProcessor($db),
+            new \ilComponentInfoDefinitionProcessor(),
+            new \ilEventDefinitionProcessor($db),
+            new \ilLoggingDefinitionProcessor($db),
+            new \ilCronDefinitionProcessor(
+                $db,
+                $settings_factory->settingsFor(),
+                $component_repository,
+                $component_factory
+            ),
+            new \ilMailTemplateContextDefinitionProcessor($db),
+            new \ilObjectDefinitionProcessor($db),
+            new \ilPDFGenerationDefinitionProcessor($db),
+            new \ilSystemCheckDefinitionProcessor($db),
+            new \ilSecurePathDefinitionProcessor($db),
+        );
+        $reader->purge();
+        $reader->readComponentDefinitions();
 
         $GLOBALS["DIC"] = $DIC;
 
@@ -146,7 +167,7 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
     /**
      * @inheritDoc
      */
-    public function isApplicable(Setup\Environment $environment) : bool
+    public function isApplicable(Setup\Environment $environment): bool
     {
         return true;
     }

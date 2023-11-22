@@ -2,76 +2,54 @@
 
 declare(strict_types=1);
 
-use \ILIAS\UI\Component\Input\Container\Form;
-use \ILIAS\UI\Component\Input;
-use \ILIAS\Refinery;
-use \ILIAS\UI;
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\UI\Component\Input\Container\Form;
+use ILIAS\UI\Component\Input;
+use ILIAS\Refinery;
+use ILIAS\UI;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @ilCtrl_Calls ilIndividualAssessmentSettingsGUI: ilIndividualAssessmentCommonSettingsGUI
  */
 class ilIndividualAssessmentSettingsGUI
 {
-    const TAB_EDIT = 'settings';
-    const TAB_EDIT_INFO = 'infoSettings';
-    const TAB_COMMON_SETTINGS = 'commonSettings';
+    public const TAB_EDIT = 'settings';
+    public const TAB_EDIT_INFO = 'infoSettings';
+    public const TAB_COMMON_SETTINGS = 'commonSettings';
+
+    protected ilCtrl $ctrl;
+    protected ilObjIndividualAssessment $object;
+    protected ilGlobalPageTemplate $tpl;
+    protected ilLanguage $lng;
+    protected ilTabsGUI $tabs_gui;
+    protected IndividualAssessmentAccessHandler $iass_access;
+    protected Input\Factory $input_factory;
+    protected Refinery\Factory $refinery;
+    protected UI\Renderer $ui_renderer;
 
     /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var ilObjIndividualAssessment
-     */
-    protected $object;
-
-    /**
-     * @var ilGlobalPageTemplate
-     */
-    protected $tpl;
-
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilTabsGUI
-     */
-    protected $tabs_gui;
-
-    /**
-     * @var IndividualAssessmentAccessHandler
-     */
-    protected $iass_access;
-
-    /**
-     * @var Input\Factory
-     */
-    protected $input_factory;
-
-    /**
-     * @var Refinery\Factory
-     */
-    protected $refinery;
-
-    /**
-     * @var UI\Renderer
-     */
-    protected $ui_renderer;
-
-    /**
-     * @var \Psr\Http\Message\RequestInterface|\Psr\Http\Message\ServerRequestInterface
+     * @var RequestInterface|ServerRequestInterface
      */
     protected $http_request;
-
-    /**
-     * @var
-     */
-    protected $error_object;
-
-    protected $common_settings_gui;
+    protected ilErrorHandling $error_object;
+    protected ilIndividualAssessmentCommonSettingsGUI $common_settings_gui;
 
     public function __construct(
         ilObjIndividualAssessment $object,
@@ -107,7 +85,7 @@ class ilIndividualAssessmentSettingsGUI
         $this->lng->loadLanguageModule('cntr');
     }
 
-    protected function getSubTabs(ilTabsGUI $tabs)
+    protected function getSubTabs(ilTabsGUI $tabs): void
     {
         $tabs->addSubTab(
             self::TAB_EDIT,
@@ -132,7 +110,7 @@ class ilIndividualAssessmentSettingsGUI
         );
     }
 
-    public function executeCommand()
+    public function executeCommand(): void
     {
         if (!$this->iass_access->mayEditObject()) {
             $this->handleAccessViolation();
@@ -162,7 +140,7 @@ class ilIndividualAssessmentSettingsGUI
         }
     }
 
-    protected function buildForm() : Form\Form
+    protected function buildForm(): Form\Form
     {
         $settings = $this->object->getSettings();
         $field = $settings->toFormInput(
@@ -181,14 +159,14 @@ class ilIndividualAssessmentSettingsGUI
         );
     }
 
-    protected function edit()
+    protected function edit(): void
     {
         $this->tabs_gui->setSubTabActive(self::TAB_EDIT);
         $form = $this->buildForm();
         $this->tpl->setContent($this->ui_renderer->render($form));
     }
 
-    protected function update()
+    protected function update(): void
     {
         $form = $this->buildForm();
         $form = $form->withRequest($this->http_request);
@@ -198,21 +176,21 @@ class ilIndividualAssessmentSettingsGUI
         if (!is_null($settings)) {
             $this->object->setSettings($settings);
             $this->object->update();
-            ilUtil::sendSuccess($this->lng->txt("iass_settings_saved"), true);
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "edit");
         } else {
             $this->tpl->setContent($this->ui_renderer->render($form));
         }
     }
 
-    protected function editInfo()
+    protected function editInfo(): void
     {
         $this->tabs_gui->setSubTabActive(self::TAB_EDIT_INFO);
         $form = $this->buildInfoSettingsForm();
         $this->tpl->setContent($this->ui_renderer->render($form));
     }
 
-    protected function updateInfo()
+    protected function updateInfo(): void
     {
         $form = $this->buildInfoSettingsForm();
         $form = $form->withRequest($this->http_request);
@@ -222,14 +200,13 @@ class ilIndividualAssessmentSettingsGUI
         if (!is_null($info_settings)) {
             $this->object->setInfoSettings($info_settings);
             $this->object->updateInfo();
-            ilUtil::sendSuccess($this->lng->txt("iass_settings_saved"), true);
             $this->ctrl->redirect($this, "editInfo");
         } else {
             $this->tpl->setContent($this->ui_renderer->render($form));
         }
     }
 
-    protected function buildInfoSettingsForm() : Form\Form
+    protected function buildInfoSettingsForm(): Form\Form
     {
         $info_settings = $this->object->getInfoSettings();
         $field = $info_settings->toFormInput(
@@ -248,8 +225,8 @@ class ilIndividualAssessmentSettingsGUI
             );
     }
 
-    public function handleAccessViolation()
+    public function handleAccessViolation(): void
     {
-        $this->error_object->raiseError($this->txt("msg_no_perm_read"), $this->error_object->WARNING);
+        $this->error_object->raiseError($this->lng->txt("msg_no_perm_read"), $this->error_object->WARNING);
     }
 }

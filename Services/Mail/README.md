@@ -632,7 +632,7 @@ is sent:
 * \[IF_NO_PASSWORD\]...\[/IF_NO_PASSWORD\]: This text block is only included, if the new user account has been created without a password.
 * \[ADMIN_MAIL\]: Email address of Administrator
 * \[ILIAS_URL\]: URL of ILIAS system
-* \[CLIENT_NAME\]: Client Name
+* \[INSTALLATION_NAME\]: Installation Name
 * \[TARGET\]: URL of target item, e.g. a linked course that is passed to ILIAS from outside.
 * \[TARGET_TITLE\]: Title of target item, e.g. course title.
 * \[TARGET_TYPE\]: Type of target item, e.g. ‘Course’ for a course item.
@@ -733,16 +733,16 @@ placeholder string and a label which is used
 in the user interfaced.
 
 ```php
-return array(
-    'crs_title' => array(
+return [
+    'crs_title' => [
         'placeholder' => 'CRS_TITLE',
         'label' => $lng->txt('crs_title')
-    ),
-    'crs_link' => array(
+    ],
+    'crs_link' => [
         'placeholder' => 'CRS_LINK',
         'label' => $lng->txt('crs_mail_permanent_link')
-    )
-);
+    ]
+];
 ```
 
 Supposing the context registration succeeded and you
@@ -775,16 +775,16 @@ $DIC->ctrl()->redirectToUrl(
     \ilMailFormCall::getRedirectTarget(
         $this, // The referring ILIAS controller aka. GUI when redirecting back to the referrer
         'participants', // The desired command aka. the method to be called when redirecting back to the referrer
-        array(), // Key/Value array for parameters important for the ilCtrl/GUI context when when redirecting back to the referrer, e.g. a ref_id
-        array(
+        [], // Key/Value array for parameters important for the ilCtrl/GUI context when when redirecting back to the referrer, e.g. a ref_id
+        [
            'type' => 'new', // Could also be 'reply' with an additional 'mail_id' paremter provided here
-        ),
-        array(
+        ],
+        [
             \ilMailFormCall::CONTEXT_KEY => \ilCourseMailTemplateTutorContext::ID, // don't forget this!
             'ref_id' => $courseRefId,
             'ts'     => time(),
             // further parameters which will be later automatically passed to your context class 
-        )
+        ]
     )
 );
 ```
@@ -802,11 +802,7 @@ with your context id as value to this array.
 
 ## ilMassMailTaskProcessor
 
-Sending more then 1000 mails **at once** can lead that mails can be missing,
-because the responding API couldn't process all requests so fast.
-
-The `ilMassMailTaskProcessor` can be used to transfer these mails into
-background tasks, which can be used to relieve the API.
+The `ilMassMailTaskProcessor` SHOULD be used whenever similar mails have to be sent iteratively.
 
 ```php
 $processor = new ilMassMailTaskProcessor();

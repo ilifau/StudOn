@@ -1,28 +1,42 @@
 <?php
 
-/* Copyright (c) 2016 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation;
 
 use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Implementation\Render\ComponentRenderer;
+use LogicException;
 
 /**
  * Renderer that dispatches rendering of UI components to a Renderer found
- * in the same namespace as the component to be renderered.
+ * in the same namespace as the component to be rendered.
  */
 class DefaultRenderer implements Renderer
 {
-    /**
-     * @var	Render\Loader
-     */
-    private $component_renderer_loader;
+    private Render\Loader $component_renderer_loader;
 
     /**
      * @var Component[]
      */
-    private $contexts = [];
+    private array $contexts = [];
 
     public function __construct(Render\Loader $component_renderer_loader)
     {
@@ -74,11 +88,9 @@ class DefaultRenderer implements Renderer
      * Either initializes a new renderer or uses a cached one initialized
      * before.
      *
-     * @param	Component	$component
-     * @throws	\LogicException		if no renderer could be found for component.
-     * @return	ComponentRenderer
+     * @throws LogicException if no renderer could be found for component.
      */
-    protected function getRendererFor(Component $component)
+    protected function getRendererFor(Component $component): ComponentRenderer
     {
         return $this->component_renderer_loader->getRendererFor($component, $this->getContexts());
     }
@@ -100,7 +112,7 @@ class DefaultRenderer implements Renderer
     /**
      * @inheritdoc
      */
-    public function withAdditionalContext(Component $context)
+    public function withAdditionalContext(Component $context): Renderer
     {
         $clone = clone $this;
         $clone->contexts[] = $context;
@@ -113,7 +125,7 @@ class DefaultRenderer implements Renderer
      *
      * @return  Component[]
      */
-    protected function getContexts()
+    protected function getContexts(): array
     {
         return $this->contexts;
     }

@@ -17,8 +17,8 @@
 
 datepicker.regional.ky = {
 	closeText: "Жабуу",
-	prevText: "Мур",
-	nextText: "Кий",
+	prevText: "&#x3c;Мур",
+	nextText: "Кий&#x3e;",
 	currentText: "Бүгүн",
 	monthNames: [ "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
 	"Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь" ],

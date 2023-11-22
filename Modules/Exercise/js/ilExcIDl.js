@@ -1,4 +1,18 @@
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 il.ExcIDl = {
 	ajax_url: '',
@@ -41,9 +55,9 @@ il.ExcIDl = {
 						cmd = field.value;
 					}					
 					// extract user/team ids
-					if(field.name.substr(0, 6) == "member")
+					if(field.name.substr(0, 12) == "sel_part_ids")
 					{
-						sel.push(field.name.substr(7, field.name.length-8));
+						sel.push(field.name.substr(13, field.name.length-14));
 					}
 					else if(field.name.substr(0, 3) == "ass")
 					{

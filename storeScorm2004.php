@@ -1,43 +1,61 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
 /**
- * for storing Data also without session
- * @author Uwe Kohnle <kohnle@internetlehrer-gmbh.de>
- * @version $Id$
- */
-
-
-include_once "Services/Context/classes/class.ilContext.php";
-ilContext::init(ilContext::CONTEXT_SCORM);
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 require_once("Services/Init/classes/class.ilInitialisation.php");
+ilContext::init(ilContext::CONTEXT_SCORM);
 ilInitialisation::initILIAS();
 
-include_once 'Modules/Scorm2004/classes/class.ilSCORM2004StoreData.php';
-
 //conditions for storing data
-global $ilDB;
-$packageId=(int) $_GET['package_id'];
+global $DIC;
+$ilDB = $DIC->database();
+
+$packageId = $DIC->http()->wrapper()->query()->retrieve('package_id', $DIC->refinery()->kindlyTo()->int());
+$refId = $DIC->http()->wrapper()->query()->retrieve('ref_id', $DIC->refinery()->kindlyTo()->int());
+$doUnload = false;
+if ($DIC->http()->wrapper()->query()->has('do')) {
+    if ($DIC->http()->wrapper()->query()->retrieve('do', $DIC->refinery()->kindlyTo()->string()) == "unload") {
+        $doUnload = true;
+    }
+}
+
+$defaultLessonMode = "normal";
+$comments = true;
+$interactions = true;
+$objectives = true;
+$time_from_lms = false;
+
 $lm_set = $ilDB->queryF(
     'SELECT default_lesson_mode, interactions, objectives, time_from_lms, comments FROM sahs_lm WHERE id = %s',
     array('integer'),
     array($packageId)
 );
 while ($lm_rec = $ilDB->fetchAssoc($lm_set)) {
-    $defaultLessonMode=($lm_rec["default_lesson_mode"]);
-    $interactions=(ilUtil::yn2tf($lm_rec["interactions"]));
-    $objectives=(ilUtil::yn2tf($lm_rec["objectives"]));
-    $time_from_lms=(ilUtil::yn2tf($lm_rec["time_from_lms"]));
-    $comments=(ilUtil::yn2tf($lm_rec["comments"]));
+    $defaultLessonMode = ($lm_rec["default_lesson_mode"]);
+    $interactions = ilUtil::yn2tf($lm_rec["interactions"]);
+    $objectives = ilUtil::yn2tf($lm_rec["objectives"]);
+    $time_from_lms = ilUtil::yn2tf($lm_rec["time_from_lms"]);
+    $comments = ilUtil::yn2tf($lm_rec["comments"]);
 }
 
-if ((string) $_GET['do'] == "unload") {
-    ilSCORM2004StoreData::scormPlayerUnload(null, $packageId, $time_from_lms);
+if ($doUnload) {
+    ilSCORM2004StoreData::scormPlayerUnload($packageId, $refId, $time_from_lms, null);
 } else {
-    global $ilUser;
-    $data = file_get_contents('php://input');
-    $ilUser->setId($data->p);
-
-    //until now only 2004
-    ilSCORM2004StoreData::persistCMIData(null, $packageId, $defaultLessonMode, $comments, $interactions, $objectives, $time_from_lms, $data);
+//    $data = file_get_contents('php://input');
+    ilSCORM2004StoreData::persistCMIData($packageId, $refId, $defaultLessonMode, $comments, $interactions, $objectives, $time_from_lms, null, null);
 }

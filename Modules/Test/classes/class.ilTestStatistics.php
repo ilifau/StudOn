@@ -1,8 +1,22 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
-include_once "./Modules/Test/classes/class.ilStatistics.php";
 
 /**
 * This class calculates statistical data for a test which has to be
@@ -17,14 +31,11 @@ class ilTestStatistics
 {
     public $test_id;
     public $statistics;
-    
+
     /**
     * ilTestStatistics constructor
     *
     * The constructor takes the id of an existing test object
-    *
-    * @param integer $eval_data Complete test data as ilTestEvaluationData object
-    * @access public
     */
     public function __construct($eval_data)
     {
@@ -39,7 +50,7 @@ class ilTestStatistics
     * @access public
     * @see $statistics
     */
-    public function getStatistics()
+    public function getStatistics(): ?object
     {
         return $this->statistics;
     }
@@ -55,7 +66,7 @@ class ilTestStatistics
         $median_array = array();
 
         foreach ($eval_data->getParticipantIds() as $active_id) {
-            $participant = &$eval_data->getParticipant($active_id);
+            $participant = $eval_data->getParticipant($active_id);
             array_push($median_array, $participant->getReached());
         }
 

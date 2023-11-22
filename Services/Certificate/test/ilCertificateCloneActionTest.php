@@ -1,16 +1,31 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
 {
-    public function testCloneCertificate()
+    public function testCloneCertificate(): void
     {
-        $database = $this->getMockBuilder('ilDBInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $database = $this->createMock(ilDBInterface::class);
 
         $database
             ->expects($this->once())
@@ -18,8 +33,8 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
 
         $database
             ->expects($this->once())
-            ->method('numRows')
-            ->willReturn(1);
+            ->method('fetchAssoc')
+            ->willReturn(['1' => '1']);
 
         $database
             ->expects($this->once())
@@ -27,26 +42,24 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
 
 
 
-        $templateRepository = $this->getMockBuilder('ilCertificateTemplateRepository')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $templateRepository = $this->getMockBuilder(ilCertificateTemplateRepository::class)->getMock();
 
         $templateRepository->method('fetchCertificateTemplatesByObjId')
             ->willReturn(
-                array(
+                [
                     new ilCertificateTemplate(
                         10,
                         'crs',
                         '<xml> Some Content </xml>',
                         md5('<xml> Some Content </xml>'),
                         '[]',
-                        '3',
+                        3,
                         'v5.3.0',
                         123456789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/card_thumb.jpg',
-                        $id = null
+                        null
                     ),
                     new ilCertificateTemplate(
                         20,
@@ -54,13 +67,13 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
                         '<xml> Some Content </xml>',
                         md5('<xml> Some Content </xml>'),
                         '[]',
-                        '3',
+                        3,
                         'v5.3.0',
                         123456789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/card_thumb.jpg',
-                        $id = null
+                        null
                     ),
                     new ilCertificateTemplate(
                         30,
@@ -68,22 +81,22 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
                         '<xml> Some Content </xml>',
                         md5('<xml> Some Content </xml>'),
                         '[]',
-                        '3',
+                        3,
                         'v5.3.0',
                         123456789,
                         true,
                         '/certificates/default/background.jpg',
                         '/some/where/card_thumb.jpg',
-                        $id = null
+                        null
                     )
-                )
+                ]
             );
 
         $templateRepository
             ->expects($this->exactly(3))
             ->method('save');
 
-        $fileSystem = $this->getMockBuilder('\ILIAS\Filesystem\Filesystem')
+        $fileSystem = $this->getMockBuilder(\ILIAS\Filesystem\Filesystem::class)
             ->getMock();
 
         $fileSystem->method('has')
@@ -93,11 +106,11 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
             ->expects($this->exactly(7))
             ->method('copy');
 
-        $logger = $this->getMockBuilder('ilLogger')
+        $logger = $this->getMockBuilder(ilLogger::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $objectHelper = $this->getMockBuilder('ilCertificateObjectHelper')
+        $objectHelper = $this->getMockBuilder(ilCertificateObjectHelper::class)
             ->getMock();
 
         $objectHelper->method('lookupObjId')
@@ -114,7 +127,7 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
             '/certificates/default/background.jpg'
         );
 
-        $oldObject = $this->getMockBuilder('ilObject')
+        $oldObject = $this->getMockBuilder(ilObject::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -124,7 +137,7 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
         $oldObject->method('getId')
             ->willReturn(10);
 
-        $newObject = $this->getMockBuilder('ilObject')
+        $newObject = $this->getMockBuilder(ilObject::class)
             ->disableOriginalConstructor()
             ->getMock();
 

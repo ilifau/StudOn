@@ -1,48 +1,54 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
-
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 /**
  * Export User Interface Class
- *
  * @author       Michael Herren <mh@studer-raimann.ch>
  */
 class ilDclExportGUI extends ilExportGUI
 {
-
-    /**
-     * @return ilTestExportTableGUI
-     */
-    protected function buildExportTableGUI()
+    protected function buildExportTableGUI(): ilExportTableGUI
     {
         $table = new ilDclExportTableGUI($this, 'listExportFiles', $this->obj);
 
         return $table;
     }
 
-
     /**
      * overwrite to check if exportable fields are available (for async xls export)
      */
-    public function createExportFile()
+    public function createExportFile(): void
     {
-        if ($_POST['format'] == 'xlsx') {
+        $format = "";
+        if ($this->http->wrapper()->post()->has('format')) {
+            $format = $this->http->wrapper()->post()->retrieve('format', $this->refinery->kindlyTo()->string());
+        }
+        if ($format === 'xlsx') {
             $this->checkForExportableFields();
         }
 
-        return parent::createExportFile();
+        parent::createExportFile();
     }
-
 
     /**
      * send failure and redirect if no exportable fields
-     *
-     * @return bool
      */
-    protected function checkForExportableFields()
+    protected function checkForExportableFields(): bool
     {
-        global $DIC;
-        $ilCtrl = $DIC['ilCtrl'];
-        $lng = $DIC['lng'];
         foreach ($this->obj->getTables() as $tbl) {
             /** @var $tbl ilDclTable */
             foreach ($tbl->getFields() as $field) {
@@ -52,7 +58,9 @@ class ilDclExportGUI extends ilExportGUI
             }
         }
 
-        ilUtil::sendFailure($lng->txt('dcl_no_export_data_available'), true);
-        $ilCtrl->redirect($this, "listExportFiles");
+        $this->tpl->setOnScreenMessage('failure', $this->lng->txt('dcl_no_export_data_available'), true);
+        $this->ctrl->redirect($this, "listExportFiles");
+
+        return false;
     }
 }

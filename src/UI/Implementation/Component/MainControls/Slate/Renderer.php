@@ -1,6 +1,20 @@
 <?php
 
-/* Copyright (c) 2017 Nils Haagen <nils.haagen@concepts.and-training.de> Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\MainControls\Slate;
 
@@ -14,23 +28,29 @@ class Renderer extends AbstractComponentRenderer
     /**
      * @inheritdoc
      */
-    public function render(Component\Component $component, RendererInterface $default_renderer)
+    public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
         $this->checkComponent($component);
-        if ($component instanceof ISlate\Notification) {
-            return $this->renderNotificationSlate($component, $default_renderer);
+        switch (true) {
+            case ($component instanceof ISlate\Notification):
+                return $this->renderNotificationSlate($component, $default_renderer);
+                break;
+
+            case ($component instanceof ISlate\Combined):
+            case ($component instanceof ISlate\Drilldown):
+                $contents = $this->getCombinedSlateContents($component);
+                break;
+
+            default:
+                $contents = $component->getContents();
         }
-        if ($component instanceof ISlate\Combined) {
-            $contents = $this->getCombinedSlateContents($component);
-        } else {
-            $contents = $component->getContents();
-        }
+
         return $this->renderSlate($component, $contents, $default_renderer);
     }
 
     protected function getCombinedSlateContents(
         ISlate\Slate $component
-    ) {
+    ): array {
         $f = $this->getUIFactory();
         $contents = [];
         foreach ($component->getContents() as $entry) {
@@ -45,17 +65,18 @@ class Renderer extends AbstractComponentRenderer
                     $triggerer = $triggerer
                         ->withOnClick($trigger_signal)
                         ->withAdditionalOnLoadCode(
-                            function ($id) use ($mb_id, $trigger_signal) {
-                                return "
+                            fn($id) => "
                                     il.UI.maincontrols.mainbar.addTriggerSignal('{$trigger_signal}');
                                     il.UI.maincontrols.mainbar.addPartIdAndEntry('{$mb_id}', 'triggerer', '{$id}');
-                                ";
-                            }
+                                "
                         );
                 }
-                $contents[] = $triggerer;
+                $contents[] = [$triggerer, $entry];
+            } elseif ($component instanceof ISlate\Drilldown) {
+                $contents[] = $entry->withPersistenceId($component->getMainBarTreePosition());
+            } else {
+                $contents[] = $entry;
             }
-            $contents[] = $entry;
         }
         return $contents;
     }
@@ -64,10 +85,25 @@ class Renderer extends AbstractComponentRenderer
         ISlate\Slate $component,
         $contents,
         RendererInterface $default_renderer
-    ) {
+    ): string {
         $tpl = $this->getTemplate("Slate/tpl.slate.html", true, true);
 
-        $tpl->setVariable('CONTENTS', $default_renderer->render($contents));
+        foreach ($contents as $content) {
+            $content_html = $default_renderer->render($content);
+            if ($content instanceof Component\Button\Button
+                || $content instanceof Component\Link\Link
+                || $content instanceof Component\Divider\Horizontal
+                || is_array($content)
+            ) {
+                $tpl->setCurrentBlock("list_content_component");
+                $tpl->setVariable("LIST_COMPONENT_CONTENT", $content_html);
+            } else {
+                $tpl->setCurrentBlock("none_list_content_component");
+                $tpl->setVariable("NONE_LIST_COMPONENT_CONTENT", $content_html);
+            }
+            $tpl->parseCurrentBlock();
+        }
+
 
         $aria_role = $component->getAriaRole();
         if ($aria_role != null) {
@@ -95,10 +131,16 @@ class Renderer extends AbstractComponentRenderer
         }
 
         $component = $component->withAdditionalOnLoadCode(
-            function ($id) use ($slate_signals, $mb_id) {
-                $js = "fn = il.UI.maincontrols.slate.onSignal;";
+            function ($id) use ($slate_signals, $mb_id): string {
+                $js = "";
                 foreach ($slate_signals as $key => $signal) {
-                    $js .= "$(document).on('{$signal}', function(event, signalData) { fn('{$key}', event, signalData, '{$id}'); return false;});";
+                    $js .= "$(document).on('{$signal}', function(event, signalData) { 
+                        il.UI.maincontrols.slate.onSignal('{$key}', 
+                        event, 
+                        signalData, 
+                        '{$id}'
+                    ); 
+                    return false;});";
                 }
 
                 if ($mb_id) {
@@ -118,11 +160,8 @@ class Renderer extends AbstractComponentRenderer
     protected function renderNotificationSlate(
         ISlate\Slate $component,
         RendererInterface $default_renderer
-    ) {
-        $contents = [];
-        foreach ($component->getContents() as $entry) {
-            $contents[] = $entry;
-        }
+    ): string {
+        $contents = $component->getContents();
         $tpl = $this->getTemplate("Slate/tpl.notification.html", true, true);
         $tpl->setVariable('NAME', $component->getName());
         $tpl->setVariable('CONTENTS', $default_renderer->render($contents));
@@ -132,21 +171,22 @@ class Renderer extends AbstractComponentRenderer
     /**
      * @inheritdoc
      */
-    public function registerResources(\ILIAS\UI\Implementation\Render\ResourceRegistry $registry)
+    public function registerResources(\ILIAS\UI\Implementation\Render\ResourceRegistry $registry): void
     {
         parent::registerResources($registry);
-        $registry->register('./src/UI/templates/js/MainControls/slate.js');
+        $registry->register('./src/UI/templates/js/MainControls/dist/maincontrols.min.js');
     }
 
     /**
      * @inheritdoc
      */
-    protected function getComponentInterfaceName()
+    protected function getComponentInterfaceName(): array
     {
         return array(
             ISlate\Legacy::class,
             ISlate\Combined::class,
-            ISlate\Notification::class
+            ISlate\Notification::class,
+            ISlate\Drilldown::class
         );
     }
 }

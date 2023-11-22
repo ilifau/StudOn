@@ -3,18 +3,34 @@
 declare(strict_types=1);
 
 /**
- * Manage participants.
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Daniel Weise <daniel.weise@concepts-and-training.de> (refactor to psr-12 as far as possible)
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Manage participants.
  */
 class ilLearningSequenceParticipants extends ilParticipants
 {
-    const COMPONENT_NAME = 'Modules/LearningSequence';
+    public const COMPONENT_NAME = 'Modules/LearningSequence';
 
     /**
      * @var ilLearningSequenceParticipants[]
      */
-    protected static $instances;
+    protected static array $instances;
+    protected ilAppEventHandler $app_event_handler;
+    protected ilSetting $settings;
 
     public function __construct(
         int $obj_id,
@@ -30,7 +46,7 @@ class ilLearningSequenceParticipants extends ilParticipants
         $this->settings = $settings;
     }
 
-    public static function _getInstanceByObjId(int $obj_id) : ilLearningSequenceParticipants
+    public static function _getInstanceByObjId(int $obj_id): ilLearningSequenceParticipants
     {
         global $DIC;
 
@@ -38,7 +54,7 @@ class ilLearningSequenceParticipants extends ilParticipants
         $app_event_handler = $DIC['ilAppEventHandler'];
         $settings = $DIC["ilSetting"];
 
-        if (isset(self::$instances[$obj_id]) and self::$instances[$obj_id]) {
+        if (isset(self::$instances[$obj_id]) && self::$instances[$obj_id]) {
             return self::$instances[$obj_id];
         }
 
@@ -50,7 +66,7 @@ class ilLearningSequenceParticipants extends ilParticipants
         );
     }
 
-    public static function getMemberRoles($ref_id) : array
+    public static function getMemberRoles(int $ref_id): array
     {
         global $DIC;
 
@@ -74,37 +90,32 @@ class ilLearningSequenceParticipants extends ilParticipants
         return $roles;
     }
 
-    public static function _isParticipant($ref_id, $usr_id) : bool
+    public static function _isParticipant(int $a_ref_id, int $a_usr_id): bool
     {
         global $DIC;
 
         $rbacreview = $DIC->rbac()->review();
-        $local_roles = $rbacreview->getRolesOfRoleFolder($ref_id, false);
+        $local_roles = $rbacreview->getRolesOfRoleFolder($a_ref_id, false);
 
-        return $rbacreview->isAssignedToAtLeastOneGivenRole($usr_id, $local_roles);
+        return $rbacreview->isAssignedToAtLeastOneGivenRole($a_usr_id, $local_roles);
     }
 
-    public function add($usr_id, $role) : bool
+    public function add(int $a_usr_id, int $a_role): bool
     {
-        if (parent::add($usr_id, $role)) {
-            // $this->addDesktopItem($usr_id);
-            return true;
-        }
-
-        return false;
+        return parent::add($a_usr_id, $a_role);
     }
 
-    public function addSubscriber($usr_id)
+    public function addSubscriber(int $a_usr_id): void
     {
-        parent::addSubscriber($usr_id);
+        parent::addSubscriber($a_usr_id);
 
-        $this->log->lso()->info('Raise new event: Modules/LearningSequence addSubscriber.');
+        $this->logger->info('Raise new event: Modules/LearningSequence addSubscriber.');
         $this->app_event_handler->raise(
             "Modules/LearningSequence",
             'addSubscriber',
             array(
                 'obj_id' => $this->getObjId(),
-                'usr_id' => $usr_id
+                'usr_id' => $a_usr_id
             )
         );
     }
@@ -112,7 +123,7 @@ class ilLearningSequenceParticipants extends ilParticipants
     /**
      * Send notification mail.
      */
-    public function sendNotification($type, $usr_id, $force_sending_mail = false) : bool
+    public function sendNotification(int $type, int $usr_id, bool $force_sending_mail = false): bool
     {
         $mail = new ilLearningSequenceMembershipMailNotification($this->logger, $this->settings);
         $mail->forceSendingMail($force_sending_mail);

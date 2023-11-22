@@ -26,10 +26,7 @@ namespace ILIAS\GlobalScreen\Identification;
  */
 class LostIdentification implements IdentificationInterface
 {
-    /**
-     * @var string
-     */
-    private $serialized_string;
+    private string $serialized_string;
 
     /**
      * NullIdentification constructor.
@@ -43,7 +40,7 @@ class LostIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function serialize() : string
+    public function serialize(): string
     {
         return $this->serialized_string;
     }
@@ -51,22 +48,14 @@ class LostIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function unserialize($serialized) : void
+    public function unserialize($serialized): void
     {
     }
 
     /**
      * @inheritDoc
      */
-    public function getClassName() : string
-    {
-        return "Lost";
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getInternalIdentifier() : string
+    public function getClassName(): string
     {
         return "Lost";
     }
@@ -74,7 +63,15 @@ class LostIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getProviderNameForPresentation() : string
+    public function getInternalIdentifier(): string
+    {
+        return "Lost";
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProviderNameForPresentation(): string
     {
         return "Lost";
     }
@@ -82,12 +79,12 @@ class LostIdentification implements IdentificationInterface
     /**
      * @return array{data: string}
      */
-    public function __serialize() : array
+    public function __serialize(): array
     {
         return ['data' => $this->serialize()];
     }
 
-    public function __unserialize(array $data) : void
+    public function __unserialize(array $data): void
     {
         $this->unserialize($data['data']);
     }

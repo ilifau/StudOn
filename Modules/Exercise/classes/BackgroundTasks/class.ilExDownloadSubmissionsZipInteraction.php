@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\BackgroundTasks\Implementation\Tasks\AbstractUserInteraction;
 use ILIAS\BackgroundTasks\Types\SingleType;
@@ -7,6 +22,8 @@ use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\StringValue;
 use ILIAS\BackgroundTasks\Implementation\Tasks\UserInteraction\UserInteractionOption;
 use ILIAS\BackgroundTasks\Task\UserInteraction\Option;
 use ILIAS\BackgroundTasks\Bucket;
+use ILIAS\BackgroundTasks\Types\Type;
+use ILIAS\BackgroundTasks\Value;
 use ILIAS\Filesystem\Util\LegacyPathHelper;
 
 /**
@@ -14,14 +31,10 @@ use ILIAS\Filesystem\Util\LegacyPathHelper;
  */
 class ilExDownloadSubmissionsZipInteraction extends AbstractUserInteraction
 {
-    const OPTION_DOWNLOAD = 'download';
-    const OPTION_CANCEL = 'cancel';
+    public const OPTION_DOWNLOAD = 'download';
+    public const OPTION_CANCEL = 'cancel';
 
-    /**
-     * @var \Monolog\Logger
-     */
-    private $logger = null;
-
+    protected ilLogger $logger;
 
     public function __construct()
     {
@@ -30,9 +43,9 @@ class ilExDownloadSubmissionsZipInteraction extends AbstractUserInteraction
 
 
     /**
-     * @inheritdoc
+     * @return \ILIAS\BackgroundTasks\Types\SingleType[]
      */
-    public function getInputTypes()
+    public function getInputTypes(): array
     {
         return [
             new SingleType(StringValue::class),
@@ -40,41 +53,31 @@ class ilExDownloadSubmissionsZipInteraction extends AbstractUserInteraction
         ];
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    public function getRemoveOption()
+    public function getRemoveOption(): Option
     {
         return new UserInteractionOption('remove', self::OPTION_CANCEL);
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    public function getOutputType()
+    public function getOutputType(): Type
     {
         return new SingleType(StringValue::class);
     }
 
-
     /**
-     * @inheritDoc
+     * @return \ILIAS\BackgroundTasks\Implementation\Tasks\UserInteraction\UserInteractionOption[]
      */
-    public function getOptions(array $input)
+    public function getOptions(array $input): array
     {
         return [
             new UserInteractionOption('download', self::OPTION_DOWNLOAD),
         ];
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    public function interaction(array $input, Option $user_selected_option, Bucket $bucket)
-    {
+    public function interaction(
+        array $input,
+        Option $user_selected_option,
+        Bucket $bucket
+    ): Value {
         global $DIC;
         $download_name = $input[0]; //directory name.
         $zip_name = $input[1]; // zip job
@@ -96,8 +99,9 @@ class ilExDownloadSubmissionsZipInteraction extends AbstractUserInteraction
                 $this->logger->debug("Delete dir: " . dirname($path));
                 $filesystem->deleteDir(dirname($path));
             }
-
-            return $input;
+            $out = new StringValue();
+            $out->setValue($input);
+            return $out;
         }
 
         $this->logger->info("Delivering File.");
@@ -117,6 +121,8 @@ class ilExDownloadSubmissionsZipInteraction extends AbstractUserInteraction
         $this->logger->debug("As: " . $zip_name);
         ilFileDelivery::deliverFileAttached($download_name->getValue(), $zip_name);
 
-        return $input;
+        $out = new StringValue();
+        $out->setValue($input);
+        return $out;
     }
 }

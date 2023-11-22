@@ -1,25 +1,33 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
- * @author Alex Killing <alex.killing@gmx.de>
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @ingroup ModulesExercise
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilExerciseMailNotification extends ilMailNotification
 {
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
+    public const TYPE_FEEDBACK_FILE_ADDED = 20;
+    public const TYPE_SUBMISSION_UPLOAD = 30;
+    public const TYPE_FEEDBACK_TEXT_ADDED = 40;
 
-    const TYPE_FEEDBACK_FILE_ADDED = 20;
-    const TYPE_SUBMISSION_UPLOAD = 30;
-    const TYPE_FEEDBACK_TEXT_ADDED = 40;
+    protected ilObjUser $user;
+    protected int $ass_id;
 
-    /**
-     *
-     */
     public function __construct()
     {
         global $DIC;
@@ -27,39 +35,25 @@ class ilExerciseMailNotification extends ilMailNotification
         $this->user = $DIC->user();
         parent::__construct();
     }
-    
-    /**
-     * Set assignment id
-     *
-     * @param	int		assignment id
-     */
-    public function setAssignmentId($a_val)
+
+    public function setAssignmentId(int $a_val): void
     {
         $this->ass_id = $a_val;
     }
-    
-    /**
-     * Get assignment id
-     *
-     * @return	int		assignment id
-     */
-    public function getAssignmentId()
+
+    public function getAssignmentId(): int
     {
         return $this->ass_id;
     }
-    
-    /**
-     * Send notifications
-     * @return
-     */
-    public function send()
+
+    public function send(): bool
     {
         $ilUser = $this->user;
         // parent::send();
-        
+
         switch ($this->getType()) {
             case self::TYPE_FEEDBACK_FILE_ADDED:
-                
+
                 foreach ($this->getRecipients() as $rcp) {
                     $this->initLanguage($rcp);
                     $this->initMail();
@@ -89,7 +83,7 @@ class ilExerciseMailNotification extends ilMailNotification
                     $this->appendBody($this->createPermanentLink(array(), '_' . $this->getAssignmentId()) .
                         '#fb' . $this->getAssignmentId());
                     $this->getMail()->appendInstallationSignature(true);
-                                        
+
                     $this->sendMail(array($rcp));
                 }
                 break;
@@ -118,7 +112,7 @@ class ilExerciseMailNotification extends ilMailNotification
                     $this->appendBody("\n");
                     $this->appendBody(
                         $this->getLanguageText('user') . ": " .
-                        $ilUser->getFullName()
+                        $ilUser->getFullname()
                     );
                     $this->appendBody("\n\n");
                     $this->appendBody(sprintf(
@@ -130,8 +124,8 @@ class ilExerciseMailNotification extends ilMailNotification
                         $this->appendBody("\n\n");
 
                         //new files uploaded
-                        $assignment = new ilExAssignment($this->getAssignmentId());
-                        $submission = new ilExSubmission($assignment, $ilUser->getId());
+                        //$assignment = new ilExAssignment($this->getAssignmentId());
+                        //$submission = new ilExSubmission($assignment, $ilUser->getId());
 
                         // since mails are sent immediately after upload the files should always be new
                         //if($submission->lookupNewFiles($submission->getTutor()))
@@ -159,9 +153,9 @@ class ilExerciseMailNotification extends ilMailNotification
                     $this->sendMail(array($rcp));
                 }
                 break;
-                
+
             case self::TYPE_FEEDBACK_TEXT_ADDED:
-                
+
                 foreach ($this->getRecipients() as $rcp) {
                     $this->initLanguage($rcp);
                     $this->initMail();
@@ -191,20 +185,18 @@ class ilExerciseMailNotification extends ilMailNotification
                     $this->appendBody($this->createPermanentLink(array(), '_' . $this->getAssignmentId()) .
                         '#fb' . $this->getAssignmentId());
                     $this->getMail()->appendInstallationSignature(true);
-                                        
+
                     $this->sendMail(array($rcp));
                 }
                 break;
         }
         return true;
     }
-    
+
     /**
      * Add language module exc
-     * @param object $a_usr_id
-     * @return
      */
-    protected function initLanguage($a_usr_id)
+    protected function initLanguage(int $a_usr_id): void
     {
         parent::initLanguage($a_usr_id);
         $this->getLanguage()->loadLanguageModule('exc');

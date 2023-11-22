@@ -7,7 +7,7 @@
 		color: @il-mainbar-btn-bg-color;
 	}
 	.icon {
-		filter: invert(50%);
+		filter: @il-mainbar-icon-filter;
 	}
 	.bulky-label {
 		color: @il-mainbar-btn-bg-color;
@@ -28,7 +28,7 @@
 		&:active:focus-visible {
 			border: @il-focus-outline-inner;
 			outline: none;
-			
+
 			&::after {
 				content: none;
 			}
@@ -36,8 +36,17 @@
 	}
 	.bulky-label {
 		white-space: normal;
-	    margin-top: @il-mainbar-bulky-label-margin-top;
 	    display: block;
+	}
+}
+
+.il-maincontrols-mainbar,
+.il-maincontrols-metabar {
+	.il-item-shy {
+		margin-bottom: @il-slate-content-spacing;
+		&:not(:hover) {
+			background: @il-main-dark-bg;
+		}
 	}
 }
 
@@ -78,7 +87,11 @@
 		width: @il-mainbar-btn-height;
 		width: 100%;
 		.icon {
-			filter: invert(100%);
+			filter: @il-mainbar-trigger-icon-filter;
+			&.small {
+				width: @il-mainbar-trigger-icon-size;
+				height: @il-mainbar-trigger-icon-size;
+			}
 		}
 		//Note, for some reason, safari needs this in a seperate section, see:
 		&.engaged{
@@ -97,7 +110,7 @@
 		.bulky-label {
 			color: @il-mainbar-btn-bg-color-engaged;
 			display: -webkit-box;
-			margin-top: @il-mainbar-bulky-label-margin-top;
+			margin-top: @il-margin-large-vertical;
 			white-space: normal;
 			word-break: break-word;
     		padding: 0 2px;
@@ -118,7 +131,7 @@
 				background-color: @il-mainbar-btn-bg-color;
 				color: @il-mainbar-btn-bg-color-engaged;
 				.icon {
-					filter: invert(100%);
+					filter: @il-mainbar-trigger-icon-filter;
 				}
 				.bulky-label {
 					color: @il-mainbar-btn-bg-color-engaged;
@@ -128,7 +141,7 @@
 				background-color: @il-mainbar-btn-bg-color-engaged;
 				color: @il-mainbar-btn-bg-color;
 				.icon  {
-					filter: invert(50%);
+					filter: @il-mainbar-icon-filter;
 				}
 				.bulky-label {
 					color: @il-mainbar-btn-bg-color;
@@ -153,6 +166,12 @@
 	display: none;
 	position: relative;
 	width: @il-standard-page-slate-width;
+
+	.bulky-label{
+		margin-top: auto;
+		margin-bottom: auto;
+	}
+
 }
 
 .il-mainbar-tools-button {
@@ -163,11 +182,11 @@
 		color: white;
 		padding: 0;
 		.icon  {
-			filter: invert(100%);
+			filter: @il-mainbar-trigger-icon-filter;
 		}
 	}
 	.btn-bulky.engaged {
-		background-color: @il-maincontrols-mainbar-bg-color;
+		background-color: @il-mainbar-tools-btn-bg-engaged;
 		color: @il-mainbar-btn-color-engaged;
 		.icon  {
 			filter: invert(30%);
@@ -184,19 +203,21 @@
 	}
 	.btn-bulky,.btn-bulky,
 	.il-link.link-bulky {
-		background-color: lighten(@il-main-color, 25%);
+		background-color: @il-mainbar-tools-tab-btn-bg-disengaged;
 		color: @il-mainbar-btn-color;
 		padding: 0;
 		.icon {
-			filter: invert(100%);
+			filter: @il-mainbar-trigger-icon-filter;
 		}
 		.bulky-label {
 			text-overflow: ellipsis;
 			overflow: hidden;
 		}
 		&.engaged {
-			background-color: @il-maincontrols-mainbar-bg-color;
-			border: 0;
+			background-color: @il-mainbar-tools-tab-btn-bg-engaged;
+			&:not(:focus-visible){
+				border: 0;
+			}
 			color: @il-mainbar-btn-color-engaged;
 			.icon {
 				filter: invert(60%);
@@ -213,7 +234,7 @@
 }
 
 .il-mainbar-tools-entries-bg {
-	background: @il-mainbar-tools-bg;
+	background-color: @il-mainbar-tools-btn-bg-engaged;
 	display: flex;
 	height: @il-mainbar-btn-height;
 	width: 100%;
@@ -233,8 +254,8 @@
 	}
 	.close {
 		color: @il-main-color;
-	    font-size: 4.5rem;
-	    font-weight: 300;
+	    font-size: 2.8125rem;
+	    font-weight: @il-font-weight-light;
 		height: @il-mainbar-btn-height;
 		padding: 0 20px;
 		width: auto;
@@ -263,7 +284,7 @@
 				content:" \e605";
 				display: block;
 				font-family: "il-icons"; // should be defined more general at .glyphicon
-				font-size: 2.1rem;
+				font-size: 1.5rem;
 			}
 			.glyphicon {
 				display: none;
@@ -286,10 +307,7 @@
 
 	 .panel-secondary {
 		 margin-bottom: 0;
-
-		 .panel-body {
-			 padding-bottom: 0;
-		 }
+		 border: none;
 	 }
 }
 
@@ -325,8 +343,8 @@
 		   height: @il-mainbar-small-btn-height;
 		   width: @il-mainbar-small-btn-width;
 		   .icon.small {
-			   height: @il-icon-size-xsmall;
-			   width: @il-icon-size-xsmall;
+			   height: @il-icon-size-small;
+			   width: @il-icon-size-small;
 		   }
 	   }
 	}
@@ -337,7 +355,7 @@
 			.il-mainbar-remove-tool {
 				top: 0;
 				.close {
-					font-size: 4rem;
+					font-size: 2.5rem;
 					height: @il-mainbar-small-btn-height;
 				}
 			}

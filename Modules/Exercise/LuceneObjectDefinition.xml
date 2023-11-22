@@ -18,14 +18,13 @@
 			<Field global="YES" store="YES" index="NOT_ANALYZED" column="id" type="integer" name="subItem" />
 			<Field global="NO" store="YES" index="NOT_ANALYZED" column="exc_id" type="integer" name="objId"  />
 			<Field global="NO" store="YES" index="NOT_ANALYZED" column="type" type="text" name="type"  />
-<!-- fau: reduceIndex - don't add directory
 			<DataSource type="Directory" action="append">
 				<PathCreator name="ExerciseAssignmentPathCreator" />
 				<Field store="YES" index="ANALYZED" name="content">
 					<Transformer name="LinefeedSanitizer" />
 				</Field>
 			</DataSource>
-fau. -->
+			
 		</DataSource>
 		
 	</Document>

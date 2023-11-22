@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2019 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Setup\Objective;
 
@@ -14,19 +30,16 @@ use ILIAS\Setup;
  */
 class ObjectiveWithPreconditions implements Setup\Objective
 {
-    /**
-     * @var Setup\Objective
-     */
-    protected $original;
+    protected Setup\Objective $original;
 
     /**
      * @var Setup\Objective[]
      */
-    protected $preconditions;
+    protected array $preconditions;
 
     public function __construct(Setup\Objective $original, Setup\Objective ...$preconditions)
     {
-        if (count($preconditions) === 0) {
+        if ($preconditions === []) {
             throw new \InvalidArgumentException(
                 "Expected at least one precondition."
             );
@@ -38,7 +51,7 @@ class ObjectiveWithPreconditions implements Setup\Objective
     /**
      * @inheritdocs
      */
-    public function getHash() : string
+    public function getHash(): string
     {
         return hash(
             "sha256",
@@ -47,7 +60,7 @@ class ObjectiveWithPreconditions implements Setup\Objective
             . implode(
                 "",
                 array_map(
-                    function ($o) { return $o->getHash(); },
+                    fn ($o) => $o->getHash(),
                     $this->preconditions
                 )
             )
@@ -57,7 +70,7 @@ class ObjectiveWithPreconditions implements Setup\Objective
     /**
      * @inheritdocs
      */
-    public function getLabel() : string
+    public function getLabel(): string
     {
         return $this->original->getLabel();
     }
@@ -65,7 +78,7 @@ class ObjectiveWithPreconditions implements Setup\Objective
     /**
      * @inheritdocs
      */
-    public function isNotable() : bool
+    public function isNotable(): bool
     {
         return $this->original->isNotable();
     }
@@ -73,7 +86,7 @@ class ObjectiveWithPreconditions implements Setup\Objective
     /**
      * @inheritdocs
      */
-    public function getPreconditions(Setup\Environment $environment) : array
+    public function getPreconditions(Setup\Environment $environment): array
     {
         return array_merge($this->preconditions, $this->original->getPreconditions($environment));
     }
@@ -81,7 +94,7 @@ class ObjectiveWithPreconditions implements Setup\Objective
     /**
      * @inheritdocs
      */
-    public function achieve(Setup\Environment $environment) : Setup\Environment
+    public function achieve(Setup\Environment $environment): Setup\Environment
     {
         return $this->original->achieve($environment);
     }
@@ -89,7 +102,7 @@ class ObjectiveWithPreconditions implements Setup\Objective
     /**
      * @inheritDoc
      */
-    public function isApplicable(Setup\Environment $environment) : bool
+    public function isApplicable(Setup\Environment $environment): bool
     {
         return $this->original->isApplicable($environment);
     }

@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\Filesystem\Filesystem;
 use ILIAS\FileUpload\Collection\ImmutableStringMap;
@@ -14,10 +31,7 @@ use ILIAS\FileUpload\Location;
  */
 class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
 {
-    /**
-     * @throws ReflectionException
-     */
-    public function testDocumentFormIsProperlyBuiltForNewDocuments() : void
+    public function testDocumentFormIsProperlyBuiltForNewDocuments(): void
     {
         $document = $this
             ->getMockBuilder(ilTermsOfServiceDocument::class)
@@ -74,12 +88,12 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             $form->getCommandButtons(),
             'Failed asserting save and cancel buttons are given if form is editable'
         );
-        $this->assertEquals(
+        $this->assertSame(
             'save',
             $form->getCommandButtons()[0]['cmd'],
             'Failed asserting save and cancel buttons are given if form is editable'
         );
-        $this->assertEquals(
+        $this->assertSame(
             'cancel',
             $form->getCommandButtons()[1]['cmd'],
             'Failed asserting save and cancel buttons are given if form is editable'
@@ -107,17 +121,14 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             $form->getCommandButtons(),
             'Failed asserting only cancel button is given if form is not editable'
         );
-        $this->assertEquals(
+        $this->assertSame(
             'cancel',
             $form->getCommandButtons()[0]['cmd'],
             'Failed asserting only cancel button is given if form is not editable'
         );
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    public function testFormForNewDocumentsCanBeSavedForValidInput() : void
+    public function testFormForNewDocumentsCanBeSavedForValidInput(): void
     {
         $document = $this
             ->getMockBuilder(ilTermsOfServiceDocument::class)
@@ -127,7 +138,6 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             ->getMock();
 
         $document
-            ->expects($this->any())
             ->method('fetchAllCriterionAssignments');
 
         $purifier = $this
@@ -196,7 +206,6 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             ->getMock();
 
         $fu
-            ->expects($this->any())
             ->method('hasUploads')
             ->willReturn(true);
 
@@ -246,6 +255,7 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
                     ]
                 ];
             });
+        $documentConnector->method('affectedRows')->willReturn(1);
 
         $criterionConnector
             ->expects($this->once())
@@ -277,17 +287,13 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             ->willReturn(true);
 
         $_FILES['document'] = [];
-        $_POST = [
-            'title' => 'phpunit',
-            'document' => '',
-            '' => ''
-        ];
+
         $form->setCheckInputCalled(true);
 
         $this->assertTrue($form->saveObject());
         $this->assertFalse($form->hasTranslatedError());
         $this->assertEmpty($form->getTranslatedError());
-        $this->assertEquals(
+        $this->assertSame(
             $expectedSortingValueExistingDocuments,
             $document->getSorting(),
             'Failed asserting that the sorting of the new document equals the maximum incremented by one when other documents exist'
@@ -329,17 +335,14 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
         $this->assertTrue($form->saveObject());
         $this->assertFalse($form->hasTranslatedError());
         $this->assertEmpty($form->getTranslatedError());
-        $this->assertEquals(
+        $this->assertSame(
             1,
             $document->getSorting(),
             'Failed asserting that the sorting of the new document equals 1 when no other document exists'
         );
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    public function testDocumentFormIsProperlyBuiltForExistingDocuments() : void
+    public function testDocumentFormIsProperlyBuiltForExistingDocuments(): void
     {
         $document = $this
             ->getMockBuilder(ilTermsOfServiceDocument::class)
@@ -348,7 +351,6 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             ->getMock();
 
         $document
-            ->expects($this->any())
             ->method('getId')
             ->willReturn(1);
 
@@ -388,10 +390,7 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
         );
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    public function testFormForExistingDocumentsCanBeSavedForValidInput() : void
+    public function testFormForExistingDocumentsCanBeSavedForValidInput(): void
     {
         $expectedSorting = 10;
 
@@ -439,13 +438,13 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             ->getMock();
 
         $fu
-            ->expects($this->any())
             ->method('hasUploads')
             ->willReturn(false);
 
         $this->setGlobalVariable('upload', $fu);
 
         $documentConnector = $this->getMockBuilder(arConnector::class)->getMock();
+        $documentConnector->method('affectedRows')->willReturn(0);
 
         arConnectorMap::register(new ilTermsOfServiceDocument(), $documentConnector);
         arConnectorMap::register($document, $documentConnector);
@@ -470,32 +469,23 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             ->method('checkInput')
             ->willReturn(true);
 
-        $_POST = [
-            'title' => 'phpunit',
-            'document' => '',
-            '' => ''
-        ];
         $form->setCheckInputCalled(true);
 
         $this->assertTrue($form->saveObject());
         $this->assertFalse($form->hasTranslatedError());
         $this->assertEmpty($form->getTranslatedError());
-        $this->assertEquals(
+        $this->assertSame(
             $expectedSorting,
             $document->getSorting(),
             'Failed asserting that the sorting of the existing document has not been changed'
         );
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    public function testUploadIssuesAreHandledWhenDocumentFormIsSaved() : void
+    public function testUploadIssuesAreHandledWhenDocumentFormIsSaved(): void
     {
         $lng = $this->getLanguageMock();
 
         $lng
-            ->expects($this->any())
             ->method('txt')
             ->willReturn('translation');
 
@@ -609,11 +599,6 @@ class ilTermsOfServiceDocumentFormGUITest extends ilTermsOfServiceBaseTest
             ->method('checkInput')
             ->willReturn(true);
 
-        $_POST = [
-            'title' => '',
-            'document' => '',
-            '' => ''
-        ];
         $form->setCheckInputCalled(true);
 
         $this->assertFalse($form->saveObject());

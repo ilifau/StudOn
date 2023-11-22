@@ -1,52 +1,51 @@
 <?php
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* User query class. Put any complex that queries for a set of users into
-* this class and keep ilObjUser "small".
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-* @ingroup ServicesUser
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * User query class. Put any complex that queries for a set of users into
+ * this class and keep ilObjUser "small".
+ * @author Alex Killing <alex.killing@gmx.de>
+ */
 class ilUserQuery
 {
-    const DEFAULT_ORDER_FIELD = 'login';
+    public const DEFAULT_ORDER_FIELD = 'login';
 
-    /**
-     * @var \ilLogger | null
-     */
-    private $logger = null;
-
-    private $order_field = self::DEFAULT_ORDER_FIELD;
-    private $order_dir = 'asc';
-    private $offset = 0;
-    private $limit = 50;
-    private $text_filter = '';
-    private $activation = '';
-    private $last_login = null;
-    private $limited_access = false;
-    private $no_courses = false;
-    private $no_groups = false;
-    private $crs_grp = 0;
-    private $role = 0;
-    private $user_folder = 0;
-    private $additional_fields = array();
-    private $users = array();
-    private $first_letter = '';
-    private $has_access = false;
-    private $authentication_method = '';
-
-    // fau: userData - class variable for ref_id to filter educations
-    private $educations_ref_id = null;
-    // fau.
-
-    /**
-     * @var array
-     */
-    protected $udf_filter = array();
-
-    private $default_fields = array(
+    private string $order_field = self::DEFAULT_ORDER_FIELD;
+    private string $order_dir = 'asc';
+    private int $offset = 0;
+    private int $limit = 50;
+    private string $text_filter = '';
+    private string $activation = '';
+    private ?ilDateTime $last_login = null;
+    private bool $limited_access = false;
+    private bool $no_courses = false;
+    private bool $no_groups = false;
+    private int $crs_grp = 0;
+    private int $role = 0;
+    private ?array $user_folder = null; // Missing array type.
+    private array $additional_fields = array(); // Missing array type.
+    private array $users = array(); // Missing array type.
+    private string $first_letter = '';
+    private bool $has_access = false;
+    private string $authentication_method = '';
+    protected array $udf_filter = array(); // Missing array type.
+    /** @var string[] */
+    private array $default_fields = array(
         "usr_id",
         "login",
         "firstname",
@@ -60,46 +59,21 @@ class ilUserQuery
         "active"
     );
 
-    /**
-     * Constructor
-     */
     public function __construct()
     {
-        global $DIC;
-
-        $this->logger = $DIC->logger()->usr();
     }
-
-    // fau: userData - getter and setter for ref_id to filter educations
-    /**
-     * Set the ref_id to filter the list of educations
-     */
-    public function setEducationsRefId(?int $ref_id)
-    {
-        $this->educations_ref_id = $ref_id;
-    }
-
-    /**
-     * Get the ref_id to filter the list of educations
-     */
-    public function getEducationsRefId() : ?int
-    {
-        return $this->educations_ref_id;
-    }
-    // fau.
 
     /**
      * Set udf filter
-     *
      * @param array $a_val udf filter array
      */
-    public function setUdfFilter($a_val)
+    public function setUdfFilter(array $a_val): void // Missing array type.
     {
         $valid_udfs = [];
 
         $definitions = \ilUserDefinedFields::_getInstance()->getDefinitions();
-        foreach ((array) $a_val as $udf_name => $udf_value) {
-            list($udf_string, $udf_id) = explode('_', $udf_name);
+        foreach ($a_val as $udf_name => $udf_value) {
+            [$udf_string, $udf_id] = explode('_', $udf_name);
             if (array_key_exists((int) $udf_id, $definitions)) {
                 $valid_udfs[$udf_name] = $udf_value;
             }
@@ -109,10 +83,9 @@ class ilUserQuery
 
     /**
      * Get udf filter
-     *
      * @return array udf filter array
      */
-    public function getUdfFilter()
+    public function getUdfFilter(): array // Missing array type.
     {
         return $this->udf_filter;
     }
@@ -120,9 +93,8 @@ class ilUserQuery
     /**
      * Set order field (column in usr_data)
      * Default order is 'login'
-     * @param string
      */
-    public function setOrderField($a_order)
+    public function setOrderField(string $a_order): void
     {
         $this->order_field = $a_order;
     }
@@ -131,37 +103,26 @@ class ilUserQuery
      * Set order direction
      * 'asc' or 'desc'
      * Default is 'asc'
-     * @param string $a_dir
      */
-    public function setOrderDirection($a_dir)
+    public function setOrderDirection(string $a_dir): void
     {
         $this->order_dir = $a_dir;
     }
 
-    /**
-     * Set offset
-     * @param int $a_offset
-     */
-    public function setOffset($a_offset)
+    public function setOffset(int $a_offset): void
     {
         $this->offset = $a_offset;
     }
 
-    /**
-     * Set result limit
-     * Default is 50
-     * @param int $a_limit
-     */
-    public function setLimit($a_limit)
+    public function setLimit(int $a_limit): void
     {
         $this->limit = $a_limit;
     }
 
     /**
      * Text (like) filter in login, firstname, lastname or email
-     * @param string filter
      */
-    public function setTextFilter($a_filter)
+    public function setTextFilter(string $a_filter): void
     {
         $this->text_filter = $a_filter;
     }
@@ -169,45 +130,34 @@ class ilUserQuery
     /**
      * Set activation filter
      * 'active' or 'inactive' or empty
-     * @param string $a_activation
      */
-    public function setActionFilter($a_activation)
+    public function setActionFilter(string $a_activation): void
     {
         $this->activation = $a_activation;
     }
 
     /**
      * Set last login filter
-     * @param ilDateTime $dt
      */
-    public function setLastLogin(ilDateTime $dt = null)
+    public function setLastLogin(ilDateTime $dt = null): void
     {
         $this->last_login = $dt;
     }
 
     /**
      * Enable limited access filter
-     * @param bool
      */
-    public function setLimitedAccessFilter($a_status)
+    public function setLimitedAccessFilter(bool $a_status): void
     {
         $this->limited_access = $a_status;
     }
 
-    /**
-     * Enable no course filter
-     * @param bool $a_no_course
-     */
-    public function setNoCourseFilter($a_no_course)
+    public function setNoCourseFilter(bool $a_no_course): void
     {
         $this->no_courses = $a_no_course;
     }
 
-    /**
-     * Enable no group filter
-     * @param bool $a_no_group
-     */
-    public function setNoGroupFilter($a_no_group)
+    public function setNoGroupFilter(bool $a_no_group): void
     {
         $this->no_groups = $a_no_group;
     }
@@ -215,9 +165,8 @@ class ilUserQuery
     /**
      * Set course / group filter
      * object_id of course or group
-     * @param int $a_cg_id
      */
-    public function setCourseGroupFilter($a_cg_id)
+    public function setCourseGroupFilter(int $a_cg_id): void
     {
         $this->crs_grp = $a_cg_id;
     }
@@ -225,9 +174,8 @@ class ilUserQuery
     /**
      * Set role filter
      * obj_id of role
-     * @param int $a_role_id
      */
-    public function setRoleFilter($a_role_id)
+    public function setRoleFilter(int $a_role_id): void
     {
         $this->role = $a_role_id;
     }
@@ -235,56 +183,49 @@ class ilUserQuery
     /**
      * Set user folder filter
      * reference id of user folder or category (local user administration)
-     * @param int $a_fold_id
      */
-    public function setUserFolder($a_fold_id)
+    public function setUserFolder(?array $a_fold_id): void // Missing array type.
     {
         $this->user_folder = $a_fold_id;
     }
 
     /**
      * Set additional fields (columns in usr_data or 'online_time')
-     * @param array $additional_fields
      */
-    public function setAdditionalFields($a_add)
+    public function setAdditionalFields(array $a_add): void // Missing array type.
     {
-        $this->additional_fields = (array) $a_add;
+        $this->additional_fields = $a_add;
     }
 
     /**
      * Array with user ids to query against
-     * @param array $a_filter
      */
-    public function setUserFilter($a_filter)
+    public function setUserFilter(array $a_filter): void // Missing array type.
     {
         $this->users = $a_filter;
     }
 
     /**
      * set first letter lastname filter
-     * @param string $a_fll
      */
-    public function setFirstLetterLastname($a_fll)
+    public function setFirstLetterLastname(string $a_fll): void
     {
         $this->first_letter = $a_fll;
     }
 
     /**
      * set filter for user that are limited but has access
-     *
-     * @param $a_access
      */
-    public function setAccessFilter($a_access)
+    public function setAccessFilter(bool $a_access): void
     {
-        $this->has_access = (bool) $a_access;
+        $this->has_access = $a_access;
     }
 
     /**
      * Set authentication filter
-     * 'default', 'local' or 'lti'
-     * @param string $a_authentication
+     * @param string $a_authentication 'default', 'local' or 'lti'
      */
-    public function setAuthenticationFilter($a_authentication)
+    public function setAuthenticationFilter(string $a_authentication): void
     {
         $this->authentication_method = $a_authentication;
     }
@@ -293,7 +234,7 @@ class ilUserQuery
      * Query usr_data
      * @return array ('cnt', 'set')
      */
-    public function query()
+    public function query(): array
     {
         global $DIC;
 
@@ -301,16 +242,17 @@ class ilUserQuery
 
 
         $udf_fields = array();
+        $usr_ids = [];
 
         $join = "";
 
         if (is_array($this->additional_fields)) {
             foreach ($this->additional_fields as $f) {
                 if (!in_array($f, $this->default_fields)) {
-                    if ($f == "online_time") {
+                    if ($f === "online_time") {
                         $this->default_fields[] = "ut_online.online_time";
                         $join = " LEFT JOIN ut_online ON (usr_data.usr_id = ut_online.usr_id) ";
-                    } elseif (substr($f, 0, 4) == "udf_") {
+                    } elseif (substr($f, 0, 4) === "udf_") {
                         $udf_fields[] = (int) substr($f, 4);
                     } else {
                         $this->default_fields[] = $f;
@@ -322,7 +264,6 @@ class ilUserQuery
         // if udf fields are involved we need the definitions
         $udf_def = array();
         if (count($udf_fields) > 0) {
-            include_once './Services/User/classes/class.ilUserDefinedFields.php';
             $udf_def = ilUserDefinedFields::_getInstance()->getDefinitions();
         }
 
@@ -347,21 +288,9 @@ class ilUserQuery
                 continue;
             }
 
-            // fau: userData - don't query for studydata and educations directly, add them later
-            if ($field == 'studydata') {
-                $add_studydata = true;
-                continue;
-            }
-            if ($field == 'educations') {
-                $add_educations = true;
-                continue;
-            }
-            // fau.
-
-
             if (in_array($field, $all_multi_fields)) {
                 $multi_fields[] = $field;
-            } elseif (!stristr($field, ".")) {
+            } elseif (strpos($field, ".") === false) {
                 $sql_fields[] = "usr_data." . $field;
             } else {
                 $sql_fields[] = $field;
@@ -378,33 +307,21 @@ class ilUserQuery
             " FROM usr_data" .
             $join;
 
-        $count_query = $count_query . " " .
-            $join;
+        $count_query .= " " . $join;
 
-        // fau: userQuery -  build optimized user query for role
-        $role_join = '';
-        $role_cond = '';
+        // filter
+        $query .= " WHERE usr_data.usr_id <> " . $ilDB->quote(ANONYMOUS_USER_ID, "integer");
 
-        if ($this->role > 0) {
-            $role_join = " INNER JOIN rbac_ua ON usr_data.usr_id = rbac_ua.usr_id";
-            $role_cond = " AND rbac_ua.rol_id = " . $ilDB->quote($this->role, "integer");
-        }
-
-        $query .= $role_join;
-        $count_query .= $role_join;
-
-        // apply user filter also to count query
-        // excluding anonymous user is not needed if user filter is active
+        // User filter
+        $count_query .= " WHERE 1 = 1 ";
+        $count_user_filter = "usr_data.usr_id != " . $ilDB->quote(ANONYMOUS_USER_ID, "integer");
         if ($this->users and is_array(($this->users))) {
-            $where = ' WHERE ' . $ilDB->in('usr_data.usr_id', $this->users, false, 'integer');
-        } else {
-            $where = " WHERE usr_data.usr_id <> " . $ilDB->quote(ANONYMOUS_USER_ID, "integer");
+            $query .= ' AND ' . $ilDB->in('usr_data.usr_id', $this->users, false, 'integer');
+            $count_user_filter = $ilDB->in('usr_data.usr_id', $this->users, false, 'integer');
         }
 
-        $query .= $where . $role_cond;
-        $count_query .= $where . $role_cond;
+        $count_query .= " AND " . $count_user_filter . " ";
         $where = " AND";
-        // fau.
 
         if ($this->first_letter != "") {
             $add = $where . " (" . $ilDB->upper($ilDB->substr("usr_data.lastname", 1, 1)) . " = " . $ilDB->upper($ilDB->quote($this->first_letter, "text")) . ") ";
@@ -425,7 +342,7 @@ class ilUserQuery
         }
 
         if ($this->activation != "") {		// activation
-            if ($this->activation == "inactive") {
+            if ($this->activation === "inactive") {
                 $add = $where . " usr_data.active = " . $ilDB->quote(0, "integer") . " ";
             } else {
                 $add = $where . " usr_data.active = " . $ilDB->quote(1, "integer") . " ";
@@ -477,50 +394,45 @@ class ilUserQuery
             $where = " AND";
         }
         if ($this->no_courses) {		// no courses assigned
-            // fau: userQuery - optimize condition for 'no courses assigned'
-            $add = $where . " NOT EXISTS (" .
-                "SELECT * FROM rbac_ua INNER JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
-                "WHERE rbac_ua.usr_id = usr_data.usr_id AND od.title LIKE 'il_crs_%')";
-            // fau.
+            $add = $where . " usr_data.usr_id NOT IN (" .
+                "SELECT DISTINCT ud.usr_id " .
+                "FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) " .
+                "JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
+                "WHERE od.title LIKE 'il_crs_%')";
             $query .= $add;
             $count_query .= $add;
             $where = " AND";
         }
         if ($this->no_groups) {		// no groups assigned
-            // fau: userQuery - optimize condition for 'no groups assigned'
-            $add = $where . " NOT EXISTS (" .
-                "SELECT * FROM rbac_ua INNER JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
-                "WHERE rbac_ua.usr_id = usr_data.usr_id AND od.title LIKE 'il_grp_%')";
-            // fau.
+            $add = $where . " usr_data.usr_id NOT IN (" .
+                "SELECT DISTINCT ud.usr_id " .
+                "FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) " .
+                "JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
+                "WHERE od.title LIKE 'il_grp_%')";
             $query .= $add;
             $count_query .= $add;
             $where = " AND";
         }
         if ($this->crs_grp > 0) {		// members of course/group
             $cgtype = ilObject::_lookupType($this->crs_grp, true);
-
-            // fau: userQuery - optimize condition for 'members of course/group'
-            $add = $where . " EXISTS (" .
-                "SELECT * FROM rbac_ua INNER JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
-                "WHERE rbac_ua.usr_id = usr_data.usr_id AND od.title = " . $ilDB->quote("il_" . $cgtype . "_member_" . $this->crs_grp, "text") . ")";
-            // fau.
+            $add = $where . " usr_data.usr_id IN (" .
+                "SELECT DISTINCT ud.usr_id " .
+                "FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) " .
+                "JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
+                "WHERE od.title = " . $ilDB->quote("il_" . $cgtype . "_member_" . $this->crs_grp, "text") . ")";
             $query .= $add;
             $count_query .= $add;
             $where = " AND";
         }
-
-        // fau: userQuery - omit old user query for roles
-        //		if ($this->role > 0)		// global role
-        //		{
-        //			$add = $where." usr_data.usr_id IN (".
-        //				"SELECT DISTINCT ud.usr_id ".
-        //				"FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) ".
-        //				"WHERE rbac_ua.rol_id = ".$ilDB->quote($this->role, "integer").")";
-        //			$query.= $add;
-        //			$count_query.= $add;
-        //			$where = " AND";
-        //		}
-        // fau.
+        if ($this->role > 0) {		// global role
+            $add = $where . " usr_data.usr_id IN (" .
+                "SELECT DISTINCT ud.usr_id " .
+                "FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) " .
+                "WHERE rbac_ua.rol_id = " . $ilDB->quote($this->role, "integer") . ")";
+            $query .= $add;
+            $count_query .= $add;
+            $where = " AND";
+        }
 
         if ($this->user_folder) {
             $add = $where . " " . $ilDB->in('usr_data.time_limit_owner', $this->user_folder, false, 'integer');
@@ -539,7 +451,7 @@ class ilUserQuery
         // order by
         switch ($this->order_field) {
             case  "access_until":
-                if ($this->order_dir == "desc") {
+                if ($this->order_dir === "desc") {
                     $query .= " ORDER BY usr_data.active DESC, usr_data.time_limit_unlimited DESC, usr_data.time_limit_until DESC";
                 } else {
                     $query .= " ORDER BY usr_data.active ASC, usr_data.time_limit_unlimited ASC, usr_data.time_limit_until ASC";
@@ -547,25 +459,18 @@ class ilUserQuery
                 break;
 
             case "online_time":
-                if ($this->order_dir == "desc") {
+                if ($this->order_dir === "desc") {
                     $query .= " ORDER BY ut_online.online_time DESC";
                 } else {
                     $query .= " ORDER BY ut_online.online_time ASC";
                 }
                 break;
 
-            // fau: userData - don't order by studydata or educations
-            case "studydata":
-            case "educations":
-                break;
-            // fau.
-
-
             default:
-                if ($this->order_dir != "asc" && $this->order_dir != "desc") {
+                if ($this->order_dir !== "asc" && $this->order_dir !== "desc") {
                     $this->order_dir = "asc";
                 }
-                if (substr($this->order_field, 0, 4) == "udf_") {
+                if (substr($this->order_field, 0, 4) === "udf_") {
                     // #25311 check if order field is in field list
                     if (is_array($this->getUdfFilter()) && array_key_exists($this->order_field, $this->getUdfFilter())) {
                         $query .= " ORDER BY ud_" . ((int) substr($this->order_field, 4)) . ".value " . strtoupper($this->order_dir);
@@ -588,8 +493,8 @@ class ilUserQuery
             $cnt = $rec["cnt"];
         }
 
-        $offset = (int) $this->offset;
-        $limit = (int) $this->limit;
+        $offset = $this->offset;
+        $limit = $this->limit;
 
         // #9866: validate offset against rowcount
         if ($offset >= $cnt) {
@@ -598,7 +503,7 @@ class ilUserQuery
 
         $ilDB->setLimit($limit, $offset);
 
-        if (sizeof($multi_fields)) {
+        if (count($multi_fields)) {
             $usr_ids = array();
         }
 
@@ -607,62 +512,52 @@ class ilUserQuery
         $result = array();
 
         while ($rec = $ilDB->fetchAssoc($set)) {
-            // fau: userData - optionally add the studydata and educations
-            if ($add_studydata) {
-                $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
-            }
-            if ($add_educations) {
-                $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id'], $this->getEducationsRefId());
-            }
-            // fau.
             $result[] = $rec;
-
-            if (sizeof($multi_fields)) {
-                $usr_ids[] = $rec["usr_id"];
+            if (count($multi_fields)) {
+                $usr_ids[] = (int) $rec["usr_id"];
             }
         }
 
         // add multi-field-values to user-data
-        if (sizeof($multi_fields) && sizeof($usr_ids)) {
+        if (count($multi_fields) && count($usr_ids)) {
             $usr_multi = array();
             $set = $ilDB->query("SELECT * FROM usr_data_multi" .
                 " WHERE " . $ilDB->in("usr_id", $usr_ids, "", "integer"));
             while ($row = $ilDB->fetchAssoc($set)) {
-                $usr_multi[$row["usr_id"]][$row["field_id"]][] = $row["value"];
+                $usr_multi[(int) $row["usr_id"]][$row["field_id"]][] = $row["value"];
             }
             foreach ($result as $idx => $item) {
                 if (isset($usr_multi[$item["usr_id"]])) {
-                    $result[$idx] = array_merge($item, $usr_multi[$item["usr_id"]]);
+                    $result[$idx] = array_merge($item, $usr_multi[(int) $item["usr_id"]]);
                 }
             }
         }
         return array("cnt" => $cnt, "set" => $result);
     }
 
-    // fau: userData add ref id to filter the display of educations as parameter
+
     /**
      * Get data for user administration list.
      * @deprecated
      */
     public static function getUserListData(
-        $a_order_field,
-        $a_order_dir,
-        $a_offset,
-        $a_limit,
-        $a_string_filter = "",
-        $a_activation_filter = "",
-        $a_last_login_filter = null,
-        $a_limited_access_filter = false,
-        $a_no_courses_filter = false,
-        $a_course_group_filter = 0,
-        $a_role_filter = 0,
-        $a_user_folder_filter = null,
-        $a_additional_fields = '',
-        $a_user_filter = null,
-        $a_first_letter = "",
-        $a_authentication_filter = null,
-        $a_educations_ref_id = null
-    ) {
+        string $a_order_field,
+        string $a_order_dir,
+        int $a_offset,
+        int $a_limit,
+        string $a_string_filter = "",
+        string $a_activation_filter = "",
+        ?ilDateTime $a_last_login_filter = null,
+        bool $a_limited_access_filter = false,
+        bool $a_no_courses_filter = false,
+        int $a_course_group_filter = 0,
+        int $a_role_filter = 0,
+        array $a_user_folder_filter = null,
+        array $a_additional_fields = null,
+        array $a_user_filter = null,
+        string $a_first_letter = "",
+        string $a_authentication_filter = ""
+    ): array {
         $query = new ilUserQuery();
         $query->setOrderField($a_order_field);
         $query->setOrderDirection($a_order_dir);
@@ -676,12 +571,10 @@ class ilUserQuery
         $query->setCourseGroupFilter($a_course_group_filter);
         $query->setRoleFilter($a_role_filter);
         $query->setUserFolder($a_user_folder_filter);
-        $query->setAdditionalFields($a_additional_fields);
-        $query->setUserFilter($a_user_filter);
+        $query->setAdditionalFields($a_additional_fields ?? []);
+        $query->setUserFilter($a_user_filter ?? []);
         $query->setFirstLetterLastname($a_first_letter);
         $query->setAuthenticationFilter($a_authentication_filter);
-        $query->setEducationsRefId($a_educations_ref_id);
         return $query->query();
     }
-    // fau.
 }

@@ -1,12 +1,30 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilSimpleSAMLphplIdpDiscovery
+ * @author Michael Jansen <mjansen@databay.de>
  */
 class ilSimpleSAMLphplIdpDiscovery extends SimpleSAML\XHTML\IdPDisco implements ilSamlIdpDiscovery
 {
-    const METADATA_DIRECTORY = 'auth/saml/metadata';
+    private const METADATA_DIRECTORY = 'auth/saml/metadata';
 
     /**
      * ilSimpleSAMLphplIdpDiscovery constructor.
@@ -23,7 +41,7 @@ class ilSimpleSAMLphplIdpDiscovery extends SimpleSAML\XHTML\IdPDisco implements 
     /**
      * @return string
      */
-    public function getMetadataDirectory() : string
+    public function getMetadataDirectory(): string
     {
         return self::METADATA_DIRECTORY;
     }
@@ -31,7 +49,7 @@ class ilSimpleSAMLphplIdpDiscovery extends SimpleSAML\XHTML\IdPDisco implements 
     /**
      * @inheritdoc
      */
-    public function getList() : array
+    public function getList(): array
     {
         return $this->getIdPList();
     }
@@ -40,7 +58,7 @@ class ilSimpleSAMLphplIdpDiscovery extends SimpleSAML\XHTML\IdPDisco implements 
      * @param int $idpId
      * @return string
      */
-    private function getMetadataPath(int $idpId) : string
+    private function getMetadataPath(int $idpId): string
     {
         return $this->getMetadataDirectory() . '/' . $idpId . '.xml';
     }
@@ -48,7 +66,7 @@ class ilSimpleSAMLphplIdpDiscovery extends SimpleSAML\XHTML\IdPDisco implements 
     /**
      * @inheritdoc
      */
-    public function storeIdpMetadata(int $idpId, string $metadata) : void
+    public function storeIdpMetadata(int $idpId, string $metadata): void
     {
         global $DIC;
 
@@ -60,7 +78,7 @@ class ilSimpleSAMLphplIdpDiscovery extends SimpleSAML\XHTML\IdPDisco implements 
     /**
      * @inheritdoc
      */
-    public function fetchIdpMetadata(int $idpId) : string
+    public function fetchIdpMetadata(int $idpId): string
     {
         global $DIC;
 
@@ -76,7 +94,7 @@ class ilSimpleSAMLphplIdpDiscovery extends SimpleSAML\XHTML\IdPDisco implements 
     /**
      * @inheritdoc
      */
-    public function deleteIdpMetadata(int $idpId) : void
+    public function deleteIdpMetadata(int $idpId): void
     {
         global $DIC;
 

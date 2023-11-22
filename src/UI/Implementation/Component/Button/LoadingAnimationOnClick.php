@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Button;
 
@@ -10,14 +26,11 @@ namespace ILIAS\UI\Implementation\Component\Button;
  */
 trait LoadingAnimationOnClick
 {
-
-    /**
-     * @var bool
-     */
-    protected $loading_animation_on_click = false;
+    protected bool $loading_animation_on_click = false;
 
     /**
      * @inheritdoc
+     * @return static
      */
     public function withLoadingAnimationOnClick(bool $loading_animation_on_click = true)
     {
@@ -29,7 +42,7 @@ trait LoadingAnimationOnClick
     /**
      * @inheritdoc
      */
-    public function hasLoadingAnimationOnClick() : bool
+    public function hasLoadingAnimationOnClick(): bool
     {
         return $this->loading_animation_on_click;
     }

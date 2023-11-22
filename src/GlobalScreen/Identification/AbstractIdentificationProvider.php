@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Identification;
 
 use ILIAS\GlobalScreen\Identification\Map\IdentificationMap;
@@ -29,27 +29,12 @@ use ILIAS\GlobalScreen\Provider\Provider;
  */
 abstract class AbstractIdentificationProvider implements IdentificationProviderInterface
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\Map\IdentificationMap
-     */
-    protected $map;
-    /**
-     * @var \ILIAS\GlobalScreen\Provider\Provider
-     */
-    protected $provider;
+    protected IdentificationMap $map;
+    protected Provider $provider;
 
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\Serializer\SerializerInterface
-     */
-    protected $serializer;
-    /**
-     * @var string
-     */
-    protected $class_name = '';
-    /**
-     * @var mixed[]
-     */
-    protected static $instances = [];
+    protected Serializer\SerializerInterface $serializer;
+    protected string $class_name = '';
+    protected static array $instances = [];
 
     /**
      * CoreIdentificationProvider constructor.
@@ -69,7 +54,7 @@ abstract class AbstractIdentificationProvider implements IdentificationProviderI
      * @param string $serialized_string
      * @return IdentificationInterface
      */
-    public function fromSerializedString(string $serialized_string) : IdentificationInterface
+    public function fromSerializedString(string $serialized_string): IdentificationInterface
     {
         if ($this->map->isInMap($serialized_string)) {
             return $this->map->getFromMap($serialized_string);

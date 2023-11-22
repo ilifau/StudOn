@@ -1,48 +1,42 @@
 <?php
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/DataSet/classes/class.ilDataSet.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * HTML learning module data set class
- *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- * @ingroup ingroup ModulesHTMLLearningModule
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilHTMLLearningModuleDataSet extends ilDataSet
 {
-    /**
-     * Get supported versions
-     *
-     * @param
-     * @return
-     */
-    public function getSupportedVersions()
+    protected ilObjFileBasedLM $current_obj;
+
+    public function getSupportedVersions(): array
     {
         return array("4.1.0");
     }
-    
-    /**
-     * Get xml namespace
-     *
-     * @param
-     * @return
-     */
-    public function getXmlNamespace($a_entity, $a_schema_version)
+
+    protected function getXmlNamespace(string $a_entity, string $a_schema_version): string
     {
-        return "http://www.ilias.de/xml/Modules/HTMLLearningModule/" . $a_entity;
+        return "https://www.ilias.de/xml/Modules/HTMLLearningModule/" . $a_entity;
     }
-    
-    /**
-     * Get field types for entity
-     *
-     * @param
-     * @return
-     */
-    protected function getTypes($a_entity, $a_version)
+
+    protected function getTypes(string $a_entity, string $a_version): array
     {
-        if ($a_entity == "htlm") {
+        if ($a_entity === "htlm") {
             switch ($a_version) {
                 case "4.1.0":
                     return array(
@@ -53,23 +47,14 @@ class ilHTMLLearningModuleDataSet extends ilDataSet
                         "Dir" => "directory");
             }
         }
+        return [];
     }
 
-    /**
-     * Read data
-     *
-     * @param
-     * @return
-     */
-    public function readData($a_entity, $a_version, $a_ids, $a_field = "")
+    public function readData(string $a_entity, string $a_version, array $a_ids): void
     {
         $ilDB = $this->db;
 
-        if (!is_array($a_ids)) {
-            $a_ids = array($a_ids);
-        }
-                
-        if ($a_entity == "htlm") {
+        if ($a_entity === "htlm") {
             switch ($a_version) {
                 case "4.1.0":
                     $this->getDirectDataFromQuery("SELECT id, title, description, " .
@@ -81,25 +66,9 @@ class ilHTMLLearningModuleDataSet extends ilDataSet
             }
         }
     }
-    
-    /**
-     * Determine the dependent sets of data
-     */
-    protected function getDependencies($a_entity, $a_version, $a_rec, $a_ids)
-    {
-        return false;
-    }
-    
 
-    /**
-     * Get xml record
-     *
-     * @param
-     * @return
-     */
-    public function getXmlRecord($a_entity, $a_version, $a_set)
+    public function getXmlRecord(string $a_entity, string $a_version, array $a_set): array
     {
-        include_once("./Modules/HTMLLearningModule/classes/class.ilObjFileBasedLM.php");
         $lm = new ilObjFileBasedLM($a_set["Id"], false);
         $dir = $lm->getDataDirectory();
         $a_set["Dir"] = $dir;
@@ -107,22 +76,13 @@ class ilHTMLLearningModuleDataSet extends ilDataSet
         return $a_set;
     }
 
-    /**
-     * Import record
-     *
-     * @param
-     * @return
-     */
-    public function importRecord($a_entity, $a_types, $a_rec, $a_mapping, $a_schema_version)
+    public function importRecord(string $a_entity, array $a_types, array $a_rec, ilImportMapping $a_mapping, string $a_schema_version): void
     {
-        //echo $a_entity;
-        //var_dump($a_rec);
-
         switch ($a_entity) {
             case "htlm":
-                
-                include_once("./Modules/HTMLLearningModule/classes/class.ilObjFileBasedLM.php");
+
                 if ($new_id = $a_mapping->getMapping('Services/Container', 'objs', $a_rec['Id'])) {
+                    /** @var ilObjFileBasedLM $newObj */
                     $newObj = ilObjectFactory::getInstanceByObjId($new_id, false);
                 } else {
                     $newObj = new ilObjFileBasedLM();
@@ -137,10 +97,10 @@ class ilHTMLLearningModuleDataSet extends ilDataSet
                 $this->current_obj = $newObj;
 
                 $dir = str_replace("..", "", $a_rec["Dir"]);
-                if ($dir != "" && $this->getImportDirectory() != "") {
+                if ($dir !== "" && $this->getImportDirectory() !== "") {
                     $source_dir = $this->getImportDirectory() . "/" . $dir;
                     $target_dir = $newObj->getDataDirectory();
-                    ilUtil::rCopy($source_dir, $target_dir);
+                    ilFileUtils::rCopy($source_dir, $target_dir);
                 }
 
                 $a_mapping->addMapping("Modules/HTMLLearningModule", "htlm", $a_rec["Id"], $newObj->getId());

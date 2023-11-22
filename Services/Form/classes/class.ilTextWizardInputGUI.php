@@ -1,215 +1,159 @@
 <?php
-/*
-	+-----------------------------------------------------------------------------+
-	| ILIAS open source                                                           |
-	+-----------------------------------------------------------------------------+
-	| Copyright (c) 1998-2007 ILIAS open source, University of Cologne            |
-	|                                                                             |
-	| This program is free software; you can redistribute it and/or               |
-	| modify it under the terms of the GNU General Public License                 |
-	| as published by the Free Software Foundation; either version 2              |
-	| of the License, or (at your option) any later version.                      |
-	|                                                                             |
-	| This program is distributed in the hope that it will be useful,             |
-	| but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-	| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-	| GNU General Public License for more details.                                |
-	|                                                                             |
-	| You should have received a copy of the GNU General Public License           |
-	| along with this program; if not, write to the Free Software                 |
-	| Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-	+-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
-* This class represents a text wizard property in a property form.
-*
-* @author Helmut Schottmüller <ilias@aurealis.de> 
-* @version $Id$
-* @ingroup	ServicesForm
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * This class represents a text wizard property in a property form.
+ *
+ * @author Helmut Schottmüller <ilias@aurealis.de>
+ */
 class ilTextWizardInputGUI extends ilTextInputGUI
 {
-	/**
-	 * @var ilTemplate
-	 */
-	protected $tpl;
+    protected ilGlobalTemplateInterface $tpl;
+    protected array $values = array();
+    protected bool $allowMove = false;
 
-	protected $values = array();
-	protected $allowMove = false;
+    public function __construct(
+        string $a_title = "",
+        string $a_postvar = ""
+    ) {
+        global $DIC;
 
-	/**
-	* Constructor
-	*
-	* @param	string	$a_title	Title
-	* @param	string	$a_postvar	Post Variable
-	*/
-	function __construct($a_title = "", $a_postvar = "")
-	{
-		global $DIC;
+        $this->lng = $DIC->language();
+        $this->tpl = $DIC["tpl"];
+        parent::__construct($a_title, $a_postvar);
+        $this->validationRegexp = "";
+    }
 
-		$this->lng = $DIC->language();
-		$this->tpl = $DIC["tpl"];
-		parent::__construct($a_title, $a_postvar);
-		$this->validationRegexp = "";
-	}
+    public function setValues(array $a_values): void
+    {
+        $this->values = $a_values;
+    }
 
-	/**
-	* Set Values
-	*
-	* @param	array	$a_value	Value
-	*/
-	function setValues($a_values)
-	{
-		$this->values = $a_values;
-	}
-	
-	/**
-	* Set Value
-	*
-	* @param	array	$a_value	Value
-	*/
-	function setValue($a_value)
-	{
-		$this->values = $a_value;
-	}
+    /**
+     * @param array|string $a_value
+     */
+    public function setValue($a_value): void
+    {
+        $this->values = (array) $a_value;
+    }
 
-	/**
-	* Get Values
-	*
-	* @return	array	Values
-	*/
-	function getValues()
-	{
-		return $this->values;
-	}
+    public function getValues(): array
+    {
+        return $this->values;
+    }
 
-	/**
-	* Set allow move
-	*
-	* @param	boolean	$a_allow_move Allow move
-	*/
-	function setAllowMove($a_allow_move)
-	{
-		$this->allowMove = $a_allow_move;
-	}
+    public function setAllowMove(bool $a_allow_move): void
+    {
+        $this->allowMove = $a_allow_move;
+    }
 
-	/**
-	* Get allow move
-	*
-	* @return	boolean	Allow move
-	*/
-	function getAllowMove()
-	{
-		return $this->allowMove;
-	}
+    public function getAllowMove(): bool
+    {
+        return $this->allowMove;
+    }
 
-	/**
-	* Check input, strip slashes etc. set alert, if input is not ok.
-	*
-	* @return	boolean		Input ok, true/false
-	*/	
-	function checkInput()
-	{
-		$lng = $this->lng;
-		
-		$foundvalues = $_POST[$this->getPostVar()];
-		if (is_array($foundvalues))
-		{
-			foreach ($foundvalues as $idx => $value)
-			{
-				$_POST[$this->getPostVar()][$idx] = ilUtil::stripSlashes($value);
-				if ($this->getRequired() && trim($value) == "")
-				{
-					$this->setAlert($lng->txt("msg_input_is_required"));
+    public function checkInput(): bool
+    {
+        $lng = $this->lng;
 
-					return false;
-				}
-				else if (strlen($this->getValidationRegexp()))
-				{
-					if (!preg_match($this->getValidationRegexp(), $value))
-					{
-						$this->setAlert($lng->txt("msg_wrong_format"));
-						return FALSE;
-					}
-				}
-			}
-		}
-		else if($this->getRequired())
-		{
-			$this->setAlert($lng->txt("msg_input_is_required"));
-			return FALSE;
-		}
-		
-		return $this->checkSubItemsInput();
-	}
+        $foundvalues = $this->getInput();
+        if (count($foundvalues) > 0) {
+            foreach ($foundvalues as $value) {
+                if ($this->getRequired() && trim($value) == "") {
+                    $this->setAlert($lng->txt("msg_input_is_required"));
+                    return false;
+                } elseif (strlen($this->getValidationRegexp())) {
+                    if (!preg_match($this->getValidationRegexp(), $value)) {
+                        $this->setAlert($lng->txt("msg_wrong_format"));
+                        return false;
+                    }
+                }
+            }
+        } elseif ($this->getRequired()) {
+            $this->setAlert($lng->txt("msg_input_is_required"));
+            return false;
+        }
 
-	/**
-	* Insert property html
-	*
-	* @return	int	Size
-	*/
-	function insert($a_tpl)
-	{
-		$a_tpl->setCurrentBlock("prop_generic");
-		$a_tpl->setVariable("PROP_GENERIC", $this->render());
-		$a_tpl->parseCurrentBlock();
-		
-	}
-	
-	public function render($a_mode = "")
-	{
-		$tpl = new ilTemplate("tpl.prop_textwizardinput.html", true, true, "Services/Form");
-		$i = 0;
-		foreach ($this->values as $value)
-		{
-			if (strlen($value))
-			{
-				$tpl->setCurrentBlock("prop_text_propval");
-				$tpl->setVariable("PROPERTY_VALUE", ilUtil::prepareFormOutput($value));
-				$tpl->parseCurrentBlock();
-			}
-			if ($this->getAllowMove())
-			{
-				$tpl->setCurrentBlock("move");
-				$tpl->setVariable("CMD_UP", "cmd[up" . $this->getFieldId() . "][$i]");
-				$tpl->setVariable("CMD_DOWN", "cmd[down" . $this->getFieldId() . "][$i]");
-				$tpl->setVariable("ID", $this->getFieldId() . "[$i]");
-				$tpl->setVariable("UP_BUTTON", ilGlyphGUI::get(ilGlyphGUI::UP));
-				$tpl->setVariable("DOWN_BUTTON", ilGlyphGUI::get(ilGlyphGUI::DOWN));
-				$tpl->parseCurrentBlock();
-			}
-			$tpl->setCurrentBlock("row");
-			$tpl->setVariable("POST_VAR", $this->getPostVar() . "[$i]");
-			$tpl->setVariable("ID", $this->getFieldId() . "[$i]");
-			$tpl->setVariable("SIZE", $this->getSize());
-			$tpl->setVariable("MAXLENGTH", $this->getMaxLength());
-			
-			if ($this->getDisabled())
-			{
-				$tpl->setVariable("DISABLED",
-					" disabled=\"disabled\"");
-			}
-			else
-				{
-					$tpl->setVariable("CMD_ADD", "cmd[add" . $this->getFieldId() . "][$i]");
-					$tpl->setVariable("CMD_REMOVE", "cmd[remove" . $this->getFieldId() . "][$i]");
-					$tpl->setVariable("ADD_BUTTON", ilGlyphGUI::get(ilGlyphGUI::ADD));
-					$tpl->setVariable("REMOVE_BUTTON", ilGlyphGUI::get(ilGlyphGUI::REMOVE));
-				}
-			
-			$tpl->parseCurrentBlock();
-			$i++;
-		}
+        return $this->checkSubItemsInput();
+    }
 
-		$tpl->setVariable("ELEMENT_ID", $this->getFieldId());
-		
-		if (!$this->getDisabled())
-		{
-			$this->tpl->addJavascript("./Services/Form/js/ServiceFormWizardInput.js");
-			$this->tpl->addJavascript("./Services/Form/templates/default/textwizard.js");
-		}
-		
-		return $tpl->get();
-	}
+    public function getInput(): array
+    {
+        return $this->strArray($this->getPostVar());
+    }
+
+    public function insert(ilTemplate $a_tpl): void
+    {
+        $a_tpl->setCurrentBlock("prop_generic");
+        $a_tpl->setVariable("PROP_GENERIC", $this->render());
+        $a_tpl->parseCurrentBlock();
+    }
+
+    public function render(string $a_mode = ""): string
+    {
+        $tpl = new ilTemplate("tpl.prop_textwizardinput.html", true, true, "Services/Form");
+        $i = 0;
+        foreach ($this->values as $value) {
+            if (strlen($value)) {
+                $tpl->setCurrentBlock("prop_text_propval");
+                $tpl->setVariable("PROPERTY_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($value));
+                $tpl->parseCurrentBlock();
+            }
+            if ($this->getAllowMove()) {
+                $tpl->setCurrentBlock("move");
+                $tpl->setVariable("CMD_UP", "cmd[up" . $this->getFieldId() . "][$i]");
+                $tpl->setVariable("CMD_DOWN", "cmd[down" . $this->getFieldId() . "][$i]");
+                $tpl->setVariable("ID", $this->getFieldId() . "[$i]");
+                $tpl->setVariable("UP_BUTTON", ilGlyphGUI::get(ilGlyphGUI::UP));
+                $tpl->setVariable("DOWN_BUTTON", ilGlyphGUI::get(ilGlyphGUI::DOWN));
+                $tpl->parseCurrentBlock();
+            }
+            $tpl->setCurrentBlock("row");
+            $tpl->setVariable("POST_VAR", $this->getPostVar() . "[$i]");
+            $tpl->setVariable("ID", $this->getFieldId() . "[$i]");
+            $tpl->setVariable("SIZE", $this->getSize());
+            $tpl->setVariable("MAXLENGTH", $this->getMaxLength());
+
+            if ($this->getDisabled()) {
+                $tpl->setVariable(
+                    "DISABLED",
+                    " disabled=\"disabled\""
+                );
+            } else {
+                $tpl->setVariable("CMD_ADD", "cmd[add" . $this->getFieldId() . "][$i]");
+                $tpl->setVariable("CMD_REMOVE", "cmd[remove" . $this->getFieldId() . "][$i]");
+                $tpl->setVariable("ADD_BUTTON", ilGlyphGUI::get(ilGlyphGUI::ADD));
+                $tpl->setVariable("REMOVE_BUTTON", ilGlyphGUI::get(ilGlyphGUI::REMOVE));
+            }
+
+            $tpl->parseCurrentBlock();
+            $i++;
+        }
+
+        $tpl->setVariable("ELEMENT_ID", $this->getFieldId());
+
+        if (!$this->getDisabled()) {
+            $this->tpl->addJavascript("./Services/Form/js/ServiceFormWizardInput.js");
+            $this->tpl->addJavascript("./Services/Form/templates/default/textwizard.js");
+        }
+
+        return $tpl->get();
+    }
 }

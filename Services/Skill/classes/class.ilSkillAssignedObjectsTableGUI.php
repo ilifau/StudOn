@@ -1,6 +1,21 @@
 <?php
 
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 
 /**
  * TableGUI class for assigned objects of skills
@@ -9,30 +24,12 @@
  */
 class ilSkillAssignedObjectsTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
+    protected ilAccessHandler $access;
+    protected ilTree $tree;
+    protected \ILIAS\UI\Factory $ui_fac;
+    protected \ILIAS\UI\Renderer $ui_ren;
 
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
-
-    /**
-     * @var ilTree
-     */
-    protected $tree;
-
-    /**
-     * Constructor
-     */
-    public function __construct($a_parent_obj, $a_parent_cmd, $a_ass_objects)
+    public function __construct($a_parent_obj, string $a_parent_cmd, array $a_ass_objects)
     {
         global $DIC;
 
@@ -40,10 +37,12 @@ class ilSkillAssignedObjectsTableGUI extends ilTable2GUI
         $this->lng = $DIC->language();
         $this->access = $DIC->access();
         $this->tree = $DIC->repositoryTree();
+        $this->ui_fac = $DIC->ui()->factory();
+        $this->ui_ren = $DIC->ui()->renderer();
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
-        $data = array();
+        $data = [];
         foreach ($a_ass_objects as $obj) {
             if (ilObject::_hasUntrashedReference($obj)) {
                 $data[] = array("obj_id" => $obj);
@@ -59,18 +58,17 @@ class ilSkillAssignedObjectsTableGUI extends ilTable2GUI
         $this->setRowTemplate("tpl.skill_assigned_objects_row.html", "Services/Skill");
     }
 
-    /**
-     * Fill table row
-     */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         $obj_type = ilObject::_lookupType($a_set["obj_id"]);
+        $icon = $this->ui_fac->symbol()->icon()->standard(
+            $obj_type,
+            $this->lng->txt("icon") . " " . $this->lng->txt($obj_type),
+            "medium"
+        );
         $this->tpl->setVariable(
             "OBJECT_IMG",
-            ilUtil::img(ilObject::_getIcon(
-                $a_set["obj_id"]),
-                $this->lng->txt("icon") . " " . $this->lng->txt($obj_type)
-            )
+            $this->ui_ren->render($icon)
         );
         $this->tpl->setVariable("OBJECT_TITLE", ilObject::_lookupTitle($a_set["obj_id"]));
 
@@ -82,7 +80,7 @@ class ilSkillAssignedObjectsTableGUI extends ilTable2GUI
 
         $this->tpl->setVariable(
             "PATH",
-            $path->getPath($this->tree->getParentId($obj_ref_id_parent), $obj_ref_id)
+            $path->getPath($this->tree->getParentId($obj_ref_id_parent), (int) $obj_ref_id)
         );
     }
 }

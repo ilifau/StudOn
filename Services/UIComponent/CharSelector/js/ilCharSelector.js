@@ -1,4 +1,18 @@
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Character selector object 
@@ -85,13 +99,13 @@ il.CharSelector = new function() {
 		if (config.open) {
 			self.openPanel();
 		}
-		// fau: handle open/close of char selector from the question menu
+// fau: handle open/close of char selector from the question menu
         else {
             self.closePanel();
         }
 
 		$('.ilCharSelectorToggle').mousedown(function(){return false;});
-		$('.ilCharSelectorToggle').click(self.togglePanel);
+		$('.ilCharSelectorToggle').click(self.togglePanel); 
 
         $('.ilCharSelectorMenuToggle').mousedown(function(){return false;});
         $('.ilCharSelectorMenuToggle').click(self.togglePanelFromMenu);

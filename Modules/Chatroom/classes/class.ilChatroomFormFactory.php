@@ -1,7 +1,22 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/Form/classes/class.ilPropertyFormGUI.php';
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilChatroomFormFactory
@@ -11,15 +26,9 @@ require_once 'Services/Form/classes/class.ilPropertyFormGUI.php';
  */
 class ilChatroomFormFactory
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
+    protected ilLanguage $lng;
+    protected ilObjUser $user;
+    protected \ILIAS\HTTP\Services $http;
 
     /**
      * Constructor
@@ -30,25 +39,29 @@ class ilChatroomFormFactory
 
         $this->lng = $DIC->language();
         $this->user = $DIC->user();
+        $this->http = $DIC->http();
     }
 
     /**
      * Applies given values to field in given form.
      * @param ilPropertyFormGUI $form
-     * @param array             $values
+     * @param array $values
      */
-    public static function applyValues(ilPropertyFormGUI $form, array $values)
+    public static function applyValues(ilPropertyFormGUI $form, array $values): void
     {
-        $form->setValuesByArray($values);
+        $form->setValuesByArray(array_map(
+            static fn ($value) => is_int($value) ? (string) $value : $value,
+            $values
+        ));
     }
 
     /**
      * Instantiates and returns ilPropertyFormGUI containing ilTextInputGUI
      * and ilTextAreaInputGUI
-     * @deprecated replaced by default creation screens
      * @return ilPropertyFormGUI
+     * @deprecated replaced by default creation screens
      */
-    public function getCreationForm()
+    public function getCreationForm(): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
         $title = new ilTextInputGUI($this->lng->txt('title'), 'title');
@@ -66,7 +79,7 @@ class ilChatroomFormFactory
      * @param ilPropertyFormGUI $form
      * @return ilPropertyFormGUI
      */
-    private function addDefaultBehaviour(ilPropertyFormGUI $form)
+    private function addDefaultBehaviour(ilPropertyFormGUI $form): ilPropertyFormGUI
     {
         $form->addCommandButton('create-save', $this->lng->txt('create'));
         $form->addCommandButton('cancel', $this->lng->txt('cancel'));
@@ -74,10 +87,7 @@ class ilChatroomFormFactory
         return $form;
     }
 
-    /**
-     * @return ilPropertyFormGUI
-     */
-    public function getSettingsForm()
+    public function getSettingsForm(ilObjectService $objectService, ilObjChatroom $chatroom): ilPropertyFormGUI
     {
         $this->lng->loadLanguageModule('rep');
 
@@ -89,31 +99,6 @@ class ilChatroomFormFactory
         $description = new ilTextAreaInputGUI($this->lng->txt('description'), 'desc');
         $form->addItem($description);
 
-        $cb = new ilCheckboxInputGUI($this->lng->txt('allow_anonymous'), 'allow_anonymous');
-        $cb->setInfo($this->lng->txt('anonymous_hint'));
-
-        $txt = new ilTextInputGUI($this->lng->txt('autogen_usernames'), 'autogen_usernames');
-        $txt->setRequired(true);
-        $txt->setInfo($this->lng->txt('autogen_usernames_info'));
-        $cb->addSubItem($txt);
-        $form->addItem($cb);
-
-        $cb = new ilCheckboxInputGUI($this->lng->txt('allow_custom_usernames'), 'allow_custom_usernames');
-        $form->addItem($cb);
-
-        $cb_history = new ilCheckboxInputGUI($this->lng->txt('enable_history'), 'enable_history');
-        $form->addItem($cb_history);
-
-        $num_msg_history = new ilNumberInputGUI($this->lng->txt('display_past_msgs'), 'display_past_msgs');
-        $num_msg_history->setInfo($this->lng->txt('hint_display_past_msgs'));
-        $num_msg_history->setMinValue(0);
-        $num_msg_history->setMaxValue(100);
-        $form->addItem($num_msg_history);
-
-        $cb = new ilCheckboxInputGUI($this->lng->txt('private_rooms_enabled'), 'private_rooms_enabled');
-        $cb->setInfo($this->lng->txt('private_rooms_enabled_info'));
-        $form->addItem($cb);
-
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->lng->txt('rep_activation_availability'));
         $form->addItem($section);
@@ -122,15 +107,55 @@ class ilChatroomFormFactory
         $online->setInfo($this->lng->txt('chtr_activation_online_info'));
         $form->addItem($online);
 
-        require_once 'Services/Form/classes/class.ilDateDurationInputGUI.php';
         $dur = new ilDateDurationInputGUI($this->lng->txt('rep_time_period'), 'access_period');
         $dur->setShowTime(true);
         $form->addItem($dur);
 
         $visible = new ilCheckboxInputGUI($this->lng->txt('rep_activation_limited_visibility'), 'access_visibility');
-        $visible->setValue(1);
+        $visible->setValue('1');
         $visible->setInfo($this->lng->txt('chtr_activation_limited_visibility_info'));
         $dur->addSubItem($visible);
+
+        $presentationHeader = new ilFormSectionHeaderGUI();
+        $presentationHeader->setTitle($this->lng->txt('settings_presentation_header'));
+        $form->addItem($presentationHeader);
+
+        $objectService->commonSettings()->legacyForm(
+            $form,
+            $chatroom
+        )->addTileImage();
+
+        $num_msg_history = new ilNumberInputGUI($this->lng->txt('display_past_msgs'), 'display_past_msgs');
+        $num_msg_history->setSuffix($this->lng->txt('display_past_msgs_suffix'));
+        $num_msg_history->allowDecimals(false);
+        $num_msg_history->setSize(5);
+        $num_msg_history->setInfo($this->lng->txt('hint_display_past_msgs'));
+        $num_msg_history->setMinValue(0);
+        $num_msg_history->setMaxValue(100);
+        $form->addItem($num_msg_history);
+
+        $cb_history = new ilCheckboxInputGUI($this->lng->txt('chat_enable_history'), 'enable_history');
+        $cb_history->setInfo($this->lng->txt('chat_enable_history_info'));
+        $form->addItem($cb_history);
+
+        $functionsnHeader = new ilFormSectionHeaderGUI();
+        $functionsnHeader->setTitle($this->lng->txt('chat_settings_functions_header'));
+        $form->addItem($functionsnHeader);
+
+        $cb = new ilCheckboxInputGUI($this->lng->txt('allow_anonymous'), 'allow_anonymous');
+        $cb->setInfo($this->lng->txt('anonymous_hint'));
+        $form->addItem($cb);
+
+        $cb = new ilCheckboxInputGUI($this->lng->txt('allow_custom_usernames'), 'allow_custom_usernames');
+        $txt = new ilTextInputGUI($this->lng->txt('autogen_usernames'), 'autogen_usernames');
+        $txt->setRequired(true);
+        $txt->setInfo($this->lng->txt('autogen_usernames_info'));
+        $cb->addSubItem($txt);
+        $form->addItem($cb);
+
+        $cb = new ilCheckboxInputGUI($this->lng->txt('private_rooms_enabled'), 'private_rooms_enabled');
+        $cb->setInfo($this->lng->txt('private_rooms_enabled_info'));
+        $form->addItem($cb);
 
         return $form;
     }
@@ -139,7 +164,7 @@ class ilChatroomFormFactory
      * Prepares Fileupload form and returns it.
      * @return ilPropertyFormGUI
      */
-    public function getFileUploadForm()
+    public function getFileUploadForm(): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
         $file_input = new ilFileInputGUI();
@@ -158,12 +183,11 @@ class ilChatroomFormFactory
      * Returns period form.
      * @return ilPropertyFormGUI
      */
-    public function getPeriodForm()
+    public function getPeriodForm(): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
         $form->setPreventDoubleSubmission(false);
 
-        require_once 'Services/Form/classes/class.ilDateDurationInputGUI.php';
         $duration = new ilDateDurationInputGUI($this->lng->txt('period'), 'timeperiod');
 
         $duration->setStartText($this->lng->txt('duration_from'));
@@ -177,10 +201,10 @@ class ilChatroomFormFactory
 
     /**
      * Returns chatname selection form.
-     * @param array $name_options
+     * @param array<string, string> $name_options
      * @return ilPropertyFormGUI
      */
-    public function getUserChatNameSelectionForm(array $name_options)
+    public function getUserChatNameSelectionForm(array $name_options): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
 
@@ -194,7 +218,7 @@ class ilChatroomFormFactory
         $custom_opt = new ilRadioOption($this->lng->txt('custom_username'), 'custom_username');
         $radio->addOption($custom_opt);
 
-        $txt = new ilTextInputGUI($this->lng->txt('custom_username'), 'custom_username_text');
+        $txt = new ilTextInputGUI($this->lng->txt('preferred_chatname'), 'custom_username_text');
         $custom_opt->addSubItem($txt);
         $form->addItem($radio);
 
@@ -212,13 +236,13 @@ class ilChatroomFormFactory
      * @param array $sessions
      * @return ilPropertyFormGUI
      */
-    public function getSessionForm(array $sessions)
+    public function getSessionForm(array $sessions): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
         $form->setPreventDoubleSubmission(false);
         $list = new ilSelectInputGUI($this->lng->txt('session'), 'session');
 
-        $options = array();
+        $options = [];
 
         foreach ($sessions as $session) {
             $start = new ilDateTime($session['connected'], IL_CAL_UNIX);
@@ -236,10 +260,7 @@ class ilChatroomFormFactory
         return $form;
     }
 
-    /**
-     * @return ilPropertyFormGUI
-     */
-    public function getClientSettingsForm()
+    public function getClientSettingsForm(): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
 
@@ -250,15 +271,15 @@ class ilChatroomFormFactory
         $enable_osc->setInfo($this->lng->txt('chatroom_enable_osc_info'));
         $enable_chat->addSubItem($enable_osc);
 
-        $oscBrowserNotificationStatus = new \ilCheckboxInputGUI(
+        $oscBrowserNotificationStatus = new ilCheckboxInputGUI(
             $this->lng->txt('osc_adm_browser_noti_label'),
             'enable_browser_notifications'
         );
         $oscBrowserNotificationStatus->setInfo($this->lng->txt('osc_adm_browser_noti_info'));
-        $oscBrowserNotificationStatus->setValue(1);
+        $oscBrowserNotificationStatus->setValue('1');
         $enable_osc->addSubItem($oscBrowserNotificationStatus);
 
-        $oscBrowserNotificationIdleTime = new \ilNumberInputGUI(
+        $oscBrowserNotificationIdleTime = new ilNumberInputGUI(
             $this->lng->txt('osc_adm_conv_idle_state_threshold_label'),
             'conversation_idle_state_in_minutes'
         );
@@ -269,36 +290,31 @@ class ilChatroomFormFactory
         $oscBrowserNotificationIdleTime->setInfo($this->lng->txt('osc_adm_conv_idle_state_threshold_info'));
         $enable_osc->addSubItem($oscBrowserNotificationIdleTime);
 
-        $osd = new ilCheckboxInputGUI($this->lng->txt('enable_osd'), 'enable_osd');
-        $osd->setInfo($this->lng->txt('hint_osd'));
-        $enable_chat->addSubItem($osd);
-
-        $interval = new ilNumberInputGUI($this->lng->txt('osd_intervall'), 'osd_intervall');
-        $interval->setMinValue(1);
-        $interval->setRequired(true);
-        $interval->setSuffix($this->lng->txt('seconds'));
-        $interval->setSize(5);
-        $interval->setInfo($this->lng->txt('hint_osd_interval'));
-        $osd->addSubItem($interval);
-
-        $play_sound = new ilCheckboxInputGUI($this->lng->txt('play_invitation_sound'), 'play_invitation_sound');
-        $play_sound->setInfo($this->lng->txt('play_invitation_sound_info'));
-        $osd->addSubItem($play_sound);
-
         $enable_smilies = new ilCheckboxInputGUI($this->lng->txt('enable_smilies'), 'enable_smilies');
         $enable_smilies->setInfo($this->lng->txt('hint_enable_smilies'));
         $enable_chat->addSubItem($enable_smilies);
 
-        $name = new \ilTextInputGUI($this->lng->txt('chatroom_client_name'), 'client_name');
+        $name = new ilTextInputGUI($this->lng->txt('chatroom_client_name'), 'client_name');
         $name->setInfo($this->lng->txt('chatroom_client_name_info'));
         $name->setRequired(true);
         $name->setMaxLength(100);
         $enable_chat->addSubItem($name);
 
-        require_once 'Modules/Chatroom/classes/class.ilChatroomAuthInputGUI.php';
-        $auth = new ilChatroomAuthInputGUI($this->lng->txt('chatroom_auth'), 'auth');
+        $auth = new ilChatroomAuthInputGUI(
+            $this->lng->txt('chatroom_auth'),
+            'auth',
+            $this->http
+        );
         $auth->setInfo($this->lng->txt('chat_auth_token_info'));
-        $auth->setCtrlPath(array('iladministrationgui', 'ilobjchatroomgui', 'ilpropertyformgui', 'ilformpropertydispatchgui', 'ilchatroomauthinputgui'));
+        $auth->setCtrlPath(
+            [
+                ilAdministrationGUI::class,
+                ilObjChatroomGUI::class,
+                ilPropertyFormGUI::class,
+                ilFormPropertyDispatchGUI::class,
+                ilChatroomAuthInputGUI::class,
+            ]
+        );
         $auth->setRequired(true);
         $enable_chat->addSubItem($auth);
 

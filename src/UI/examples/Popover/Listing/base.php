@@ -1,7 +1,9 @@
 <?php
-/**
- * Base
- */
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Popover\Listing;
+
 function base()
 {
     global $DIC;

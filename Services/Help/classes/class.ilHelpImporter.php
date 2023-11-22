@@ -1,58 +1,51 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Export/classes/class.ilXmlImporter.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Importer class for help
  *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id: $
- * @ingroup ServicesHelp
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilHelpImporter extends ilXmlImporter
 {
-    /**
-     * ilHelpImporterConfig
-     */
-    protected $config = null;
+    protected ilHelpDataSet $ds;
+    protected ?ilHelpImportConfig $config = null;
 
-    /**
-     * Initialisation
-     */
-    public function init()
+    public function init(): void
     {
-        include_once("./Services/Help/classes/class.ilHelpDataSet.php");
         $this->ds = new ilHelpDataSet();
         $this->ds->setDSPrefix("ds");
 
-        $this->config = $this->getImport()->getConfig("Services/Help");
+        /** @var ilHelpImportConfig $config */
+        $config = $this->getImport()->getConfig("Services/Help");
+        $this->config = $config;
         $module_id = $this->config->getModuleId();
         if ($module_id > 0) {
-            include_once("./Services/Export/classes/class.ilImport.php");
             $this->getImport()->getMapping()->addMapping('Services/Help', 'help_module', 0, $module_id);
-            /* not needed anymore, we now get mapping from learning module
-            include_once("./Modules/LearningModule/classes/class.ilLMObject.php");
-            $chaps = ilLMObject::getObjectList($this->getId(), "st");
-            foreach ($chaps as $chap)
-            {
-                $chap_arr = explode("_", $chap["import_id"]);
-                $imp->getMapping()->addMapping('Services/Help', 'help_chap',
-                    $chap_arr[count($chap_arr) - 1], $chap["obj_id"]);
-            }*/
         }
     }
 
-
-    /**
-     * Import XML
-     *
-     * @param
-     * @return
-     */
-    public function importXmlRepresentation($a_entity, $a_id, $a_xml, $a_mapping)
-    {
-        include_once("./Services/DataSet/classes/class.ilDataSetImportParser.php");
+    public function importXmlRepresentation(
+        string $a_entity,
+        string $a_id,
+        string $a_xml,
+        ilImportMapping $a_mapping
+    ): void {
         $parser = new ilDataSetImportParser(
             $a_entity,
             $this->getSchemaVersion(),

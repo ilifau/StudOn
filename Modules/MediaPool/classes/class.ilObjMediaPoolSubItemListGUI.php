@@ -1,65 +1,50 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
-
-include_once './Services/Object/classes/class.ilSubItemListGUI.php';
-include_once './Services/Link/classes/class.ilLink.php';
 
 /**
-* Show media pool items
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*
-* @ingroup ModulesMediaPool
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Show media pool items
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilObjMediaPoolSubItemListGUI extends ilSubItemListGUI
 {
-    /**
-     * get html
-     * @return
-     */
-    public function getHTML()
+    public function getHTML(): string
     {
         $lng = $this->lng;
-        
+
         $lng->loadLanguageModule('content');
         foreach ($this->getSubItemIds(true) as $sub_item) {
-            if (is_object($this->getHighlighter()) and strlen($this->getHighlighter()->getContent($this->getObjId(), $sub_item))) {
+            if (
+                is_object($this->getHighlighter()) &&
+                $this->getHighlighter()->getContent($this->getObjId(), $sub_item) !== ''
+            ) {
                 $this->tpl->setCurrentBlock('sea_fragment');
                 $this->tpl->setVariable('TXT_FRAGMENT', $this->getHighlighter()->getContent($this->getObjId(), $sub_item));
                 $this->tpl->parseCurrentBlock();
             }
             $this->tpl->setCurrentBlock('subitem');
-            $this->tpl->setVariable('SEPERATOR', ':');
-            
-            include_once './Modules/MediaPool/classes/class.ilMediaPoolItem.php';
+            $this->tpl->setVariable('SEPERATOR', ': ');
+
             switch (ilMediaPoolItem::lookupType($sub_item)) {
                 case 'fold':
                     $this->tpl->setVariable('LINK', ilLink::_getLink($this->getRefId(), 'mep', array(), '_' . $sub_item));
                     $this->tpl->setVariable('TARGET', $this->getItemListGUI()->getCommandFrame(''));
                     break;
-                    
+
                 case 'mob':
                     $this->tpl->setVariable(
                         'LINK',
@@ -68,11 +53,11 @@ class ilObjMediaPoolSubItemListGUI extends ilSubItemListGUI
                     );
                     $this->tpl->setVariable('TARGET', $this->getItemListGUI()->getCommandFrame(''));
                     break;
-                
+
                 case 'pg':
                     $pool = new ilObjMediaPool($this->getRefId());
                     $parent_id = $pool->getParentId($sub_item);
-                    if ($parent_id !== '') {
+                    if ($parent_id !== null) {
                         $this->tpl->setVariable('LINK', ilLink::_getLink($this->getRefId(), 'mep', [], '_' . $parent_id));
                         $this->tpl->setVariable('TARGET', $this->getItemListGUI()->getCommandFrame(''));
                     } else {
@@ -81,20 +66,19 @@ class ilObjMediaPoolSubItemListGUI extends ilSubItemListGUI
                     }
                     break;
             }
-            
-            
+
+
             $this->tpl->setVariable('SUBITEM_TYPE', $lng->txt('obj_' . ilMediaPoolItem::lookupType($sub_item)));
             $this->tpl->setVariable('TITLE', ilMediaPoolItem::lookupTitle($sub_item));
             #$this->getItemListGUI()->setChildId($sub_item);
-            
+
             // begin-patch mime_filter
 
             if (!$this->parseImage($sub_item)) {
-                include_once './Modules/MediaPool/classes/class.ilMediaPoolItem.php';
                 $this->tpl->setVariable('SUBITEM_TYPE', $lng->txt('obj_' . ilMediaPoolItem::lookupType($sub_item)));
                 $this->tpl->setVariable('SEPERATOR', ':');
             }
-            
+
 
             if (count($this->getSubItemIds(true)) > 1) {
                 $this->parseRelevance($sub_item);
@@ -102,23 +86,21 @@ class ilObjMediaPoolSubItemListGUI extends ilSubItemListGUI
 
             $this->tpl->parseCurrentBlock();
         }
-        
+
         $this->showDetailsLink();
-        
+
         return $this->tpl->get();
     }
-    
-    protected function parseImage($a_sub_id)
+
+    protected function parseImage(int $a_sub_id): bool
     {
-        include_once './Modules/MediaPool/classes/class.ilMediaPoolItem.php';
         $sub_id = ilMediaPoolItem::lookupForeignId($a_sub_id);
         // output thumbnail (or mob icon)
-        if (ilObject::_lookupType($sub_id) == "mob") {
-            include_once("./Services/MediaObjects/classes/class.ilObjMediaObjectGUI.php");
+        if (ilObject::_lookupType($sub_id) === "mob") {
             $mob = new ilObjMediaObject($sub_id);
             $med = $mob->getMediaItem("Standard");
             $target = $med->getThumbnailTarget();
-            
+
             if ($target != "") {
                 // begin-patch mime_filter
                 $this->tpl->setVariable(
@@ -131,16 +113,16 @@ class ilObjMediaPoolSubItemListGUI extends ilSubItemListGUI
                 );
                 $this->tpl->setVariable('LINKED_TARGET', '_blank');
                 $this->tpl->setVariable("LINKED_IMAGE", ilUtil::img($target));
-            // end-patch mime_filter
+                // end-patch mime_filter
             } else {
-                $this->tpl->setVariable("SUB_ITEM_IMAGE", ilUtil::img(ilUtil::getImagePath("icon_" . $a_set["type"] . ".gif")));
+                $this->tpl->setVariable("SUB_ITEM_IMAGE", ilUtil::img(ilUtil::getImagePath("icon_" . "mob" . ".gif")));
             }
-            if (ilUtil::deducibleSize($med->getFormat()) && $med->getLocationType() == "Reference") {
-                $size = @getimagesize($med->getLocation());
+            if (ilUtil::deducibleSize($med->getFormat()) && $med->getLocationType() === "Reference") {
+                $size = getimagesize($med->getLocation());
                 if ($size[0] > 0 && $size[1] > 0) {
                     $wr = $size[0] / 80;
                     $hr = $size[1] / 80;
-                    $r = max($wr, hr);
+                    $r = max($wr, $hr);
                     $w = (int) ($size[0] / $r);
                     $h = (int) ($size[1] / $r);
                     $this->tpl->setVariable("SUB_ITEM_IMAGE", ilUtil::img($med->getLocation(), "", $w, $h));

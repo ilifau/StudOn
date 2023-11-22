@@ -1,6 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author		Björn Heyser <bheyser@databay.de>
@@ -19,7 +33,7 @@ class ilTestQuestionRelatedObjectivesList
      * @var array
      */
     protected $objectivesTitles;
-    
+
     public function __construct()
     {
         $this->objectivesByQuestion = array();
@@ -39,28 +53,25 @@ class ilTestQuestionRelatedObjectivesList
      * @param integer $questionId
      * @return bool
      */
-    public function hasQuestionRelatedObjectives($questionId)
+    public function hasQuestionRelatedObjectives($questionId): bool
     {
         if (!isset($this->objectivesByQuestion[$questionId])) {
             return false;
         }
-        
+
         return (bool) count($this->objectivesByQuestion[$questionId]);
     }
 
     /**
      * @param integer $questionId
-     * @return string
      */
     public function getQuestionRelatedObjectives($questionId)
     {
         return $this->objectivesByQuestion[$questionId];
     }
-    
+
     public function loadObjectivesTitles()
     {
-        require_once 'Modules/Course/classes/class.ilCourseObjective.php';
-        
         foreach ($this->objectivesByQuestion as $objectiveIds) {
             foreach ($objectiveIds as $objectiveId) {
                 if (!isset($this->objectivesTitles[$objectiveId])) {
@@ -75,23 +86,23 @@ class ilTestQuestionRelatedObjectivesList
      * @param integer $questionId
      * @return string
      */
-    public function getQuestionRelatedObjectiveTitles($questionId)
+    public function getQuestionRelatedObjectiveTitles($questionId): string
     {
         $titles = array();
-        
+
         foreach ((array) $this->objectivesByQuestion[$questionId] as $objectiveId) {
             $titles[] = $this->objectivesTitles[$objectiveId];
         }
-        
+
         return implode(', ', $titles);
     }
-    
-    public function getUniqueObjectivesString()
+
+    public function getUniqueObjectivesString(): string
     {
         return implode(', ', $this->objectivesTitles);
     }
 
-    public function getUniqueObjectivesStringForQuestions($questionIds)
+    public function getUniqueObjectivesStringForQuestions($questionIds): string
     {
         $objectiveTitles = array();
 
@@ -99,12 +110,12 @@ class ilTestQuestionRelatedObjectivesList
             if (!in_array($questionId, $questionIds)) {
                 continue;
             }
-            
+
             foreach ($objectiveIds as $objectiveId) {
                 $objectiveTitles[$objectiveId] = $this->objectivesTitles[$objectiveId];
             }
         }
-        
+
         return implode(', ', $objectiveTitles);
     }
 
@@ -113,12 +124,12 @@ class ilTestQuestionRelatedObjectivesList
         return $this->objectivesTitles[$objectiveId];
     }
 
-    public function getObjectives()
+    public function getObjectives(): array
     {
         return $this->objectivesTitles;
     }
 
-    public function isQuestionRelatedToObjective($questionId, $objectiveId)
+    public function isQuestionRelatedToObjective($questionId, $objectiveId): bool
     {
         foreach ($this->objectivesByQuestion[$questionId] as $relatedObjectiveId) {
             if ($relatedObjectiveId == $objectiveId) {
@@ -129,7 +140,7 @@ class ilTestQuestionRelatedObjectivesList
         return false;
     }
 
-    public function filterResultsByObjective($testResults, $objectiveId)
+    public function filterResultsByObjective($testResults, $objectiveId): array
     {
         $filteredResults = array();
 

@@ -1,17 +1,28 @@
 <?php
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * jQuery utilities
  *
  * @author  Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- *
- *
  */
 class iljQueryUtil
 {
-
     /**
      * @var string Suffix for minified File
      */
@@ -23,19 +34,12 @@ class iljQueryUtil
      *
      * @param \ilTemplate $a_tpl global $tpl is used when null
      */
-    public static function initjQuery(ilGlobalTemplateInterface $a_tpl = null)
+    public static function initjQuery(ilGlobalTemplateInterface $a_tpl = null): void
     {
-
-// fau: cleanupTrash - ignore missing template (cron job line)
-        if (!ilContext::usesTemplate()) {
-            return;
-        }
-        // fim.
-
         global $DIC;
 
         self::$min = "";
-        if ($a_tpl == null) {
+        if ($a_tpl === null) {
             $a_tpl = $DIC["tpl"];
         }
 
@@ -48,16 +52,11 @@ class iljQueryUtil
      * inits and adds the jQuery-UI JS-File to the global template
      * (see included_components.txt for included components)
      */
-    public static function initjQueryUI($a_tpl = null)
+    public static function initjQueryUI(ilGlobalTemplateInterface $a_tpl = null): void
     {
-        // fau: cleanupTrash - ignore missing template (cron job line)
-        if (!ilContext::usesTemplate()) {
-            return;
-        }
-        // fim.
         global $DIC;
 
-        if ($a_tpl == null) {
+        if ($a_tpl === null) {
             $a_tpl = $DIC["tpl"];
         }
 
@@ -69,7 +68,7 @@ class iljQueryUtil
     /**
      * @return string local path of jQuery file
      */
-    public static function getLocaljQueryPath()
+    public static function getLocaljQueryPath(): string
     {
         return "./node_modules/jquery/dist/jquery" . self::$min . ".js";
     }
@@ -78,7 +77,7 @@ class iljQueryUtil
     /**
      * @return string local path of jQuery UI file
      */
-    public static function getLocaljQueryUIPath()
+    public static function getLocaljQueryUIPath(): string
     {
         return "./node_modules/jquery-ui-dist/jquery-ui" . self::$min . ".js";
     }
@@ -90,13 +89,8 @@ class iljQueryUtil
     /**
      * Inits and add maphilight to the general template
      */
-    public static function initMaphilight()
+    public static function initMaphilight(): void
     {
-        // fau: cleanupTrash - ignore missing template (cron job line)
-        if (!ilContext::usesTemplate()) {
-            return;
-        }
-        // fim.
         global $DIC;
 
         $tpl = $DIC["tpl"];
@@ -108,27 +102,8 @@ class iljQueryUtil
     /**
      * Get local path of maphilight file
      */
-    public static function getLocalMaphilightPath()
+    public static function getLocalMaphilightPath(): string
     {
         return "./node_modules/maphilight/jquery.maphilight.min.js";
     }
-
-    // fau: imageBox - new function initColorbox()
-    /**
-     * Add the colorbox functionality to the current template
-     */
-    public static function initColorbox()
-    {
-        if (!ilContext::usesTemplate()) {
-            return;
-        }
-
-        global $DIC;
-
-        $tpl = $DIC["tpl"];
-
-        $tpl->addJavaScript("./Services/jQuery/js/colorbox/jquery.colorbox-min.js", true, 1);
-        $tpl->addCss("./Services/jQuery/js/colorbox/example4/colorbox.css");
-    }
-    // fau.
 }

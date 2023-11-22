@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2017 Alexander Killing <killing@leifos.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Dropdown;
 
@@ -9,15 +25,14 @@ use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
 use ILIAS\UI\Implementation\Render\ResourceRegistry;
-use \ILIAS\UI\Implementation\Render\Template;
-use ILIAS\UI\Implementation\Component\Dropdown\Dropdown;
+use ILIAS\UI\Implementation\Render\Template;
 
 class Renderer extends AbstractComponentRenderer
 {
     /**
      * @inheritdoc
      */
-    public function render(Component\Component $component, RendererInterface $default_renderer)
+    public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
         $this->checkComponent($component);
 
@@ -27,7 +42,7 @@ class Renderer extends AbstractComponentRenderer
         return $this->renderDropdown($component, $default_renderer);
     }
 
-    protected function renderDropdown(Dropdown $component, RendererInterface $default_renderer)
+    protected function renderDropdown(Dropdown $component, RendererInterface $default_renderer): string
     {
 
         // get template
@@ -60,12 +75,12 @@ class Renderer extends AbstractComponentRenderer
             $tpl->parseCurrentBlock();
         }
 
-        $this->maybeRenderId($component, $tpl, "with_id", "ID");
+        $this->renderId($component, $tpl);
 
         return $tpl->get();
     }
 
-    protected function renderItems(array $items, Template $tpl, RendererInterface $default_renderer)
+    protected function renderItems(array $items, Template $tpl, RendererInterface $default_renderer): void
     {
         foreach ($items as $item) {
             $tpl->setCurrentBlock("item");
@@ -75,20 +90,23 @@ class Renderer extends AbstractComponentRenderer
     }
 
 
-    protected function maybeRenderId(JavaScriptBindable $component, Template $tpl, $block, $template_var)
-    {
+    protected function renderId(
+        JavaScriptBindable $component,
+        Template $tpl
+    ): void {
         $id = $this->bindJavaScript($component);
-        if ($id !== null) {
-            $tpl->setCurrentBlock($block);
-            $tpl->setVariable($template_var, $id);
-            $tpl->parseCurrentBlock();
+        if ($id === null) {
+            $id = $this->createId();
         }
+        $tpl->setVariable("ID", $id);
+        $tpl->setVariable("ID_MENU", $id."_menu");
+
     }
 
     /**
      * @inheritdoc
      */
-    public function registerResources(ResourceRegistry $registry)
+    public function registerResources(ResourceRegistry $registry): void
     {
         parent::registerResources($registry);
         $registry->register('./src/UI/templates/js/Dropdown/dropdown.js');
@@ -97,9 +115,8 @@ class Renderer extends AbstractComponentRenderer
     /**
      * @inheritdoc
      */
-    protected function getComponentInterfaceName()
+    protected function getComponentInterfaceName(): array
     {
-        return array(Component\Dropdown\Standard::class
-        );
+        return array(Component\Dropdown\Standard::class);
     }
 }

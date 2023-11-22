@@ -1,77 +1,63 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
-* Search result implementing iterator interface.
-*
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*
-* @ingroup
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Search result implementing iterator interface.
+ *
+ * @author Stefan Meyer <meyer@leifos.com>
+ * @ingroup
+ */
 class ilLuceneSearchResult implements Iterator
 {
-    private $listener;
-    private $position = 0;
-    
-    private $limit = 0;
-    private $total_hits = 0;
-    private $max_score = 0;
-
-    private $objects = [];
-    private $relevance;
-    
-
     /**
-     * Constructor
-     * @param string search result
-     * @return
+     * @var Closure[]
      */
-    public function __construct()
-    {
-    }
-    
+    private array $listener = [];
+    private int $position = 0;
+
+    private int $limit = 0;
+    private int $total_hits = 0;
+    private float $max_score = 0;
+
+    private array $objects = [];
+    private array $relevance = [];
+
+
+
     /**
      * set search callback
-     * @param
-     * @return
+     * @param Closure[]
      */
-    public function setCallback($a_callback)
+    public function setCallback(array $a_callback): void
     {
         $this->listener = $a_callback;
     }
-    
+
     /**
      * Iterator rewind
-     * @return
      */
     public function rewind()
     {
         $this->position = 0;
     }
-    
+
     /**
      * Iterator valid
      * @param
@@ -94,7 +80,7 @@ class ilLuceneSearchResult implements Iterator
         }
         return false;
     }
-    
+
     /**
      * Iterator key
      * @return
@@ -103,7 +89,7 @@ class ilLuceneSearchResult implements Iterator
     {
         return $this->position;
     }
-    
+
     /**
      * Iterator current
      * @return
@@ -112,111 +98,64 @@ class ilLuceneSearchResult implements Iterator
     {
         return $this->objects[$this->position];
     }
-    
+
     /**
      * Iterator next
-     * @return
      */
     public function next()
     {
         $this->position++;
     }
-    
-    
-    
-    /**
-     * get candidates
-     * @param
-     * @return
-     */
-    public function getCandidates()
+
+
+
+    public function getCandidates(): array
     {
         return $this->objects;
     }
-    
-    /**
-     * Add object entry
-     * @param int key
-     * @param int value
-     *
-     * @return
-     */
-    public function addObject($a_value, $a_relevance = 0)
+
+    public function addObject(int $a_value, float $a_relevance = 0): void
     {
         $this->objects[] = $a_value;
         $this->relevance[$a_value] = $a_relevance;
     }
-    
-    /**
-     * get relevance
-     * @param int obj_id
-     * @return int	relevance in percent
-     */
-    public function getRelevance($a_obj_id)
+
+    public function getRelevance(int $a_obj_id): float
     {
         if (!$this->getMaxScore()) {
             return 0;
         }
         return isset($this->relevance[$a_obj_id]) ? $this->relevance[$a_obj_id] / $this->getMaxScore() * 100 : 0;
     }
-    
-    
-    /**
-     *
-     * @param
-     * @return
-     */
-    public function setLimit($a_limit)
+
+
+    public function setLimit(int $a_limit): void
     {
         $this->limit = $a_limit;
     }
-    
-    /**
-     *
-     * @param
-     * @return
-     */
-    public function getLimit()
+
+    public function getLimit(): int
     {
         return $this->limit;
     }
-    
-    
-    /**
-     *
-     * @param
-     * @return
-     */
-    public function setMaxScore($a_score)
+
+
+    public function setMaxScore(float $a_score): void
     {
         $this->max_score = $a_score;
     }
-    
-    /**
-     *
-     * @param
-     * @return
-     */
-    public function getMaxScore()
+
+    public function getMaxScore(): float
     {
         return $this->max_score;
     }
-    
-    /**
-     * set total hits
-     * @return
-     */
-    public function setTotalHits($a_hits)
+
+    public function setTotalHits(int $a_hits): void
     {
         $this->total_hits = $a_hits;
     }
-    
-    /**
-     * get total hits
-     * @param
-     * @return
-     */
-    public function getTotalHits()
+
+    public function getTotalHits(): int
     {
         return $this->total_hits;
     }

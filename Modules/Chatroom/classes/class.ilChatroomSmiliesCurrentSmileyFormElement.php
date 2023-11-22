@@ -1,10 +1,26 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilChatroomSmiliesCurrentSmileyFormElement
- * Class ilchatroomSmiliesCurrentSmileyFormElement
- * simple form element that displays an image; does not add data to the containing form
+ * Simple form element that displays an image; does not add data to the containing form
  * but may be initialized by default methods, such as valuesByArray
  * @author  Jan Posselt <jposselt@databay.de>
  * @version $Id$
@@ -12,12 +28,9 @@
  */
 class ilChatroomSmiliesCurrentSmileyFormElement extends ilCustomInputGUI
 {
+    private string $value = '';
 
-    /**
-     * Returns template HTML.
-     * @return string
-     */
-    public function getHtml()
+    public function getHtml(): string
     {
         global $DIC;
 
@@ -28,39 +41,17 @@ class ilChatroomSmiliesCurrentSmileyFormElement extends ilCustomInputGUI
         return $tpl->get();
     }
 
-    /**
-     * Returns $this->value of ilChatroomSmiliesCurrentSmileyFormElement
-     * @return string
-     */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
 
-    /**
-     * Sets given value as $this->value in
-     * ilChatroomSmiliesCurrentSmileyFormElement
-     * @param string $a_value
-     */
-    public function setValue($a_value)
+    public function setValue(string $a_value): void
     {
         $this->value = $a_value;
     }
 
-    /**
-     * Set value by array
-     * @param    array $a_values value array
-     */
-    /*function setValueByArray($a_values)
-     {
-        $this->setValue( $a_values[$this->getPostVar()] );
-        }*/
-
-    /**
-     * Check Input
-     * @return boolean
-     */
-    public function checkInput()
+    public function checkInput(): bool
     {
         return true;
     }

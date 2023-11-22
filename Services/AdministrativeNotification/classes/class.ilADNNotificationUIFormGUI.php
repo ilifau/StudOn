@@ -1,6 +1,24 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 use ILIAS\DI\Container;
+use ILIAS\Refinery\Factory;
+use ILIAS\HTTP\Services;
 
 /**
  * Class ilADNNotificationUIFormGUI
@@ -30,50 +48,18 @@ class ilADNNotificationUIFormGUI
     public const F_EVENT_DATE_END = 'event_date_end';
     public const F_SHOW_TO_ALL_ROLES = 'show_to_all_roles';
     public const F_PRESENTATION = 'presentation';
-    private $refinery;
-    /**
-     * @var ilADNNotification
-     */
-    protected $notification;
-    /**
-     * @var array
-     */
-    protected static $tags = ['a', 'strong', 'ol', 'ul', 'li', 'p'];
+    protected string $action;
 
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-    /**
-     * @var \ILIAS\UI\Factory
-     */
-    protected $ui;
-    /**
-     * @var \ILIAS\UI\Renderer
-     */
-    protected $renderer;
-    /**
-     * @var \ILIAS\UI\Component\Input\Container\Form\Standard
-     */
-    protected $form;
-    /**
-     * @var string
-     */
-    protected $action;
-    /**
-     * @var \Psr\Http\Message\RequestInterface|\Psr\Http\Message\ServerRequestInterface
-     */
-    protected $request;
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected ilADNNotification $notification;
+    protected ilCtrlInterface $ctrl;
+    protected \ILIAS\UI\Factory $ui;
+    protected \ILIAS\UI\Renderer $renderer;
+    protected ?\ILIAS\UI\Component\Input\Container\Form\Standard $form = null;
+    protected Factory $refinery;
+    protected ilLanguage $lng;
+    protected ilRbacReview $rbac_review;
+    protected Services $http;
 
-    /**
-     * ilADNNotificationFormGUI constructor.
-     * @param ilADNNotification $notification
-     * @param string            $action
-     */
     public function __construct(ilADNNotification $notification, string $action)
     {
         /**
@@ -82,31 +68,22 @@ class ilADNNotificationUIFormGUI
         global $DIC;
         $this->ui = $DIC->ui()->factory();
         $this->renderer = $DIC->ui()->renderer();
-        $this->request = $DIC->http()->request();
+        $this->http = $DIC->http();
         $this->ctrl = $DIC->ctrl();
         $this->lng = $DIC->language();
         $this->notification = $notification;
         $this->action = $action;
         $this->refinery = $DIC->refinery();
+        $this->rbac_review = $DIC->rbac()->review();
         $this->initForm();
     }
 
-    protected $called = [];
-
-    /**
-     * @param string $var
-     * @return string
-     */
-    protected function txt(string $var) : string
+    protected function txt(string $var): string
     {
         return $this->lng->txt('msg_' . $var);
     }
 
-    /**
-     * @param string $var
-     * @return string
-     */
-    protected function infoTxt(string $var) : ?string
+    protected function infoTxt(string $var): string
     {
         return $this->txt($var . '_info');
     }
@@ -114,7 +91,7 @@ class ilADNNotificationUIFormGUI
     /**
      * @return string[]
      */
-    protected function getDenotations() : array
+    protected function getDenotations(): array
     {
         return [
             ilADNNotification::TYPE_INFO => $this->txt(self::F_TYPE . '_' . ilADNNotification::TYPE_INFO),
@@ -123,20 +100,16 @@ class ilADNNotificationUIFormGUI
         ];
     }
 
-    public function getHTML() : string
+    public function getHTML(): string
     {
         return $this->renderer->render($this->form);
     }
 
-    public function initForm() : void
+    public function initForm(): void
     {
         $field = $this->ui->input()->field();
-        $custom_trafo = function (callable $c) {
-            return $this->refinery->custom()->transformation($c);
-        };
-        $custom_constraint = function (callable $c, string $error) {
-            return $this->refinery->custom()->constraint($c, $error);
-        };
+        $custom_trafo = fn (callable $c) => $this->refinery->custom()->transformation($c);
+        $custom_constraint = fn (callable $c, string $error) => $this->refinery->custom()->constraint($c, $error);
 
         // DENOTATION
         $types = $this->getDenotations();
@@ -144,7 +117,7 @@ class ilADNNotificationUIFormGUI
                             ->withRequired(true)
                             ->withValue($this->notification->getType())
                             ->withAdditionalTransformation(
-                                $custom_trafo(function ($v) : void {
+                                $custom_trafo(function ($v): void {
                                     $this->notification->setType((int) $v);
                                 })
                             );
@@ -154,7 +127,7 @@ class ilADNNotificationUIFormGUI
                        ->withRequired(true)
                        ->withValue($this->notification->getTitle())
                        ->withAdditionalTransformation(
-                           $custom_trafo(function ($v) : void {
+                           $custom_trafo(function ($v): void {
                                $this->notification->setTitle((string) $v);
                            })
                        );
@@ -163,7 +136,7 @@ class ilADNNotificationUIFormGUI
         $body = $field->textarea($this->txt(self::F_BODY), $this->infoTxt(self::F_BODY))
                       ->withValue($this->notification->getBody())
                       ->withAdditionalTransformation(
-                          $custom_trafo(function ($v) : void {
+                          $custom_trafo(function ($v): void {
                               $this->notification->setBody((string) $v);
                           })
                       );
@@ -177,7 +150,7 @@ class ilADNNotificationUIFormGUI
                                     ->withFormat($format)
                                     ->withValue($this->notification->getDisplayStart()->format($str))
                                     ->withAdditionalTransformation(
-                                        $custom_trafo(function (?DateTimeImmutable $v) : ?\DateTimeImmutable {
+                                        $custom_trafo(function (?DateTimeImmutable $v): ?\DateTimeImmutable {
                                             $this->notification->setDisplayStart($v ?? new DateTimeImmutable());
                                             return $v;
                                         })
@@ -187,7 +160,7 @@ class ilADNNotificationUIFormGUI
                                   ->withFormat($format)
                                   ->withValue($this->notification->getDisplayEnd()->format($str))
                                   ->withAdditionalTransformation(
-                                      $custom_trafo(function (?DateTimeImmutable $v) : ?\DateTimeImmutable {
+                                      $custom_trafo(function (?DateTimeImmutable $v): ?\DateTimeImmutable {
                                           $this->notification->setDisplayEnd($v ?? new DateTimeImmutable());
                                           return $v;
                                       })
@@ -197,7 +170,7 @@ class ilADNNotificationUIFormGUI
                                   ->withFormat($format)
                                   ->withValue($this->notification->getEventStart()->format($str))
                                   ->withAdditionalTransformation(
-                                      $custom_trafo(function (?DateTimeImmutable $v) : ?\DateTimeImmutable {
+                                      $custom_trafo(function (?DateTimeImmutable $v): ?\DateTimeImmutable {
                                           $this->notification->setEventStart($v ?? new DateTimeImmutable());
                                           return $v;
                                       })
@@ -207,7 +180,7 @@ class ilADNNotificationUIFormGUI
                                 ->withFormat($format)
                                 ->withValue($this->notification->getEventEnd()->format($str))
                                 ->withAdditionalTransformation(
-                                    $custom_trafo(function (?DateTimeImmutable $v) : ?\DateTimeImmutable {
+                                    $custom_trafo(function (?DateTimeImmutable $v): ?\DateTimeImmutable {
                                         $this->notification->setEventEnd($v ?? new DateTimeImmutable());
                                         return $v;
                                     })
@@ -217,7 +190,7 @@ class ilADNNotificationUIFormGUI
                                    ->withRequired(true)
                                    ->withValue($this->notification->getTypeDuringEvent())
                                    ->withAdditionalTransformation(
-                                       $custom_trafo(function ($v) : void {
+                                       $custom_trafo(function ($v): void {
                                            $this->notification->setTypeDuringEvent((int) $v);
                                        })
                                    );
@@ -247,7 +220,7 @@ class ilADNNotificationUIFormGUI
                                })
                            )
                            ->withAdditionalTransformation(
-                               $custom_constraint(static function ($v) : bool {
+                               $custom_constraint(static function ($v): bool {
                                    if (is_null($v)) {
                                        return true;
                                    }
@@ -276,7 +249,7 @@ class ilADNNotificationUIFormGUI
         $dismissable = $field->checkbox($this->txt(self::F_DISMISSABLE), $this->infoTxt(self::F_DISMISSABLE))
                              ->withValue($this->notification->getDismissable())
                              ->withAdditionalTransformation(
-                                 $custom_trafo(function ($v) : void {
+                                 $custom_trafo(function ($v): void {
                                      $this->notification->setDismissable((bool) $v);
                                  })
                              );
@@ -302,9 +275,9 @@ class ilADNNotificationUIFormGUI
         ], $this->txt(self::F_PRESENTATION))
                        ->withValue($value)
                        ->withAdditionalTransformation(
-                           $custom_trafo(function ($v) : void {
+                           $custom_trafo(function ($v): void {
                                $limit_to_roles = ($v[0] ?? null) === self::F_LIMIT_TO_ROLES;
-                               $limited_to_role_ids = (array) $v[1][0] ?? [];
+                               $limited_to_role_ids = (array) ($v[1][0] ?? []);
                                $this->notification->setLimitToRoles($limit_to_roles);
                                $this->notification->setLimitedToRoleIds($limited_to_role_ids);
                            })
@@ -319,7 +292,7 @@ class ilADNNotificationUIFormGUI
             self::F_DISMISSABLE => $dismissable,
             self::F_LIMIT_TO_ROLES => $roles,
         ], $this->txt('form_title'))->withAdditionalTransformation(
-            $custom_trafo(function ($v) : ilADNNotification {
+            $custom_trafo(function ($v): ilADNNotification {
                 return $this->notification;
             })
         );
@@ -334,26 +307,22 @@ class ilADNNotificationUIFormGUI
         );
     }
 
-    public function setValuesByPost() : void
+    public function setValuesByPost(): void
     {
-        global $DIC;
-        $this->form = $this->form->withRequest($DIC->http()->request());
+        $this->form = $this->form->withRequest($this->http->request());
     }
 
-    public function fillForm() : void
+    protected function fillObject(): bool
     {
+        $data = $this->form->getData();
+        if (!$data instanceof ilADNNotification) {
+            return false;
+        }
+        $this->notification = $data;
+        return true;
     }
 
-    /**
-     * @return bool
-     */
-    protected function fillObject() : bool
-    {
-        $this->notification = $this->form->getData();
-        return $this->notification instanceof ilADNNotification;
-    }
-
-    public function saveObject() : int
+    public function saveObject(): bool
     {
         if (!$this->fillObject()) {
             return false;
@@ -364,19 +333,17 @@ class ilADNNotificationUIFormGUI
             $this->notification->create();
         }
 
-        return $this->notification->getId();
+        return $this->notification->getId() > 0;
     }
 
     /**
-     * @param $filter
-     * @return array|int[]
+     * @return array<int, string>
      */
-    protected function getRoles($filter) : array
+    protected function getRoles(int $filter): array
     {
-        global $DIC;
         $opt = [];
-        foreach ($DIC->rbac()->review()->getRolesByFilter($filter) as $role) {
-            $opt[$role['obj_id']] = $role['title'] . ' (' . $role['obj_id'] . ')';
+        foreach ($this->rbac_review->getRolesByFilter($filter) as $role) {
+            $opt[(int) $role['obj_id']] = $role['title'] . ' (' . $role['obj_id'] . ')';
         }
 
         return $opt;

@@ -1,31 +1,42 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateObjectsForUserPreloader
 {
-    /** @var array */
-    private static $certificates = [];
+    /** @var array<int, int[]> */
+    private static array $certificates = [];
+    private ilUserCertificateRepository $userCertificateRepository;
 
-    /** @var ilUserCertificateRepository */
-    private $userCertificateRepository;
-
-    /**
-     * ilCertificateObjectsForUserPreloader constructor.
-     * @param ilUserCertificateRepository $userCertificateRepository
-     */
     public function __construct(ilUserCertificateRepository $userCertificateRepository)
     {
         $this->userCertificateRepository = $userCertificateRepository;
     }
 
     /**
-     * @param int $userId
+     * @param int   $userId
      * @param int[] $objIds
      */
-    public function preLoad(int $userId, array $objIds)
+    public function preLoad(int $userId, array $objIds): void
     {
         if (!array_key_exists($userId, self::$certificates)) {
             self::$certificates[$userId] = [];
@@ -42,18 +53,13 @@ class ilCertificateObjectsForUserPreloader
         ));
     }
 
-    /**
-     * @param int $userId
-     * @param int $objId
-     * @return bool
-     */
-    public function isPreloaded(int $userId, int $objId) : bool
+    public function isPreloaded(int $userId, int $objId): bool
     {
         if (false === array_key_exists($userId, self::$certificates)) {
             return false;
         }
 
-        if (true === in_array($objId, self::$certificates[$userId])) {
+        if (true === in_array($objId, self::$certificates[$userId], true)) {
             return true;
         }
 

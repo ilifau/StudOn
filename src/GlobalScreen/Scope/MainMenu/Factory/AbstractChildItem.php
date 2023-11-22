@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Factory;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
@@ -28,15 +28,12 @@ use ILIAS\GlobalScreen\Identification\NullIdentification;
  */
 abstract class AbstractChildItem extends AbstractBaseItem
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationInterface|null
-     */
-    protected $parent;
+    protected ?IdentificationInterface $parent = null;
 
     /**
      * @inheritDoc
      */
-    public function withParent(IdentificationInterface $identification) : isItem
+    public function withParent(IdentificationInterface $identification): self
     {
         $clone = clone($this);
         $clone->parent = $identification;
@@ -47,7 +44,7 @@ abstract class AbstractChildItem extends AbstractBaseItem
     /**
      * @inheritDoc
      */
-    public function hasParent() : bool
+    public function hasParent(): bool
     {
         return $this->parent instanceof IdentificationInterface;
     }
@@ -55,12 +52,12 @@ abstract class AbstractChildItem extends AbstractBaseItem
     /**
      * @inheritDoc
      */
-    public function getParent() : IdentificationInterface
+    public function getParent(): IdentificationInterface
     {
         return $this->parent instanceof IdentificationInterface ? $this->parent : new NullIdentification();
     }
 
-    public function overrideParent(IdentificationInterface $identification) : isItem
+    public function overrideParent(IdentificationInterface $identification): isItem
     {
         $this->parent = $identification;
 

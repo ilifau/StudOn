@@ -1,205 +1,128 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
 
 /**
  * Personal desktop settings repo
  *
- * @author @leifos.de
- * @ingroup
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilPersonalDesktopSettingsRepository
 {
-    /**
-     * @var ilSetting
-     */
-    protected $settings;
+    protected \ILIAS\Administration\Setting $settings;
 
-    /**
-     * Constructor
-     */
-    public function __construct(ilSetting $settings)
+    public function __construct(\ILIAS\Administration\Setting $settings)
     {
         $this->settings = $settings;
     }
 
 
-    /**
-     * Notes enabled?
-     *
-     * @return bool
-     */
-    protected function ifNotesEnabled()
+    // Notes enabled?
+    public function ifNotesEnabled(): bool
     {
-        return (bool) !$this->settings->get("disable_notes");
+        return !$this->settings->get("disable_notes");
     }
 
-    /**
-     * Enable notes
-     *
-     * @param bool $active
-     */
-    protected function enableNotes(bool $active = true)
+    public function enableNotes(bool $active = true): void
     {
         $this->settings->set("disable_notes", (int) !$active);
     }
 
-    /**
-     * Comments enabled?
-     *
-     * @return bool
-     */
-    protected function ifCommentsEnabled()
+    // Comments enabled?
+    public function ifCommentsEnabled(): bool
     {
-        return (bool) !$this->settings->get("disable_comments");
+        return !$this->settings->get("disable_comments");
     }
 
-    /**
-     * Enable comments
-     *
-     * @param bool $active
-     */
-    protected function enableComments(bool $active = true)
+    public function enableComments(bool $active = true): void
     {
         $this->settings->set("disable_comments", (int) !$active);
     }
 
-    /**
-     * Can authors delete their comments
-     *
-     * @return bool
-     */
-    protected function ifAuthorsCanDelete()
+    // Can authors delete their comments
+    public function ifAuthorsCanDelete(): bool
     {
-        return (bool) $this->settings->get("comments_del_user", 0);
+        return (bool) $this->settings->get("comments_del_user", '0');
     }
 
-    /**
-     * Enable authors delete their comments
-     *
-     * @param bool $active
-     */
-    protected function enableAuthorsCanDelete(bool $active = true)
+    public function enableAuthorsCanDelete(bool $active = true): void
     {
         $this->settings->set("comments_del_user", (int) $active);
     }
 
-    /**
-     * Can tutors delete comments of others
-     *
-     * @return bool
-     */
-    protected function ifTutorsCanDelete()
+    // Can tutors delete comments of others
+    public function ifTutorsCanDelete(): bool
     {
-        return (bool) $this->settings->get("comments_del_tutor", 1);
+        return (bool) $this->settings->get("comments_del_tutor", '1');
     }
 
-    /**
-     * Enable tutors delete comments of others
-     *
-     * @param bool $active
-     */
-    protected function enableTutorsCanDelete(bool $active = true)
+    public function enableTutorsCanDelete(bool $active = true): void
     {
         $this->settings->set("comments_del_tutor", (int) $active);
     }
 
-    /**
-     * Get recipients of comments notification
-     *
-     * @return bool
-     */
-    protected function getCommentsNotificationRecipients()
+    // Get recipients of comments notification
+    public function getCommentsNotificationRecipients(): string
     {
         return (string) $this->settings->get("comments_noti_recip");
     }
 
-    /**
-     * Update recipients of comments notification
-     *
-     * @param string $recipients
-     */
-    protected function updateCommentsNotificationRecipients(string $recipients)
+    // Update recipients of comments notification
+    public function updateCommentsNotificationRecipients(string $recipients): void
     {
         $this->settings->set("comments_noti_recip", $recipients);
     }
 
-    /**
-     * learning history enabled?
-     *
-     * @return bool
-     */
-    protected function ifLearningHistoryEnabled()
+    // learning history enabled?
+    public function ifLearningHistoryEnabled(): bool
     {
         return (bool) $this->settings->get("enable_learning_history");
     }
 
-    /**
-     * Enable learning history
-     *
-     * @param bool $active
-     */
-    protected function enableLearningHistory(bool $active = true)
+    public function enableLearningHistory(bool $active = true): void
     {
         $this->settings->set("enable_learning_history", (int) $active);
     }
 
-    /**
-     * chat viewer enabled?
-     *
-     * @return bool
-     */
-    protected function ifChatViewerEnabled()
+    // chat viewer enabled?
+    public function ifChatViewerEnabled(): bool
     {
         return (bool) $this->settings->get("block_activated_chatviewer");
     }
 
-    /**
-     * Enable chat viewer
-     *
-     * @param bool $active
-     */
-    protected function enableChatViewer(bool $active = true)
+    public function enableChatViewer(bool $active = true): void
     {
         $this->settings->set("block_activated_chatviewer", (int) $active);
     }
 
-    /**
-     * Get system message presentation
-     *
-     * @return int
-     */
-    protected function getSystemMessagePresentation()
+    public function getSystemMessagePresentation(): int
     {
         return (int) $this->settings->get("pd_sys_msg_mode");
     }
 
-    /**
-     * Update system message presentation
-     *
-     * @param int $mode
-     */
-    protected function updateSystemMessagePresentation(int $mode)
+    public function updateSystemMessagePresentation(int $mode): void
     {
         $this->settings->set("pd_sys_msg_mode", $mode);
     }
 
-    /**
-     * forum draft block enabled?
-     *
-     * @return bool
-     */
-    protected function ifForumDrafts()
+    // forum draft block enabled?
+    public function ifForumDrafts(): bool
     {
-        return (bool) $this->settings->get('block_activated_pdfrmpostdraft', 0);
+        return (bool) $this->settings->get('block_activated_pdfrmpostdraft', '0');
     }
 
-    /**
-     * Enable forum draft block
-     *
-     * @param bool $active
-     */
-    protected function enableForumDrafts(bool $active = true)
+    public function enableForumDrafts(bool $active = true): void
     {
         $this->settings->set("block_activated_pdfrmpostdraft", (int) $active);
     }

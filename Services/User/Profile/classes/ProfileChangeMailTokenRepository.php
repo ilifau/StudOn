@@ -20,7 +20,7 @@ namespace ILIAS\User\Profile;
 
 interface ProfileChangeMailTokenRepository
 {
-    public function getNewTokenForUser(\ilObjUser $user, string $new_email) : string;
+    public function getNewTokenForUser(\ilObjUser $user, string $new_email): string;
 
     /**
      * This Function will check if the token is actually valid for the given user
@@ -29,6 +29,6 @@ interface ProfileChangeMailTokenRepository
      * @return string The new email a user wishes to be used or an empty string
      * if validation failed or there is no usable entry.
      */
-    public function getNewEmailForUser(\ilObjUser $user, string $token) : string;
-    public function deleteEntryByToken(string $token) : void;
+    public function getNewEmailForUser(\ilObjUser $user, string $token): string;
+    public function deleteEntryByToken(string $token): void;
 }

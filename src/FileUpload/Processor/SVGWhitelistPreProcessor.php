@@ -37,21 +37,15 @@ final class SVGWhitelistPreProcessor implements PreProcessor
     private const REGEX_SCRIPT = '/<script/m';
     private const REGEX_BASE64 = '/data:.*;base64/m';
     private const SVG = 'svg';
-    /**
-     * @var string
-     */
-    private $rejection_message = 'The SVG file contains possibily malicious code.';
-    /**
-     * @var string
-     */
-    private $ok_message = 'SVG OK';
+    private string $rejection_message = 'The SVG file contains possibily malicious code.';
+    private string $ok_message = 'SVG OK';
 
     public function __construct(?string $rejection_message = null)
     {
         $this->rejection_message = $rejection_message ?? $this->rejection_message;
     }
 
-    private function isSVG(Metadata $metadata) : bool
+    private function isSVG(Metadata $metadata): bool
     {
         return $this->isMimeTypeOrExtension(
             $metadata,
@@ -60,7 +54,7 @@ final class SVGWhitelistPreProcessor implements PreProcessor
         );
     }
 
-    public function process(FileStream $stream, Metadata $metadata) : ProcessingStatus
+    public function process(FileStream $stream, Metadata $metadata): ProcessingStatus
     {
         if ($this->isSVG($metadata) && !$this->checkStream($stream)) {
             return new ProcessingStatus(ProcessingStatus::DENIED, $this->rejection_message);
@@ -68,7 +62,7 @@ final class SVGWhitelistPreProcessor implements PreProcessor
         return new ProcessingStatus(ProcessingStatus::OK, $this->ok_message);
     }
 
-    protected function checkStream(FileStream $stream) : bool
+    protected function checkStream(FileStream $stream): bool
     {
         // Check all Elements and Attributes against a whitelist
         // Credits to https://github.com/alnorris/SVG-Sanitizer

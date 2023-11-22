@@ -1,29 +1,22 @@
 <?php
 
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+declare(strict_types=1);
 
-include_once "./Services/Xml/classes/class.ilXmlWriter.php";
-include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
 * XML writer class
@@ -32,66 +25,45 @@ include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
 *
 * @author Stefan Meyer <meyer@leifos.com>
 * @version $Id: class.ilGroupXMLWriter.php 16108 2008-02-28 17:36:41Z rkuester $
-*/
-class ilGroupXMLWriter extends ilXmlWriter
+*/class ilGroupXMLWriter extends ilXmlWriter
 {
-    const MODE_SOAP = 1;
-    const MODE_EXPORT = 2;
-    
-    private $mode = self::MODE_SOAP;
+    public const MODE_SOAP = 1;
+    public const MODE_EXPORT = 2;
+    public const EXPORT_VERSION = 3;
 
-    /**
-     * @var null | \ilLogger
-     */
-    private $logger = null;
+    private int $mode = self::MODE_SOAP;
 
+    private ilLogger $logger;
+    private ilSetting $settings;
+    private ilAccessHandler $access;
 
-    private $ilias;
+    private ilObjGroup $group_obj;
+    private ilGroupParticipants $participants;
+    private bool $attach_users = true;
 
-    private $xml;
-
-    /**
-     * @var \ilObjGroup
-     */
-    private $group_obj;
-
-    private $attach_users = true;
-
-    /**
-    * constructor
-    * @param	string	xml version
-    * @param	string	output encoding
-    * @param	string	input encoding
-    * @access	public
-    */
-    public function __construct($group_obj)
+    public function __construct(ilObjGroup $group_obj)
     {
         global $DIC;
 
-        $ilias = $DIC['ilias'];
-
-        parent::__construct();
-
         $this->logger = $DIC->logger()->grp();
-
-        $this->EXPORT_VERSION = "3";
-
-        $this->ilias = $ilias;
+        $this->settings = $DIC->settings();
+        $this->access = $DIC->access();
+        parent::__construct();
         $this->group_obj = $group_obj;
         $this->participants = ilGroupParticipants::_getInstanceByObjId($this->group_obj->getId());
     }
 
-    public function setMode($a_mode)
+    public function setMode(int $a_mode): void
     {
         $this->mode = $a_mode;
     }
-    
-    public function getMode()
+
+    public function getMode(): int
     {
         return $this->mode;
     }
 
-    public function start()
+    public function start(): void
     {
         if ($this->getMode() == self::MODE_SOAP) {
             $this->logger->debug('Using soap mode');
@@ -106,7 +78,6 @@ class ilGroupXMLWriter extends ilXmlWriter
                 $this->__buildAdmin();
                 $this->__buildMember();
             }
-            include_once './Services/Container/classes/class.ilContainerSortingSettings.php';
             ilContainerSortingSettings::_exportContainerSortingSettings($this, $this->group_obj->getId());
             ilContainer::_exportContainerSettings($this, $this->group_obj->getId());
             $this->__buildFooter();
@@ -119,95 +90,76 @@ class ilGroupXMLWriter extends ilXmlWriter
             $this->__buildRegistration();
             $this->__buildExtraSettings();
             $this->__buildPeriod();
-            include_once './Services/Container/classes/class.ilContainerSortingSettings.php';
             ilContainerSortingSettings::_exportContainerSortingSettings($this, $this->group_obj->getId());
             ilContainer::_exportContainerSettings($this, $this->group_obj->getId());
             $this->__buildFooter();
         }
     }
 
-    public function getXML()
+    public function getXML(): string
     {
         return $this->xmlDumpMem(false);
     }
 
     // PRIVATE
-    public function __buildHeader()
+    public function __buildHeader(): bool
     {
         $this->xmlSetDtdDef("<!DOCTYPE group PUBLIC \"-//ILIAS//DTD Group//EN\" \"" . ILIAS_HTTP_PATH . "/xml/ilias_group_3_10.dtd\">");
-        $this->xmlSetGenCmt("Export of ILIAS group " . $this->group_obj->getId() . " of installation " . $this->ilias->getSetting('inst_id') . ".");
+        $this->xmlSetGenCmt("Export of ILIAS group " . $this->group_obj->getId() . " of installation " . $this->settings->get('inst_id') . ".");
         $this->xmlHeader();
-
-
         return true;
     }
-    
-    /**
-     * Group start
-     * @return
-     */
-    public function __buildGroup()
+
+    public function __buildGroup(): void
     {
-        $attrs["exportVersion"] = $this->EXPORT_VERSION;
-        $attrs["id"] = "il_" . $this->ilias->getSetting('inst_id') . '_grp_' . $this->group_obj->getId();
-        
+        $attrs["exportVersion"] = self::EXPORT_VERSION;
+        $attrs["id"] = "il_" . $this->settings->get('inst_id') . '_grp_' . $this->group_obj->getId();
+
         switch ($this->group_obj->readGroupStatus()) {
-            case GRP_TYPE_OPEN:
+            case ilGroupConstants::GRP_TYPE_OPEN:
                 $attrs['type'] = 'open';
                 break;
-                
-            case GRP_TYPE_CLOSED:
+
+            case ilGroupConstants::GRP_TYPE_CLOSED:
             default:
                 $attrs['type'] = 'closed';
                 break;
         }
-        
         $this->xmlStartTag("group", $attrs);
     }
 
-    /**
-     * write lom meta data
-     * @return bool
-     */
-    protected function __buildMetaData()
+    protected function __buildMetaData(): bool
     {
         $md2xml = new ilMD2XML($this->group_obj->getId(), $this->group_obj->getId(), 'grp');
         $md2xml->startExport();
         $this->appendXML($md2xml->getXML());
-
         return true;
     }
 
-    /**
-     * Build advanced meta data
-     *
-     * @access private
-     *
-     */
-    private function __buildAdvancedMetaData()
+    private function __buildAdvancedMetaData(): void
     {
         ilAdvancedMDValues::_appendXMLByObjId($this, $this->group_obj->getId());
     }
 
 
-    public function __buildTitleDescription()
+    public function __buildTitleDescription(): void
     {
         $this->xmlElement('title', null, $this->group_obj->getTitle());
-        
+
         if ($desc = $this->group_obj->getDescription()) {
             $this->xmlElement('description', null, $desc);
         }
 
-        $attr['id'] = 'il_' . $this->ilias->getSetting('inst_id') . '_usr_' . $this->group_obj->getOwner();
+        $attr['id'] = 'il_' . $this->settings->get('inst_id') . '_usr_' . $this->group_obj->getOwner();
         $this->xmlElement('owner', $attr);
-        
+
         $this->xmlElement('information', null, $this->group_obj->getInformation());
     }
 
     /**
      * Add group period settings to xml
      */
-    protected function __buildPeriod()
+    protected function __buildPeriod(): void
     {
         if (!$this->group_obj->getStart() || !$this->group_obj->getEnd()) {
             return;
@@ -235,38 +187,37 @@ class ilGroupXMLWriter extends ilXmlWriter
         );
 
         $this->xmlEndTag('period');
-        return;
     }
-    
-    public function __buildRegistration()
+
+    public function __buildRegistration(): void
     {
-        
+
         // registration type
         switch ($this->group_obj->getRegistrationType()) {
-            case GRP_REGISTRATION_DIRECT:
+            case ilGroupConstants::GRP_REGISTRATION_DIRECT:
                 $attrs['type'] = 'direct';
                 break;
-            case GRP_REGISTRATION_REQUEST:
+            case ilGroupConstants::GRP_REGISTRATION_REQUEST:
                 $attrs['type'] = 'confirmation';
                 break;
-            case GRP_REGISTRATION_PASSWORD:
+            case ilGroupConstants::GRP_REGISTRATION_PASSWORD:
                 $attrs['type'] = 'password';
                 break;
-                
+
             default:
-            case GRP_REGISTRATION_DEACTIVATED:
+            case ilGroupConstants::GRP_REGISTRATION_DEACTIVATED:
                 $attrs['type'] = 'disabled';
                 break;
         }
         $attrs['waitingList'] = $this->group_obj->isWaitingListEnabled() ? 'Yes' : 'No';
-        
+
         $this->xmlStartTag('registration', $attrs);
-        
+
         if (strlen($pwd = $this->group_obj->getPassword())) {
             $this->xmlElement('password', null, $pwd);
         }
 
-        
+
         // limited registration period
         if (!$this->group_obj->isRegistrationUnlimited()) {
             $this->xmlStartTag('temporarilyAvailable');
@@ -279,7 +230,7 @@ class ilGroupXMLWriter extends ilXmlWriter
         $attrs = array();
         $attrs['enabled'] = $this->group_obj->isMembershipLimited() ? 'Yes' : 'No';
         $this->xmlElement('maxMembers', $attrs, $this->group_obj->getMaxMembers());
-        $this->xmlElement('minMembers', null, (int) $this->group_obj->getMinMembers());
+        $this->xmlElement('minMembers', null, $this->group_obj->getMinMembers());
         $this->xmlElement('WaitingListAutoFill', null, (int) $this->group_obj->hasWaitingListAutoFill());
         $this->xmlElement('CancellationEnd', null, ($this->group_obj->getCancellationEnd() && !$this->group_obj->getCancellationEnd()->isNull()) ? $this->group_obj->getCancellationEnd()->get(IL_CAL_UNIX) : null);
 
@@ -299,7 +250,7 @@ class ilGroupXMLWriter extends ilXmlWriter
     /**
      * Build extra settings, like "show member list"
      */
-    public function __buildExtraSettings()
+    public function __buildExtraSettings(): void
     {
         $this->xmlElement('showMembers', null, $this->group_obj->getShowMembers());
         $this->xmlElement('admissionNotification', null, $this->group_obj->getAutoNotification() ? 1 : 0);
@@ -322,29 +273,28 @@ class ilGroupXMLWriter extends ilXmlWriter
         ]);
     }
 
-    public function __buildAdmin()
+    public function __buildAdmin(): void
     {
         $admins = $this->group_obj->getGroupAdminIds();
-        $admins = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
+        $admins = $this->access->filterUserIdsByRbacOrPositionOfCurrentUser(
             'manage_members',
             ilOrgUnitOperation::OP_MANAGE_MEMBERS,
             $this->group_obj->getRefId(),
             $admins
         );
-        
+
         foreach ($admins as $id) {
-            $attr['id'] = 'il_' . $this->ilias->getSetting('inst_id') . '_usr_' . $id;
+            $attr['id'] = 'il_' . $this->settings->get('inst_id') . '_usr_' . $id;
             $attr['notification'] = $this->participants->isNotificationEnabled($id) ? 'Yes' : 'No';
 
             $this->xmlElement('admin', $attr);
         }
-        return true;
     }
 
-    public function __buildMember()
+    public function __buildMember(): void
     {
         $members = $this->group_obj->getGroupMemberIds();
-        $members = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
+        $members = $this->access->filterUserIdsByRbacOrPositionOfCurrentUser(
             'manage_members',
             ilOrgUnitOperation::OP_MANAGE_MEMBERS,
             $this->group_obj->getRefId(),
@@ -352,21 +302,20 @@ class ilGroupXMLWriter extends ilXmlWriter
         );
         foreach ($members as $id) {
             if (!$this->group_obj->isAdmin($id)) {
-                $attr['id'] = 'il_' . $this->ilias->getSetting('inst_id') . '_usr_' . $id;
-                
+                $attr['id'] = 'il_' . $this->settings->get('inst_id') . '_usr_' . $id;
+
                 $this->xmlElement('member', $attr);
             }
         }
-        return true;
     }
 
-    public function __buildFooter()
+    public function __buildFooter(): void
     {
         $this->xmlEndTag('group');
     }
 
-    public function setAttachUsers($value)
+    public function setAttachUsers(bool $value)
     {
-        $this->attach_users = $value ? true : false;
+        $this->attach_users = $value;
     }
 }

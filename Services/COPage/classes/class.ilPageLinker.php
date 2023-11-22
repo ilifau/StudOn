@@ -1,39 +1,38 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Page linker
- *
- * @author killing@leifos.de
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilPageLinker implements \ILIAS\COPage\PageLinker
 {
-    /**
-     * @var bool
-     */
-    protected $offline;
+    protected bool $offline;
+    protected string $profile_back_url = "";
+    protected ilCtrl $ctrl;
+    protected string $cmd_gui;
 
-    /**
-     * @var string
-     */
-    protected $profile_back_url;
-
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var string
-     */
-    protected $cmd_gui;
-
-    /**
-     * Constructor
-     */
-    public function __construct(string $cmd_gui_class, $offline = false, $profile_back_url = "", ilCtrl $ctrl = null)
-    {
+    public function __construct(
+        string $cmd_gui_class,
+        bool $offline = false,
+        string $profile_back_url = "",
+        ilCtrl $ctrl = null
+    ) {
         global $DIC;
 
         $this->offline = $offline;
@@ -45,34 +44,24 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
             : $ctrl;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function setOffline($offline = true)
+    public function setOffline(bool $offline = true): void
     {
         $this->offline = $offline;
     }
 
-    public function setProfileBackUrl($url)
+    public function setProfileBackUrl(string $url): void
     {
         $this->profile_back_url = $url;
     }
 
 
-    /**
-     * @inheritDoc
-     */
-    public function getLayoutLinkTargets() : array
+    public function getLayoutLinkTargets(): array
     {
         $targets = [];
-
         return $targets;
     }
 
-    /**
-     * Get XMl for Link Targets
-     */
-    public function getLinkTargetsXML()
+    public function getLinkTargetsXML(): string
     {
         $layoutLinkTargets = $this->getLayoutLinkTargets();
 
@@ -88,11 +77,9 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
         return $link_info;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getLinkXML($int_links) : string
+    public function getLinkXML(array $int_links): string
     {
+        $ilCtrl = $this->ctrl;
         $link_info = "<IntLinkInfos>";
         foreach ($int_links as $int_link) {
             $target = $int_link["Target"];
@@ -112,7 +99,7 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
 
                 // anchor
                 $anc = $anc_add = "";
-                if ($int_link["Anchor"] != "") {
+                if (($int_link["Anchor"] ?? "") != "") {
                     $anc = $int_link["Anchor"];
                     $anc_add = "_" . rawurlencode($int_link["Anchor"]);
                 }
@@ -158,8 +145,8 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
 
                     case "WikiPage":
                         $wiki_anc = "";
-                        if ($int_link["Anchor"] != "") {
-                            $wiki_anc = "#".rawurlencode($int_link["Anchor"]);
+                        if (($int_link["Anchor"] ?? "") != "") {
+                            $wiki_anc = "#" . rawurlencode($int_link["Anchor"]);
                         }
                         $href = ilWikiPage::getGotoForWikiPageTarget($target_id) . $wiki_anc;
                         break;
@@ -169,15 +156,20 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                         break;
 
                     case "RepositoryItem":
-                        $obj_type = ilObject::_lookupType($target_id, true);
-                        $obj_id = ilObject::_lookupObjId($target_id);
+                        $obj_type = ilObject::_lookupType((int) $target_id, true);
+                        $obj_id = ilObject::_lookupObjId((int) $target_id);
                         $href = "./goto.php?target=" . $obj_type . "_" . $target_id;
                         break;
 
+                    case "File":
+                        if (!$this->offline) {
+                            $href = "#";
+                        }
+                        break;
+
                     case "User":
-                        $obj_type = ilObject::_lookupType($target_id);
+                        $obj_type = ilObject::_lookupType((int) $target_id);
                         if ($obj_type == "usr") {
-                            include_once("./Services/User/classes/class.ilUserUtil.php");
                             $back = $this->profile_back_url;
                             //var_dump($back); exit;
                             $this->ctrl->setParameterByClass("ilpublicuserprofilegui", "user_id", $target_id);
@@ -189,10 +181,9 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                                 );
                             }
                             $href = "";
-                            include_once("./Services/User/classes/class.ilUserUtil.php");
                             if (ilUserUtil::hasPublicProfile($target_id)) {
                                 $href = $this->ctrl->getLinkTargetByClass(
-                                    ["ildashboardgui", "ilpublicuserprofilegui"],
+                                    ["ilpublicuserprofilegui"],
                                     "getHTML",
                                     "",
                                     false,
@@ -215,14 +206,10 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
         }
         $link_info .= "</IntLinkInfos>";
         $link_info .= $this->getLinkTargetsXML();
-
         return $link_info;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getFullscreenLink() : string
+    public function getFullscreenLink(): string
     {
         if ($this->offline) {
             return "fullscreen.html";

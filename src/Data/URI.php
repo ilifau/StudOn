@@ -16,71 +16,53 @@ namespace ILIAS\Data;
  */
 class URI
 {
-    /**
-     * @var	string
-     */
-    protected $schema;
-    /**
-     * @var	string
-     */
-    protected $host;
-    /**
-     * @var	int|null
-     */
-    protected $port;
-    /**
-     * @var	string|null
-     */
-    protected $path;
-    /**
-     * @var	string|null
-     */
-    protected $query;
-    /**
-     * @var	string|null
-     */
-    protected $fragment;
-
-    const PATH_DELIM = '/';
+    private const PATH_DELIM = '/';
 
     /**
      * Relevant character-groups as defined in RFC 3986 Appendix 1
      */
-    const ALPHA = '[A-Za-z]';
-    const DIGIT = '[0-9]';
-    const ALPHA_DIGIT = '[A-Za-z0-9]';
-    const HEXDIG = '[0-9A-Fa-f]';
-    const PCTENCODED = '%' . self::HEXDIG . self::HEXDIG;
+    private const ALPHA = '[A-Za-z]';
+    private const DIGIT = '[0-9]';
+    private const ALPHA_DIGIT = '[A-Za-z0-9]';
+    private const HEXDIG = '[0-9A-Fa-f]';
+    private const PCTENCODED = '%' . self::HEXDIG . self::HEXDIG;
     /**
      * point|minus|plus to be used in schema.
      */
-    const PIMP = '[\\+\\-\\.]';
+    private const PIMP = '[\\+\\-\\.]';
 
     /**
      * valid subdelims according to RFC 3986 Appendix 1:
      * "!" "$" "&" "'" "(" ")" "*" "+" "," ";" "="
      */
-    const SUBDELIMS = '[\\$,;=!&\'\\(\\)\\*\\+]';
+    private const SUBDELIMS = '[\\$,;=!&\'\\(\\)\\*\\+]';
     /**
      * subdelims without jsf**k characters +!() and =
      */
-    const BASEURI_SUBDELIMS = '[\\$,;&\'\\*]';
+    private const BASEURI_SUBDELIMS = '[\\$,;&\'\\*]';
 
-    const UNRESERVED = self::ALPHA_DIGIT . '|[\\-\\._~]';
-    const UNRESERVED_NO_DOT = self::ALPHA_DIGIT . '|[\\-_~]';
+    private const UNRESERVED = self::ALPHA_DIGIT . '|[\\-\\._~]';
+    private const UNRESERVED_NO_DOT = self::ALPHA_DIGIT . '|[\\-_~]';
 
-    const PCHAR = self::UNRESERVED . '|' . self::SUBDELIMS . '|' . self::PCTENCODED . '|:|@';
-    const BASEURI_PCHAR = self::UNRESERVED . '|' . self::BASEURI_SUBDELIMS . '|' . self::PCTENCODED . '|:|@';
+    private const PCHAR = self::UNRESERVED . '|' . self::SUBDELIMS . '|' . self::PCTENCODED . '|:|@';
+    private const BASEURI_PCHAR = self::UNRESERVED . '|' . self::BASEURI_SUBDELIMS . '|' . self::PCTENCODED . '|:|@';
 
-    const SCHEMA = '#^' . self::ALPHA . '(' . self::ALPHA_DIGIT . '|' . self::PIMP . ')*$#';
-    const DOMAIN_LABEL = self::ALPHA_DIGIT . '((' . self::UNRESERVED_NO_DOT . '|' . self::PCTENCODED . '|' . self::BASEURI_SUBDELIMS . ')*' . self::ALPHA_DIGIT . ')*';
-    const HOST_REG_NAME = '^' . self::DOMAIN_LABEL . '(\\.' . self::DOMAIN_LABEL . ')*$';
-    const HOST_IPV4 = '^(' . self::DIGIT . '{1,3})(\\.' . self::DIGIT . '{1,3}){3}$';
-    const HOST = '#' . self::HOST_IPV4 . '|' . self::HOST_REG_NAME . '#';
-    const PORT = '#^' . self::DIGIT . '+$#';
-    const PATH = '#^(?!//)(?!:)(' . self::PCHAR . '|' . self::PATH_DELIM . ')+$#';
-    const QUERY = '#^(' . self::PCHAR . '|' . self::PATH_DELIM . '|\\?)+$#';
-    const FRAGMENT = '#^(' . self::PCHAR . '|' . self::PATH_DELIM . '|\\?|\\#)+$#';
+    private const SCHEMA = '#^' . self::ALPHA . '(' . self::ALPHA_DIGIT . '|' . self::PIMP . ')*$#';
+    private const DOMAIN_LABEL = self::ALPHA_DIGIT . '((' . self::UNRESERVED_NO_DOT . '|' . self::PCTENCODED . '|' . self::BASEURI_SUBDELIMS . ')*' . self::ALPHA_DIGIT . ')*';
+    private const HOST_REG_NAME = '^' . self::DOMAIN_LABEL . '(\\.' . self::DOMAIN_LABEL . ')*$';
+    private const HOST_IPV4 = '^(' . self::DIGIT . '{1,3})(\\.' . self::DIGIT . '{1,3}){3}$';
+    private const HOST = '#' . self::HOST_IPV4 . '|' . self::HOST_REG_NAME . '#';
+    private const PORT = '#^' . self::DIGIT . '+$#';
+    private const PATH = '#^(?!//)(?!:)(' . self::PCHAR . '|' . self::PATH_DELIM . ')+$#';
+    private const QUERY = '#^(' . self::PCHAR . '|' . self::PATH_DELIM . '|\\?)+$#';
+    private const FRAGMENT = '#^(' . self::PCHAR . '|' . self::PATH_DELIM . '|\\?|\\#)+$#';
+
+    protected string $schema;
+    protected string $host;
+    protected ?int $port;
+    protected ?string $path;
+    protected ?string $query;
+    protected ?string $fragment;
 
     public function __construct(string $uri_string)
     {
@@ -94,50 +76,32 @@ class URI
 
     /**
      * Check schema formating. Return it in case of success.
-     *
-     * @param	string	$schema
-     * @throws	\InvalidArgumentException
-     * @return	string
      */
-    protected function digestSchema(string $schema) : string
+    protected function digestSchema(string $schema): string
     {
-        return $this->checkCorrectFormatOrThrow(self::SCHEMA, (string) $schema);
+        return $this->checkCorrectFormatOrThrow(self::SCHEMA, $schema);
     }
 
     /**
      * Check host formating. Return it in case of success.
-     *
-     * @param	string	$host
-     * @throws	\InvalidArgumentException
-     * @return	string
      */
-    protected function digestHost(string $host) : string
+    protected function digestHost(string $host): string
     {
-        return $this->checkCorrectFormatOrThrow(self::HOST, (string) $host);
+        return $this->checkCorrectFormatOrThrow(self::HOST, $host);
     }
 
     /**
      * Check port formating. Return it in case of success.
-     *
-     * @param	int|null	$port
-     * @return	int|null
      */
-    protected function digestPort(int $port = null)
+    protected function digestPort(int $port = null): ?int
     {
-        if ($port === null) {
-            return null;
-        }
-        return $port;
+        return $port ?? null;
     }
 
     /**
      * Check path formating. Return it in case of success.
-     *
-     * @param	string|null	$path
-     * @throws	\InvalidArgumentException
-     * @return	string|null
      */
-    protected function digestPath(string $path = null)
+    protected function digestPath(string $path = null): ?string
     {
         if ($path === null) {
             return null;
@@ -151,12 +115,8 @@ class URI
 
     /**
      * Check query formating. Return it in case of success.
-     *
-     * @param	string|null	$query
-     * @throws	\InvalidArgumentException
-     * @return	string|null
      */
-    protected function digestQuery(string $query = null)
+    protected function digestQuery(string $query = null): ?string
     {
         if ($query === null) {
             return null;
@@ -166,12 +126,8 @@ class URI
 
     /**
      * Check fragment formating. Return it in case of success.
-     *
-     * @param	string|null	$fragment
-     * @throws	\InvalidArgumentException
-     * @return	string|null
      */
-    protected function digestFragment(string $fragment = null)
+    protected function digestFragment(string $fragment = null): ?string
     {
         if ($fragment === null) {
             return null;
@@ -183,35 +139,24 @@ class URI
     /**
      * Check wether a string fits a regexp. Return it, if so,
      * throw otherwise.
-     *
-     * @param	string	$regexp
-     * @param	string	$string
-     * @throws	\InvalidArgumentException
-     * @return	string|null
      */
-    protected function checkCorrectFormatOrThrow(string $regexp, string $string)
+    protected function checkCorrectFormatOrThrow(string $regexp, string $string): string
     {
-        if (preg_match($regexp, (string) $string) === 1) {
+        if (preg_match($regexp, $string) === 1) {
             return $string;
         }
         throw new \InvalidArgumentException('ill-formated component "' . $string . '" expected "' . $regexp . '"');
     }
 
-    /**
-     * @return	string
-     */
-    public function getSchema() : string
+    public function getSchema(): string
     {
         return $this->schema;
     }
 
     /**
      * Get URI with modified schema
-     *
-     * @param	string	$schema
-     * @return	URI
      */
-    public function withSchema(string $schema) : URI
+    public function withSchema(string $schema): URI
     {
         $shema = $this->digestSchema($schema);
         $other = clone $this;
@@ -219,11 +164,7 @@ class URI
         return $other;
     }
 
-
-    /**
-     * @return	string
-     */
-    public function getAuthority() : string
+    public function getAuthority(): string
     {
         $port = $this->getPort();
         if ($port === null) {
@@ -232,14 +173,10 @@ class URI
         return $this->getHost() . ':' . $port;
     }
 
-
     /**
      * Get URI with modified authority
-     *
-     * @param	string	$authority
-     * @return	URI
      */
-    public function withAuthority(string $authority) : URI
+    public function withAuthority(string $authority): URI
     {
         $parts = explode(':', $authority);
         if (count($parts) > 2) {
@@ -256,21 +193,15 @@ class URI
         return $other;
     }
 
-    /**
-     * @return	int|null
-     */
-    public function getPort()
+    public function getPort(): ?int
     {
         return $this->port;
     }
 
     /**
      * Get URI with modified port
-     *
-     * @param	int|null	$port
-     * @return	URI
      */
-    public function withPort(int $port = null) : URI
+    public function withPort(int $port = null): URI
     {
         $port = $this->digestPort($port);
         $other = clone $this;
@@ -278,21 +209,15 @@ class URI
         return $other;
     }
 
-    /**
-     * @return	string
-     */
-    public function getHost() : string
+    public function getHost(): string
     {
         return $this->host;
     }
 
     /**
      * Get URI with modified host
-     *
-     * @param	string	$host
-     * @return	URI
      */
-    public function withHost(string $host) : URI
+    public function withHost(string $host): URI
     {
         $host = $this->digestHost($host);
         $other = clone $this;
@@ -300,22 +225,15 @@ class URI
         return $other;
     }
 
-
-    /**
-     * @return	string|null
-     */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->path;
     }
 
     /**
      * Get URI with modified path
-     *
-     * @param	string|null	$path
-     * @return	URI
      */
-    public function withPath(string $path = null) : URI
+    public function withPath(string $path = null): URI
     {
         $path = $this->digestPath($path);
         $other = clone $this;
@@ -323,21 +241,15 @@ class URI
         return $other;
     }
 
-    /**
-     * @return	string|null
-     */
-    public function getQuery()
+    public function getQuery(): ?string
     {
         return $this->query;
     }
 
     /**
      * Get URI with modified query
-     *
-     * @param	string|null	$query
-     * @return	URI
      */
-    public function withQuery(string $query = null) : URI
+    public function withQuery(string $query = null): URI
     {
         $query = $this->digestQuery($query);
         $other = clone $this;
@@ -345,21 +257,15 @@ class URI
         return $other;
     }
 
-    /**
-     * @return	string|null
-     */
-    public function getFragment()
+    public function getFragment(): ?string
     {
         return $this->fragment;
     }
 
     /**
      * Get URI with modified fragment
-     *
-     * @param	string|null	$fragment
-     * @return	URI
      */
-    public function withFragment(string $fragment = null) : URI
+    public function withFragment(string $fragment = null): URI
     {
         $fragment = $this->digestFragment($fragment);
         $other = clone $this;
@@ -370,10 +276,8 @@ class URI
     /**
      * Get a well-formed URI consisting only of
      * schema, authority and port.
-     *
-     * @return	string
      */
-    public function getBaseURI() : string
+    public function getBaseURI(): string
     {
         $path = $this->getPath();
         if ($path === null) {
@@ -382,7 +286,7 @@ class URI
         return $this->getSchema() . '://' . $this->getAuthority() . '/' . $path;
     }
 
-    public function __toString() : string
+    public function __toString(): string
     {
         $uri = $this->getBaseURI();
         $query = $this->getQuery();
@@ -399,7 +303,7 @@ class URI
     /**
      * Get all parameters as associative array
      */
-    public function getParameters() : array
+    public function getParameters(): array
     {
         $params = [];
         $query = $this->getQuery();
@@ -416,16 +320,14 @@ class URI
     public function getParameter(string $param)
     {
         $params = $this->getParameters();
-        if (!array_key_exists($param, $params)) {
-            return null;
-        }
-        return $params[$param];
+
+        return $params[$param] ?? null;
     }
 
     /**
      * Get URI with modified parameters
      */
-    public function withParameters(array $parameters) : URI
+    public function withParameters(array $parameters): URI
     {
         return $this->withQuery(
             http_build_query($parameters)
@@ -435,7 +337,7 @@ class URI
     /**
      * Get URI with modified parameters
      */
-    public function withParameter(string $key, $value) : URI
+    public function withParameter(string $key, $value): URI
     {
         $params = $this->getParameters();
         $params[$key] = $value;

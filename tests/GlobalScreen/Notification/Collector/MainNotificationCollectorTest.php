@@ -1,21 +1,5 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- *********************************************************************/
-
 use ILIAS\GlobalScreen\Scope\Notification\Collector\MainNotificationCollector;
 
 require_once(__DIR__ . "/../BaseNotificationSetUp.php");
@@ -25,7 +9,7 @@ require_once(__DIR__ . "/../BaseNotificationSetUp.php");
  */
 class MainNotificationCollectorTest extends BaseNotificationSetUp
 {
-    public function testConstruct() : void
+    public function testConstruct(): void
     {
         $povider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$povider]);
@@ -33,7 +17,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
     }
 
 
-    public function testHasNotifications() : void
+    public function testHasNotifications(): void
     {
         $povider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$povider]);
@@ -46,7 +30,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
     }
 
 
-    public function testGetNotifications() : void
+    public function testGetNotifications(): void
     {
         $povider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$povider]);
@@ -64,7 +48,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
     }
 
 
-    public function testGetAmountOfNewNotifications() : void
+    public function testGetAmountOfNewNotifications(): void
     {
         $povider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$povider]);
@@ -86,7 +70,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
     }
 
 
-    public function testGetAmountOfOldNotifications() : void
+    public function testGetAmountOfOldNotifications(): void
     {
         $povider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$povider]);
@@ -108,7 +92,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
     }
 
 
-    public function testGetNotificationsIdentifiersAsArray() : void
+    public function testGetNotificationsIdentifiersAsArray(): void
     {
         $provider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$provider]);

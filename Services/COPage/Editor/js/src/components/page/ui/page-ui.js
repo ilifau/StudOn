@@ -1,4 +1,18 @@
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 import ACTIONS from "../actions/page-action-types.js";
 
@@ -192,6 +206,10 @@ export default class PageUI {
 
     // init add buttons
     document.querySelectorAll(selector).forEach(area => {
+
+      if (this.isProtectedElement(area)) {
+        return;
+      }
 
       const uiModel = this.uiModel;
       let li, li_templ, ul;
@@ -430,7 +448,7 @@ export default class PageUI {
         this.log("*** Component click event");
         // start editing from page state
         if (this.model.getState() === this.model.STATE_PAGE) {
-          if (area.dataset.cname !== "ContentInclude") {
+          if (area.dataset.cname !== "ContentInclude" && !this.isProtectedPC(area.dataset.pcid)) {
             dispatch.dispatch(action.page().editor().componentEdit(area.dataset.cname,
                 area.dataset.pcid,
                 area.dataset.hierid));
@@ -479,6 +497,7 @@ export default class PageUI {
 
     const dispatch = this.dispatcher;
     const action = this.actionFactory;
+    const pageUI = this;
 
     if (!draggableSelector) {
       draggableSelector = ".il_editarea, .il_editarea_disabled";
@@ -488,7 +507,10 @@ export default class PageUI {
       droppableSelector = ".il_droparea";
     }
 
-    $(draggableSelector).draggable({
+
+    $(draggableSelector).filter(function (index) {
+      return !pageUI.isProtectedElement(this);
+    }).draggable({
         cursor: 'move',
         revert: false,
         scroll: true,
@@ -554,6 +576,36 @@ export default class PageUI {
         dispatch.dispatch(action.page().editor().multiToggle(ctype, pcid, hierid));
       });
     });
+  }
+
+  /**
+   * Check if an element is itself or within a protected section
+   * @param pcid
+   * @return {boolean}
+   */
+  isProtectedPC(pcid) {
+    return this.isProtectedElement(document.querySelector("[data-pcid='" + pcid + "']"));
+  }
+
+  /**
+   * Check if an element is itself or within a protected section
+   * @param curElement
+   * @return {boolean}
+   */
+  isProtectedElement(curElement) {
+    if (!this.uiModel.config.activatedProtection) {
+      return false;
+    }
+    do {
+      if (curElement && curElement.dataset.cname == "Section") {
+        let secModel = this.model.getPCModel(curElement.dataset.pcid);
+        if (secModel && secModel.protected) {
+          return true;
+        }
+        curElement = curElement.parentNode;
+      }
+    } while (curElement && (curElement = curElement.closest("[data-cname='Section']")));
+    return false;
   }
 
   initMultiButtons() {
@@ -790,11 +842,17 @@ export default class PageUI {
   //
 
   enableDragDrop() {
-    $('.il_editarea').draggable("enable");
+    const pageUI = this;
+    $('.il_editarea').filter(function (index) {
+      return !pageUI.isProtectedElement(this);
+    }).draggable("enable");
   }
 
   disableDragDrop() {
-    $('.il_editarea').draggable("disable");
+    const pageUI = this;
+    $('.il_editarea').filter(function (index) {
+      return !pageUI.isProtectedElement(this);
+    }).draggable("disable");
   }
 
   showAddButtons() {
@@ -862,7 +920,7 @@ export default class PageUI {
         break;
 
       default:
-        this.toolSlate.setContent(this.uiModel.pageTopActions + this.uiModel.multiActions + this.uiModel.multiEditHelp);
+        this.toolSlate.setContent(this.uiModel.pageTopActions + this.uiModel.multiEditHelp + this.uiModel.multiActions );
         this.initTopActions();
         this.initMultiButtons();
         break;
@@ -912,22 +970,29 @@ export default class PageUI {
   {
     const pl = result.getPayload();
 
-    if(pl.renderedContent !== undefined)
-    {
-      $('#il_center_col').html(pl.renderedContent);
+    if (pl.error) {
+      this.showError(pl.error);
+    } else {
+      if (pl.renderedContent !== undefined) {
+        $('#il_center_col').html(pl.renderedContent);
 
-      this.log("PCMODEL---");
-      this.log(pl.pcModel);
-      il.COPagePres.initAudioVideo();
+        this.log("PCMODEL---");
+        this.log(pl.pcModel);
+        il.COPagePres.initAudioVideo();
 
-      for (const [key, value] of Object.entries(pl.pcModel)) {
-        this.model.addPCModelIfNotExists(key, value);
+        for (const [key, value] of Object.entries(pl.pcModel)) {
+          this.model.addPCModelIfNotExists(key, value);
+        }
+
+        //      il.IntLink.refresh();           // missing
+        this.reInit();
+        this.refreshUIFromModelState(this.model);
       }
-
-//      il.IntLink.refresh();           // missing
-      this.reInit();
-      this.refreshUIFromModelState(this.model);
     }
+  }
+
+  showError(error) {
+    this.pageModifier.displayError(error);
   }
 
   showDeleteConfirmation() {
@@ -957,7 +1022,6 @@ export default class PageUI {
     const model = this.model;
 
     let content = this.model.getCurrentPCName();
-
     if (this.uiModel.components[this.model.getCurrentPCName()] &&
       this.uiModel.components[this.model.getCurrentPCName()].icon) {
       content = "<div class='copg-new-content-placeholder'>" + this.uiModel.components[this.model.getCurrentPCName()].icon +
@@ -994,7 +1058,6 @@ export default class PageUI {
             case "component.save":
               const form = form_button.closest("form");
               const form_data = new FormData(form);
-
               //after_pcid, pcid, component, data
               dispatch.dispatch(action.page().editor().componentSave(
                 model.getCurrentInsertPCId(),
@@ -1060,7 +1123,11 @@ export default class PageUI {
       this.toolSlate.setContent(p.editForm);
       this.initFormButtonsAndSettingsLink();
     });
+  }
 
+  showFormAfterError(form) {
+    this.toolSlate.setContent(form);
+    this.initFormButtonsAndSettingsLink();
   }
 
 }

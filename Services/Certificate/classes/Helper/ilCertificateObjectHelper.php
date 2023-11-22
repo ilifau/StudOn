@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
@@ -7,40 +24,29 @@
 class ilCertificateObjectHelper
 {
     /**
-     * @param int $objectId
+     * @param int  $objectId
      * @param bool $stop_on_error
-     * @return ilObject
+     * @return null|ilObject
+     * @throws ilDatabaseException
+     * @throws ilObjectNotFoundException
      */
-    public function getInstanceByObjId($objectId, bool $stop_on_error = true)
+    public function getInstanceByObjId(int $objectId, bool $stop_on_error = true): ?ilObject
     {
         return ilObjectFactory::getInstanceByObjId($objectId, $stop_on_error);
     }
 
-
-    /**
-     * @param int $refId
-     * @return int
-     */
-    public function lookupObjId(int $refId) : int
+    public function lookupObjId(int $refId): int
     {
-        return (int) ilObject::_lookupObjId($refId);
+        return ilObject::_lookupObjId($refId);
     }
 
-    /**
-     * @param int $objectId
-     * @return string
-     */
-    public function lookupType(int $objectId) : string
+    public function lookupType(int $objectId): string
     {
         return ilObject::_lookupType($objectId);
     }
 
-    /**
-     * @param int $objectId
-     * @return string
-     */
-    public function lookupTitle(int $objectId) : string
+    public function lookupTitle(int $objectId): string
     {
-        return (string) ilObject::_lookupTitle($objectId);
+        return ilObject::_lookupTitle($objectId);
     }
 }

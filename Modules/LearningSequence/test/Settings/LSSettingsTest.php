@@ -2,6 +2,22 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -9,13 +25,13 @@ use PHPUnit\Framework\TestCase;
  */
 class LSSettingsTest extends TestCase
 {
-    const TO_OBJ_ID = 10;
-    const TO_ABSTRACT = "abstract";
-    const TO_EXTRO = "extro";
-    const TO_ABSTRACT_IMAGE = "abstract/image/path";
-    const TO_EXTRO_IMAGE = "extro/image/path";
-    const TO_ONLINE = true;
-    const TO_MEMBERS_GALLERY = true;
+    public const TO_OBJ_ID = 10;
+    public const TO_ABSTRACT = "abstract";
+    public const TO_EXTRO = "extro";
+    public const TO_ABSTRACT_IMAGE = "abstract/image/path";
+    public const TO_EXTRO_IMAGE = "extro/image/path";
+    public const TO_ONLINE = true;
+    public const TO_MEMBERS_GALLERY = true;
 
     public function testCreate()
     {

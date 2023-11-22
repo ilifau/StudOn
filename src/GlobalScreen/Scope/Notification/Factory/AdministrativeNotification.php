@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Notification\Factory;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
@@ -36,47 +36,23 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
     public const DENOTATION_IMPORTANT = 'important';
     public const DENOTATION_BREAKING = 'breaking';
 
-    /**
-     * @var bool
-     */
-    private $is_visible_static;
+    private bool $is_visible_static;
 
-    /**
-     * @var \ILIAS\GlobalScreen\Identification\IdentificationInterface
-     */
-    protected $provider_identification;
+    protected IdentificationInterface $provider_identification;
 
-    /**
-     * @var string
-     */
-    protected $title;
+    protected string $title;
 
-    /**
-     * @var string
-     */
-    protected $summary;
+    protected string $summary;
 
-    /**
-     * @var \Closure|null
-     */
-    protected $available_callable;
-    /**
-     * @var \Closure|null
-     */
-    protected $visiblility_callable;
-    /**
-     * @var bool
-     */
-    protected $is_always_available = false;
-    /**
-     * @var string
-     */
-    protected $denotation = self::DENOTATION_NEUTRAL;
+    protected ?Closure  $available_callable = null;
+    protected ?Closure $visiblility_callable = null;
+    protected bool $is_always_available = false;
+    protected string $denotation = self::DENOTATION_NEUTRAL;
 
     /**
      * @inheritDoc
      */
-    public function getRenderer(UIFactory $factory) : NotificationRenderer
+    public function getRenderer(UIFactory $factory): NotificationRenderer
     {
         return new AdministrativeNotificationRenderer($factory);
     }
@@ -84,7 +60,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
     /**
      * @inheritDoc
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone $this;
         $clone->title = $title;
@@ -95,7 +71,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
     /**
      * @inheritDoc
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -103,7 +79,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
     /**
      * @inheritDoc
      */
-    public function withSummary(string $summary) : isItem
+    public function withSummary(string $summary): isItem
     {
         $clone = clone $this;
         $clone->summary = $summary;
@@ -114,12 +90,12 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
     /**
      * @inheritDoc
      */
-    public function getSummary() : string
+    public function getSummary(): string
     {
         return $this->summary;
     }
 
-    public function withVisibilityCallable(callable $is_visible) : self
+    public function withVisibilityCallable(callable $is_visible): self
     {
         $clone = clone($this);
         $clone->visiblility_callable = $is_visible;
@@ -127,7 +103,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
         return $clone;
     }
 
-    public function isVisible() : bool
+    public function isVisible(): bool
     {
         if (isset($this->is_visible_static)) {
             return $this->is_visible_static;
@@ -146,7 +122,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
         return $this->is_visible_static = true;
     }
 
-    public function isAvailable() : bool
+    public function isAvailable(): bool
     {
         if (is_callable($this->available_callable)) {
             $callable = $this->available_callable;
@@ -157,7 +133,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
         return true;
     }
 
-    public function withAvailableCallable(callable $is_available) : self
+    public function withAvailableCallable(callable $is_available): self
     {
         $clone = clone($this);
         $clone->available_callable = $is_available;
@@ -165,7 +141,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
         return $clone;
     }
 
-    public function withNeutralDenotation() : self
+    public function withNeutralDenotation(): self
     {
         $clone = clone($this);
         $clone->denotation = self::DENOTATION_NEUTRAL;
@@ -173,7 +149,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
         return $clone;
     }
 
-    public function withImportantDenotation() : self
+    public function withImportantDenotation(): self
     {
         $clone = clone($this);
         $clone->denotation = self::DENOTATION_IMPORTANT;
@@ -181,7 +157,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
         return $clone;
     }
 
-    public function withBreakingDenotation() : self
+    public function withBreakingDenotation(): self
     {
         $clone = clone($this);
         $clone->denotation = self::DENOTATION_BREAKING;
@@ -189,7 +165,7 @@ class AdministrativeNotification extends AbstractBaseNotification implements isI
         return $clone;
     }
 
-    public function getDenotation() : string
+    public function getDenotation(): string
     {
         return $this->denotation ?? self::DENOTATION_NEUTRAL;
     }

@@ -1,20 +1,34 @@
 <?php
 
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
+
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @author Ingmar Szmais <iszmais@databay.de>
  */
 class ilMailOptionsTest extends ilMailBaseTest
 {
-    /** @var MockObject */
-    protected $setting;
-    /** @var sdtClass */
-    protected $object;
+    protected MockObject $setting;
+    protected stdClass $object;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -38,10 +52,10 @@ class ilMailOptionsTest extends ilMailBaseTest
         $this->setGlobalVariable('ilDB', $this->database);
     }
 
-    public function testConstructor() : void
+    public function testConstructor(): void
     {
         $settings = $this->getMockBuilder(ilSetting::class)->disableOriginalConstructor()->onlyMethods(['get'])->getMock();
-        $settings->method('get')->willReturnCallback(static function (string $key, $default = false) {
+        $settings->method('get')->willReturnCallback(static function (string $key, ?string $default = null) {
             if ($key === 'mail_incoming_mail' || $key === 'mail_address_option') {
                 return $default;
             }
@@ -65,10 +79,10 @@ class ilMailOptionsTest extends ilMailBaseTest
         $this->assertFalse($mailOptions->isCronJobNotificationEnabled());
     }
 
-    public function testConstructorWithUserSettings() : void
+    public function testConstructorWithUserSettings(): void
     {
         $settings = $this->getMockBuilder(ilSetting::class)->disableOriginalConstructor()->onlyMethods(['get'])->getMock();
-        $settings->method('get')->willReturnCallback(static function (string $key, $default = false) {
+        $settings->method('get')->willReturnCallback(static function (string $key, ?string $default = null) {
             if ($key === 'mail_incoming_mail' || $key === 'mail_address_option') {
                 return $default;
             }

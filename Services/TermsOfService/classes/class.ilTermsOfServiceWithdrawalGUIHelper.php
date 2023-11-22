@@ -1,9 +1,27 @@
-<?php declare(strict_types=1);
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\UI\Component\MainControls\Footer;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class ilTermsOfServiceWithdrawalGUIHelper
@@ -11,46 +29,31 @@ use Psr\Http\Message\RequestInterface;
  */
 class ilTermsOfServiceWithdrawalGUIHelper
 {
-    /** @var ilLanguage $lng */
-    protected $lng;
-    /** @var ilCtrl $ctrl */
-    protected $ctrl;
-    /** @var ilSetting $setting */
-    protected $setting;
-    /** @var ilTemplate $tpl */
-    protected $tpl;
-    /** @var ilObjUser $user */
-    protected $user;
-    /** @var Factory $factory */
-    protected $uiFactory;
-    /** @var Renderer $renderer */
-    protected $uiRenderer;
-    /** @var ilTermsOfServiceHelper */
-    protected $tosHelper;
+    protected ilLanguage $lng;
+    protected ilCtrlInterface $ctrl;
+    protected ilSetting $setting;
+    protected ilObjUser $user;
+    protected Factory $uiFactory;
+    protected Renderer $uiRenderer;
+    protected ilTermsOfServiceHelper $tosHelper;
+    private ilGlobalTemplateInterface $main_tpl;
 
-    /**
-     * ilTermsOfServiceWithdrawalGUIHelper constructor.
-     * @param ilObjUser $subjectUser
-     */
     public function __construct(ilObjUser $subjectUser)
     {
         global $DIC;
+        $this->main_tpl = $DIC->ui()->mainTemplate();
 
         $this->user = $subjectUser;
 
         $this->lng = $DIC->language();
         $this->ctrl = $DIC->ctrl();
         $this->setting = $DIC->settings();
-        $this->tpl = $DIC->ui()->mainTemplate();
         $this->uiFactory = $DIC->ui()->factory();
         $this->uiRenderer = $DIC->ui()->renderer();
         $this->tosHelper = new ilTermsOfServiceHelper();
     }
 
-    /**
-     * @return ilTemplate
-     */
-    private function getWithdrawalSectionForModal() : ilTemplate
+    private function getWithdrawalSectionForModal(): ilTemplate
     {
         $template = new ilTemplate('tpl.tos_withdrawal_section.html', true, true, 'Services/TermsOfService');
         $template->setVariable('TXT_TOS_WITHDRAWAL_HEADLINE', $this->lng->txt('withdraw_consent_header'));
@@ -58,7 +61,7 @@ class ilTermsOfServiceWithdrawalGUIHelper
         $template->setVariable(
             'BTN_TOS_WITHDRAWAL',
             $this->uiRenderer->render(
-                $this->uiFactory->button()->standard($this->lng->txt('withdraw_consent'), 'logout.php?withdraw_consent')
+                $this->uiFactory->button()->standard($this->lng->txt('withdraw_consent'), ilStartUpGUI::logoutUrl(['withdraw_consent' => '']))
             )
         );
 
@@ -70,7 +73,7 @@ class ilTermsOfServiceWithdrawalGUIHelper
      * @return Footer
      * @throws ilTermsOfServiceMissingDatabaseAdapterException
      */
-    public function modifyFooter(Footer $footer) : Footer
+    public function modifyFooter(Footer $footer): Footer
     {
         if (
             $this->tosHelper->isGloballyEnabled() &&
@@ -101,14 +104,10 @@ class ilTermsOfServiceWithdrawalGUIHelper
         return $footer;
     }
 
-    /**
-     * @param RequestInterface $httpRequest
-     * @param object $guiClass
-     */
     public function handleWithdrawalLogoutRequest(
-        RequestInterface $httpRequest,
+        ServerRequestInterface $httpRequest,
         object $guiClass
-    ) : void {
+    ): void {
         if (!isset($httpRequest->getQueryParams()['withdraw_consent'])) {
             return;
         }
@@ -117,22 +116,22 @@ class ilTermsOfServiceWithdrawalGUIHelper
             return;
         }
 
-        $defaultAuth = AUTH_LOCAL;
+        $defaultAuth = ilAuthUtils::AUTH_LOCAL;
         if ($this->setting->get('auth_mode')) {
             $defaultAuth = $this->setting->get('auth_mode');
         }
 
         $external = false;
         if (
-            $this->user->getAuthMode() == AUTH_PROVIDER_LTI ||
-            $this->user->getAuthMode() == AUTH_ECS ||
-            ($this->user->getAuthMode() === 'default' && $defaultAuth == AUTH_PROVIDER_LTI) ||
-            ($this->user->getAuthMode() === 'default' && $defaultAuth == AUTH_ECS)
+            $this->user->getAuthMode() == ilAuthUtils::AUTH_PROVIDER_LTI ||
+            $this->user->getAuthMode() == ilAuthUtils::AUTH_ECS ||
+            ($this->user->getAuthMode() === 'default' && $defaultAuth == ilAuthUtils::AUTH_PROVIDER_LTI) ||
+            ($this->user->getAuthMode() === 'default' && $defaultAuth == ilAuthUtils::AUTH_ECS)
         ) {
             $external = true;
         }
 
-        $this->user->writePref('consent_withdrawal_requested', 1);
+        $this->user->writePref('consent_withdrawal_requested', '1');
 
         if ($external) {
             $this->ctrl->setParameter($guiClass, 'withdrawal_relogin_content', 'external');
@@ -141,11 +140,7 @@ class ilTermsOfServiceWithdrawalGUIHelper
         }
     }
 
-    /**
-     * @param RequestInterface $httpRequest
-     * @return string
-     */
-    public function getWithdrawalTextForLogoutScreen(RequestInterface $httpRequest) : string
+    public function getWithdrawalTextForLogoutScreen(ServerRequestInterface $httpRequest): string
     {
         $withdrawalStatus = ($httpRequest->getQueryParams()['withdrawal_relogin_content'] ?? 0);
 
@@ -162,29 +157,24 @@ class ilTermsOfServiceWithdrawalGUIHelper
         return $text;
     }
 
-
-    /**
-     * @param object $parentObject
-     * @return string
-     */
-    public function getConsentWithdrawalConfirmation(object $parentObject) : string
+    public function getConsentWithdrawalConfirmation(object $parentObject): string
     {
-        $defaultAuth = AUTH_LOCAL;
+        $defaultAuth = ilAuthUtils::AUTH_LOCAL;
         if ($this->setting->get('auth_mode')) {
             $defaultAuth = $this->setting->get('auth_mode');
         }
 
         $isLdapUser = (
-            $this->user->getAuthMode() == AUTH_LDAP ||
-            ($this->user->getAuthMode() === 'default' && $defaultAuth == AUTH_LDAP)
+            $this->user->getAuthMode() == ilAuthUtils::AUTH_LDAP ||
+            ($this->user->getAuthMode() === 'default' && $defaultAuth == ilAuthUtils::AUTH_LDAP)
         );
 
-        $lng_suffix = ''; 
+        $lng_suffix = '';
         if (!$this->user->getAgreeDate()) {
             $lng_suffix = '_no_consent_yet';
         }
         $question = $this->lng->txt('withdrawal_sure_account' . $lng_suffix);
-        if (!$isLdapUser && (bool) $this->setting->get('tos_withdrawal_usr_deletion', false))  {
+        if (!$isLdapUser && $this->setting->get('tos_withdrawal_usr_deletion', '0')) {
             $question = $this->lng->txt('withdrawal_sure_account_deletion' . $lng_suffix);
         }
 
@@ -200,7 +190,7 @@ class ilTermsOfServiceWithdrawalGUIHelper
         ]);
 
         if ($isLdapUser) {
-            $message = nl2br(str_ireplace("[BR]", "\n", sprintf(
+            $message = nl2br(str_ireplace('[BR]', "\n", sprintf(
                 $this->lng->txt('withdrawal_mail_info') . $this->lng->txt('withdrawal_mail_text'),
                 $this->user->getFullname(),
                 $this->user->getLogin(),
@@ -225,19 +215,16 @@ class ilTermsOfServiceWithdrawalGUIHelper
         return $content;
     }
 
-    /**
-     * @param RequestInterface $httpRequest
-     */
-    public function setWithdrawalInfoForLoginScreen(RequestInterface $httpRequest) : void
+    public function setWithdrawalInfoForLoginScreen(ServerRequestInterface $httpRequest): void
     {
         if (isset($httpRequest->getQueryParams()['tos_withdrawal_type'])) {
             $withdrawalType = (int) $httpRequest->getQueryParams()['tos_withdrawal_type'];
             if (1 === $withdrawalType) {
-                ilUtil::sendInfo($this->lng->txt('withdrawal_complete_deleted'));
+                $this->main_tpl->setOnScreenMessage('info', $this->lng->txt('withdrawal_complete_deleted'));
             } elseif (2 === $withdrawalType) {
-                ilUtil::sendInfo($this->lng->txt('withdrawal_complete_redirect'));
+                $this->main_tpl->setOnScreenMessage('info', $this->lng->txt('withdrawal_complete_redirect'));
             } else {
-                ilUtil::sendInfo($this->lng->txt('withdrawal_complete'));
+                $this->main_tpl->setOnScreenMessage('info', $this->lng->txt('withdrawal_complete'));
             }
         }
     }

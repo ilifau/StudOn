@@ -1,11 +1,20 @@
 <?php
-require_once 'Services/Cron/classes/class.ilCronJob.php';
-require_once 'Services/Cron/classes/class.ilCronJobResult.php';
-require_once 'Modules/Test/classes/class.ilObjTest.php';
-require_once 'Modules/Test/classes/class.ilTestPassFinishTasks.php';
-require_once 'Services/Logging/classes/public/class.ilLoggerFactory.php';
 
-/* Copyright (c) 1998-2016 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilCronFinishUnfinishedTestPasses
@@ -13,65 +22,29 @@ require_once 'Services/Logging/classes/public/class.ilLoggerFactory.php';
  */
 class ilCronFinishUnfinishedTestPasses extends ilCronJob
 {
-
     /**
-     * @var ilLogger
+     * @var ilLogger|ilComponentLogger
      */
     protected $log;
 
-    /**
-     * @var $lng ilLanguage
-     */
-    protected $lng;
+    protected ilLanguage $lng;
+    protected ilDBInterface $db;
+    protected ilObjectDataCache $obj_data_cache;
+    protected int $now;
+    protected array $unfinished_passes;
+    protected array $test_ids;
+    protected array $test_ending_times;
+    protected ilTestProcessLockerFactory $processLockerFactory;
 
-    /**
-     * @var $ilDB ilDB
-     */
-    protected $db;
-
-    /**
-     * @var $ilObjDataCache ilObjectDataCache
-     */
-    protected $obj_data_cache;
-
-    /**
-     * @var int
-     */
-    protected $now;
-
-    protected $unfinished_passes;
-
-    protected $test_ids;
-
-    protected $test_ending_times;
-
-    /**
-     * @var ilTestProcessLockerFactory
-     */
-    protected $processLockerFactory;
-
-    /**
-     * Constructor
-     */
     public function __construct()
     {
-        /**
-         * @var $ilDB ilDB
-         * @var $ilObjDataCache ilObjectDataCache
-         */
-
         global $DIC;
-        $ilObjDataCache = $DIC['ilObjDataCache'];
-        $lng = $DIC['lng'];
-        $ilDB = $DIC['ilDB'];
-
-        global $DIC; /* @var ILIAS\DI\Container $DIC */
 
         $this->log = ilLoggerFactory::getLogger('tst');
-        $this->lng = $lng;
+        $this->lng = $DIC['lng'];
         $this->lng->loadLanguageModule('assessment');
-        $this->db = $ilDB;
-        $this->obj_data_cache = $ilObjDataCache;
+        $this->db = $DIC->database();
+        $this->obj_data_cache = $DIC['ilObjDataCache'];
         $this->now = time();
         $this->unfinished_passes = array();
         $this->test_ids = array();
@@ -80,16 +53,16 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
         require_once 'Modules/Test/classes/class.ilTestProcessLockerFactory.php';
         $this->processLockerFactory = new ilTestProcessLockerFactory(
             new ilSetting('assessment'),
-            $DIC->database()
+            $this->db
         );
     }
 
-    public function getId()
+    public function getId(): string
     {
         return 'finish_unfinished_passes';
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         global $DIC;
         $lng = $DIC['lng'];
@@ -97,7 +70,7 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
         return $lng->txt("finish_unfinished_passes");
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         global $DIC;
         $lng = $DIC['lng'];
@@ -105,32 +78,32 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
         return $lng->txt("finish_unfinished_passes_desc");
     }
 
-    public function getDefaultScheduleType()
+    public function getDefaultScheduleType(): int
     {
         return self::SCHEDULE_TYPE_DAILY;
     }
 
-    public function getDefaultScheduleValue()
+    public function getDefaultScheduleValue(): int
     {
-        return;
+        return 1;
     }
 
-    public function hasAutoActivation()
+    public function hasAutoActivation(): bool
     {
         return false;
     }
 
-    public function hasFlexibleSchedule()
+    public function hasFlexibleSchedule(): bool
     {
         return true;
     }
 
-    public function hasCustomSettings()
+    public function hasCustomSettings(): bool
     {
         return true;
     }
 
-    public function run()
+    public function run(): ilCronJobResult
     {
         $this->log->info('start inf cronjob...');
 
@@ -152,7 +125,7 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
         return $result;
     }
 
-    protected function gatherUsersWithUnfinishedPasses()
+    protected function gatherUsersWithUnfinishedPasses(): void
     {
         $query = "SELECT	tst_active.active_id,
 						tst_active.tries,
@@ -178,7 +151,7 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
         }
     }
 
-    protected function getTestsFinishAndProcessingTime()
+    protected function getTestsFinishAndProcessingTime(): void
     {
         $query = 'SELECT test_id, obj_fi, ending_time, ending_time_enabled, processing_time, enable_processing_time FROM tst_tests WHERE ' .
                     $this->db->in('test_id', $this->test_ids, false, 'integer');
@@ -189,7 +162,7 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
         $this->log->info('Gathered data for ' . count($this->test_ids) . ' test id(s) => (' . implode(',', $this->test_ids) . ')');
     }
 
-    protected function processPasses()
+    protected function processPasses(): void
     {
         $now = time();
         foreach ($this->unfinished_passes as $key => $data) {
@@ -232,7 +205,7 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
         }
     }
 
-    protected function finishPassForUser($active_id, $obj_id)
+    protected function finishPassForUser($active_id, $obj_id): void
     {
         $processLocker = $this->processLockerFactory->withContextId((int) $active_id)->getLocker();
 

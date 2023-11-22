@@ -1,8 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2014 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
 
-require_once 'Services/Password/classes/encoders/class.ilMd5PasswordEncoder.php';
-require_once 'Services/Password/test/ilPasswordBaseTest.php';
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilMd5PasswordEncoderTest
@@ -11,83 +25,73 @@ require_once 'Services/Password/test/ilPasswordBaseTest.php';
  */
 class ilMd5PasswordEncoderTest extends ilPasswordBaseTest
 {
-    /**
-     * @return ilMd5PasswordEncoder
-     */
-    public function testInstanceCanBeCreated() : ilMd5PasswordEncoder
+    public function testInstanceCanBeCreated(): ilMd5PasswordEncoder
     {
         $encoder = new ilMd5PasswordEncoder();
-        $this->assertInstanceOf('ilMd5PasswordEncoder', $encoder);
+        $this->assertInstanceOf(ilMd5PasswordEncoder::class, $encoder);
         return $encoder;
     }
 
     /**
      * @depends testInstanceCanBeCreated
-     * @param ilMd5PasswordEncoder $encoder
      * @throws ilPasswordException
      */
-    public function testPasswordShouldBeCorrectlyEncoded(ilMd5PasswordEncoder $encoder) : void
+    public function testPasswordShouldBeCorrectlyEncoded(ilMd5PasswordEncoder $encoder): void
     {
         $this->assertSame(md5('password'), $encoder->encodePassword('password', ''));
     }
 
     /**
      * @depends testInstanceCanBeCreated
-     * @param ilMd5PasswordEncoder $encoder
      * @throws ilPasswordException
      */
-    public function testPasswordCanBeVerified(ilMd5PasswordEncoder $encoder) : void
+    public function testPasswordCanBeVerified(ilMd5PasswordEncoder $encoder): void
     {
         $this->assertTrue($encoder->isPasswordValid(md5('password'), 'password', ''));
     }
 
     /**
      * @depends testInstanceCanBeCreated
-     * @param ilMd5PasswordEncoder $encoder
      */
-    public function testEncoderDoesNotRelyOnSalts(ilMd5PasswordEncoder $encoder) : void
+    public function testEncoderDoesNotRelyOnSalts(ilMd5PasswordEncoder $encoder): void
     {
         $this->assertFalse($encoder->requiresSalt());
     }
 
     /**
      * @depends testInstanceCanBeCreated
-     * @param ilMd5PasswordEncoder $encoder
      */
-    public function testEncoderDoesNotSupportReencoding(ilMd5PasswordEncoder $encoder) : void
+    public function testEncoderDoesNotSupportReencoding(ilMd5PasswordEncoder $encoder): void
     {
         $this->assertFalse($encoder->requiresReencoding('hello'));
     }
 
     /**
      * @depends testInstanceCanBeCreated
-     * @param ilMd5PasswordEncoder $encoder
      * @throws ilPasswordException
      */
     public function testExceptionIsRaisedIfThePasswordExceedsTheSupportedLengthOnEncoding(
         ilMd5PasswordEncoder $encoder
-    ) : void {
+    ): void {
         $this->expectException(ilPasswordException::class);
         $encoder->encodePassword(str_repeat('a', 5000), '');
     }
 
     /**
      * @depends testInstanceCanBeCreated
-     * @param ilMd5PasswordEncoder $encoder
      * @throws ilPasswordException
      */
     public function testPasswordVerificationShouldFailIfTheRawPasswordExceedsTheSupportedLength(
         ilMd5PasswordEncoder $encoder
-    ) : void {
+    ): void {
         $this->assertFalse($encoder->isPasswordValid('encoded', str_repeat('a', 5000), ''));
     }
 
     /**
      * @depends testInstanceCanBeCreated
-     * @param ilMd5PasswordEncoder $encoder
      */
-    public function testNameShouldBeMd5(ilMd5PasswordEncoder $encoder) : void
+    public function testNameShouldBeMd5(ilMd5PasswordEncoder $encoder): void
     {
-        $this->assertEquals('md5', $encoder->getName());
+        $this->assertSame('md5', $encoder->getName());
     }
 }

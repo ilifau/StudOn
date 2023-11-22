@@ -35,7 +35,7 @@ You most probably want to execute the setup with the user that also executes you
 webserver to avoid problems with filesystem permissions. The installation creates
 directories and files that the webserver will need to read and sometimes even modify.
 If you need to run setup as another user, please make sure that the user that executes
-the webserver has the necessary filesystem permissions (e.g. by using chown), to 
+the webserver has the necessary filesystem permissions (e.g. by using chown), to
 avoid some errors which may be difficult to troubleshoot.
 
 The setup will ask you to confirm some assumptions during the setup process, where
@@ -117,13 +117,17 @@ via options.
 
 Some components of ILIAS will publish named objectives to the setup via their
 agent. The most notorious example for this is the component `UICore` which provides
-the objective `reloadCtrlStructure` that will generate routing information for the
+the objective `buildIlCtrlArtifacts` that will generate routing information for the
 GUI. To achieve a single objective from an agent, e.g. for control structure reload,
 run `php setup/setup.php achieve $AGENT_NAME.$OBJECTIVE_NAME`, e.g. 
-`php setup/setup.php achieve uicore.reloadCtrlStructure` to reload the
-control structure. The agent might need to a config file to work, which may be added
-as last parameter: `php setup/setup.php achieve uicore.reloadCtrlStructure config.json`
+`php setup/setup.php achieve uicore.buildIlCtrlArtifacts` to generate the necessary
+artifacts for the control structure. The agent might need to a config file to work,
+which may be added as last parameter: 
+`php setup/setup.php achieve uicore.buildIlCtrlArtifacts config.json`
 
+## List available objectives
+Calling `php setup/setup.php achieve` without any arguments and options  
+or calling `php setup/setup.php achieve --list` will list all available objectives.
 
 # Migrations
 
@@ -197,14 +201,14 @@ are printed bold**, all other fields might be omitted. A minimal example is
     "database" : {
         "type" : "innodb",
         "host" : "192.168.47.11",
-        "port" : "3306",
+        "port" : 3306,
         "database" : "db_test7",
         "user" : "test7_homer",
         "password" : "homers-secret",
         "create_database" : true
     },
     ```
-  * *type* (type: string) of the database, one of `innodb`, `mysql`, `postgres`, `galera`, defaults
+  * *type* (type: string) of the database, `innodb`, defaults
     to `innodb`
   * *host* (type: string) the database server runs on, defaults to `localhost`
   * *port* (type: string or number) the database server uses, defaults to `3306`
@@ -264,7 +268,7 @@ are printed bold**, all other fields might be omitted. A minimal example is
         ]
     },
     ```
-  * *service* (type: string) to be used for caching. Either `none`, `static`, `xcache`, `memcached`
+  * *service* (type: string) to be used for caching. Either `none`, `static`, `memcached`
     or `apc`, defaults to  `static`.
   * *components* (type: string or object) that should use caching. Can be `all` or any list of components that
     support caching,  (must be set too, if *service* is set)
@@ -291,23 +295,6 @@ are printed bold**, all other fields might be omitted. A minimal example is
   * *proxy* (type: object) for outgoing http connections
     * *host* (type: string) the proxy runs on
     * *port* (type: string or number) the proxy listens on
-* **language** (type: object) configuration, e.g.:
-    ```
-	"language" : {
-		"default_language" : "de",
-		"install_languages" : [
-			"de",
-			"en"
-		],
-		"install_local_languages" : [
-			"de"
-		]
-	},
-    ```
-  * *default_language* (type: string) language to be used for users, defaults to `en`
-  * *install_languages* (type: array of strings) defines all languages that should be available in a list,
-    defaults to `en`
-  * *install_local_languages* (type: array of strings) defines all languages with a local language file, default: no local file(s)
 * *logging* (type: object) configuration if logging should be used
     ```
 	"logging" : {
@@ -320,12 +307,37 @@ are printed bold**, all other fields might be omitted. A minimal example is
   * *path_to_logfile* (type: string) to be used for logging
   * *errorlog_dir* (type: string) to put error logs in
 * *mathjax* (type: object) contains settings for Services/MathJax
+    
+    The MathJax settings can also be done manually in the ILIAS adminstration.  
+    Settings included here will overwrite those at the next update.
+    MathJax 3 is supported, but MathJax 2 is recommended.
     ```
-	"mathjax" : {
-		"path_to_latex_cgi" : ""
+	"mathjax": {
+		"client_enabled": true,
+		"client_polyfill_url": "",
+		"client_script_url": "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML,Safe",
+		"client_limiter": 0,
+		"server_enabled": true,
+		"server_address": "http://your.mathjax.server:8003",
+		"server_timeout": 5,
+		"server_for_browser": true,
+		"server_for_export": true,
+		"server_for_pdf": true
 	},
     ```
-  * *path_to_latex_cgi* (type: string) url of a mimetex installation (deprecated). Please configure MathJax in the ILIAS Administration.
+  * *client_enabled* (type: boolean) client-side rendering in the browser is enabled
+  * *client_polyfill_url* (type: string) url of a polyfill script for MathJax 3 to support older browsers
+  * *client_script_url* (type: string) url of the MathJax script to be included on the browser page
+  * *client_limiter* (type: integer) type of delimiters expected by the included MathJax script
+    * 0: \\( ... \\)
+    * 1: [tex] ... [/tex]
+    * 2: \<span class="math"\> ... \</span\>
+  * *server_enabled* (type: boolean) server-side rendering is enabled
+  * *server_address* (type: string) address of the rendering server
+  * *server_timeout* (type: integer) timeout in seconds to wait for a server response
+  * *server_for_browser* (type: boolean) use the server for rendering in the browser
+  * *server_for_export* (type: boolean) use the server for HTML exports
+  * *server_for_pdf* (type: boolean) use the server for PDF generation
 * *preview* (type: object) contains settings for Services/Preview
     ```
 	"preview" : {
@@ -427,10 +439,14 @@ are printed bold**, all other fields might be omitted. A minimal example is
 * *privacysecurity* (type: object)
     ```
 	"privacysecurity" : {
-		"https_enabled" : true
+		"https_enabled" : true,
+		"auth_duration" : 3000,
+		"account_assistance_duration" : 3000
 	},
     ```
   * *https_enabled* (type: boolean) forces https on login page, defaults to `false`
+  * *auth_duration* (type: integer) stretches the auth-duration on logins to the given amount in ms, defaults to `null`
+  * *account_assistance_duration* (type: integer) stretches the password- and username-assistance duration to the given amount in ms, defaults to `null`
 * *webservices* (type: object)
     ```
 	"webservices" : {

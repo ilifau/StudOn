@@ -3,66 +3,46 @@
 declare(strict_types=1);
 
 /**
- * Class ilObjLearningSequence
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- */
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilObjLearningSequence extends ilContainer
 {
-    const OBJ_TYPE = 'lso';
+    public const OBJ_TYPE = 'lso';
 
-    const E_CREATE = 'create';
-    const E_UPDATE = 'update';
-    const E_DELETE = 'delete';
+    public const E_CREATE = 'create';
+    public const E_UPDATE = 'update';
+    public const E_DELETE = 'delete';
 
-    /**
-     * @var ilLSItemsDB
-     */
-    protected $items_db;
-
-    /**
-     * @var ilLSPostConditionDB
-     */
-    protected $conditions_db;
-
-    /**
-     * @var ilLearnerProgressDB
-     */
-    protected $learner_progress_db;
-
-    /**
-     * @var ilLearningSequenceParticipant
-     */
-    protected $ls_participant;
-
-    /**
-     * @var ilLearningSequenceSettings
-     */
-    protected $ls_settings;
-
-    /**
-     * @var ilLSStateDB
-     */
-    protected $state_db;
-
-    /**
-     * @var LSRoles
-     */
-    protected $ls_roles;
-
-    /*
-     * @var ilLearningSequenceSettingsDB
-     */
-    protected $settings_db;
-
-    /*
-     * @var ilLearningSequenceSettingsDB
-     */
-    protected $activation_db;
-
-    /*
-     * @var ilLearningSequenceActivation
-     */
-    protected $ls_activation;
+    protected ?ilLSItemsDB $items_db = null;
+    protected ?ilLSPostConditionDB $conditions_db = null;
+    protected ?ilLearnerProgressDB $learner_progress_db = null;
+    protected ?ilLearningSequenceParticipants $ls_participants = null;
+    protected ?ilLearningSequenceSettings $ls_settings = null;
+    protected ?ilLSStateDB $state_db = null;
+    protected ?ilLearningSequenceRoles $ls_roles = null;
+    protected ?ilLearningSequenceSettingsDB $settings_db = null;
+    protected ?ilLearningSequenceActivationDB $activation_db = null;
+    protected ?ilLearningSequenceActivation $ls_activation = null;
+    protected ?ArrayAccess $di = null;
+    protected ?ArrayAccess $local_di = null;
+    protected ?ilObjLearningSequenceAccess $ls_access = null;
+    protected ArrayAccess $dic;
+    protected ilCtrl $ctrl;
+    protected ilNewsService $il_news;
+    protected ilConditionHandler $il_condition_handler;
 
 
     public function __construct(int $id = 0, bool $call_by_reference = true)
@@ -75,13 +55,7 @@ class ilObjLearningSequence extends ilContainer
         $this->ctrl = $DIC['ilCtrl'];
         $this->user = $DIC['ilUser'];
         $this->tree = $DIC['tree'];
-        // fau: fixRemoveTrashed - template in ilObjLearningSequence
-        if ($DIC->offsetExists('tpl')) {
-            $this->template = $DIC['tpl'];
-        }
-        // fau.
         $this->log = $DIC["ilLoggerFactory"]->getRootLogger();
-        $this->rbacadmin = $DIC['rbacadmin'];
         $this->app_event_handler = $DIC['ilAppEventHandler'];
         $this->il_news = $DIC->news();
         $this->il_condition_handler = new ilConditionHandler();
@@ -91,21 +65,21 @@ class ilObjLearningSequence extends ilContainer
         $this->lng->loadLanguageModule('rbac');
     }
 
-    public static function getInstanceByRefId(int $ref_id)
+    public static function getInstanceByRefId(int $ref_id): ?\ilObject
     {
         return ilObjectFactory::getInstanceByRefId($ref_id, false);
     }
 
-    public function read()
+    public function read(): void
     {
+        parent::read();
         $this->getLSSettings();
         if ($this->getRefId()) {
             $this->getLSActivation();
         }
-        parent::read();
     }
 
-    public function create() : int
+    public function create(): int
     {
         $id = parent::create();
         if (!$id) {
@@ -113,10 +87,10 @@ class ilObjLearningSequence extends ilContainer
         }
         $this->raiseEvent(self::E_CREATE);
 
-        return (int) $this->getId();
+        return $this->getId();
     }
 
-    public function update() : bool
+    public function update(): bool
     {
         if (!parent::update()) {
             return false;
@@ -126,23 +100,23 @@ class ilObjLearningSequence extends ilContainer
         return true;
     }
 
-    public function delete() : bool
+    public function delete(): bool
     {
         if (!parent::delete()) {
             return false;
         }
 
         ilLearningSequenceParticipants::_deleteAllEntries($this->getId());
-        $this->getSettingsDB()->delete((int) $this->getId());
-        $this->getStateDB()->deleteFor((int) $this->getRefId());
-        $this->getActivationDB()->deleteForRefId((int) $this->getRefId());
+        $this->getSettingsDB()->delete($this->getId());
+        $this->getStateDB()->deleteFor($this->getRefId());
+        $this->getActivationDB()->deleteForRefId($this->getRefId());
 
         $this->raiseEvent(self::E_DELETE);
 
         return true;
     }
 
-    protected function raiseEvent(string $event_type)
+    protected function raiseEvent(string $event_type): void
     {
         $this->app_event_handler->raise(
             'Modules/LearningSequence',
@@ -154,26 +128,27 @@ class ilObjLearningSequence extends ilContainer
         );
     }
 
-    public function cloneObject($target_id, $copy_id = 0, $omit_tree = false)
+    public function cloneObject(int $target_id, int $copy_id = 0, bool $omit_tree = false): ?ilObject
     {
+        /** @var ilObjLearningSequence $new_obj */
         $new_obj = parent::cloneObject($target_id, $copy_id, $omit_tree);
 
         $this->cloneAutoGeneratedRoles($new_obj);
         $this->cloneMetaData($new_obj);
         $this->cloneSettings($new_obj);
-        $this->cloneLPSettings((int) $new_obj->getId());
-        $this->cloneActivation($new_obj, (int) $copy_id);
+        $this->cloneLPSettings($new_obj->getId());
+        $this->cloneActivation($new_obj, $copy_id);
 
         $roles = $new_obj->getLSRoles();
         $roles->addLSMember(
-            (int) $this->user->getId(),
+            $this->user->getId(),
             $roles->getDefaultAdminRole()
         );
         return $new_obj;
     }
 
 
-    protected function cloneAutoGeneratedRoles(ilObjLearningSequence $new_obj) : bool
+    protected function cloneAutoGeneratedRoles(ilObjLearningSequence $new_obj): bool
     {
         $admin = $this->getDefaultAdminRole();
         $new_admin = $new_obj->getDefaultAdminRole();
@@ -182,7 +157,7 @@ class ilObjLearningSequence extends ilContainer
             $this->log->write(__METHOD__ . ' : Error cloning auto generated role: il_lso_admin');
         }
 
-        $this->rbacadmin->copyRolePermissions($admin, $this->getRefId(), $new_obj->getRefId(), $new_admin, true);
+        $this->rbac_admin->copyRolePermissions($admin, $this->getRefId(), $new_obj->getRefId(), $new_admin, true);
         $this->log->write(__METHOD__ . ' : Finished copying of role lso_admin.');
 
         $member = $this->getDefaultMemberRole();
@@ -192,13 +167,13 @@ class ilObjLearningSequence extends ilContainer
             $this->log->write(__METHOD__ . ' : Error cloning auto generated role: il_lso_member');
         }
 
-        $this->rbacadmin->copyRolePermissions($member, $this->getRefId(), $new_obj->getRefId(), $new_member, true);
+        $this->rbac_admin->copyRolePermissions($member, $this->getRefId(), $new_obj->getRefId(), $new_member, true);
         $this->log->write(__METHOD__ . ' : Finished copying of role lso_member.');
 
         return true;
     }
 
-    protected function cloneSettings(ilObjLearningSequence $new_obj)
+    protected function cloneSettings(ilObjLearningSequence $new_obj): void
     {
         $source = $this->getLSSettings();
         $target = $new_obj->getLSSettings();
@@ -221,13 +196,13 @@ class ilObjLearningSequence extends ilContainer
         $new_obj->updateSettings($target);
     }
 
-    protected function cloneLPSettings(int $obj_id)
+    protected function cloneLPSettings(int $obj_id): void
     {
         $lp_settings = new ilLPObjSettings($this->getId());
         $lp_settings->cloneSettings($obj_id);
     }
 
-    protected function cloneActivation(ilObjLearningSequence $new_obj, int $a_copy_id) : void
+    protected function cloneActivation(ilObjLearningSequence $new_obj, int $a_copy_id): void
     {
         // #14596
         $cwo = ilCopyWizardOptions::_getInstance($a_copy_id);
@@ -245,12 +220,12 @@ class ilObjLearningSequence extends ilContainer
         );
     }
 
-    protected function getDIC() : \ArrayAccess
+    protected function getDIC(): ArrayAccess
     {
         return $this->dic;
     }
 
-    public function getDI() : \ArrayAccess
+    public function getDI(): ArrayAccess
     {
         if (is_null($this->di)) {
             $di = new ilLSDI();
@@ -260,7 +235,7 @@ class ilObjLearningSequence extends ilContainer
         return $this->di;
     }
 
-    public function getLocalDI() : \ArrayAccess
+    public function getLocalDI(): ArrayAccess
     {
         if (is_null($this->local_di)) {
             $di = new ilLSLocalDI();
@@ -275,7 +250,7 @@ class ilObjLearningSequence extends ilContainer
         return $this->local_di;
     }
 
-    protected function getSettingsDB() : ilLearningSequenceSettingsDB
+    protected function getSettingsDB(): ilLearningSequenceSettingsDB
     {
         if (!$this->settings_db) {
             $this->settings_db = $this->getDI()['db.settings'];
@@ -283,7 +258,7 @@ class ilObjLearningSequence extends ilContainer
         return $this->settings_db;
     }
 
-    protected function getActivationDB() : ilLearningSequenceActivationDB
+    protected function getActivationDB(): ilLearningSequenceActivationDB
     {
         if (!$this->activation_db) {
             $this->activation_db = $this->getDI()['db.activation'];
@@ -291,37 +266,37 @@ class ilObjLearningSequence extends ilContainer
         return $this->activation_db;
     }
 
-    public function getLSActivation() : ilLearningSequenceActivation
+    public function getLSActivation(): ilLearningSequenceActivation
     {
         if (!$this->ls_activation) {
-            $this->ls_activation = $this->getActivationDB()->getActivationForRefId((int) $this->getRefId());
+            $this->ls_activation = $this->getActivationDB()->getActivationForRefId($this->getRefId());
         }
 
         return $this->ls_activation;
     }
 
-    public function updateActivation(ilLearningSequenceActivation $settings)
+    public function updateActivation(ilLearningSequenceActivation $settings): void
     {
         $this->getActivationDB()->store($settings);
         $this->ls_activation = $settings;
     }
 
-    public function getLSSettings() : ilLearningSequenceSettings
+    public function getLSSettings(): ilLearningSequenceSettings
     {
         if (!$this->ls_settings) {
-            $this->ls_settings = $this->getSettingsDB()->getSettingsFor((int) $this->getId());
+            $this->ls_settings = $this->getSettingsDB()->getSettingsFor($this->getId());
         }
 
         return $this->ls_settings;
     }
 
-    public function updateSettings(ilLearningSequenceSettings $settings)
+    public function updateSettings(ilLearningSequenceSettings $settings): void
     {
         $this->getSettingsDB()->store($settings);
         $this->ls_settings = $settings;
     }
 
-    protected function getLSItemsDB() : ilLSItemsDB
+    protected function getLSItemsDB(): ilLSItemsDB
     {
         if (!$this->items_db) {
             $this->items_db = $this->getLocalDI()['db.lsitems'];
@@ -329,7 +304,7 @@ class ilObjLearningSequence extends ilContainer
         return $this->items_db;
     }
 
-    protected function getPostConditionDB() : ilLSPostConditionDB
+    protected function getPostConditionDB(): ilLSPostConditionDB
     {
         if (!$this->conditions_db) {
             $this->conditions_db = $this->getDI()["db.postconditions"];
@@ -337,20 +312,20 @@ class ilObjLearningSequence extends ilContainer
         return $this->conditions_db;
     }
 
-    public function getLSParticipants() : ilLearningSequenceParticipants
+    public function getLSParticipants(): ilLearningSequenceParticipants
     {
-        if (!$this->ls_participant) {
-            $this->ls_participant = $this->getLocalDI()['participants'];
+        if (!$this->ls_participants) {
+            $this->ls_participants = $this->getLocalDI()['participants'];
         }
 
-        return $this->ls_participant;
+        return $this->ls_participants;
     }
-    public function getMembersObject() //used by Services/Membership/classes/class.ilMembershipGUI.php
+    public function getMembersObject(): \ilLearningSequenceParticipants //used by Services/Membership/classes/class.ilMembershipGUI.php
     {
         return $this->getLSParticipants();
     }
 
-    public function getLSAccess() : ilObjLearningSequenceAccess
+    public function getLSAccess(): ilObjLearningSequenceAccess
     {
         if (is_null($this->ls_access)) {
             $this->ls_access = new ilObjLearningSequenceAccess();
@@ -360,19 +335,19 @@ class ilObjLearningSequence extends ilContainer
     }
 
     /**
-     * Get a list of LSItems
+     * @return LSItem[]
      */
-    public function getLSItems() : array
+    public function getLSItems(): array
     {
         $db = $this->getLSItemsDB();
-        return $db->getLSItems((int) $this->getRefId());
+        return $db->getLSItems($this->getRefId());
     }
 
     /**
      * Update LSItems
      * @param LSItem[]
      */
-    public function storeLSItems(array $ls_items)
+    public function storeLSItems(array $ls_items): void
     {
         $db = $this->getLSItemsDB();
         $db->storeItems($ls_items);
@@ -382,7 +357,7 @@ class ilObjLearningSequence extends ilContainer
      * Delete post conditions for ref ids.
      * @param int[]
      */
-    public function deletePostConditionsForSubObjects(array $ref_ids)
+    public function deletePostConditionsForSubObjects(array $ref_ids): void
     {
         $rep_utils = new ilRepUtil();
         $rep_utils->deleteObjects($this->getRefId(), $ref_ids);
@@ -393,7 +368,7 @@ class ilObjLearningSequence extends ilContainer
     /**
      * @return array<"value" => "option_text">
      */
-    public function getPossiblePostConditionsForType(string $type) : array
+    public function getPossiblePostConditionsForType(string $type): array
     {
         $condition_types = $this->il_condition_handler->getOperatorsByTriggerType($type);
         $conditions = [
@@ -405,7 +380,7 @@ class ilObjLearningSequence extends ilContainer
         return $conditions;
     }
 
-    protected function getLearnerProgressDB() : ilLearnerProgressDB
+    protected function getLearnerProgressDB(): ilLearnerProgressDB
     {
         if (!$this->learner_progress_db) {
             $this->learner_progress_db = $this->getLocalDI()['db.progress'];
@@ -413,8 +388,7 @@ class ilObjLearningSequence extends ilContainer
         return $this->learner_progress_db;
     }
 
-    //protected function getStateDB(): ilLSStateDB
-    public function getStateDB() : ilLSStateDB
+    public function getStateDB(): ilLSStateDB
     {
         if (!$this->state_db) {
             $this->state_db = $this->getDI()['db.states'];
@@ -423,15 +397,15 @@ class ilObjLearningSequence extends ilContainer
     }
 
     /**
-     * Get a list of LSLearnerItems
+     * @return LSLearnerItem[]
      */
-    public function getLSLearnerItems(int $usr_id) : array
+    public function getLSLearnerItems(int $usr_id): array
     {
         $db = $this->getLearnerProgressDB();
         return $db->getLearnerItems($usr_id, $this->getRefId());
     }
 
-    public function getLSRoles() : ilLearningSequenceRoles
+    public function getLSRoles(): ilLearningSequenceRoles
     {
         if (!$this->ls_roles) {
             $this->ls_roles = $this->getLocalDI()['roles'];
@@ -441,33 +415,33 @@ class ilObjLearningSequence extends ilContainer
 
     /**
      * Get mail to members type
-     * @return int
      */
-    public function getMailToMembersType()
+    public function getMailToMembersType(): int
     {
-        return $this->mail_members;
+        return 0;
     }
 
     /**
      * Goto target learning sequence.
-     *
-     * @param int $target
-     * @param string $add
      */
-    public static function _goto($target, $add = "")
+    public static function _goto(int $target, string $add = ""): void
     {
         global $DIC;
+        $main_tpl = $DIC->ui()->mainTemplate();
 
         $ilAccess = $DIC['ilAccess'];
         $ilErr = $DIC['ilErr'];
         $lng = $DIC['lng'];
         $ilUser = $DIC['ilUser'];
+        $request_wrapper = $DIC->http()->wrapper()->query();
+        $refinery = $DIC->refinery();
 
         if (substr($add, 0, 5) == 'rcode') {
             if ($ilUser->getId() == ANONYMOUS_USER_ID) {
+                $request_target = $request_wrapper->retrieve("target", $refinery->kindlyTo()->string());
                 // Redirect to login for anonymous
                 ilUtil::redirect(
-                    "login.php?target=" . $_GET["target"] . "&cmd=force_login&lang=" .
+                    "login.php?target=" . $request_target . "&cmd=force_login&lang=" .
                     $ilUser->getCurrentLanguage()
                 );
             }
@@ -492,13 +466,10 @@ class ilObjLearningSequence extends ilContainer
                 ilObjectGUI::_gotoRepositoryNode($target, "infoScreenGoto");
             } else {
                 if ($ilAccess->checkAccess("read", "", ROOT_FOLDER_ID)) {
-                    ilUtil::sendFailure(
-                        sprintf(
-                            $lng->txt("msg_no_perm_read_item"),
-                            ilObject::_lookupTitle(ilObject::_lookupObjId($target))
-                        ),
-                        true
-                    );
+                    $main_tpl->setOnScreenMessage('failure', sprintf(
+                        $lng->txt("msg_no_perm_read_item"),
+                        ilObject::_lookupTitle(ilObject::_lookupObjId($target))
+                    ), true);
                     ilObjectGUI::_gotoRepositoryRoot();
                 }
             }
@@ -507,72 +478,93 @@ class ilObjLearningSequence extends ilContainer
         $ilErr->raiseError($lng->txt("msg_no_perm_read"), $ilErr->FATAL);
     }
 
-    public function getShowMembers()
+    public function getShowMembers(): bool
     {
         return $this->getLSSettings()->getMembersGallery();
     }
 
-    public function announceLSOOnline()
+    public function announceLSOOnline(): void
     {
         $ns = $this->il_news;
-        $context = $ns->contextForRefId((int) $this->getRefId());
+        $context = $ns->contextForRefId($this->getRefId());
         $item = $ns->item($context);
         $item->setContentIsLangVar(true);
         $item->setContentTextIsLangVar(true);
         $item->setTitle("lso_news_online_title");
         $item->setContent("lso_news_online_txt");
-        $news_id = $ns->data()->save($item);
+        $ns->data()->save($item);
     }
-    public function announceLSOOffline()
+    public function announceLSOOffline(): void
     {
         //NYI
     }
 
-    public function setEffectiveOnlineStatus(bool $status)
+    public function setEffectiveOnlineStatus(bool $status): void
     {
         $act_db = $this->getActivationDB();
-        $act_db->setEffectiveOnlineStatus((int) $this->getRefId(), $status);
+        $act_db->setEffectiveOnlineStatus($this->getRefId(), $status);
     }
+
+    public function getCurrentUserCurriculum(): string
+    {
+        $dic = $this->getLocalDI();
+        $curriculum = $dic["player.curriculumbuilder"]->getLearnerCurriculum(false);
+        return $dic['ui.renderer']->render($curriculum);
+    }
+
+    public function getCurrentUserLaunchButtons(): string
+    {
+        $dic = $this->getLocalDI();
+        $buttons = $dic["player.launchlinksbuilder"]->getLaunchbuttonsComponent();
+        return $dic['ui.renderer']->render($buttons);
+    }
+
 
     /***************************************************************************
     * Role Stuff
     ***************************************************************************/
-    public function getLocalLearningSequenceRoles(bool $translate = false) : array
+    /**
+     * @return array<string, int>
+     */
+    public function getLocalLearningSequenceRoles(bool $translate = false): array
     {
         return $this->getLSRoles()->getLocalLearningSequenceRoles($translate);
     }
 
-    public function getDefaultMemberRole() : int
+    public function getDefaultMemberRole(): int
     {
         return $this->getLSRoles()->getDefaultMemberRole();
     }
 
-    public function getDefaultAdminRole()
+    public function getDefaultAdminRole(): int
     {
         return $this->getLSRoles()->getDefaultAdminRole();
     }
 
-    public function getLearningSequenceMemberData($a_mem_ids, $active = 1)
-    {
-        return $this->getLSRoles()->getLearningSequenceMemberData($a_mem_ids, $active);
-    }
-
-    public function getDefaultLearningSequenceRoles($a_grp_id = "")
+    /**
+     * @return array<string, int>|[]
+     */
+    public function getDefaultLearningSequenceRoles(string $a_grp_id = ""): array
     {
         return $this->getLSRoles()->getDefaultLearningSequenceRoles($a_grp_id);
     }
 
-    public function initDefaultRoles()
+    public function initDefaultRoles(): void
     {
-        return $this->getLSRoles()->initDefaultRoles();
+        $this->getLSRoles()->initDefaultRoles();
     }
 
-    public function readMemberData(array $user_ids, array $columns = null)
+    /**
+     * @param array<int|string> $user_ids
+     * @param string[] $columns
+     * @return array<int|string, array>
+     */
+    public function readMemberData(array $user_ids, array $columns = null): array
     {
         return $this->getLsRoles()->readMemberData($user_ids, $columns);
     }
 
-    public function getParentObjectInfo(int $ref_id, array $search_types)
+    public function getParentObjectInfo(int $ref_id, array $search_types): ?array
     {
         foreach ($this->tree->getPathFull($ref_id) as $hop) {
             if (in_array($hop['type'], $search_types)) {
@@ -582,10 +574,61 @@ class ilObjLearningSequence extends ilContainer
         return null;
     }
 
-    public function getLPCompletionStates() : array
+    /**
+     * @return int[]
+     */
+    public function getLPCompletionStates(): array
     {
         return [
-            \ilLPStatus::LP_STATUS_COMPLETED_NUM
+            ilLPStatus::LP_STATUS_COMPLETED_NUM
         ];
+    }
+
+    public const CP_INTRO = -1;
+    public const CP_EXTRO = -2;
+    public const CP_TYPE = 'cont';
+
+    public function getContentPageId(int $factor): int
+    {
+        if (!in_array($factor, [self::CP_INTRO, self::CP_EXTRO])) {
+            throw new \InvalidArgumentException("not a valid modifier for page id: '$factor'");
+        }
+        return $this->getId() * $factor;
+    }
+
+    public function hasContentPage(int $factor): bool
+    {
+        $page_id = $this->getContentPageId($factor);
+        return ilContainerPage::_exists(self::CP_TYPE, $page_id);
+    }
+
+    public function createContentPage(int $factor): void
+    {
+        if ($this->hasContentPage($factor)) {
+            throw new \LogicException('will not create content page - it already exists.');
+        }
+        $page_id = $this->getContentPageId($factor);
+        $new_page_object = new \ilContainerPage();
+        $new_page_object->setId($page_id);
+        $new_page_object->setParentId($this->getId());
+        $new_page_object->createFromXML();
+    }
+
+    public function getContentPageHTML(int $factor): string
+    {
+        if (!$this->hasContentPage($factor)) {
+            return '';
+        }
+        $page_id = $this->getContentPageId($factor);
+        $gui = new ilObjLearningSequenceEditIntroGUI(
+            self::CP_TYPE,
+            $page_id
+        );
+
+        $gui->setPresentationTitle("");
+        $gui->setTemplateOutput(false);
+        $gui->setHeader("");
+        $ret = $gui->showPage();
+        return $ret;
     }
 }

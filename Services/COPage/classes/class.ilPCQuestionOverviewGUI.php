@@ -1,27 +1,34 @@
 <?php
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once("./Services/COPage/classes/class.ilPCQuestionOverview.php");
-require_once("./Services/COPage/classes/class.ilPageContentGUI.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilPCQuestionOverviewGUI
- *
  * User Interface for question overview editing
- *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- *
- * @ingroup ServicesCOPage
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilPCQuestionOverviewGUI extends ilPageContentGUI
 {
-
-    /**
-     * Constructor
-     */
-    public function __construct(&$a_pg_obj, &$a_content_obj, $a_hier_id, $a_pc_id = "")
-    {
+    public function __construct(
+        ilPageObject $a_pg_obj,
+        ?ilPageContent $a_content_obj,
+        string $a_hier_id,
+        string $a_pc_id = ""
+    ) {
         global $DIC;
 
         $this->ctrl = $DIC->ctrl();
@@ -30,11 +37,7 @@ class ilPCQuestionOverviewGUI extends ilPageContentGUI
         parent::__construct($a_pg_obj, $a_content_obj, $a_hier_id, $a_pc_id);
     }
 
-
-    /**
-     * Execute command
-     */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         // get next class that processes or forwards current command
         $next_class = $this->ctrl->getNextClass($this);
@@ -44,34 +47,26 @@ class ilPCQuestionOverviewGUI extends ilPageContentGUI
 
         switch ($next_class) {
             default:
-                $ret = $this->$cmd();
+                $this->$cmd();
                 break;
         }
-
-        return $ret;
     }
 
-    /**
-     * Insert new question overview
-     */
-    public function insert()
+    public function insert(): void
     {
         $this->edit(true);
     }
 
-    /**
-     * Edit question overview form.
-     */
-    public function edit($a_insert = false)
-    {
+    public function edit(
+        bool $a_insert = false
+    ): void {
         $ilCtrl = $this->ctrl;
         $tpl = $this->tpl;
         $lng = $this->lng;
-        
+
         $this->displayValidationError();
-        
+
         // edit form
-        include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
         $form->setFormAction($ilCtrl->getFormAction($this));
         if ($a_insert) {
@@ -79,7 +74,7 @@ class ilPCQuestionOverviewGUI extends ilPageContentGUI
         } else {
             $form->setTitle($this->lng->txt("cont_edit_qover"));
         }
-        
+
         // short message
         $cb = new ilCheckboxInputGUI($this->lng->txt("cont_qover_short_message"), "short");
         $cb->setInfo($this->lng->txt("cont_qover_short_message_info"));
@@ -89,7 +84,7 @@ class ilPCQuestionOverviewGUI extends ilPageContentGUI
             $cb->setChecked(true);
         }
         $form->addItem($cb);
-        
+
         // list wrong questions
         $cb = new ilCheckboxInputGUI($this->lng->txt("cont_qover_list_wrong_q"), "wrong_questions");
         $cb->setInfo($this->lng->txt("cont_qover_list_wrong_q_info"));
@@ -97,7 +92,7 @@ class ilPCQuestionOverviewGUI extends ilPageContentGUI
             $cb->setChecked($this->content_obj->getListWrongQuestions());
         }
         $form->addItem($cb);
-        
+
         // save/cancel buttons
         if ($a_insert) {
             $form->addCommandButton("create_qover", $lng->txt("save"));
@@ -108,18 +103,21 @@ class ilPCQuestionOverviewGUI extends ilPageContentGUI
         }
         $html = $form->getHTML();
         $tpl->setContent($html);
-        return $ret;
     }
 
     /**
      * Create new question overview
      */
-    public function create()
+    public function create(): void
     {
         $this->content_obj = new ilPCQuestionOverview($this->getPage());
         $this->content_obj->create($this->pg_obj, $this->hier_id, $this->pc_id);
-        $this->content_obj->setShortMessage(ilUtil::stripSlashes($_POST["short"]));
-        $this->content_obj->setListWrongQuestions(ilUtil::stripSlashes($_POST["wrong_questions"]));
+        $this->content_obj->setShortMessage(
+            $this->request->getString("short")
+        );
+        $this->content_obj->setListWrongQuestions(
+            $this->request->getString("wrong_questions")
+        );
         $this->updated = $this->pg_obj->update();
         if ($this->updated === true) {
             $this->ctrl->returnToParent($this, "jump" . $this->hier_id);
@@ -131,10 +129,14 @@ class ilPCQuestionOverviewGUI extends ilPageContentGUI
     /**
      * Update question overview
      */
-    public function update()
+    public function update(): void
     {
-        $this->content_obj->setShortMessage(ilUtil::stripSlashes($_POST["short"]));
-        $this->content_obj->setListWrongQuestions(ilUtil::stripSlashes($_POST["wrong_questions"]));
+        $this->content_obj->setShortMessage(
+            $this->request->getString("short")
+        );
+        $this->content_obj->setListWrongQuestions(
+            $this->request->getString("wrong_questions")
+        );
         $this->updated = $this->pg_obj->update();
         if ($this->updated === true) {
             $this->ctrl->returnToParent($this, "jump" . $this->hier_id);

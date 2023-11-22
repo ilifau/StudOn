@@ -1,66 +1,58 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
-include_once './Services/Calendar/classes/class.ilCalendarAuthenticationToken.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\HTTP\Services as HTTPServices;
 
 /**
  * @classDescription Handles requests from external calendar applications
- * @author Stefan Meyer <smeyer.ilias@gmx.de>
- * @version $Id$
- *
- * @ingroup ServicesCalendar
- *
+ * @author           Stefan Meyer <smeyer.ilias@gmx.de>
+ * @ingroup          ServicesCalendar
  */
 class ilCalendarRemoteAccessHandler
 {
     protected const LIMITED_QUERY_PARAM = 'limited';
-    private $token_handler = null;
-    /**
-     * @var bool
-     */
-    protected $limit_enabled;
 
-    /**
-     * Constructor
-     */
+    private ?ilCalendarAuthenticationToken $token_handler = null;
+    protected ?Refinery $refinery = null;
+    protected ?HTTPServices $http = null;
+    protected ?ilLogger $logger = null;
+    protected ?ilLanguage $lng = null;
+    protected bool $limit_enabled;
+
     public function __construct()
     {
     }
-    
-    /**
-     * @return ilCalendarAuthenticationHandler
-     */
-    public function getTokenHandler()
+
+    public function getTokenHandler(): ?ilCalendarAuthenticationToken
     {
         return $this->token_handler;
     }
-    
+
     /**
      * Fetch client id, the chosen calendar...
-     * @return
      */
-    public function parseRequest()
+    public function parseRequest(): void
     {
+        // before initialization: $_GET and $_COOKIE is required is unavoidable
+        // in the moment.
         if ($_GET['client_id']) {
             $_COOKIE['ilClientId'] = $_GET['client_id'];
         } else {
@@ -68,12 +60,8 @@ class ilCalendarRemoteAccessHandler
             $_COOKIE['ilClientId'] = $path_info_components[1];
         }
     }
-    
-    /**
-     * Handle Request
-     * @return
-     */
-    public function handleRequest()
+
+    public function handleRequest(): bool
     {
         session_name('ILCALSESSID');
         $this->initIlias();
@@ -85,15 +73,13 @@ class ilCalendarRemoteAccessHandler
             $logger->warning('Calendar token is invalid. Authentication failed.');
             return false;
         }
-        
+
         if ($this->getTokenHandler()->getIcal() and !$this->getTokenHandler()->isIcalExpired()) {
             $GLOBALS['DIC']['ilAuthSession']->logout();
-            ilUtil::deliverData($this->getTokenHandler(), 'calendar.ics', 'text/calendar', 'utf-8');
+            ilUtil::deliverData($this->getTokenHandler()->getIcal(), 'calendar.ics', 'text/calendar');
             exit;
         }
-        
-        include_once './Services/Calendar/classes/Export/class.ilCalendarExport.php';
-        include_once './Services/Calendar/classes/class.ilCalendarCategories.php';
+
         if ($this->getTokenHandler()->getSelectionType() == ilCalendarAuthenticationToken::SELECTION_CALENDAR) {
             #$export = new ilCalendarExport(array($this->getTokenHandler()->getCalendar()));
             $cats = ilCalendarCategories::_getInstance();
@@ -104,25 +90,36 @@ class ilCalendarRemoteAccessHandler
             $cats->initialize(ilCalendarCategories::MODE_REMOTE_ACCESS);
             $export = new ilCalendarExport($cats->getCategories(true), $this->limit_enabled);
         }
-        
+
         $export->export();
-    
+
         $this->getTokenHandler()->setIcal($export->getExportString());
         $this->getTokenHandler()->storeIcal();
 
         $GLOBALS['DIC']['ilAuthSession']->logout();
-        ilUtil::deliverData($export->getExportString(), 'calendar.ics', 'text/calendar', 'utf-8');
+        ilUtil::deliverData($export->getExportString(), 'calendar.ics', 'text/calendar');
         exit;
     }
-    
-    protected function initTokenHandler()
+
+    protected function initTokenHandler(): void
     {
-        $GLOBALS['DIC']->logger()->cal()->info('Authentication token: ' . $_GET['token']);
+        global $DIC;
+
+        $this->http = $DIC->http();
+        $this->refinery = $DIC->refinery();
+
+        $token = '';
+        if ($this->http->wrapper()->query()->has('token')) {
+            $token = $this->http->wrapper()->query()->retrieve(
+                'token',
+                $this->refinery->kindlyTo()->string()
+            );
+        }
+        $this->logger->info('Authentication token: ' . $token);
         $this->token_handler = new ilCalendarAuthenticationToken(
-            ilCalendarAuthenticationToken::lookupUser($_GET['token']),
-            $_GET['token']
+            ilCalendarAuthenticationToken::lookupUser($token),
+            $token
         );
-        return true;
     }
 
     protected function initLimitEnabled()
@@ -132,46 +129,46 @@ class ilCalendarRemoteAccessHandler
 
     protected function initIlias()
     {
-        include_once "Services/Context/classes/class.ilContext.php";
+        include_once './Services/Context/classes/class.ilContext.php';
         ilContext::init(ilContext::CONTEXT_ICAL);
-        
+
         include_once './Services/Authentication/classes/class.ilAuthFactory.php';
         ilAuthFactory::setContext(ilAuthFactory::CONTEXT_CALENDAR_TOKEN);
-        
-        require_once("Services/Init/classes/class.ilInitialisation.php");
+
+        include_once './Services/Init/classes/class.ilInitialisation.php';
         ilInitialisation::initILIAS();
-        
-        $GLOBALS['DIC']['lng']->loadLanguageModule('dateplaner');
+
+        global $DIC;
+
+        $this->lng = $DIC->language();
+        $this->lng->loadLanguageModule('dateplaner');
+        $this->logger = $DIC->logger()->cal();
     }
-    
-    /**
-     * Init user
-     * @return boolean
-     */
-    protected function initUser()
+
+    protected function initUser(): bool
     {
+        global $DIC;
+
         if (!$this->getTokenHandler() instanceof ilCalendarAuthenticationToken) {
-            $GLOBALS['DIC']->logger()->cal()->info('Initialisation of authentication token failed');
+            $this->logger->info('Initialisation of authentication token failed');
             return false;
         }
         if (!$this->getTokenHandler()->getUserId()) {
-            $GLOBALS['DIC']->logger()->cal()->info('No user id found for calendar synchronisation');
+            $this->logger->info('No user id found for calendar synchronisation');
             return false;
         }
-        include_once './Services/User/classes/class.ilObjUser.php';
         if (!ilObjUser::_exists($this->getTokenHandler()->getUserId())) {
-            $GLOBALS['DIC']->logger()->cal()->notice('No valid user id found for calendar synchronisation');
+            $this->logger->notice('No valid user id found for calendar synchronisation');
             return false;
         }
-        
-        include_once './Services/Init/classes/class.ilInitialisation.php';
+
         $GLOBALS['DIC']['ilAuthSession']->setAuthenticated(true, $this->getTokenHandler()->getUserId());
         ilInitialisation::initUserAccount();
-        
-        if (!$GLOBALS['DIC']->user() instanceof ilObjUser) {
-            $GLOBALS['DIC']->logger()->cal()->debug('no user object defined');
+
+        if (!$DIC->user() instanceof ilObjUser) {
+            $this->logger->debug('No user object defined');
         } else {
-            $GLOBALS['DIC']->logger()->cal()->debug('Current user is: ' . $GLOBALS['DIC']->user()->getId());
+            $this->logger->debug('Current user is: ' . $DIC->user()->getId());
         }
         return true;
     }

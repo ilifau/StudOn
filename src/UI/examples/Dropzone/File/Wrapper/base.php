@@ -1,31 +1,37 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Dropzone\File\Wrapper;
+
 function base()
 {
     global $DIC;
 
-    // Handle a file upload ajax request
-    if (isset($_GET['example']) && $_GET['example'] == 1) {
-        $upload = $DIC->upload();
-        try {
-            $upload->process();
-            // $upload->moveFilesTo('/myPath/');  // Since we are in an example here, we do not move the files. But this would be the way wou move files using the FileUpload-Service
+    $factory = $DIC->ui()->factory();
+    $renderer = $DIC->ui()->renderer();
+    $request = $DIC->http()->request();
 
-            // The File-Dropzones will expect a valid json-Status (success true or false).
-            echo json_encode(['success' => true, 'message' => 'Successfully uploaded file']);
-        } catch (\Exception $e) {
-            // See above
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        }
-        exit();
+    $dropzone = $factory
+        ->dropzone()->file()->wrapper(
+            'Upload your files here',
+            '#',
+            $factory->messageBox()->info('Drag and drop files onto me!'),
+            $factory->input()->field()->file(
+                new \ilUIAsyncDemoFileUploadHandlerGUI(),
+                'Your files'
+            )
+        );
+
+    // please use ilCtrl to generate an appropriate link target
+    // and check it's command instead of this.
+    if ('POST' === $request->getMethod()) {
+        $dropzone = $dropzone->withRequest($request);
+        $data = $dropzone->getData();
+    } else {
+        $data = 'no results yet.';
     }
 
-    $uiFactory = $DIC->ui()->factory();
-    $renderer = $DIC->ui()->renderer();
-
-    $content = $uiFactory->panel()->standard('Panel', $uiFactory->legacy('Hello World, drag some files over me!'));
-    $uploadUrl = $_SERVER['REQUEST_URI'] . '&example=1';
-
-    $upload = $uiFactory->dropzone()->file()->wrapper($uploadUrl, $content);
-
-    return $renderer->render($upload);
+    return '<pre>' . print_r($data, true) . '</pre>' .
+        $renderer->render($dropzone);
 }

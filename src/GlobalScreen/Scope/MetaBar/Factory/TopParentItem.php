@@ -35,15 +35,9 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @var isChild[]
      */
-    protected $children = [];
-    /**
-     * @var \ILIAS\UI\Component\Symbol\Symbol|null
-     */
-    protected $symbol;
-    /**
-     * @var string
-     */
-    protected $title = "";
+    protected array $children = [];
+    protected ?Symbol $symbol = null;
+    protected string $title = "";
 
     /**
      * @inheritDoc
@@ -57,7 +51,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function withSymbol(Symbol $symbol) : hasSymbol
+    public function withSymbol(Symbol $symbol): hasSymbol
     {
         $clone = clone($this);
         $clone->symbol = $symbol;
@@ -68,7 +62,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function getSymbol() : Symbol
+    public function getSymbol(): Symbol
     {
         return $this->symbol;
     }
@@ -76,7 +70,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function hasSymbol() : bool
+    public function hasSymbol(): bool
     {
         return ($this->symbol instanceof Symbol);
     }
@@ -84,7 +78,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -95,7 +89,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -103,7 +97,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function getChildren() : array
+    public function getChildren(): array
     {
         return $this->children;
     }
@@ -111,7 +105,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function withChildren(array $children) : isParent
+    public function withChildren(array $children): isParent
     {
         $clone = clone($this);
         $clone->children = $children;
@@ -122,7 +116,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function appendChild(isChild $child) : isParent
+    public function appendChild(isChild $child): isParent
     {
         $this->children[] = $child;
 
@@ -132,7 +126,7 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function hasChildren() : bool
+    public function hasChildren(): bool
     {
         return $this->children !== [];
     }

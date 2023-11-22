@@ -37,20 +37,20 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
      * status counters)
      * @var int
      */
-    private $amount_of_old_notifications = 0;
+    private int $amount_of_old_notifications = 0;
 
     /**
      * Amount of notifications not yet consulted by the user (will spawn
      * novelty counters)
      * @var int
      */
-    private $amount_of_new_notifications = 0;
+    private int $amount_of_new_notifications = 0;
 
     /**
      * Set of notifications in the center.
      * @var isNotificationItem[]
      */
-    private $notifications = [];
+    private array $notifications = [];
 
     /**
      * @inheritDoc
@@ -64,7 +64,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
     /**
      * @param isNotificationItem[] $notifications
      */
-    public function withNotifications(array $notifications) : self
+    public function withNotifications(array $notifications): self
     {
         $clone = clone($this);
         $clone->notifications = $notifications;
@@ -75,7 +75,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
     /**
      * @return isNotificationItem[]
      */
-    public function getNotifications() : array
+    public function getNotifications(): array
     {
         return $this->notifications;
     }
@@ -83,7 +83,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
     /**
      * @inheritDoc
      */
-    public function withSymbol(Symbol $symbol) : hasSymbol
+    public function withSymbol(Symbol $symbol): hasSymbol
     {
         return $this;
     }
@@ -91,7 +91,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
     /**
      * @inheritDoc
      */
-    public function hasSymbol() : bool
+    public function hasSymbol(): bool
     {
         return true;
     }
@@ -99,7 +99,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
     /**
      * @return Symbol
      */
-    public function getSymbol() : Symbol
+    public function getSymbol(): Symbol
     {
         global $DIC;
 
@@ -116,7 +116,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
     /**
      * @inheritDoc
      */
-    public function getPosition() : int
+    public function getPosition(): int
     {
         return 1;
     }
@@ -124,7 +124,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
     /**
      * Get a Center like this, but with a given amount of old notifications
      */
-    public function withAmountOfOldNotifications(int $amount) : self
+    public function withAmountOfOldNotifications(int $amount): self
     {
         $clone = clone($this);
         $clone->amount_of_old_notifications = $amount;
@@ -136,7 +136,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
      * Get the amount of old notifications
      * @return int
      */
-    public function getAmountOfOldNotifications() : int
+    public function getAmountOfOldNotifications(): int
     {
         return $this->amount_of_old_notifications;
     }
@@ -144,7 +144,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
     /**
      * Get a Center like this, but with a given amount of new notifications
      */
-    public function withAmountOfNewNotifications(int $amount) : self
+    public function withAmountOfNewNotifications(int $amount): self
     {
         $clone = clone($this);
         $clone->amount_of_new_notifications = $amount;
@@ -156,7 +156,7 @@ class NotificationCenter extends AbstractBaseItem implements hasSymbol
      * Get the amount of new notifications
      * @return int
      */
-    public function getAmountOfNewNotifications() : int
+    public function getAmountOfNewNotifications(): int
     {
         return $this->amount_of_new_notifications;
     }

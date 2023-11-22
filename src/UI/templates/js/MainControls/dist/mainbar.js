@@ -982,19 +982,27 @@ var renderer = function($) {
                 someting_to_focus_on = $('#' + dom_id.slate)
                     .children().first()
                     .children().first();
-            if(someting_to_focus_on[0]){
-                if(!someting_to_focus_on.attr('tabindex')) { //cannot focus w/o index
+            someting_to_focus_on_if_listing = someting_to_focus_on.children().first().children().first();
+            if(someting_to_focus_on[0]) {
+                if(!someting_to_focus_on.is(":focusable")) { //cannot focus w/o index
                     someting_to_focus_on.attr('tabindex', '-1');
+                    if(someting_to_focus_on_if_listing[0]
+                      && someting_to_focus_on_if_listing.is(":focusable")) { //cannot focus w/o index
+                        someting_to_focus_on_if_listing[0].focus();
+                    }
+                } else {
+                    someting_to_focus_on[0].focus();
                 }
-                someting_to_focus_on[0].focus();
             }
         },
         focusTopentry: function(top_entry_id) {
             var  triggerer = dom_references[top_entry_id];
-            document.getElementById(triggerer.triggerer).focus();
+            if (triggerer) {
+                document.getElementById(triggerer.triggerer).focus();
+            }
         },
 
-        dispatchResizeNotification: function(top_entry_id) {
+        dispatchResizeNotification: function() {
             var event = new CustomEvent(
                 'resize',
                 {detail : {mainbar_induced : true}}

@@ -1,10 +1,27 @@
 <?php
 
-/* Copyright (c) 2018 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Component\MainControls;
 
 use ILIAS\Data\URI;
+use ILIAS\UI\Component\Link\Standard;
 
 /**
  * This is what a factory for main controls looks like.
@@ -29,12 +46,12 @@ interface Factory
      *     like an kiosk mode) as a static screen element and is unaffected by
      *     scrolling.
      *
-     *     Elements in the Meta Bar are always placed on the right hand side.
+     *     Elements in the Meta Bar are always placed on the right-hand side.
      *     Currently, these are "Search", "Help", "Notifications", "Awareness"
      *     and "User".
      *
      *     Especially in mobile context, the total width of all entries may exceed
-     *     the availble width of the screen. In this case, all entries are
+     *     the available width of the screen. In this case, all entries are
      *     summarized under a "..."-Button.
      *
      *     Elements are rendered as Bulky Buttons. Prompts in the Meta Bar may be
@@ -80,42 +97,22 @@ interface Factory
      *     4: Bulky Buttons in the Meta Bar MUST bear the ARIA role "menuitem".
      *     5: Slates in the Meta Bar MUST bear the ARIA role "menu".
      * ----
-     *
      * @return  \ILIAS\UI\Component\MainControls\MetaBar
      */
-    public function metaBar() : MetaBar;
+    public function metaBar(): MetaBar;
 
     /**
      * ---
      * description:
      *   purpose: >
-     *     The Main Bar is a unique page section that bundles access to content-
-     *     based navigational strategies (like the repository tree) as well as
-     *     navigation to services unrelated to the actual content, like the
-     *     administrative settings.
-     *
-     *     Since the controls necessary for theses purposes might be quite complex,
-     *     they are summed up in an easy to grasp Icon or Glyph in conjunction with
-     *     a short text. Theses reductions form the entries for the Main Bar, which
-     *     thus is the primary list of navigational options for the user and the
-     *     usual starting point for the user to explore the system.
-     *
-     *     There are entries in the bar that are never modified by changing context,
-     *     but may vary according to e.g. the current user's permissions or settings
-     *     of the installation. There also is the tools-section of entries in the bar
-     *     that is used to show tools that are opened on request of the user, e.g. the
-     *     help, or depending on requirements of the content, e.g. a local navigation.
-     *
-     *     However, content actions, like  "new item"-actions, the actions-menu (with
-     *     comments, notes and tags), moving, linking or deleting objects and the like
-     *     are NOT part of the Main Bar.
-     *
-     *     Also, there should be a differentiation between elements of the Main Bar
-     *     and elements of e.g., the Personal Dekstop: The Personal Desktop provides
-     *     access to services and tools and displays further information at first
-     *     glance (e.g. the calendar). The Main Bar may reference those tools as well,
-     *     but rather in form of a link than a widget.
-     *
+     *     The Main Bar allows exploring the content and features of the plattform.
+     *     The Main Bar provides users their usual means to access to content, services and settings.
+     *     The Main Bar may offer access to content, services and settings independent
+     *     from what is presented in the content area.
+     *     The creation and management of repository objects are not part of the Main bar.
+     *     The Main Bar offers space for Tools to be displayed besides the actual content.
+     *     Tools home functionality that could not be placed elsewhere, there is no sophisticated concept.
+     *     We strive to keep the number of Tools low and hone the concept further.
      *   composition: >
      *     The Main Bar holds Slates and Bulky Buttons.
      *
@@ -179,12 +176,13 @@ interface Factory
      * rules:
      *   usage:
      *     1: There SHOULD be a Main Bar on the page.
-     *     2: If there is a Main Bar, it MUST be unique for the page.
-     *     3: >
+     *     2: There MUST NOT be more than one Main Bar on the page.
+     *     3: If there is a Main Bar, it MUST be unique for the page.
+     *     4: >
      *       Entries and Tools in the Main Bar, or for that matter, their respective
      *       slate-contents, MUST NOT be used to reflect the outcome of a user's
      *       action, e.g., display a success-message.
-     *     4: >
+     *     5: >
      *       Contents of the slates, both in Entries and Tools, MUST NOT be used
      *       to provide information of a content object if that information
      *       cannot be found in the content itself. They MUST NOT be used as
@@ -228,7 +226,7 @@ interface Factory
      * ----
      * @return  \ILIAS\UI\Component\MainControls\MainBar
      */
-    public function mainBar() : MainBar;
+    public function mainBar(): MainBar;
 
 
     /**
@@ -236,7 +234,7 @@ interface Factory
      * description:
      *   purpose: >
      *     A Slate is a collection of Components that serve a specific and singular
-     *     purpose in their entirety. The purpose can be subsummed in one Icon/Glyph
+     *     purpose in their entirety. The purpose can be subsumed in one Icon/Glyph
      *     and a very short label, for Slates will act as elaboration on one specific
      *     concept in ILIAS.
      *
@@ -254,7 +252,7 @@ interface Factory
      *     siblings of the current level are shown next to a "back"-button.
      *
      *     A special case of Slate is the Prompt: while in a common Slate the general
-     *     direction of communiction is user to system, a Prompt is used for communication
+     *     direction of communication is user to system, a Prompt is used for communication
      *     from the system to the user. These can be, e.g, alerts concerning new mails
      *     or a change in the online status of another learner.
      *
@@ -304,10 +302,9 @@ interface Factory
      *     3: A Slate MUST set the "aria-expanded" and the "aria-hidden" attributes.
      *
      * ----
-     *
      * @return  \ILIAS\UI\Component\MainControls\Slate\Factory
      */
-    public function slate() : Slate\Factory;
+    public function slate(): Slate\Factory;
 
     /**
      * ---
@@ -334,12 +331,11 @@ interface Factory
      *        Although the footer is constructed only with its "static" parts,
      *        it SHOULD have attached a permanent URL for the current page/object.
      * ----
-     *
      * @param  \ILIAS\UI\Component\Link\Standard[] $links
      * @param  string $text
      * @return  \ILIAS\UI\Component\MainControls\Footer
      */
-    public function footer(array $links, string $text = '') : Footer;
+    public function footer(array $links, string $text = ''): Footer;
 
 
     /**
@@ -376,7 +372,7 @@ interface Factory
      * ----
      * @return \ILIAS\UI\Component\MainControls\ModeInfo
      */
-    public function modeInfo(string $title, URI $close_action) : ModeInfo;
+    public function modeInfo(string $title, URI $close_action): ModeInfo;
 
     /**
      * ---
@@ -442,5 +438,5 @@ interface Factory
      * ----
      * @return \ILIAS\UI\Component\MainControls\SystemInfo
      */
-    public function systemInfo(string $headline, string $information_text) : SystemInfo;
+    public function systemInfo(string $headline, string $information_text): SystemInfo;
 }

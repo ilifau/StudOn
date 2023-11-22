@@ -1,28 +1,40 @@
 <?php
 
-/* Copyright (c) 2017 Alex Killing <killing@leifos.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
-use \ILIAS\UI\Component as C;
-use \ILIAS\UI\Implementation as I;
+use ILIAS\UI\Component as C;
+use ILIAS\UI\Implementation as I;
 
 /**
  * Test listing panels
  */
 class PanelListingTest extends ILIAS_UI_TestBase
 {
-
-    /**
-     * @return \ILIAS\UI\Implementation\Factory
-     */
-    public function getFactory()
+    public function getFactory(): C\Panel\Listing\Factory
     {
         return new I\Component\Panel\Listing\Factory();
     }
 
-    public function test_implements_factory_interface()
+    public function test_implements_factory_interface(): void
     {
         $f = $this->getFactory();
 
@@ -39,7 +51,7 @@ class PanelListingTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Panel\\Listing\\Standard", $std_list);
     }
 
-    public function test_get_title_get_groups()
+    public function test_get_title_get_groups(): void
     {
         $f = $this->getFactory();
 
@@ -55,11 +67,11 @@ class PanelListingTest extends ILIAS_UI_TestBase
 
         $c = $f->standard("title", $groups);
 
-        $this->assertEquals($c->getTitle(), "title");
-        $this->assertEquals($c->getItemGroups(), $groups);
+        $this->assertEquals("title", $c->getTitle());
+        $this->assertEquals($groups, $c->getItemGroups());
     }
 
-    public function test_with_actions()
+    public function test_with_actions(): void
     {
         $f = $this->getFactory();
 
@@ -73,10 +85,10 @@ class PanelListingTest extends ILIAS_UI_TestBase
         $c = $f->standard("title", $groups)
             ->withActions($actions);
 
-        $this->assertEquals($c->getActions(), $actions);
+        $this->assertEquals($actions, $c->getActions());
     }
 
-    public function test_render_base()
+    public function test_render_base(): void
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -97,24 +109,36 @@ class PanelListingTest extends ILIAS_UI_TestBase
 
         $expected = <<<EOT
 <div class="panel il-panel-listing-std-container clearfix">
-	<h2>title</h2>
-	<div class="il-item-group">
-		<h3>Subtitle 1</h3>
-		<div class="il-item-group-items">
-			<div class="il-std-item-container"><div class="il-item il-std-item ">	
-                <div class="il-item-title">title1</div>
-			</div></div><div class="il-std-item-container"><div class="il-item il-std-item ">
-                <div class="il-item-title">title2</div>
-			</div></div>
-		</div>
-	</div><div class="il-item-group">
-		<h3>Subtitle 2</h3>
-	<div class="il-item-group-items">
-	<div class="il-std-item-container"><div class="il-item il-std-item ">
-            <div class="il-item-title">title3</div>
-		</div></div>
-	</div>
-</div>
+  <h2>title</h2>
+  <div class="il-item-group">
+    <h3>Subtitle 1</h3>
+    <div class="il-item-group-items">
+        <ul>
+              <li class="il-std-item-container">
+                <div class="il-item il-std-item ">
+                  <div class="il-item-title">title1</div>
+                </div>
+              </li>
+              <li class="il-std-item-container">
+                <div class="il-item il-std-item ">
+                  <div class="il-item-title">title2</div>
+                </div>
+              </li>
+      </ul>
+    </div>
+  </div>
+  <div class="il-item-group">
+    <h3>Subtitle 2</h3>
+    <div class="il-item-group-items">
+      <ul>
+            <li class="il-std-item-container">
+                <div class="il-item il-std-item ">
+                  <div class="il-item-title">title3</div>
+                </div>
+            </li>
+      </ul>
+    </div>
+  </div>
 </div>
 EOT;
         $this->assertHTMLEquals(
@@ -123,7 +147,7 @@ EOT;
         );
     }
 
-    public function test_render_with_actions()
+    public function test_render_with_actions(): void
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -142,8 +166,8 @@ EOT;
 
         $expected = <<<EOT
 <div class="panel il-panel-listing-std-container clearfix">
-<h2>title</h2><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"  aria-label="actions" aria-haspopup="true" aria-expanded="false"> <span class="caret"></span></button>
-<ul class="dropdown-menu">
+<h2>title</h2><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"> <span class="caret"></span></button>
+<ul id="id_3_menu" class="dropdown-menu">
 	<li><button class="btn btn-link" data-action="https://www.ilias.de" id="id_1">ILIAS</button></li>
 	<li><button class="btn btn-link" data-action="https://www.github.com" id="id_2">GitHub</button></li>
 </ul>

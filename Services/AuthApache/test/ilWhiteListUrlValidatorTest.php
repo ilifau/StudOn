@@ -1,6 +1,20 @@
-<?php declare(strict_types=1);
+<?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/******************************************************************************
+ *
+ * This file is part of ILIAS, a powerful learning management system.
+ *
+ * ILIAS is licensed with the GPL-3.0, you should have received a copy
+ * of said license along with the source code.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ *      https://www.ilias.de
+ *      https://github.com/ILIAS-eLearning
+ *
+ *****************************************************************************/
 
 use PHPUnit\Framework\TestCase;
 
@@ -10,10 +24,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ilWhiteListUrlValidatorTest extends TestCase
 {
-    /**
-     * @return array
-     */
-    public function domainProvider() : array
+    public function domainProvider(): array
     {
         return [
             'Empty String / Empty Whitelist' => ['', [], false],
@@ -57,9 +68,8 @@ class ilWhiteListUrlValidatorTest extends TestCase
      * @param array $whitelist
      * @param bool $result
      */
-    public function testValidator(string $domain, array $whitelist, bool $result) : void
+    public function testValidator(string $domain, array $whitelist, bool $result): void
     {
-        require_once 'Services/AuthApache/classes/class.ilWhiteListUrlValidator.php';
-        $this->assertEquals((new ilWhiteListUrlValidator($domain, $whitelist))->isValid(), $result);
+        $this->assertSame((new ilWhiteListUrlValidator($domain, $whitelist))->isValid(), $result);
     }
 }

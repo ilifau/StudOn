@@ -3,32 +3,30 @@
 declare(strict_types=1);
 
 /**
- * Class ilLSItemsDB
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Daniel Weise <daniel.weise@concepts-and-training.de>
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Class ilLSItemsDB
  */
 class ilLSItemsDB
 {
-    /**
-     * @var ilTree
-     */
-    protected $tree;
-
-    /**
-     * @var ilContainerSorting
-     */
-    protected $container_sorting;
-
-    /**
-     * @var ilLSPostConditionDB
-     */
-    protected $post_conditions_db;
-
-    /**
-     * @var LSItemOnlineStatus
-     */
-    protected $ls_item_online_status;
+    protected ilTree $tree;
+    protected ilContainerSorting $container_sorting;
+    protected ilLSPostConditionDB $post_conditions_db;
+    protected LSItemOnlineStatus $ls_item_online_status;
 
     public function __construct(
         ilTree $tree,
@@ -42,13 +40,16 @@ class ilLSItemsDB
         $this->ls_item_online_status = $ls_item_online_status;
     }
 
-    public function getLSItems(int $ref_id) : array
+    /**
+     * @return LSItem[]
+     */
+    public function getLSItems(int $ref_id): array
     {
         $children = $this->tree->getChilds($ref_id);
 
         $sorting_settings = $this->container_sorting->getSortingSettings();
         $sorting_settings->setSortMode(ilContainer::SORT_MANUAL);
-        $sorted = $this->container_sorting->sortItems(array('lsitems' => $children));
+        $sorted = $this->container_sorting->sortItems(['lsitems' => $children]);
         $children = $sorted['lsitems'];
 
         $conditions = $this->getConditionsForChildren($children);
@@ -56,12 +57,11 @@ class ilLSItemsDB
         $items = [];
         foreach ($children as $position => $child) {
             $ref_id = (int) $child['child'];
-            $icon_path = ilObject2::_getIcon("", "big", $child['type']);
             $items[] = new LSItem(
                 $child['type'],
                 $child['title'],
                 $child['description'] ?? "",
-                $icon_path = $this->getIconPathForType($child['type']),
+                $this->getIconPathForType($child['type']),
                 $this->ls_item_online_status->getOnlineStatus($ref_id),
                 $position,
                 $conditions[$ref_id],
@@ -72,21 +72,19 @@ class ilLSItemsDB
         return $items;
     }
 
-    protected function getIconPathForType(string $type) : string
+    protected function getIconPathForType(string $type): string
     {
-        return ilObject2::_getIcon("", "big", $type);
+        return ilObject2::_getIcon(0, "big", $type);
     }
 
     /**
      * Collect all conditions at once.
      * @return array <int,ilLSPostCondition>
      */
-    protected function getConditionsForChildren(array $children) : array
+    protected function getConditionsForChildren(array $children): array
     {
         $ref_ids = array_map(
-            function ($i) {
-                return (int) $i['child'];
-            },
+            fn ($i) => (int) $i['child'],
             $children
         );
 
@@ -98,7 +96,7 @@ class ilLSItemsDB
         return $conditions;
     }
 
-    protected function storeItemsOrder(array $ls_items)
+    protected function storeItemsOrder(array $ls_items): void
     {
         $type_positions = [];
         foreach ($ls_items as $item) {
@@ -107,7 +105,7 @@ class ilLSItemsDB
         $this->container_sorting->savePost($type_positions);
     }
 
-    protected function storeOnlineStatus(array $ls_items)
+    protected function storeOnlineStatus(array $ls_items): void
     {
         foreach ($ls_items as $item) {
             $this->ls_item_online_status->setOnlineStatus(
@@ -117,7 +115,7 @@ class ilLSItemsDB
         }
     }
 
-    protected function storePostconditions(array $ls_items)
+    protected function storePostconditions(array $ls_items): void
     {
         $conditions = [];
         foreach ($ls_items as $item) {
@@ -129,14 +127,16 @@ class ilLSItemsDB
     /**
      * Use this to apply settings made in ContentGUI
      */
-    public function storeItems(array $ls_items)
+    public function storeItems(array $ls_items): void
     {
         $this->storeOnlineStatus($ls_items);
         $this->storeItemsOrder($ls_items);
         $this->storePostconditions($ls_items);
     }
 
-    protected function getObjectFor(int $ref_id) : ilObject
+    // The typehint on ilObject is intentional, we expect this to return some object
+    // or need to error instead.
+    protected function getObjectFor(int $ref_id): \ilObject
     {
         return ilObjectFactory::getInstanceByRefId($ref_id);
     }

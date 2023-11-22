@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Tool\Factory;
 
 use Closure;
@@ -34,26 +34,26 @@ interface isToolItem extends isItem, hasTitle, hasSymbol
      * @param bool $initially_hidden
      * @return isToolItem
      */
-    public function withInitiallyHidden(bool $initially_hidden) : isToolItem;
+    public function withInitiallyHidden(bool $initially_hidden): isToolItem;
 
     /**
      * @return bool
      */
-    public function isInitiallyHidden() : bool;
+    public function isInitiallyHidden(): bool;
 
     /**
      * @param Closure $close_callback
      * @return isToolItem
      */
-    public function withCloseCallback(Closure $close_callback) : isToolItem;
+    public function withCloseCallback(Closure $close_callback): isToolItem;
 
     /**
      * @return Closure
      */
-    public function getCloseCallback() : Closure;
+    public function getCloseCallback(): Closure;
 
     /**
      * @return bool
      */
-    public function hasCloseCallback() : bool;
+    public function hasCloseCallback(): bool;
 }

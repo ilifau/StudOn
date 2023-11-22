@@ -1,61 +1,111 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\DI\Container;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+
 /**
  * Class ilChatroomAbstractTest
  * @author Thomas Joußen <tjoussen@gmx.de>
  */
-abstract class ilChatroomAbstractTest extends PHPUnit_Framework_TestCase
+abstract class ilChatroomAbstractTest extends TestCase
 {
-
-    /**
-     * @var PHPUnit_Framework_MockObject_MockObject|ilChatroom
-     */
+    /** @var MockObject&ilChatroom */
     protected $ilChatroomMock;
-    /**
-     * @var PHPUnit_Framework_MockObject_MockObject|ilChatroomUser
-     */
+    /** @var MockObject&ilChatroomUser */
     protected $ilChatroomUserMock;
+    private ?Container $dic = null;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        if (defined('ILIAS_PHPUNIT_CONTEXT')) {
-            include_once("./Services/PHPUnit/classes/class.ilUnitUtil.php");
-            ilUnitUtil::performInitialisation();
-        } else {
-            chdir(dirname(__FILE__));
-            chdir('../../../');
-        }
+        global $DIC;
+
+        $this->dic = is_object($DIC) ? clone $DIC : $DIC;
+
+        $DIC = new Container();
+
+        $this->setGlobalVariable(
+            'tpl',
+            $this->getMockBuilder(ilGlobalTemplateInterface::class)->getMock()
+        );
+
+        parent::setUp();
     }
 
-    protected function createIlChatroomMock()
+    protected function tearDown(): void
     {
-        require_once './Modules/Chatroom/classes/class.ilChatroom.php';
-        require_once './Services/Utilities/classes/class.ilUtil.php';
+        global $DIC;
 
-        $this->ilChatroomMock = $this->getMockBuilder('ilChatroom')->disableOriginalConstructor()->setMethods(
-            array('isOwnerOfPrivateRoom', 'clearMessages')
+        $DIC = $this->dic;
+
+        parent::tearDown();
+    }
+
+    /**
+     * @return ilChatroom&MockObject
+     */
+    protected function createIlChatroomMock(): ilChatroom
+    {
+        $this->ilChatroomMock = $this->getMockBuilder(ilChatroom::class)->disableOriginalConstructor()->onlyMethods(
+            ['isOwnerOfPrivateRoom', 'clearMessages']
         )->getMock();
 
         return $this->ilChatroomMock;
     }
 
-    protected function createIlChatroomUserMock()
+    /**
+     * @return ilChatroomUser&MockObject
+     */
+    protected function createIlChatroomUserMock(): ilChatroomUser
     {
-        require_once './Modules/Chatroom/classes/class.ilChatroomUser.php';
-
-        $this->ilChatroomUserMock = $this->getMockBuilder('ilChatroomUser')->disableOriginalConstructor()->setMethods(
-            array('getUserId', 'getUsername')
+        $this->ilChatroomUserMock = $this->getMockBuilder(ilChatroomUser::class)->disableOriginalConstructor()->onlyMethods(
+            ['getUserId', 'getUsername']
         )->getMock();
 
         return $this->ilChatroomUserMock;
     }
 
-    protected function createGlobalIlDBMock()
+    /**
+     * @return ilDBInterface&MockObject
+     */
+    protected function createGlobalIlDBMock(): ilDBInterface
     {
-        $GLOBALS['ilDB'] = $this->getMockBuilder('ilDBMySQL')->disableOriginalConstructor()->setMethods(
-            array('quote', 'query', 'fetchAssoc')
-        )->getMock();
+        $db = $this->getMockBuilder(ilDBInterface::class)->getMock();
+        $db->method('quote')->willReturnCallback(static function ($arg): string {
+            return "'" . $arg . "'";
+        });
 
-        return $GLOBALS['ilDB'];
+        $this->setGlobalVariable('ilDB', $db);
+
+        return $db;
+    }
+
+    protected function setGlobalVariable(string $name, $value): void
+    {
+        global $DIC;
+
+        $GLOBALS[$name] = $value;
+
+        $DIC[$name] = static function (Container $c) use ($name) {
+            return $GLOBALS[$name];
+        };
     }
 }

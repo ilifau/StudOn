@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Factory;
@@ -10,14 +27,10 @@ use ILIAS\UI\Factory;
  */
 class ilTermsOfServiceUserHasCountryCriterionGUI implements ilTermsOfServiceCriterionTypeGUI
 {
-    /** @var ilTermsOfServiceUserHasCountryCriterion */
-    protected $type;
-
-    /** @var ilLanguage */
-    protected $lng;
-
+    protected ilTermsOfServiceUserHasCountryCriterion $type;
+    protected ilLanguage $lng;
     /** @var string[] */
-    protected $countryCodes = [];
+    protected array $countryCodes = [];
 
     /**
      * ilTermsOfServiceUserHasLanguageCriterionGUI constructor.
@@ -35,10 +48,7 @@ class ilTermsOfServiceUserHasCountryCriterionGUI implements ilTermsOfServiceCrit
         $this->countryCodes = $countryCodes;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function appendOption(ilRadioGroupInputGUI $group, ilTermsOfServiceCriterionConfig $config) : void
+    public function appendOption(ilRadioGroupInputGUI $group, ilTermsOfServiceCriterionConfig $config): void
     {
         $option = new ilRadioOption($this->getIdentPresentation(), $this->type->getTypeIdent());
         $option->setInfo($this->lng->txt('tos_crit_type_usr_country_info'));
@@ -53,7 +63,7 @@ class ilTermsOfServiceUserHasCountryCriterionGUI implements ilTermsOfServiceCrit
         foreach ($this->countryCodes as $country) {
             $options[strtolower($country)] = $this->lng->txt('meta_c_' . strtoupper($country));
         }
-        asort($options);
+        natcasesort($options);
 
         $countrySelection->setOptions(['' => $this->lng->txt('please_choose')] + $options);
         $countrySelection->setValue((string) ($config['country'] ?? ''));
@@ -63,10 +73,7 @@ class ilTermsOfServiceUserHasCountryCriterionGUI implements ilTermsOfServiceCrit
         $group->addOption($option);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getConfigByForm(ilPropertyFormGUI $form) : ilTermsOfServiceCriterionConfig
+    public function getConfigByForm(ilPropertyFormGUI $form): ilTermsOfServiceCriterionConfig
     {
         $config = new ilTermsOfServiceCriterionConfig([
             'country' => (string) $form->getInput($this->type->getTypeIdent() . '_country')
@@ -75,18 +82,12 @@ class ilTermsOfServiceUserHasCountryCriterionGUI implements ilTermsOfServiceCrit
         return $config;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getIdentPresentation() : string
+    public function getIdentPresentation(): string
     {
         return $this->lng->txt('tos_crit_type_usr_country');
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getValuePresentation(ilTermsOfServiceCriterionConfig $config, Factory $uiFactory) : Component
+    public function getValuePresentation(ilTermsOfServiceCriterionConfig $config, Factory $uiFactory): Component
     {
         $country = $config['country'] ?? '';
 
@@ -94,6 +95,6 @@ class ilTermsOfServiceUserHasCountryCriterionGUI implements ilTermsOfServiceCrit
             return $uiFactory->legacy('');
         }
 
-        return $uiFactory->legacy($this->lng->txt('meta_c_' . strtoupper((string) $country)));
+        return $uiFactory->legacy($this->lng->txt('meta_c_' . strtoupper($country)));
     }
 }

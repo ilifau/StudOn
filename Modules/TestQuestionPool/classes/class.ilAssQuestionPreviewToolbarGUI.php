@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -15,8 +16,6 @@
  *
  *********************************************************************/
 
-require_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
-
 /**
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
@@ -25,20 +24,9 @@ require_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
  */
 class ilAssQuestionPreviewToolbarGUI extends ilToolbarGUI
 {
-    /**
-     * @var ilLanguage
-     */
-    public $lng = null;
-
     private $resetPreviewCmd;
-    /**
-     * @var null|string
-     */
     private $editQuestionCmd;
-    /**
-     * @var null|string
-     */
-    private $editPageCmd = null;
+    private $editPageCmd;
 
     public function __construct(ilLanguage $lng)
     {
@@ -47,7 +35,7 @@ class ilAssQuestionPreviewToolbarGUI extends ilToolbarGUI
         parent::__construct();
     }
 
-    public function build()
+    public function build(): void
     {
         // Edit Question
         if ($this->getEditQuestionCmd() !== null) {
@@ -57,6 +45,7 @@ class ilAssQuestionPreviewToolbarGUI extends ilToolbarGUI
             $button_edit_question->setCaption('edit_question');
             $this->addButtonInstance($button_edit_question);
         }
+
         // Edit Page
         if ($this->getEditPageCmd() !== null) {
             $button_edit_page = ilLinkButton::getInstance();
@@ -65,11 +54,16 @@ class ilAssQuestionPreviewToolbarGUI extends ilToolbarGUI
             $this->addButtonInstance($button_edit_page);
         }
 
-        // Reset Preview
-        $this->addFormButton($this->lng->txt('qpl_reset_preview'), $this->getResetPreviewCmd(), '', false);
+        //Reset Preview
+        $button = \ilSubmitButton::getInstance();
+        $button->setCaption("qpl_reset_preview");
+        $button->setCommand($this->getResetPreviewCmd());
+        $button->setOmitPreventDoubleSubmission(true);
+        $this->addButtonInstance($button);
+        //$this->addFormButton($this->lng->txt('qpl_reset_preview'), $this->getResetPreviewCmd(), '', false);
     }
 
-    public function setResetPreviewCmd($resetPreviewCmd)
+    public function setResetPreviewCmd($resetPreviewCmd): void
     {
         $this->resetPreviewCmd = $resetPreviewCmd;
     }
@@ -90,7 +84,7 @@ class ilAssQuestionPreviewToolbarGUI extends ilToolbarGUI
     /**
      * @param mixed $editQuestionCmd
      */
-    public function setEditQuestionCmd($editQuestionCmd) : void
+    public function setEditQuestionCmd($editQuestionCmd): void
     {
         $this->editQuestionCmd = $editQuestionCmd;
     }
@@ -106,7 +100,7 @@ class ilAssQuestionPreviewToolbarGUI extends ilToolbarGUI
     /**
      * @param mixed $editPageCmd
      */
-    public function setEditPageCmd($editPageCmd) : void
+    public function setEditPageCmd($editPageCmd): void
     {
         $this->editPageCmd = $editPageCmd;
     }

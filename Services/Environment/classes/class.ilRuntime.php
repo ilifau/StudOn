@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 1998-2014 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilRuntime
@@ -8,10 +25,7 @@
  */
 final class ilRuntime
 {
-    /**
-     * @var self
-     */
-    private static $instance = null;
+    private static ?self $instance = null;
 
     /**
      * The runtime is a constant state during one request, so please use the public static getInstance() to instantiate the runtime
@@ -20,10 +34,7 @@ final class ilRuntime
     {
     }
 
-    /**
-     * @return self
-     */
-    public static function getInstance()
+    public static function getInstance(): self
     {
         if (self::$instance === null) {
             self::$instance = new self();
@@ -32,98 +43,89 @@ final class ilRuntime
         return self::$instance;
     }
 
-    /**
-     * Returns true when the runtime used is HHVM.
-     * @return bool
-     */
-    public function isHHVM()
+    public function isHHVM(): bool
     {
         return defined('HHVM_VERSION');
     }
 
-    /**
-     * Returns true when the runtime used is PHP.
-     * @return bool
-     */
-    public function isPHP()
+    public function isPHP(): bool
     {
         return !$this->isHHVM();
     }
 
-
-    /**
-     * @return bool
-     */
-    public function isFPM()
+    public function isFPM(): bool
     {
-        return (php_sapi_name() == 'fpm-fcgi');
+        return PHP_SAPI === 'fpm-fcgi';
     }
 
-    /**
-     * @return string
-     */
-    public function getVersion()
+    public function getVersion(): string
     {
         if ($this->isHHVM()) {
             return HHVM_VERSION;
-        } else {
-            return PHP_VERSION;
         }
+
+        return PHP_VERSION;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         if ($this->isHHVM()) {
             return 'HHVM';
-        } else {
-            return 'PHP';
         }
+
+        return 'PHP';
     }
 
-    /**
-     * A string representation of the runtime
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName() . ' ' . $this->getVersion();
     }
 
-    /**
-     * @return int
-     */
-    public function getReportedErrorLevels()
+    public function getReportedErrorLevels(): int
     {
         if ($this->isHHVM()) {
-            return ini_get('hhvm.log.runtime_error_reporting_level');
-        } else {
-            return ini_get('error_reporting');
+            return (int) ini_get('hhvm.log.runtime_error_reporting_level');
         }
+
+        return (int) ini_get('error_reporting');
     }
 
-    /**
-     * @return boolean
-     */
-    public function shouldLogErrors()
+    public function shouldLogErrors(): bool
     {
         if ($this->isHHVM()) {
             return (bool) ini_get('hhvm.log.use_log_file');
-        } else {
-            return (bool) ini_get('log_errors');
         }
+
+        return (bool) ini_get('log_errors');
     }
 
-    /**
-     * @return boolean
-     */
-    public function shouldDisplayErrors()
+    public function shouldDisplayErrors(): bool
     {
         if ($this->isHHVM()) {
             return (bool) ini_get('hhvm.debug.server_error_message');
-        } else {
-            return (bool) ini_get('display_errors');
         }
+
+        return (bool) ini_get('display_errors');
+    }
+
+    public function getBinary(): string
+    {
+        if (defined('PHP_BINARY') && PHP_BINARY !== '') {
+            return escapeshellarg(PHP_BINARY);
+        }
+
+        $possibleBinaryLocations = [
+            PHP_BINDIR . '/php',
+            PHP_BINDIR . '/php-cli.exe',
+            PHP_BINDIR . '/php.exe',
+        ];
+
+        foreach ($possibleBinaryLocations as $binary) {
+            if (is_readable($binary)) {
+                return escapeshellarg($binary);
+            }
+        }
+
+        return 'php';
     }
 }

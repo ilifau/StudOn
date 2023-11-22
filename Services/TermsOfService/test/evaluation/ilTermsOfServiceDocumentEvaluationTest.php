@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceAcceptanceEntityTest
@@ -7,10 +24,7 @@
  */
 class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationBaseTest
 {
-    /**
-     * @throws ReflectionException
-     */
-    public function testAskingEvaluatorForDocumentExistenceIfNoDocumentExistAtAllResultsInANegativeAnswer() : void
+    public function testAskingEvaluatorForDocumentExistenceIfNoDocumentExistAtAllResultsInANegativeAnswer(): void
     {
         $evaluator = $this->getEvaluatorMock();
         $user = $this->getUserMock();
@@ -26,11 +40,7 @@ class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationB
         $this->assertFalse($evaluation->hasDocument());
     }
 
-    /**
-     * @throws ReflectionException
-     * @throws ilTermsOfServiceNoSignableDocumentFoundException
-     */
-    public function testExceptionIsRaisedIfADocumentIsRequestedFromEvaluatorAndNoDocumentExistsAtAll() : void
+    public function testExceptionIsRaisedIfADocumentIsRequestedFromEvaluatorAndNoDocumentExistsAtAll(): void
     {
         $evaluator = $this->getEvaluatorMock();
         $user = $this->getUserMock();
@@ -48,11 +58,7 @@ class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationB
         $evaluation->document();
     }
 
-    /**
-     * @throws ReflectionException
-     * @throws ilTermsOfServiceNoSignableDocumentFoundException
-     */
-    public function testFirstDocumentIsReturnedIfEvaluationOfFirstDocumentSucceeded() : void
+    public function testFirstDocumentIsReturnedIfEvaluationOfFirstDocumentSucceeded(): void
     {
         $evaluator = $this->getEvaluatorMock();
         $user = $this->getUserMock();
@@ -63,7 +69,7 @@ class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationB
             ->getMock();
 
         $evaluator
-            ->expects($this->exactly(1))
+            ->expects($this->once())
             ->method('evaluate')
             ->with($doc)
             ->willReturn(true);
@@ -76,14 +82,10 @@ class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationB
         );
 
         $this->assertTrue($evaluation->hasDocument());
-        $this->assertEquals($doc, $evaluation->document());
+        $this->assertSame($doc, $evaluation->document());
     }
 
-    /**
-     * @throws ReflectionException
-     * @throws ilTermsOfServiceNoSignableDocumentFoundException
-     */
-    public function testDocumentOnArbitraryPositionIsReturnedMatchingFirstDocumentWithASucceededEvaluation() : void
+    public function testDocumentOnArbitraryPositionIsReturnedMatchingFirstDocumentWithASucceededEvaluation(): void
     {
         $evaluator = $this->getEvaluatorMock();
         $user = $this->getUserMock();
@@ -109,11 +111,11 @@ class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationB
                 [$doc2],
                 [$doc3]
             )
-            ->will($this->returnValueMap([
+            ->willReturnMap([
                 [$doc1, false],
                 [$doc2, true],
                 [$doc3, false],
-            ]));
+            ]);
 
         $evaluation = new ilTermsOfServiceSequentialDocumentEvaluation(
             $evaluator,
@@ -123,14 +125,10 @@ class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationB
         );
 
         $this->assertTrue($evaluation->hasDocument());
-        $this->assertEquals($doc2, $evaluation->document());
+        $this->assertSame($doc2, $evaluation->document());
     }
 
-    /**
-     * @throws ReflectionException
-     * @throws ilTermsOfServiceNoSignableDocumentFoundException
-     */
-    public function testFirstMatchingDocumentIsReturnedIfEvaluationOfMultipleDocumentsSucceeded() : void
+    public function testFirstMatchingDocumentIsReturnedIfEvaluationOfMultipleDocumentsSucceeded(): void
     {
         $evaluator = $this->getEvaluatorMock();
         $user = $this->getUserMock();
@@ -156,11 +154,11 @@ class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationB
                 [$doc2],
                 [$doc3]
             )
-            ->will($this->returnValueMap([
+            ->willReturnMap([
                 [$doc1, false],
                 [$doc2, true],
                 [$doc3, true],
-            ]));
+            ]);
 
         $evaluation = new ilTermsOfServiceSequentialDocumentEvaluation(
             $evaluator,
@@ -170,6 +168,6 @@ class ilTermsOfServiceDocumentEvaluationTest extends ilTermsOfServiceEvaluationB
         );
 
         $this->assertTrue($evaluation->hasDocument());
-        $this->assertEquals($doc2, $evaluation->document());
+        $this->assertSame($doc2, $evaluation->document());
     }
 }

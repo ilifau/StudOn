@@ -1,69 +1,65 @@
 <?php
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Progress bar GUI
- *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
- * @version $Id: class.ilTabsGUI.php 45109 2013-09-30 15:46:28Z akill $
- * @package ServicesUIComponent
  */
 class ilProgressBar
 {
-    protected $min; // [int]
-    protected $max; // [int]
-    protected $current; // [int]
-    protected $show_caption; // [bool]
-    protected $type; // [int]
-    protected $caption; // [text]
-    protected $striped; // [bool]
-    protected $animated; // [bool]
-    
-    
-    protected $ajax_url = '';
-    protected $ajax_timeout = 5;
-    protected $unique_id = '';
-    
-    const TYPE_INFO = 1;
-    const TYPE_SUCCESS = 2;
-    const TYPE_WARNING = 3;
-    const TYPE_DANGER = 4;
-    
-    /**
-     * Constructor
-     *
-     * @return self
-     */
+    public const TYPE_INFO = 1;
+    public const TYPE_SUCCESS = 2;
+    public const TYPE_WARNING = 3;
+    public const TYPE_DANGER = 4;
+    protected ilGlobalTemplateInterface $main_tpl;
+
+    protected int $min = 0;
+    protected int $max = 0;
+    protected int $current = 0;
+    protected bool $show_caption = false;
+    protected int $type = 0;
+    protected string $caption = "";
+    protected bool $striped = false;
+    protected bool $animated = false;
+    protected string $ajax_url = '';
+    protected int $ajax_timeout = 5;
+    protected string $unique_id = '';
+    protected int $async_timeout = 0;
+
     protected function __construct()
     {
+        global $DIC;
+
+        $this->main_tpl = $DIC->ui()->mainTemplate();
+
         $this->setMin(0);
         $this->setMax(100);
         $this->setShowCaption(true);
         $this->setType(self::TYPE_INFO);
         $this->setStriped(true);
     }
-    
-    /**
-     * Factory
-     *
-     * @return ilProgressBar
-     */
-    public static function getInstance()
+
+    public static function getInstance(): self
     {
         return new self();
     }
-    
-    
-    //
-    // properties
-    //
-    
-    /**
-     * Set type (currently unwanted)
-     *
-     * @param int $a_value
-     */
-    public function setType($a_value)
+
+    public function setType(int $a_value): void
     {
         $valid = array(
             self::TYPE_INFO
@@ -75,111 +71,67 @@ class ilProgressBar
             $this->type = $a_value;
         }
     }
-    
-    /**
-     * Set minimum value
-     *
-     * @param int $a_value
-     */
-    public function setMin($a_value)
+
+    public function setMin(int $a_value): void
     {
-        $this->min = abs((int) $a_value);
+        $this->min = abs($a_value);
     }
-    
-    /**
-     * Set maximum value
-     *
-     * @param int $a_value
-     */
-    public function setMax($a_value)
+
+    public function setMax(int $a_value): void
     {
-        $this->max = abs((int) $a_value);
+        $this->max = abs($a_value);
     }
-    
-    /**
-     * Set Caption
-     *
-     * @param string $a_value
-     */
-    public function setCaption($a_value)
+
+    public function setCaption(string $a_value): void
     {
         $this->caption = trim($a_value);
     }
-    
-    /**
-     * Toggle show caption status
-     *
-     * @param bool $a_value
-     */
-    public function setShowCaption($a_value)
+
+    public function setShowCaption(bool $a_value): void
     {
-        $this->show_caption = (bool) $a_value;
+        $this->show_caption = $a_value;
     }
-    
-    /**
-     * Toggle striped layout
-     *
-     * @param bool $a_value
-     */
-    public function setStriped($a_value)
+
+    public function setStriped(bool $a_value): void
     {
-        $this->striped = (bool) $a_value;
+        $this->striped = $a_value;
     }
-    
-    /**
-     * Toggle animated layout
-     *
-     * @param bool $a_value
-     */
-    public function setAnimated($a_value)
+
+    public function setAnimated(bool $a_value): void
     {
-        $this->animated = (bool) $a_value;
+        $this->animated = $a_value;
     }
-    
-    /**
-     * Set current value
-     *
-     * @param int|float $a_value
-     */
-    public function setCurrent($a_value)
+
+    public function setCurrent(float $a_value): void
     {
         $this->current = abs($a_value);
     }
-    
-    public function setAsyncStatusUrl($a_target)
+
+    public function setAsyncStatusUrl(string $a_target): void
     {
         $this->ajax_url = $a_target;
     }
-    
-    public function setAsynStatusTimeout($a_timeout)
+
+    public function setAsynStatusTimeout(int $a_timeout): void
     {
         $this->async_timeout = $a_timeout;
     }
-    
-    public function setId($a_id)
+
+    public function setId(string $a_id): void
     {
         $this->unique_id = $a_id;
     }
-    
-    //
-    // presentation
-    //
-    
-    /**
-     * Render
-     *
-     * @return string
-     */
-    public function render()
+
+    public function render(): string
     {
         $tpl = new ilTemplate("tpl.il_progress.html", true, true, "Services/UIComponent/ProgressBar");
-        
+
         $tpl->setVariable("MIN", $this->min);
         $tpl->setVariable("MAX", $this->max);
         $tpl->setVariable("CURRENT_INT", round($this->current));
         $tpl->setVariable("CURRENT", round($this->current));
         $tpl->setVariable("CAPTION", $this->caption);
-        
+
         $map = array(
             self::TYPE_INFO => "info"
             ,self::TYPE_SUCCESS => "success"
@@ -187,33 +139,34 @@ class ilProgressBar
             ,self::TYPE_DANGER => "danger"
         );
         $css = array("progress-bar-" . $map[$this->type]);
-        
+
         if ($this->striped) {
             $css[] = "progress-bar-striped";
         }
-        
+
         if ($this->animated) {
             $css[] = "active";
         }
-        
+
         $tpl->setVariable("CSS", implode(" ", $css));
-        
+
         if (!$this->show_caption) {
             $tpl->touchBlock("hide_caption_in_bl");
             $tpl->touchBlock("hide_caption_out_bl");
         }
-        
-        if (strlen($this->ajax_url) and $this->ajax_timeout) {
+
+        if ($this->ajax_url !== '' && $this->ajax_timeout) {
+            $this->main_tpl->addJavaScript("Services/UIComponent/ProgressBar/js/progress_bar.js");
             $tpl->setCurrentBlock('async_status');
             $tpl->setVariable('ASYNC_STATUS_ID', $this->unique_id);
             $tpl->setVariable('ICON_OK', ilUtil::getImagePath('icon_ok.svg'));
             $tpl->setVariable('AJAX_URL', $this->ajax_url);
-            $tpl->setVariable('AJAX_TIMEOUT', 1000 * (int) $this->ajax_timeout);
+            $tpl->setVariable('AJAX_TIMEOUT', 1000 * $this->ajax_timeout);
             $tpl->parseCurrentBlock();
         }
-        
+
         $tpl->setVariable('PROGRESS_ID', $this->unique_id);
-        
+
         return $tpl->get();
     }
 }

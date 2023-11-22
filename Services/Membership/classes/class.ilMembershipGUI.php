@@ -1,120 +1,156 @@
 <?php
 
-/* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\HTTP\GlobalHttpState;
+use ILIAS\Refinery\Factory;
 
 /**
  * Base class for member tab content
- *
  * @author Stefan Meyer <smeyer.ilias@gmx.de>
- *
  */
 class ilMembershipGUI
 {
-    /**
-     * @var ilObject
-     */
-    private $repository_object = null;
-    
-    /**
-     * @var ilObjectGUI
-     */
-    private $repository_gui = null;
-    
-    /**
-     * @var ilLanguage
-     */
-    protected $lng = null;
-    
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl = null;
-    
-    /**
-     * @var ilLogger
-     */
-    protected $logger = null;
-    
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
-    
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
-    
-    
-    /**
-     * Constructor
-     * @param ilObject $repository_obj
-     */
+    private ilObject $repository_object;
+    private ?ilObjectGUI $repository_gui;
+    protected GlobalHttpState $http;
+    protected Factory $refinery;
+    protected ilLanguage $lng;
+    protected ilCtrlInterface $ctrl;
+    protected ilLogger $logger;
+    protected ilGlobalTemplateInterface $tpl;
+    protected ilAccessHandler $access;
+    protected ?ilParticipants $participants = null;
+    protected ilObjUser $user;
+    protected ilErrorHandling $error;
+    protected ilTabsGUI $tabs;
+    protected ilToolbarGUI $toolbar;
+    protected ilRbacSystem $rbacsystem;
+    protected ilRbacReview $rbacreview;
+    protected ilTree $tree;
+    protected array $member_data = [];
+
     public function __construct(ilObjectGUI $repository_gui, ilObject $repository_obj)
     {
         global $DIC;
 
         $this->repository_gui = $repository_gui;
         $this->repository_object = $repository_obj;
-        
-        $this->lng = $GLOBALS['DIC']->language();
+
+        $this->lng = $DIC->language();
         $this->lng->loadLanguageModule('crs');
         $this->lng->loadLanguageModule($this->getParentObject()->getType());
+        $this->tpl = $DIC->ui()->mainTemplate();
+        $this->ctrl = $DIC->ctrl();
         $this->lng->loadLanguageModule('trac');
-        $this->tpl = $GLOBALS['DIC']->ui()->mainTemplate();
-        $this->ctrl = $GLOBALS['DIC']->ctrl();
         $this->logger = $DIC->logger()->mmbr();
-        $this->access = $GLOBALS['DIC']->access();
+        $this->access = $DIC->access();
+        $this->user = $DIC->user();
+        $this->error = $DIC['ilErr'];
+        $this->tabs = $DIC->tabs();
+        $this->toolbar = $DIC->toolbar();
+        $this->rbacsystem = $DIC->rbac()->system();
+        $this->rbacreview = $DIC->rbac()->review();
+        $this->tree = $DIC->repositoryTree();
+        $this->http = $DIC->http();
+        $this->refinery = $DIC->refinery();
     }
-    
+
     /**
-     * @return ilLanguage
+     * @return int[]
      */
-    protected function getLanguage()
+    protected function initParticipantsFromPost(): array
+    {
+        if ($this->http->wrapper()->post()->has('participants')) {
+            return $this->http->wrapper()->post()->retrieve(
+                'participants',
+                $this->refinery->kindlyTo()->listOf(
+                    $this->refinery->kindlyTo()->int()
+                )
+            );
+        }
+        return [];
+    }
+
+    protected function initMemberIdFromGet(): int
+    {
+        if ($this->http->wrapper()->query()->has('member_id')) {
+            return $this->http->wrapper()->query()->retrieve(
+                'member_id',
+                $this->refinery->kindlyTo()->int()
+            );
+        }
+        return 0;
+    }
+
+    protected function initSubscribersFromPost(): array
+    {
+        if ($this->http->wrapper()->post()->has('subscribers')) {
+            return $this->http->wrapper()->post()->retrieve(
+                'subscribers',
+                $this->refinery->kindlyTo()->listOf(
+                    $this->refinery->kindlyTo()->int()
+                )
+            );
+        }
+        return [];
+    }
+
+    protected function initWaitingListIdsFromPost(): array
+    {
+        if ($this->http->wrapper()->post()->has('waiting')) {
+            return $this->http->wrapper()->post()->retrieve(
+                'waiting',
+                $this->refinery->kindlyTo()->listOf(
+                    $this->refinery->kindlyTo()->int()
+                )
+            );
+        }
+        return [];
+    }
+
+    protected function getLanguage(): ilLanguage
     {
         return $this->lng;
     }
-    
-    /**
-     * @return ilCtrl
-     */
-    protected function getCtrl()
+
+    protected function getCtrl(): ilCtrlInterface
     {
         return $this->ctrl;
     }
 
-    /**
-     * @return \ilLogger
-     */
-    protected function getLogger()
+    protected function getLogger(): ilLogger
     {
         return $this->logger;
     }
 
-
-    /**
-     * Get parent gui
-     * @return ilObjectGUI
-     */
-    public function getParentGUI()
+    public function getParentGUI(): ilObjectGUI
     {
         return $this->repository_gui;
     }
-    
-    /**
-     * Get parent object
-     * @return ilObject
-     */
-    public function getParentObject()
+
+    public function getParentObject(): ilObject
     {
         return $this->repository_object;
     }
-    
-    /**
-     * Get member object
-     * @return ilParticipants
-     */
-    public function getMembersObject()
+
+    public function getMembersObject(): ilParticipants
     {
         if ($this->participants instanceof ilParticipants) {
             return $this->participants;
@@ -122,38 +158,29 @@ class ilMembershipGUI
         return $this->participants = ilParticipants::getInstance($this->getParentObject()->getRefId());
     }
 
-    /**
-     * @return null
-     */
-    protected function getMailMemberRoles()
+    protected function getMailMemberRoles(): ?ilAbstractMailMemberRoles
     {
         return null;
     }
-    
-    /**
-     * Check permission
-     * @param type $a_permission
-     * @param type $a_cmd
-     * @param type $a_type
-     * @param type $a_ref_id
-     */
-    protected function checkPermissionBool($a_permission, $a_cmd = '', $a_type = '', $a_ref_id = 0)
-    {
-        if (!$a_ref_id) {
+
+    protected function checkPermissionBool(
+        string $a_permission,
+        string $a_cmd = '',
+        string $a_type = '',
+        int $a_ref_id = 0
+    ): bool {
+        if ($a_ref_id === 0) {
             $a_ref_id = $this->getParentObject()->getRefId();
         }
         return $this->access->checkAccess($a_permission, $a_cmd, $a_ref_id);
     }
-    
-    /**
-     * Check if rbac or position access is granted.
-     * @param string $a_rbac_perm
-     * @param string $a_pos_perm
-     * @param int $a_ref_id
-     */
-    protected function checkRbacOrPositionAccessBool($a_rbac_perm, $a_pos_perm, $a_ref_id = 0)
-    {
-        if (!$a_ref_id) {
+
+    protected function checkRbacOrPositionAccessBool(
+        string $a_rbac_perm,
+        string $a_pos_perm,
+        int $a_ref_id = 0
+    ): bool {
+        if ($a_ref_id === 0) {
             $a_ref_id = $this->getParentObject()->getRefId();
         }
         return $this->access->checkRbacOrPositionPermissionAccess($a_rbac_perm, $a_pos_perm, $a_ref_id);
@@ -162,87 +189,61 @@ class ilMembershipGUI
     /**
      * Check permission
      * If not granted redirect to parent gui
-     *
-     * @param string $a_permission
-     * @param string $a_cmd
      */
-    protected function checkPermission($a_permission, $a_cmd = "")
+    protected function checkPermission(string $a_permission, string $a_cmd = ""): void
     {
         if (!$this->checkPermissionBool($a_permission, $a_cmd)) {
-            ilUtil::sendFailure($this->lng->txt('no_permission'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('no_permission'), true);
             $this->ctrl->redirect($this->getParentGUI());
         }
     }
 
     /**
      * check rbac or position access
-     *
-     * @param $a_rbac_perm
-     * @param $a_pos_perm
      */
-    protected function checkRbacOrPermissionAccess($a_rbac_perm, $a_pos_perm)
+    protected function checkRbacOrPermissionAccess(string $a_rbac_perm, string $a_pos_perm): void
     {
         if (!$this->checkRbacOrPositionAccessBool($a_rbac_perm, $a_pos_perm)) {
-            ilUtil::sendFailure($this->lng->txt('no_permission'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('no_permission'), true);
             $this->ctrl->redirect($this->getParentGUI());
         }
     }
 
-    
-    
     /**
      * Check if current user is allowed to add / search users
-     * @return bool
      */
-    protected function canAddOrSearchUsers()
+    protected function canAddOrSearchUsers(): bool
     {
         return $this->checkPermissionBool('manage_members');
     }
-    
-    
+
     /**
      * Filter user ids by access
      * @param int[] $a_usr_ids
      * @return int[]
      */
-    public function filterUserIdsByRbacOrPositionOfCurrentUser($a_user_ids)
+    public function filterUserIdsByRbacOrPositionOfCurrentUser(array $a_user_ids): array
     {
         return $a_user_ids;
     }
-    
-    /**
-     * Execute command
-     */
-    public function executeCommand()
-    {
-        /**
-         * @var ilTabsGUI
-         */
-        global $DIC;
 
-        $ilUser = $DIC['ilUser'];
-        $ilErr = $DIC['ilErr'];
-        $ilAccess = $DIC['ilAccess'];
-        $rbacsystem = $DIC['rbacsystem'];
-        $ilTabs = $DIC['ilTabs'];
-        
+    public function executeCommand(): void
+    {
         $cmd = $this->ctrl->getCmd('participants');
         $next_class = $this->ctrl->getNextClass();
-        
+
         switch ($next_class) {
             case 'ilrepositorysearchgui':
 
                 $this->checkPermission('manage_members');
-                
-                include_once('./Services/Search/classes/class.ilRepositorySearchGUI.php');
-                include_once './Services/Membership/classes/class.ilParticipants.php';
+
                 $rep_search = new ilRepositorySearchGUI();
-                $rep_search->addUserAccessFilterCallable([$this,'filterUserIdsByRbacOrPositionOfCurrentUser']);
+                $rep_search->addUserAccessFilterCallable([$this, 'filterUserIdsByRbacOrPositionOfCurrentUser']);
 
                 $participants = $this->getMembersObject();
                 if (
-                    $participants->isAdmin($GLOBALS['DIC']['ilUser']->getId()) ||
-                    $ilAccess->checkAccess('manage_members', '', $this->getParentObject()->getRefId())
+                    $participants->isAdmin($this->user->getId()) ||
+                    $this->access->checkAccess('manage_members', '', $this->getParentObject()->getRefId())
                 ) {
                     $rep_search->setCallback(
                         $this,
@@ -255,40 +256,35 @@ class ilMembershipGUI
                     $rep_search->setCallback(
                         $this,
                         'assignMembers',
-                        $this->getLocalRoles(array($this->getParentObject()->getDefaultAdminRole())),
+                        $this->getLocalRoles(),
                         (string) $this->getDefaultRole()
                     );
                 }
-                
+
                 // Set tabs
                 $this->ctrl->setReturn($this, 'participants');
                 $ret = $this->ctrl->forwardCommand($rep_search);
                 break;
-            
-            
+
             case 'ilmailmembersearchgui':
-                $ilTabs->clearTargets();
-                $ilTabs->setBackTarget(
+                $this->tabs->clearTargets();
+                $this->tabs->setBackTarget(
                     $this->lng->txt('btn_back'),
                     $this->ctrl->getLinkTarget($this, $this->getDefaultCommand())
                 );
 
-                $mail = new ilMail($ilUser->getId());
+                $mail = new ilMail($this->user->getId());
                 if (!(
-                    $this->getParentObject()->getMailToMembersType() == ilCourseConstants::MAIL_ALLOWED_ALL ||
-// fau: mailToMembers - allow tutors or upper admins to send an email to members
-                        ilParticipants::_isTutor($this->getParentObject()->getRefId(), $ilUser->getId()) ||
-                        ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $ilUser->getId()) ||
-// fau.
-                    $ilAccess->checkAccess('manage_members', "", $this->getParentObject()->getRefId())
+                    $this->getParentObject()->getMailToMembersType() === ilCourseConstants::MAIL_ALLOWED_ALL ||
+                        $this->access->checkAccess('manage_members', "", $this->getParentObject()->getRefId())
                 ) ||
-                    !$rbacsystem->checkAccess(
+                    !$this->rbacsystem->checkAccess(
                         'internal_mail',
                         $mail->getMailObjectReferenceId()
                     )) {
-                    $ilErr->raiseError($this->lng->txt("msg_no_perm_read"), $ilErr->MESSAGE);
+                    $this->error->raiseError($this->lng->txt("msg_no_perm_read"), $this->error->MESSAGE);
                 }
-                
+
                 $mail_search = new ilMailMemberSearchGUI(
                     $this,
                     $this->getParentObject()->getRefId(),
@@ -301,117 +297,89 @@ class ilMembershipGUI
                 break;
 
             case 'ilusersgallerygui':
-                
-                $this->setSubTabs($GLOBALS['DIC']['ilTabs']);
-                $tabs = $GLOBALS['DIC']->tabs()->setSubTabActive(
+
+                $this->setSubTabs($this->tabs);
+                $this->tabs->setSubTabActive(
                     $this->getParentObject()->getType() . '_members_gallery'
                 );
-                
-// fau: mailToMembers - show member gallery to local or upper admins if enabled
-                $is_admin = (bool) $this->checkRbacOrPositionAccessBool('manage_members', 'manage_members');
-                $is_local_or_upper_admin = ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $ilUser->getId());
-                $is_participant = (bool) ilParticipants::_isParticipant($this->getParentObject()->getRefId(), $ilUser->getId());
+                $is_admin = $this->checkRbacOrPositionAccessBool('manage_members', 'manage_members');
+                $is_participant = ilParticipants::_isParticipant(
+                    $this->getParentObject()->getRefId(),
+                    $this->user->getId()
+                );
                 if (
                     !$is_admin &&
                     (
-                        $this->getParentObject()->getShowMembers() == 0 ||
-                        !($is_participant || $is_local_or_upper_admin)
+                        $this->getParentObject()->getShowMembers() === 0 ||
+                        !$is_participant
                     )
                 ) {
-                    $ilErr->raiseError($this->lng->txt('msg_no_perm_read'), $ilErr->MESSAGE);
+                    $this->error->raiseError($this->lng->txt('msg_no_perm_read'), $this->error->MESSAGE);
                 }
-// fau.
-                $this->showMailToMemberToolbarButton($GLOBALS['DIC']['ilToolbar'], 'jump2UsersGallery');
-                $this->showMemberExportToolbarButton($GLOBALS['DIC']['ilToolbar'], 'jump2UsersGallery');
 
-                require_once 'Services/User/Gallery/classes/class.ilUsersGalleryGUI.php';
-                require_once 'Services/User/Gallery/classes/class.ilUsersGalleryParticipants.php';
-
+                $this->showMailToMemberToolbarButton($this->toolbar, 'jump2UsersGallery');
+                $this->showMemberExportToolbarButton($this->toolbar, 'jump2UsersGallery');
 
                 $provider = new ilUsersGalleryParticipants($this->getParentObject()->getMembersObject());
                 $gallery_gui = new ilUsersGalleryGUI($provider);
                 $this->ctrl->forwardCommand($gallery_gui);
                 break;
-                
+
             case 'ilcourseparticipantsgroupsgui':
 
-                $this->setSubTabs($GLOBALS['DIC']['ilTabs']);
+                $this->setSubTabs($this->tabs);
                 $this->checkRbacOrPermissionAccess('manage_members', 'manage_members');
-                
-                
-                include_once './Modules/Course/classes/class.ilCourseParticipantsGroupsGUI.php';
+
                 $cmg_gui = new ilCourseParticipantsGroupsGUI($this->getParentObject()->getRefId());
-                if ($cmd == "show" || $cmd = "") {
-                    $this->showMailToMemberToolbarButton($GLOBALS['DIC']['ilToolbar']);
+                if ($cmd === "show" || $cmd = "") {
+                    $this->showMailToMemberToolbarButton($this->toolbar);
                 }
                 $this->ctrl->forwardCommand($cmg_gui);
                 break;
-                
+
             case 'ilsessionoverviewgui':
 
-                $this->setSubTabs($GLOBALS['DIC']['ilTabs']);
+                $this->setSubTabs($this->tabs);
                 $this->checkRbacOrPermissionAccess('manage_members', 'manage_members');
 
-                include_once './Services/Membership/classes/class.ilParticipants.php';
                 $prt = ilParticipants::getInstance($this->getParentObject()->getRefId());
-            
-                include_once('./Modules/Session/classes/class.ilSessionOverviewGUI.php');
+
                 $overview = new ilSessionOverviewGUI($this->getParentObject()->getRefId(), $prt);
                 $this->ctrl->forwardCommand($overview);
                 break;
-            
+
             case 'ilmemberexportgui':
 
-                $this->setSubTabs($GLOBALS['DIC']['ilTabs']);
+                $this->setSubTabs($this->tabs);
                 $this->checkRbacOrPermissionAccess('manage_members', 'manage_members');
 
-                include_once('./Services/Membership/classes/Export/class.ilMemberExportGUI.php');
                 $export = new ilMemberExportGUI($this->getParentObject()->getRefId());
                 $this->ctrl->forwardCommand($export);
                 break;
 
             case 'ilobjectcustomuserfieldsgui':
-                
-                $this->setSubTabs($GLOBALS['DIC']['ilTabs']);
+
+                $this->setSubTabs($this->tabs);
                 $this->checkRbacOrPermissionAccess('manage_members', 'manage_members');
                 $this->activateSubTab($this->getParentObject()->getType() . "_member_administration");
                 $this->ctrl->setReturn($this, 'participants');
-
-                include_once './Services/Membership/classes/class.ilObjectCustomUserFieldsGUI.php';
-                $cdf_gui = new ilObjectCustomUserFieldsGUI($this->getParentGUI()->object->getId());
+                $cdf_gui = new ilObjectCustomUserFieldsGUI($this->getParentGUI()->getObject()->getId());
                 $this->ctrl->forwardCommand($cdf_gui);
                 break;
-                
+
             default:
-
-                $this->setSubTabs($GLOBALS['DIC']['ilTabs']);
-
-// fau: fixPrintForMembers - check permissions when list is generated
-                if ($cmd == 'printForMembersOutput') {
-                    if (
-                        $this->getParentObject()->getType() != 'crs'
-                        || !$this->getParentObject()->getShowMembers()
-                        || !$this->getParentObject()->getShowMembersExport()
-                        || !$this->checkPermissionBool('read')
-                        || !ilParticipants::_isParticipant($this->getParentObject()->getRefId(), $ilUser->getId())
-                    ) {
-                        ilUtil::sendFailure($this->lng->txt('no_permission'), true);
-                        $this->ctrl->redirect($this->getParentGUI());
-                    }
-                }
-// fau.
+                $this->setSubTabs($this->tabs);
                 //exclude mailMembersBtn cmd from this check
                 if (
-                    $cmd == "mailMembersBtn" ||
-                    $cmd == 'membersMap' ||
-                    $cmd == 'printForMembersOutput' ||
-                    $cmd == 'jump2UsersGallery'
+                    $cmd === "mailMembersBtn" ||
+                    $cmd === 'membersMap' ||
+                    $cmd === 'printForMembersOutput' ||
+                    $cmd === 'jump2UsersGallery'
                 ) {
                     $this->checkPermission('read');
                 } else {
                     $this->checkRbacOrPermissionAccess('manage_members', 'manage_members');
                 }
-
                 $this->$cmd();
                 break;
         }
@@ -420,124 +388,145 @@ class ilMembershipGUI
     /**
      * Show participant table, subscriber table, wating list table;
      */
-    protected function participants()
+    protected function participants(): void
     {
         $this->initParticipantTemplate();
         $this->showParticipantsToolbar();
         $this->activateSubTab($this->getParentObject()->getType() . "_member_administration");
-        
+
         // show waiting list table
         $waiting = $this->parseWaitingListTable();
         if ($waiting instanceof ilWaitingListTableGUI) {
             $this->tpl->setVariable('TABLE_WAIT', $waiting->getHTML());
         }
-        
+
         // show subscriber table
         $subscriber = $this->parseSubscriberTable();
         if ($subscriber instanceof ilSubscriberTableGUI) {
             $this->tpl->setVariable('TABLE_SUB', $subscriber->getHTML());
         }
-        
+
         // show member table
         $table = $this->initParticipantTableGUI();
         $table->setTitle($this->lng->txt($this->getParentObject()->getType() . '_mem_tbl_header'));
         $table->setFormAction($this->ctrl->getFormAction($this));
         $table->parse();
-        
+
         // filter commands
         $table->setFilterCommand('participantsApplyFilter');
         $table->setResetCommand('participantsResetFilter');
-        
+
         $this->tpl->setVariable('MEMBERS', $table->getHTML());
     }
-    
+
+    public function getAttendanceListUserData(int $user_id, array $filters = []): array
+    {
+        return [];
+    }
+
     /**
      * Apply filter for participant table
      */
-    protected function participantsApplyFilter()
+    protected function participantsApplyFilter(): void
     {
         $table = $this->initParticipantTableGUI();
         $table->resetOffset();
         $table->writeFilterToSession();
-        
+
         $this->participants();
     }
-    
+
     /**
      * reset participants filter
      */
-    protected function participantsResetFilter()
+    protected function participantsResetFilter(): void
     {
         $table = $this->initParticipantTableGUI();
         $table->resetOffset();
         $table->resetFilter();
-        
+
         $this->participants();
     }
-
 
     /**
      * Edit one participant
      */
-    protected function editMember()
+    protected function editMember(): void
     {
         $this->activateSubTab($this->getParentObject()->getType() . "_member_administration");
-        return $this->editParticipants(array($_REQUEST['member_id']));
+        $this->editParticipants(array($this->initMemberIdFromGet()));
     }
-    
+
     /**
      * Edit participants
-     * @param array $post_participants
+     * @param int[] $post_participants
      */
-    protected function editParticipants($post_participants = array())
+    protected function editParticipants(array $post_participants = array()): void
     {
         if (!$post_participants) {
-            $post_participants = (array) $_POST['participants'];
+            $post_participants = $this->initParticipantsFromPost();
         }
 
         $real_participants = $this->getMembersObject()->getParticipants();
-        $participants = array_intersect((array) $post_participants, (array) $real_participants);
-        
+        $participants = array_intersect($post_participants, $real_participants);
+
         if (!count($participants)) {
-            ilUtil::sendFailure($this->lng->txt('no_checkbox'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('no_checkbox'), true);
             $this->ctrl->redirect($this, 'participants');
         }
         $table = $this->initEditParticipantTableGUI($participants);
         $this->tpl->setContent($table->getHTML());
-        return true;
     }
-    
+
     /**
      * update members
-     *
-     * @access public
-     * @param
-     * @return
      */
-    public function updateParticipants()
+    public function updateParticipants(): void
     {
-        global $DIC;
-
-        $rbacsystem = $DIC['rbacsystem'];
-        $rbacreview = $DIC['rbacreview'];
-        $ilUser = $DIC['ilUser'];
-        $ilAccess = $DIC['ilAccess'];
-                
-        if (!array_key_exists('participants', $_POST) || !count($_POST['participants'])) {
-            ilUtil::sendFailure($this->lng->txt('no_checkbox'), true);
+        $participants = $this->initParticipantsFromPost();
+        if (!count($participants)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('no_checkbox'), true);
             $this->ctrl->redirect($this, 'participants');
         }
-        
-        $notifications = $_POST['notification'] ? $_POST['notification'] : array();
-        $passed = $_POST['passed'] ? $_POST['passed'] : array();
-        $blocked = $_POST['blocked'] ? $_POST['blocked'] : array();
-        $contact = $_POST['contact'] ? $_POST['contact'] : array();
+        $notifications = $passed = $blocked = $contact = [];
+        if ($this->http->wrapper()->post()->has('notification')) {
+            $notifications = $this->http->wrapper()->post()->retrieve(
+                'notification',
+                $this->refinery->kindlyTo()->listOf(
+                    $this->refinery->kindlyTo()->int()
+                )
+            );
+        }
+        if ($this->http->wrapper()->post()->has('passed')) {
+            $passed = $this->http->wrapper()->post()->retrieve(
+                'passed',
+                $this->refinery->kindlyTo()->listOf(
+                    $this->refinery->kindlyTo()->int()
+                )
+            );
+        }
+        if ($this->http->wrapper()->post()->has('blocked')) {
+            $blocked = $this->http->wrapper()->post()->retrieve(
+                'blocked',
+                $this->refinery->kindlyTo()->listOf(
+                    $this->refinery->kindlyTo()->int()
+                )
+            );
+        }
+        if ($this->http->wrapper()->post()->has('contact')) {
+            $contact = $this->http->wrapper()->post()->retrieve(
+                'contact',
+                $this->refinery->kindlyTo()->listOf(
+                    $this->refinery->kindlyTo()->int()
+                )
+            );
+        }
 
         // Determine whether the user has the 'edit_permission' permission
         $hasEditPermissionAccess =
             (
-                $ilAccess->checkAccess('edit_permission', '', $this->getParentObject()->getRefId()) or
-                $this->getMembersObject()->isAdmin($ilUser->getId())
+                $this->access->checkAccess('edit_permission', '', $this->getParentObject()->getRefId()) or
+                $this->getMembersObject()->isAdmin($this->user->getId())
             );
 
         // Get all assignable local roles of the object, and
@@ -547,49 +536,67 @@ class ilMembershipGUI
         foreach ($this->getLocalTypeRole(false) as $title => $role_id) {
             $assignableLocalRoles[$role_id] = $title;
         }
-                
+
+        $post_roles = [];
+        if ($this->http->wrapper()->post()->has('roles')) {
+            $post_roles = $this->http->wrapper()->post()->retrieve(
+                'roles',
+                $this->refinery->kindlyTo()->dictOf(
+                    $this->refinery->kindlyTo()->dictOf(
+                        $this->refinery->kindlyTo()->int()
+                    )
+                )
+            );
+        }
+
         // Validate the user ids and role ids in the post data
-        foreach ($_POST['participants'] as $usr_id) {
-            $memberIsAdmin = $rbacreview->isAssigned($usr_id, $adminRoleId);
-                        
+        foreach ($participants as $usr_id) {
+            $memberIsAdmin = $this->rbacreview->isAssigned($usr_id, (int) $adminRoleId);
+
             // If the current user doesn't have the 'edit_permission'
             // permission, make sure he doesn't remove the course
             // administrator role of members who are course administrator.
-            if (!$hasEditPermissionAccess && $memberIsAdmin &&
-                !in_array($adminRoleId, $_POST['roles'][$usr_id])
+            if (
+                !$hasEditPermissionAccess &&
+                $memberIsAdmin &&
+                (
+                    !is_array($post_roles[$usr_id]) ||
+                    !in_array($adminRoleId, $post_roles[$usr_id])
+                )
             ) {
-                $_POST['roles'][$usr_id][] = $adminRoleId;
+                $post_roles[$usr_id][] = $adminRoleId;
             }
-                        
+
             // Validate the role ids in the post data
-            foreach ((array) $_POST['roles'][$usr_id] as $role_id) {
+            foreach ((array) $post_roles[$usr_id] as $role_id) {
                 if (!array_key_exists($role_id, $assignableLocalRoles)) {
-                    ilUtil::sendFailure($this->lng->txt('msg_no_perm_perm'), true);
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('msg_no_perm_perm'), true);
                     $this->ctrl->redirect($this, 'participants');
                 }
                 if (!$hasEditPermissionAccess &&
                     $role_id == $adminRoleId &&
                     !$memberIsAdmin) {
-                    ilUtil::sendFailure($this->lng->txt('msg_no_perm_perm'));
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('msg_no_perm_perm'));
                     $this->ctrl->redirect($this, 'participants');
                 }
             }
         }
-        
+
         $has_admin = false;
         foreach ($this->getMembersObject()->getAdmins() as $admin_id) {
-            if (!isset($_POST['roles'][$admin_id])) {
+            if (!isset($post_roles[$admin_id])) {
                 $has_admin = true;
                 break;
             }
-            if (in_array($adminRoleId, $_POST['roles'][$admin_id])) {
+            if (in_array($adminRoleId, (array) $post_roles[$admin_id])) {
                 $has_admin = true;
                 break;
             }
         }
 
-        if (!$has_admin && is_array($_POST['roles'])) {
-            foreach ($_POST['roles'] as $usrId => $roleIdsToBeAssigned) {
+        if (!$has_admin && is_array($post_roles)) {
+            // TODO PHP8 Review: Check change of SuperGlobals
+            foreach ($post_roles as $roleIdsToBeAssigned) {
                 if (in_array($adminRoleId, $roleIdsToBeAssigned)) {
                     $has_admin = true;
                     break;
@@ -598,32 +605,38 @@ class ilMembershipGUI
         }
 
         if (!$has_admin) {
-            ilUtil::sendFailure($this->lng->txt($this->getParentObject()->getType() . '_min_one_admin'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt($this->getParentObject()->getType() . '_min_one_admin'), true);
             $this->ctrl->redirect($this, 'participants');
         }
 
-        foreach ($_POST['participants'] as $usr_id) {
-            $this->getMembersObject()->updateRoleAssignments($usr_id, (array) $_POST['roles'][$usr_id]);
-            
+        foreach ($participants as $usr_id) {
+            $this->getMembersObject()->updateRoleAssignments($usr_id, (array) $post_roles[$usr_id]);
+
             // Disable notification for all of them
-            $this->getMembersObject()->updateNotification($usr_id, 0);
-            if (($this->getMembersObject()->isTutor($usr_id) or $this->getMembersObject()->isAdmin($usr_id)) and in_array($usr_id, $notifications)) {
-                $this->getMembersObject()->updateNotification($usr_id, 1);
+            $this->getMembersObject()->updateNotification($usr_id, false);
+            if (($this->getMembersObject()->isTutor($usr_id) || $this->getMembersObject()->isAdmin($usr_id)) && in_array(
+                $usr_id,
+                $notifications
+            )) {
+                $this->getMembersObject()->updateNotification($usr_id, true);
             }
-            
-            $this->getMembersObject()->updateBlocked($usr_id, 0);
-            if ((!$this->getMembersObject()->isAdmin($usr_id) and !$this->getMembersObject()->isTutor($usr_id)) and in_array($usr_id, $blocked)) {
-                $this->getMembersObject()->updateBlocked($usr_id, 1);
+
+            $this->getMembersObject()->updateBlocked($usr_id, false);
+            if ((!$this->getMembersObject()->isAdmin($usr_id) && !$this->getMembersObject()->isTutor($usr_id)) && in_array(
+                $usr_id,
+                $blocked
+            )) {
+                $this->getMembersObject()->updateBlocked($usr_id, true);
             }
-            
+
             if ($this instanceof ilCourseMembershipGUI) {
                 $this->getMembersObject()->updatePassed($usr_id, in_array($usr_id, $passed), true);
                 $this->getMembersObject()->sendNotification(
-                    $this->getMembersObject()->NOTIFY_STATUS_CHANGED,
+                    ilCourseMembershipMailNotification::TYPE_STATUS_CHANGED,
                     $usr_id
                 );
             }
-            
+
             if (
                 ($this->getMembersObject()->isAdmin($usr_id) || $this->getMembersObject()->isTutor($usr_id)) &&
                 in_array($usr_id, $contact)
@@ -632,55 +645,53 @@ class ilMembershipGUI
             } else {
                 $this->getMembersObject()->updateContact($usr_id, false);
             }
-            
+
             $this->updateLPFromStatus($usr_id, in_array($usr_id, $passed));
         }
-        ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
         $this->ctrl->redirect($this, "participants");
     }
-    
+
+    protected function updateLPFromStatus(int $usr_id, bool $has_passed): void
+    {
+    }
+
     /**
      * Show confirmation screen for participants deletion
      */
-    protected function confirmDeleteParticipants()
+    protected function confirmDeleteParticipants(): void
     {
-        global $DIC;
+        $participants = $this->initParticipantsFromPost();
 
-        $ilAccess = $DIC['ilAccess'];
-        $ilUser = $DIC['ilUser'];
-        
-        $participants = (array) $_POST['participants'];
-        
         if (!count($participants)) {
-            ilUtil::sendFailure($this->lng->txt('no_checkbox'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('no_checkbox'), true);
             $this->ctrl->redirect($this, 'participants');
         }
 
         // Check last admin
         if (!$this->getMembersObject()->checkLastAdmin($participants)) {
-            ilUtil::sendFailure($this->lng->txt($this->getParentObject()->getType() . '_at_least_one_admin'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt($this->getParentObject()->getType() . '_at_least_one_admin'), true);
             $this->ctrl->redirect($this, 'participants');
         }
-        
+
         // if only position access is granted, show additional info
         if (!$this->checkPermissionBool('manage_members')) {
             $this->lng->loadLanguageModule('rbac');
-            ilUtil::sendInfo($this->lng->txt('rbac_info_only_position_access'));
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt('rbac_info_only_position_access'));
         }
-        
-        
+
         // Access check for admin deletion
         if (
-            !$ilAccess->checkAccess(
+            !$this->access->checkAccess(
                 'edit_permission',
                 '',
                 $this->getParentObject()->getRefId()
             ) &&
-            !$this->getMembersObject()->isAdmin($GLOBALS['DIC']['ilUser']->getId())
+            !$this->getMembersObject()->isAdmin($this->user->getId())
         ) {
             foreach ($participants as $usr_id) {
                 if ($this->getMembersObject()->isAdmin($usr_id)) {
-                    ilUtil::sendFailure($this->lng->txt("msg_no_perm_perm"), true);
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt("msg_no_perm_perm"), true);
                     $this->ctrl->redirect($this, 'participants');
                 }
             }
@@ -690,96 +701,63 @@ class ilMembershipGUI
             $this->repository_object->getRefId(),
             $participants
         )) {
-            return $this->showDeleteParticipantsConfirmationWithLinkedCourses($participants);
+            $this->showDeleteParticipantsConfirmationWithLinkedCourses($participants);
+            return;
         }
 
-        include_once('./Services/Utilities/classes/class.ilConfirmationGUI.php');
         $confirm = new ilConfirmationGUI();
         $confirm->setFormAction($this->ctrl->getFormAction($this, 'confirmDeleteParticipants'));
         $confirm->setHeaderText($this->lng->txt($this->getParentObject()->getType() . '_header_delete_members'));
         $confirm->setConfirm($this->lng->txt('confirm'), 'deleteParticipants');
         $confirm->setCancel($this->lng->txt('cancel'), 'participants');
-        
+
         foreach ($participants as $usr_id) {
             $name = ilObjUser::_lookupName($usr_id);
 
             $confirm->addItem(
                 'participants[]',
-                $name['user_id'],
+                (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
                 ilUtil::getImagePath('icon_usr.svg')
             );
         }
-        
         $this->tpl->setContent($confirm->getHTML());
     }
-    
-    protected function deleteParticipants()
-    {
-        global $DIC;
 
-        $rbacreview = $DIC['rbacreview'];
-        $rbacsystem = $DIC['rbacsystem'];
-        $ilAccess = $DIC['ilAccess'];
-        $ilUser = $DIC['ilUser'];
-                
-        $participants = (array) $_POST['participants'];
-        
-        if (!is_array($participants) or !count($participants)) {
-            ilUtil::sendFailure($this->lng->txt("no_checkbox"), true);
+    protected function deleteParticipants(): void
+    {
+        $participants = $this->initParticipantsFromPost();
+        if (!count($participants)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_checkbox"), true);
             $this->ctrl->redirect($this, 'participants');
         }
-        
+
         // If the user doesn't have the edit_permission and is not administrator, he may not remove
         // members who have the course administrator role
         if (
-            !$ilAccess->checkAccess('edit_permission', '', $this->getParentObject()->getRefId()) &&
-            !$this->getMembersObject()->isAdmin($GLOBALS['DIC']['ilUser']->getId())
+            !$this->access->checkAccess('edit_permission', '', $this->getParentObject()->getRefId()) &&
+            !$this->getMembersObject()->isAdmin($this->user->getId())
         ) {
             foreach ($participants as $part) {
                 if ($this->getMembersObject()->isAdmin($part)) {
-                    ilUtil::sendFailure($this->lng->txt('msg_no_perm_perm'), true);
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('msg_no_perm_perm'), true);
                     $this->ctrl->redirect($this, 'participants');
                 }
             }
         }
 
-
-        // fau: paraSub - delete also the group membership
-        // fau: campoSub - note the unsubscription
-        if ($this->getParentObject()->getType() == 'crs' && $this->getParentObject()->hasParallelGroups()) {
-            foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->getParentObject()->getRefId()) as $group) {
-                foreach ($participants as $user_id) {
-                    $groupParticipant = new ilGroupParticipant($group->getObjId(), $user_id);
-                    if ($groupParticipant->isMember()) {
-                        $groupParticipant->delete($user_id);
-                        $DIC->fau()->user()->deleteMembership($group->getObjId(), $user_id);
-                    }
-                }
-            }
-        }
-        else {
-            foreach ($participants as $user_id) {
-                $DIC->fau()->user()->deleteMembership($this->getParentObject()->getId(), $user_id);
-            }
-        }
-        // fau.
-
-
-
         if (!$this->getMembersObject()->deleteParticipants($participants)) {
-            ilUtil::sendFailure('Error deleting participants.', true);
+            $this->tpl->setOnScreenMessage('failure', 'Error deleting participants.', true);
             $this->ctrl->redirect($this, 'participants');
         } else {
-            foreach ((array) $_POST["participants"] as $usr_id) {
+            foreach ($participants as $usr_id) {
                 $mail_type = 0;
                 // @todo more generic
                 switch ($this->getParentObject()->getType()) {
                     case 'crs':
-                        $mail_type = $this->getMembersObject()->NOTIFY_DISMISS_MEMBER;
+                        $mail_type = ilCourseMembershipMailNotification::TYPE_DISMISS_MEMBER;
                         break;
                     case 'grp':
-                        include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
                         $mail_type = ilGroupMembershipMailNotification::TYPE_DISMISS_MEMBER;
                         break;
                     case 'lso':
@@ -789,38 +767,31 @@ class ilMembershipGUI
                 $this->getMembersObject()->sendNotification($mail_type, $usr_id);
             }
         }
-        ilUtil::sendSuccess($this->lng->txt($this->getParentObject()->getType() . "_members_deleted"), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt($this->getParentObject()->getType() . "_members_deleted"), true);
         $this->ctrl->redirect($this, "participants");
-
-        return true;
     }
-    
-    /**
-     * Send mail to selected users
-     */
-    protected function sendMailToSelectedUsers()
+
+    protected function sendMailToSelectedUsers(): void
     {
         $participants = [];
-        if ($_POST['participants']) {
-            $participants = (array) $_POST['participants'];
-        } elseif ($_POST['subscribers']) {
-            $participants = (array) $_POST['subscribers'];
-        } elseif ($_POST['waiting']) {
-            $participants = (array) $_POST['waiting'];
-        } elseif ($_GET['member_id']) {
-            $participants = array($_GET['member_id']);
+        if ($this->http->wrapper()->post()->has('participants')) {
+            $participants = $this->initParticipantsFromPost();
+        } elseif ($this->http->wrapper()->post()->has('subscribers')) {
+            $participants = $this->initSubscribersFromPost();
+        } elseif ($this->http->wrapper()->post()->has('waiting')) {
+            $participants = $this->initWaitingListIdsFromPost();
+        } elseif ($this->http->wrapper()->query()->has('member_id')) {
+            $participants = [$this->initMemberIdFromGet()];
         }
-
         if (!count($participants)) {
-            ilUtil::sendFailure($this->lng->txt("no_checkbox"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_checkbox"), true);
             $this->ctrl->redirect($this, 'participants');
         }
-        
+
+        $rcps = [];
         foreach ($participants as $usr_id) {
             $rcps[] = ilObjUser::_lookupLogin($usr_id);
         }
-
-
         $context_options = $this->getMailContextOptions();
 
         ilMailFormCall::setRecipients($rcps);
@@ -838,29 +809,21 @@ class ilMembershipGUI
         );
     }
 
-    /**
-     * @return array
-     */
-    protected function getMailContextOptions() : array
+    protected function getMailContextOptions(): array
     {
         return [];
     }
 
-    
     /**
      * Members map
      */
-    protected function membersMap()
+    protected function membersMap(): void
     {
-        global $DIC;
-
-        $tpl = $DIC['tpl'];
         $this->activateSubTab($this->getParentObject()->getType() . "_members_map");
-        include_once("./Services/Maps/classes/class.ilMapUtil.php");
         if (!ilMapUtil::isActivated() || !$this->getParentObject()->getEnableMap()) {
             return;
         }
-        
+
         $map = ilMapUtil::getMapGUI();
         $map->setMapId("course_map")
             ->setWidth("700px")
@@ -872,46 +835,29 @@ class ilMembershipGUI
             ->setEnableNavigationControl(true)
             ->setEnableCentralMarker(true);
 
-        include_once './Services/Membership/classes/class.ilParticipants.php';
         $members = ilParticipants::getInstanceByObjId($this->getParentObject()->getId())->getParticipants();
-        foreach ((array) $members as $user_id) {
+        foreach ($members as $user_id) {
             $map->addUserMarker($user_id);
         }
 
-        $tpl->setContent($map->getHTML());
-        $tpl->setLeftContent($map->getUserListHTML());
+        $this->tpl->setContent($map->getHtml());
+        $this->tpl->setLeftContent($map->getUserListHtml());
     }
-    
-    /**
-     * Mail to members view
-     * @global type $ilToolbar
-     */
-    protected function mailMembersBtn()
-    {
-        global $DIC;
 
-        $ilToolbar = $DIC['ilToolbar'];
-        
-        $this->showMailToMemberToolbarButton($GLOBALS['DIC']['ilToolbar'], 'mailMembersBtn');
+    protected function mailMembersBtn(): void
+    {
+        $this->showMailToMemberToolbarButton($this->toolbar, 'mailMembersBtn');
     }
-    
-    
-    
-    
+
     /**
      * Show participants toolbar
      */
-    protected function showParticipantsToolbar()
+    protected function showParticipantsToolbar(): void
     {
-        global $DIC;
-
-        $ilToolbar = $DIC['ilToolbar'];
-        
         if ($this->canAddOrSearchUsers()) {
-            include_once './Services/Search/classes/class.ilRepositorySearchGUI.php';
             ilRepositorySearchGUI::fillAutoCompleteToolbar(
                 $this,
-                $ilToolbar,
+                $this->toolbar,
                 array(
                     'auto_complete_name' => $this->lng->txt('user'),
                     'user_type' => $this->getParentGUI()->getLocalRoles(),
@@ -921,10 +867,10 @@ class ilMembershipGUI
             );
 
             // spacer
-            $ilToolbar->addSeparator();
+            $this->toolbar->addSeparator();
 
             // search button
-            $ilToolbar->addButton(
+            $this->toolbar->addButton(
                 $this->lng->txt($this->getParentObject()->getType() . "_search_users"),
                 $this->ctrl->getLinkTargetByClass(
                     'ilRepositorySearchGUI',
@@ -933,28 +879,24 @@ class ilMembershipGUI
             );
 
             // separator
-            $ilToolbar->addSeparator();
+            $this->toolbar->addSeparator();
         }
-            
+
         // print button
-        $ilToolbar->addButton(
+        $this->toolbar->addButton(
             $this->lng->txt($this->getParentObject()->getType() . "_print_list"),
             $this->ctrl->getLinkTarget($this, 'printMembers')
         );
-        
-        $this->showMailToMemberToolbarButton($ilToolbar, 'participants', false);
+        $this->showMailToMemberToolbarButton($this->toolbar, 'participants', false);
     }
-    
-    /**
-     * Show member export button
-     * @param ilToolbarGUI $toolbar
-     * @param type $a_back_cmd
-     * @param type $a_separator
-     */
-    protected function showMemberExportToolbarButton(ilToolbarGUI $toolbar, $a_back_cmd = null, $a_separator = false)
-    {
+
+    protected function showMemberExportToolbarButton(
+        ilToolbarGUI $toolbar,
+        ?string $a_back_cmd = null,
+        bool $a_separator = false
+    ): void {
         if (
-            $this->getParentObject()->getType() == 'crs' &&
+            $this->getParentObject()->getType() === 'crs' &&
             $this->getParentObject()->getShowMembersExport()) {
             if ($a_separator) {
                 $toolbar->addSeparator();
@@ -970,39 +912,28 @@ class ilMembershipGUI
         }
     }
 
-
-
-
-
     /**
      * Show mail to member toolbar button
      */
-    protected function showMailToMemberToolbarButton(ilToolbarGUI $toolbar, $a_back_cmd = null, $a_separator = false)
-    {
-        global $DIC;
-
-        $ilUser = $DIC['ilUser'];
-        $rbacsystem = $DIC['rbacsystem'];
-        $ilAccess = $DIC['ilAccess'];
-        include_once 'Services/Mail/classes/class.ilMail.php';
-        $mail = new ilMail($ilUser->getId());
+    protected function showMailToMemberToolbarButton(
+        ilToolbarGUI $toolbar,
+        ?string $a_back_cmd = null,
+        bool $a_separator = false
+    ): void {
+        $mail = new ilMail($this->user->getId());
 
         if (
-// fau: mailToMembers - visibility of the mail button
-            $GLOBALS['rbacsystem']->checkAccess('internal_mail', $mail->getMailObjectReferenceId()) &&
+            ($this->getParentObject()->getMailToMembersType() === 1) ||
             (
-                ($this->getParentObject()->getMailToMembersType() == 1) ||
-                $ilAccess->checkAccess('manage_members', "", $this->getParentObject()->getRefId()) ||
-                ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId()) ||
-                ilParticipants::_isTutor($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId())
+                $this->access->checkAccess('manage_members', "", $this->getParentObject()->getRefId()) &&
+                $this->rbacsystem->checkAccess('internal_mail', $mail->getMailObjectReferenceId())
             )
-// fau.
         ) {
             if ($a_separator) {
                 $toolbar->addSeparator();
             }
 
-            if ($a_back_cmd) {
+            if ($a_back_cmd !== null) {
                 $this->ctrl->setParameter($this, "back_cmd", $a_back_cmd);
             }
 
@@ -1012,21 +943,17 @@ class ilMembershipGUI
             );
         }
     }
-    
+
     /**
-     * @todo better implementation
      * Create Mail signature
+     * @todo better implementation
      */
-    public function createMailSignature()
+    public function createMailSignature(): string
     {
         return $this->getParentGUI()->createMailSignature();
     }
 
-    /**
-     * Get default command
-     * @return string
-     */
-    protected function getDefaultCommand()
+    protected function getDefaultCommand(): string
     {
         $has_manage_members_permission = $this->checkRbacOrPositionAccessBool(
             'manage_members',
@@ -1043,19 +970,9 @@ class ilMembershipGUI
         return 'mailMembersBtn';
     }
 
-    /**
-     * add member tab
-     * @param ilTabsGUI $tabs
-     * @param bool      $a_is_participant
-     */
-    public function addMemberTab(ilTabsGUI $tabs, $a_is_participant = false)
+    public function addMemberTab(ilTabsGUI $tabs, bool $a_is_participant = false): void
     {
-        global $DIC;
-
-        $ilAccess = $DIC['ilAccess'];
-        
-        include_once './Services/Mail/classes/class.ilMail.php';
-        $mail = new ilMail($GLOBALS['DIC']['ilUser']->getId());
+        $mail = new ilMail($this->user->getId());
 
         $member_tab_name = $this->getMemberTabName();
 
@@ -1064,8 +981,6 @@ class ilMembershipGUI
             'manage_members',
             $this->getParentObject()->getRefId()
         );
-        // fau: mailToMembers - show member gallery or mail to members tab to local or upper admins
-        $is_local_or_upper_admin = ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId());
 
         if ($has_manage_members_permission) {
             $tabs->addTab(
@@ -1074,20 +989,18 @@ class ilMembershipGUI
                 $this->ctrl->getLinkTarget($this, '')
             );
         } elseif (
-            (bool) $this->getParentObject()->getShowMembers() && ($a_is_participant || $is_local_or_upper_admin)
+            $this->getParentObject()->getShowMembers() &&
+            $a_is_participant
         ) {
             $tabs->addTab(
                 'members',
                 $member_tab_name,
-                $this->ctrl->getLinkTargetByClass(array(get_class($this),'ilusersgallerygui'), 'view')
+                $this->ctrl->getLinkTargetByClass(array(get_class($this), 'ilusersgallerygui'), 'view')
             );
         } elseif (
-            $GLOBALS['DIC']['rbacsystem']->checkAccess('internal_mail', $mail->getMailObjectReferenceId()) &&
-            (
-                ($this->getParentObject()->getMailToMembersType() == 1 && $a_is_participant) || $is_local_or_upper_admin ||
-                ilParticipants::_isTutor($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId())
-            )
-// fau.
+            $this->getParentObject()->getMailToMembersType() === 1 &&
+            $this->rbacsystem->checkAccess('internal_mail', $mail->getMailObjectReferenceId()) &&
+            $a_is_participant
         ) {
             $tabs->addTab(
                 'members',
@@ -1097,25 +1010,21 @@ class ilMembershipGUI
         }
     }
 
-    /**
-     * Get member tab name
-     * @return string
-     */
-    protected function getMemberTabName()
+    protected function getMemberTabName(): string
     {
         return $this->lng->txt('members');
     }
-    
+
     /**
      * Set sub tabs
      */
-    protected function setSubTabs(ilTabsGUI $tabs)
+    protected function setSubTabs(ilTabsGUI $tabs): void
     {
-        global $DIC;
-
-        $ilAccess = $DIC['ilAccess'];
-        
-        if ($this->checkRbacOrPositionAccessBool('manage_members', 'manage_members', $this->getParentObject()->getRefId())) {
+        if ($this->checkRbacOrPositionAccessBool(
+            'manage_members',
+            'manage_members',
+            $this->getParentObject()->getRefId()
+        )) {
             $tabs->addSubTabTarget(
                 $this->getParentObject()->getType() . "_member_administration",
                 $this->ctrl->getLinkTarget($this, 'participants'),
@@ -1132,21 +1041,23 @@ class ilMembershipGUI
                     "ilCourseParticipantsGroupsGUI"
                 );
             }
-            
-            $tree = $DIC->repositoryTree();
-            $children = (array) $tree->getSubTree($tree->getNodeData($this->getParentObject()->getRefId()), false, 'sess');
+
+            $children = $this->tree->getSubTree(
+                $this->tree->getNodeData($this->getParentObject()->getRefId()),
+                false,
+                ['sess']
+            );
             if (count($children)) {
                 $tabs->addSubTabTarget(
                     'events',
-                    $this->ctrl->getLinkTargetByClass(array(get_class($this),'ilsessionoverviewgui'), 'listSessions'),
+                    $this->ctrl->getLinkTargetByClass(array(get_class($this), 'ilsessionoverviewgui'), 'listSessions'),
                     '',
                     'ilsessionoverviewgui'
                 );
             }
-
             $tabs->addSubTabTarget(
                 $this->getParentObject()->getType() . '_members_gallery',
-                $this->ctrl->getLinkTargetByClass(array(get_class($this),'ilUsersGalleryGUI')),
+                $this->ctrl->getLinkTargetByClass(array(get_class($this), 'ilUsersGalleryGUI')),
                 'view',
                 'ilUsersGalleryGUI'
             );
@@ -1154,13 +1065,12 @@ class ilMembershipGUI
             // gallery
             $tabs->addSubTabTarget(
                 $this->getParentObject()->getType() . '_members_gallery',
-                $this->ctrl->getLinkTargetByClass(array(get_class($this),'ilUsersGalleryGUI')),
+                $this->ctrl->getLinkTargetByClass(array(get_class($this), 'ilUsersGalleryGUI')),
                 'view',
                 'ilUsersGalleryGUI'
             );
         }
-        
-        include_once './Services/Maps/classes/class.ilMapUtil.php';
+
         if (ilMapUtil::isActivated() && $this->getParentObject()->getEnableMap()) {
             $tabs->addSubTabTarget(
                 $this->getParentObject()->getType() . '_members_map',
@@ -1169,51 +1079,38 @@ class ilMembershipGUI
                 get_class($this)
             );
         }
-        
-        include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
-        // fau: extendedAccess - show export tab even if general export permission is not given to the user (permission is handled on the tab)
-        global $DIC;
-        $privacy = ilPrivacySettings::_getInstance();
-        if ($this->getParentObject() instanceof ilObjCourse) {
-            $enabled = $privacy->enabledCourseExport();
-        }
-        if ($this->getParentObject() instanceof ilObjGroup) {
-            $enabled = $privacy->enabledGroupExport();
-        }
-        if ($enabled && $DIC->access()->checkAccess('manage_members', '', $this->getParentObject()->getRefId())) {
+
+        if (ilPrivacySettings::getInstance()->checkExportAccess($this->getParentObject()->getRefId())) {
             $tabs->addSubTabTarget(
                 'export_members',
-                $this->ctrl->getLinkTargetByClass(array(get_class($this),'ilmemberexportgui'), 'show'),
+                $this->ctrl->getLinkTargetByClass(array(get_class($this), 'ilmemberexportgui'), 'show'),
                 '',
                 'ilmemberexportgui'
             );
         }
-        // fau.
     }
-    
+
     /**
      * Required for member table guis.
-     * Has to be refactored and should be locate in ilObjCourse, ilObjGroup instead of GUI
-     * @return array
+     * @todo needs refactoring and should not be located in GUI classes
      */
-    public function readMemberData(array $usr_ids, array $columns)
+    public function readMemberData(array $usr_ids, array $columns): array
     {
         return $this->getParentGUI()->readMemberData($usr_ids, $columns);
     }
-    
+
     /**
-     * Get parent roles
-     * @return type
+     * @return array<int, string>
      */
-    public function getLocalRoles()
+    public function getLocalRoles(): array
     {
         return $this->getParentGUI()->getLocalRoles();
     }
-    
+
     /**
      * Parse table of subscription request
      */
-    protected function parseSubscriberTable()
+    protected function parseSubscriberTable(): ?ilSubscriberTableGUI
     {
         $subscribers = $this->getMembersObject()->getSubscribers();
         $filtered_subscribers = $this->filterUserIdsByRbacOrPositionOfCurrentUser($subscribers);
@@ -1227,28 +1124,24 @@ class ilMembershipGUI
         return $subscriber;
     }
 
-    /**
-     * @return \ilSubscriberTableGUI
-     */
-    protected function initSubscriberTable()
+    protected function initSubscriberTable(): ilSubscriberTableGUI
     {
-        $subscriber = new \ilSubscriberTableGUI($this, $this->getParentObject(), true, true);
+        $subscriber = new ilSubscriberTableGUI($this, $this->getParentObject(), true, true);
         $subscriber->setTitle($this->lng->txt('group_new_registrations'));
         return $subscriber;
     }
-    
+
     /**
      * Show subscription confirmation
-     * @return boolean
      */
-    public function confirmAssignSubscribers()
+    public function confirmAssignSubscribers(): void
     {
-        if (!is_array($_POST["subscribers"])) {
-            ilUtil::sendFailure($this->lng->txt("crs_no_subscribers_selected"), true);
+        $subscribers = $this->initSubscribersFromPost();
+        if (!count($subscribers)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("crs_no_subscribers_selected"), true);
             $this->ctrl->redirect($this, 'participants');
         }
 
-        include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
         $c_gui = new ilConfirmationGUI();
 
         // set confirm/cancel commands
@@ -1257,84 +1150,71 @@ class ilMembershipGUI
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
         $c_gui->setConfirm($this->lng->txt("confirm"), "assignSubscribers");
 
-        foreach ($_POST["subscribers"] as $subscribers) {
-            $name = ilObjUser::_lookupName($subscribers);
+        foreach ($subscribers as $subscriber) {
+            $name = ilObjUser::_lookupName($subscriber);
 
             $c_gui->addItem(
                 'subscribers[]',
-                $name['user_id'],
+                (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
                 ilUtil::getImagePath('icon_usr.svg')
             );
         }
-
         $this->tpl->setContent($c_gui->getHTML());
-        return true;
     }
-    
+
     /**
      * Refuse subscriber confirmation
-     * @return boolean
      */
-    public function confirmRefuseSubscribers()
+    public function confirmRefuseSubscribers(): void
     {
-        if (!is_array($_POST["subscribers"])) {
-            ilUtil::sendFailure($this->lng->txt("crs_no_subscribers_selected"), true);
+        $subscribers = $this->initSubscribersFromPost();
+        if (!count($subscribers)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("crs_no_subscribers_selected"), true);
             $this->ctrl->redirect($this, 'participants');
         }
-
         $this->lng->loadLanguageModule('mmbr');
-
-        include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
         $c_gui = new ilConfirmationGUI();
-
         // set confirm/cancel commands
         $c_gui->setFormAction($this->ctrl->getFormAction($this, "refuseSubscribers"));
         $c_gui->setHeaderText($this->lng->txt("info_refuse_sure"));
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
         $c_gui->setConfirm($this->lng->txt("confirm"), "refuseSubscribers");
 
-        foreach ($_POST["subscribers"] as $subscribers) {
-            $name = ilObjUser::_lookupName($subscribers);
+        foreach ($subscribers as $subscriber_id) {
+            $name = ilObjUser::_lookupName($subscriber_id);
 
             $c_gui->addItem(
                 'subscribers[]',
-                $name['user_id'],
+                (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
                 ilUtil::getImagePath('icon_usr.svg')
             );
         }
 
         $this->tpl->setContent($c_gui->getHTML());
-        return true;
     }
-    
-    /**
-     * Refuse subscribers
-     * @global type $rbacsystem
-     * @return boolean
-     */
-    protected function refuseSubscribers()
+
+    protected function refuseSubscribers(): void
     {
-        global $DIC;
-
-        $rbacsystem = $DIC['rbacsystem'];
-
-        if (!$_POST['subscribers']) {
-            ilUtil::sendFailure($this->lng->txt("crs_no_subscribers_selected"), true);
+        $subscribers = $this->initSubscribersFromPost();
+        if (!count($subscribers)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("crs_no_subscribers_selected"), true);
             $this->ctrl->redirect($this, 'participants');
         }
-    
-        if (!$this->getMembersObject()->deleteSubscribers($_POST["subscribers"])) {
-            ilUtil::sendFailure($GLOBALS['DIC']['ilErr']->getMessage(), true);
+
+        if (!$this->getMembersObject()->deleteSubscribers($subscribers)) {
+            $this->tpl->setOnScreenMessage('failure', $this->error->getMessage(), true);
             $this->ctrl->redirect($this, 'participants');
         } else {
-            foreach ($_POST['subscribers'] as $usr_id) {
+            foreach ($subscribers as $usr_id) {
                 if ($this instanceof ilCourseMembershipGUI) {
-                    $this->getMembersObject()->sendNotification($this->getMembersObject()->NOTIFY_DISMISS_SUBSCRIBER, $usr_id);
+                    $this->getMembersObject()->sendNotification(
+                        ilCourseMembershipMailNotification::TYPE_REFUSED_SUBSCRIPTION_MEMBER,
+                        $usr_id
+                    );
                 }
                 if ($this instanceof ilGroupMembershipGUI) {
-                    include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
                     $this->getMembersObject()->sendNotification(
                         ilGroupMembershipMailNotification::TYPE_REFUSED_SUBSCRIPTION_MEMBER,
                         $usr_id
@@ -1356,38 +1236,34 @@ class ilMembershipGUI
             }
         }
 
-        ilUtil::sendSuccess($this->lng->txt("crs_subscribers_deleted"), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("crs_subscribers_deleted"), true);
         $this->ctrl->redirect($this, 'participants');
     }
-    
+
     /**
      * Do assignment of subscription request
-     * @global type $rbacsystem
-     * @global type $ilErr
-     * @return boolean
      */
-    public function assignSubscribers()
+    public function assignSubscribers(): void
     {
-        global $DIC;
-
-        $ilErr = $DIC['ilErr'];
-        
-        if (!is_array($_POST["subscribers"])) {
-            ilUtil::sendFailure($this->lng->txt("crs_no_subscribers_selected"), true);
+        $subscribers = $this->initSubscribersFromPost();
+        if (!count($subscribers)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("crs_no_subscribers_selected"), true);
             $this->ctrl->redirect($this, 'participants');
         }
-        
-        if (!$this->getMembersObject()->assignSubscribers($_POST["subscribers"])) {
-            ilUtil::sendFailure($ilErr->getMessage(), true);
+
+        if (!$this->getMembersObject()->assignSubscribers($subscribers)) {
+            $this->tpl->setOnScreenMessage('failure', $this->error->getMessage(), true);
             $this->ctrl->redirect($this, 'participants');
         } else {
-            foreach ($_POST["subscribers"] as $usr_id) {
+            foreach ($subscribers as $usr_id) {
                 if ($this instanceof ilCourseMembershipGUI) {
-                    $this->getMembersObject()->sendNotification($this->getMembersObject()->NOTIFY_ACCEPT_SUBSCRIBER, $usr_id);
+                    $this->getMembersObject()->sendNotification(
+                        ilCourseMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER,
+                        $usr_id
+                    );
                     $this->getParentObject()->checkLPStatusSync($usr_id);
                 }
                 if ($this instanceof ilGroupMembershipGUI) {
-                    include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
                     $this->getMembersObject()->sendNotification(
                         ilGroupMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER,
                         $usr_id
@@ -1395,7 +1271,6 @@ class ilMembershipGUI
                 }
                 if ($this instanceof ilSessionMembershipGUI) {
                     // todo refactor to participants
-                    include_once './Modules/Session/classes/class.ilSessionMembershipMailNotification.php';
                     $noti = new ilSessionMembershipMailNotification();
                     $noti->setRefId($this->getParentObject()->getRefId());
                     $noti->setRecipients(array($usr_id));
@@ -1404,79 +1279,55 @@ class ilMembershipGUI
                 }
             }
         }
-        ilUtil::sendSuccess($this->lng->txt("crs_subscribers_assigned"), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("crs_subscribers_assigned"), true);
         $this->ctrl->redirect($this, 'participants');
     }
-    
+
     /**
      * Parse table of subscription request
-     * @return ilWaitingListTableGUI
      */
-    protected function parseWaitingListTable()
+    protected function parseWaitingListTable(): ?ilWaitingListTableGUI
     {
-        /** @var ilWaitingList $wait */
         $wait = $this->initWaitingList();
-        
+
         $wait_users = $this->filterUserIdsByRbacOrPositionOfCurrentUser($wait->getUserIds());
         if (!count($wait_users)) {
             return null;
         }
 
-        include_once './Services/Membership/classes/class.ilWaitingListTableGUI.php';
         $waiting_table = new ilWaitingListTableGUI($this, $this->getParentObject(), $wait);
         $waiting_table->setUserIds(
             $wait_users
         );
         $waiting_table->readUserData();
         $waiting_table->setTitle($this->lng->txt('crs_waiting_list'));
-        
+
         return $waiting_table;
     }
 
-    // fau: fairSub - new function confirmAcceptOnListObject()
     /**
-     * Confirm to accept subscription requests on the waiting list
+     * Assign from waiting list (confirmatoin)
      */
-    public function confirmAcceptOnList()
+    public function confirmAssignFromWaitingList(): void
     {
-        global $DIC;
-
-        if (!empty($_GET['member_id'])) {
-            $_POST["waiting"] = array($_GET['member_id']);
-        }
-
-        /** @var ilWaitingList $wait */
-        $wait = $this->initWaitingList();
-
-        $requests = array();
-        foreach ((array) $_POST["waiting"] as $user_id) {
-            if ($wait->isToConfirm($user_id)) {
-                $requests[] = (int) $user_id;
-            }
-        }
-
-        if (empty($requests)) {
-            ilUtil::sendFailure($this->lng->txt("sub_select_one_request"), true);
+        $waiting_list_ids = $this->initWaitingListIdsFromPost();
+        if (!count($waiting_list_ids)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("crs_no_users_selected"), true);
             $this->ctrl->redirect($this, 'participants');
         }
-
         $c_gui = new ilConfirmationGUI();
-
         // set confirm/cancel commands
-        $c_gui->setFormAction($this->ctrl->getFormAction($this, "acceptOnList"));
-        if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
-            $add_to_question = '<br><small>' . $this->lng->txt('fau_sub_accept_all_groups') . '</small>';
-        }
-        $c_gui->setHeaderText($this->lng->txt("sub_confirm_request_question") . $add_to_question);
+        $c_gui->setFormAction($this->ctrl->getFormAction($this, "assignFromWaitingList"));
+        $c_gui->setHeaderText($this->lng->txt("info_assign_sure"));
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
-        $c_gui->setConfirm($this->lng->txt("confirm"), "acceptOnList");
+        $c_gui->setConfirm($this->lng->txt("confirm"), "assignFromWaitingList");
 
-        foreach ($requests as $waiting) {
+        foreach ($waiting_list_ids as $waiting) {
             $name = ilObjUser::_lookupName($waiting);
 
             $c_gui->addItem(
                 'waiting[]',
-                $name['user_id'],
+                (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
                 ilUtil::getImagePath('icon_usr.svg')
             );
@@ -1484,392 +1335,130 @@ class ilMembershipGUI
 
         $this->tpl->setContent($c_gui->getHTML());
     }
-    // fau.
 
-
-    // fau: fairSub - accept subscription request on the waiting list
-    /**
-     * Accept subscription request(s) on the waiting list
-     * try to fill free places with these users
-     */
-    public function acceptOnList()
-    {
-        global $DIC;
-
-        if (!count($_POST['waiting'])) {
-            ilUtil::sendFailure($this->lng->txt("sub_select_one_request"), true);
-            $this->ctrl->redirect($this, 'participants');
-            return false;
-        }
-
-        // get the affected waiting lists
-        // get the registration object for further processing
-        // for parallel groups get the registration of the parent course
-        // this will send a notification related to the course because the group is not yet accessible to the user
-        if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
-            $waiting_lists = $DIC->fau()->ilias()->objects()->getCourseAndParallelGroupsWaitingLists($this->getParentObject()->getRefId());
-            if ($this->getParentObject()->isParallelGroup()) {
-                $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->getParentObject()->getRefId());
-                $registration = $DIC->fau()->ilias()->getRegistration(new ilObjCourse($course_ref_id));
-            } else {
-                $registration = $DIC->fau()->ilias()->getRegistration($this->getParentObject());
-            }
-        }
-        else {
-            $waiting_lists = [$this->initWaitingList()];
-            $registration = $DIC->fau()->ilias()->getRegistration($this->getParentObject());
-        }
-
-        // accept users, but keep them on the waiting list
-        $accepted = [];
-        foreach ($_POST["waiting"] as $user_id) {
-            foreach ($waiting_lists as $list) {
-                if ($list->isOnList($user_id)) {
-                    $list->acceptOnList($user_id);
-                }
-            }
-            $accepted[] = $user_id;
-        }
-
-        // try to fill free places
-        // call it with 'manual' mode to suppress the sending of admin notifications
-        $added = $registration->doAutoFill(true);
-
-        // notify all users that were accepted but kept on the waiting list
-        $accepted_waiting = array_diff($accepted, $added);
-        if (!empty($accepted_waiting)) {
-            $mail = $registration->getMembershipMailNotification();
-            $mail->setType(\FAU\Ilias\Registration::notificationAcceptedStillWaiting);
-            $mail->setRefId($registration->getObject()->getRefId());
-            $mail->setWaitingList($registration->getObject()->getWaitingList());
-            $mail->setRecipients($accepted_waiting);
-            $mail->send();
-        }
-
-        // show success about accepted and added users
-        $messages = array();
-        $messages[] = sprintf($this->lng->txt(count($accepted) == 1 ? 'sub_confirmed_request' : 'sub_confirmed_requests'), count($accepted));
-        if (!empty($added)) {
-            $messages[] = sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added));
-        }
-        ilUtil::sendSuccess(implode('<br />', $messages), true);
-        $this->ctrl->redirect($this, 'participants');
-    }
-    // fau.
-
-    // fau: fairSub - new function confirmFillFreePlacesObject
-    /**
-     * Confirm to fill the free places
-     */
-    public function confirmFillFreePlaces()
-    {
-        $c_gui = new ilConfirmationGUI();
-        $c_gui->setFormAction($this->ctrl->getFormAction($this, "fillFreePlaces"));
-        $c_gui->setHeaderText($this->lng->txt('sub_fill_free_places_question'));
-        $c_gui->setCancel($this->lng->txt("cancel"), "participants");
-        $c_gui->setConfirm($this->lng->txt("confirm"), "fillFreePlaces");
-
-        $this->tpl->setContent($c_gui->getHTML());
-    }
-    // fau.
-
-
-    // fau: fairSub - new function fillFreePlacesObject()
-    /**
-     * Fill free places from the waiting list
-     */
-    public function fillFreePlaces()
-    {
-        global $DIC;
-        /** @var ilObjCourse|ilObjGroup $object */
-        $object = $this->getParentObject();
-        $added = $DIC->fau()->ilias()->getRegistration($object)->doAutoFill(true);
-
-        if (count($added)) {
-            ilUtil::sendSuccess(sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added)), true);
-            $this->ctrl->redirect($this, 'participants');
-        } else {
-            ilUtil::sendFailure($this->lng->txt('sub_no_member_added'), true);
-            $this->ctrl->redirect($this, 'participants');
-        }
-    }
-    // fau.
-
-    /**
-     * Assign from waiting list (confirmatoin)
-     * @return boolean
-     */
-    public function confirmAssignFromWaitingList()
-    {
-        if (!is_array($_POST["waiting"])) {
-            ilUtil::sendFailure($this->lng->txt("crs_no_users_selected"), true);
-            $this->ctrl->redirect($this, 'participants');
-        }
-
-        
-        include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
-        $c_gui = new ilConfirmationGUI();
-
-        // set confirm/cancel commands
-        $c_gui->setFormAction($this->ctrl->getFormAction($this, "assignFromWaitingList"));
-        // fau: fairSub - add message about fairness for adding members directly from waiting list
-        if ($this instanceof ilCourseMembershipGUI || $this instanceof ilGroupMembershipGUI) {
-            $grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this->getParentObject());
-            $question = $this->lng->txt("info_assign_sure");
-            $question .= '<br /><span class="small">' . $this->lng->txt('sub_assign_waiting_fair_info') . '</span>';
-            if (!empty($grouping_ref_ids)) {
-                $question .= '<br /><span class="small">' . $this->lng->txt('sub_assign_waiting_groupings_info') . '</span>';
-            }
-            $c_gui->setHeaderText($question);
-        } else {
-            $c_gui->setHeaderText($this->lng->txt("info_assign_sure"));
-        }
-        // fau.
-        $c_gui->setCancel($this->lng->txt("cancel"), "participants");
-        $c_gui->setConfirm($this->lng->txt("confirm"), "assignFromWaitingList");
-
-        // fau: paraSub - show info if no group can be assigned
-        global $DIC;
-        /** @var ilContainer $object */
-        $object = $this->getParentObject();
-        $registration = $DIC->fau()->ilias()->getRegistration($object);
-
-        foreach ($_POST["waiting"] as $waiting) {
-            $name = ilObjUser::_lookupName($waiting);
-
-            $possible = true;
-            $notice = "";
-            if ($object->hasParallelGroups() && empty($registration->getFillableGroups((int) $waiting))) {
-                $possible = false;
-                $notice = '<br><small>' . $this->lng->txt('fau_add_no_group_possible') . '</small>';
-            }
-
-            $c_gui->addItem(
-                'waiting[]',
-                $name['user_id'],
-                $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']' . $notice,
-                $possible? ilUtil::getImagePath('icon_usr.svg') : ilUtil::getImagePath('outlined/icon_usr.svg')
-            );
-        }
-        // fau.
-
-        $this->tpl->setContent($c_gui->getHTML());
-        return true;
-    }
-    
     /**
      * Assign from waiting list
-     * @global type $rbacsystem
-     * @return boolean
      */
-    public function assignFromWaitingList()
+    public function assignFromWaitingList(): void
     {
-        if (!array_key_exists('waiting', $_POST) || !count($_POST["waiting"])) {
-            ilUtil::sendFailure($this->lng->txt("crs_no_users_selected"), true);
+        $waiting_list_ids = $this->initWaitingListIdsFromPost();
+        if (!count($waiting_list_ids)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("crs_no_users_selected"), true);
             $this->ctrl->redirect($this, 'participants');
         }
-        
+
         $waiting_list = $this->initWaitingList();
 
-        // fau: fairSub - get the reference ids of grouped objects
-        if ($this instanceof ilCourseMembershipGUI || $this instanceof ilGroupMembershipGUI) {
-            // ilObjCourseGrouping is used for courses and groups
-            $grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this->getParentObject());
-        }
-        // fau.
-
-        // fau: paraSub - init registration object and course participants
-        global $DIC;
-        /** @var ilContainer $object */
-        $object = $this->getParentObject();
-        $registration = $DIC->fau()->ilias()->getRegistration($object);
-        if ($object->isParallelGroup()) {
-            if (!empty($course_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($object->getRefId()))) {
-                $courseParticipants = ilCourseParticipants::getInstance($course_id);
-            }
-        }
-        // fau.
-
         $added_users = 0;
-        foreach ($_POST["waiting"] as $user_id) {
-            if (!$tmp_obj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
+        foreach ($waiting_list_ids as $user_id) {
+            if (!$tmp_obj = ilObjectFactory::getInstanceByObjId((int) $user_id, false)) {
                 continue;
             }
-            if ($this->getMembersObject()->isAssigned($user_id)) {
+            if ($this->getMembersObject()->isAssigned((int) $user_id)) {
                 continue;
             }
-
-            // fau: paraSub - only add members if groups can be assigned - add to course of group
-            // fau: campoSub - note the membership with module selection when added from waiting list
-            if ($object->hasParallelGroups()) {
-                if (empty($groups = $registration->getFillableGroups((int) $user_id))) {
-                    continue;
-                }
-                foreach ($groups as $group) {
-                    // take the first found group, note the module there
-                    $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
-                    $DIC->fau()->user()->saveMembership($group->getObjId(), (int) $user_id, $group->getWaitingList()->getModuleId((int) $user_id));
-                    break;
-                }
-                // removes the user from the group lists
-                $registration->removeUserSubscription($user_id);
-            }
-            else {
-                // note the module for the object directly
-                $DIC->fau()->user()->saveMembership($object->getId(), (int) $user_id, $object->getWaitingList()->getModuleId((int) $user_id));
-            }
-
-            // add to the parent course of a parallel group
-            if (!empty($courseParticipants)) {
-                $courseParticipants->add($user_id, IL_CRS_MEMBER);
-            }
-            // fau.
-
 
             if ($this instanceof ilCourseMembershipGUI) {
-                $this->getMembersObject()->add($user_id, IL_CRS_MEMBER);
-                $this->getMembersObject()->sendNotification($this->getMembersObject()->NOTIFY_ACCEPT_USER, $user_id, true);
-                $this->getParentObject()->checkLPStatusSync($user_id);
+                $this->getMembersObject()->add($user_id, ilParticipants::IL_CRS_MEMBER);
+                $this->getMembersObject()->sendNotification(
+                    ilCourseMembershipMailNotification::TYPE_ADMISSION_MEMBER,
+                    (int) $user_id,
+                    true
+                );
+                $this->getParentObject()->checkLPStatusSync((int) $user_id);
             }
             if ($this instanceof ilGroupMembershipGUI) {
-                include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
-                $this->getMembersObject()->add($user_id, IL_GRP_MEMBER);
+                $this->getMembersObject()->add($user_id, ilParticipants::IL_GRP_MEMBER);
                 $this->getMembersObject()->sendNotification(
                     ilGroupMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER,
-                    $user_id,
+                    (int) $user_id,
                     true
                 );
             }
             if ($this instanceof ilSessionMembershipGUI) {
-                $this->getMembersObject()->register($user_id);
+                $this->getMembersObject()->register((int) $user_id);
                 $noti = new ilSessionMembershipMailNotification();
                 $noti->setRefId($this->getParentObject()->getRefId());
                 $noti->setRecipients(array($user_id));
                 $noti->setType(ilSessionMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER);
                 $noti->send();
             }
-            
-            $waiting_list->removeFromList($user_id);
 
-            // fau: fairSub - remove user from waiting lists of grouped objects
-            if (is_array($grouping_ref_ids)) {
-                foreach ($grouping_ref_ids as $ref_id) {
-                    ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
-                }
-            }
-            // fau.
+            $waiting_list->removeFromList((int) $user_id);
             ++$added_users;
         }
 
         if ($added_users) {
-            ilUtil::sendSuccess($this->lng->txt("crs_users_added"), true);
-            $this->ctrl->redirect($this, 'participants');
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt("crs_users_added"), true);
         } else {
-            ilUtil::sendFailure($this->lng->txt("crs_users_already_assigned"), true);
-            $this->ctrl->redirect($this, 'participants');
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("crs_users_already_assigned"), true);
         }
+        $this->ctrl->redirect($this, 'participants');
     }
-    
+
     /**
      * Refuse from waiting list (confirmation)
-     * @return boolean
      */
-    public function confirmRefuseFromList()
+    public function confirmRefuseFromList(): void
     {
-        // fau: fairSub - allow a single user being refused from the waiting list
-        if (!empty($_GET['member_id'])) {
-            $_POST["waiting"] = array($_GET['member_id']);
-        }
-        // fau.
-
-        if (!is_array($_POST["waiting"])) {
-            ilUtil::sendFailure($this->lng->txt("no_checkbox"), true);
+        $waiting_list_ids = $this->initWaitingListIdsFromPost();
+        if (!count($waiting_list_ids)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_checkbox"), true);
             $this->ctrl->redirect($this, 'participants');
         }
-
         $this->lng->loadLanguageModule('mmbr');
-
-        include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
         $c_gui = new ilConfirmationGUI();
 
         // set confirm/cancel commands
         $c_gui->setFormAction($this->ctrl->getFormAction($this, "refuseFromList"));
-        // fau: paraSub - extend confirmation header
-        global $DIC;
-        if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
-            $add_to_question = '<br><small>' . $this->lng->txt('fau_sub_refuse_all_groups') . '</small>';
-        }
-        $c_gui->setHeaderText($this->lng->txt("info_refuse_sure") . $add_to_question);
-        // fau.
+        $c_gui->setHeaderText($this->lng->txt("info_refuse_sure"));
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
         $c_gui->setConfirm($this->lng->txt("confirm"), "refuseFromList");
 
-        foreach ($_POST["waiting"] as $waiting) {
+        foreach ($waiting_list_ids as $waiting) {
             $name = ilObjUser::_lookupName($waiting);
 
             $c_gui->addItem(
                 'waiting[]',
-                $name['user_id'],
+                (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
                 ilUtil::getImagePath('icon_usr.svg')
             );
         }
-
         $this->tpl->setContent($c_gui->getHTML());
-        return true;
     }
-    
+
     /**
      * refuse from waiting list
-     *
-     * @access public
-     * @return
      */
-    protected function refuseFromList()
+    protected function refuseFromList(): void
     {
-        if (!array_key_exists('waiting', $_POST) || !count($_POST['waiting'])) {
-            ilUtil::sendFailure($this->lng->txt('no_checkbox'), true);
+        $waiting_list_ids = $this->initWaitingListIdsFromPost();
+        if (!count($waiting_list_ids)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('no_checkbox'), true);
             $this->ctrl->redirect($this, 'participants');
         }
 
-        // fau: paraSub - get affected waiting lists and registration object
-        // for parallel groups get the registration of the parent course
-        // this will send a notification related to the course because the group is not yet accessible to the user
-        global $DIC;
-        if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
-            $waiting_lists = $DIC->fau()->ilias()->objects()->getCourseAndParallelGroupsWaitingLists($this->getParentObject()->getRefId());
-            if ($this->getParentObject()->isParallelGroup()) {
-                $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->getParentObject()->getRefId());
-                $registration = $DIC->fau()->ilias()->getRegistration(new ilObjCourse($course_ref_id));
-            } else {
-                $registration = $DIC->fau()->ilias()->getRegistration($this->getParentObject());
-            }
-        }
-        elseif ($DIC->fau()->ilias()->objects()->isRegistrationHandlerSupported($this->getParentObject())) {
-            $waiting_lists = [$this->initWaitingList()];
-            $registration = $DIC->fau()->ilias()->getRegistration($this->getParentObject());
-        }
-        else {
-            $waiting_lists = [$this->initWaitingList()];
-        }
-        // fau.
+        $waiting_list = $this->initWaitingList();
 
+        foreach ($waiting_list_ids as $user_id) {
+            $waiting_list->removeFromList((int) $user_id);
 
-        foreach ($_POST["waiting"] as $user_id) {
-            // fau: paraSub - remove from all affected waiting lists and send notification for the parent object
-            foreach ($waiting_lists as $list) {
-                $list->removeFromList($user_id);
-            }
-            if (isset($registration)) {
-                $registration->getObject()->getMembersObject()->sendNotification (
-                    $registration->getNotificationTypeRefusedMember(),
-                    $user_id,
+            if ($this instanceof ilCourseMembershipGUI) {
+                $this->getMembersObject()->sendNotification(
+                    ilCourseMembershipMailNotification::TYPE_REFUSED_SUBSCRIPTION_MEMBER,
+                    (int) $user_id,
                     true
                 );
             }
-            // fau.
+            if ($this instanceof ilGroupMembershipGUI) {
+                $this->getMembersObject()->sendNotification(
+                    ilGroupMembershipMailNotification::TYPE_REFUSED_SUBSCRIPTION_MEMBER,
+                    (int) $user_id,
+                    true
+                );
+            }
             if ($this instanceof ilSessionMembershipGUI) {
-                include_once './Modules/Session/classes/class.ilSessionMembershipMailNotification.php';
                 $noti = new ilSessionMembershipMailNotification();
                 $noti->setRefId($this->getParentObject()->getRefId());
                 $noti->setRecipients(array($user_id));
@@ -1877,77 +1466,58 @@ class ilMembershipGUI
                 $noti->send();
             }
         }
-        ilUtil::sendSuccess($this->lng->txt('crs_users_removed_from_list'), true);
-        $this->ctrl->redirect($this, 'participants');
-    }
-    
-    /**
-     * Add selected users to user clipboard
-     */
-    protected function addToClipboard()
-    {
-        // begin-patch clipboard
-        $users = [];
-        if (isset($_POST['participants'])) {
-            $users = (array) $_POST['participants'];
-        } elseif (isset($_POST['subscribers'])) {
-            $users = (array) $_POST['subscribers'];
-        } elseif (isset($_POST['waiting'])) {
-            $users = (array) $_POST['waiting'];
-        }
-        // end-patch clipboard
-        if (!count($users)) {
-            ilUtil::sendFailure($this->lng->txt('select_one'), true);
-            $this->ctrl->redirect($this, 'participants');
-        }
-        include_once './Services/User/classes/class.ilUserClipboard.php';
-        $clip = ilUserClipboard::getInstance($GLOBALS['DIC']['ilUser']->getId());
-        $clip->add($users);
-        $clip->save();
-        
-        $this->lng->loadLanguageModule('user');
-        ilUtil::sendSuccess($this->lng->txt('clipboard_user_added'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('crs_users_removed_from_list'), true);
         $this->ctrl->redirect($this, 'participants');
     }
 
     /**
-     * @return null
+     * Add selected users to user clipboard
      */
-    protected function getDefaultRole()
+    protected function addToClipboard(): void
+    {
+        // begin-patch clipboard
+        $users = [];
+        if ($this->http->wrapper()->post()->has('participants')) {
+            $users = $this->initParticipantsFromPost();
+        } elseif ($this->http->wrapper()->post()->has('subscribers')) {
+            $users = $this->initSubscribersFromPost();
+        } elseif ($this->http->wrapper()->post()->has('waiting')) {
+            $users = $this->initWaitingListIdsFromPost();
+        }
+        // end-patch clipboard
+        if (!count($users)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        $clip = ilUserClipboard::getInstance($this->user->getId());
+        $clip->add($users);
+        $clip->save();
+
+        $this->lng->loadLanguageModule('user');
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('clipboard_user_added'), true);
+        $this->ctrl->redirect($this, 'participants');
+    }
+
+    protected function getDefaultRole(): ?int
     {
         return null;
     }
 
-    /**
-     * @param string $a_sub_tab
-     */
-    protected function activateSubTab($a_sub_tab)
+    protected function activateSubTab(string $a_sub_tab): void
     {
-        /**
-         * @var ilTabsGUI $tabs
-         */
-        $tabs = $GLOBALS['DIC']['ilTabs'];
-        $tabs->activateSubTab($a_sub_tab);
+        $this->tabs->activateSubTab($a_sub_tab);
     }
 
-
-    
-    
     /**
-     * Print members
      * @todo: refactor to own class
      */
-    protected function printMembers()
+    protected function printMembers(): void
     {
-        global $DIC;
-
-        $ilTabs = $DIC['ilTabs'];
-        
         $this->checkPermission('read');
-        
-        $ilTabs->clearTargets();
 
-        $ilTabs->setBackTarget(
+        $this->tabs->clearTargets();
+
+        $this->tabs->setBackTarget(
             $this->lng->txt('back'),
             $this->ctrl->getLinkTarget($this, 'participants')
         );
@@ -1956,81 +1526,60 @@ class ilMembershipGUI
         $form = $list->initForm('printMembersOutput');
         $this->tpl->setContent($form->getHTML());
     }
-    
+
     /**
      * print members output
      */
-    protected function printMembersOutput()
+    protected function printMembersOutput(): void
     {
-        global $DIC;
-
-        $tabs = $DIC->tabs();
-        $tabs->clearTargets();
-        $tabs->setBackTarget(
+        $this->tabs->clearTargets();
+        $this->tabs->setBackTarget(
             $this->lng->txt('back'),
             $this->ctrl->getLinkTarget($this, 'participants')
         );
 
         $list = $this->initAttendanceList();
         $list->initFromForm();
-        $list->setCallback(array($this, 'getAttendanceListUserData'));
+        $list->setCallback([$this, 'getAttendanceListUserData']);
         $this->member_data = $this->getPrintMemberData(
             $this->filterUserIdsByRbacOrPositionOfCurrentUser(
                 $this->getMembersObject()->getParticipants()
             )
         );
-        
+
         $list->getNonMemberUserData($this->member_data);
         $list->getFullscreenHTML();
     }
-    
+
     /**
      * print members output
      */
-    protected function printForMembersOutput()
+    protected function printForMembersOutput(): void
     {
-        global $DIC;
-
-        $tabs = $DIC->tabs();
-        $tabs->clearTargets();
-        $tabs->setBackTarget(
+        $this->tabs->clearTargets();
+        $this->tabs->setBackTarget(
             $this->lng->txt('back'),
             $this->ctrl->getLinkTarget($this, 'jump2UsersGallery')
         );
 
         $list = $this->initAttendanceList();
         $list->setTitle($this->lng->txt('obj_' . $this->getParentObject()->getType()) . ': ' . $this->getParentObject()->getTitle());
-        $list->setId(0);
-        $form = $list->initForm('printForMembersOutput');
-        $list->initFromForm();
-        $list->setCallback(array($this, 'getAttendanceListUserData'));
+        $list->initFromSettings();
+        $list->setCallback([$this, 'getAttendanceListUserData']);
         $this->member_data = $this->getPrintMemberData($this->getMembersObject()->getParticipants());
         $list->getNonMemberUserData($this->member_data);
-        
         $list->getFullscreenHTML();
     }
 
-    /**
-     *
-     */
-    protected function jump2UsersGallery()
+    protected function jump2UsersGallery(): void
     {
         $this->ctrl->redirectByClass('ilUsersGalleryGUI');
     }
-    
-    
-    
-    
-    /**
-     * Init attendance list
-     */
-    protected function initAttendanceList($a_for_members = false)
+
+    protected function initAttendanceList(bool $a_for_members = false): ?ilAttendanceList
     {
         global $DIC;
 
-        /**
-         * @var ilWaitingList
-         */
         $waiting_list = $this->initWaitingList();
 
         if ($this instanceof ilSessionMembershipGUI) {
@@ -2057,7 +1606,6 @@ class ilMembershipGUI
                 $waiting_list
             );
         } else {
-            include_once 'Services/Membership/classes/class.ilAttendanceList.php';
             $list = new ilAttendanceList(
                 $this,
                 $this->getParentObject(),
@@ -2066,33 +1614,27 @@ class ilMembershipGUI
             );
         }
         $list->setId($this->getParentObject()->getType() . '_memlist_' . $this->getParentObject()->getId());
-    
+
         $list->setTitle(
             $this->lng->txt($this->getParentObject()->getType() . '_members_print_title'),
             $this->lng->txt('obj_' . $this->getParentObject()->getType()) . ': ' . $this->getParentObject()->getTitle()
         );
-                
-        include_once './Services/Tracking/classes/class.ilObjUserTracking.php';
+
         $show_tracking =
             (ilObjUserTracking::_enabledLearningProgress() and ilObjUserTracking::_enabledUserRelatedData());
         if ($show_tracking) {
-            include_once('./Services/Object/classes/class.ilObjectLP.php');
             $olp = ilObjectLP::getInstance($this->getParentObject()->getId());
             $show_tracking = $olp->isActive();
         }
-        if ($show_tracking) {
+        if ($show_tracking && $this->getParentObject()->getType() !== 'sess') {
             $list->addPreset('progress', $this->lng->txt('learning_progress'), true);
         }
-        
-        include_once('./Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
-        /**
-         * @var ilPrivacySettings
-         */
-        $privacy = ilPrivacySettings::_getInstance();
+
+        $privacy = ilPrivacySettings::getInstance();
         if ($privacy->enabledAccessTimesByType($this->getParentObject()->getType())) {
             $list->addPreset('access', $this->lng->txt('last_access'), true);
         }
-        
+
         switch ($this->getParentObject()->getType()) {
             case 'crs':
                 $list->addPreset('status', $this->lng->txt('crs_status'), true);
@@ -2107,7 +1649,7 @@ class ilMembershipGUI
                 }
                 $list->addPreset('participated', $this->lng->txt('event_tbl_participated'), true);
                 $list->addBlank($this->lng->txt('sess_signature'));
-        
+
                 $list->addUserFilter('registered', $this->lng->txt('event_list_registered_only'));
                 break;
 
@@ -2115,7 +1657,6 @@ class ilMembershipGUI
             default:
                 break;
         }
-        
         return $list;
     }
 }

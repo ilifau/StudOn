@@ -1,23 +1,32 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once './Services/COPage/classes/class.ilPageContent.php';
 
 /**
-* Class ilPCLoginPageElement
-*
-* Login page element object (see ILIAS DTD). Inserts login page elements
-*
-* @author Stefan Meyer <smeyer.ilias@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesCOPage
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Class ilPCLoginPageElement
+ *
+ * Login page element object (see ILIAS DTD). Inserts login page elements
+ * @author Stefan Meyer <smeyer.ilias@gmx.de>
+ */
 class ilPCLoginPageElement extends ilPageContent
 {
-    public $res_node;
-    
-    private static $types = array(
+    public php4DOMElement $res_node;
+
+    private static array $types = array(
         'login-form' => 'login_form',
         'cas-login-form' => 'cas_login_form',
         'shibboleth-login-form' => 'shib_login_form',
@@ -30,17 +39,13 @@ class ilPCLoginPageElement extends ilPageContent
 
     /**
      * Get all types
-     * @return array all type
      */
-    public static function getAllTypes()
+    public static function getAllTypes(): array
     {
         return self::$types;
     }
 
-    /**
-    * Init page content component.
-    */
-    public function init()
+    public function init(): void
     {
         $this->setType('lpe');
     }
@@ -48,74 +53,52 @@ class ilPCLoginPageElement extends ilPageContent
     /**
     * Set node
     */
-    public function setNode($a_node)
+    public function setNode(php4DOMElement $a_node): void
     {
         parent::setNode($a_node);						// this is the PageContent node
         $this->res_node = $a_node->first_child();		// this is the login page element
     }
 
-    /**
-    * Create resources node in xml.
-    *
-    * @param	object	$a_pg_obj		Page Object
-    * @param	string	$a_hier_id		Hierarchical ID
-    */
-    public function create(&$a_pg_obj, $a_hier_id, $a_pc_id = "")
-    {
+    public function create(
+        ilPageObject $a_pg_obj,
+        string $a_hier_id,
+        string $a_pc_id = ""
+    ): void {
         $this->node = $this->createPageContentNode();
         $a_pg_obj->insertContent($this, $a_hier_id, IL_INSERT_AFTER, $a_pc_id);
         $lpe = $this->dom->create_element('LoginPageElement');
         $this->res_node = $this->node->append_child($lpe);
     }
 
-    /**
-    * Set Type of Login Page Element
-    *
-    * @param	string	$a_type		Resource Type Group
-    */
-    public function setLoginPageElementType($a_type)
+    public function setLoginPageElementType(string $a_type): void
     {
         if (!empty($a_type)) {
             $this->res_node->set_attribute('Type', $a_type);
         }
     }
 
-    /**
-    * Get log page element type
-    *
-    * @return	string		resource type group
-    */
-    public function getLoginPageElementType()
+    public function getLoginPageElementType(): string
     {
         if (is_object($this->res_node)) {
             return $this->res_node->get_attribute('Type');
         }
+        return "";
     }
 
-    /**
-     * set alignment
-     */
-    public function setAlignment($a_alignment)
+    public function setAlignment(string $a_alignment): void
     {
         $this->res_node->set_attribute('HorizontalAlign', $a_alignment);
     }
 
-    /**
-     * Get alignment
-     * @return string $alignment
-     */
-    public function getAlignment()
+    public function getAlignment(): string
     {
-        if (is_object($this->res_node)) {
+        if (isset($this->res_node) && is_object($this->res_node)) {
             return $this->res_node->get_attribute('HorizontalAlign');
         }
+        return "";
     }
-    
-    /**
-     * Get lang vars needed for editing
-     * @return array array of lang var keys
-     */
-    public static function getLangVars()
+
+    public static function getLangVars(): array
     {
         return array("ed_insert_login_page_element");
     }

@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Input\Field\Radio;
+
 /**
  * Example showing how to plug a disabled radio into a form
  */

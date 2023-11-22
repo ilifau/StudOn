@@ -32,7 +32,7 @@ final class BaseTypeHandler implements TypeHandler
     /**
      * @inheritDoc
      */
-    public function matchesForType() : string
+    public function matchesForType(): string
     {
         return "";
     }
@@ -40,7 +40,7 @@ final class BaseTypeHandler implements TypeHandler
     /**
      * @inheritDoc
      */
-    public function enrichItem(isItem $item) : isItem
+    public function enrichItem(isItem $item): isItem
     {
         return $item;
     }
@@ -48,7 +48,7 @@ final class BaseTypeHandler implements TypeHandler
     /**
      * @inheritDoc
      */
-    public function getAdditionalFieldsForSubForm(IdentificationInterface $identification) : array
+    public function getAdditionalFieldsForSubForm(IdentificationInterface $identification): array
     {
         return [];
     }
@@ -56,7 +56,7 @@ final class BaseTypeHandler implements TypeHandler
     /**
      * @inheritDoc
      */
-    public function saveFormFields(IdentificationInterface $identification, array $data) : bool
+    public function saveFormFields(IdentificationInterface $identification, array $data): bool
     {
         return true;
     }

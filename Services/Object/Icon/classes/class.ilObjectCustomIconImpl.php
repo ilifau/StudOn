@@ -1,49 +1,48 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\Filesystem\Filesystem;
 use ILIAS\FileUpload\FileUpload;
+use ILIAS\FileUpload\DTO\UploadResult;
+use ILIAS\FileUpload\Location;
+use ILIAS\Filesystem\Exception\IOException;
 
 /**
  * Class ilObjectCustomIconImpl
  * TODO: Inject database persistence in future instead of using \ilContainer
  */
-class ilObjectCustomIconImpl implements \ilObjectCustomIcon
+class ilObjectCustomIconImpl implements ilObjectCustomIcon
 {
-    const ICON_BASENAME = 'icon_custom';
+    private const ICON_BASENAME = 'icon_custom';
 
-    /** @var Filesystem */
-    protected $webDirectory;
+    protected Filesystem $webDirectory;
+    protected FileUpload $upload;
+    protected ilCustomIconObjectConfiguration $config;
+    protected int $objId;
 
-    /** @var FileUpload */
-    protected $upload;
-
-    /** @var \ilCustomIconObjectConfiguration */
-    protected $config;
-
-    /** @var int */
-    protected $objId;
-    
-    // fau: legacyIcons - class variables
-    /** @var array|null */
-    protected $settings;
-    
-    /** @var array  */
-    protected $sizes = ['custom', 'big', 'small', 'tiny'];
-    
-    /** @var array  */
-    protected $extensions = ['svg', 'png', 'gif', 'jpg'];
-    // fau.
-    
-    /**
-     * ilObjectCustomIconImpl constructor.
-     * @param Filesystem                      $webDirectory
-     * @param FileUpload                      $uploadService
-     * @param ilCustomIconObjectConfiguration $config
-     * @param                                 $objId
-     */
-    public function __construct(Filesystem $webDirectory, FileUpload $uploadService, \ilCustomIconObjectConfiguration $config, int $objId)
-    {
+    public function __construct(
+        Filesystem $webDirectory,
+        FileUpload $uploadService,
+        ilCustomIconObjectConfiguration $config,
+        int $objId
+    ) {
         $this->objId = $objId;
 
         $this->webDirectory = $webDirectory;
@@ -51,78 +50,55 @@ class ilObjectCustomIconImpl implements \ilObjectCustomIcon
         $this->config = $config;
     }
 
-    /**
-     * @return int
-     */
-    protected function getObjId() : int
+    protected function getObjId(): int
     {
         return $this->objId;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function copy(int $targetObjId)
+    public function copy(int $targetObjId): void
     {
         if (!$this->exists()) {
-            \ilContainer::_writeContainerSetting($targetObjId, 'icon_custom', 0);
+            ilContainer::_writeContainerSetting($targetObjId, 'icon_custom', '0');
             return;
         }
 
         try {
-            // fau: legacyIcons - copy icons when container is copied
-            foreach ($this->sizes as $size) {
-                foreach ($this->extensions as $ext) {
-                    $filePath = $this->getRelativePath($this->getIconFileName($size, $ext));
-                    if ($this->webDirectory->has($filePath)) {
-                        $this->webDirectory->copy(
-                            $filePath,
-                            preg_replace(
-                                '/(' . $this->config->getSubDirectoryPrefix() . ')(\d*)\/(.*)$/',
-                                '${1}' . $targetObjId . '/${3}',
-                                $filePath
-                            )
-                        );
-                        \ilContainer::_writeContainerSetting($targetObjId, 'icon_' . $size, 1);
-                    }
-                }
-            }
-            // fau.
-        } catch (\Exception $e) {
-            \ilContainer::_writeContainerSetting($targetObjId, 'icon_custom', 0);
+            $this->webDirectory->copy(
+                $this->getRelativePath(),
+                preg_replace(
+                    '/(' . $this->config->getSubDirectoryPrefix() . ')(\d*)\/(.*)$/',
+                    '${1}' . $targetObjId . '/${3}',
+                    $this->getRelativePath()
+                )
+            );
+
+            ilContainer::_writeContainerSetting($targetObjId, 'icon_custom', '1');
+        } catch (Exception $e) {
+            ilContainer::_writeContainerSetting($targetObjId, 'icon_custom', '0');
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function delete()
+    public function delete(): void
     {
         if ($this->webDirectory->hasDir($this->getIconDirectory())) {
             try {
                 $this->webDirectory->deleteDir($this->getIconDirectory());
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
             }
         }
-        // fau: legacyIcons - delete the container settings for all sizes
-        foreach ($this->sizes as $size) {
-            \ilContainer::_deleteContainerSettings($this->getObjId(), 'icon_' . $size);
-        }
-        // fau.
+
+        ilContainer::_deleteContainerSettings($this->getObjId(), 'icon_custom');
     }
 
     /**
      * @return string[]
      */
-    public function getSupportedFileExtensions() : array
+    public function getSupportedFileExtensions(): array
     {
         return $this->config->getSupportedFileExtensions();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function saveFromSourceFile(string $sourceFilePath)
+    public function saveFromSourceFile(string $sourceFilePath): void
     {
         $this->createCustomIconDirectory();
 
@@ -137,10 +113,7 @@ class ilObjectCustomIconImpl implements \ilObjectCustomIcon
         $this->persistIconState($fileName);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function saveFromHttpRequest()
+    public function saveFromHttpRequest(): void
     {
         $this->createCustomIconDirectory();
 
@@ -153,13 +126,13 @@ class ilObjectCustomIconImpl implements \ilObjectCustomIcon
         if ($this->upload->hasUploads() && !$this->upload->hasBeenProcessed()) {
             $this->upload->process();
 
-            /** @var \ILIAS\FileUpload\DTO\UploadResult $result */
+            /** @var UploadResult $result */
             $result = array_values($this->upload->getResults())[0];
-            if ($result->getStatus() == \ILIAS\FileUpload\DTO\ProcessingStatus::OK) {
+            if ($result->isOK()) {
                 $this->upload->moveOneFileTo(
                     $result,
                     $this->getIconDirectory(),
-                    \ILIAS\FileUpload\Location::WEB,
+                    Location::WEB,
                     $this->getIconFileName(),
                     true
                 );
@@ -173,43 +146,30 @@ class ilObjectCustomIconImpl implements \ilObjectCustomIcon
         $this->persistIconState($fileName);
     }
 
-    /**
-     * @param string $fileName
-     */
-    protected function persistIconState(string $fileName)
+    protected function persistIconState(string $fileName): void
     {
         if ($this->webDirectory->has($fileName)) {
-            \ilContainer::_writeContainerSetting($this->getObjId(), 'icon_custom', 1);
+            ilContainer::_writeContainerSetting($this->getObjId(), 'icon_custom', '1');
         } else {
-            \ilContainer::_writeContainerSetting($this->getObjId(), 'icon_custom', 0);
+            ilContainer::_writeContainerSetting($this->getObjId(), 'icon_custom', '0');
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function remove()
+    public function remove(): void
     {
-        // fau: legacyIcons - remove all icons and settings
-        foreach ($this->sizes as $size) {
-            foreach ($this->extensions as $ext) {
-                $filePath = $this->getRelativePath($this->getIconFileName($size, $ext));
-                if ($this->webDirectory->has($filePath)) {
-                    $this->webDirectory->delete($filePath);
-                }
-            }
+        $fileName = $this->getRelativePath();
+
+        if ($this->webDirectory->has($fileName)) {
+            $this->webDirectory->delete($fileName);
         }
-        
-        foreach ($this->sizes as $size) {
-            \ilContainer::_writeContainerSetting($this->getObjId(), 'icon_' . $size, 0);
-        }
-        // fau.
+
+        ilContainer::_writeContainerSetting($this->getObjId(), 'icon_custom', '0');
     }
 
     /**
-     * @throws \ILIAS\Filesystem\Exception\IOException
+     * @throws IOException
      */
-    protected function createCustomIconDirectory()
+    protected function createCustomIconDirectory(): void
     {
         $iconDirectory = $this->getIconDirectory();
 
@@ -222,10 +182,7 @@ class ilObjectCustomIconImpl implements \ilObjectCustomIcon
         }
     }
 
-    /**
-     * @return string
-     */
-    protected function getIconDirectory() : string
+    protected function getIconDirectory(): string
     {
         return implode(DIRECTORY_SEPARATOR, [
             $this->config->getBaseDirectory(),
@@ -233,115 +190,44 @@ class ilObjectCustomIconImpl implements \ilObjectCustomIcon
         ]);
     }
 
-    // fau: legacyIcons - get icon filename for old sizes and extensions
-    /**
-     * @param string $size
-     * @param string $extension
-     * @return string
-     */
-    protected function getIconFileName($size = '', $extension = '') : string
+    protected function getIconFileName(): string
     {
-        if ($size && $extension) {
-            return 'icon_' . $size . '.' . $extension;
-        }
-    
         return self::ICON_BASENAME . '.' . $this->config->getTargetFileExtension();
     }
-    // fau.
 
-    // fau: legacyIcons - get the relative path for a specific filename
-    /**
-     * @param string $filename
-     * @return string
-     */
-    protected function getRelativePath($filename = null) : string
+    protected function getRelativePath(): string
     {
         return implode(DIRECTORY_SEPARATOR, [
             $this->getIconDirectory(),
-            isset($filename) ? $filename : $this->getIconFileName()
+            $this->getIconFileName()
         ]);
     }
-    // fau.
 
-    // fau: legacyIcons - get all container settings at once
-    /**
-     * Get an icon setting
-     * @param string $key
-     * @return mixed
-     */
-    protected function getSetting($key)
+    public function exists(): bool
     {
-        if (!isset($this->settings)) {
-            $this->settings = \ilContainer::_getContainerSettings($this->getObjId());
+        if (!ilContainer::_lookupContainerSetting($this->getObjId(), 'icon_custom', '0')) {
+            return false;
         }
-        
-        if (isset($this->settings[$key])) {
-            return $this->settings[$key];
-        } else {
-            return 0;
-        }
-    }
-    // fau.
-    
-    /**
-     * @inheritdoc
-     */
-    public function exists() : bool
-    {
-        // fau: legacyIcons - check old sizes and extensions for existence
-        foreach ($this->sizes as $size) {
-            if ($this->getSetting('icon_' . $size)) {
-                foreach ($this->extensions as $ext) {
-                    if ($this->webDirectory->has($this->getRelativePath($this->getIconFileName($size, $ext)))) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-        // fau.
+
+        return $this->webDirectory->has($this->getRelativePath());
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getFullPath() : string
+    public function getFullPath(): string
     {
-        // fau: legacyIcons - fallback to old sizes and extensions for file path
-        foreach ($this->sizes as $size) {
-            if ($this->getSetting('icon_' . $size)) {
-                foreach ($this->extensions as $ext) {
-                    if ($this->webDirectory->has($this->getRelativePath($this->getIconFileName($size, $ext)))) {
-                        return implode(DIRECTORY_SEPARATOR, [
-                            \ilUtil::getWebspaceDir(),
-                            $this->getRelativePath($this->getIconFileName($size, $ext))
-                        ]);
-                    }
-                }
-            }
-        }
-        // fau.
         // TODO: Currently there is no option to get the relative base directory of a filesystem
         return implode(DIRECTORY_SEPARATOR, [
-            \ilUtil::getWebspaceDir(),
+            ilFileUtils::getWebspaceDir(),
             $this->getRelativePath()
         ]);
     }
 
-    /**
-     * @param $source_dir
-     * @param $filename
-     * @throws \ILIAS\Filesystem\Exception\DirectoryNotFoundException
-     * @throws \ILIAS\Filesystem\Exception\FileNotFoundException
-     * @throws \ILIAS\Filesystem\Exception\IOException
-     */
-    public function createFromImportDir($source_dir)
+    public function createFromImportDir(string $source_dir): void
     {
         $target_dir = implode(DIRECTORY_SEPARATOR, [
-            \ilUtil::getWebspaceDir(),
+            ilFileUtils::getWebspaceDir(),
             $this->getIconDirectory()
         ]);
-        ilUtil::rCopy($source_dir, $target_dir);
+        ilFileUtils::rCopy($source_dir, $target_dir);
         $this->persistIconState($this->getRelativePath());
     }
 }

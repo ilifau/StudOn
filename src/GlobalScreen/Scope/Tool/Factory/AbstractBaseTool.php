@@ -32,20 +32,14 @@ abstract class AbstractBaseTool extends AbstractParentItem implements isToolItem
 {
     use SymbolDecoratorTrait;
 
-    /**
-     * @var \Closure|null
-     */
-    protected $close_callback;
+    protected ?Closure $close_callback = null;
 
-    /**
-     * @var bool
-     */
-    protected $initially_hidden = false;
+    protected bool $initially_hidden = false;
 
     /**
      * @inheritDoc
      */
-    public function withInitiallyHidden(bool $initially_hidden) : isToolItem
+    public function withInitiallyHidden(bool $initially_hidden): isToolItem
     {
         $clone = clone($this);
         $clone->initially_hidden = $initially_hidden;
@@ -56,7 +50,7 @@ abstract class AbstractBaseTool extends AbstractParentItem implements isToolItem
     /**
      * @inheritDoc
      */
-    public function isInitiallyHidden() : bool
+    public function isInitiallyHidden(): bool
     {
         return $this->initially_hidden;
     }
@@ -64,7 +58,7 @@ abstract class AbstractBaseTool extends AbstractParentItem implements isToolItem
     /**
      * @inheritDoc
      */
-    public function withCloseCallback(Closure $close_callback) : isToolItem
+    public function withCloseCallback(Closure $close_callback): isToolItem
     {
         $clone = clone($this);
         $clone->close_callback = $close_callback;
@@ -75,7 +69,7 @@ abstract class AbstractBaseTool extends AbstractParentItem implements isToolItem
     /**
      * @inheritDoc
      */
-    public function getCloseCallback() : Closure
+    public function getCloseCallback(): Closure
     {
         return $this->close_callback;
     }
@@ -83,7 +77,7 @@ abstract class AbstractBaseTool extends AbstractParentItem implements isToolItem
     /**
      * @inheritDoc
      */
-    public function hasCloseCallback() : bool
+    public function hasCloseCallback(): bool
     {
         return $this->close_callback instanceof Closure;
     }

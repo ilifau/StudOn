@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 chdir("../../");
 require_once 'libs/composer/vendor/autoload.php';
@@ -25,7 +42,7 @@ if (!isset($origParam) || !strlen($origParam)) {
 
 try {
     $param = base64_decode(rawurldecode($origParam));
-    
+
     $param = json_decode(openssl_decrypt(
         $param,
         ilCmiXapiAuthToken::OPENSSL_ENCRYPTION_METHOD,
@@ -35,6 +52,7 @@ try {
     ), true);
 
     $_COOKIE[session_name()] = $param[session_name()];
+
     $_COOKIE['ilClientId'] = $param['ilClientId'];
     $objId = $param['obj_id'];
     $refId = $param['ref_id'];
@@ -70,8 +88,8 @@ try {
     } else {
         $authToken = base64_encode(CLIENT_ID . ':' . $token->getToken());
     }
-    
-    
+
+
     $response = array("auth-token" => $authToken);
     send($response);
 } catch (ilCmiXapiException $e) {
@@ -79,7 +97,7 @@ try {
     send($error);
 }
 
-function send($response)
+function send($response): void
 {
     header('Access-Control-Allow-Origin: ' . $_SERVER["HTTP_ORIGIN"]);
     header('Access-Control-Allow-Credentials: true');

@@ -26,7 +26,7 @@ trait CreationCallbackTrait
         \ilObject $obj,
         \ilObjectDefinition $obj_definition,
         int $requested_crtcb
-    ) : void {
+    ): void {
         if ($requested_crtcb === 0) {
             return;
         }
@@ -41,4 +41,5 @@ trait CreationCallbackTrait
         }
         $callback_obj->afterSaveCallback($obj);
     }
+
 }

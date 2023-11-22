@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,13 +17,13 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Provider;
 
 use ILIAS\GlobalScreen\Scope\Layout\Provider\AbstractModificationPluginProvider;
 use ILIAS\GlobalScreen\Scope\MainMenu\Provider\AbstractStaticMainMenuPluginProvider;
 use ILIAS\GlobalScreen\Scope\MetaBar\Provider\AbstractStaticMetaBarPluginProvider;
 use ILIAS\GlobalScreen\Scope\Notification\Provider\AbstractNotificationPluginProvider;
+use ILIAS\GlobalScreen\Scope\Toast\Provider\AbstractToastPluginProvider;
 use ILIAS\GlobalScreen\Scope\Tool\Provider\AbstractDynamicToolPluginProvider;
 
 /**
@@ -34,25 +35,30 @@ interface ProviderCollection
     /**
      * @return AbstractModificationPluginProvider
      */
-    public function getModificationProvider() : ?AbstractModificationPluginProvider;
+    public function getModificationProvider(): ?AbstractModificationPluginProvider;
 
     /**
      * @return AbstractStaticMainMenuPluginProvider
      */
-    public function getMainBarProvider() : ?AbstractStaticMainMenuPluginProvider;
+    public function getMainBarProvider(): ?AbstractStaticMainMenuPluginProvider;
 
     /**
      * @return AbstractDynamicToolPluginProvider
      */
-    public function getToolProvider() : ?AbstractDynamicToolPluginProvider;
+    public function getToolProvider(): ?AbstractDynamicToolPluginProvider;
 
     /**
      * @return AbstractStaticMetaBarPluginProvider
      */
-    public function getMetaBarProvider() : ?AbstractStaticMetaBarPluginProvider;
+    public function getMetaBarProvider(): ?AbstractStaticMetaBarPluginProvider;
 
     /**
      * @return AbstractNotificationPluginProvider
      */
-    public function getNotificationProvider() : ?AbstractNotificationPluginProvider;
+    public function getNotificationProvider(): ?AbstractNotificationPluginProvider;
+
+    /**
+     * @return AbstractToastPluginProvider
+     */
+    public function getToastProvider(): ?AbstractToastPluginProvider;
 }

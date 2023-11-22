@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Identification;
 
 use ILIAS\GlobalScreen\Identification\Serializer\SerializerInterface;
@@ -31,10 +31,7 @@ use ILIAS\GlobalScreen\Identification\Serializer\SerializerInterface;
  */
 class PluginIdentification extends AbstractIdentification implements IdentificationInterface
 {
-    /**
-     * @var string
-     */
-    protected $plugin_id = "";
+    protected string $plugin_id = "";
 
     /**
      * @inheritDoc
@@ -58,7 +55,7 @@ class PluginIdentification extends AbstractIdentification implements Identificat
     /**
      * @return string
      */
-    public function getPluginId() : string
+    public function getPluginId(): string
     {
         return $this->plugin_id;
     }
@@ -66,7 +63,7 @@ class PluginIdentification extends AbstractIdentification implements Identificat
     /**
      * @inheritDoc
      */
-    public function getProviderNameForPresentation() : string
+    public function getProviderNameForPresentation(): string
     {
         return $this->plugin_id;
     }

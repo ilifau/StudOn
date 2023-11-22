@@ -1,14 +1,22 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once './Modules/TestQuestionPool/classes/class.assQuestion.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 require_once './Modules/Test/classes/inc.AssessmentConstants.php';
-require_once './Modules/TestQuestionPool/interfaces/interface.ilObjQuestionScoringAdjustable.php';
-require_once './Modules/TestQuestionPool/interfaces/interface.ilObjAnswerScoringAdjustable.php';
-require_once './Modules/TestQuestionPool/interfaces/interface.iQuestionCondition.php';
-require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
-
-require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssOrderingElementList.php';
 
 use ILIAS\TA\Questions\Ordering\assOrderingQuestionDatabaseRepository as OQRepository;
 
@@ -28,20 +36,22 @@ use ILIAS\TA\Questions\Ordering\assOrderingQuestionDatabaseRepository as OQRepos
  */
 class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdjustable, ilObjAnswerScoringAdjustable, iQuestionCondition
 {
-    const ORDERING_ELEMENT_FORM_FIELD_POSTVAR = 'order_elems';
+    public const ORDERING_ELEMENT_FORM_FIELD_POSTVAR = 'order_elems';
 
-    const ORDERING_ELEMENT_FORM_CMD_UPLOAD_IMG = 'uploadElementImage';
-    const ORDERING_ELEMENT_FORM_CMD_REMOVE_IMG = 'removeElementImage'; //might actually go away - use ORDERING_ELEMENT_FORM_CMD_UPLOAD_IMG
+    public const ORDERING_ELEMENT_FORM_CMD_UPLOAD_IMG = 'uploadElementImage';
+    public const ORDERING_ELEMENT_FORM_CMD_REMOVE_IMG = 'removeElementImage'; //might actually go away - use ORDERING_ELEMENT_FORM_CMD_UPLOAD_IMG
 
-    const OQ_PICTURES = 0;
-    const OQ_TERMS = 1;
-    const OQ_NESTED_PICTURES = 2;
-    const OQ_NESTED_TERMS = 3;
+    public const OQ_PICTURES = 0;
+    public const OQ_TERMS = 1;
+    public const OQ_NESTED_PICTURES = 2;
+    public const OQ_NESTED_TERMS = 3;
 
-    const OQ_CT_PICTURES = 'pics';
-    const OQ_CT_TERMS = 'terms';
+    public const OQ_CT_PICTURES = 'pics';
+    public const OQ_CT_TERMS = 'terms';
 
-    const VALID_UPLOAD_SUFFIXES = ["jpg", "jpeg", "png", "gif"];
+    public const VALID_UPLOAD_SUFFIXES = ["jpg", "jpeg", "png", "gif"];
+
+    protected const HAS_SPECIFIC_FEEDBACK = false;
 
 
     /**
@@ -55,19 +65,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     */
     protected $ordering_type;
 
-    /**
-    * Maximum thumbnail geometry
-    *
-    * @var integer
-    */
-    public $thumb_geometry = 100;
-
-    /**
-    * Minimum element height
-    *
-    * @var integer
-    */
-    public $element_height;
+    public ?int $element_height = null;
 
     public $old_ordering_depth = array();
     public $leveled_ordering = array();
@@ -107,13 +105,11 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     *
     * @return boolean True, if the ordering question is complete for use, otherwise false
     */
-    public function isComplete() : bool
+    public function isComplete(): bool
     {
         $elements = array_filter(
             $this->getOrderingElementList()->getElements(),
-            function ($element) {
-                return trim($element->getContent()) != '';
-            }
+            fn ($element) => trim($element->getContent()) != ''
         );
         $has_at_least_two_elements = count($elements) > 1;
 
@@ -128,7 +124,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 
 
 
-    protected function getRepository() : ILIAS\TA\Questions\Ordering\assOrderingQuestionDatabaseRepository
+    protected function getRepository(): ILIAS\TA\Questions\Ordering\assOrderingQuestionDatabaseRepository
     {
         if (is_null($this->oq_repository)) {
             global $DIC;
@@ -146,7 +142,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      *
      * @internal param object $db A pear DB object
      */
-    public function saveToDb($original_id = "")
+    public function saveToDb($original_id = ""): void
     {
         if ($original_id == '') {
             $this->saveQuestionDataToDb();
@@ -154,7 +150,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             $this->saveQuestionDataToDb((int) $original_id);
         }
         $this->saveAdditionalQuestionDataToDb();
-        parent::saveToDb($original_id);
+        parent::saveToDb();
     }
 
     /**
@@ -164,7 +160,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     * @param integer $question_id A unique key which defines the multiple choice test in the database
     * @access public
     */
-    public function loadFromDb($question_id)
+    public function loadFromDb($question_id): void
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
@@ -178,19 +174,20 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             $data = $ilDB->fetchAssoc($result);
             $this->setId($question_id);
             $this->setObjId($data["obj_fi"]);
-            $this->setTitle($data["title"]);
-            $this->setComment($data["description"]);
+            $this->setTitle((string) $data["title"]);
+            $this->setComment((string) $data["description"]);
             $this->setOriginalId($data["original_id"]);
             $this->setAuthor($data["author"]);
             $this->setNrOfTries($data['nr_of_tries']);
             $this->setPoints($data["points"]);
             $this->setOwner($data["owner"]);
             include_once("./Services/RTE/classes/class.ilRTE.php");
-            $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
+            $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc((string) $data["question_text"], 1));
             $this->ordering_type = strlen($data["ordering_type"]) ? $data["ordering_type"] : OQ_TERMS;
-            $this->thumb_geometry = $data["thumb_geometry"];
-            $this->element_height = $data["element_height"];
-            $this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
+            if ($data['thumb_geometry'] !== null && $data['thumb_geometry'] >= self::MINIMUM_THUMB_SIZE) {
+                $this->setThumbSize($data['thumb_geometry']);
+            }
+            $this->element_height = $data["element_height"] ? (int) $data['element_height'] : null;
 
             try {
                 $this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
@@ -207,16 +204,16 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         parent::loadFromDb($question_id);
     }
 
-    /**
-    * Duplicates an assOrderingQuestion
-    *
-    * @access public
-    */
-    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null)
-    {
+    public function duplicate(
+        bool $for_test = true,
+        ?string $title = "",
+        ?string $author = "",
+        ?string $owner = "",
+        $testObjId = null
+    ): int {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
-            return;
+            return -1;
         }
         // duplicate the question in database
         $this_id = $this->getId();
@@ -265,11 +262,10 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     *
     * @access public
     */
-    public function copyObject($target_questionpool_id, $title = "")
+    public function copyObject($target_questionpool_id, $title = ""): int
     {
-        if ($this->id <= 0) {
-            // The question has not been saved. It cannot be duplicated
-            return;
+        if ($this->getId() <= 0) {
+            throw new RuntimeException('The question has not been saved. It cannot be duplicated');
         }
         // duplicate the question in database
         $clone = clone $this;
@@ -298,7 +294,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $clone->getId();
     }
 
-    public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = "")
+    public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = ""): int
     {
         if ($this->getId() <= 0) {
             throw new RuntimeException('The question has not been saved. It cannot be duplicated');
@@ -339,7 +335,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $clone->id;
     }
 
-    public function duplicateImages($src_question_id, $src_object_id, $dest_question_id, $dest_object_id)
+    public function duplicateImages($src_question_id, $src_object_id, $dest_question_id, $dest_object_id): void
     {
         global $DIC;
         $ilLog = $DIC['ilLog'];
@@ -348,12 +344,12 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             $imagepath = $this->getImagePath($dest_question_id, $dest_object_id);
 
             if (!file_exists($imagepath)) {
-                ilUtil::makeDirParents($imagepath);
+                ilFileUtils::makeDirParents($imagepath);
             }
             foreach ($this->getOrderingElementList() as $element) {
                 $filename = $element->getContent();
 
-                if($filename === "" || $filename === null) {
+                if ($filename === '') {
                     continue;
                 }
 
@@ -376,7 +372,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * simply use the working method duplicateImages(), we do not search the difference here
      * and we will delete this soon (!) currently no usage found, remove for il5.3
      */
-    public function copyImages($question_id, $source_questionpool)
+    public function copyImages($question_id, $source_questionpool): void
     {
         global $DIC;
         $ilLog = $DIC['ilLog'];
@@ -385,7 +381,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             $imagepath_original = str_replace("/$this->id/images", "/$question_id/images", $imagepath);
             $imagepath_original = str_replace("/$this->obj_id/", "/$source_questionpool/", $imagepath_original);
             if (!file_exists($imagepath)) {
-                ilUtil::makeDirParents($imagepath);
+                ilFileUtils::makeDirParents($imagepath);
             }
             foreach ($this->getOrderingElementList() as $element) {
                 $filename = $element->getContent();
@@ -401,7 +397,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         }
     }
 
-    protected function getValidOrderingTypes() : array
+    protected function getValidOrderingTypes(): array
     {
         return [
             self::OQ_PICTURES,
@@ -419,12 +415,12 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         $this->ordering_type = $ordering_type;
     }
 
-    public function getOrderingType()
+    public function getOrderingType(): int
     {
         return $this->ordering_type;
     }
 
-    public function isOrderingTypeNested()
+    public function isOrderingTypeNested(): bool
     {
         $nested = [
             self::OQ_NESTED_TERMS,
@@ -433,7 +429,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return in_array($this->getOrderingType(), $nested);
     }
 
-    public function isImageOrderingType()
+    public function isImageOrderingType(): bool
     {
         $with_images = [
             self::OQ_PICTURES,
@@ -456,7 +452,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             } else {
                 $this->setOrderingType(self::OQ_PICTURES);
             }
-            $this->setThumbGeometry($this->getThumbGeometry());
+            $this->setThumbSize($this->getThumbSize());
         }
         if ($ct == self::OQ_CT_TERMS) {
             if ($this->isOrderingTypeNested()) {
@@ -484,7 +480,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         }
     }
 
-    public function hasOrderingTypeUploadSupport()
+    public function hasOrderingTypeUploadSupport(): bool
     {
         return $this->isImageOrderingType();
     }
@@ -495,13 +491,13 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * @param $passIndex
      * @return ilAssOrderingElementList
      */
-    public function getOrderingElementListForSolutionOutput($forceCorrectSolution, $activeId, $passIndex, $getUseIntermediateSolution = false)
+    public function getOrderingElementListForSolutionOutput($forceCorrectSolution, $activeId, $passIndex): ilAssOrderingElementList
     {
         if ($forceCorrectSolution || !$activeId || $passIndex === null) {
             return $this->getOrderingElementList();
         }
 
-        $solutionValues = $this->getSolutionValues($activeId, $passIndex, !$getUseIntermediateSolution);
+        $solutionValues = $this->getSolutionValues($activeId, $passIndex);
 
         if (!count($solutionValues)) {
             return $this->getShuffledOrderingElementList();
@@ -519,20 +515,11 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * @throws ilTestException
      * @throws ilTestQuestionPoolException
      */
-    public function getSolutionOrderingElementListForTestOutput(ilAssNestedOrderingElementsInputGUI $inputGUI, $lastPost, $activeId, $pass)
+    public function getSolutionOrderingElementListForTestOutput(ilAssNestedOrderingElementsInputGUI $inputGUI, $lastPost, $activeId, $pass): ilAssOrderingElementList
     {
         if ($inputGUI->isPostSubmit($lastPost)) {
             return $this->fetchSolutionListFromFormSubmissionData($lastPost);
         }
-
-        // hey: prevPassSolutions - pass will be always available from now on
-        #if( $pass === null && !ilObjTest::_getUsePreviousAnswers($activeId, true) )
-        #// condition looks strange? yes - keep it null when previous solutions not enabled (!)
-        #{
-        #   $pass = ilObjTest::_getPass($activeId);
-        #}
-        // hey.
-
         $indexedSolutionValues = $this->fetchIndexedValuesFromValuePairs(
             // hey: prevPassSolutions - obsolete due to central check
             $this->getTestOutputSolutions($activeId, $pass)
@@ -549,9 +536,8 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     /**
      * @param string $value1
      * @param string $value2
-     * @return ilAssOrderingElement
      */
-    protected function getSolutionValuePairBrandedOrderingElementByRandomIdentifier($value1, $value2)
+    protected function getSolutionValuePairBrandedOrderingElementByRandomIdentifier($value1, $value2): ilAssOrderingElement
     {
         $value2 = explode(':', $value2);
 
@@ -570,9 +556,8 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     /**
      * @param string $value1
      * @param string $value2
-     * @return ilAssOrderingElement
      */
-    protected function getSolutionValuePairBrandedOrderingElementBySolutionIdentifier($value1, $value2)
+    protected function getSolutionValuePairBrandedOrderingElementBySolutionIdentifier($value1, $value2): ilAssOrderingElement
     {
         $solutionIdentifier = $value1;
         $selectedPosition = ($value2 - 1);
@@ -591,7 +576,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * @return ilAssOrderingElementList
      * @throws ilTestQuestionPoolException
      */
-    public function getSolutionOrderingElementList($indexedSolutionValues)
+    public function getSolutionOrderingElementList($indexedSolutionValues): ilAssOrderingElementList
     {
         $solutionOrderingList = new ilAssOrderingElementList();
         $solutionOrderingList->setQuestionId($this->getId());
@@ -613,14 +598,9 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $solutionOrderingList;
     }
 
-    /**
-     * @param $active_id
-     * @param $pass
-     * @return ilAssOrderingElementList
-     */
-    public function getShuffledOrderingElementList()
+    public function getShuffledOrderingElementList(): ilAssOrderingElementList
     {
-        $shuffledRandomIdentifierIndex = $this->getShuffler()->shuffle(
+        $shuffledRandomIdentifierIndex = $this->getShuffler()->transform(
             $this->getOrderingElementList()->getRandomIdentifierIndex()
         );
 
@@ -631,18 +611,12 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $shuffledElementList;
     }
 
-    /**
-     * @return ilAssOrderingElementList
-     */
-    public function getOrderingElementList()
+    public function getOrderingElementList(): ilAssOrderingElementList
     {
         return $this->getRepository()->getOrderingList($this->getId());
     }
 
-    /**
-     * @param ilAssOrderingElementList $orderingElementList
-     */
-    public function setOrderingElementList(ilAssOrderingElementList $list) : void
+    public function setOrderingElementList(ilAssOrderingElementList $list): void
     {
         $list = $list->withQuestionId($this->getId());
         $elements = $list->getElements();
@@ -660,7 +634,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * @param int $position
      * @return ilAssOrderingElement|null
      */
-    public function getAnswer($index = 0)
+    public function getAnswer($index = 0): ?ilAssOrderingElement
     {
         if (!$this->getOrderingElementList()->elementExistByPosition($index)) {
             return null;
@@ -677,7 +651,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     * @access public
     * @see $answers
     */
-    public function deleteAnswer($randomIdentifier)
+    public function deleteAnswer($randomIdentifier): void
     {
         $this->getOrderingElementList()->removeElement(
             $this->getOrderingElementList()->getElementByRandomIdentifier($randomIdentifier)
@@ -685,14 +659,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         $this->getOrderingElementList()->saveToDb();
     }
 
-    /**
-    * Returns the number of answers
-    *
-    * @return integer The number of answers of the ordering question
-    * @access public
-    * @see $answers
-    */
-    public function getAnswerCount()
+    public function getAnswerCount(): int
     {
         return $this->getOrderingElementList()->countElements();
     }
@@ -707,7 +674,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * @param boolean $returndetails (deprecated !!)
      * @return integer/array $points/$details (array $details is deprecated !!)
      */
-    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false)
+    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false): int
     {
         if ($returndetails) {
             throw new ilTestException('return details not implemented for ' . __METHOD__);
@@ -736,7 +703,8 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         }
 
         $solutionOrderingElementList = unserialize(
-            $previewSession->getParticipantsSolution()
+            $previewSession->getParticipantsSolution(),
+            ["allowed_classes" => true]
         );
 
         $reachedPoints = $this->calculateReachedPointsForSolution($solutionOrderingElementList);
@@ -747,11 +715,9 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 
     /**
     * Returns the maximum points, a learner can reach answering the question
-    *
-    * @return double Points
     * @see $points
     */
-    public function getMaximumPoints()
+    public function getMaximumPoints(): float
     {
         return $this->getPoints();
     }
@@ -764,7 +730,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     * @param string $filename Original filename
     * @return string Encrypted filename
     */
-    public function getEncryptedFilename($filename)
+    public function getEncryptedFilename($filename): string
     {
         $extension = "";
         if (preg_match("/.*\\.(\\w+)$/", $filename, $matches)) {
@@ -773,11 +739,11 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return md5($filename) . "." . $extension;
     }
 
-    protected function cleanImagefiles()
+    protected function cleanImagefiles(): void
     {
         if ($this->getOrderingType() == self::OQ_PICTURES) {
             if (@file_exists($this->getImagePath())) {
-                $contents = ilUtil::getDir($this->getImagePath());
+                $contents = ilFileUtils::getDir($this->getImagePath());
                 foreach ($contents as $f) {
                     if (strcmp($f['type'], 'file') == 0) {
                         $found = false;
@@ -799,15 +765,13 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             }
         } else {
             if (@file_exists($this->getImagePath())) {
-                ilUtil::delDir($this->getImagePath());
+                ilFileUtils::delDir($this->getImagePath());
             }
         }
     }
 
     /*
     * Deletes an imagefile from the system if the file is deleted manually
-    *
-    * @param string $filename Image file filename
     * @return boolean Success
     */
     public function dropImageFile($imageFilename)
@@ -817,12 +781,12 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         }
 
         $result = @unlink($this->getImagePath() . $imageFilename);
-        $result = $result & @unlink($this->getImagePath() . $this->getThumbPrefix() . $imageFilename);
+        $result = $result && @unlink($this->getImagePath() . $this->getThumbPrefix() . $imageFilename);
 
         return $result;
     }
 
-    public function isImageFileStored($imageFilename)
+    public function isImageFileStored($imageFilename): bool
     {
         if (!strlen($imageFilename)) {
             return false;
@@ -835,7 +799,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return is_file($this->getImagePath() . $imageFilename);
     }
 
-    public function isImageReplaced(ilAssOrderingElement $newElement, ilAssOrderingElement $oldElement)
+    public function isImageReplaced(ilAssOrderingElement $newElement, ilAssOrderingElement $oldElement): bool
     {
         if (!$this->hasOrderingTypeUploadSupport()) {
             return false;
@@ -848,10 +812,10 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $newElement->getContent() != $oldElement->getContent();
     }
 
-
-    public function storeImageFile(string $upload_file, string $upload_name) : ?string
+    public function storeImageFile(string $upload_file, string $upload_name): ?string
     {
-        $suffix = strtolower(array_pop(explode(".", $upload_name)));
+        $name_parts = explode(".", $upload_name);
+        $suffix = strtolower(array_pop($name_parts));
         if (!in_array($suffix, self::VALID_UPLOAD_SUFFIXES)) {
             return null;
         }
@@ -859,25 +823,33 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         $this->ensureImagePathExists();
         $target_filename = $this->buildHashedImageFilename($upload_name, true);
         $target_filepath = $this->getImagePath() . $target_filename;
-        if (ilUtil::moveUploadedFile($upload_file, $target_filename, $target_filepath)) {
+        if (ilFileUtils::moveUploadedFile($upload_file, $target_filename, $target_filepath)) {
             $thumb_path = $this->getImagePath() . $this->getThumbPrefix() . $target_filename;
-            if ($this->getThumbGeometry()) {
-                ilUtil::convertImage($target_filepath, $thumb_path, "JPEG", $this->getThumbGeometry());
-            }
+            ilShellUtil::convertImage($target_filepath, $thumb_path, "JPEG", (string)$this->getThumbSize());
+
             return $target_filename;
         }
 
         return null;
     }
 
-    /**
-    * Checks the data to be saved for consistency
-    *
-  * @return boolean True, if the check was ok, False otherwise
-    * @access public
-    * @see $answers
-    */
-    public function validateSolutionSubmit()
+    public function updateImageFile(string $existing_image_name): ?string
+    {
+        $existing_image_path = $this->getImagePath() . $existing_image_name;
+        $target_filename = $this->buildHashedImageFilename($existing_image_name, true);
+        $target_filepath = $this->getImagePath() . $target_filename;
+        if (ilFileUtils::rename($existing_image_path, $target_filepath)) {
+            unlink($this->getImagePath() . $this->getThumbPrefix() . $existing_image_name);
+            $thumb_path = $this->getImagePath() . $this->getThumbPrefix() . $target_filename;
+            ilShellUtil::convertImage($target_filepath, $thumb_path, "JPEG", (string)$this->getThumbSize());
+
+            return $target_filename;
+        }
+
+        return $existing_image_name;
+    }
+
+    public function validateSolutionSubmit(): bool
     {
         $submittedSolutionList = $this->getSolutionListFromPostSubmit();
 
@@ -896,12 +868,11 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * @param integer $pass Test pass
      * @return boolean $status
      */
-    public function saveWorkingData($active_id, $pass = null, $authorized = true)
+    public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
     {
         $entered_values = 0;
 
         if (is_null($pass)) {
-            include_once "./Modules/Test/classes/class.ilObjTest.php";
             $pass = ilObjTest::_getPass($active_id);
         }
 
@@ -929,7 +900,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return true;
     }
 
-    protected function savePreviewData(ilAssQuestionPreviewSession $previewSession)
+    protected function savePreviewData(ilAssQuestionPreviewSession $previewSession): void
     {
         if ($this->validateSolutionSubmit()) {
             $previewSession->setParticipantsSolution(serialize($this->getSolutionListFromPostSubmit()));
@@ -945,25 +916,24 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         // save additional data
         $ilDB->manipulateF(
             "DELETE FROM " . $this->getAdditionalTableName() . " WHERE question_fi = %s",
-            array( "integer" ),
-            array( $this->getId() )
+            ["integer"],
+            [$this->getId()]
         );
 
         $ilDB->manipulateF(
             "INSERT INTO " . $this->getAdditionalTableName() . " (question_fi, ordering_type, thumb_geometry, element_height)
                             VALUES (%s, %s, %s, %s)",
-            array( "integer", "text", "integer", "integer" ),
-            array(
-                                $this->getId(),
-                                $this->ordering_type,
-                                $this->getThumbGeometry(),
-                                ($this->getElementHeight() > 20) ? $this->getElementHeight() : null
-                            )
+            ["integer", "text", "integer", "integer"],
+            [
+                $this->getId(),
+                $this->ordering_type,
+                $this->getThumbSize(),
+                ($this->getElementHeight() > 20) ? $this->getElementHeight() : null
+            ]
         );
     }
 
-
-    protected function getQuestionRepository() : ILIAS\TA\Questions\Ordering\assOrderingQuestionDatabaseRepository
+    protected function getQuestionRepository(): ILIAS\TA\Questions\Ordering\assOrderingQuestionDatabaseRepository
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
@@ -974,24 +944,12 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     {
     }
 
-    /**
-    * Returns the question type of the question
-    *
-    * @return integer The question type of the question
-    * @access public
-    */
-    public function getQuestionType()
+    public function getQuestionType(): string
     {
         return "assOrderingQuestion";
     }
 
-    /**
-    * Returns the name of the additional question data table in the database
-    *
-    * @return string The additional table name
-    * @access public
-    */
-    public function getAdditionalTableName()
+    public function getAdditionalTableName(): string
     {
         return "qpl_qst_ordering";
     }
@@ -1002,7 +960,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     * @return string The answer table name
     * @access public
     */
-    public function getAnswerTableName()
+    public function getAnswerTableName(): string
     {
         return "qpl_a_ordering";
     }
@@ -1011,7 +969,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     * Collects all text in the question which could contain media objects
     * which were created with the Rich Text Editor
     */
-    public function getRTETextWithMediaObjects()
+    public function getRTETextWithMediaObjects(): string
     {
         $text = parent::getRTETextWithMediaObjects();
 
@@ -1026,7 +984,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * Returns the answers array
      * @deprecated seriously, stop looking for this kind data at this point (!) look where it comes from and learn (!)
      */
-    public function getOrderElements()
+    public function getOrderElements(): array
     {
         return $this->getOrderingElementList()->getRandomIdentifierIndexedElements();
     }
@@ -1037,12 +995,12 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     * @return boolean TRUE if the question type supports JavaScript output, FALSE otherwise
     * @access public
     */
-    public function supportsJavascriptOutput()
+    public function supportsJavascriptOutput(): bool
     {
         return true;
     }
 
-    public function supportsNonJsOutput()
+    public function supportsNonJsOutput(): bool
     {
         return false;
     }
@@ -1050,7 +1008,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     /**
      * {@inheritdoc}
      */
-    public function setExportDetailsXLS($worksheet, $startrow, $active_id, $pass)
+    public function setExportDetailsXLS(ilAssExcelFormatHelper $worksheet, int $startrow, int $active_id, int $pass): int
     {
         parent::setExportDetailsXLS($worksheet, $startrow, $active_id, $pass);
 
@@ -1071,80 +1029,43 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
                 }
             }
             $element = $this->getOrderingElementList()->getElementBySolutionIdentifier($idx);
-            // fau: fixOrderingExportXls - avoid error on empty elements
-            if (isset($element)) {
-                $worksheet->setCell($startrow + $i, 2, $element->getContent());
-            }
-            // fau.
+            $worksheet->setCell($startrow + $i, 2, $element->getContent());
             $i++;
         }
 
         return $startrow + $i + 1;
     }
 
-    /*
-    * Get the thumbnail geometry
-    *
-    * @return integer Geometry
-    */
-    public function getThumbGeometry()
-    {
-        return $this->thumb_geometry;
-    }
-
-    public function getThumbSize()
-    {
-        return $this->getThumbGeometry();
-    }
-
-    /*
-    * Set the thumbnail geometry
-    *
-    * @param integer $a_geometry Geometry
-    */
-    public function setThumbGeometry($a_geometry)
-    {
-        $this->thumb_geometry = ((int) $a_geometry < 1) ? 100 : $a_geometry;
-    }
-
-    /*
-    * Get the minimum element height
-    *
-    * @return integer Height
-    */
-    public function getElementHeight()
+    public function getElementHeight(): ?int
     {
         return $this->element_height;
     }
 
-    /*
-    * Set the minimum element height
-    *
-    * @param integer $a_height Height
-    */
-    public function setElementHeight($a_height)
+    public function setElementHeight(?int $a_height): void
     {
-        $this->element_height = ($a_height < 20) ? "" : $a_height;
+        $this->element_height = ($a_height < 20) ? null : $a_height;
     }
 
     /*
     * Rebuild the thumbnail images with a new thumbnail size
     */
-    public function rebuildThumbnails()
+    public function rebuildThumbnails(): void
     {
         if ($this->isImageOrderingType()) {
             foreach ($this->getOrderElements() as $orderingElement) {
-                $this->generateThumbForFile($this->getImagePath(), $orderingElement->getContent());
+                if ($orderingElement->getContent() !== '') {
+                    $this->generateThumbForFile($this->getImagePath(), $orderingElement->getContent());
+                }
             }
         }
     }
 
-    public function getThumbPrefix()
+    public function getThumbPrefix(): string
     {
         return "thumb.";
     }
 
-    protected function generateThumbForFile($path, $file)
+    protected function generateThumbForFile($path, $file): void
     {
         $filename = $path . $file;
         if (@file_exists($filename)) {
@@ -1162,23 +1083,23 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
                     $ext = 'JPEG';
                     break;
             }
-            ilUtil::convertImage($filename, $thumbpath, $ext, $this->getThumbGeometry());
+            ilShellUtil::convertImage($filename, $thumbpath, $ext, (string)$this->getThumbSize());
         }
     }
 
     /**
     * Returns a JSON representation of the question
     */
-    public function toJSON()
+    public function toJSON(): string
     {
         include_once("./Services/RTE/classes/class.ilRTE.php");
         $result = array();
-        $result['id'] = (int) $this->getId();
+        $result['id'] = $this->getId();
         $result['type'] = (string) $this->getQuestionType();
-        $result['title'] = (string) $this->getTitle();
+        $result['title'] = $this->getTitle();
         $result['question'] = $this->formatSAQuestion($this->getQuestion());
-        $result['nr_of_tries'] = (int) $this->getNrOfTries();
-        $result['shuffle'] = (bool) true;
+        $result['nr_of_tries'] = $this->getNrOfTries();
+        $result['shuffle'] = true;
         $result['points'] = $this->getPoints();
         $result['feedback'] = array(
             'onenotcorrect' => $this->formatSAQuestion($this->feedbackOBJ->getGenericFeedbackTestPresentation($this->getId(), false)),
@@ -1194,7 +1115,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             $answers[$counter] = $orderingElement->getContent();
             $counter++;
         }
-        $answers = $this->getShuffler()->shuffle($answers);
+        $answers = $this->getShuffler()->transform($answers);
         $arr = array();
         foreach ($answers as $order => $answer) {
             array_push($arr, array(
@@ -1222,11 +1143,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $this->buildOrderingTextsInputGui();
     }
 
-
-    /**
-     * @param ilAssOrderingTextsInputGUI|ilAssOrderingImagesInputGUI|ilAssNestedOrderingElementsInputGUI $formField
-     */
-    public function initOrderingElementAuthoringProperties(ilFormPropertyGUI $formField)
+    public function initOrderingElementAuthoringProperties(ilFormPropertyGUI $formField): void
     {
         switch (true) {
             case $formField instanceof ilAssNestedOrderingElementsInputGUI:
@@ -1243,23 +1160,15 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         }
     }
 
-    /**
-     * @param ilFormPropertyGUI $formField
-     */
-    public function initOrderingElementFormFieldLabels(ilFormPropertyGUI $formField)
+    public function initOrderingElementFormFieldLabels(ilFormPropertyGUI $formField): void
     {
         $formField->setInfo($this->lng->txt('ordering_answer_sequence_info'));
         $formField->setTitle($this->lng->txt('answers'));
     }
 
-    /**
-     * @return ilAssOrderingTextsInputGUI
-     */
-    public function buildOrderingTextsInputGui()
+    public function buildOrderingTextsInputGui(): ilAssOrderingTextsInputGUI
     {
         $formDataConverter = $this->buildOrderingTextsFormDataConverter();
-
-        require_once 'Modules/TestQuestionPool/classes/forms/class.ilAssOrderingTextsInputGUI.php';
 
         $orderingElementInput = new ilAssOrderingTextsInputGUI(
             $formDataConverter,
@@ -1271,14 +1180,9 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $orderingElementInput;
     }
 
-    /**
-     * @return ilAssOrderingImagesInputGUI
-     */
-    public function buildOrderingImagesInputGui()
+    public function buildOrderingImagesInputGui(): ilAssOrderingImagesInputGUI
     {
         $formDataConverter = $this->buildOrderingImagesFormDataConverter();
-
-        require_once 'Modules/TestQuestionPool/classes/forms/class.ilAssOrderingImagesInputGUI.php';
 
         $orderingElementInput = new ilAssOrderingImagesInputGUI(
             $formDataConverter,
@@ -1296,11 +1200,9 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     /**
      * @return ilAssNestedOrderingElementsInputGUI
      */
-    public function buildNestedOrderingElementInputGui()
+    public function buildNestedOrderingElementInputGui(): ilAssNestedOrderingElementsInputGUI
     {
         $formDataConverter = $this->buildNestedOrderingFormDataConverter();
-
-        require_once 'Modules/TestQuestionPool/classes/forms/class.ilAssNestedOrderingElementsInputGUI.php';
 
         $orderingElementInput = new ilAssNestedOrderingElementsInputGUI(
             $formDataConverter,
@@ -1320,21 +1222,17 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 
     /**
      * @param array $userSolutionPost
-     * @return ilAssOrderingElementList
-     * @throws ilTestException
      */
-    public function fetchSolutionListFromFormSubmissionData($userSolutionPost)
+    public function fetchSolutionListFromFormSubmissionData($userSolutionPost): ilAssOrderingElementList
     {
         $orderingGUI = $this->buildNestedOrderingElementInputGui();
         $orderingGUI->setContext(ilAssNestedOrderingElementsInputGUI::CONTEXT_USER_SOLUTION_SUBMISSION);
         $orderingGUI->setValueByArray($userSolutionPost);
 
         if (!$orderingGUI->checkInput()) {
-            require_once 'Modules/Test/exceptions/class.ilTestException.php';
             throw new ilTestException('error on validating user solution post');
         }
 
-        require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssOrderingElementList.php';
         $solutionOrderingElementList = ilAssOrderingElementList::buildInstance($this->getId());
 
         $storedElementList = $this->getOrderingElementList();
@@ -1361,33 +1259,29 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      */
     private $postSolutionOrderingElementList = null;
 
-    /**
-     * @return ilAssOrderingElementList
-     */
-    public function getSolutionListFromPostSubmit()
+    public function getSolutionListFromPostSubmit(): ilAssOrderingElementList
     {
         if ($this->postSolutionOrderingElementList === null) {
-            $list = $this->fetchSolutionListFromFormSubmissionData($_POST);
+            $post_array = $_POST;
+            if (! is_array($post_array)) {
+                global $DIC;
+                $request = $DIC->http()->request();
+                $post_array = $request->getParsedBody();
+            }
+
+            $list = $this->fetchSolutionListFromFormSubmissionData($post_array);
             $this->postSolutionOrderingElementList = $list;
         }
 
         return $this->postSolutionOrderingElementList;
     }
 
-    /**
-     * @return array
-     */
-    public function getSolutionPostSubmit()
+    public function getSolutionPostSubmit(): array
     {
         return $this->fetchSolutionSubmit($_POST);
     }
 
-    /**
-     * @param $user_order
-     * @param $nested_solution
-     * @return int
-     */
-    protected function calculateReachedPointsForSolution(ilAssOrderingElementList $solutionOrderingElementList)
+    protected function calculateReachedPointsForSolution(ilAssOrderingElementList $solutionOrderingElementList): float
     {
         $reachedPoints = $this->getPoints();
 
@@ -1407,21 +1301,13 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * Get all available operations for a specific question
      *
      * @param string $expression
-     *
-     * @internal param string $expression_type
-     * @return array
      */
-    public function getOperators($expression)
+    public function getOperators($expression): array
     {
-        require_once "./Modules/TestQuestionPool/classes/class.ilOperatorsExpressionMapping.php";
         return ilOperatorsExpressionMapping::getOperatorsByExpression($expression);
     }
 
-    /**
-     * Get all available expression types for a specific question
-     * @return array
-     */
-    public function getExpressionTypes()
+    public function getExpressionTypes(): array
     {
         return array(
             iQuestionCondition::PercentageResultExpression,
@@ -1436,10 +1322,8 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     *
     * @param int $active_id
     * @param int $pass
-    *
-    * @return ilUserQuestionResult
     */
-    public function getUserQuestionResult($active_id, $pass)
+    public function getUserQuestionResult($active_id, $pass): ilUserQuestionResult
     {
         /** @var ilDBInterface $ilDB */
         global $DIC;
@@ -1502,7 +1386,6 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      *
      * @param null|int $index
      *
-     * @return array|ASS_AnswerSimple
      */
     public function getAvailableAnswerOptions($index = null)
     {
@@ -1516,40 +1399,27 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     /**
      * {@inheritdoc}
      */
-    protected function afterSyncWithOriginal($origQuestionId, $dupQuestionId, $origParentObjId, $dupParentObjId)
+    protected function afterSyncWithOriginal($origQuestionId, $dupQuestionId, $origParentObjId, $dupParentObjId): void
     {
         parent::afterSyncWithOriginal($origQuestionId, $dupQuestionId, $origParentObjId, $dupParentObjId);
         $this->duplicateImages($dupQuestionId, $dupParentObjId, $origQuestionId, $origParentObjId);
     }
 
-    // fau: testNav - new function getTestQuestionConfig()
-    /**
-     * Get the test question configuration
-     * @return ilTestQuestionConfig
-     */
-    // hey: refactored identifiers
-    public function buildTestPresentationConfig()
-    // hey.
+    public function buildTestPresentationConfig(): ilTestQuestionConfig
     {
-        // hey: refactored identifiers
         return parent::buildTestPresentationConfig()
-        // hey.
             ->setIsUnchangedAnswerPossible(true)
             ->setUseUnchangedAnswerLabel($this->lng->txt('tst_unchanged_order_is_correct'));
     }
-    // fau.
 
-    protected function ensureImagePathExists()
+    protected function ensureImagePathExists(): void
     {
         if (!file_exists($this->getImagePath())) {
-            ilUtil::makeDirParents($this->getImagePath());
+            ilFileUtils::makeDirParents($this->getImagePath());
         }
     }
 
-    /**
-     * @return array
-     */
-    public function fetchSolutionSubmit($formSubmissionDataStructure)
+    public function fetchSolutionSubmit($formSubmissionDataStructure): array
     {
         $solutionSubmit = array();
 
@@ -1602,10 +1472,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $solutionSubmit;
     }
 
-    /**
-     * @return ilAssOrderingFormValuesObjectsConverter
-     */
-    protected function buildOrderingElementFormDataConverter()
+    protected function buildOrderingElementFormDataConverter(): ilAssOrderingFormValuesObjectsConverter
     {
         require_once 'Modules/TestQuestionPool/classes/forms/class.ilAssOrderingFormValuesObjectsConverter.php';
         $converter = new ilAssOrderingFormValuesObjectsConverter();
@@ -1614,10 +1481,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         return $converter;
     }
 
-    /**
-     * @return ilAssOrderingFormValuesObjectsConverter
-     */
-    protected function buildOrderingImagesFormDataConverter()
+    protected function buildOrderingImagesFormDataConverter(): ilAssOrderingFormValuesObjectsConverter
     {
         $formDataConverter = $this->buildOrderingElementFormDataConverter();
         $formDataConverter->setContext(ilAssOrderingFormValuesObjectsConverter::CONTEXT_MAINTAIN_ELEMENT_IMAGE);
@@ -1626,26 +1490,20 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         $formDataConverter->setImageUrlPath($this->getImagePathWeb());
         $formDataConverter->setImageFsPath($this->getImagePath());
 
-        if ($this->getThumbSize() && $this->getThumbPrefix()) {
+        if ($this->getThumbPrefix()) {
             $formDataConverter->setThumbnailPrefix($this->getThumbPrefix());
         }
         return $formDataConverter;
     }
 
-    /**
-     * @return ilAssOrderingFormValuesObjectsConverter
-     */
-    protected function buildOrderingTextsFormDataConverter()
+    protected function buildOrderingTextsFormDataConverter(): ilAssOrderingFormValuesObjectsConverter
     {
         $formDataConverter = $this->buildOrderingElementFormDataConverter();
         $formDataConverter->setContext(ilAssOrderingFormValuesObjectsConverter::CONTEXT_MAINTAIN_ELEMENT_TEXT);
         return $formDataConverter;
     }
 
-    /**
-     * @return ilAssOrderingFormValuesObjectsConverter
-     */
-    protected function buildNestedOrderingFormDataConverter()
+    protected function buildNestedOrderingFormDataConverter(): ilAssOrderingFormValuesObjectsConverter
     {
         $formDataConverter = $this->buildOrderingElementFormDataConverter();
         $formDataConverter->setContext(ilAssOrderingFormValuesObjectsConverter::CONTEXT_MAINTAIN_HIERARCHY);

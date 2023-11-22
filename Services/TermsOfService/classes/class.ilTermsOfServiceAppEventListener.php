@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceAppEventListener
@@ -7,32 +24,17 @@
  */
 class ilTermsOfServiceAppEventListener implements ilAppEventListener
 {
-    /** @var ilTermsOfServiceHelper $helper */
-    protected $helper;
+    protected ilTermsOfServiceHelper $helper;
+    protected string $component = '';
+    protected string $event = '';
+    protected array $parameters = [];
 
-    /** @var string */
-    protected $component = '';
-
-    /** @var string */
-    protected $event = '';
-
-    /** @var array */
-    protected $parameters = [];
-
-    /**
-     * ilTermsOfServiceAppEventListener constructor.
-     * @param ilTermsOfServiceHelper $helper
-     */
     public function __construct(ilTermsOfServiceHelper $helper)
     {
         $this->helper = $helper;
     }
 
-    /**
-     * @param string $component
-     * @return ilTermsOfServiceAppEventListener
-     */
-    public function withComponent(string $component) : self
+    public function withComponent(string $component): self
     {
         $clone = clone $this;
 
@@ -41,11 +43,7 @@ class ilTermsOfServiceAppEventListener implements ilAppEventListener
         return $clone;
     }
 
-    /**
-     * @param string $event
-     * @return ilTermsOfServiceAppEventListener
-     */
-    public function withEvent(string $event) : self
+    public function withEvent(string $event): self
     {
         $clone = clone $this;
 
@@ -54,11 +52,7 @@ class ilTermsOfServiceAppEventListener implements ilAppEventListener
         return $clone;
     }
 
-    /**
-     * @param array $parameters
-     * @return ilTermsOfServiceAppEventListener
-     */
-    public function withParameters(array $parameters) : self
+    public function withParameters(array $parameters): self
     {
         $clone = clone $this;
 
@@ -67,10 +61,7 @@ class ilTermsOfServiceAppEventListener implements ilAppEventListener
         return $clone;
     }
 
-    /**
-     * @return bool
-     */
-    protected function isUserDeletionEvent() : bool
+    protected function isUserDeletionEvent(): bool
     {
         return (
             'Services/User' === $this->component &&
@@ -78,22 +69,16 @@ class ilTermsOfServiceAppEventListener implements ilAppEventListener
         );
     }
 
-    /**
-     * @throws ilTermsOfServiceMissingDatabaseAdapterException
-     */
-    public function handle() : void
+    public function handle(): void
     {
         if ($this->isUserDeletionEvent()) {
             $this->helper->deleteAcceptanceHistoryByUser($this->parameters['usr_id']);
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public static function handleEvent($a_component, $a_event, $a_parameter) : void
+    public static function handleEvent(string $a_component, string $a_event, array $a_parameter): void
     {
-        $listener = new static(new ilTermsOfServiceHelper());
+        $listener = new self(new ilTermsOfServiceHelper());
         $listener
             ->withComponent($a_component)
             ->withEvent($a_event)

@@ -1,6 +1,20 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Repository object assignment information
@@ -9,32 +23,21 @@
  */
 class ilExcRepoObjAssignmentAccessInfo implements ilExcRepoObjAssignmentAccessInfoInterface
 {
-    /**
-     * @var bool
-     */
-    protected $is_granted;
+    protected bool $is_granted;
 
     /**
      * @var string[]
      */
-    protected $not_granted_reasons;
+    protected array $not_granted_reasons;
 
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
+    protected ilLanguage $lng;
+    protected ilAccessHandler $access;
 
     /**
      * Constructor
-     * @param bool $a_is_granted
      * @param string[] $a_not_granted_reasons
      */
-    protected function __construct($a_is_granted, array $a_not_granted_reasons)
+    protected function __construct(bool $a_is_granted, array $a_not_granted_reasons)
     {
         global $DIC;
 
@@ -48,10 +51,8 @@ class ilExcRepoObjAssignmentAccessInfo implements ilExcRepoObjAssignmentAccessIn
 
     /**
      * Is access granted due to exercise assignment conditions?
-     *
-     * @return int assignment id
      */
-    public function isGranted()
+    public function isGranted(): bool
     {
         return $this->is_granted;
     }
@@ -61,19 +62,16 @@ class ilExcRepoObjAssignmentAccessInfo implements ilExcRepoObjAssignmentAccessIn
      *
      * @return string[]
      */
-    public function getNotGrantedReasons()
+    public function getNotGrantedReasons(): array
     {
         return $this->not_granted_reasons;
     }
 
     /**
-     *
-     *
      * @param int $a_ref_id ref id
      * @param int $a_user_id user id
-     * @return ilExcRepoObjAssignmentAccessInfo
      */
-    public static function getInfo($a_ref_id, $a_user_id)
+    public static function getInfo(int $a_ref_id, int $a_user_id): self
     {
         global $DIC;
 

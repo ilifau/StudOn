@@ -1,22 +1,34 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 namespace ILIAS\UI\Component\Dropzone\File;
 
+use ILIAS\UI\Component\Input\Field\File as FileInput;
 use ILIAS\UI\Component\Component;
 
 /**
- * Interface Factory
- *
  * Describes a factory for file dropzones.
- *
  * @author  nmaerchy <nm@studer-raimann.ch>
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
- *
- * @package ILIAS\UI\Component\Dropzone\File
+ * @author  Thibeau Fuhrer <thibeau@sr.solutions>
  */
 interface Factory
 {
-
     /**
      * ---
      * description:
@@ -27,8 +39,8 @@ interface Factory
      *   composition: >
      *      Standard dropzones consist of a visible area where files can
      *      be dropped. They MUST contain a message explaining that it is possible to
-     *      drop files inside. The dropped files are presented to the user, optionally
-     *      with some button to start the upload process.
+     *      drop files inside. The dropped files are presented to the user in a roundtrip
+     *      modal, which contains a file input.
      *   effect: >
      *      A standard dropzone is highlighted when the user is dragging files
      *      over the dropzone. After dropping, the dropped files are presented
@@ -38,28 +50,27 @@ interface Factory
      *      Rival 1: >
      *          A wrapper dropzone can hold other ILIAS UI components instead of
      *          a message.
-     *
+     *      Rival 2: >
+     *          A file-input can be used instead of this component if other values
+     *          have to be submitted at the same time.
      * rules:
-     *   usage:
-     *     1: Standard dropzones MUST contain a message.
-     *     2: >
-     *        The upload button MUST be disabled if there are no files
-     *        to be uploaded. Only true if the dropzone is NOT used in
-     *        a form containing other form elements.
-     *     3: >
-     *        Standard dropzones MAY be used in forms.
      *   accessibility:
      *     1: >
      *        Standard dropzones MUST offer the possibility to select files
      *        manually from the computer.
-     *
      * ---
-     *
-     * @param string $url The url where the dropped files are being uploaded
+     * @param string $title
+     * @param string $message
+     * @param string $post_url
+     * @param FileInput $file_input
      * @return \ILIAS\UI\Component\Dropzone\File\Standard
      */
-    public function standard($url);
-
+    public function standard(
+        string $title,
+        string $message,
+        string $post_url,
+        FileInput $file_input
+    ): Standard;
 
     /**
      * ---
@@ -77,7 +88,7 @@ interface Factory
      *   composition: >
      *      A wrapper dropzone contains one or multiple ILIAS UI components.
      *      A roundtrip modal is used to present the dropped files and to initialize
-     *      the upload process.
+     *      the upload process with a file input.
      *   effect: >
      *      All wrapper dropzones on the page are highlighted when the user
      *      dragging files over the browser window. After dropping the files, the
@@ -87,7 +98,6 @@ interface Factory
      *      Rival 1: >
      *          A standard dropzone displays a message instead of other
      *          ILIAS UI components.
-     *
      * rules:
      *   usage:
      *     1: >
@@ -96,15 +106,17 @@ interface Factory
      *     2: Wrapper dropzones MUST contain one or more ILIAS UI components.
      *     3: Wrapper dropzones MUST NOT contain any other file dropzones.
      *     4: Wrapper dropzones MUST NOT be used in modals.
-     *     5: >
-     *        The upload button in the modal MUST be disabled if there are no files
-     *        to be uploaded.
      * ---
-     *
-     * @param string $url The url where the dropped files are being uploaded
-     * @param Component[]|Component $content Component(s) wrapped by the dropzone
-     *
+     * @param string $title
+     * @param string $post_url
+     * @param Component|Component[] $content
+     * @param FileInput $file_input
      * @return \ILIAS\UI\Component\Dropzone\File\Wrapper
      */
-    public function wrapper($url, $content);
+    public function wrapper(
+        string $title,
+        string $post_url,
+        $content,
+        FileInput $file_input
+    ): Wrapper;
 }

@@ -3,22 +3,48 @@
 declare(strict_types=1);
 
 /**
- * @author Daniel Weise <daniel.weise@concepts-and-training.de>
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilLearningSequenceXMLParser extends ilSaxParser
 {
-    /**
-     * @var bool
-     */
-    protected $storing;
+    protected ilObjLearningSequence $obj;
+    protected bool $storing;
 
     /**
-     * @var int
+     * @var (string|int)[]
      */
-    protected $counter;
+    protected array $object;
 
-    /** @var string */
-    private $cdata = '';
+    /**
+     * @var (string|int)[]
+     */
+    protected array $ls_item_data;
+
+    /**
+     * @var string[]
+     */
+    protected array $settings;
+
+    /**
+     * @var array
+     */
+    protected array $lp_settings;
+    protected int $counter;
+    protected string $actual_name;
+    protected string $cdata;
 
     public function __construct(ilObjLearningSequence $obj, string $xml)
     {
@@ -36,7 +62,10 @@ class ilLearningSequenceXMLParser extends ilSaxParser
         $this->counter = 0;
     }
 
-    public function start() : array
+    /**
+     * @return array<string, mixed>
+     */
+    public function start(): array
     {
         $this->startParsing();
 
@@ -49,18 +78,18 @@ class ilLearningSequenceXMLParser extends ilSaxParser
         return $ret;
     }
 
-    public function setHandlers($parser)
+    public function setHandlers($a_xml_parser): void
     {
-        xml_set_object($parser, $this);
-        xml_set_element_handler($parser, "handleBeginTag", "handleEndTag");
-        xml_set_character_data_handler($parser, 'handleCharacterData');
+        xml_set_object($a_xml_parser, $this);
+        xml_set_element_handler($a_xml_parser, "handleBeginTag", "handleEndTag");
+        xml_set_character_data_handler($a_xml_parser, 'handleCharacterData');
     }
 
     public function handleBeginTag(
         $parser,
         string $name,
         array $attributes
-    ) {
+    ): void {
         $this->actual_name = $name;
 
         switch ($name) {
@@ -76,7 +105,7 @@ class ilLearningSequenceXMLParser extends ilSaxParser
         }
     }
 
-    public function handleEndTag($parser, string $name)
+    public function handleEndTag($parser, string $name): void
     {
         $this->cdata = trim($this->cdata);
 
@@ -130,23 +159,23 @@ class ilLearningSequenceXMLParser extends ilSaxParser
         $this->cdata = '';
     }
 
-    public function handleCharacterData($parser, $data)
+    public function handleCharacterData($parser, $data): void
     {
         $this->cdata .= ($data ?? "");
         $this->storeData();
     }
 
-    protected function beginStoreCData()
+    protected function beginStoreCData(): void
     {
         $this->storing = true;
     }
 
-    protected function endStoreCData()
+    protected function endStoreCData(): void
     {
         $this->storing = false;
     }
 
-    protected function storeData()
+    protected function storeData(): void
     {
         if ($this->storing) {
             $this->ls_item_data[$this->counter][$this->actual_name] = $this->cdata ?? "";

@@ -1,23 +1,40 @@
 <?php
-/* Copyright (c) 2018 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Refinery\Password;
 
-use ILIAS\Refinery\Custom\Constraint as CustomConstraint;
-use ILIAS\Refinery\Constraint;
+use ILIAS\Refinery\Custom\Constraint;
 use ILIAS\Data;
+use ilLanguage;
 
-class HasSpecialChars extends CustomConstraint implements Constraint
+class HasSpecialChars extends Constraint
 {
-    protected static $ALLOWED_CHARS = '/[,_.\-#\+\*?!%§\(\)\$]/';
+    private const ALLOWED_CHARS = '/[,_.\-#\+\*?!%§\(\)\$]/u';
 
-    public function __construct(Data\Factory $data_factory, \ilLanguage $lng)
+    public function __construct(Data\Factory $data_factory, ilLanguage $lng)
     {
         parent::__construct(
-            function (Data\Password $value) {
-                return (bool) preg_match(static::$ALLOWED_CHARS, $value->toString());
+            static function (Data\Password $value): bool {
+                return (bool) preg_match(self::ALLOWED_CHARS, $value->toString());
             },
-            function ($value) {
+            static function ($value): string {
                 return "Password must contain special chars.";
             },
             $data_factory,

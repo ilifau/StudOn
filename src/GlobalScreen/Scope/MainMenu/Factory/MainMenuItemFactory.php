@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Factory;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
@@ -43,7 +43,7 @@ class MainMenuItemFactory
      * @param IdentificationInterface $identification
      * @return TopParentItem
      */
-    public function topParentItem(IdentificationInterface $identification) : TopParentItem
+    public function topParentItem(IdentificationInterface $identification): TopParentItem
     {
         return new TopParentItem($identification);
     }
@@ -54,7 +54,7 @@ class MainMenuItemFactory
      * @param IdentificationInterface $identification
      * @return TopLinkItem
      */
-    public function topLinkItem(IdentificationInterface $identification) : TopLinkItem
+    public function topLinkItem(IdentificationInterface $identification): TopLinkItem
     {
         return new TopLinkItem($identification);
     }
@@ -64,7 +64,7 @@ class MainMenuItemFactory
      * @param IdentificationInterface $identification
      * @return Link
      */
-    public function link(IdentificationInterface $identification) : Link
+    public function link(IdentificationInterface $identification): Link
     {
         return new Link($identification);
     }
@@ -75,7 +75,7 @@ class MainMenuItemFactory
      * @param IdentificationInterface $identification
      * @return Separator
      */
-    public function separator(IdentificationInterface $identification) : Separator
+    public function separator(IdentificationInterface $identification): Separator
     {
         return new Separator($identification);
     }
@@ -86,7 +86,7 @@ class MainMenuItemFactory
      * @param IdentificationInterface $identification
      * @return Complex
      */
-    public function complex(IdentificationInterface $identification) : Complex
+    public function complex(IdentificationInterface $identification): Complex
     {
         return new Complex($identification);
     }
@@ -96,7 +96,7 @@ class MainMenuItemFactory
      * @param IdentificationInterface $identification
      * @return RepositoryLink
      */
-    public function repositoryLink(IdentificationInterface $identification) : RepositoryLink
+    public function repositoryLink(IdentificationInterface $identification): RepositoryLink
     {
         return new RepositoryLink($identification);
     }
@@ -106,7 +106,7 @@ class MainMenuItemFactory
      * @param IdentificationInterface $identification
      * @return LinkList
      */
-    public function linkList(IdentificationInterface $identification) : LinkList
+    public function linkList(IdentificationInterface $identification): LinkList
     {
         return new LinkList($identification);
     }
@@ -116,7 +116,7 @@ class MainMenuItemFactory
      * @param IdentificationInterface $identification
      * @return isItem
      */
-    public function custom(string $class_name, IdentificationInterface $identification) : isItem
+    public function custom(string $class_name, IdentificationInterface $identification): isItem
     {
         if (!class_exists($class_name)) {
             return new Lost($identification);

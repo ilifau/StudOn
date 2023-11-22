@@ -26,7 +26,7 @@ namespace ILIAS\GlobalScreen\Scope\MetaBar\Factory;
  */
 interface hasTitle extends isItem
 {
-    public function withTitle(string $title) : hasTitle;
+    public function withTitle(string $title): hasTitle;
 
-    public function getTitle() : string;
+    public function getTitle(): string;
 }

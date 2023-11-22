@@ -1,7 +1,23 @@
 <?php
-/* Copyright (c) 1998-2015 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/DataSet/classes/class.ilDataSet.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Style\Content\Access;
+use ILIAS\Style\Content;
 
 /**
  * Style Data set class
@@ -21,8 +37,6 @@ include_once("./Services/DataSet/classes/class.ilDataSet.php");
  *                 the "sty" entity will be detemined and exported afterwards (if a non global style has been assigned)
  *
  * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- * @ingroup ingroup ServicesStyle
  */
 class ilStyleDataSet extends ilDataSet
 {
@@ -30,6 +44,16 @@ class ilStyleDataSet extends ilDataSet
      * @var ilLogger
      */
     protected $log;
+
+    /**
+     * @var ilRbacSystem
+     */
+    protected $rbacsystem;
+
+    /**
+     * @var \ilObjUser
+     */
+    protected $user;
 
     /**
      * constructor
@@ -45,50 +69,46 @@ class ilStyleDataSet extends ilDataSet
         parent::__construct();
         $this->log = ilLoggerFactory::getLogger('styl');
         $this->log->debug("constructed");
+        $this->rbacsystem = $DIC->rbac()->system();
+        $this->user = $DIC->user();
     }
 
 
     /**
      * Get supported versions
-     *
-     * @return string version
+     * @return array version
      */
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return array("5.1.0");
     }
 
     /**
      * Get xml namespace
-     *
      * @param
-     * @return
+     * @return string
      */
-    public function getXmlNamespace($a_entity, $a_schema_version)
+    public function getXmlNamespace(string $a_entity, string $a_schema_version): string
     {
         return "http://www.ilias.de/xml/Services/Style/" . $a_entity;
     }
 
     /**
      * Get field types for entity
-     *
-     * @param string $a_entity entity
+     * @param string $a_entity  entity
      * @param string $a_version version number
      * @return array types array
      */
-    protected function getTypes($a_entity, $a_version)
+    protected function getTypes(string $a_entity, string $a_version): array
     {
         if ($a_entity == "sty") {
             switch ($a_version) {
                 case "5.1.0":
                     return array(
-// fau: customCss - add custom css to data set definition
                         "Id" => "integer",
                         "Title" => "text",
                         "Description" => "text",
-                        "ImagesDir" => "directory",
-                        "CustomCss" => "text"
-// fau.
+                        "ImagesDir" => "directory"
                     );
             }
         }
@@ -201,20 +221,14 @@ class ilStyleDataSet extends ilDataSet
 
     /**
      * Get xml record
-     *
      * @param
-     * @return
+     * @return array
      */
-    public function getXmlRecord($a_entity, $a_version, $a_set)
+    public function getXmlRecord(string $a_entity, string $a_version, array $a_set): array
     {
         if ($a_entity == "sty") {
-            include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
             $dir = ilObjStyleSheet::_getImagesDirectory($a_set["Id"]);
             $a_set["ImagesDir"] = $dir;
-            // fau: customCss - export the custom css
-            $custom_css = ilObjStyleSheet::lookupCustomCss($a_set["Id"]);
-            $a_set["CustomCss"] = $custom_css;
-            // fau.
         }
 
         return $a_set;
@@ -222,11 +236,10 @@ class ilStyleDataSet extends ilDataSet
 
     /**
      * Read data
-     *
      * @param
-     * @return
+     * @return void
      */
-    public function readData($a_entity, $a_version, $a_ids, $a_field = "")
+    public function readData(string $a_entity, string $a_version, array $a_ids): void
     {
         $ilDB = $this->db;
 
@@ -338,14 +351,17 @@ class ilStyleDataSet extends ilDataSet
     /**
      * Determine the dependent sets of data
      */
-    protected function getDependencies($a_entity, $a_version, $a_rec, $a_ids)
-    {
+    protected function getDependencies(
+        string $a_entity,
+        string $a_version,
+        ?array $a_rec = null,
+        ?array $a_ids = null
+    ): array {
         $this->ds_log->debug("entity: " . $a_entity . ", rec: " . print_r($a_rec, true));
         switch ($a_entity) {
             case "object_style":
-                include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-                $this->ds_log->debug("object id: " . $a_rec["ObjectId"]);
-                $style_id = ilObjStyleSheet::lookupObjectStyle($a_rec["ObjectId"]);
+                $this->ds_log->debug("object id: " . ($a_rec["ObjectId"] ?? null));
+                $style_id = ilObjStyleSheet::lookupObjectStyle($a_rec["ObjectId"] ?? 0);
                 $this->ds_log->debug("style id: " . $style_id);
                 //if ($style_id > 0 && !ilObjStyleSheet::_lookupStandard($style_id))
                 if ($style_id > 0 && ilObject::_lookupType($style_id) == "sty") {			// #0019337 always export style, if valid
@@ -357,36 +373,56 @@ class ilStyleDataSet extends ilDataSet
 
             case "sty":
                 return array(
-                    "sty_setting" => array("ids" => $a_rec["Id"]),
-                    "sty_media_query" => array("ids" => $a_rec["Id"]),
-                    "sty_char" => array("ids" => $a_rec["Id"]),
-                    "sty_color" => array("ids" => $a_rec["Id"]),
-                    "sty_parameter" => array("ids" => $a_rec["Id"]),
-                    "sty_template" => array("ids" => $a_rec["Id"]),
-                    "sty_usage" => array("ids" => $a_rec["Id"])
+                    "sty_setting" => array("ids" => $a_rec["Id"] ?? null),
+                    "sty_media_query" => array("ids" => $a_rec["Id"] ?? null),
+                    "sty_char" => array("ids" => $a_rec["Id"] ?? null),
+                    "sty_color" => array("ids" => $a_rec["Id"] ?? null),
+                    "sty_parameter" => array("ids" => $a_rec["Id"] ?? null),
+                    "sty_template" => array("ids" => $a_rec["Id"] ?? null),
+                    "sty_usage" => array("ids" => $a_rec["Id"] ?? null)
                 );
 
             case "sty_template":
                 return array(
-                    "sty_template_class" => array("ids" => $a_rec["Id"])
+                    "sty_template_class" => array("ids" => $a_rec["Id"] ?? null)
                 );
         }
 
-        return false;
+        return [];
     }
 
 
     /**
      * Import record
-     *
      * @param
-     * @return
+     * @return void
      */
-    public function importRecord($a_entity, $a_types, $a_rec, $a_mapping, $a_schema_version)
+    public function importRecord(string $a_entity, array $a_types, array $a_rec, ilImportMapping $a_mapping, string $a_schema_version): void
     {
+        global $DIC;
+
+        $service = $DIC->contentStyle()->internal();
+        $access_manager = $service->domain()->access(
+            0,
+            $this->user->getId()
+        );
+        $access_manager->enableWrite(true);
+
+        $style_id = (isset($this->current_obj))
+            ? $this->current_obj->getId()
+            : 0;
+        $characteristic_manager = $service->domain()->characteristic(
+            $style_id,
+            $access_manager
+        );
+
+        $color_manager = $service->domain()->color(
+            $style_id,
+            $access_manager
+        );
+
         switch ($a_entity) {
             case "sty":
-                include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
                 $this->log->debug("Entity: " . $a_entity);
                 if ($new_id = $a_mapping->getMapping('Services/Container', 'objs', $a_rec['Id'])) {
                     $newObj = ilObjectFactory::getInstanceByObjId($new_id, false);
@@ -397,11 +433,6 @@ class ilStyleDataSet extends ilDataSet
 
                 $newObj->setTitle($a_rec["Title"]);
                 $newObj->setDescription($a_rec["Description"]);
-// fau: customCss - import custom css
-                if (isset($a_rec["CustomCss"])) {
-                    $newObj->setCustomCss($a_rec["CustomCss"]);
-                }
-// fau.
                 $newObj->update(true);
 
                 $this->current_obj = $newObj;
@@ -413,7 +444,7 @@ class ilStyleDataSet extends ilDataSet
                 if ($dir != "" && $this->getImportDirectory() != "") {
                     $source_dir = $this->getImportDirectory() . "/" . $dir;
                     $target_dir = $dir = ilObjStyleSheet::_getImagesDirectory($newObj->getId());
-                    ilUtil::rCopy($source_dir, $target_dir);
+                    ilFileUtils::rCopy($source_dir, $target_dir);
                 }
                 break;
 
@@ -427,11 +458,11 @@ class ilStyleDataSet extends ilDataSet
 
             case "sty_parameter":
                 $mq_id = (int) $a_mapping->getMapping("Services/Style", "media_query", $a_rec["MqId"]);
-                $this->current_obj->replaceStylePar($a_rec["Tag"], $a_rec["Class"], $a_rec["Parameter"], $a_rec["Value"], $a_rec["Type"], $mq_id, $a_rec["Custom"]);
+                $characteristic_manager->replaceParameter($a_rec["Tag"], $a_rec["Class"], $a_rec["Parameter"], $a_rec["Value"], $a_rec["Type"], $mq_id, $a_rec["Custom"]);
                 break;
 
             case "sty_color":
-                $this->current_obj->addColor($a_rec["ColorName"], $a_rec["ColorCode"]);
+                $color_manager->addColor($a_rec["ColorName"], $a_rec["ColorCode"]);
                 break;
 
             case "sty_media_query":
@@ -453,8 +484,8 @@ class ilStyleDataSet extends ilDataSet
                 $obj_id = (int) $a_mapping->getMapping("Services/Object", "obj", $a_rec["ObjId"]);
                 $style_id = (int) $a_mapping->getMapping("Services/Style", "sty", $a_rec["StyleId"]);
                 if ($obj_id > 0 && $style_id > 0) {
-                    include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
                     ilObjStyleSheet::writeStyleUsage($obj_id, $style_id);
+                    ilObjStyleSheet::writeOwner($obj_id, $style_id);
                 }
                 break;
         }

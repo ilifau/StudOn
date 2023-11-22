@@ -20,16 +20,16 @@
     +-----------------------------------------------------------------------------+
 */
 
-function staticxmlerror($errno, $errstr, $errfile, $errline, $errcontext, $ret = false)
+function staticxmlerror(int $errno, string $errstr, ?string $errfile = null, ?int $errline = null, ?array $errcontext = null, bool $ret = false)
 {
     static $errs = array();
+
+    $tag = 'DOMDocument::validate(): ';
+    $errs[] = str_replace($tag, '', $errstr);
 
     if ($ret === true) {
         return $errs;
     }
-
-    $tag = 'DOMDocument::validate(): ';
-    $errs[] = str_replace($tag, '', $errstr);
 }
 
 function domxml_open_file($filename)
@@ -51,16 +51,16 @@ function domxml_open_mem($str, $mode = 0, &$error = null)
     if (!$doc->success) {
         $error = $doc->error;
     }
-    
+
     return $doc;
 }
 
-function xpath_eval($xpath_context, $eval_str, $contextnode = null)
+function xpath_eval(php4DOMXPath $xpath_context, string $eval_str, $contextnode = null)
 {
     return $xpath_context->query($eval_str, $contextnode);
 }
 
-function xpath_new_context($dom_document)
+function xpath_new_context($dom_document): php4DOMXPath
 {
     return new php4DOMXPath($dom_document);
 }
@@ -103,7 +103,9 @@ class php4DOMCDATASection extends php4DOMNode
 
 class php4DOMDocument
 {
-    public $myDOMDocument;
+    public $success = null;
+    public string $error = "";
+    public DOMDocument $myDOMDocument;
 
     // ##altered
     public function __construct($source, $file = true, $a_mode = 0)
@@ -119,18 +121,17 @@ class php4DOMDocument
         } else {
             if ($file) {
                 $this->success = @$this->myDOMDocument->load($source, $a_mode);
-                $this->success = @$this->myDOMDocument->load($source, $a_mode);
             } else {
                 $this->success = $this->myDOMDocument->loadXML($source, $a_mode);
             }
         }
-                
+
         // Restore error handling
         ini_set('html_errors', $old);
         restore_error_handler();
-        
+
         if (!$this->success) {
-            $this->error_arr = staticxmlerror(null, null, null, null, null, true);
+            $this->error_arr = staticxmlerror(0, "", "", 0, null, true);
             foreach ($this->error_arr as $error) {
                 $error = str_replace("DOMDocument::loadXML():", "", $error);
                 $this->error .= $error . "<br />";
@@ -171,7 +172,7 @@ class php4DOMDocument
 
             if (function_exists("libxml_get_last_error")) {
                 $err = libxml_get_last_error();
-                
+
                 if (is_object($err)) {
                     $error = array(array($err->code, $err->message));
                 }
@@ -198,7 +199,7 @@ class php4DOMDocument
         return new php4DOMElement($this->myDOMDocument->createComment($data));
     }
 
-    public function create_element($name)
+    public function create_element(string $name): php4DOMElement
     {
         return new php4DOMElement($this->myDOMDocument->createElement($name));
     }
@@ -252,7 +253,7 @@ class php4DOMElement extends php4DOMNode
     {
         return $this->myDOMNode->getAttribute($name);
     }
-    
+
     public function owner_document()
     {
         return new php4DOMDocument($this->myDOMNode->ownerDocument);
@@ -300,7 +301,7 @@ class php4DOMElement extends php4DOMNode
         $text = str_replace("&lt;", "<", $text);
         $text = str_replace("&gt;", ">", $text);
         $text = str_replace("&amp;", "&", $text);
-        
+
         $text_node = new DOMText();
         $text_node->appendData($text);
         if (is_object($this->myDOMNode->firstChild)) {
@@ -321,7 +322,7 @@ class php4DOMElement extends php4DOMNode
             return "";
         }
     }
-    
+
     // ## added
     public function unlink($aDomNode)
     {
@@ -361,7 +362,7 @@ class php4DOMNode
     {
         return $this->set_content($newnode->myDOMNode->textContent);
     }
-    
+
     public function append_sibling($newnode)
     {
         return new php4DOMElement($this->myDOMNode->parentNode->appendChild($newnode->myDOMNode));
@@ -448,7 +449,7 @@ class php4DOMNode
         //echo "BH";
         $doc = $this->myDOMNode->ownerDocument;
         $newnode->myDOMNode = $doc->importNode($newnode->myDOMNode, true);
-        
+
         $mydomnode = $this->myDOMNode;
         $mynewnode = $newnode->myDOMNode;
         $myrefnode = $refnode->myDOMNode;
@@ -490,9 +491,9 @@ class php4DOMNode
     public function node_name($a_local = false)
     {
         if ($a_local) {
-            return $this->myDOMNode->localName;
+            return $this->myDOMNode->localName ?? "";
         } else {
-            return $this->myDOMNode->nodeName;
+            return $this->myDOMNode->nodeName ?? "";
         }
     }
 
@@ -550,7 +551,7 @@ class php4DOMNode
 class php4DOMNodelist
 {
     public $myDOMNodelist;
-    public $nodeset;
+    public array $nodeset;
 
     public function __construct($aDOMNodelist)
     {
@@ -566,7 +567,7 @@ class php4DOMNodelist
 
 class php4DOMXPath
 {
-    public $myDOMXPath;
+    public DOMXPath $myDOMXPath;
 
     // ## added
     public function xpath_eval($eval_str)
@@ -579,7 +580,7 @@ class php4DOMXPath
         $this->myDOMXPath = new DOMXPath($dom_document->myDOMDocument);
     }
 
-    public function query($eval_str)
+    public function query(string $eval_str): php4DOMNodelist
     {
         return new php4DOMNodelist($this->myDOMXPath->query($eval_str));
     }

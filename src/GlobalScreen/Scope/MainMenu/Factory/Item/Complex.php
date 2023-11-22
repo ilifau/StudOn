@@ -49,27 +49,15 @@ class Complex extends AbstractChildItem implements
     use hasSymbolTrait;
     use isInterchangeableItemTrait;
 
-    /**
-     * @var \Closure|null
-     */
-    private $content_wrapper;
-    /**
-     * @var \ILIAS\UI\Component\Component|null
-     */
-    private $content;
-    /**
-     * @var string
-     */
-    private $title = '';
-    /**
-     * @var bool
-     */
-    private $supports_async_loading = false;
+    private ?Closure $content_wrapper = null;
+    private ?Component $content = null;
+    private string $title = '';
+    private bool $supports_async_loading = false;
 
     /**
      * @inheritDoc
      */
-    public function withContentWrapper(Closure $content_wrapper) : hasContent
+    public function withContentWrapper(Closure $content_wrapper): hasContent
     {
         $clone = clone($this);
         $clone->content_wrapper = $content_wrapper;
@@ -80,7 +68,7 @@ class Complex extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function withContent(Component $ui_component) : hasContent
+    public function withContent(Component $ui_component): hasContent
     {
         $clone = clone($this);
         $clone->content = $ui_component;
@@ -91,7 +79,7 @@ class Complex extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function getContent() : Component
+    public function getContent(): Component
     {
         if ($this->content_wrapper !== null) {
             $wrapper = $this->content_wrapper;
@@ -106,7 +94,7 @@ class Complex extends AbstractChildItem implements
      * @param string $title
      * @return Complex
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -117,7 +105,7 @@ class Complex extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -125,7 +113,7 @@ class Complex extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function withSupportsAsynchronousLoading(bool $supported) : supportsAsynchronousLoading
+    public function withSupportsAsynchronousLoading(bool $supported): supportsAsynchronousLoading
     {
         $clone = clone($this);
         $clone->supports_async_loading = $supported;
@@ -136,7 +124,7 @@ class Complex extends AbstractChildItem implements
     /**
      * @inheritDoc
      */
-    public function supportsAsynchronousLoading() : bool
+    public function supportsAsynchronousLoading(): bool
     {
         return $this->supports_async_loading;
     }

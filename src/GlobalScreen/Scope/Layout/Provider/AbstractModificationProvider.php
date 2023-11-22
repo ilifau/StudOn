@@ -45,11 +45,11 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @var ContextCollection
      */
-    protected $context_collection;
+    protected ContextCollection $context_collection;
     /**
      * @var ToolFactory
      */
-    protected $factory;
+    protected \ILIAS\GlobalScreen\Scope\Layout\Factory\ModificationFactory $factory;
 
     /**
      * @inheritDoc
@@ -64,7 +64,7 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getContentModification(CalledContexts $screen_context_stack) : ?ContentModification
+    public function getContentModification(CalledContexts $screen_context_stack): ?ContentModification
     {
         return null;
     }
@@ -72,20 +72,12 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getLogoModification(CalledContexts $screen_context_stack) : ?LogoModification
+    public function getLogoModification(CalledContexts $screen_context_stack): ?LogoModification
     {
         return null;
     }
 
-    public function getResponsiveLogoModification(CalledContexts $screen_context_stack) : ?LogoModification
-    {
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getMainBarModification(CalledContexts $screen_context_stack) : ?MainBarModification
+    public function getResponsiveLogoModification(CalledContexts $screen_context_stack): ?LogoModification
     {
         return null;
     }
@@ -93,7 +85,7 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getMetaBarModification(CalledContexts $screen_context_stack) : ?MetaBarModification
+    public function getMainBarModification(CalledContexts $screen_context_stack): ?MainBarModification
     {
         return null;
     }
@@ -101,7 +93,7 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getBreadCrumbsModification(CalledContexts $screen_context_stack) : ?BreadCrumbsModification
+    public function getMetaBarModification(CalledContexts $screen_context_stack): ?MetaBarModification
     {
         return null;
     }
@@ -109,7 +101,7 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getFooterModification(CalledContexts $screen_context_stack) : ?FooterModification
+    public function getBreadCrumbsModification(CalledContexts $screen_context_stack): ?BreadCrumbsModification
     {
         return null;
     }
@@ -117,7 +109,7 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getPageBuilderDecorator(CalledContexts $screen_context_stack) : ?PageBuilderModification
+    public function getFooterModification(CalledContexts $screen_context_stack): ?FooterModification
     {
         return null;
     }
@@ -125,7 +117,7 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getTitleModification(CalledContexts $screen_context_stack) : ?TitleModification
+    public function getPageBuilderDecorator(CalledContexts $screen_context_stack): ?PageBuilderModification
     {
         return null;
     }
@@ -133,7 +125,7 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getShortTitleModification(CalledContexts $screen_context_stack) : ?ShortTitleModification
+    public function getTitleModification(CalledContexts $screen_context_stack): ?TitleModification
     {
         return null;
     }
@@ -141,7 +133,15 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
     /**
      * @inheritDoc
      */
-    public function getViewTitleModification(CalledContexts $screen_context_stack) : ?ViewTitleModification
+    public function getShortTitleModification(CalledContexts $screen_context_stack): ?ShortTitleModification
+    {
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getViewTitleModification(CalledContexts $screen_context_stack): ?ViewTitleModification
     {
         return null;
     }

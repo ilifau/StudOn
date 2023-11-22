@@ -1,48 +1,40 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateCourseLearningProgressEvaluation
 {
-    /**
-     * @var ilCertificateTemplateRepository
-     */
-    private $templateRepository;
+    private ilCertificateTemplateRepository $templateRepository;
+    private ilSetting $setting;
+    private ilCertificateObjectHelper $objectHelper;
+    private ilCertificateLPStatusHelper $statusHelper;
+    private ilCertificateObjUserTrackingHelper $trackingHelper;
 
-    /**
-     * @var ilSetting
-     */
-    private $setting;
-
-    /**
-     * @var ilCertificateObjectHelper
-     */
-    private $objectHelper;
-
-    /**
-     * @var ilCertificateLPStatusHelper
-     */
-    private $statusHelper;
-
-    /**
-     * @var ilCertificateObjUserTrackingHelper
-     */
-    private $trackingHelper;
-
-    /**
-     * @param ilCertificateTemplateRepository $templateRepository
-     * @param ilSetting|null $setting
-     * @param ilCertificateObjectHelper|null $objectHelper
-     * @param ilCertificateLPStatusHelper|null $statusHelper
-     */
     public function __construct(
         ilCertificateTemplateRepository $templateRepository,
-        ilSetting $setting = null,
-        ilCertificateObjectHelper $objectHelper = null,
-        ilCertificateLPStatusHelper $statusHelper = null,
-        ilCertificateObjUserTrackingHelper $trackingHelper = null
+        ?ilSetting $setting = null,
+        ?ilCertificateObjectHelper $objectHelper = null,
+        ?ilCertificateLPStatusHelper $statusHelper = null,
+        ?ilCertificateObjUserTrackingHelper $trackingHelper = null
     ) {
         $this->templateRepository = $templateRepository;
 
@@ -67,42 +59,32 @@ class ilCertificateCourseLearningProgressEvaluation
     }
 
     /**
-     * @param $refId
-     * @param $userId
+     * @param int $refId
+     * @param int $userId
      * @return ilCertificateTemplate[]
      */
-    public function evaluate(int $refId, int $userId) : array
+    public function evaluate(int $refId, int $userId): array
     {
-        $courseTemplates = $this->templateRepository->fetchActiveTemplatesByType('crs');
+        $courseTemplates = $this->templateRepository
+            ->fetchActiveCertificateTemplatesForCoursesWithDisabledLearningProgress(
+                $this->trackingHelper->enabledLearningProgress(),
+                $refId
+            );
 
-        $enabledGlobalLearningProgress = $this->trackingHelper->enabledLearningProgress();
-
-        $templatesOfCompletedCourses = array();
+        $templatesOfCompletedCourses = [];
         foreach ($courseTemplates as $courseTemplate) {
             $courseObjectId = $courseTemplate->getObjId();
 
-            if ($enabledGlobalLearningProgress) {
-                $objectLearningProgressSettings = new ilLPObjSettings($courseObjectId);
-                $mode = $objectLearningProgressSettings->getMode();
-
-                if (ilLPObjSettings::LP_MODE_DEACTIVATED != $mode) {
-                    continue;
-                }
-            }
-
-            $subItems = $this->setting->get('cert_subitems_' . $courseObjectId, false);
-
-            if (false === $subItems || $subItems === null) {
+            $subItems = $this->setting->get('cert_subitems_' . $courseObjectId);
+            if ($subItems === null) {
                 continue;
             }
-
-            $subItems = json_decode($subItems);
-
+            $subItems = json_decode($subItems, true, 512, JSON_THROW_ON_ERROR);
             if (!is_array($subItems)) {
                 continue;
             }
 
-            $subitem_obj_ids = array();
+            $subitem_obj_ids = [];
             foreach ($subItems as $subItemRefId) {
                 $subitem_obj_ids[$subItemRefId] = $this->objectHelper->lookupObjId((int) $subItemRefId);
             }
@@ -114,7 +96,7 @@ class ilCertificateCourseLearningProgressEvaluation
                 foreach ($subitem_obj_ids as $subitem_ref_id => $subitem_id) {
                     $status = $this->statusHelper->lookUpStatus($subitem_id, $userId);
 
-                    if ($status != ilLPStatus::LP_STATUS_COMPLETED_NUM) {
+                    if ($status !== ilLPStatus::LP_STATUS_COMPLETED_NUM) {
                         $completed = false;
                         break;
                     }

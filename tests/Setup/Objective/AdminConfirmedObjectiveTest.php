@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2019 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Tests\Setup\Objective;
 
@@ -10,44 +26,37 @@ use PHPUnit\Framework\TestCase;
 
 class AdminConfirmedObjectiveTest extends TestCase
 {
-    /**
-     * @var string
-     */
-    protected $message;
+    protected string $message;
+    protected Objective\AdminConfirmedObjective $o;
 
-    /**
-     * @var Objective\AdminConfirmedObjective
-     */
-    protected $o;
-
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->message = "This needs to be confirmed...";
         $this->o = new Objective\AdminConfirmedObjective($this->message);
     }
 
-    public function testGetHash() : void
+    public function testGetHash(): void
     {
         $this->assertIsString($this->o->getHash());
     }
 
-    public function testHashIsDifferentForDifferentMessages() : void
+    public function testHashIsDifferentForDifferentMessages(): void
     {
         $other = new Objective\AdminConfirmedObjective("");
         $this->assertNotEquals($this->o->getHash(), $other->getHash());
     }
 
-    public function testGetLabel() : void
+    public function testGetLabel(): void
     {
         $this->assertIsString($this->o->getLabel());
     }
 
-    public function testIsNotable() : void
+    public function testIsNotable(): void
     {
         $this->assertFalse($this->o->isNotable());
     }
 
-    public function testGetPreconditions() : void
+    public function testGetPreconditions(): void
     {
         $env = $this->createMock(Setup\Environment::class);
 
@@ -55,7 +64,7 @@ class AdminConfirmedObjectiveTest extends TestCase
         $this->assertEquals([], $pre);
     }
 
-    public function testAchieveWithConfirmation() : void
+    public function testAchieveWithConfirmation(): void
     {
         $env = $this->createMock(Setup\Environment::class);
         $admin_interaction = $this->createMock(Setup\AdminInteraction::class);
@@ -76,7 +85,7 @@ class AdminConfirmedObjectiveTest extends TestCase
         $this->assertSame($env, $res);
     }
 
-    public function testAchieveWithDenial() : void
+    public function testAchieveWithDenial(): void
     {
         $this->expectException(Setup\NoConfirmationException::class);
 

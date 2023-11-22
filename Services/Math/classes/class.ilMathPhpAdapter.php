@@ -1,7 +1,20 @@
 <?php
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/Math/classes/class.ilMathBaseAdapter.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilMathPhpAdapter
@@ -10,9 +23,26 @@ require_once 'Services/Math/classes/class.ilMathBaseAdapter.php';
 class ilMathPhpAdapter extends ilMathBaseAdapter
 {
     /**
-     * {@inheritdoc}
+     * @param string|null $operand
+     * @return float|int|string|null
      */
-    public function add($left_operand, $right_operand, $scale = null)
+    private function transformToNumeric(?string $operand)
+    {
+        if (is_string($operand)) {
+            if (strpos($operand, '.') !== false) {
+                $operand = (float) $operand;
+            } else {
+                $operand = (int) $operand;
+            }
+        }
+
+        return $operand;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function add($left_operand, $right_operand, int $scale = null)
     {
         $res = $this->normalize($left_operand) + $this->normalize($right_operand);
 
@@ -20,9 +50,9 @@ class ilMathPhpAdapter extends ilMathBaseAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function sub($left_operand, $right_operand, $scale = null)
+    public function sub($left_operand, $right_operand, int $scale = null)
     {
         $res = $this->normalize($left_operand) - $this->normalize($right_operand);
 
@@ -30,12 +60,18 @@ class ilMathPhpAdapter extends ilMathBaseAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function mul($left_operand, $right_operand, $scale = null)
+    public function mul($left_operand, $right_operand, int $scale = null)
     {
         try {
-            $res = $this->normalize($left_operand) * $this->normalize($right_operand);
+            $left_operand = $this->normalize($left_operand);
+            $right_operand = $this->normalize($right_operand);
+
+            $left_operand = $this->transformToNumeric($left_operand);
+            $right_operand = $this->transformToNumeric($right_operand);
+
+            $res = $left_operand * $right_operand;
 
             $multiplication = $this->applyScale($res, $this->normalize($scale));
         } catch (Throwable $e) {
@@ -50,18 +86,23 @@ class ilMathPhpAdapter extends ilMathBaseAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function div($left_operand, $right_operand, $scale = null)
+    public function div($left_operand, $right_operand, int $scale = null)
     {
         if ($right_operand == 0) {
-            require_once 'Services/Math/exceptions/class.ilMathDivisionByZeroException.php';
             throw new ilMathDivisionByZeroException(sprintf("Division of %s by %s not possible!", $left_operand, $right_operand));
         }
 
         // This ensures the old PHP <= 7.0.x behaviour, see: #27785 / #26361
         try {
-            $res = $this->normalize($left_operand) / $this->normalize($right_operand);
+            $left_operand = $this->normalize($left_operand);
+            $right_operand = $this->normalize($right_operand);
+
+            $left_operand = $this->transformToNumeric($left_operand);
+            $right_operand = $this->transformToNumeric($right_operand);
+
+            $res = $left_operand / $right_operand;
 
             $division = $this->applyScale($res, $this->normalize($scale));
         } catch (Throwable $e) {
@@ -76,24 +117,21 @@ class ilMathPhpAdapter extends ilMathBaseAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function mod($left_operand, $right_operand)
+    public function mod($left_operand, $right_operand): int
     {
         if ($right_operand == 0) {
-            require_once 'Services/Math/exceptions/class.ilMathDivisionByZeroException.php';
             throw new ilMathDivisionByZeroException(sprintf("Division of %s by %s not possible!", $left_operand, $right_operand));
         }
 
-        $res = $this->normalize($left_operand) % $this->normalize($right_operand);
-
-        return $res;
+        return $this->normalize($left_operand) % $this->normalize($right_operand);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function pow($left_operand, $right_operand, $scale = null)
+    public function pow($left_operand, $right_operand, int $scale = null)
     {
         $res = pow($this->normalize($left_operand), $this->normalize($right_operand));
 
@@ -101,9 +139,9 @@ class ilMathPhpAdapter extends ilMathBaseAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function sqrt($operand, $scale = null)
+    public function sqrt($operand, int $scale = null)
     {
         $res = sqrt($this->normalize($operand));
 
@@ -111,9 +149,9 @@ class ilMathPhpAdapter extends ilMathBaseAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function comp($left_operand, $right_operand, $scale = null)
+    public function comp($left_operand, $right_operand, int $scale = null)
     {
         $left_operand = $this->normalize($left_operand);
         $right_operand = $this->normalize($right_operand);
@@ -126,10 +164,12 @@ class ilMathPhpAdapter extends ilMathBaseAdapter
 
         if ($left_operand == $right_operand) {
             return 0;
-        } elseif ($left_operand > $right_operand) {
-            return 1;
-        } else {
-            return -1;
         }
+
+        if ($left_operand > $right_operand) {
+            return 1;
+        }
+
+        return -1;
     }
 }

@@ -18,78 +18,41 @@
 
 declare(strict_types=1);
 
-use ILIAS\DI\UIServices;
-use ILIAS\HTTP\GlobalHttpState;
-use ILIAS\UI\Component\Card\Card;
+use ILIAS\DI\Container;
+use ILIAS\HTTP\Services;
 use ILIAS\UI\Component\Card\RepositoryObject;
 use ILIAS\UI\Component\Item\Group;
 use ILIAS\UI\Component\Item\Item;
 
 /**
-* @ilCtrl_IsCalledBy ilPDSelectedItemsBlockGUI: ilColumnGUI
-* @ilCtrl_Calls ilPDSelectedItemsBlockGUI: ilCommonActionDispatcherGUI
-*/
+ * @ilCtrl_IsCalledBy ilPDSelectedItemsBlockGUI: ilColumnGUI
+ * @ilCtrl_Calls ilPDSelectedItemsBlockGUI: ilCommonActionDispatcherGUI
+ */
 class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandling
 {
-    /** @var bool */
-    protected $new_rendering = true;
-
-    /** @var ilRbacSystem */
-    protected $rbacsystem;
-
-    /** @var ilSetting */
-    protected $settings;
-
-    /** @var ilObjectDefinition */
-    protected $obj_definition;
-
-    /** @var string */
-    public static $block_type = 'pditems';
-
-    /** @var ilPDSelectedItemsBlockViewSettings */
-    protected $viewSettings;
-
-    /** @var ilPDSelectedItemsBlockViewGUI */
-    protected $blockView;
-
-    /** @var bool */
-    protected $manage = false;
-
-    /** @var string */
-    protected $content = '';
-
-    /** @var ilLanguage */
-    protected $lng;
-
-    /** @var ilCtrl */
-    protected $ctrl;
-
-    /** @var ilObjUser */
-    protected $user;
-
-    /** @var UIServices */
-    protected $ui;
-    
-    /** @var GlobalHttpState */
-    protected $http;
-
-    /** @var ilObjectService */
-    protected $objectService;
-
-    /** @var ilFavouritesManager */
-    protected $favourites;
-
-    /** @var ilTree */
-    protected $tree;
-
-    /** @var ilPDSelectedItemsBlockListGUIFactory */
-    protected $list_factory;
-
-    /** @var ilLogger */
-    protected $logging;
+    protected bool $new_rendering = true;
+    private int $requested_item_ref_id;
+    protected ilRbacSystem $rbacsystem;
+    protected ilSetting $settings;
+    protected ilObjectDefinition $obj_definition;
+    public static string $block_type = 'pditems';
+    protected ilPDSelectedItemsBlockViewSettings $viewSettings;
+    protected ilPDSelectedItemsBlockViewGUI $blockView;
+    protected bool $manage = false;
+    protected string $content = '';
+    protected ilLanguage $lng;
+    protected ilCtrl $ctrl;
+    protected ilObjUser $user;
+    protected Services $http;
+    protected ilObjectService $objectService;
+    protected ilFavouritesManager $favourites;
+    protected ilTree $tree;
+    protected ilPDSelectedItemsBlockListGUIFactory $list_factory;
+    protected ilLogger $logging;
 
     public function __construct()
     {
+        /** @var Container $DIC */
         global $DIC;
 
         $this->rbacsystem = $DIC->rbac()->system();
@@ -110,8 +73,8 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         $this->user = $DIC->user();
 
         $this->lng->loadLanguageModule('pd');
-        $this->lng->loadLanguageModule('cntr'); // #14158
-        $this->lng->loadLanguageModule('rep'); // #14158
+        $this->lng->loadLanguageModule('cntr');
+        $this->lng->loadLanguageModule('rep');
 
         $this->setEnableNumInfo(false);
         $this->setLimit(99999);
@@ -125,9 +88,12 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         } else {
             $this->setPresentation(self::PRES_MAIN_LIST);
         }
+
+        $params = $DIC->http()->request()->getQueryParams();
+        $this->requested_item_ref_id = (int) ($params["item_ref_id"] ?? 0);
     }
 
-    protected function initViewSettings()
+    protected function initViewSettings(): void
     {
         $this->viewSettings = new ilPDSelectedItemsBlockViewSettings(
             $this->user,
@@ -146,117 +112,79 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return $this->viewSettings;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function addToDeskObject()
+    public function addToDeskObject(): void
     {
-        $this->favourites->add($this->user->getId(), (int) $_GET["item_ref_id"]);
-        ilUtil::sendSuccess($this->lng->txt("rep_added_to_favourites"), true);
+        $this->favourites->add($this->user->getId(), $this->requested_item_ref_id);
+        $this->main_tpl->setOnScreenMessage('success', $this->lng->txt("rep_added_to_favourites"), true);
         $this->returnToContext();
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function returnToContext()
+    protected function returnToContext(): void
     {
         $this->ctrl->setParameterByClass('ildashboardgui', 'view', $this->viewSettings->getCurrentView());
         $this->ctrl->redirectByClass('ildashboardgui', 'show');
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function removeFromDeskObject()
+    public function removeFromDeskObject(): void
     {
         $this->lng->loadLanguageModule("rep");
-        $this->favourites->remove($this->user->getId(), (int) $_GET["item_ref_id"]);
-        ilUtil::sendSuccess($this->lng->txt("rep_removed_from_favourites"), true);
+        $this->favourites->remove($this->user->getId(), $this->requested_item_ref_id);
+        $this->main_tpl->setOnScreenMessage('success', $this->lng->txt("rep_removed_from_favourites"), true);
         $this->returnToContext();
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getBlockType(): string
     {
         return static::$block_type;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public static function getScreenMode()
-    {
-        $cmd = $_GET['cmd'];
-        if ($cmd === 'post') {
-            global $DIC;
-            $cmd = key($DIC->http()->request()->getParsedBody()['cmd']);
-        }
-
-        switch ($cmd) {
-            case 'confirmRemove':
-            case 'manage':
-                return IL_SCREEN_FULL;
-
-            default:
-                return IL_SCREEN_SIDE;
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     protected function isRepositoryObject(): bool
     {
         return false;
     }
 
-    /**
-     * @return string
-     */
-    protected function getViewTitle()
+    protected function getViewTitle(): string
     {
         return $this->blockView->getTitle();
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getHTML()
+    public function getHTML(): string
     {
         global $DIC;
 
         $this->setTitle($this->getViewTitle());
+
         $DIC->database()->useSlave(true);
+
         $this->setData([['dummy']]);
+
         $DIC['ilHelp']->setDefaultScreenId(ilHelpGUI::ID_PART_SCREEN, $this->blockView->getScreenId());
+
         $this->ctrl->clearParameters($this);
+
         $DIC->database()->useSlave(false);
 
         return parent::getHTML();
     }
 
-    public function executeCommand()
+    public function executeCommand(): string
     {
         $next_class = $this->ctrl->getNextClass();
         $cmd = $this->ctrl->getCmd('getHTML');
 
         switch ($next_class) {
             case 'ilcommonactiondispatchergui':
-                include_once('Services/Object/classes/class.ilCommonActionDispatcherGUI.php');
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
                 $this->ctrl->forwardCommand($gui);
                 break;
-                
+
             default:
                 if (method_exists($this, $cmd)) {
                     return $this->$cmd();
-                } else {
-                    return $this->{$cmd . 'Object'}();
                 }
+                return $this->{$cmd . 'Object'}();
         }
+        return "";
     }
 
     protected function getContent(): string
@@ -264,15 +192,12 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return $this->content;
     }
 
-    protected function setContent(string $a_content)
+    protected function setContent(string $a_content): void
     {
         $this->content = $a_content;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function fillDataSection()
+    public function fillDataSection(): void
     {
         if ($this->getContent() === '') {
             $this->setDataSection($this->blockView->getIntroductionHtml());
@@ -281,16 +206,9 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         }
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    public function fillFooter(): void
-    {
-    }
-
-    protected function getGroupedCommandsForView($manage = false): array
-    {
+    protected function getGroupedCommandsForView(
+        bool $manage = false
+    ): array {
         $commandGroups = [];
 
         $sortingCommands = [];
@@ -347,76 +265,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return $commandGroups;
     }
 
-    protected function setFooterLinks()
-    {
-        if ('' === $this->getContent()) {
-            $this->setEnableNumInfo(false);
-            return;
-        }
-
-        if ($this->blockView->isInManageMode()) {
-            return;
-        }
-
-        // @todo: handle $command['active']
-        $groupedCommands = $this->getGroupedCommandsForView();
-        foreach ($groupedCommands as $group) {
-            foreach ($group as $command) {
-                $this->addBlockCommand(
-                    $command['url'],
-                    $command['txt'],
-                    $command['asyncUrl']
-                );
-            }
-        }
-    }
-
-    /**
-     * @param ilPDSelectedItemsBlockGroup[] $grouped_items
-     */
-    protected function renderGroupedItems(array $grouped_items, bool $showHeader = true): string
-    {
-        if (0 === count($grouped_items)) {
-            return '';
-        }
-
-        if ($this->viewSettings->isTilePresentation()) {
-            $renderer = new ilPDObjectsTileRenderer(
-                $this->blockView,
-                $this->ui->factory(),
-                $this->ui->renderer(),
-                $this->list_factory,
-                $this->user,
-                $this->lng,
-                $this->objectService,
-                $this->ctrl
-            );
-            
-            return $renderer->render($grouped_items, $showHeader);
-        }
-
-        $renderer = new ilPDObjectsListRenderer(
-            $this->blockView,
-            $this->ui->factory(),
-            $this->ui->renderer(),
-            $this->list_factory,
-            $this->user,
-            $this->lng,
-            $this->objectService,
-            $this->ctrl
-        );
-
-        return $renderer->render($grouped_items, $showHeader);
-    }
-
-    protected function getViewBlockHtml(): string
-    {
-        return $this->renderGroupedItems(
-            $this->blockView->getItemGroups()
-        );
-    }
-
-    public function changePDItemPresentation()
+    public function changePDItemPresentation(): void
     {
         $this->viewSettings->storeActorPresentationMode(
             ilUtil::stripSlashes((string) ($this->http->request()->getQueryParams()['presentation'] ?? ''))
@@ -424,7 +273,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         $this->initAndShow();
     }
 
-    public function changePDItemSorting()
+    public function changePDItemSorting(): void
     {
         $this->viewSettings->storeActorSortingMode(
             ilUtil::stripSlashes((string) ($this->http->request()->getQueryParams()['sorting'] ?? ''))
@@ -433,7 +282,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         $this->initAndShow();
     }
 
-    protected function initAndShow()
+    protected function initAndShow(): void
     {
         $this->initViewSettings();
 
@@ -442,14 +291,10 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
             exit;
         }
 
-        if ($_GET["manage"]) {
-            $this->ctrl->redirect($this, 'manage');
-        }
-
         $this->returnToContext();
     }
 
-    public function manageObject()
+    public function manageObject(): string
     {
         $this->blockView->setIsInManageMode(true);
 
@@ -491,18 +336,18 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return $top_tb->getHTML() . $this->renderManageList($grouped_items) . $bot_tb->getHTML();
     }
 
-    protected function cancel()
+    protected function cancel(): void
     {
         $this->ctrl->returnToParent($this);
     }
-    
-    public function confirmRemoveObject()
+
+    public function confirmRemoveObject(): string
     {
         $this->ctrl->setParameter($this, 'view', $this->viewSettings->getCurrentView());
 
         $refIds = (array) ($this->http->request()->getParsedBody()['id'] ?? []);
         if (0 === count($refIds)) {
-            ilUtil::sendFailure($this->lng->txt('select_one'), true);
+            $this->main_tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'), true);
             $this->ctrl->redirect($this, 'manage');
         }
 
@@ -514,7 +359,6 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
             $cmd = 'confirmedUnsubscribe';
         }
 
-        include_once('./Services/Utilities/classes/class.ilConfirmationGUI.php');
         $cgui = new ilConfirmationGUI();
         $cgui->setHeaderText($question);
 
@@ -538,8 +382,8 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
 
         return $cgui->getHTML();
     }
-        
-    public function confirmedRemove()
+
+    public function confirmedRemove(): void
     {
         $refIds = (array) ($this->http->request()->getParsedBody()['ref_id'] ?? []);
         if (0 === count($refIds)) {
@@ -550,12 +394,11 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
             $this->favourites->remove($this->user->getId(), (int) $ref_id);
         }
 
-        // #12909
-        ilUtil::sendSuccess($this->lng->txt('pd_remove_multi_confirm'), true);
+        $this->main_tpl->setOnScreenMessage('success', $this->lng->txt('pd_remove_multi_confirm'), true);
         $this->ctrl->redirect($this, 'manage');
     }
-    
-    public function confirmedUnsubscribe()
+
+    public function confirmedUnsubscribe(): void
     {
         $refIds = (array) ($this->http->request()->getParsedBody()['ref_id'] ?? []);
         if (0 === count($refIds)) {
@@ -571,7 +414,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
 
                         $members->sendUnsubscribeNotificationToAdmins($this->user->getId());
                         $members->sendNotification(
-                            $members->NOTIFY_UNSUBSCRIBE,
+                            ilCourseMembershipMailNotification::TYPE_UNSUBSCRIBE_MEMBER,
                             $this->user->getId()
                         );
                         break;
@@ -593,18 +436,17 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
                     default:
                         continue 2;
                 }
-        
-                include_once './Modules/Forum/classes/class.ilForumNotification.php';
+
                 ilForumNotification::checkForumsExistsDelete($ref_id, $this->user->getId());
             }
         }
 
-        ilUtil::sendSuccess($this->lng->txt('mmbr_unsubscribed_from_objs'), true);
+        $this->main_tpl->setOnScreenMessage('success', $this->lng->txt('mmbr_unsubscribed_from_objs'), true);
         $this->ctrl->returnToParent($this);
     }
 
     /**
-     * @inheritDoc
+     * @return Group[]
      */
     protected function getListItemGroups(): array
     {
@@ -612,10 +454,11 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         $groupedCommands = $this->getGroupedCommandsForView();
         foreach ($groupedCommands as $group) {
             foreach ($group as $command) {
+                $asynch_url = $command['asyncUrl'] ?? "";
                 $this->addBlockCommand(
                     (string) $command['url'],
                     (string) $command['txt'],
-                    (string) $command['asyncUrl']
+                    (string) $asynch_url
                 );
             }
         }
@@ -628,6 +471,9 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
 
             foreach ($group->getItems() as $item) {
                 try {
+                    $itemListGUI = $this->list_factory->byType($item['type']);
+                    ilObjectActivation::addListGUIActivationProperty($itemListGUI, $item);
+
                     $list_items[] = $this->getListItemForData($item);
                 } catch (ilException $e) {
                     $this->logging->warning('Listing failed for item with ID ' . $item['obj_id'] . ': ' . $e->getMessage());
@@ -635,17 +481,14 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
                 }
             }
             if (count($list_items) > 0) {
-                $item_groups[] = $this->ui->factory()->item()->group((string) $group->getLabel(), $list_items);
+                $item_groups[] = $this->ui->factory()->item()->group($group->getLabel(), $list_items);
             }
         }
-        
+
         return $item_groups;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function getListItemForData(array $data): Item
+    protected function getListItemForData(array $data): ?Item
     {
         $itemListGui = $this->list_factory->byType($data['type']);
         ilObjectActivation::addListGUIActivationProperty($itemListGui, $data);
@@ -661,7 +504,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return $list_item;
     }
 
-    protected function getCardForData(array $item): Card
+    protected function getCardForData(array $item): RepositoryObject
     {
         $itemListGui = $this->list_factory->byType($item['type']);
         ilObjectActivation::addListGUIActivationProperty($itemListGui, $item);
@@ -677,18 +520,16 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return $card;
     }
 
-    /**
-     * @inheritDoc
-     */
     protected function getLegacyContent(): string
     {
         $groupedCommands = $this->getGroupedCommandsForView();
         foreach ($groupedCommands as $group) {
             foreach ($group as $command) {
+                $asynch_url = $command['asyncUrl'] ?? "";
                 $this->addBlockCommand(
                     (string) $command['url'],
                     (string) $command['txt'],
-                    (string) $command['asyncUrl']
+                    (string) $asynch_url
                 );
             }
         }
@@ -733,7 +574,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
                 $this->addBlockCommand(
                     (string) $command['url'],
                     (string) $command['txt'],
-                    (string) $command['asyncUrl']
+                    (string) ($command['asyncUrl'] ?? "")
                 );
             }
         }
@@ -751,9 +592,6 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return (new ilDashObjectsTableRenderer($this))->render($grouped_items);
     }
 
-    /**
-     * @ineritdoc
-     */
     public function getNoItemFoundContent(): string
     {
         $txt = $this->lng->txt("rep_fav_intro1") . "<br>";
@@ -767,7 +605,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return $this->ui->renderer()->render($mbox);
     }
 
-    protected function getRepositoryTitle()
+    protected function getRepositoryTitle(): string
     {
         $nd = $this->tree->getNodeData($this->tree->getRootId());
         $title = $nd['title'];

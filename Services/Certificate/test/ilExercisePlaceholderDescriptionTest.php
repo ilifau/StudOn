@@ -1,22 +1,40 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilExercisePlaceholderDescriptionTest extends ilCertificateBaseTestCase
 {
-    public function testPlaceholderGetHtmlDescription()
+    public function testPlaceholderGetHtmlDescription(): void
     {
-        $languageMock = $this->getMockBuilder('ilLanguage')
+        $languageMock = $this->getMockBuilder(ilLanguage::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['txt', 'loadLanguageModule'])
             ->getMock();
 
-        $templateMock = $this->getMockBuilder('ilTemplate')
+        $templateMock = $this->getMockBuilder(ilTemplate::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $userDefinePlaceholderMock = $this->getMockBuilder('ilUserDefinedFieldsPlaceholderDescription')
+        $userDefinePlaceholderMock = $this->getMockBuilder(ilUserDefinedFieldsPlaceholderDescription::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -24,7 +42,7 @@ class ilExercisePlaceholderDescriptionTest extends ilCertificateBaseTestCase
             ->willReturn('');
 
         $userDefinePlaceholderMock->method('getPlaceholderDescriptions')
-            ->willReturn(array());
+            ->willReturn([]);
 
         $templateMock->method('get')
             ->willReturn('');
@@ -33,12 +51,12 @@ class ilExercisePlaceholderDescriptionTest extends ilCertificateBaseTestCase
 
         $html = $placeholderDescriptionObject->createPlaceholderHtmlDescription($templateMock);
 
-        $this->assertEquals('', $html);
+        $this->assertSame('', $html);
     }
 
-    public function testPlaceholderDescriptions()
+    public function testPlaceholderDescriptions(): void
     {
-        $languageMock = $this->getMockBuilder('ilLanguage')
+        $languageMock = $this->getMockBuilder(ilLanguage::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['txt', 'loadLanguageModule'])
             ->getMock();
@@ -47,7 +65,7 @@ class ilExercisePlaceholderDescriptionTest extends ilCertificateBaseTestCase
             ->method('txt')
             ->willReturn('Something translated');
 
-        $userDefinePlaceholderMock = $this->getMockBuilder('ilUserDefinedFieldsPlaceholderDescription')
+        $userDefinePlaceholderMock = $this->getMockBuilder(ilUserDefinedFieldsPlaceholderDescription::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -55,14 +73,14 @@ class ilExercisePlaceholderDescriptionTest extends ilCertificateBaseTestCase
             ->willReturn('');
 
         $userDefinePlaceholderMock->method('getPlaceholderDescriptions')
-            ->willReturn(array());
+            ->willReturn([]);
 
         $placeholderDescriptionObject = new ilExercisePlaceholderDescription(null, $languageMock, $userDefinePlaceholderMock);
 
         $placeHolders = $placeholderDescriptionObject->getPlaceholderDescriptions();
 
-        $this->assertEquals(
-            array(
+        $this->assertSame(
+            [
                 'USER_LOGIN' => 'Something translated',
                 'USER_FULLNAME' => 'Something translated',
                 'USER_FIRSTNAME' => 'Something translated',
@@ -84,7 +102,7 @@ class ilExercisePlaceholderDescriptionTest extends ilCertificateBaseTestCase
                 'EXERCISE_TITLE' => 'Something translated',
                 'DATE_COMPLETED' => 'Something translated',
                 'DATETIME_COMPLETED' => 'Something translated'
-            ),
+            ],
             $placeHolders
         );
     }

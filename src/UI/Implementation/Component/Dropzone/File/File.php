@@ -1,234 +1,255 @@
 <?php
+
 /**
- * Class Dropzone
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * Basic implementation for dropzones. Provides functionality which are needed
- * for all dropzones.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
  *
- * @author  nmaerchy <nm@studer-raimann.ch>
- *
- * @package ILIAS\UI\Implementation\Component\Dropzone\File
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
  */
+
+declare(strict_types=1);
 
 namespace ILIAS\UI\Implementation\Component\Dropzone\File;
 
-use ILIAS\Data\DataSize;
-use ILIAS\UI\Component\Signal;
-use ILIAS\UI\Implementation\Component\ComponentHelper;
-use ILIAS\UI\Implementation\Component\Triggerer;
+use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
+use ILIAS\UI\Implementation\Component\Input\NameSource;
+use ILIAS\UI\Implementation\Component\Modal\RoundTrip;
+use ILIAS\UI\Implementation\Component\Triggerer;
+use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
+use ILIAS\UI\Component\Dropzone\File\File as FileDropzone;
+use ILIAS\UI\Component\Input\Field\File as FileInput;
+use ILIAS\UI\Component\Signal;
+use ILIAS\Refinery\Transformation;
+use Psr\Http\Message\ServerRequestInterface;
+use ILIAS\UI\Component\Button;
+use ILIAS\UI\Component\ReplaceSignal;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ILIAS\UI\Component\Closable;
+use ILIAS\UI\Component\Component;
 
-abstract class File implements \ILIAS\UI\Component\Dropzone\File\File
+/**
+ * @author Thibeau Fuhrer <thibeau@sr.solutions>
+ */
+abstract class File implements FileDropzone
 {
-    use Triggerer;
-    use ComponentHelper;
     use JavaScriptBindable;
-    public const DROP_EVENT = "drop"; // Name of the drop-event in JS, e.g. used with jQuery .on('drop', ...)
-    /**
-     * @var string
-     */
-    protected $url;
-    /**
-     * @var array
-     */
-    protected $allowed_file_types = [];
-    /**
-     * @var DataSize
-     */
-    protected $file_size_limit;
-    /**
-     * @var int
-     */
-    protected $max_files = 0;
-    /**
-     * @var bool
-     */
-    protected $custom_file_names = false;
-    /**
-     * @var bool
-     */
-    protected $file_descriptions = false;
-    /**
-     * @var string
-     */
-    protected $parameter_name = 'files';
+    use ComponentHelper;
+    use Triggerer;
 
+    protected SignalGeneratorInterface $signal_generator;
+    protected Signal $clear_signal;
+    protected RoundTrip $modal;
 
-    /**
-     * @param string $url
-     */
-    public function __construct($url)
-    {
-        $this->checkStringArg('url', $url);
-        $this->url = $url;
+    public function __construct(
+        SignalGeneratorInterface $signal_generator,
+        FieldFactory $field_factory,
+        NameSource $name_source,
+        FileInput $file_input,
+        string $title,
+        string $post_url
+    ) {
+        $this->signal_generator = $signal_generator;
+        $this->clear_signal = $signal_generator->create();
+        $this->modal = new RoundTrip(
+            $signal_generator,
+            $field_factory,
+            $name_source,
+            $title,
+            null,
+            [$file_input],
+            $post_url
+        );
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function withUploadUrl($url)
+    public function getModal(): RoundTrip
     {
-        $this->checkStringArg('url', $url);
-        $clone = clone $this;
-        $clone->url = $url;
+        return $this->modal;
+    }
 
+    public function getClearSignal(): Signal
+    {
+        return $this->clear_signal;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->modal->getTitle();
+    }
+
+    public function withOnClose(Signal $signal): self
+    {
+        $clone = clone $this;
+        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
+        $clone->modal = $clone->modal->withOnClose($signal);
         return $clone;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function getUploadUrl()
-    {
-        return $this->url;
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function withAllowedFileTypes(array $types)
+    public function appendOnClose(Signal $signal): self
     {
         $clone = clone $this;
-        $clone->allowed_file_types = $types;
-
+        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
+        $clone->modal = $clone->modal->appendOnClose($signal);
         return $clone;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function getAllowedFileTypes()
+    public function getAsyncRenderUrl(): string
     {
-        return $this->allowed_file_types;
+        return $this->modal->getAsyncRenderUrl();
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function withMaxFiles($max)
+    public function withAsyncRenderUrl(string $url)
     {
-        $this->checkIntArg('max', $max);
         $clone = clone $this;
-        $clone->max_files = (int) $max;
-
+        $clone->modal = $clone->modal->withAsyncRenderUrl($url);
         return $clone;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function getMaxFiles()
+    public function withCloseWithKeyboard(bool $state): self
     {
-        return $this->max_files;
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function withFileSizeLimit(DataSize $limit)
-    {
-        $this->checkArgInstanceOf('limit', $limit, DataSize::class);
         $clone = clone $this;
-        $clone->file_size_limit = $limit;
-
+        $clone->modal = $clone->modal->withCloseWithKeyboard($state);
         return $clone;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function getFileSizeLimit()
+    public function getCloseWithKeyboard(): bool
     {
-        return $this->file_size_limit;
+        return $this->modal->getCloseWithKeyboard();
     }
 
+    public function getShowSignal(): Signal
+    {
+        return $this->modal->getShowSignal();
+    }
 
-    /**
-     * @inheritdoc
-     */
-    public function withUserDefinedFileNamesEnabled($state)
+    public function getCloseSignal(): Signal
+    {
+        return $this->modal->getCloseSignal();
+    }
+
+    public function withOnLoad(Signal $signal)
     {
         $clone = clone $this;
-        $clone->custom_file_names = (bool) $state;
-
+        $clone->modal = $clone->modal->withOnLoad($signal);
         return $clone;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function allowsUserDefinedFileNames()
-    {
-        return $this->custom_file_names;
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function withUserDefinedDescriptionEnabled($state)
+    public function appendOnLoad(Signal $signal)
     {
         $clone = clone $this;
-        $clone->file_descriptions = (bool) $state;
-
+        $clone->modal = $clone->modal->appendOnLoad($signal);
         return $clone;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function allowsUserDefinedFileDescriptions()
+    public function getContent(): array
     {
-        return $this->file_descriptions;
+        return $this->modal->getContent();
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function withParameterName($parameter_name)
+    public function getActionButtons(): array
     {
-        $this->checkStringArg('identifier', $parameter_name);
-        $clone = clone $this;
-        $clone->parameter_name = $parameter_name;
+        return $this->modal->getActionButtons();
+    }
 
+    public function getCancelButtonLabel(): string
+    {
+        return $this->modal->getCancelButtonLabel();
+    }
+
+    public function withActionButtons(array $buttons): self
+    {
+        $clone = clone $this;
+        $clone->modal = $clone->modal->withActionButtons($buttons);
         return $clone;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function getParameterName()
+    public function withCancelButtonLabel(string $label): self
     {
-        return $this->parameter_name;
+        $clone = clone $this;
+        $clone->modal = $clone->modal->withCancelButtonLabel($label);
+        return $clone;
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    public function withOnDrop(Signal $signal)
+    public function getReplaceSignal(): ReplaceSignal
     {
-        return $this->withTriggeredSignal($signal, self::DROP_EVENT);
+        return $this->modal->getReplaceSignal();
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    public function withAdditionalDrop(Signal $signal)
+    public function getPostURL(): string
     {
-        return $this->appendTriggeredSignal($signal, self::DROP_EVENT);
+        return $this->modal->getPostURL();
+    }
+
+    public function withSubmitCaption(string $caption): self
+    {
+        $clone = clone $this;
+        $clone->modal = $clone->modal->withSubmitCaption($caption);
+        return $clone;
+    }
+
+    public function getSubmitCaption(): ?string
+    {
+        return $this->modal->getSubmitCaption();
+    }
+
+    public function getInputs(): array
+    {
+        return $this->modal->getInputs();
+    }
+
+    public function withRequest(ServerRequestInterface $request): self
+    {
+        $clone = clone $this;
+        $clone->modal = $clone->modal->withRequest($request);
+        return $clone;
+    }
+
+    public function withAdditionalTransformation(Transformation $trafo): self
+    {
+        $clone = clone $this;
+        $clone->modal = $clone->modal->withAdditionalTransformation($trafo);
+        return $clone;
+    }
+
+    public function getData()
+    {
+        return $this->modal->getData();
+    }
+
+    public function getError(): ?string
+    {
+        return $this->modal->getError();
+    }
+
+    public function withOnDrop(Signal $signal): self
+    {
+        return $this->withTriggeredSignal($signal, 'drop');
+    }
+
+    public function withAdditionalDrop(Signal $signal): self
+    {
+        return $this->appendTriggeredSignal($signal, 'drop');
+    }
+
+    public function withResetSignals(): self
+    {
+        $clone = clone $this;
+        $clone->initSignals();
+        return $clone;
+    }
+
+    public function initSignals(): void
+    {
+        $this->clear_signal = $this->signal_generator->create();
+        $this->modal->initSignals();
     }
 }

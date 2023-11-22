@@ -1,44 +1,48 @@
 <?php
 
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
-* Class ilObjWorkspaceFolderTableGUI
-*
-* @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
-* $Id: class.ilObjFolderListGUI.php 26089 2010-10-20 08:08:05Z smeyer $
-*
-* @extends ilTable2GUI
-*/
-
-include_once "Services/Table/classes/class.ilTable2GUI.php";
-
+ * Class ilObjWorkspaceFolderTableGUI
+ *
+ * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
+ */
 class ilObjWorkspaceFolderTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
+    private int $node_id;
+    private ilWorkspaceAccessHandler $access_handler;
+    private array $shared_objects;
+    protected ilObjUser $user;
+    protected ilObjectDefinition $obj_definition;
+    protected bool $admin = false;
 
-    /**
-     * @var ilObjectDefinition
-     */
-    protected $obj_definition;
-
-    /**
-     * @var bool
-     */
-    protected $admin = false;
-
-    public function __construct($a_parent_obj, $a_parent_cmd, $a_node_id, $a_access_handler, $admin = false)
-    {
+    public function __construct(
+        object $a_parent_obj,
+        string $a_parent_cmd,
+        int $a_node_id,
+        ilWorkspaceAccessHandler $a_access_handler,
+        bool $admin = false
+    ) {
         global $DIC;
 
         $this->ctrl = $DIC->ctrl();
         $this->user = $DIC->user();
         $this->obj_definition = $DIC["objDefinition"];
-        $ilCtrl = $DIC->ctrl();
-        
+
         $this->node_id = $a_node_id;
         $this->setId("tbl_wfld");
         $this->access_handler = $a_access_handler;
@@ -61,16 +65,14 @@ class ilObjWorkspaceFolderTableGUI extends ilTable2GUI
         $this->getItems();
     }
 
-    protected function getItems()
+    protected function getItems(): void
     {
         $ilUser = $this->user;
-        
-        include_once "Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php";
+
         $tree = new ilWorkspaceTree($ilUser->getId());
         $nodes = $tree->getChilds($this->node_id, "title");
-                        
+
         if (sizeof($nodes)) {
-            include_once("./Services/Object/classes/class.ilObjectListGUIPreloader.php");
             $preloader = new ilObjectListGUIPreloader(ilObjectListGUI::CONTEXT_WORKSPACE);
             foreach ($nodes as $node) {
                 $preloader->addItem($node["obj_id"], $node["type"]);
@@ -78,24 +80,22 @@ class ilObjWorkspaceFolderTableGUI extends ilTable2GUI
             $preloader->preload();
             unset($preloader);
         }
-        
+
         $this->shared_objects = $this->access_handler->getObjectsIShare();
-        
+
         $this->setData($nodes);
     }
 
-    protected function fillRow($node)
+    protected function fillRow(array $a_set): void
     {
         $objDefinition = $this->obj_definition;
         $ilCtrl = $this->ctrl;
-        
-        $class = $objDefinition->getClassName($node["type"]);
-        $location = $objDefinition->getLocation($node["type"]);
+
+        $class = $objDefinition->getClassName($a_set["type"]);
         $full_class = "ilObj" . $class . "ListGUI";
 
-        include_once($location . "/class." . $full_class . ".php");
         $item_list_gui = new $full_class(ilObjectListGUI::CONTEXT_WORKSPACE);
-        
+
         $item_list_gui->setDetailsLevel(ilObjectListGUI::DETAILS_ALL);
         $item_list_gui->enableDelete(true);
         $item_list_gui->enableCut(true);
@@ -109,39 +109,33 @@ class ilObjWorkspaceFolderTableGUI extends ilTable2GUI
         $item_list_gui->enableTimings(false);
         $item_list_gui->enableCheckbox($this->admin);
         // $item_list_gui->setSeparateCommands(true);
-        
+
         $item_list_gui->enableNotes(true);
-        $item_list_gui->enableCopy($objDefinition->allowCopy($node["type"]));
-        
-        if ($node["type"] == "file") {
+        $item_list_gui->enableCopy($objDefinition->allowCopy($a_set["type"]));
+
+        if ($a_set["type"] == "file") {
             $item_list_gui->enableRepositoryTransfer(true);
         }
 
         $item_list_gui->setContainerObject($this->parent_obj);
-        
-        if (in_array($node["type"], array("file", "blog"))) {
+
+        if (in_array($a_set["type"], array("file", "blog"))) {
             // add "share" link
-            $ilCtrl->setParameterByClass("ilworkspaceaccessgui", "wsp_id", $node["wsp_id"]);
+            $ilCtrl->setParameterByClass("ilworkspaceaccessgui", "wsp_id", $a_set["wsp_id"]);
             $share_link = $ilCtrl->getLinkTargetByClass(array("ilObj" . $class . "GUI", "ilworkspaceaccessgui"), "share");
             $item_list_gui->addCustomCommand($share_link, "wsp_permissions");
-            
+
             // show "shared" status
-            // fau: visibilityHints - show better notes about public visibility
-            if ($this->access_handler->hasGlobalPermission($node["child"])) {
-                $item_list_gui->addCustomProperty($this->lng->txt("status"), $this->lng->txt("privacy_object_visible_to_public"), true, true);
-            } elseif ($this->access_handler->hasGlobalPasswordPermission($node["child"])) {
-                $item_list_gui->addCustomProperty($this->lng->txt("status"), $this->lng->txt("privacy_object_visible_with_password"), true, true);
-            } elseif (in_array($node["obj_id"], $this->shared_objects)) {
+            if (in_array($a_set["obj_id"], $this->shared_objects)) {
                 $item_list_gui->addCustomProperty($this->lng->txt("status"), $this->lng->txt("wsp_status_shared"), true, true);
             }
-            // fau.
         }
 
         if ($html = $item_list_gui->getListItemHTML(
-            $node["wsp_id"],
-            $node["obj_id"],
-            $node["title"],
-            $node["description"]
+            $a_set["wsp_id"],
+            $a_set["obj_id"],
+            $a_set["title"],
+            $a_set["description"]
         )) {
             $this->tpl->setVariable("ITEM_LIST_NODE", $html);
         }

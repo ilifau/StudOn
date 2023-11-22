@@ -1,4 +1,18 @@
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 import ACTIONS from "../actions/paragraph-action-types.js";
 import PAGE_ACTIONS from "../../page/actions/page-action-types.js";
@@ -314,20 +328,12 @@ export default class ParagraphUIActionHandler {
     });
   }
 
-  /**
-   *
-   * @param pcid
-   * @param pcmodel
-   * @param page_model
-   * @param initialSectionClass only set from cancel command, if reset is necessary
-   */
-  sendUpdateCommand(pcid, pcmodel, page_model, initialSectionClass = null) {
+  sendUpdateCommand(pcid, pcmodel, page_model) {
     const af = this.actionFactory;
     const update_action = af.paragraph().command().update(
       pcid,
       pcmodel.text,
-      pcmodel.characteristic,
-      initialSectionClass
+      pcmodel.characteristic
     );
     this.client.sendCommand(update_action).then(result => {
       const pl = result.getPayload();
@@ -510,14 +516,10 @@ export default class ParagraphUIActionHandler {
         this.sendDeleteCommand(page_model.getCurrentPCId());
 
       } else {
-        if (page_model.getInitialSectionClass()) {
-          this.ui.setSectionClass(page_model.getCurrentPCId(), page_model.getInitialSectionClass());
-        }
         // we need to save the "undo" state back, if autosave made changes
         this.sendUpdateCommand(page_model.getCurrentPCId(),
           page_model.getPCModel(page_model.getCurrentPCId()),
-          page_model,
-          page_model.getInitialSectionClass()
+          page_model
         );
       }
     }

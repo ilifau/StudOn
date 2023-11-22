@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\ScreenContext;
 
 use ILIAS\GlobalScreen\ScreenContext\Stack\CalledContexts;
@@ -28,15 +28,9 @@ use ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection;
  */
 class ContextServices
 {
-    /**
-     * @var \ILIAS\GlobalScreen\ScreenContext\ContextRepository
-     */
-    private $context_repository;
+    private ContextRepository $context_repository;
 
-    /**
-     * @var \ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection
-     */
-    private $collection;
+    private ContextCollection $collection;
 
     /**
      * ContextServices constructor.
@@ -50,7 +44,7 @@ class ContextServices
     /**
      * @return CalledContexts
      */
-    public function stack() : CalledContexts
+    public function stack(): CalledContexts
     {
         return $this->collection;
     }
@@ -58,7 +52,7 @@ class ContextServices
     /**
      * @return ScreenContext
      */
-    public function current() : ScreenContext
+    public function current(): ScreenContext
     {
         return $this->collection->current();
     }
@@ -66,12 +60,12 @@ class ContextServices
     /**
      * @return CalledContexts
      */
-    public function claim() : CalledContexts
+    public function claim(): CalledContexts
     {
         return $this->collection;
     }
 
-    public function collection() : ContextCollection
+    public function collection(): ContextCollection
     {
         return new ContextCollection($this->context_repository);
     }
@@ -79,7 +73,7 @@ class ContextServices
     /**
      * @return ContextRepository
      */
-    public function availableContexts() : ContextRepository
+    public function availableContexts(): ContextRepository
     {
         return $this->context_repository;
     }

@@ -1,15 +1,27 @@
 <?php
 
-/* Copyright (c) 1998-2015 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * System support contacts
  *
  * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- * @ingroup ModulesSystemFolder
  */
-class ilSystemSupportContactsGUI
+class ilSystemSupportContactsGUI implements ilCtrlBaseClassInterface
 {
     /**
      * @var ilTemplate
@@ -59,14 +71,11 @@ class ilSystemSupportContactsGUI
         $this->lng->loadLanguageModule("adm");
         $this->tpl->loadStandardTemplate();
         $this->tpl->setTitle($this->lng->txt("adm_support_contacts"));
-        include_once("./Services/UIComponent/Panel/classes/class.ilPanelGUI.php");
         $panel = ilPanelGUI::getInstance();
         $panel->setPanelStyle(ilPanelGUI::PANEL_STYLE_PRIMARY);
 
         $html = "";
-        include_once("./Modules/SystemFolder/classes/class.ilSystemSupportContacts.php");
         foreach (ilSystemSupportContacts::getValidSupportContactIds() as $c) {
-            include_once("./Services/User/classes/class.ilPublicUserProfileGUI.php");
             $pgui = new ilPublicUserProfileGUI($c);
             //$pgui->setBackUrl($this->ctrl->getLinkTargetByClass("ilinfoscreengui"));
             $pgui->setEmbedded(true);
@@ -79,7 +88,7 @@ class ilSystemSupportContactsGUI
         $this->tpl->printToStdout();
     }
 
-    
+
     /**
      * Get footer link
      *
@@ -91,25 +100,19 @@ class ilSystemSupportContactsGUI
 
         $ilCtrl = $DIC->ctrl();
         $ilUser = $DIC->user();
-        
-        include_once("./Modules/SystemFolder/classes/class.ilSystemSupportContacts.php");
 
         $users = ilSystemSupportContacts::getValidSupportContactIds();
         if (count($users) > 0) {
             // #17847 - we cannot use a proper GUI on the login screen
             if (!$ilUser->getId() || $ilUser->getId() == ANONYMOUS_USER_ID) {
-                return "mailto:" . ilUtil::prepareFormOutput(ilSystemSupportContacts::getMailsToAddress());
+                return "mailto:" . ilLegacyFormElementsUtil::prepareFormOutput(
+                    ilSystemSupportContacts::getMailsToAddress()
+                );
             } else {
                 return $ilCtrl->getLinkTargetByClass("ilsystemsupportcontactsgui", "", "", false, false);
             }
         }
 
-
-        /*$m = ilUtil::prepareFormOutput(ilSystemSupportContacts::getMailsToAddress());
-        if ($m != "")
-        {
-            return "mailto:".$m;
-        }*/
         return "";
     }
 

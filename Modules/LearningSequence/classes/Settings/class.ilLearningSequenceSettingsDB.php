@@ -3,23 +3,30 @@
 declare(strict_types=1);
 
 /**
- * Persistence for Settings (like abstract, extro)
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * @author Nils Haagen <nils.haagen@concepts-and-training.de>
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Persistence for Settings (like abstract, extro)
  */
 class ilLearningSequenceSettingsDB
 {
-    const TABLE_NAME = 'lso_settings';
+    public const TABLE_NAME = 'lso_settings';
 
-    /**
-     * @var ilDBInterface
-     */
-    protected $database;
-
-    /**
-     * @var ilLearningSequenceFilesystem
-     */
-    protected $ls_filesystem;
+    protected ilDBInterface $database;
+    protected ilLearningSequenceFilesystem $ls_filesystem;
 
     public function __construct(ilDBInterface $database, ilLearningSequenceFilesystem $ls_filesystem)
     {
@@ -27,38 +34,34 @@ class ilLearningSequenceSettingsDB
         $this->ls_filesystem = $ls_filesystem;
     }
 
-    public function store(ilLearningSequenceSettings $settings)
+    public function store(ilLearningSequenceSettings $settings): void
     {
         $uploads = $settings->getUploads();
-        if (count($uploads) > 0) {
-            foreach ($uploads as $pre => $info) {
-                $settings = $this->ls_filesystem->moveUploaded($pre, $info, $settings);
-            }
+        foreach ($uploads as $pre => $info) {
+            $settings = $this->ls_filesystem->moveUploaded($pre, $info, $settings);
         }
 
         $deletions = $settings->getDeletions();
-        if (count($deletions) > 0) {
-            foreach ($deletions as $pre) {
-                $settings = $this->ls_filesystem->delete_image($pre, $settings);
-            }
+        foreach ($deletions as $pre) {
+            $settings = $this->ls_filesystem->delete_image($pre, $settings);
         }
 
-        $where = array(
-            "obj_id" => array("integer", $settings->getObjId())
-        );
+        $where = [
+            "obj_id" => ["integer", $settings->getObjId()]
+        ];
 
-        $values = array(
-            "abstract" => array("text", $settings->getAbstract()),
-            "extro" => array("text", $settings->getExtro()),
-            "abstract_image" => array("text", $settings->getAbstractImage()),
-            "extro_image" => array("text", $settings->getExtroImage()),
-            "gallery" => array("integer", $settings->getMembersGallery())
-        );
+        $values = [
+            "abstract" => ["text", $settings->getAbstract()],
+            "extro" => ["text", $settings->getExtro()],
+            "abstract_image" => ["text", $settings->getAbstractImage()],
+            "extro_image" => ["text", $settings->getExtroImage()],
+            "gallery" => ["integer", $settings->getMembersGallery()]
+        ];
 
         $this->database->update(static::TABLE_NAME, $values, $where);
     }
 
-    public function delete(int $obj_id)
+    public function delete(int $obj_id): void
     {
         $settings = $this->getSettingsFor($obj_id);
 
@@ -67,14 +70,14 @@ class ilLearningSequenceSettingsDB
         }
 
         $query =
-             "DELETE FROM " . static::TABLE_NAME . PHP_EOL
+              "DELETE FROM " . static::TABLE_NAME . PHP_EOL
             . "WHERE obj_id = " . $this->database->quote($obj_id, "integer") . PHP_EOL
         ;
 
         $this->database->manipulate($query);
     }
 
-    public function getSettingsFor(int $lso_obj_id) : ilLearningSequenceSettings
+    public function getSettingsFor(int $lso_obj_id): ilLearningSequenceSettings
     {
         $data = $this->select($lso_obj_id);
 
@@ -95,18 +98,22 @@ class ilLearningSequenceSettingsDB
         return $settings;
     }
 
-    protected function select(int $obj_id) : array
+    /**
+     * @return array<string, mixed>
+     */
+    protected function select(int $obj_id): array
     {
         $ret = [];
         $query =
-             "SELECT abstract, extro, abstract_image, extro_image, gallery" . PHP_EOL
+              "SELECT abstract, extro, abstract_image, extro_image, gallery" . PHP_EOL
             . "FROM " . static::TABLE_NAME . PHP_EOL
             . "WHERE obj_id = " . $this->database->quote($obj_id, "integer") . PHP_EOL
         ;
 
         $result = $this->database->query($query);
 
-        if ($result->numRows() !== 0) {
+        if ($this->database->numRows($result) !== 0) {
+            // TODO PHP8 Review: Check array building, should be $ret[] = ... IMO
             $ret = $this->database->fetchAssoc($result);
         }
 
@@ -120,8 +127,7 @@ class ilLearningSequenceSettingsDB
         string $abstract_image = null,
         string $extro_image = null,
         bool $gallery = false
-
-    ) : ilLearningSequenceSettings {
+    ): ilLearningSequenceSettings {
         return new ilLearningSequenceSettings(
             $obj_id,
             $abstract,
@@ -132,14 +138,14 @@ class ilLearningSequenceSettingsDB
         );
     }
 
-    protected function insert(ilLearningSequenceSettings $settings)
+    protected function insert(ilLearningSequenceSettings $settings): void
     {
-        $values = array(
-            "obj_id" => array("integer", $settings->getObjId()),
-            "abstract" => array("text", $settings->getAbstract()),
-            "extro" => array("text", $settings->getExtro()),
-            "gallery" => array("integer", $settings->getMembersGallery())
-        );
+        $values = [
+            "obj_id" => ["integer", $settings->getObjId()],
+            "abstract" => ["text", $settings->getAbstract()],
+            "extro" => ["text", $settings->getExtro()],
+            "gallery" => ["integer", $settings->getMembersGallery()]
+        ];
         $this->database->insert(static::TABLE_NAME, $values);
     }
 }

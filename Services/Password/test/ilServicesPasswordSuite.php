@@ -1,6 +1,22 @@
-<?php declare(strict_types=1);
+<?php
 
-/* Copyright (c) 1998-2014 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\TestCase;
@@ -14,11 +30,7 @@ require_once __DIR__ . '/bootstrap.php';
  */
 class ilServicesPasswordSuite extends TestSuite
 {
-    /**
-     * @return self
-     * @throws ReflectionException
-     */
-    public static function suite()
+    public static function suite(): self
     {
         $suite = new self();
 
@@ -26,7 +38,7 @@ class ilServicesPasswordSuite extends TestSuite
             new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator(__DIR__, FilesystemIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::LEAVES_ONLY
-                     ),
+            ),
             '/BaseTest\.php$/'
         ) as $file) {
             /** @var SplFileInfo $file */
@@ -37,7 +49,7 @@ class ilServicesPasswordSuite extends TestSuite
             new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator(__DIR__, FilesystemIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::LEAVES_ONLY
-                     ),
+            ),
             '/(?<!Base)Test\.php$/'
         ) as $file) {
             /** @var SplFileInfo $file */

@@ -17,8 +17,8 @@
 
 datepicker.regional.it = {
 	closeText: "Chiudi",
-	prevText: "Prec",
-	nextText: "Succ",
+	prevText: "&#x3C;Prec",
+	nextText: "Succ&#x3E;",
 	currentText: "Oggi",
 	monthNames: [ "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
 		"Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre" ],

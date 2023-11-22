@@ -1,27 +1,47 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateTypeClassMap
 {
-    private $typeClassMap = array(
-        'crs' => array('placeholder' => ilCoursePlaceholderValues::class),
-        'tst' => array('placeholder' => ilTestPlaceholderValues::class),
-        'exc' => array('placeholder' => ilExercisePlaceholderValues::class),
-        'cmix' => array('placeholder' => ilCmiXapiPlaceholderValues::class),
-        'lti' => array('placeholder' => ilLTIConsumerPlaceholderValues::class),
-        'sahs' => array('placeholder' => ilScormPlaceholderValues::class),
-        'prg' => array('placeholder' => ilStudyProgrammePlaceholderValues::class),
-    );
+    /**
+     * @var array<string, array{placeholder: string}>
+     */
+    private array $typeClassMap = [
+        'crs' => ['placeholder' => ilCoursePlaceholderValues::class],
+        'tst' => ['placeholder' => ilTestPlaceholderValues::class],
+        'exc' => ['placeholder' => ilExercisePlaceholderValues::class],
+        'cmix' => ['placeholder' => ilCmiXapiPlaceholderValues::class],
+        'lti' => ['placeholder' => ilLTIConsumerPlaceholderValues::class],
+        'sahs' => ['placeholder' => ilScormPlaceholderValues::class],
+        'prg' => ['placeholder' => ilStudyProgrammePlaceholderValues::class]
+    ];
 
     /**
      * @param string $type
      * @return string
      * @throws ilException
      */
-    public function getPlaceHolderClassNameByType($type) : string
+    public function getPlaceHolderClassNameByType(string $type): string
     {
         if (false === $this->typeExistsInMap($type)) {
             throw new ilException('The given type ' . $type . 'is not mapped as a class on the class map');
@@ -30,11 +50,7 @@ class ilCertificateTypeClassMap
         return $this->typeClassMap[$type]['placeholder'];
     }
 
-    /**
-     * @param string $type
-     * @return bool
-     */
-    public function typeExistsInMap($type) : bool
+    public function typeExistsInMap(string $type): bool
     {
         return array_key_exists($type, $this->typeClassMap);
     }

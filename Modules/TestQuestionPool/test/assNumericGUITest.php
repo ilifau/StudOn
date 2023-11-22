@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
 * Unit tests
@@ -12,45 +27,24 @@ class assNumericGUITest extends assBaseTestCase
 {
     protected $backupGlobals = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
-        if (defined('ILIAS_PHPUNIT_CONTEXT')) {
-            include_once("./Services/PHPUnit/classes/class.ilUnitUtil.php");
-            ilUnitUtil::performInitialisation();
-        } else {
-            chdir(dirname(__FILE__));
-            chdir('../../../');
+        parent::setUp();
 
-            require_once './Services/UICore/classes/class.ilCtrl.php';
-            $ilCtrl_mock = $this->createMock('ilCtrl');
-            $ilCtrl_mock->expects($this->any())->method('saveParameter');
-            $ilCtrl_mock->expects($this->any())->method('saveParameterByClass');
-            global $DIC;
-            unset($DIC['ilCtrl']);
-            $DIC['ilCtrl'] = $ilCtrl_mock;
-            $GLOBALS['ilCtrl'] = $DIC['ilCtrl'];
+        $ilCtrl_mock = $this->getMockBuilder(ilCtrl::class)->disableOriginalConstructor()->getMock();
+        $ilCtrl_mock->expects($this->any())->method('saveParameter');
+        $ilCtrl_mock->expects($this->any())->method('saveParameterByClass');
+        $this->setGlobalVariable('ilCtrl', $ilCtrl_mock);
 
-            require_once './Services/Language/classes/class.ilLanguage.php';
-            $lng_mock = $this->createMock('ilLanguage', array('txt'), array(), '', false);
-            //$lng_mock->expects( $this->once() )->method( 'txt' )->will( $this->returnValue('Test') );
-            global $DIC;
-            unset($DIC['lng']);
-            $DIC['lng'] = $lng_mock;
-            $GLOBALS['lng'] = $DIC['lng'];
-
-            $ilias_mock = new stdClass();
-            $ilias_mock->account = new stdClass();
-            $ilias_mock->account->id = 6;
-            $ilias_mock->account->fullname = 'Esther Tester';
-            global $DIC;
-            unset($DIC['ilias']);
-            $DIC['ilias'] = $ilias_mock;
-            $GLOBALS['ilias'] = $DIC['ilias'];
-            $this->setGlobalVariable('http', $this->getHttpMock());
-        }
+        $ilias_mock = new stdClass();
+        $ilias_mock->account = new stdClass();
+        $ilias_mock->account->id = 6;
+        $ilias_mock->account->fullname = 'Esther Tester';
+        $this->setGlobalVariable('ilias', $ilias_mock);
+        $this->setGlobalVariable('tpl', $this->getGlobalTemplateMock());
     }
 
-    public function test_instantiateObject_shouldReturnInstance()
+    public function test_instantiateObject_shouldReturnInstance(): void
     {
         // Arrange
         require_once './Modules/TestQuestionPool/classes/class.assNumericGUI.php';

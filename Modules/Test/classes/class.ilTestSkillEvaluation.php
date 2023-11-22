@@ -1,14 +1,26 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionSkillAssignmentList.php';
-require_once 'Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/ilAssLacQuestionProvider.php';
-require_once 'Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/ilAssLacConditionParser.php';
-require_once 'Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/ilAssLacCompositeEvaluator.php';
-require_once 'Modules/Test/classes/class.ilTestSkillPointAccount.php';
-require_once 'Modules/Test/classes/class.ilTestSkillLevelThresholdList.php';
 
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Skill\Service\SkillProfileService;
+
+/**
+ * Logic for determining a learner’s competences based on the results of a test.
+ *
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
  *
@@ -70,7 +82,7 @@ class ilTestSkillEvaluation
      * @var integer
      */
     private $activeId;
-    
+
     /**
      * @var integer
      */
@@ -81,8 +93,12 @@ class ilTestSkillEvaluation
      */
     private $numRequiredBookingsForSkillTriggering;
 
-    public function __construct(ilDBInterface $db, $testId, $refId)
+    private SkillProfileService $skill_profile_service;
+
+    public function __construct(ilDBInterface $db, $testId, $refId, SkillProfileService $skill_profile_service = null)
     {
+        global $DIC;
+
         $this->db = $db;
         $this->refId = $refId;
 
@@ -91,11 +107,15 @@ class ilTestSkillEvaluation
         $this->skillLevelThresholdList = new ilTestSkillLevelThresholdList($this->db);
         $this->skillLevelThresholdList->setTestId($testId);
 
+        $this->skill_profile_service = ($skill_profile_service == null)
+            ? $DIC->skills()->profile()
+            : $skill_profile_service;
+
         $this->questions = array();
         $this->maxPointsByQuestion = array();
     }
 
-    public function getUserId()
+    public function getUserId(): int
     {
         return $this->userId;
     }
@@ -105,7 +125,7 @@ class ilTestSkillEvaluation
         $this->userId = $userId;
     }
 
-    public function getActiveId()
+    public function getActiveId(): int
     {
         return $this->activeId;
     }
@@ -115,7 +135,7 @@ class ilTestSkillEvaluation
         $this->activeId = $activeId;
     }
 
-    public function getPass()
+    public function getPass(): int
     {
         return $this->pass;
     }
@@ -125,7 +145,7 @@ class ilTestSkillEvaluation
         $this->pass = $pass;
     }
 
-    public function getNumRequiredBookingsForSkillTriggering()
+    public function getNumRequiredBookingsForSkillTriggering(): int
     {
         return $this->numRequiredBookingsForSkillTriggering;
     }
@@ -134,14 +154,14 @@ class ilTestSkillEvaluation
     {
         $this->numRequiredBookingsForSkillTriggering = $numRequiredBookingsForSkillTriggering;
     }
-    
+
     public function init(ilAssQuestionList $questionList)
     {
         $this->skillQuestionAssignmentList->setParentObjId($questionList->getParentObjId());
         $this->skillQuestionAssignmentList->loadFromDb();
-        
+
         $this->skillLevelThresholdList->loadFromDb();
-        
+
         $this->initTestQuestionData($questionList);
     }
 
@@ -158,7 +178,7 @@ class ilTestSkillEvaluation
         $this->evaluateSkillPointAccounts();
     }
 
-    public function getReachedSkillLevels()
+    public function getReachedSkillLevels(): array
     {
         return $this->reachedSkillLevels;
     }
@@ -192,7 +212,7 @@ class ilTestSkillEvaluation
             if (!$result['workedthrough']) {
                 continue;
             }
-            
+
             $this->reachedPointsByQuestion[ $result['qid'] ] = $result['reached'];
         }
     }
@@ -231,34 +251,33 @@ class ilTestSkillEvaluation
             }
         }
     }
-    
-    private function isAnsweredQuestion($questionId)
+
+    private function isAnsweredQuestion($questionId): bool
     {
         return isset($this->reachedPointsByQuestion[$questionId]);
     }
-    
-    private function determineReachedSkillPointsWithSolutionCompare(ilAssQuestionSolutionComparisonExpressionList $expressionList)
+
+    private function determineReachedSkillPointsWithSolutionCompare(ilAssQuestionSolutionComparisonExpressionList $expressionList): ?int
     {
         $questionProvider = new ilAssLacQuestionProvider();
         $questionProvider->setQuestionId($expressionList->getQuestionId());
 
         foreach ($expressionList->get() as $expression) {
             /* @var ilAssQuestionSolutionComparisonExpression $expression */
-            
+
             $conditionParser = new ilAssLacConditionParser();
             $conditionComposite = $conditionParser->parse($expression->getExpression());
-            
+
             $compositeEvaluator = new ilAssLacCompositeEvaluator(
                 $questionProvider,
                 $this->getActiveId(),
                 $this->getPass()
             );
-
             if ($compositeEvaluator->evaluate($conditionComposite)) {
                 return $expression->getPoints();
             }
         }
-        
+
         return 0;
     }
 
@@ -296,7 +315,7 @@ class ilTestSkillEvaluation
             if (!$this->doesNumBookingsExceedRequiredBookingsBarrier($skillPointAccount)) {
                 continue;
             }
-            
+
             list($skillBaseId, $skillTrefId) = explode(':', $skillKey);
 
             $skill = new ilBasicSkill($skillBaseId);
@@ -312,7 +331,7 @@ class ilTestSkillEvaluation
                 }
 
                 $reachedLevelId = $level['id'];
-                
+
                 if ($skillPointAccount->getTotalReachedSkillPercent() <= $threshold->getThreshold()) {
                     break;
                 }
@@ -325,8 +344,8 @@ class ilTestSkillEvaluation
             }
         }
     }
-    
-    private function doesNumBookingsExceedRequiredBookingsBarrier(ilTestSkillPointAccount $skillPointAccount)
+
+    private function doesNumBookingsExceedRequiredBookingsBarrier(ilTestSkillPointAccount $skillPointAccount): bool
     {
         return $skillPointAccount->getNumBookings() >= $this->getNumRequiredBookingsForSkillTriggering();
     }
@@ -342,6 +361,8 @@ class ilTestSkillEvaluation
                 ilPersonalSkill::addPersonalSkill($this->getUserId(), $reachedSkillLevel['sklBaseId']);
             }
         }
+        //write profile completion entries if fulfilment status has changed
+        $this->skill_profile_service->writeCompletionEntryForAllProfiles($this->getUserId());
     }
 
     private function invokeSkillLevelTrigger($skillLevelId, $skillTrefId)
@@ -356,41 +377,41 @@ class ilTestSkillEvaluation
             0,
             $this->getPass()
         );
-        
+
         /* @var ILIAS\DI\Container $DIC */ global $DIC;
-        
+
         $DIC->logger()->root()->info(
             "refId={$this->refId} / usrId={$this->getUserId()} / levelId={$skillLevelId} / trefId={$skillTrefId}"
         );
 
         //mail('bheyser@databay.de', "trigger skill level $skillLevelId for user {$this->getUserId()}", '');
     }
-    
-    public function getSkillsMatchingNumAnswersBarrier()
+
+    public function getSkillsMatchingNumAnswersBarrier(): array
     {
         $skillsMatchingNumAnswersBarrier = array();
-        
+
         foreach ($this->skillPointAccounts as $skillKey => $skillPointAccount) {
             if ($this->doesNumBookingsExceedRequiredBookingsBarrier($skillPointAccount)) {
                 list($skillBaseId, $skillTrefId) = explode(':', $skillKey);
-                
+
                 $skillsMatchingNumAnswersBarrier[$skillKey] = array(
                     'base_skill_id' => (int) $skillBaseId,
                     'tref_id' => (int) $skillTrefId
                 );
             }
         }
-        
+
         return $skillsMatchingNumAnswersBarrier;
     }
 
-    public function getSkillsInvolvedByAssignment()
+    public function getSkillsInvolvedByAssignment(): array
     {
         $uniqueSkills = array();
-        
+
         foreach ($this->skillQuestionAssignmentList->getUniqueAssignedSkills() as $skill) {
             $skillKey = $skill['skill_base_id'] . ':' . $skill['skill_tref_id'];
-            
+
             $uniqueSkills[$skillKey] = array(
                 'base_skill_id' => (int) $skill['skill_base_id'],
                 'tref_id' => (int) $skill['skill_tref_id']
@@ -405,14 +426,14 @@ class ilTestSkillEvaluation
         $this->skillQuestionAssignmentList->isAssignedSkill($skillBaseId, $skillTrefId);
     }
 
-    public function getAssignedSkillMatchingSkillProfiles()
+    public function getAssignedSkillMatchingSkillProfiles(): array
     {
         $matchingSkillProfiles = array();
 
-        $usersProfiles = ilSkillProfile::getProfilesOfUser($this->getUserId());
+        $usersProfiles = $this->skill_profile_service->getProfilesOfUser($this->getUserId());
 
         foreach ($usersProfiles as $profileData) {
-            $profile = new ilSkillProfile($profileData['id']);
+            $profile = $this->skill_profile_service->getById($profileData['id']);
             $assignedSkillLevels = $profile->getSkillLevels();
 
             foreach ($assignedSkillLevels as $assignedSkillLevel) {
@@ -428,12 +449,12 @@ class ilTestSkillEvaluation
         return $matchingSkillProfiles;
     }
 
-    public function noProfileMatchingAssignedSkillExists($availableSkillProfiles)
+    public function noProfileMatchingAssignedSkillExists($availableSkillProfiles): int
     {
         $noProfileMatchingSkills = $this->skillQuestionAssignmentList->getUniqueAssignedSkills();
 
         foreach ($availableSkillProfiles as $skillProfileId => $skillProfileTitle) {
-            $profile = new ilSkillProfile($skillProfileId);
+            $profile = $this->skill_profile_service->getById($skillProfileId);
             $assignedSkillLevels = $profile->getSkillLevels();
 
             foreach ($assignedSkillLevels as $assignedSkillLevel) {

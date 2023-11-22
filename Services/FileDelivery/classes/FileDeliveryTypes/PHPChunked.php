@@ -16,13 +16,13 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\FileDelivery\FileDeliveryTypes;
 
 use ILIAS\FileDelivery\ilFileDeliveryType;
-use ILIAS\HTTP\GlobalHttpState;
+use ILIAS\HTTP\Services;
 use ILIAS\HTTP\Response\ResponseHeader;
-
-require_once('./Services/FileDelivery/interfaces/int.ilFileDeliveryType.php');
 
 /**
  * Class PHPChunked
@@ -33,19 +33,15 @@ require_once('./Services/FileDelivery/interfaces/int.ilFileDeliveryType.php');
  */
 final class PHPChunked implements ilFileDeliveryType
 {
-
-    /**
-     * @var GlobalHttpState $httpService
-     */
-    private $httpService;
+    private \ILIAS\HTTP\Services $httpService;
 
 
     /**
      * PHP constructor.
      *
-     * @param GlobalHttpState $httpState
+     * @param Services $httpState
      */
-    public function __construct(GlobalHttpState $httpState)
+    public function __construct(Services $httpState)
     {
         $this->httpService = $httpState;
     }
@@ -54,7 +50,7 @@ final class PHPChunked implements ilFileDeliveryType
     /**
      * @inheritDoc
      */
-    public function doesFileExists($path_to_file)
+    public function doesFileExists(string $path_to_file): bool
     {
         return is_readable($path_to_file);
     }
@@ -63,8 +59,9 @@ final class PHPChunked implements ilFileDeliveryType
     /**
      * @inheritdoc
      */
-    public function prepare($path_to_file)
+    public function prepare(string $path_to_file): bool
     {
+        // nothing to do here
         return true;
     }
 
@@ -72,7 +69,7 @@ final class PHPChunked implements ilFileDeliveryType
     /**
      * @inheritdoc
      */
-    public function deliver($path_to_file, $file_marked_to_delete)
+    public function deliver(string $path_to_file, bool $file_marked_to_delete): void
     {
         $file = $path_to_file;
         $fp = @fopen($file, 'rb');
@@ -110,7 +107,7 @@ final class PHPChunked implements ilFileDeliveryType
             $c_end = $end;
 
             // Extract the range string
-            list(, $range) = explode('=', $server['HTTP_RANGE'], 2);
+            [, $range] = explode('=', $server['HTTP_RANGE'], 2);
             // Make sure the client hasn't sent us a multibyte range
             if (strpos($range, ',') !== false) {
                 // (?) Shoud this be issued here, or should the first
@@ -126,7 +123,7 @@ final class PHPChunked implements ilFileDeliveryType
             // If the range starts with an '-' we start from the beginning
             // If not, we forward the file pointer
             // And make sure to get the end byte if spesified
-            if ($range[0] == '-') {
+            if ($range[0] === '-') {
                 // The n-number of the last bytes is requested
                 $c_start = $size - substr($range, 1);
             } else {
@@ -151,7 +148,7 @@ final class PHPChunked implements ilFileDeliveryType
             $start = $c_start;
             $end = $c_end;
             $length = $end - $start + 1; // Calculate new content length
-            fseek($fp, $start);
+            fseek($fp, (int) $start);
 
             $response = $this->httpService->response()->withStatus(206);
 
@@ -181,15 +178,13 @@ final class PHPChunked implements ilFileDeliveryType
         } // fim do while
 
         fclose($fp);
-
-        return true;
     }
 
 
     /**
      * @inheritdoc
      */
-    public function supportsInlineDelivery()
+    public function supportsInlineDelivery(): bool
     {
         return true;
     }
@@ -198,7 +193,7 @@ final class PHPChunked implements ilFileDeliveryType
     /**
      * @inheritdoc
      */
-    public function supportsAttachmentDelivery()
+    public function supportsAttachmentDelivery(): bool
     {
         return true;
     }
@@ -207,13 +202,13 @@ final class PHPChunked implements ilFileDeliveryType
     /**
      * @inheritdoc
      */
-    public function supportsStreaming()
+    public function supportsStreaming(): bool
     {
         return true;
     }
 
 
-    private function close()
+    private function close(): void
     {
         //render response
         $this->httpService->sendResponse();
@@ -224,7 +219,7 @@ final class PHPChunked implements ilFileDeliveryType
     /**
      * @inheritdoc
      */
-    public function handleFileDeletion($path_to_file)
+    public function handleFileDeletion(string $path_to_file): bool
     {
         return unlink($path_to_file);
     }

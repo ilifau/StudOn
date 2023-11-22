@@ -1,9 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php';
-require_once 'Services/Form/classes/class.ilNumberInputGUI.php';
-require_once 'Services/Table/classes/class.ilTable2GUI.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilUnitTableGUI
@@ -34,6 +45,8 @@ class ilUnitTableGUI extends ilTable2GUI
 
         parent::__construct($controller, $default_cmd);
 
+        $ilCtrl->setParameter($this->getParentObject(), 'category_id', $category->getId());
+
         if ($this->getParentObject()->isCRUDContext()) {
             $this->addColumn('', '', '1%', true);
             $this->setSelectAllCheckbox('unit_ids[]');
@@ -42,7 +55,7 @@ class ilUnitTableGUI extends ilTable2GUI
         }
 
         $this->setTitle(sprintf($this->lng->txt('un_units_of_category_x'), $category->getDisplayString()));
-        
+
         $this->addColumn($this->lng->txt('un_sequence'), '');
         $this->addColumn($this->lng->txt('unit'), '');
         $this->addColumn($this->lng->txt('baseunit'), '');
@@ -61,9 +74,9 @@ class ilUnitTableGUI extends ilTable2GUI
     }
 
     /**
-     * @param array $row
+     * @param array $a_set
      */
-    public function fillRow($row)
+    public function fillRow(array $a_set): void
     {
         /**
          * @var $ilCtrl ilCtrl
@@ -72,27 +85,27 @@ class ilUnitTableGUI extends ilTable2GUI
         $ilCtrl = $DIC['ilCtrl'];
 
         if ($this->getParentObject()->isCRUDContext()) {
-            $row['chb'] = ilUtil::formCheckbox(false, 'unit_ids[]', $row['unit_id']);
+            $a_set['chb'] = ilLegacyFormElementsUtil::formCheckbox(false, 'unit_ids[]', $a_set['unit_id']);
 
-            $sequence = new ilNumberInputGUI('', 'sequence[' . $row['unit_id'] . ']');
+            $sequence = new ilNumberInputGUI('', 'sequence[' . $a_set['unit_id'] . ']');
             $sequence->setValue($this->position++ * 10);
             $sequence->setMinValue(0);
             $sequence->setSize(3);
-            $row['sequence'] = $sequence->render();
+            $a_set['sequence'] = $sequence->render();
 
             $action = new ilAdvancedSelectionListGUI();
-            $action->setId('asl_content_' . $row['unit_id']);
+            $action->setId('asl_content_' . $a_set['unit_id']);
             $action->setAsynch(false);
             $action->setListTitle($this->lng->txt('actions'));
-            $ilCtrl->setParameter($this->getParentObject(), 'unit_id', $row['unit_id']);
+            $ilCtrl->setParameter($this->getParentObject(), 'unit_id', $a_set['unit_id']);
             $action->addItem($this->lng->txt('edit'), '', $ilCtrl->getLinkTarget($this->getParentObject(), 'showUnitModificationForm'));
             $action->addItem($this->lng->txt('delete'), '', $ilCtrl->getLinkTarget($this->getParentObject(), 'confirmDeleteUnit'));
             $ilCtrl->setParameter($this->getParentObject(), 'unit_id', '');
-            $row['actions'] = $action->getHtml();
+            $a_set['actions'] = $action->getHtml();
         }
-        if ($row['unit_id'] == $row['baseunit_id']) {
-            $row['baseunit'] = '';
+        if ($a_set['unit_id'] == $a_set['baseunit_id']) {
+            $a_set['baseunit'] = '';
         }
-        parent::fillRow($row);
+        parent::fillRow($a_set);
     }
 }

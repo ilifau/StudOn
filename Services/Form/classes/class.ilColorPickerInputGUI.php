@@ -1,75 +1,69 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
 
 /**
-* Color picker form for selecting color hexcodes using yui library
-*
-* @author Stefan Meyer <smeyer.ilias@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesForm
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+/**
+ * Color picker form for selecting color hexcodes using yui library
+ *
+ * @author Stefan Meyer <smeyer.ilias@gmx.de>
+ */
 class ilColorPickerInputGUI extends ilTextInputGUI
 {
-    protected $hex;
+    protected string $hex = "";
+    protected bool $acceptnamedcolors = false;
+    protected string $defaultcolor = "";
 
-    /**
-    * Constructor
-    *
-    * @param	string	$a_title	Title
-    * @param	string	$a_postvar	Post Variable
-    */
-    public function __construct($a_title = "", $a_postvar = "")
-    {
+    public function __construct(
+        string $a_title = "",
+        string $a_postvar = ""
+    ) {
         parent::__construct($a_title, $a_postvar);
         $this->setType("color");
         $this->setDefaultColor("04427e");
     }
-    
-    /**
-     * check input
-     *
-     * @access public
-     * @return
-     */
-    public function checkInput()
+
+    public function checkInput(): bool
     {
-        if (
-            $this->getRequired() &&
-            !strlen($_POST[$this->getPostVar()])
+        if ($this->getRequired() && !strlen($this->getInput())
         ) {
             $this->setAlert($this->lng->txt("msg_input_is_required"));
             return false;
         }
-        
-        if ($this->getAcceptNamedColors() && substr($_POST[$this->getPostVar()], 0, 1) == "!") {
-            $_POST[$this->getPostVar()] =
-                ilUtil::stripslashes(trim($_POST[$this->getPostVar()]));
-        } else {
-            $_POST[$this->getPostVar()] =
-                $this->determineHexcode(ilUtil::stripslashes(trim($_POST[$this->getPostVar()])));
-        }
+
         return true;
     }
-    
-    /**
-     * Set values by array
-     * @param type $a_values
-     */
-    public function setValueByArray($a_values)
+
+    public function getInput(): string
+    {
+        $value = trim($this->str($this->getPostVar()));
+        if ($this->getAcceptNamedColors() && substr($value, 0, 1) == "!") {
+            return $value;
+        }
+        return $this->determineHexcode($value);
+    }
+
+    public function setValueByArray(array $a_values): void
     {
         $this->setValue($a_values[$this->getPostVar()]);
     }
-    
-    /**
-     * set value
-     *
-     * @access public
-     * @param string $a_value color hexcode
-     * @return
-     */
-    public function setValue($a_value)
+
+    public function setValue($a_value): void
     {
         $a_value = trim($a_value);
         if ($this->getAcceptNamedColors() && substr($a_value, 0, 1) == "!") {
@@ -79,65 +73,37 @@ class ilColorPickerInputGUI extends ilTextInputGUI
             parent::setValue($this->getHexcode());
         }
     }
-    
-    /**
-    * Set Default Color.
-    *
-    * @param	mixed	$a_defaultcolor	Default Color
-    */
-    public function setDefaultColor($a_defaultcolor)
+
+    public function setDefaultColor(string $a_defaultcolor): void
     {
         $this->defaultcolor = $a_defaultcolor;
     }
 
-    /**
-    * Get Default Color.
-    *
-    * @return	mixed	Default Color
-    */
-    public function getDefaultColor()
+    public function getDefaultColor(): string
     {
         return $this->defaultcolor;
     }
 
-    /**
-    * Set Accept Named Colors (Leading '!').
-    *
-    * @param	boolean	$a_acceptnamedcolors	Accept Named Colors (Leading '!')
-    */
-    public function setAcceptNamedColors($a_acceptnamedcolors)
+    // Set Accept Named Colors (Leading '!').
+    public function setAcceptNamedColors(bool $a_acceptnamedcolors): void
     {
         $this->acceptnamedcolors = $a_acceptnamedcolors;
     }
 
-    /**
-    * Get Accept Named Colors (Leading '!').
-    *
-    * @return	boolean	Accept Named Colors (Leading '!')
-    */
-    public function getAcceptNamedColors()
+    public function getAcceptNamedColors(): bool
     {
         return $this->acceptnamedcolors;
     }
 
-    /**
-     * get hexcode
-     *
-     * @access public
-     * @return
-     */
-    public function getHexcode()
+    public function getHexcode(): string
     {
         if (strpos($this->hex, '#') === 0) {
             return substr($this->hex, 1);
         }
-        return $this->hex ? $this->hex : $this->getDefaultColor();
+        return $this->hex ?: $this->getDefaultColor();
     }
-    
-    /**
-    * Determine hex code for a given value
-    */
-    public static function determineHexcode($a_value)
+
+    public static function determineHexcode(string $a_value): string
     {
         $a_value = trim(strtolower($a_value));
 
@@ -145,7 +111,7 @@ class ilColorPickerInputGUI extends ilTextInputGUI
         if (strpos($a_value, '#') === 0) {
             $a_value = substr($a_value, 1);
         }
-        
+
         // handle standard color names (no leading (!))
         switch ($a_value) {
             // html4 colors
@@ -165,11 +131,11 @@ class ilColorPickerInputGUI extends ilTextInputGUI
             case "fuchsia": $a_value = "ff00ff"; break;
             case "aqua": $a_value = "00ffff"; break;
             case "white": $a_value = "ffffff"; break;
-            
+
             // other colors used by ILIAS, supported by modern browsers
             case "brown": $a_value = "a52a2a"; break;
         }
-        
+
         // handle rgb values
         if (substr($a_value, 0, 3) == "rgb") {
             $pos1 = strpos($a_value, "(");
@@ -180,62 +146,52 @@ class ilColorPickerInputGUI extends ilTextInputGUI
             $b = str_pad(dechex($rgb[2]), 2, "0", STR_PAD_LEFT);
             $a_value = $r . $g . $b;
         }
-        
+
         $a_value = trim(strtolower($a_value));
-        
+
         // expand three digit hex numbers
         if (preg_match("/^[a-f0-9]{3}/", $a_value) && strlen($a_value) == 3) {
             $a_value = "" . $a_value;
             $a_value = $a_value[0] . $a_value[0] . $a_value[1] . $a_value[1] . $a_value[2] . $a_value[2];
         }
-        
+
         if (!preg_match("/^[a-f0-9]{6}/", $a_value)) {
             $a_value = "";
         }
 
         return strtoupper($a_value);
     }
-    
-    /**
-    * Insert property html
-    *
-    * @return	int	Size
-    */
-    public function insert($a_tpl)
-    {
-        include_once('./Services/YUI/classes/class.ilYuiUtil.php');
-        
-        ilYuiUtil::initColorPicker();
-        
-        
-        $a_tpl->setCurrentBlock("prop_color");
 
-        $js_tpl = new ilTemplate('tpl.color_picker.js', true, true, 'Services/Form');
-        $js_tpl->setVariable('THUMB_PATH', ilUtil::getImagePath('color_picker_thumb.png', 'Services/Form'));
-        $js_tpl->setVariable('HUE_THUMB_PATH', ilUtil::getImagePath('color_picker_hue_thumb.png', 'Services/Form'));
-        $js_tpl->setVariable('COLOR_ID', $this->getFieldId());
+    public function insert(ilTemplate $a_tpl): void
+    {
+        $tpl = new ilTemplate('tpl.prop_color.html', true, true, 'Services/Form');
+        $tpl->setVariable('COLOR_ID', $this->getFieldId());
         $ic = ilColorPickerInputGUI::determineHexcode($this->getHexcode());
         if ($ic == "") {
             $ic = "FFFFFF";
         }
-        $js_tpl->setVariable('INIT_COLOR_SHORT', $ic);
-        $js_tpl->setVariable('INIT_COLOR', '#' . $this->getHexcode());
-        $js_tpl->setVariable('POST_VAR', $this->getPostVar());
-        
-        
+        $tpl->setVariable('INIT_COLOR_SHORT', $ic);
+        $tpl->setVariable('POST_VAR', $this->getPostVar());
+
         if ($this->getDisabled()) {
             $a_tpl->setVariable('COLOR_DISABLED', 'disabled="disabled"');
-        } else {
-            $a_tpl->setVariable('PROP_COLOR_JS', $js_tpl->get());
         }
-        $a_tpl->setVariable("POST_VAR", $this->getPostVar());
-        $a_tpl->setVariable("PROP_COLOR_ID", $this->getFieldId());
+
+        $tpl->setVariable("POST_VAR", $this->getPostVar());
+        $tpl->setVariable("PROP_COLOR_ID", $this->getFieldId());
 
         if (substr(trim($this->getValue()), 0, 1) == "!" && $this->getAcceptNamedColors()) {
-            $a_tpl->setVariable("PROPERTY_VALUE_COLOR", ilUtil::prepareFormOutput(trim($this->getValue())));
+            $tpl->setVariable(
+                "PROPERTY_VALUE_COLOR",
+                ilLegacyFormElementsUtil::prepareFormOutput(trim($this->getValue()))
+            );
         } else {
-            $a_tpl->setVariable("PROPERTY_VALUE_COLOR", ilUtil::prepareFormOutput($this->getHexcode()));
+            $tpl->setVariable("PROPERTY_VALUE_COLOR", ilLegacyFormElementsUtil::prepareFormOutput($this->getHexcode()));
+            $tpl->setVariable('INIT_COLOR', '#' . $this->getHexcode());
         }
+
+        $a_tpl->setCurrentBlock("prop_generic");
+        $a_tpl->setVariable("PROP_GENERIC", $tpl->get());
         $a_tpl->parseCurrentBlock();
     }
 }

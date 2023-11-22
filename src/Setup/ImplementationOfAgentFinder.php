@@ -1,8 +1,22 @@
 <?php
 
-/* Copyright (c) 2020 Daniel Weise <daniel.weise@concepts-and-training.de> Extended GPL, see docs/LICENSE */
-
 declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Setup;
 
@@ -11,52 +25,27 @@ use ILIAS\Data;
 
 class ImplementationOfAgentFinder implements AgentFinder
 {
-    /**
-     * @var Refinery|null
-     */
-    protected $refinery;
+    protected Refinery $refinery;
+    protected Data\Factory $data_factory;
+    protected \ilSetupLanguage $lng;
+    protected ImplementationOfInterfaceFinder $interface_finder;
+
+    protected array $predefined_agents;
 
     /**
-     * @var Data\Factory|null
-     */
-    protected $data_factory;
-
-    /**
-     * @var \ilSetupLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var \ilPluginRawReader|null
-     */
-    protected $plugin_raw_reader;
-
-    /**
-     * @var ImplementationOfInterfaceFinder|null
-     */
-    protected $interface_finder;
-
-    /**
-     * @var array<string, Setup\Agent> $predefined_agents
-     */
-    protected $predefined_agents;
-    
-    /**
-     * @var array<string, Setup\Agent> $predefined_agents
+     * @var array<string, Agent> $predefined_agents
      */
     public function __construct(
         Refinery $refinery,
         Data\Factory $data_factory,
         \ilSetupLanguage $lng,
         ImplementationOfInterfaceFinder $interface_finder,
-        \ilPluginRawReader $plugin_raw_reader,
         array $predefined_agents = []
     ) {
         $this->refinery = $refinery;
         $this->data_factory = $data_factory;
         $this->lng = $lng;
         $this->interface_finder = $interface_finder;
-        $this->plugin_raw_reader = $plugin_raw_reader;
         $this->predefined_agents = $predefined_agents;
     }
 
@@ -65,16 +54,16 @@ class ImplementationOfAgentFinder implements AgentFinder
      *
      * @param string[]  $ignore folders to be ignored.
      */
-    public function getAgents() : AgentCollection
+    public function getAgents(): AgentCollection
     {
         $agents = $this->getCoreAgents();
 
         // Get a list of existing plugins in the system.
-        $plugins = $this->plugin_raw_reader->getPluginNames();
+        $plugins = $this->getPluginNames();
 
         foreach ($plugins as $plugin_name) {
             $agents = $agents->withAdditionalAgent(
-                strtolower($plugin_name),
+                $plugin_name,
                 $this->getPluginAgent($plugin_name)
             );
         }
@@ -86,7 +75,7 @@ class ImplementationOfAgentFinder implements AgentFinder
     /**
      * Collect core agents from the system bundled in a collection.
      */
-    public function getCoreAgents() : AgentCollection
+    public function getCoreAgents(): AgentCollection
     {
         // Initialize the agents.
         $agents = new AgentCollection(
@@ -121,14 +110,8 @@ class ImplementationOfAgentFinder implements AgentFinder
      *
      * @param string $name of the plugin to get the agent from
      */
-    public function getPluginAgent(string $name) : Agent
+    public function getPluginAgent(string $name): Agent
     {
-        if (!$this->plugin_raw_reader->hasPlugin($name)) {
-            throw new \InvalidArgumentException(
-                "Cannot find plugin with name '$name'"
-            );
-        }
-
         // TODO: This seems to be something that rather belongs to Services/Component/
         // but we put it here anyway for the moment. This seems to be something that
         // could go away when we unify Services/Modules/Plugins to one common concept.
@@ -139,8 +122,8 @@ class ImplementationOfAgentFinder implements AgentFinder
             $path
         ));
 
-        if (count($agent_classes) === 0) {
-            return new class($name) extends \ilPluginDefaultAgent {
+        if ($agent_classes === []) {
+            return new class ($name) extends \ilPluginDefaultAgent {
             };
         }
 
@@ -163,7 +146,7 @@ class ImplementationOfAgentFinder implements AgentFinder
         );
     }
 
-    public function getAgentByClassName(string $class_name) : Agent
+    public function getAgentByClassName(string $class_name): Agent
     {
         if (!class_exists($class_name)) {
             throw new \InvalidArgumentException("Class '" . $class_name . "' not found.");
@@ -179,7 +162,7 @@ class ImplementationOfAgentFinder implements AgentFinder
     /**
      * Derive a name for the agent based on a class name.
      */
-    public function getAgentNameByClassName(string $class_name) : string
+    public function getAgentNameByClassName(string $class_name): string
     {
         // We assume that the name of an agent in the class ilXYZSetupAgent really
         // is XYZ. If that does not fit we just use the class name.
@@ -188,5 +171,28 @@ class ImplementationOfAgentFinder implements AgentFinder
             return strtolower($match[1]);
         }
         return $class_name;
+    }
+
+    /**
+     * @return \Generator <string>
+     */
+    protected function getPluginNames(): \Generator
+    {
+        $directories =
+            new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator(__DIR__ . "/../../Customizing/global/plugins/")
+            );
+        $names = [];
+        foreach ($directories as $dir) {
+            $groups = [];
+            if (preg_match("%^" . __DIR__ . "/[.][.]/[.][.]/Customizing/global/plugins/((Modules)|(Services))/((\\w+/){2})([^/\.]+)(/|$)%", (string) $dir, $groups)) {
+                $name = $groups[6];
+                if (isset($names[$name])) {
+                    continue;
+                }
+                $names[$name] = true;
+                yield $name;
+            }
+        }
     }
 }

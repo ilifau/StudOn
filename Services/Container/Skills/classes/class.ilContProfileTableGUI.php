@@ -1,6 +1,25 @@
 <?php
 
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
+
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
+use ILIAS\Skill\Service\SkillProfileService;
 
 /**
  * TableGUI class for competence profiles in containers
@@ -12,51 +31,19 @@
 class ilContProfileTableGUI extends ilTable2GUI
 {
     /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilTemplate
+     * @var ilGlobalTemplateInterface
      */
     protected $tpl;
+    protected Factory $ui_factory;
+    protected Renderer $ui_renderer;
+    protected ilContainerGlobalProfiles $container_global_profiles;
+    protected ilContainerLocalProfiles $container_local_profiles;
+    protected ilSkillManagementSettings $skmg_settings;
+    protected SkillProfileService $profile_service;
 
-    /**
-     * @var \ILIAS\UI\Factory
-     */
-    protected $ui_factory;
-
-    /**
-     * @var \ILIAS\UI\Renderer
-     */
-    protected $ui_renderer;
-
-    /**
-     * @var ilContainerGlobalProfiles
-     */
-    protected $container_global_profiles;
-
-    /**
-     * @var ilContainerLocalProfiles
-     */
-    protected $container_local_profiles;
-
-    /**
-     * @var ilSkillManagementSettings
-     */
-    protected $skmg_settings;
-
-    /**
-     * Constructor
-     */
     public function __construct(
         $a_parent_obj,
-        $a_parent_cmd,
+        string $a_parent_cmd,
         ilContainerGlobalProfiles $a_cont_glb_profiles,
         ilContainerLocalProfiles $a_cont_lcl_profiles
     ) {
@@ -71,6 +58,7 @@ class ilContProfileTableGUI extends ilTable2GUI
         $this->container_global_profiles = $a_cont_glb_profiles;
         $this->container_local_profiles = $a_cont_lcl_profiles;
         $this->skmg_settings = new ilSkillManagementSettings();
+        $this->profile_service = $DIC->skills()->profile();
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->setData($this->getProfiles());
@@ -93,28 +81,23 @@ class ilContProfileTableGUI extends ilTable2GUI
         }
     }
 
-    /**
-     * Get profiles
-     *
-     * @return array
-     */
-    public function getProfiles()
+    public function getProfiles(): array
     {
-        $profiles = array();
+        $profiles = [];
         if ($this->skmg_settings->getLocalAssignmentOfProfiles()) {
             foreach ($this->container_global_profiles->getProfiles() as $gp) {
-                $profiles[$gp["profile_id"]] = array(
+                $profiles[$gp["profile_id"]] = [
                     "profile_id" => $gp["profile_id"],
-                    "title" => ilSkillProfile::lookupTitle($gp["profile_id"])
-                );
+                    "title" => $this->profile_service->lookupTitle($gp["profile_id"])
+                ];
             }
         }
         if ($this->skmg_settings->getAllowLocalProfiles()) {
             foreach ($this->container_local_profiles->getProfiles() as $lp) {
-                $profiles[$lp["profile_id"]] = array(
+                $profiles[$lp["profile_id"]] = [
                     "profile_id" => $lp["profile_id"],
-                    "title" => ilSkillProfile::lookupTitle($lp["profile_id"])
-                );
+                    "title" => $this->profile_service->lookupTitle($lp["profile_id"])
+                ];
             }
         }
         ksort($profiles);
@@ -122,10 +105,7 @@ class ilContProfileTableGUI extends ilTable2GUI
         return $profiles;
     }
 
-    /**
-     * Fill table row
-     */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         $tpl = $this->tpl;
         $ctrl = $this->ctrl;
@@ -136,7 +116,7 @@ class ilContProfileTableGUI extends ilTable2GUI
         $tpl->setVariable("TITLE", $a_set["title"]);
         $tpl->setVariable("ID", $a_set["profile_id"]);
 
-        if (ilSkillProfile::lookupRefId($a_set["profile_id"]) > 0) {
+        if ($this->profile_service->lookupRefId($a_set["profile_id"]) > 0) {
             $tpl->setVariable("CONTEXT", $lng->txt("skmg_context_local"));
         } else {
             $tpl->setVariable("CONTEXT", $lng->txt("skmg_context_global"));
@@ -146,8 +126,8 @@ class ilContProfileTableGUI extends ilTable2GUI
         $ctrl->setParameterByClass("ilskillprofilegui", "sprof_id", $a_set["profile_id"]);
         $ctrl->setParameterByClass("ilskillprofilegui", "local_context", true);
 
-        if (ilSkillProfile::lookupRefId($a_set["profile_id"]) > 0) {
-            $items = array(
+        if ($this->profile_service->lookupRefId($a_set["profile_id"]) > 0) {
+            $items = [
                 $ui_factory->link()->standard(
                     $lng->txt("edit"),
                     $ctrl->getLinkTargetByClass("ilskillprofilegui", "showLevelsWithLocalContext")
@@ -156,14 +136,14 @@ class ilContProfileTableGUI extends ilTable2GUI
                     $lng->txt("delete"),
                     $ctrl->getLinkTarget($this->parent_obj, "confirmDeleteSingleLocalProfile")
                 )
-            );
+            ];
         } else {
-            $items = array(
+            $items = [
                 $ui_factory->link()->standard(
                     $lng->txt("remove"),
                     $ctrl->getLinkTarget($this->parent_obj, "confirmRemoveSingleGlobalProfile")
                 )
-            );
+            ];
         }
 
         $dropdown = $this->ui_factory->dropdown()->standard($items)->withLabel($lng->txt("actions"));

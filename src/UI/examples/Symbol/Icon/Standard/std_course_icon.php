@@ -1,4 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\Examples\Symbol\Icon\Standard;
+
 function std_course_icon()
 {
     global $DIC;

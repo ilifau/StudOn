@@ -31,38 +31,16 @@ use ILIAS\BackgroundTasks\Implementation\Bucket\State;
 
 class BasicPersistence implements Persistence
 {
+    protected static BasicPersistence $instance;
+    protected static array $buckets = [];
+    protected \ilDBInterface $db;
+    protected \SplObjectStorage $bucketHashToObserverContainerId;
+    protected \SplObjectStorage $taskHashToTaskContainerId;
+    protected \SplObjectStorage $valueHashToValueContainerId;
+    protected ?\arConnector $connector = null;
+    protected static array $tasks = [];
 
-    /**
-     * @var BasicPersistence
-     */
-    protected static $instance;
-    /**
-     * @var Bucket[]
-     */
-    protected static $buckets = [];
-    /**
-     * @var \SplObjectStorage
-     */
-    protected $bucketHashToObserverContainerId;
-    /**
-     * @var \SplObjectStorage
-     */
-    protected $taskHashToTaskContainerId;
-    /**
-     * @var \SplObjectStorage
-     */
-    protected $valueHashToValueContainerId;
-    /**
-     * @var Task[]
-     */
-    protected static $tasks = [];
-    /**
-     * @var \arConnector
-     */
-    protected $connector = null;
-
-
-    public static function instance(\ilDBInterface $db) : \ILIAS\BackgroundTasks\Implementation\Persistence\BasicPersistence
+    public static function instance(\ilDBInterface $db): \ILIAS\BackgroundTasks\Implementation\Persistence\BasicPersistence
     {
         if (!isset(self::$instance)) {
             self::$instance = new BasicPersistence($db);
@@ -70,6 +48,7 @@ class BasicPersistence implements Persistence
 
         return self::$instance;
     }
+
     public function __construct(\ilDBInterface $db)
     {
         $this->db = $db;
@@ -78,7 +57,7 @@ class BasicPersistence implements Persistence
         $this->taskHashToTaskContainerId = new \SplObjectStorage();
     }
 
-    protected function gc() : void
+    protected function gc(): void
     {
         $this->db->manipulateF(
             "DELETE FROM il_bt_bucket WHERE user_id = %s AND (state = %s OR state = %s)",
@@ -87,31 +66,26 @@ class BasicPersistence implements Persistence
         );
     }
 
-    public function setConnector(\arConnector $c) : void
+    public function setConnector(\arConnector $c): void
     {
         $this->connector = $c;
     }
 
-
     /**
      * Fully updates or creates an Observer and all its tasks into the database.
-     *
      * @param Bucket $bucket The bucket you want to save.
      */
-    public function saveBucketAndItsTasks(Bucket $bucket)
+    public function saveBucketAndItsTasks(Bucket $bucket): void
     {
         $bucket->checkIntegrity();
 
         $this->saveObserver($bucket);
     }
 
-
     /**
      * Updates only the bucket! Use this if e.g. the percentage or the current task changes.
-     *
-     * @param Bucket $bucket
      */
-    public function updateBucket(Bucket $bucket)
+    public function updateBucket(Bucket $bucket): void
     {
         $bucketContainer = new BucketContainer($this->getBucketContainerId($bucket), $this->connector);
 
@@ -130,30 +104,27 @@ class BasicPersistence implements Persistence
         $bucketContainer->update();
     }
 
-
     /**
      * @inheritdoc
      */
-    public function getBucketIdsOfUser($user_id, $order_by = "id", $order_direction = "ASC")
+    public function getBucketIdsOfUser(int $user_id, string $order_by = "id", string $order_direction = "ASC"): array
     {
         // Garbage Collection
         $this->gc();
 
         return BucketContainer::where(['user_id' => $user_id])
-            ->orderBy($order_by, $order_direction)
-            ->getArray(null, 'id');
+                              ->orderBy($order_by, $order_direction)
+                              ->getArray(null, 'id');
     }
 
-
     /**
-     * @param int $user_id
-     *
      * @return BucketMeta[]
      */
-    public function getBucketMetaOfUser($user_id)
+    public function getBucketMetaOfUser(int $user_id): array
     {
         $buckets = BucketContainer::where(['user_id' => $user_id])->get();
-        $bucketMetas = array_map(function (BucketContainer $bucketContainer) {
+
+        return array_map(function (BucketContainer $bucketContainer): \ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucketMeta {
             $bucketMeta = new BasicBucketMeta();
 
             $bucketMeta->setUserId($bucketContainer->getUserId());
@@ -164,32 +135,23 @@ class BasicPersistence implements Persistence
 
             return $bucketMeta;
         }, $buckets);
-
-        return $bucketMetas;
     }
-
 
     /**
      * @inheritdoc
      */
-    public function getBucketIdsByState($state)
+    public function getBucketIdsByState(int $state): array
     {
         $buckets = BucketContainer::where(['state' => $state])->get();
-        $ids = array_map(function (BucketContainer $bucket_container) {
-            return $bucket_container->getId();
-        }, $buckets);
 
-        return $ids;
+        return array_map(fn (BucketContainer $bucket_container): int => $bucket_container->getId(), $buckets);
     }
-
 
     /**
      * @param Bucket $bucket The bucket we want to save.
-     *
-     * This will recursivly save the Observer.
-     *
+     *                       This will recursivly save the Observer.
      */
-    protected function saveObserver(Bucket $bucket)
+    protected function saveObserver(Bucket $bucket): void
     {
         // If the instance has a known container we use it, otherwise we create a new container.
         if ($this->bucketHashToObserverContainerId->contains($bucket)) {
@@ -213,7 +175,7 @@ class BasicPersistence implements Persistence
 
         // The recursive part.
         $this->saveTask($bucket->getTask(), $bucketContainer->getId());
-        if (!$bucket->getCurrentTask()) {
+        if (!$bucket->hasCurrentTask()) {
             $bucket->setCurrentTask($bucket->getTask());
         }
         $bucketContainer->setCurrentTaskid($this->getTaskContainerId($bucket->getCurrentTask()));
@@ -224,21 +186,19 @@ class BasicPersistence implements Persistence
         $this->bucketHashToObserverContainerId[$bucket] = $bucketContainer->getId();
     }
 
-
     /**
      * @param Task $task     The task to save.
      * @param int  $bucketId The bucket id is needed as we want some control over what task belongs
      *                       to what batch.
-     *
-     * This will recursivly save a task.
+     *                       This will recursivly save a task.
      */
-    protected function saveTask(Task $task, $bucketId)
+    protected function saveTask(Task $task, int $bucketId): void
     {
         // If the instance has a known container we use it, otherwise we create a new container.
         if ($this->taskHashToTaskContainerId->contains($task)) {
-            $taskContainer = new TaskContainer($this->taskHashToTaskContainerId[$task], $this->connector);
+            $taskContainer = new TaskContainer($this->taskHashToTaskContainerId[$task]);
         } else {
-            $taskContainer = new TaskContainer(0, $this->connector);
+            $taskContainer = new TaskContainer(0);
         }
 
         // The basic information about the task.
@@ -246,10 +206,6 @@ class BasicPersistence implements Persistence
         $taskContainer->setBucketId($bucketId);
         $reflection = new \ReflectionClass(get_class($task));
         $taskContainer->setClassName(get_class($task));
-        // bugfix mantis 23503
-        $absolute_class_path = $reflection->getFileName();
-        // $relative_class_path = str_replace(ILIAS_ABSOLUTE_PATH,".",$absolute_class_path);
-        $taskContainer->setClassPath($reflection->getFileName());
 
         // Recursivly save the inputs and link them to this task.
         foreach ($task->getInput() as $k => $input) {
@@ -262,19 +218,16 @@ class BasicPersistence implements Persistence
         $this->taskHashToTaskContainerId[$task] = $taskContainer->getId();
     }
 
-
     /**
      * Save all input parameters to a task.
-     *
      * @param Task          $task          The task containing the inputs
      * @param TaskContainer $taskContainer The container of the task. This is needed to link the
      *                                     ids and delete old links.
-     * @param int           $bucketId
      */
-    protected function saveValueToTask(Task $task, TaskContainer $taskContainer, $bucketId)
+    protected function saveValueToTask(Task $task, TaskContainer $taskContainer, int $bucketId): void
     {
         // If we have previous values to task associations we delete them.
-        if ($taskContainer->getId()) {
+        if ($taskContainer->getId() !== 0) {
             /** @var ValueToTaskContainer[] $olds */
             $olds = ValueToTaskContainer::where(['task_id' => $taskContainer->getId()])->get();
             foreach ($olds as $old) {
@@ -296,15 +249,13 @@ class BasicPersistence implements Persistence
         }
     }
 
-
     /**
      * @param Value $value    The value
      * @param int   $bucketId The bucket id, we need it to have an overview of all values belonging
      *                        to a batch.
-     *
-     * Stores the value recursively.
+     *                        Stores the value recursively.
      */
-    protected function saveValue(Value $value, $bucketId, $position)
+    protected function saveValue(Value $value, int $bucketId, int $position): void
     {
         // If we have previous values to task associations we delete them.
         if ($this->valueHashToValueContainerId->contains($value)) {
@@ -312,9 +263,6 @@ class BasicPersistence implements Persistence
         } else {
             $valueContainer = new ValueContainer(0, $this->connector);
         }
-
-        // Save information about the value
-        $reflection = new \ReflectionClass(get_class($value));
         $valueContainer->setClassName(get_class($value));
         // bugfix mantis 23503
         // $absolute_class_path = $reflection->getFileName();
@@ -335,76 +283,61 @@ class BasicPersistence implements Persistence
 
         // We save the container and store the instance to container association.
         $valueContainer->save();
-        $this->valueHashToValueContainerId->attach($value, $valueContainer->getId());
+        $this->valueHashToValueContainerId[$value] = $valueContainer->getId();
     }
 
-
     /**
-     * @param Bucket $bucket
-     *
-     * @return int
      * @throws SerializationException
      */
-    public function getBucketContainerId(Bucket $bucket)
+    public function getBucketContainerId(Bucket $bucket): int
     {
-        if (!$this->bucketHashToObserverContainerId->contains(($bucket))) {
+        if (!$this->bucketHashToObserverContainerId->contains($bucket)) {
             throw new SerializationException("Could not resolve container id of task: "
                 . print_r($bucket, true));
         }
 
-        return $this->bucketHashToObserverContainerId[$bucket];
+        return (int) $this->bucketHashToObserverContainerId[$bucket];
     }
-
 
     /**
      * @param $task Task
-     *
-     * @return int
      * @throws SerializationException
      */
-    protected function getTaskContainerId(Task $task)
+    protected function getTaskContainerId(Task $task): int
     {
         if (!$this->taskHashToTaskContainerId->contains($task)) {
             throw new SerializationException("Could not resolve container id of task: "
                 . print_r($task, true));
         }
 
-        return $this->taskHashToTaskContainerId[$task];
+        return (int) $this->taskHashToTaskContainerId[$task];
     }
 
-
     /**
-     * @param $value Value
-     *
-     * @return int
      * @throws SerializationException
      */
-    protected function getValueContainerId($value) : int
+    protected function getValueContainerId(Value $value): int
     {
         if (!$this->valueHashToValueContainerId->contains($value)) {
             throw new SerializationException("Could not resolve container id of value: "
                 . print_r($value, true));
         }
 
-        return (int) $this->valueHashToValueContainerId[$value];
+        return (int )$this->valueHashToValueContainerId[$value];
     }
 
-
     /**
-     * @param int $bucket_id
-     *
-     * @return \ILIAS\BackgroundTasks\Bucket
      * @throws \ILIAS\BackgroundTasks\Exceptions\BucketNotFoundException
      */
-    public function loadBucket($bucket_id)
+    public function loadBucket(int $bucket_container_id): Bucket
     {
-        if (isset(self::$buckets[$bucket_id])) {
-            return self::$buckets[$bucket_id];
+        if (isset(self::$buckets[$bucket_container_id])) {
+            return self::$buckets[$bucket_container_id];
         }
         /** @var BucketContainer $bucketContainer */
-        $bucketContainer = BucketContainer::find($bucket_id);
+        $bucketContainer = BucketContainer::find($bucket_container_id);
         if (!$bucketContainer) {
-            throw new BucketNotFoundException("The requested bucket with container id $bucket_id could not be found in the database.");
+            throw new BucketNotFoundException("The requested bucket with container id $bucket_container_id could not be found in the database.");
         }
         $bucket = new BasicBucket();
 
@@ -416,24 +349,20 @@ class BasicPersistence implements Persistence
         $bucket->setLastHeartbeat($bucketContainer->getLastHeartbeat());
         $bucket->setTask($this->loadTask($bucketContainer->getRootTaskid(), $bucket, $bucketContainer));
 
-        $this->bucketHashToObserverContainerId[$bucket] = $bucket_id;
+        $this->bucketHashToObserverContainerId[$bucket] = $bucket_container_id;
 
         return $bucket;
     }
 
-
     /**
      * Recursively loads a task.
-     *
      * @param int             $taskContainerId The container ID to load.
      * @param Bucket          $bucket          Needed because we want to link the current task as
      *                                         soon as loaded.
      * @param BucketContainer $bucketContainer Needed because we need the current tasks container
      *                                         id for correct linking.
-     *
-     * @return Task
      */
-    private function loadTask($taskContainerId, Bucket $bucket, BucketContainer $bucketContainer)
+    private function loadTask(int $taskContainerId, Bucket $bucket, BucketContainer $bucketContainer): \ILIAS\BackgroundTasks\Task
     {
         global $DIC;
         $factory = $DIC->backgroundTasks()->taskFactory();
@@ -443,10 +372,7 @@ class BasicPersistence implements Persistence
         /** @var Task $task */
         $task = $factory->createTask($taskContainer->getClassName());
 
-        // Bugfix 0023775
         // Added additional orderBy for the id to ensure that the items are returned in the right order.
-
-        /** @var ValueToTaskContainer $valueToTask */
         $valueToTasks = ValueToTaskContainer::where(['task_id' => $taskContainerId])
                                             ->orderBy('task_id')
                                             ->orderBy('position')
@@ -458,7 +384,7 @@ class BasicPersistence implements Persistence
         }
         $task->setInput($inputs);
 
-        if ($taskContainerId == $bucketContainer->getCurrentTaskid()) {
+        if ($taskContainerId === $bucketContainer->getCurrentTaskid()) {
             $bucket->setCurrentTask($task);
         }
 
@@ -467,8 +393,7 @@ class BasicPersistence implements Persistence
         return $task;
     }
 
-
-    private function loadValue($valueContainerId, Bucket $bucket, BucketContainer $bucketContainer)
+    private function loadValue($valueContainerId, Bucket $bucket, BucketContainer $bucketContainer): \ILIAS\BackgroundTasks\Value
     {
         global $DIC;
         $factory = $DIC->backgroundTasks()->injector();
@@ -476,12 +401,12 @@ class BasicPersistence implements Persistence
         /** @var ValueContainer $valueContainer */
         $valueContainer = ValueContainer::find($valueContainerId);
         /** @noinspection PhpIncludeInspection */
-        
+
         /** @var Value $value */
         $value = $factory->createInstance($valueContainer->getClassName());
 
         $value->unserialize($valueContainer->getSerialized());
-        if ($valueContainer->getHasParenttask()) {
+        if ($valueContainer->getHasParenttask() !== 0) {
             $value->setParentTask($this->loadTask($valueContainer->getParentTaskid(), $bucket, $bucketContainer));
         }
 
@@ -490,56 +415,49 @@ class BasicPersistence implements Persistence
         return $value;
     }
 
-
-    public function deleteBucketById($bucket_id)
+    public function deleteBucketById(int $bucket_id): void
     {
-//        return;
-        /** @var BucketContainer $bucket */
         $buckets = BucketContainer::where(['id' => $bucket_id])->get();
-        array_map(function (\ActiveRecord $item) {
+        array_map(function (BucketContainer $item): void {
             $item->delete();
         }, $buckets);
 
-        /** @var TaskContainer $tasks */
+        /** @var TaskContainer[] $tasks */
         $tasks = TaskContainer::where(['bucket_id' => $bucket_id])->get();
-        array_map(function (\ActiveRecord $item) {
+        array_map(function (TaskContainer $item): void {
             $item->delete();
         }, $tasks);
 
-        /** @var ValueContainer $values */
+        /** @var ValueContainer[] $values */
         $values = ValueContainer::where(['bucket_id' => $bucket_id])->get();
-        array_map(function (\ActiveRecord $item) {
+        array_map(function (ValueContainer $item): void {
             $item->delete();
         }, $values);
 
-        /** @var ValueToTaskContainer $valueToTasks */
+        /** @var ValueToTaskContainer[] $valueToTasks */
         $valueToTasks = ValueToTaskContainer::where(['bucket_id' => $bucket_id])->get();
-        array_map(function (\ActiveRecord $item) {
+        array_map(function (ValueToTaskContainer $item): void {
             $item->delete();
         }, $valueToTasks);
     }
 
-
     /**
      * @inheritdoc
      */
-    public function deleteBucket($bucket)
+    public function deleteBucket(Bucket $bucket): void
     {
         $id = $this->getBucketContainerId($bucket);
         $this->deleteBucketById($id);
         $this->bucketHashToObserverContainerId->detach($bucket);
     }
 
-
     /**
-     * @param int[] $bucket_container_id
-     *
-     * @return Bucket[]
+     * @return \ILIAS\BackgroundTasks\Bucket[]
      */
-    public function loadBuckets($bucket_container_id)
+    public function loadBuckets(array $bucket_container_ids): array
     {
         $buckets = [];
-        foreach ($bucket_container_id as $bucket_id) {
+        foreach ($bucket_container_ids as $bucket_id) {
             try {
                 $buckets[] = $this->loadBucket($bucket_id);
             } catch (\Throwable $t) {

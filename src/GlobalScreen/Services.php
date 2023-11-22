@@ -28,6 +28,7 @@ use ILIAS\GlobalScreen\Scope\Layout\LayoutServices;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\MainMenuItemFactory;
 use ILIAS\GlobalScreen\Scope\MetaBar\Factory\MetaBarItemFactory;
 use ILIAS\GlobalScreen\Scope\Notification\NotificationServices;
+use ILIAS\GlobalScreen\Scope\Toast\ToastServices;
 use ILIAS\GlobalScreen\Scope\Tool\ToolServices;
 use ILIAS\DI\UIServices;
 
@@ -39,20 +40,12 @@ class Services
 {
     use SingletonTrait;
 
-    /**
-     * @var \ILIAS\GlobalScreen\Services|null
-     */
-    private static $instance;
+    private static ?Services $instance = null;
 
-    /**
-     * @var \ILIAS\GlobalScreen\Provider\ProviderFactory
-     */
-    private $provider_factory;
+    private ProviderFactory $provider_factory;
+    private ToastServices $toast_services;
 
-    /**
-     * @var string
-     */
-    public $resource_version = '';
+    public string $resource_version = '';
 
     /**
      * Services constructor.
@@ -61,18 +54,20 @@ class Services
      */
     public function __construct(
         ProviderFactory $provider_factory,
+        ?UIServices $ui = null,
         string $resource_version = ''
     ) {
         global $DIC;
         $this->provider_factory = $provider_factory;
         $this->resource_version = urlencode($resource_version);
+        $this->toast_services = new ToastServices($ui ?? $DIC->ui());
     }
 
     /**
      * @return MainMenuItemFactory
      * @see MainMenuItemFactory
      */
-    public function mainBar() : MainMenuItemFactory
+    public function mainBar(): MainMenuItemFactory
     {
         return $this->get(MainMenuItemFactory::class);
     }
@@ -80,7 +75,7 @@ class Services
     /**
      * @return MetaBarItemFactory
      */
-    public function metaBar() : MetaBarItemFactory
+    public function metaBar(): MetaBarItemFactory
     {
         return $this->get(MetaBarItemFactory::class);
     }
@@ -89,7 +84,7 @@ class Services
      * @return ToolServices
      * @see ToolServices
      */
-    public function tool() : ToolServices
+    public function tool(): ToolServices
     {
         return $this->get(ToolServices::class);
     }
@@ -97,7 +92,7 @@ class Services
     /**
      * @return LayoutServices
      */
-    public function layout() : LayoutServices
+    public function layout(): LayoutServices
     {
         return $this->getWithArgument(LayoutServices::class, $this->resource_version);
     }
@@ -105,15 +100,20 @@ class Services
     /**
      * @return NotificationServices
      */
-    public function notifications() : NotificationServices
+    public function notifications(): NotificationServices
     {
         return $this->get(NotificationServices::class);
+    }
+
+    public function toasts(): ToastServices
+    {
+        return $this->toast_services;
     }
 
     /**
      * @return CollectorFactory
      */
-    public function collector() : CollectorFactory
+    public function collector(): CollectorFactory
     {
         return $this->getWithArgument(CollectorFactory::class, $this->provider_factory);
     }
@@ -122,7 +122,7 @@ class Services
      * @return IdentificationFactory
      * @see IdentificationFactory
      */
-    public function identification() : IdentificationFactory
+    public function identification(): IdentificationFactory
     {
         return $this->getWithArgument(IdentificationFactory::class, $this->provider_factory);
     }

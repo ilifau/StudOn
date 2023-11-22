@@ -1,35 +1,37 @@
 <?php
 
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-require_once("./Services/COPage/classes/class.ilPageContent.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
-* Class ilPCListItem
-*
-* List Item content object (see ILIAS DTD)
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesCOPage
-*/
+ * Class ilPCListItem
+ * List Item content object (see ILIAS DTD)
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilPCListItem extends ilPageContent
 {
-    public $dom;
-
-    /**
-    * Init page content component.
-    */
-    public function init()
+    public function init(): void
     {
         $this->setType("li");
     }
 
     /**
-    * insert new list item after current one
-    */
-    public function newItemAfter()
+     * insert new list item after current one
+     */
+    public function newItemAfter(): void
     {
         $li = $this->getNode();
         $new_li = $this->dom->create_element("ListItem");
@@ -43,9 +45,9 @@ class ilPCListItem extends ilPageContent
 
 
     /**
-    * insert new list item before current one
-    */
-    public function newItemBefore()
+     * insert new list item before current one
+     */
+    public function newItemBefore(): void
     {
         $li = $this->getNode();
         $new_li = $this->dom->create_element("ListItem");
@@ -54,9 +56,9 @@ class ilPCListItem extends ilPageContent
 
 
     /**
-    * delete row of cell
-    */
-    public function deleteItem()
+     * delete row of cell
+     */
+    public function deleteItem(): void
     {
         $parent_node = $this->getNode()->parent_node();
         $cnt = count($parent_node->child_nodes());
@@ -71,9 +73,9 @@ class ilPCListItem extends ilPageContent
     }
 
     /**
-    * move list item down
-    */
-    public function moveItemDown()
+     * move list item down
+     */
+    public function moveItemDown(): void
     {
         $li = $this->getNode();
         $next = $li->next_sibling();
@@ -83,9 +85,9 @@ class ilPCListItem extends ilPageContent
     }
 
     /**
-    * move list item up
-    */
-    public function moveItemUp()
+     * move list item up
+     */
+    public function moveItemUp(): void
     {
         $li = $this->getNode();
         $prev = $li->previous_sibling();

@@ -1,127 +1,89 @@
 <?php
-/*
-        +-----------------------------------------------------------------------------+
-        | ILIAS open source                                                           |
-        +-----------------------------------------------------------------------------+
-        | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-        |                                                                             |
-        | This program is free software; you can redistribute it and/or               |
-        | modify it under the terms of the GNU General Public License                 |
-        | as published by the Free Software Foundation; either version 2              |
-        | of the License, or (at your option) any later version.                      |
-        |                                                                             |
-        | This program is distributed in the hope that it will be useful,             |
-        | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-        | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-        | GNU General Public License for more details.                                |
-        |                                                                             |
-        | You should have received a copy of the GNU General Public License           |
-        | along with this program; if not, write to the Free Software                 |
-        | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-        +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
 
 /**
-* Handles shared calendars
-*
-* @author Stefan Meyer <smeyer.ilias@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesCalendar
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+/**
+ * Handles shared calendars
+ * @author  Stefan Meyer <smeyer.ilias@gmx.de>
+ * @ingroup ServicesCalendar
+ */
 class ilCalendarShared
 {
-    const TYPE_USR = 1;
-    const TYPE_ROLE = 2;
-    
-    private $calendar_id;
-    
-    private $shared = array();
-    private $shared_users = array();
-    private $shared_roles = array();
-    
-    protected $db;
+    public const TYPE_USR = 1;
+    public const TYPE_ROLE = 2;
 
+    private int $calendar_id;
 
-    /**
-     * constructor
-     *
-     * @access public
-     * @param int calendar id
-     */
-    public function __construct($a_calendar_id)
+    private array $shared = array();
+    private array $shared_users = array();
+    private array $shared_roles = array();
+
+    protected ilDBInterface $db;
+    protected ilRbacReview $rbacreview;
+
+    public function __construct(int $a_calendar_id)
     {
         global $DIC;
 
-        $ilDB = $DIC['ilDB'];
-        
         $this->calendar_id = $a_calendar_id;
-        $this->db = $ilDB;
+        $this->db = $DIC->database();
+        $this->rbacreview = $DIC->rbac()->review();
         $this->read();
     }
-    
-    /**
-     * Delete all entries for a specific calendar id
-     *
-     * @access public
-     * @param
-     * @return
-     * @static
-     */
-    public static function deleteByCalendar($a_cal_id)
+
+    public static function deleteByCalendar(int $a_cal_id): void
     {
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
         $query = "DELETE FROM cal_shared WHERE cal_id = " . $ilDB->quote($a_cal_id, 'integer') . " ";
         $res = $ilDB->manipulate($query);
-        return true;
     }
-    
+
     /**
      * Delete all entries for a specific user
-     *
-     * @access public
-     * @param int usr_id
-     * @return
-     * @static
      */
-    public static function deleteByUser($a_user_id)
+    public static function deleteByUser(int $a_user_id): void
     {
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
         $query = "DELETE FROM cal_shared WHERE obj_id = " . $ilDB->quote($a_user_id, 'integer') . " ";
         $res = $ilDB->manipulate($query);
-        return true;
-        
-        // TODO: delete also cal_shared_user_status
     }
-    
+
     /**
      * is shared with user
-     *
-     * @access public
-     * @param int usr_id
-     * @param int calendar id
-     * @return bool
-     * @static
      */
-    public static function isSharedWithUser($a_usr_id, $a_calendar_id)
+    public static function isSharedWithUser(int $a_usr_id, int $a_calendar_id): bool
     {
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
         $rbacreview = $DIC['rbacreview'];
-        
+
         $query = 'SELECT * FROM cal_shared ' .
             "WHERE cal_id = " . $ilDB->quote($a_calendar_id, 'integer') . " ";
         $res = $ilDB->query($query);
+        $obj_ids = [];
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
-            $obj_ids[$row->obj_id] = $row->obj_type;
+            $obj_ids[(int) $row->obj_id] = (string) $row->obj_type;
         }
         $assigned_roles = $rbacreview->assignedRoles($a_usr_id);
         foreach ($obj_ids as $id => $type) {
@@ -140,23 +102,15 @@ class ilCalendarShared
         }
         return false;
     }
-    
-    /**
-     * get shared calendars of user
-     *
-     * @access public
-     * @param int user id
-     * @return array shared calendar info
-     * @static
-     */
-    public static function getSharedCalendarsForUser($a_usr_id = 0)
+
+    public static function getSharedCalendarsForUser(int $a_usr_id = 0): array
     {
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
         $ilUser = $DIC['ilUser'];
         $rbacreview = $DIC['rbacreview'];
-        
+
         if (!$a_usr_id) {
             $a_usr_id = $ilUser->getId();
         }
@@ -167,16 +121,17 @@ class ilCalendarShared
             "ORDER BY create_date";
         $res = $ilDB->query($query);
         $calendars = array();
+        $shared = [];
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
-            $calendars[] = $row->cal_id;
-            
-            $shared[$row->cal_id]['cal_id'] = $row->cal_id;
-            $shared[$row->cal_id]['create_date'] = $row->create_date;
-            $shared[$row->cal_id]['obj_type'] = $row->obj_type;
+            $calendars[] = (int) $row->cal_id;
+
+            $shared[(int) $row->cal_id]['cal_id'] = (int) $row->cal_id;
+            $shared[(int) $row->cal_id]['create_date'] = (string) $row->create_date;
+            $shared[(int) $row->cal_id]['obj_type'] = (string) $row->obj_type;
         }
-        
+
         $assigned_roles = $rbacreview->assignedRoles($ilUser->getId());
-        
+
         $query = "SELECT * FROM cal_shared " .
             "WHERE obj_type = " . $ilDB->quote(self::TYPE_ROLE, 'integer') . " " .
             "AND " . $ilDB->in('obj_id', $assigned_roles, false, 'integer');
@@ -186,97 +141,58 @@ class ilCalendarShared
             if (in_array($row->cal_id, $calendars)) {
                 continue;
             }
-            if (ilCalendarCategories::_isOwner($ilUser->getId(), $row->cal_id)) {
+            if (ilCalendarCategories::_isOwner($ilUser->getId(), (int) $row->cal_id)) {
                 continue;
             }
-            
-            $shared[$row->cal_id]['cal_id'] = $row->cal_id;
-            $shared[$row->cal_id]['create_date'] = $row->create_date;
-            $shared[$row->cal_id]['obj_type'] = $row->obj_type;
+
+            $shared[(int) $row->cal_id]['cal_id'] = (int) $row->cal_id;
+            $shared[(int) $row->cal_id]['create_date'] = (string) $row->create_date;
+            $shared[(int) $row->cal_id]['obj_type'] = (string) $row->obj_type;
         }
-        
-            
-        
-        return $shared ? $shared : array();
-        // TODO: return also role calendars
+        return $shared;
     }
-    
-    /**
-     * get calendar id
-     *
-     * @access public
-     * @return int calendar id
-     */
-    public function getCalendarId()
+
+    public function getCalendarId(): int
     {
         return $this->calendar_id;
     }
-    
-    /**
-     * get shared
-     *
-     * @access public
-     * @return array
-     */
-    public function getShared()
+
+    public function getShared(): array
     {
-        return $this->shared ? $this->shared : array();
+        return $this->shared;
     }
-    
-    /**
-     * get users
-     *
-     * @access public
-     * @return array
-     */
-    public function getUsers()
+
+    public function getUsers(): array
     {
-        return $this->shared_users ? $this->shared_users : array();
+        return $this->shared_users;
     }
-    
-    /**
-     * get roles
-     *
-     * @access public
-     * @return array
-     */
-    public function getRoles()
+
+    public function getRoles(): array
     {
-        return $this->shared_roles ? $this->shared_roles : array();
+        return $this->shared_roles;
     }
-    
-    /**
-     * Check if calendar is already shared with specific user or role
-     *
-     * @access public
-     * @param int obj_id
-     * @return bool
-     */
-    public function isShared($a_obj_id)
+
+    public function isShared(int $a_obj_id): bool
     {
         return isset($this->shared[$a_obj_id]);
     }
-    
-    /**
-     * Check if calendar is editable for user
-     * @param type $a_user_id
-     */
-    public function isEditableForUser($a_user_id)
+
+    public function isEditableForUser(int $a_user_id): bool
     {
-        foreach ((array) $this->shared as $info) {
+        foreach ($this->shared as $info) {
             if (!$info['writable']) {
                 continue;
             }
-            
+
             switch ($info['obj_type']) {
                 case self::TYPE_USR:
                     if ($info['obj_id'] == $a_user_id) {
                         return true;
                     }
                     break;
-                    
+
                 case self::TYPE_ROLE:
-                    if ($GLOBALS['DIC']['rbacreview']->isAssigned($a_user_id, $info['obj_id'])) {
+                    if ($this->rbacreview->isAssigned($a_user_id, $info['obj_id'])) {
                         return true;
                     }
                     break;
@@ -284,107 +200,65 @@ class ilCalendarShared
         }
         return false;
     }
-    
-    /**
-     * share calendar
-     *
-     * @access public
-     * @param int obj_id
-     * @param int type
-     * @return bool
-     */
-    public function share($a_obj_id, $a_type, $a_writable = false)
-    {
-        global $DIC;
 
-        $ilDB = $DIC['ilDB'];
-        
+    public function share(int $a_obj_id, int $a_type, bool $a_writable = false): void
+    {
         if ($this->isShared($a_obj_id)) {
-            return false;
+            return;
         }
         $query = "INSERT INTO cal_shared (cal_id,obj_id,obj_type,create_date,writable) " .
             "VALUES ( " .
             $this->db->quote($this->getCalendarId(), 'integer') . ", " .
             $this->db->quote($a_obj_id, 'integer') . ", " .
             $this->db->quote($a_type, 'integer') . ", " .
-            $ilDB->now() . ", " .
+            $this->db->now() . ", " .
             $this->db->quote((int) $a_writable, 'integer') . ' ' .
             ")";
-        
-        $res = $ilDB->manipulate($query);
-        
-        $this->read();
-        return true;
-    }
-    
-    /**
-     * stop sharing
-     *
-     * @access public
-     * @param int obj_id
-     * @return bool
-     */
-    public function stopSharing($a_obj_id)
-    {
-        global $DIC;
 
-        $ilDB = $DIC['ilDB'];
-        
+        $res = $this->db->manipulate($query);
+        $this->read();
+    }
+
+    public function stopSharing(int $a_obj_id): void
+    {
         if (!$this->isShared($a_obj_id)) {
-            return false;
+            return;
         }
         $query = "DELETE FROM cal_shared WHERE cal_id = " . $this->db->quote($this->getCalendarId(), 'integer') . " " .
             "AND obj_id = " . $this->db->quote($a_obj_id, 'integer') . " ";
-        $res = $ilDB->manipulate($query);
-        
-        include_once('./Services/Calendar/classes/class.ilCalendarSharedStatus.php');
-        ilCalendarSharedStatus::deleteStatus($a_obj_id, $this->getCalendarId());
-        
-        
-        $this->read();
-        return true;
-    }
-    
-    /**
-     * read shared calendars
-     *
-     * @access protected
-     * @return
-     */
-    protected function read()
-    {
-        global $DIC;
+        $res = $this->db->manipulate($query);
 
-        $ilDB = $DIC['ilDB'];
-        
+        ilCalendarSharedStatus::deleteStatus($a_obj_id, $this->getCalendarId());
+        $this->read();
+    }
+
+    protected function read(): void
+    {
         $this->shared = $this->shared_users = $this->shared_roles = array();
-        
         $query = "SELECT * FROM cal_shared WHERE cal_id = " . $this->db->quote($this->getCalendarId(), 'integer');
         $res = $this->db->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             switch ($row->obj_type) {
                 case self::TYPE_USR:
-                    $this->shared_users[$row->obj_id]['obj_id'] = $row->obj_id;
-                    $this->shared_users[$row->obj_id]['obj_type'] = $row->obj_type;
-                    $this->shared_users[$row->obj_id]['create_date'] = $row->create_date;
-                    $this->shared_users[$row->obj_id]['writable'] = $row->writable;
+                    $this->shared_users[(int) $row->obj_id]['obj_id'] = (int) $row->obj_id;
+                    $this->shared_users[(int) $row->obj_id]['obj_type'] = (string) $row->obj_type;
+                    $this->shared_users[(int) $row->obj_id]['create_date'] = (string) $row->create_date;
+                    $this->shared_users[(int) $row->obj_id]['writable'] = (bool) $row->writable;
                     break;
-                
-                
+
                 case self::TYPE_ROLE:
-                    $this->shared_roles[$row->obj_id]['obj_id'] = $row->obj_id;
-                    $this->shared_roles[$row->obj_id]['obj_type'] = $row->obj_type;
-                    $this->shared_roles[$row->obj_id]['create_date'] = $row->create_date;
-                    $this->shared_role[$row->obj_id]['writable'] = $row->writable;
+                    $this->shared_roles[(int) $row->obj_id]['obj_id'] = (int) $row->obj_id;
+                    $this->shared_roles[(int) $row->obj_id]['obj_type'] = (string) $row->obj_type;
+                    $this->shared_roles[(int) $row->obj_id]['create_date'] = (string) $row->create_date;
+                    $this->shared_roles[(int) $row->obj_id]['writable'] = (bool) $row->writable;
                     break;
-                    
+
             }
-            
-            $this->shared[$row->obj_id]['obj_id'] = $row->obj_id;
-            $this->shared[$row->obj_id]['obj_type'] = $row->obj_type;
-            $this->shared[$row->obj_id]['create_date'] = $row->create_date;
-            $this->shared[$row->obj_id]['writable'] = $row->writable;
+
+            $this->shared[(int) $row->obj_id]['obj_id'] = (int) $row->obj_id;
+            $this->shared[(int) $row->obj_id]['obj_type'] = (string) $row->obj_type;
+            $this->shared[(int) $row->obj_id]['create_date'] = (string) $row->create_date;
+            $this->shared[(int) $row->obj_id]['writable'] = (bool) $row->writable;
         }
-        return true;
     }
 }

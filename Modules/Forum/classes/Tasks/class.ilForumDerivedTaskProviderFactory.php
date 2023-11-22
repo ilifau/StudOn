@@ -1,41 +1,41 @@
 <?php
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilForumDerivedTaskProviderFactory
  * @author Michael Jansen <mjansen@databay.de>
  */
-class ilForumDerivedTaskProviderFactory implements \ilDerivedTaskProviderFactory
+class ilForumDerivedTaskProviderFactory implements ilDerivedTaskProviderFactory
 {
-    /** @var ilTaskService */
-    protected $taskService;
+    protected ilTaskService $taskService;
+    protected ilAccessHandler $accessHandler;
+    protected ilSetting $settings;
+    protected ilLanguage $lng;
+    protected ilCtrlInterface $ctrl;
 
-    /** @var \ilAccess */
-    protected $accessHandler;
-
-    /** @var \ilSetting */
-    protected $settings;
-
-    /** @var \ilLanguage */
-    protected $lng;
-
-    /** @var \ilCtrl */
-    protected $ctrl;
-
-    /**
-     * ilForumDerivedTaskProviderFactory constructor.
-     * @param \ilTaskService $taskService
-     * @param \ilAccess|null $accessHandler
-     * @param \ilSetting|null $settings
-     * @param \ilLanguage|null $lng
-     * @param ilCtrl|null $ctrl
-     */
     public function __construct(
-        \ilTaskService $taskService,
-        \ilAccess $accessHandler = null,
-        \ilSetting $settings = null,
-        \ilLanguage $lng = null,
-        \ilCtrl $ctrl = null
+        ilTaskService $taskService,
+        ilAccessHandler $accessHandler = null,
+        ilSetting $settings = null,
+        ilLanguage $lng = null,
+        ilCtrlInterface $ctrl = null
     ) {
         global $DIC;
 
@@ -57,13 +57,10 @@ class ilForumDerivedTaskProviderFactory implements \ilDerivedTaskProviderFactory
             : $ctrl;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getProviders() : array
+    public function getProviders(): array
     {
         return [
-            new \ilForumDraftsDerivedTaskProvider(
+            new ilForumDraftsDerivedTaskProvider(
                 $this->taskService,
                 $this->accessHandler,
                 $this->lng,

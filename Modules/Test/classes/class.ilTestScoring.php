@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTestScoring
@@ -29,7 +44,7 @@ class ilTestScoring
     protected $preserve_manual_scores;
 
     private $recalculatedPasses;
-    
+
     /**
      * @var int
      */
@@ -39,7 +54,7 @@ class ilTestScoring
     {
         $this->test = $test;
         $this->preserve_manual_scores = false;
-        
+
         $this->recalculatedPasses = array();
     }
 
@@ -54,19 +69,19 @@ class ilTestScoring
     /**
      * @return boolean
      */
-    public function getPreserveManualScores()
+    public function getPreserveManualScores(): bool
     {
         return $this->preserve_manual_scores;
     }
-    
+
     /**
      * @return int
      */
-    public function getQuestionId()
+    public function getQuestionId(): int
     {
         return $this->questionId;
     }
-    
+
     /**
      * @param int $questionId
      */
@@ -75,35 +90,19 @@ class ilTestScoring
         $this->questionId = $questionId;
     }
 
-    // fau: provideRecalc - add parameter for selected users, also update the learning progress
-    // fau: exAssTest - update the result of connected exercise assignments
-    public function recalculateSolutions($a_active_ids = null)
+    public function recalculateSolutions()
     {
         $participants = $this->test->getCompleteEvaluationData(false)->getParticipants();
         if (is_array($participants)) {
-
-            $factory = new ilTestSessionFactory($this->test);
-
+            require_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
             foreach ($participants as $active_id => $userdata) {
-                if (isset($a_active_ids) && !in_array($active_id, $a_active_ids)) {
-                    continue;
-                }
-
                 if (is_object($userdata) && is_array($userdata->getPasses())) {
                     $this->recalculatePasses($userdata, $active_id);
                 }
                 assQuestion::_updateTestResultCache($active_id);
-
-                /** @var  ilTestEvaluationUserData $userdata */
-                include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
-                ilLPStatusWrapper::_updateStatus($this->test->getId(), $userdata->getUserID());
-
-                require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
-                ilExAssTypeTestResultAssignment::updateAssignments($this->test, $factory->getSession($active_id));
             }
         }
     }
-    // fau.
 
     /**
      * Updates passed status of the Test
@@ -134,9 +133,6 @@ class ilTestScoring
             if (is_object($passdata)) {
                 $this->recalculatePass($passdata, $active_id, $pass);
                 $this->addRecalculatedPassByActive($active_id, $pass);
-                // fau: provideRecalc - always update the test pass result (manual scoring may be refreshed)
-                assQuestion::_updateTestPassResults($active_id, $pass, true);
-                // fau.
             }
         }
     }
@@ -154,7 +150,7 @@ class ilTestScoring
                 if ($this->getQuestionId() && $this->getQuestionId() != $questiondata['id']) {
                     continue;
                 }
-                
+
                 $question_gui = $this->test->createQuestionGUI("", $questiondata['id']);
                 $this->recalculateQuestionScore($question_gui, $active_id, $pass, $questiondata);
             }
@@ -162,14 +158,14 @@ class ilTestScoring
     }
 
     /**
-     * @param $question_gui
+     * @param $question_gui $question_gui
      * @param $active_id
      * @param $pass
      * @param $questiondata
      */
     public function recalculateQuestionScore($question_gui, $active_id, $pass, $questiondata)
     {
-        /** @var assQuestion $question_gui */
+        /** @var assQuestionGUI $question_gui */
         if (is_object($question_gui)) {
             $reached = $question_gui->object->calculateReachedPoints($active_id, $pass);
             $actual_reached = $question_gui->object->adjustReachedPointsByScoringOptions($reached, $active_id, $pass);
@@ -178,7 +174,7 @@ class ilTestScoring
                 // Do we need processing here?
             } else {
                 assQuestion::setForcePassResultUpdateEnabled(true);
-                
+
                 assQuestion::_setReachedPoints(
                     $active_id,
                     $questiondata['id'],
@@ -188,7 +184,7 @@ class ilTestScoring
                     false,
                     true
                 );
-                
+
                 assQuestion::setForcePassResultUpdateEnabled(false);
             }
         }
@@ -197,7 +193,7 @@ class ilTestScoring
     /**
      * @return string HTML with the best solution output.
      */
-    public function calculateBestSolutionForTest()
+    public function calculateBestSolutionForTest(): string
     {
         $solution = '';
         foreach ($this->test->getAllQuestions() as $question) {
@@ -205,7 +201,7 @@ class ilTestScoring
             $question_gui = $this->test->createQuestionGUI("", $question['question_id']);
             $solution .= $question_gui->getSolutionOutput(0, null, true, true, false, false, true, false);
         }
-        
+
         return $solution;
     }
 
@@ -213,81 +209,83 @@ class ilTestScoring
     {
         $this->recalculatedPasses = array();
     }
-    
-    public function getRecalculatedPassesByActives()
+
+    public function getRecalculatedPassesByActives(): array
     {
         return $this->recalculatedPasses;
     }
-    
+
     public function addRecalculatedPassByActive($activeId, $pass)
     {
-        if (!is_array($this->recalculatedPasses[$activeId])) {
+        if (! array_key_exists($activeId, $this->recalculatedPasses)
+            || !is_array($this->recalculatedPasses[$activeId])
+        ) {
             $this->recalculatedPasses[$activeId] = array();
         }
 
         $this->recalculatedPasses[$activeId][] = $pass;
     }
-    
+
     public function removeAllQuestionResults($questionId)
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
-        
+
         $query = "DELETE FROM tst_test_result WHERE question_fi = %s";
         $DIC->database()->manipulateF($query, array('integer'), array($questionId));
     }
-    
+
     public function updatePassAndTestResults($activeIds)
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
-        
+
         foreach ($activeIds as $activeId) {
             $passSelector = new ilTestPassesSelector($DIC->database(), $this->test);
             $passSelector->setActiveId($activeId);
-            
+
             foreach ($passSelector->getExistingPasses() as $pass) {
                 assQuestion::_updateTestPassResults($activeId, $pass, $this->test->areObligationsEnabled());
             }
-            
+
             assQuestion::_updateTestResultCache($activeId);
         }
     }
-    
+
     /**
      * @return int
      */
-    public function getNumManualScorings()
+    public function getNumManualScorings(): int
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
-        
+
         $query = "
 			SELECT COUNT(*) num_manual_scorings
 			FROM tst_test_result tres
-			
+
 			INNER JOIN tst_active tact
 			ON tact.active_id = tres.active_fi
 			AND tact.test_fi = %s
-			
+
 			WHERE tres.manual = 1
 		";
-        
+
         $types = array('integer');
         $values = array($this->test->getTestId());
-        
+
         if ($this->getQuestionId()) {
             $query .= "
 				AND tres.question_fi = %s
 			";
-            
+
             $types[] = 'integer';
             $values[] = $this->getQuestionId();
         }
-        
+
         $res = $DIC->database()->queryF($query, $types, $values);
-        
+
         while ($row = $DIC->database()->fetchAssoc($res)) {
             return (int) $row['num_manual_scorings'];
         }
-        
+
         return 0;
     }
 }

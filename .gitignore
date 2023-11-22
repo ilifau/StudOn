@@ -24,24 +24,35 @@
 /ilias.ini.php
 /ilias.log
 /db_template_writer.php
-# fau: gitIgnore - don't ignore /setup/sql/dbupdate_custom.php.
+/setup/sql/dbupdate_custom.php
 /install_client.php
 /Services/GlobalScreen/artifacts/global_screen_providers.php
 /Services/Style/System/data/data.php
+/Services/UICore/artifacts/ctrl_structure.php
+/Services/UICore/artifacts/ctrl_plugin_structure.php
+/Services/UICore/artifacts/ctrl_base_classes.php
+/Services/UICore/artifacts/ctrl_security.php
+/Services/Component/artifacts/*
 
 # Directories
 /data
-# fau: gitIgnore - ignore plugins and skin but not the rest of customizing
-/Customizing/global/plugins
-# /Customizing/global/skin
-# fau.
-/setup/sql/ilDBTemplate
+/Customizing/global
+/Customizing/clients
 virtual-data
 /libs/composer/vendor
+/node_modules/**/.cache
 
 # /dicto
 /dicto/results/*
 !/dicto/results/README.md
-override.php
+
+# CI
 captainhook.config.json
 captainhook.local.json
+.phpunit.result.cache
+.php-cs-fixer.cache
+phpstan.local.neon
+phpstan-baseline.neon
+
+# File Delivery
+override.php

@@ -1,25 +1,43 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 namespace ILIAS\ResourceStorage;
 
+/** @noRector */
 require_once('AbstractBaseTest.php');
-
-use ILIAS\ResourceStorage\Resource\InfoResolver\UploadInfoResolver;
-use ILIAS\ResourceStorage\Resource\StorableFileResource;
-use ILIAS\ResourceStorage\Revision\UploadedFileRevision;
-use ILIAS\ResourceStorage\Revision\Revision;
-use ILIAS\ResourceStorage\Information\Information;
-use Psr\Http\Message\UploadedFileInterface;
-use ILIAS\ResourceStorage\Information\Repository\InformationRepository;
-use ILIAS\ResourceStorage\Resource\Repository\ResourceRepository;
-use ILIAS\ResourceStorage\Revision\Repository\RevisionRepository;
-use ILIAS\ResourceStorage\StorageHandler\StorageHandler;
-use ILIAS\ResourceStorage\Resource\ResourceBuilder;
-use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderRepository;
-use ILIAS\ResourceStorage\Lock\LockHandler;
-use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
-
+/** @noRector */
 require_once('DummyIDGenerator.php');
+
+use ILIAS\ResourceStorage\Collection\Repository\CollectionRepository;
+use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
+use ILIAS\ResourceStorage\Information\Information;
+use ILIAS\ResourceStorage\Information\Repository\InformationRepository;
+use ILIAS\ResourceStorage\Lock\LockHandler;
+use ILIAS\ResourceStorage\Resource\InfoResolver\UploadInfoResolver;
+use ILIAS\ResourceStorage\Resource\Repository\ResourceRepository;
+use ILIAS\ResourceStorage\Resource\StorableFileResource;
+use ILIAS\ResourceStorage\Revision\Repository\RevisionRepository;
+use ILIAS\ResourceStorage\Revision\Revision;
+use ILIAS\ResourceStorage\Revision\UploadedFileRevision;
+use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderRepository;
+use ILIAS\ResourceStorage\StorageHandler\StorageHandler;
+use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
+use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Class AbstractBaseResourceBuilderTest
@@ -48,6 +66,10 @@ abstract class AbstractBaseResourceBuilderTest extends AbstractBaseTest
      */
     protected $resource_repository;
     /**
+     * @var \PHPUnit\Framework\MockObject\MockObject|CollectionRepository
+     */
+    protected $collection_repository;
+    /**
      * @var \PHPUnit\Framework\MockObject\MockObject|RevisionRepository
      */
     protected $revision_repository;
@@ -55,10 +77,7 @@ abstract class AbstractBaseResourceBuilderTest extends AbstractBaseTest
      * @var \PHPUnit\Framework\MockObject\MockObject|StorageHandler
      */
     protected $storage_handler;
-    /**
-     * @var ResourceBuilder
-     */
-    protected $resource_builder;
+    protected \ILIAS\ResourceStorage\Resource\ResourceBuilder $resource_builder;
     /**
      * @var StakeholderRepository|\PHPUnit\Framework\MockObject\MockObject
      */
@@ -71,28 +90,37 @@ abstract class AbstractBaseResourceBuilderTest extends AbstractBaseTest
      * @var StorageHandlerFactory|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $storage_handler_factory;
+    /**
+     * @var StreamAccess|\PHPUnit\Framework\MockObject\MockObject|StreamAccess&\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $stream_access;
+    protected Repositories $repositories;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->storage_handler = $this->createMock(StorageHandler::class);
         $this->storage_handler_factory = $this->createMock(StorageHandlerFactory::class);
+        $this->storage_handler_factory->method('getPrimary')->willReturn($this->storage_handler);
         $this->revision_repository = $this->createMock(RevisionRepository::class);
         $this->resource_repository = $this->createMock(ResourceRepository::class);
+        $this->collection_repository = $this->createMock(CollectionRepository::class);
         $this->information_repository = $this->createMock(InformationRepository::class);
         $this->stakeholder_repository = $this->createMock(StakeholderRepository::class);
+        $this->repositories = new Repositories(
+            $this->revision_repository,
+            $this->resource_repository,
+            $this->collection_repository,
+            $this->information_repository,
+            $this->stakeholder_repository
+        );
         $this->locking = $this->createMock(LockHandler::class);
+        $this->stream_access = $this->createMock(StreamAccess::class);
         $this->information = $this->createMock(Information::class);
         $this->revision = $this->createMock(Revision::class);
     }
 
     /**
-     * @param string $expected_file_name
-     * @param string $expected_mime_type
-     * @param int    $expected_size
-     * @param int    $expected_version_number
-     * @param int    $expected_owner_id
-     * @return array
      * @throws \Exception
      */
     protected function mockResourceAndRevision(
@@ -101,7 +129,7 @@ abstract class AbstractBaseResourceBuilderTest extends AbstractBaseTest
         int $expected_size,
         int $expected_version_number,
         int $expected_owner_id
-    ) : array {
+    ): array {
         $identification = $this->id_generator->getUniqueResourceIdentification();
 
         $upload_result = $this->getDummyUploadResult(
@@ -120,20 +148,19 @@ abstract class AbstractBaseResourceBuilderTest extends AbstractBaseTest
         // MOCKS
         $blank_resource = new StorableFileResource($identification);
         $this->resource_repository->expects($this->once())
-                                  ->method('blank')
-                                  ->willReturn($blank_resource);
+            ->method('blank')
+            ->willReturn($blank_resource);
 
         $blank_revision = new UploadedFileRevision($blank_resource->getIdentification(), $upload_result);
         $blank_revision->setVersionNumber($info_resolver->getNextVersionNumber());
         $this->revision_repository->expects($this->once())
-                                  ->method('blankFromUpload')
-                                  ->with(
-                                      $info_resolver,
-                                      $blank_resource,
-                                      $upload_result
-                                  )
-                                  ->willReturn($blank_revision);
-        return array($upload_result, $info_resolver, $identification);
+            ->method('blankFromUpload')
+            ->with(
+                $info_resolver,
+                $blank_resource,
+                $upload_result
+            )
+            ->willReturn($blank_revision);
+        return [$upload_result, $info_resolver, $identification];
     }
 }
-

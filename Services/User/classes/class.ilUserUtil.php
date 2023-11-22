@@ -1,34 +1,46 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-use ILIAS\MyStaff\ilMyStaffAccess;
 
 /**
-* Class ilUserUtil
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesUser
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\MyStaff\ilMyStaffAccess;
+use ILIAS\MyStaff\ilMyStaffCachedAccessDecorator;
+
+/**
+ * Class ilUserUtil
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilUserUtil
 {
-    const START_PD_OVERVIEW = 1;
-    const START_PD_SUBSCRIPTION = 2;
-    const START_PD_NOTES = 4;
-    const START_PD_NEWS = 5;
-    const START_PD_WORKSPACE = 6;
-    const START_PD_PORTFOLIO = 7;
-    const START_PD_SKILLS = 8;
-    const START_PD_LP = 9;
-    const START_PD_CALENDAR = 10;
-    const START_PD_MAIL = 11;
-    const START_PD_CONTACTS = 12;
-    const START_PD_PROFILE = 13;
-    const START_PD_SETTINGS = 14;
-    const START_REPOSITORY = 15;
-    const START_REPOSITORY_OBJ = 16;
-    const START_PD_MYSTAFF = 17;
+    public const START_PD_OVERVIEW = 1;
+    public const START_PD_SUBSCRIPTION = 2;
+    public const START_PD_NOTES = 4;
+    public const START_PD_NEWS = 5;
+    public const START_PD_WORKSPACE = 6;
+    public const START_PD_PORTFOLIO = 7;
+    public const START_PD_SKILLS = 8;
+    public const START_PD_LP = 9;
+    public const START_PD_CALENDAR = 10;
+    public const START_PD_MAIL = 11;
+    public const START_PD_CONTACTS = 12;
+    public const START_PD_PROFILE = 13;
+    public const START_PD_SETTINGS = 14;
+    public const START_REPOSITORY = 15;
+    public const START_REPOSITORY_OBJ = 16;
+    public const START_PD_MYSTAFF = 17;
 
     /**
      * Default behaviour is:
@@ -37,19 +49,20 @@ class ilUserUtil
      * modifications by jposselt at databay . de :
      * if $a_user_id is an array of user ids the method returns an array of
      * "id" => "NamePresentation" pairs.
-     *
-     * ...
-     * @param boolean sortable should be used in table presentions. output is "Doe, John" title is ommited
+     * @param int|int[]    $a_user_id
+     * @param string|array $a_ctrl_path
+     * @return array|false|mixed
+     * @throws ilWACException
      */
     public static function getNamePresentation(
         $a_user_id,
-        $a_user_image = false,
-        $a_profile_link = false,
-        $a_profile_back_link = "",
-        $a_force_first_lastname = false,
-        $a_omit_login = false,
-        $a_sortable = true,
-        $a_return_data_array = false,
+        bool $a_user_image = false,
+        bool $a_profile_link = false,
+        string $a_profile_back_link = "",
+        bool $a_force_first_lastname = false,
+        bool $a_omit_login = false,
+        bool $a_sortable = true,
+        bool $a_return_data_array = false,
         $a_ctrl_path = "ilpublicuserprofilegui"
     ) {
         global $DIC;
@@ -93,8 +106,14 @@ class ilUserUtil
         $data = array();
         while ($row = $ilDB->fetchObject($userrow)) {
             $pres = '';
-            $d = array("id" => (int) $row->usr_id, "title" => "", "lastname" => "", "firstname" => "", "img" => "", "link" => "",
-                "public_profile" => "");
+            $d = array(
+                "id" => (int) $row->usr_id,
+                "title" => "",
+                "lastname" => "",
+                "firstname" => "",
+                "img" => "",
+                "link" => ""
+            );
             $has_public_profile = in_array($row->public_profile, array("y", "g"));
             if ($a_force_first_lastname || $has_public_profile) {
                 $title = "";
@@ -151,7 +170,7 @@ class ilUserUtil
         }
 
         foreach ($a_user_id as $id) {
-            if (!$names[$id]) {
+            if (!isset($names[$id]) || !$names[$id]) {
                 $names[$id] = $lng->txt('usr_name_undisclosed');
             }
         }
@@ -166,13 +185,7 @@ class ilUserUtil
         return $return_as_array ? $names : $names[$a_user_id[0]];
     }
 
-    /**
-     * Has public profile
-     *
-     * @param
-     * @return
-     */
-    public static function hasPublicProfile($a_user_id)
+    public static function hasPublicProfile(int $a_user_id): bool
     {
         global $DIC;
 
@@ -185,17 +198,15 @@ class ilUserUtil
         );
         $rec = $ilDB->fetchAssoc($set);
 
-        return in_array($rec["value"], array("y", "g"));
+        return in_array($rec["value"] ?? "", array("y", "g"));
     }
 
 
     /**
      * Get link to personal profile
      * Return empty string in case of not public profile
-     * @param type $a_usr_id
-     * @return string
      */
-    public static function getProfileLink($a_usr_id)
+    public static function getProfileLink(int $a_usr_id): string
     {
         $public_profile = ilObjUser::_lookupPref($a_usr_id, 'public_profile');
         if ($public_profile != 'y' and $public_profile != 'g') {
@@ -205,70 +216,7 @@ class ilUserUtil
         $GLOBALS['DIC']['ilCtrl']->setParameterByClass('ilpublicuserprofilegui', 'user', $a_usr_id);
         return $GLOBALS['DIC']['ilCtrl']->getLinkTargetByClass('ilpublicuserprofilegui', 'getHTML');
     }
-    
-    
-    /**
-     * fau: joinAsGuest - check if user is a guest hearer
-     *
-     * @param	int			user id	(or empty for current user
-     * @return	boolean		user is guest hearer
-     */
-    public static function _isGuestHearer($a_user_id = '')
-    {
-        global $ilUser, $rbacreview;
 
-        static $checked = array();
-
-        // take the current user as default
-        if (!$a_user_id) {
-            $a_user_id = $ilUser->getId();
-            $login = $ilUser->getLogin();
-        }
-
-        // checked the cached status
-        if (isset($checked[$a_user_id])) {
-            return $checked[$a_user_id];
-        }
-
-        // get the login of user is not the current user
-        if (!$login) {
-            $login = ilObjUser::_lookupLogin($a_user_id);
-        }
-
-        // check the guest status
-        // 1. has guest role
-        // 2. login begins with 'gh'
-        if ($rbacreview->isAssigned($a_user_id, ilCust::get('ilias_guest_role_id'))
-        and substr($login, 0, 2) == 'gh') {
-            $checked[$a_user_id] = true;
-        } else {
-            $checked[$a_user_id] = false;
-        }
-
-        return $checked[$a_user_id];
-    }
-    // fau.
-
-    
-
-    // fau: samlAuth - get the logout link dependent from authentication
-    /**
-     * Get the logout link
-     * for simpleSAML authentified users this will return a single log out link
-     * @param 	string	$a_mode		'auto' (default) or 'local'
-     * @return	string
-     */
-    public static function _getLogoutLink($a_mode = 'auto')
-    {
-        global $DIC;
-
-        if (ilSession::get('used_external_auth')) {
-            return 'saml.php?action=logout&logout_url=' . urlencode(ILIAS_HTTP_PATH . '/index.php');
-        } else {
-            return ILIAS_HTTP_PATH . "/logout.php?lang=" . $DIC->user()->getCurrentLanguage();
-        }
-    }
-    // fau.
 
     //
     // Personal starting point
@@ -276,10 +224,9 @@ class ilUserUtil
 
     /**
      * Get all valid starting points
-     *
-     * @return array
+     * @return array<int,string>
      */
-    public static function getPossibleStartingPoints($a_force_all = false)
+    public static function getPossibleStartingPoints(bool $a_force_all = false): array
     {
         global $DIC;
 
@@ -293,23 +240,20 @@ class ilUserUtil
         $all[self::START_PD_OVERVIEW] = 'mm_dashboard';
         $all[self::START_PD_SUBSCRIPTION] = 'my_courses_groups';
 
-// fau: fixOrguAccess - don't get instance to prevent queries like DROP TABLE IF EXISTS `tmp_obj_spec_perm_access_enrolments_crs
-//        if (ilMyStaffAccess::getInstance()->hasCurrentUserAccessToMyStaff()) {
-//            $all[self::START_PD_MYSTAFF] = 'my_staff';
-//        }
-// fau.
+        if ((new ilMyStaffCachedAccessDecorator($DIC, ilMyStaffAccess::getInstance()))->hasCurrentUserAccessToMyStaff()) {
+            $all[self::START_PD_MYSTAFF] = 'my_staff';
+        }
 
         if ($a_force_all || !$ilSetting->get("disable_personal_workspace")) {
             $all[self::START_PD_WORKSPACE] = 'mm_personal_and_shared_r';
         }
-
-        include_once('./Services/Calendar/classes/class.ilCalendarSettings.php');
         $settings = ilCalendarSettings::_getInstance();
         if ($a_force_all || $settings->isEnabled()) {
             $all[self::START_PD_CALENDAR] = 'calendar';
         }
 
         $all[self::START_REPOSITORY] = 'obj_root';
+        $all[self::START_REPOSITORY_OBJ] = 'adm_user_starting_point_object';
 
         foreach ($all as $idx => $lang) {
             $all[$idx] = $lng->txt($lang);
@@ -320,14 +264,12 @@ class ilUserUtil
 
     /**
      * Set starting point setting
-     *
-     * @param int $a_value
-     * @param int $a_ref_id
-     * @param array $a_cal_view
-     * @return boolean
      */
-    public static function setStartingPoint($a_value, $a_ref_id = null, $a_cal_view = [])
-    {
+    public static function setStartingPoint(
+        int $a_value,
+        int $a_ref_id = null,
+        array $a_cal_view = []
+    ): bool {
         global $DIC;
 
         $ilSetting = $DIC['ilSetting'];
@@ -357,10 +299,8 @@ class ilUserUtil
 
     /**
      * Get current starting point setting
-     *
-     * @return int
      */
-    public static function getStartingPoint()
+    public static function getStartingPoint(): int
     {
         global $DIC;
 
@@ -390,12 +330,7 @@ class ilUserUtil
         return $current;
     }
 
-    /**
-     * Get current starting point setting as URL
-     *
-     * @return string
-     */
-    public static function getStartingPointAsUrl()
+    public static function getStartingPointAsUrl(): string
     {
         global $DIC;
 
@@ -405,6 +340,7 @@ class ilUserUtil
 
         $ref_id = 1;
         $by_default = true;
+        $current = 0;
 
         //configuration by user preference
         #21782
@@ -414,25 +350,20 @@ class ilUserUtil
                 $ref_id = self::getPersonalStartingObject();
             }
         } else {
-            include_once './Services/AccessControl/classes/class.ilStartingPoint.php';
-
             if (ilStartingPoint::ROLE_BASED) {
                 //getting all roles with starting points and store them in array
                 $roles = ilStartingPoint::getRolesWithStartingPoint();
 
                 $roles_ids = array_keys($roles);
-
                 $gr = array();
-                foreach ($rbacreview->getGlobalRoles() as $role_id) {
+                foreach ($roles_ids as $role_id) {
                     if ($rbacreview->isAssigned($ilUser->getId(), $role_id)) {
-                        if (in_array($role_id, $roles_ids)) {
-                            $gr[$roles[$role_id]['position']] = array(
-                                "point" => $roles[$role_id]['starting_point'],
-                                "object" => $roles[$role_id]['starting_object'],
-                                "cal_view" => $roles[$role_id]['calendar_view'],
-                                "cal_period" => $roles[$role_id]['calendar_period']
-                            );
-                        }
+                        $gr[$roles[$role_id]['position']] = array(
+                            "point" => $roles[$role_id]['starting_point'],
+                            "object" => $roles[$role_id]['starting_object'],
+                            "cal_view" => $roles[$role_id]['calendar_view'],
+                            "cal_period" => $roles[$role_id]['calendar_period']
+                        );
                     }
                 }
                 if (!empty($gr)) {
@@ -470,7 +401,6 @@ class ilUserUtil
                 if ($ref_id &&
                     ilObject::_lookupObjId($ref_id) &&
                     !$tree->isDeleted($ref_id)) {
-                    include_once('./Services/Link/classes/class.ilLink.php');
                     return ilLink::_getStaticLink($ref_id, '', true);
                 }
                 // invalid starting object, overview is fallback
@@ -492,10 +422,8 @@ class ilUserUtil
 
     /**
      * Get ref id of starting object
-     *
-     * @return int
      */
-    public static function getStartingObject()
+    public static function getStartingObject(): int
     {
         global $DIC;
 
@@ -506,66 +434,56 @@ class ilUserUtil
 
     /**
      * Get specific view of calendar starting point
-     *
-     * @return int
      */
-    public static function getCalendarView()
+    public static function getCalendarView(): int
     {
         global $DIC;
 
         $ilSetting = $DIC['ilSetting'];
 
-        return $ilSetting->get("user_calendar_view");
+        return (int) $ilSetting->get("user_calendar_view");
     }
 
     /**
      * Get time frame of calendar view
-     *
-     * @return int
      */
-    public static function getCalendarPeriod()
+    public static function getCalendarPeriod(): int
     {
         global $DIC;
 
         $ilSetting = $DIC['ilSetting'];
 
-        return $ilSetting->get("user_cal_period");
+        return (int) $ilSetting->get("user_cal_period");
     }
 
     /**
      * Toggle personal starting point setting
-     *
-     * @param bool $a_value
      */
-    public static function togglePersonalStartingPoint($a_value)
+    public static function togglePersonalStartingPoint(bool $a_value): void
     {
         global $DIC;
 
         $ilSetting = $DIC['ilSetting'];
 
-        $ilSetting->set("usr_starting_point_personal", (bool) $a_value);
+        $ilSetting->set("usr_starting_point_personal", (string) $a_value);
     }
 
     /**
      * Can starting point be personalized?
-     *
-     * @return bool
      */
-    public static function hasPersonalStartingPoint()
+    public static function hasPersonalStartingPoint(): bool
     {
         global $DIC;
 
         $ilSetting = $DIC['ilSetting'];
 
-        return $ilSetting->get("usr_starting_point_personal");
+        return (bool) $ilSetting->get("usr_starting_point_personal");
     }
 
     /**
      * Did user set any personal starting point (yet)?
-     *
-     * @return bool
      */
-    public static function hasPersonalStartPointPref()
+    public static function hasPersonalStartPointPref(): bool
     {
         global $DIC;
 
@@ -576,10 +494,8 @@ class ilUserUtil
 
     /**
      * Get current personal starting point
-     *
-     * @return int
      */
-    public static function getPersonalStartingPoint()
+    public static function getPersonalStartingPoint(): int
     {
         global $DIC;
 
@@ -597,13 +513,11 @@ class ilUserUtil
 
     /**
      * Set personal starting point setting
-     *
-     * @param int $a_value
-     * @param int $a_ref_id
-     * @return boolean
      */
-    public static function setPersonalStartingPoint($a_value, $a_ref_id = null)
-    {
+    public static function setPersonalStartingPoint(
+        int $a_value,
+        int $a_ref_id = null
+    ): bool {
         global $DIC;
 
         $ilUser = $DIC['ilUser'];
@@ -612,7 +526,7 @@ class ilUserUtil
         if (!$a_value) {
             $ilUser->setPref("usr_starting_point", null);
             $ilUser->setPref("usr_starting_point_ref_id", null);
-            return;
+            return false;
         }
 
         if ($a_value == self::START_REPOSITORY_OBJ) {
@@ -634,10 +548,8 @@ class ilUserUtil
 
     /**
      * Get ref id of personal starting object
-     *
-     * @return int
      */
-    public static function getPersonalStartingObject()
+    public static function getPersonalStartingObject(): int
     {
         global $DIC;
 

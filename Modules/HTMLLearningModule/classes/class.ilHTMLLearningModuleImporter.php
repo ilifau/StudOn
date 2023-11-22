@@ -1,39 +1,42 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Export/classes/class.ilXmlImporter.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Importer class for html learning modules
- *
- * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id: $
- * @ingroup ModulesHTMLLearningModule
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilHTMLLearningModuleImporter extends ilXmlImporter
 {
+    protected ilHTMLLearningModuleDataSet $ds;
 
-    /**
-     * Initialisation
-     */
-    public function init()
+    public function init(): void
     {
-        include_once("./Modules/HTMLLearningModule/classes/class.ilHTMLLearningModuleDataSet.php");
         $this->ds = new ilHTMLLearningModuleDataSet();
         $this->ds->setDSPrefix("ds");
         $this->ds->setImportDirectory($this->getImportDirectory());
     }
 
-
-    /**
-     * Import XML
-     *
-     * @param
-     * @return
-     */
-    public function importXmlRepresentation($a_entity, $a_id, $a_xml, $a_mapping)
-    {
-        include_once("./Services/DataSet/classes/class.ilDataSetImportParser.php");
+    public function importXmlRepresentation(
+        string $a_entity,
+        string $a_id,
+        string $a_xml,
+        ilImportMapping $a_mapping
+    ): void {
         $parser = new ilDataSetImportParser(
             $a_entity,
             $this->getSchemaVersion(),

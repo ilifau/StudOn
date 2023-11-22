@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\MainControls\Slate\Combined;
+
 function combined()
 {
     global $DIC;

@@ -1,12 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 /* Copyright (c) 2017 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Data;
 
-use ILIAS\Data\Interval\OpenedFloatInterval;
-use ILIAS\Data\Interval\OpenedIntegerInterval;
-use ILIAS\Data\Interval\ClosedFloatInterval;
-use ILIAS\Data\Interval\ClosedIntegerInterval;
+use ILIAS\Data\Clock\ClockFactory;
+use ILIAS\Data\Clock\ClockFactoryImpl;
 
 /**
  * Builds data types.
@@ -21,15 +22,15 @@ class Factory
     /**
      * cache for color factory.
      */
-    private $colorfactory;
+    private ?Color\Factory $colorfactory = null;
+    private ?Dimension\Factory $dimensionfactory = null;
 
     /**
      * Get an ok result.
      *
-     * @param  mixed  $value
-     * @return Result
+     * @param mixed $value
      */
-    public function ok($value)
+    public function ok($value): Result
     {
         return new Result\Ok($value);
     }
@@ -37,10 +38,10 @@ class Factory
     /**
      * Get an error result.
      *
-     * @param  string|\Exception $error
+     * @param string|\Exception $e
      * @return Result
      */
-    public function error($e)
+    public function error($e): Result
     {
         return new Result\Error($e);
     }
@@ -49,10 +50,9 @@ class Factory
      * Color is a data type representing a color in HTML.
      * Construct a color with a hex-value or list of RGB-values.
      *
-     * @param  string|int[] 	$value
-     * @return Color
+     * @param string|int[] $value
      */
-    public function color($value)
+    public function color($value): Color
     {
         if (!$this->colorfactory) {
             $this->colorfactory = new Color\Factory();
@@ -64,11 +64,8 @@ class Factory
      * Object representing an uri valid according to RFC 3986
      * with restrictions imposed on valid characters and obliagtory
      * parts.
-     *
-     * @param  string	$uri_string
-     * @return URI
      */
-    public function uri($uri_string)
+    public function uri(string $uri_string): URI
     {
         return new URI($uri_string);
     }
@@ -76,16 +73,16 @@ class Factory
     /**
      * Represents the size of some data.
      *
-     * @param	string|int	$size	string might be a string like "126 MB"
-     * @throw	\InvalidArgumentException if first argument is int and second is not a valid unit.
-     * @throw	\InvalidArgumentException if string size can't be interpreted
+     * @param string|int $size string might be a string like "126 MB"
+     * @throw   \InvalidArgumentException if first argument is int and second is not a valid unit.
+     * @throw   \InvalidArgumentException if string size can't be interpreted
      */
-    public function dataSize($size, string $unit = null) : DataSize
+    public function dataSize($size, string $unit = null): DataSize
     {
         if (is_string($size)) {
             $match = [];
             if (!preg_match("/(\d+)\s*([a-zA-Z]+)/", $size, $match)) {
-                throw \InvalidArgumentException("'$size' can't be interpreted as data size.");
+                throw new \InvalidArgumentException("'$size' can't be interpreted as data size.");
             }
             return $this->dataSize((int) $match[1], $match[2]);
         }
@@ -98,78 +95,90 @@ class Factory
         return new DataSize($size * $unit_size, $unit_size);
     }
 
-    /**
-     * Get a password.
-     *
-     * @param  string
-     * @return Password
-     */
-    public function password($pass)
+    public function password(string $pass): Password
     {
         return new Password($pass);
     }
 
-    /**
-     * @param string $clientId
-     * @return ClientId
-     */
-    public function clientId(string $clientId) : ClientId
+    public function clientId(string $clientId): ClientId
     {
         return new ClientId($clientId);
     }
 
-    /**
-     * @param int $ref_id
-     *
-     * @return ReferenceId
-     */
-    public function refId(int $ref_id) : ReferenceId
+    public function refId(int $ref_id): ReferenceId
     {
         return new ReferenceId($ref_id);
     }
 
+    public function objId(int $obj_id): ObjectId
+    {
+        return new ObjectId($obj_id);
+    }
+
     /**
-     * @param $value
-     * @return Alphanumeric
+     * @param mixed $value
      */
-    public function alphanumeric($value) : Alphanumeric
+    public function alphanumeric($value): Alphanumeric
     {
         return new Alphanumeric($value);
     }
 
-    /**
-     * @param int $value
-     * @return PositiveInteger
-     */
-    public function positiveInteger(int $value) : PositiveInteger
+    public function positiveInteger(int $value): PositiveInteger
     {
         return new PositiveInteger($value);
     }
 
-    /**
-     * @return DateFormat\Factory
-     */
-    public function dateFormat() : DateFormat\Factory
+    public function dateFormat(): DateFormat\Factory
     {
         $builder = new DateFormat\FormatBuilder();
         return new DateFormat\Factory($builder);
     }
 
-    /**
-     * @param int $start
-     * @param int $length
-     * @return Range
-     */
-    public function range(int $start, int $length) : Range
+    public function range(int $start, int $length): Range
     {
         return new Range($start, $length);
     }
 
     /**
-     * @param mixed $direction Order::ASC|Order::DESC
+     * @param string $direction Order::ASC|Order::DESC
      */
-    public function order(string $subject, $direction) : Order
+    public function order(string $subject, string $direction): Order
     {
         return new Order($subject, $direction);
+    }
+
+    /**
+     * @param string $version in the form \d+([.]\d+([.]\d+)?)?
+     * @throws  \InvalidArgumentException if version string does not match \d+([.]\d+([.]\d+)?)?
+     */
+    public function version(string $version): Version
+    {
+        return new Version($version);
+    }
+
+    public function link(string $label, URI $url): Link
+    {
+        return new Link($label, $url);
+    }
+
+    public function clock(): ClockFactory
+    {
+        return new ClockFactoryImpl();
+    }
+
+    public function dimension(): Dimension\Factory
+    {
+        if (!$this->dimensionfactory) {
+            $this->dimensionfactory = new Dimension\Factory();
+        }
+        return $this->dimensionfactory;
+    }
+
+    /**
+     * @param array<string, Dimension\Dimension> $dimensions Dimensions with their names as keys
+     */
+    public function dataset(array $dimensions): Chart\Dataset
+    {
+        return new Chart\Dataset($dimensions);
     }
 }

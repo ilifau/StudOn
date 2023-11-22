@@ -1,183 +1,84 @@
 <?php
 
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+/**
  * Interface ilDBPdoInterface
  */
 interface ilDBPdoInterface extends ilDBInterface
 {
+    public function getServerVersion(bool $native = false): int;
 
+    public function queryCol(string $query, int $type = ilDBConstants::FETCHMODE_DEFAULT, int $colnum = 0): array;
+
+    public function queryRow(
+        string $query,
+        ?array $types = null,
+        int $fetchmode = ilDBConstants::FETCHMODE_DEFAULT
+    ): array;
+
+    public function escape(string $value, bool $escape_wildcards = false): string;
+
+    public function escapePattern(string $text): string;
+
+    public function migrateTableToEngine(string $table_name, string $engine = ilDBConstants::MYSQL_ENGINE_INNODB): void;
     /**
-     * @param bool $native
-     * @return int
-     */
-    public function getServerVersion($native = false);
-
-
-    /**
-     * @param $query
-     * @param int $type
-     * @param int $colnum
-     * @return array
-     */
-    public function queryCol($query, $type = ilDBConstants::FETCHMODE_DEFAULT, $colnum = 0);
-
-
-    /**
-     * @param $query
-     * @param null $types
-     * @param int $fetchmode
-     * @return array
-     */
-    public function queryRow($query, $types = null, $fetchmode = ilDBConstants::FETCHMODE_DEFAULT);
-
-
-    /**
-     * @param $value
-     * @param bool $escape_wildcards
-     * @return string
-     */
-    public function escape($value, $escape_wildcards = false);
-
-
-    /**
-     * @param $text
-     * @return string
-     */
-    public function escapePattern($text);
-
-
-    /**
-     * @param string $engine
-     *
      * @return array of failed tables
      */
-    public function migrateAllTablesToEngine($engine = ilDBConstants::MYSQL_ENGINE_INNODB);
+    public function migrateAllTablesToEngine(string $engine = ilDBConstants::MYSQL_ENGINE_INNODB): array;
 
+    public function supportsEngineMigration(): bool;
 
+    public function migrateTableCollation(string $table_name, string $collation = ilDBConstants::MYSQL_COLLATION_UTF8MB4): bool;
     /**
-     * @return bool
-     */
-    public function supportsEngineMigration();
-
-
-    /**
-     * @param string $collation
-     *
      * @return array of failed tables
      */
-    public function migrateAllTablesToCollation($collation = ilDBConstants::MYSQL_COLLATION_UTF8MB4);
+    public function migrateAllTablesToCollation(string $collation = ilDBConstants::MYSQL_COLLATION_UTF8MB4): array;
 
+    public function supportsCollationMigration(): bool;
 
-    /**
-     * @return bool
-     */
-    public function supportsCollationMigration();
+    public function addUniqueConstraint(string $table, array $fields, string $name = "con"): bool;
 
+    public function dropUniqueConstraint(string $table, string $name = "con"): bool;
 
-    /**
-     * @param $table
-     * @param $fields
-     * @param string $name
-     * @return bool
-     */
-    public function addUniqueConstraint($table, $fields, $name = "con");
+    public function dropUniqueConstraintByFields(string $table, array $fields): bool;
 
+    public function checkIndexName(string $name): bool;
 
-    /**
-     * @param $table
-     * @param string $name
-     * @return bool
-     */
-    public function dropUniqueConstraint($table, $name = "con");
+    public function getLastInsertId(): int;
 
+    public function uniqueConstraintExists(string $table, array $fields): bool;
+
+    public function dropPrimaryKey(string $table_name): bool;
 
     /**
-     * @param $table
-     * @param $fields
-     * @return bool
+     * @param ilDBStatement[] $stmt
+     * @return string[]
      */
-    public function dropUniqueConstraintByFields($table, $fields);
+    public function executeMultiple(array $stmt, array $data): array;
 
+    public function fromUnixtime(string $expr, bool $to_text = true): string;
 
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function checkIndexName($name);
-
-
-    /**
-     * @return int
-     */
-    public function getLastInsertId();
-
-
-    /**
-     * @param $query
-     * @param null $types
-     * @param null $result_types
-     * @return ilDBStatement
-     */
-    public function prepare($query, $types = null, $result_types = null);
-
-
-    /**
-     * @param $table
-     * @param array $fields
-     * @return bool
-     */
-    public function uniqueConstraintExists($table, array $fields);
-
-
-    /**
-     * @param $table_name
-     */
-    public function dropPrimaryKey($table_name);
-
-
-    /**
-     * @param $stmt
-     * @param $data
-     */
-    public function executeMultiple($stmt, $data);
-
-
-    /**
-     * @param $expr
-     * @param bool $to_text
-     * @return string
-     */
-    public function fromUnixtime($expr, $to_text = true);
-
-
-    /**
-     * @return string
-     */
-    public function unixTimestamp();
-
-
-    /**
-     * Generate an insert, update or delete query and call prepare() and execute() on it
-     *
-     * @param string $tablename of the table
-     * @param array $fields ($key=>$value) where $key is a field name and $value its value
-     * @param int $mode of query to build
-     *                          ilDBConstants::AUTOQUERY_INSERT
-     *                          ilDBConstants::AUTOQUERY_UPDATE
-     *                          ilDBConstants::AUTOQUERY_DELETE
-     *                          ilDBConstants::AUTOQUERY_SELECT
-     * @param string $where (in case of update and delete queries, this string will be put after the sql WHERE statement)
-     *
-     * @deprecated Will be removed in ILIAS 5.3
-     * @return bool
-     */
-    public function autoExecute($tablename, $fields, $mode = ilDBConstants::AUTOQUERY_INSERT, $where = false);
-
+    public function unixTimestamp(): string;
 
     /**
      * returns the Version of the Database (e.g. MySQL 5.6)
-     *
-     * @return string
      */
-    public function getDBVersion();
+    public function getDBVersion(): string;
 }

@@ -1,5 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * Interface ilDBStatement
  *
@@ -8,48 +26,30 @@
  */
 interface ilDBStatement
 {
-
     /**
      * @param $fetch_mode int Is either ilDBConstants::FETCHMODE_ASSOC OR ilDBConstants::FETCHMODE_OBJECT
      * @return mixed Returns an array in fetchmode assoc and an object in fetchmode object.
      */
-    public function fetchRow($fetch_mode);
+    public function fetchRow(int $fetch_mode);
 
 
     /**
-     * @param int $fetch_mode
      * @return mixed
      */
-    public function fetch($fetch_mode = ilDBConstants::FETCHMODE_ASSOC);
+    public function fetch(int $fetch_mode = ilDBConstants::FETCHMODE_ASSOC);
 
 
-    /**
-     * @return int
-     */
-    public function rowCount();
+    public function rowCount(): int;
 
 
-    /**
-     * @return int
-     */
-    public function numRows();
+    public function numRows(): int;
 
 
-    /**
-     * @return stdClass
-     */
-    public function fetchObject();
+    public function fetchObject(): ?stdClass;
 
 
-    /**
-     * @return array
-     */
-    public function fetchAssoc();
+    public function fetchAssoc(): ?array;
 
 
-    /**
-     * @param array $a_data
-     * @return \ilPDOStatement
-     */
-    public function execute($a_data = null);
+    public function execute(array $a_data = null): ilDBStatement;
 }

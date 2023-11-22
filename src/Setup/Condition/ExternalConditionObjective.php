@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2019 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Setup\Condition;
 
@@ -15,25 +31,14 @@ use ILIAS\Setup;
  */
 class ExternalConditionObjective implements Setup\Objective
 {
-    /**
-     * @var string
-     */
-    protected $label;
-
-    /**
-     * @var callable
-     */
-    protected $condition;
-
-    /**
-     * @var string|null
-     */
-    protected $message;
+    protected string $label;
+    protected \Closure $condition;
+    protected ?string $message;
 
     /**
      * @param callable $condition needs to be function from Environment to bool.
      */
-    public function __construct(string $label, callable $condition, string $message = null)
+    public function __construct(string $label, \Closure $condition, string $message = null)
     {
         $this->condition = $condition;
         $this->label = $label;
@@ -43,7 +48,7 @@ class ExternalConditionObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getHash() : string
+    public function getHash(): string
     {
         return hash(
             "sha256",
@@ -54,7 +59,7 @@ class ExternalConditionObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getLabel() : string
+    public function getLabel(): string
     {
         return $this->label;
     }
@@ -62,7 +67,7 @@ class ExternalConditionObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function isNotable() : bool
+    public function isNotable(): bool
     {
         return true;
     }
@@ -70,7 +75,7 @@ class ExternalConditionObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function getPreconditions(Setup\Environment $environment) : array
+    public function getPreconditions(Setup\Environment $environment): array
     {
         return [];
     }
@@ -78,7 +83,7 @@ class ExternalConditionObjective implements Setup\Objective
     /**
      * @inheritdoc
      */
-    public function achieve(Setup\Environment $environment) : Setup\Environment
+    public function achieve(Setup\Environment $environment): Setup\Environment
     {
         if (($this->condition)($environment)) {
             return $environment;
@@ -90,14 +95,14 @@ class ExternalConditionObjective implements Setup\Objective
         }
 
         throw new Setup\UnachievableException(
-            "An external condition was not met: {$this->label}"
+            "An external condition was not met: $this->label"
         );
     }
 
     /**
      * @inheritDoc
      */
-    public function isApplicable(Setup\Environment $environment) : bool
+    public function isApplicable(Setup\Environment $environment): bool
     {
         return true;
     }

@@ -2,28 +2,34 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 use ILIAS\KioskMode\LocatorBuilder;
 use ILIAS\KioskMode\ControlBuilder;
 
-/**
- * Class LSTOCBuilder
- */
 class LSLocatorBuilder implements LocatorBuilder
 {
     /**
-     * @var string
+     * @var array<array<int|string>>
      */
-    protected $command;
+    protected array $items;
 
-    /**
-     * @var array
-     */
-    protected $items;
-
-    /**
-     * @var ControlBuilder
-     */
-    protected $control_builder;
+    protected string $command;
+    protected ControlBuilder $control_builder;
 
     public function __construct(string $command, ControlBuilder $control_builder)
     {
@@ -31,7 +37,10 @@ class LSLocatorBuilder implements LocatorBuilder
         $this->control_builder = $control_builder;
     }
 
-    public function getItems() : array
+    /**
+     * @return int[][]|string[][]
+     */
+    public function getItems(): array
     {
         return $this->items;
     }
@@ -39,7 +48,7 @@ class LSLocatorBuilder implements LocatorBuilder
     /**
      * @inheritdoc
      */
-    public function end() : ControlBuilder
+    public function end(): ControlBuilder
     {
         return $this->control_builder;
     }
@@ -47,7 +56,7 @@ class LSLocatorBuilder implements LocatorBuilder
     /**
      * @inheritdoc
      */
-    public function item(string $label, int $parameter, $state = null) : LocatorBuilder
+    public function item(string $label, int $parameter): LocatorBuilder
     {
         $this->items[] = [
             'label' => $label,

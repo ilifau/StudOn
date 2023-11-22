@@ -17,8 +17,8 @@
 
 datepicker.regional.cs = {
 	closeText: "Zavřít",
-	prevText: "Dříve",
-	nextText: "Později",
+	prevText: "&#x3C;Dříve",
+	nextText: "Později&#x3E;",
 	currentText: "Nyní",
 	monthNames: [ "leden", "únor", "březen", "duben", "květen", "červen",
 	"červenec", "srpen", "září", "říjen", "listopad", "prosinec" ],

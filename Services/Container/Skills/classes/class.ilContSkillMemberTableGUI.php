@@ -1,47 +1,35 @@
 <?php
 
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 
-include_once("./Services/Table/classes/class.ilTable2GUI.php");
+use ILIAS\DI\UIServices;
 
 /**
  * TableGUI class for container members / skill assignments
  *
  * @author Alex Killing <killing@leifos.de>
- *
- * @ingroup ServicesContainer
  */
 class ilContSkillMemberTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
+    protected ilContainerSkills $container_skills;
+    protected UIServices $ui;
 
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
-
-    /**
-     * @var ilContainerSkills
-     */
-    protected $container_skills;
-
-    /**
-     * @var \ILIAS\DI\UIServices
-     */
-    protected $ui;
-
-    /**
-     * Constructor
-     */
-    public function __construct($a_parent_obj, $a_parent_cmd, ilContainerSkills $a_cont_skills)
+    public function __construct(ilContSkillAdminGUI $a_parent_obj, string $a_parent_cmd, ilContainerSkills $a_cont_skills)
     {
         global $DIC;
 
@@ -52,14 +40,12 @@ class ilContSkillMemberTableGUI extends ilTable2GUI
 
         $this->setId("cont_skll_mem_" . $a_cont_skills->getId());
 
-        $this->skill_tree = new ilSkillTree();
-
         $this->container_skills = $a_cont_skills;
-        
+
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->setData($this->getMembers());
         $this->setTitle($this->lng->txt("cont_cont_skills"));
-        
+
         $this->addColumn("", "", "1", true);
         $this->addColumn($this->lng->txt("name"), "name");
         $this->addColumn($this->lng->txt("login"), "login");
@@ -69,46 +55,35 @@ class ilContSkillMemberTableGUI extends ilTable2GUI
 
         $this->setDefaultOrderField("name");
         $this->setDefaultOrderDirection("asc");
-        $this->setSelectAllCheckbox("usr_id");
-        
+        $this->setSelectAllCheckbox("usr_ids");
+
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj));
         $this->setRowTemplate("tpl.cont_member_skill_row.html", "Services/Container/Skills");
 
-        if (ilContainer::_lookupContainerSetting($this->container_skills->getId(), "cont_skill_publish", 0)) {
+        if (ilContainer::_lookupContainerSetting($this->container_skills->getId(), "cont_skill_publish", '0')) {
             $this->addMultiCommand("publishAssignments", $this->lng->txt("cont_publish_assignment"));
         }
         $this->addMultiCommand("deassignCompetencesConfirm", $this->lng->txt("cont_deassign_competence"));
     }
 
-    /**
-     * Get members
-     *
-     * @param
-     * @return
-     */
-    public function getMembers()
+    public function getMembers(): array
     {
-        include_once("./Modules/Course/classes/class.ilCourseParticipants.php");
         $p = ilCourseParticipants::getInstanceByObjId($this->container_skills->getId());
 
-        $members = array();
+        $members = [];
         foreach ($p->getMembers() as $m) {
             $name = ilObjUser::_lookupName($m);
-            $members[] = array(
+            $members[] = [
                 "id" => $m,
                 "name" => $name["lastname"] . ", " . $name["firstname"],
                 "login" => $name["login"],
-                "skills" => array()
-            );
+                "skills" => []
+            ];
         }
         return $members;
     }
 
-
-    /**
-     * Fill table row
-     */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         $tpl = $this->tpl;
         $ctrl = $this->ctrl;
@@ -116,7 +91,6 @@ class ilContSkillMemberTableGUI extends ilTable2GUI
         $ui = $this->ui;
 
         // levels
-        include_once("./Services/Container/Skills/classes/class.ilContainerMemberSkills.php");
         $mskills = new ilContainerMemberSkills($this->container_skills->getId(), $a_set["id"]);
         foreach ($mskills->getOrderedSkillLevels() as $sk) {
             $tpl->setCurrentBlock("level");
@@ -140,9 +114,9 @@ class ilContSkillMemberTableGUI extends ilTable2GUI
 
         $ctrl->setParameter($this->parent_obj, "usr_id", $a_set["id"]);
 
-        $items = array();
+        $items = [];
         $b = $ui->factory()->button();
-        if (!$mskills->getPublished() || (!ilContainer::_lookupContainerSetting($this->container_skills->getId(), "cont_skill_publish", 0))) {
+        if (!$mskills->getPublished() || (!ilContainer::_lookupContainerSetting($this->container_skills->getId(), "cont_skill_publish", '0'))) {
             $items[] = $b->shy($lng->txt("cont_assign_competence"), $ctrl->getLinkTarget($this->parent_obj, "assignCompetences"));
         }
         if (!$mskills->getPublished()) {

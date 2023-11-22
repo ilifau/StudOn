@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Listing\Descriptive;
+
 function base()
 {
     //Init Factory and Renderer

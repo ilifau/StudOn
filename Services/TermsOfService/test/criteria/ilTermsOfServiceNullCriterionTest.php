@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Legacy\Legacy;
@@ -11,55 +28,42 @@ use PHPUnit\Framework\MockObject\MockObject;
  */
 class ilTermsOfServiceNullCriterionTest extends ilTermsOfServiceCriterionBaseTest
 {
-    /** @var MockObject|ilLanguage */
-    protected $lng;
+    /** @var MockObject&ilLanguage */
+    protected ilLanguage $lng;
 
-    /**
-     * @inheritDoc
-     */
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->lng = $this->getLanguageMock();
 
         $this->lng
-            ->expects($this->any())
             ->method('txt')
             ->willReturn('dummy');
     }
 
-    /**
-     * @return ilTermsOfServiceNullCriterion
-     */
-    protected function getInstance() : ilTermsOfServiceNullCriterion
+    protected function getInstance(): ilTermsOfServiceNullCriterion
     {
-        $criterion = new ilTermsOfServiceNullCriterion();
-
-        return $criterion;
+        return new ilTermsOfServiceNullCriterion();
     }
 
-    /**
-     * @return ilTermsOfServiceNullCriterion
-     */
-    public function testInstanceCanBeCreated() : ilTermsOfServiceNullCriterion
+    public function testInstanceCanBeCreated(): ilTermsOfServiceNullCriterion
     {
         $criterion = $this->getInstance();
 
-        $this->assertEquals('null', $criterion->getTypeIdent());
-        $this->assertEquals(false, $criterion->hasUniqueNature());
+        $this->assertSame('null', $criterion->getTypeIdent());
+        $this->assertFalse($criterion->hasUniqueNature());
 
         return $criterion;
     }
 
     /**
      * @param ilTermsOfServiceCriterionTypeGUI $gui
-     * @return MockObject|ilPropertyFormGUI
-     * @throws ReflectionException
+     * @return MockObject&ilPropertyFormGUI
      */
     protected function buildForm(
         ilTermsOfServiceCriterionTypeGUI $gui
-    ) : ilPropertyFormGUI {
+    ): ilPropertyFormGUI {
         $form = $this->getFormMock();
 
         $radioGroup = $this
@@ -83,11 +87,10 @@ class ilTermsOfServiceNullCriterionTest extends ilTermsOfServiceCriterionBaseTes
      * @param ilTermsOfServiceNullCriterion $criterion
      * @depends testInstanceCanBeCreated
      * @return ilTermsOfServiceNullCriterion
-     * @throws ReflectionException
      */
     public function testNoFormUserInterfaceElementsAreBuilt(
         ilTermsOfServiceNullCriterion $criterion
-    ) : ilTermsOfServiceNullCriterion {
+    ): ilTermsOfServiceNullCriterion {
         $gui = $criterion->ui($this->lng);
 
         $this->buildForm($gui);
@@ -98,9 +101,8 @@ class ilTermsOfServiceNullCriterionTest extends ilTermsOfServiceCriterionBaseTes
     /**
      * @depends testNoFormUserInterfaceElementsAreBuilt
      * @param ilTermsOfServiceNullCriterion $criterion
-     * @throws ReflectionException
      */
-    public function testCriterionAlwaysCreateEmptyConfigValue(ilTermsOfServiceNullCriterion $criterion) : void
+    public function testCriterionAlwaysCreateEmptyConfigValue(ilTermsOfServiceNullCriterion $criterion): void
     {
         $gui = $criterion->ui($this->lng);
 
@@ -120,7 +122,7 @@ class ilTermsOfServiceNullCriterionTest extends ilTermsOfServiceCriterionBaseTes
      * @depends testNoFormUserInterfaceElementsAreBuilt
      * @param ilTermsOfServiceNullCriterion $criterion
      */
-    public function testTypeIdentPresentationEqualsANonEmptyString(ilTermsOfServiceNullCriterion $criterion) : void
+    public function testTypeIdentPresentationEqualsANonEmptyString(ilTermsOfServiceNullCriterion $criterion): void
     {
         $gui = $criterion->ui($this->lng);
 
@@ -130,10 +132,7 @@ class ilTermsOfServiceNullCriterionTest extends ilTermsOfServiceCriterionBaseTes
         $this->assertNotEmpty($actual);
     }
 
-    /**
-     *
-     */
-    public function testValuePresentationMatchesExpectation() : void
+    public function testValuePresentationMatchesExpectation(): void
     {
         $criterion = $this->getInstance();
         $gui = $criterion->ui($this->lng);
@@ -146,13 +145,10 @@ class ilTermsOfServiceNullCriterionTest extends ilTermsOfServiceCriterionBaseTes
 
         $this->assertInstanceOf(Component::class, $actual);
         $this->assertInstanceOf(Legacy::class, $actual);
-        $this->assertEquals('-', $actual->getContent());
+        $this->assertSame('-', $actual->getContent());
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    public function testEvaluationAlwaysSucceeds() : void
+    public function testEvaluationAlwaysSucceeds(): void
     {
         $user = $this->getUserMock();
         $criterion = $this->getInstance();

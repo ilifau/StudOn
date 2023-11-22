@@ -1,172 +1,70 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * Interface ilDBManager
- *
  * @author Fabian Schmid <fs@studer-raimann.ch>
  */
 interface ilDBManager
 {
+    /**
+     * @return string[]
+     */
+    public function listTables(?string $database = null): array;
 
     /**
-     * @param null $database
-     * @return array
+     * @return string[]
      */
-    public function listTables($database = null);
+    public function listSequences(?string $database = null): array;
 
+    public function createConstraint(string $table, string $name, array $definition): bool;
 
     /**
-     * @param null $database
-     * @return array
+     * @return string[]
      */
-    public function listSequences($database = null);
-
+    public function listTableFields(string $table): array;
 
     /**
-     * @param $table
-     * @param $name
-     * @param $definition
-     * @return mixed
+     * @return string[]
      */
-    public function createConstraint($table, $name, $definition);
+    public function listTableConstraints(string $table): array;
 
+    public function createSequence(string $seq_name, int $start = 1, array $options = []): bool;
 
     /**
-     * @param $table
-     * @return mixed
+     * @return string[]
      */
-    public function listTableFields($table);
+    public function listTableIndexes(string $table): array;
 
+    public function alterTable(string $name, array $changes, bool $check): bool;
+
+    public function createIndex(string $table, string $name, array $definition): bool;
+
+    public function dropIndex(string $table, string $name): bool;
+
+    public function dropSequence(string $seq_name): bool;
+
+    public function dropConstraint(string $table, string $name, bool $primary = false): bool;
 
     /**
-     * @param $table
-     * @return mixed
+     * @param $name string
      */
-    public function listTableConstraints($table);
-
-
-    /**
-     * @param $seq_name
-     * @param int $start
-     * @param array $options
-     * @return mixed
-     */
-    public function createSequence($seq_name, $start = 1, $options = array());
-
-
-    /**
-     * @param $table
-     * @return mixed
-     */
-    public function listTableIndexes($table);
-
-
-    /**
-     * @param $name
-     * @param $changes
-     * @param $check
-     * @return mixed
-     */
-    public function alterTable($name, $changes, $check);
-
-
-    /**
-     * @param $table
-     * @param $name
-     * @param $definition
-     * @return mixed
-     */
-    public function createIndex($table, $name, $definition);
-
-
-    /**
-     * @param $table
-     * @param $name
-     * @return mixed
-     */
-    public function dropIndex($table, $name);
-
-
-    /**
-     * @param $seq_name
-     * @return bool
-     */
-    public function dropSequence($seq_name);
-
-
-    /**
-     * @param $table
-     * @param $name
-     * @param bool $primary
-     * @return mixed
-     */
-    public function dropConstraint($table, $name, $primary = false);
-
-
-    /**
-     * @param $name Table-name
-     * @return mixed
-     */
-    public function dropTable($name);
-
-    //
-    // NOT YET IMPLEMENTED
-    //
-
-    //	/**
-    //	 * @param $name
-    //	 * @return mixed
-    //	 */
-    //	public function createDatabase($name);
-    //
-    //
-    //	/**
-    //	 * @param $name
-    //	 * @return mixed
-    //	 */
-    //	public function dropDatabase($name);
-    //
-    //
-    //	/**
-    //	 * @param $name
-    //	 * @param $fields
-    //	 * @param array $options
-    //	 * @return mixed
-    //	 */
-    //	public function createTable($name, $fields, $options = array());
-    //
-    //	/**
-    //	 * @return mixed
-    //	 */
-    //	public function listDatabases();
-    //
-    //
-    //	/**
-    //	 * @return mixed
-    //	 */
-    //	public function listUsers();
-    //
-    //
-    //	/**
-    //	 * @return mixed
-    //	 */
-    //	public function listFunctions();
-    //
-    //
-    //	/**
-    //	 * @param null $table
-    //	 * @return mixed
-    //	 */
-    //	public function listTableTriggers($table = null);
-    //
-    //
-    //	/**
-    //	 * @param null $database
-    //	 * @return mixed
-    //	 */
-    //	public function listViews($database = null);
-    //
-    //
-
-    //
+    public function dropTable(string $name): bool;
 }

@@ -1,8 +1,9 @@
 <form name="cmd" method="post" action="{FORMACTION}" class="form-inline">
-<!-- fau: preventFullUserExport - don't offer export -->
+<p><select name="export_type" class="form-control">
 <!-- BEGIN option -->
+	<option value="{OPTION_VALUE}">{OPTION_TEXT}</option>
 <!-- END option -->
-<!-- fau. -->
+</select> <input class="btn btn-default" type="submit" name="cmd[export]" value="{EXPORT_BUTTON}" /></p>
 {EXPORT_FILES}
 </form>
 

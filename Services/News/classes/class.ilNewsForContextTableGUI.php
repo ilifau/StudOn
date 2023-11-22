@@ -1,31 +1,36 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("Services/Table/classes/class.ilTable2GUI.php");
 
 /**
-* TableGUI class for table NewsForContext
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-*
-* @ingroup ServicesNews
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * TableGUI class for table NewsForContext
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
 class ilNewsForContextTableGUI extends ilTable2GUI
 {
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
+    protected int $perm_ref_id = 0;
+    protected ilAccessHandler $access;
 
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
-
-
-    public function __construct($a_parent_obj, $a_parent_cmd = "", $a_perm_ref_id = 0)
-    {
+    public function __construct(
+        ilNewsItemGUI $a_parent_obj,
+        string $a_parent_cmd = "",
+        int $a_perm_ref_id = 0
+    ) {
         global $DIC;
 
         $this->ctrl = $DIC->ctrl();
@@ -33,7 +38,7 @@ class ilNewsForContextTableGUI extends ilTable2GUI
         $this->access = $DIC->access();
         $ilCtrl = $DIC->ctrl();
         $lng = $DIC->language();
-        
+
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->perm_ref_id = $a_perm_ref_id;
@@ -52,17 +57,17 @@ class ilNewsForContextTableGUI extends ilTable2GUI
             "Services/News"
         );
     }
-    
+
     /**
     * Standard Version of Fill Row. Most likely to
     * be overwritten by derived class.
     */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
         $ilAccess = $this->access;
-        
+
         $news_set = new ilSetting("news");
         $enable_internal_rss = $news_set->get("enable_rss_for_internal");
 
@@ -74,13 +79,13 @@ class ilNewsForContextTableGUI extends ilTable2GUI
             $this->tpl->setVariable("TXT_AUTHOR", $lng->txt("author"));
             $this->tpl->parseCurrentBlock();
         }
-        
+
         // access
         if ($enable_internal_rss) {
             $this->tpl->setCurrentBlock("access");
             $this->tpl->setVariable("TXT_ACCESS", $lng->txt("news_news_item_visibility"));
-            if ($a_set["visibility"] == NEWS_PUBLIC ||
-                ($a_set["priority"] == 0 &&
+            if ($a_set["visibility"] === NEWS_PUBLIC ||
+                ((int) $a_set["priority"] === 0 &&
                 ilBlockSetting::_lookup(
                     "news",
                     "public_notifications",
@@ -95,7 +100,7 @@ class ilNewsForContextTableGUI extends ilTable2GUI
         }
 
         // last update
-        if ($a_set["creation_date"] != $a_set["update_date"]) {
+        if ($a_set["creation_date"] !== $a_set["update_date"]) {
             $this->tpl->setCurrentBlock("ni_update");
             $this->tpl->setVariable("TXT_LAST_UPDATE", $lng->txt("last_update"));
             $this->tpl->setVariable(
@@ -104,7 +109,7 @@ class ilNewsForContextTableGUI extends ilTable2GUI
             );
             $this->tpl->parseCurrentBlock();
         }
-        
+
         // creation date
         $this->tpl->setVariable(
             "VAL_CREATION_DATE",
@@ -114,14 +119,13 @@ class ilNewsForContextTableGUI extends ilTable2GUI
 
         // title
         $this->tpl->setVariable("VAL_TITLE", $a_set["title"]);
-        
+
         // content
         if ($a_set["content"] != "") {
             $this->tpl->setCurrentBlock("content");
             $this->tpl->setVariable(
                 "VAL_CONTENT",
-                ilUtil::shortenText($a_set["content"], 80, true, true),
-                true
+                ilStr::shortenTextExtended($a_set["content"], 80, true, true)
             );
             $this->tpl->parseCurrentBlock();
         }

@@ -1,19 +1,31 @@
 <?php
-/* Copyright (c) 1998-2016 ILIAS open source, Extended GPL, see docs/LICENSE */
-include_once("./Services/Export/classes/class.ilXmlImporter.php");
-require_once("Modules/IndividualAssessment/classes/class.ilIndividualAssessmentDataSet.php");
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Manual Assessment importer class
- *
- * @author Daniel Weise <daniel.weise@concepts-and-training.de>
  */
 class ilIndividualAssessmentImporter extends ilXmlImporter
 {
-    /**
-     * Init
-     */
-    public function init()
+    protected ilIndividualAssessmentDataSet $ds;
+
+    public function init(): void
     {
         $this->ds = new ilIndividualAssessmentDataSet();
         $this->ds->setImportDirectory($this->getImportDirectory());
@@ -21,14 +33,13 @@ class ilIndividualAssessmentImporter extends ilXmlImporter
 
     /**
      * Import xml representation
-     *
-     * @param	string		entity
-     * @param	string		target release
-     * @param	string		id
-     * @return	string		xml string
      */
-    public function importXmlRepresentation($entity, $id, $xml, $mapping)
-    {
-        $parser = new ilDataSetImportParser($entity, $this->getSchemaVersion(), $xml, $this->ds, $mapping);
+    public function importXmlRepresentation(
+        string $a_entity,
+        string $a_id,
+        string $a_xml,
+        ilImportMapping $a_mapping
+    ): void {
+        new ilDataSetImportParser($a_entity, $this->getSchemaVersion(), $a_xml, $this->ds, $a_mapping);
     }
 }

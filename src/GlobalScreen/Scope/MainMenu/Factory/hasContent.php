@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +17,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Factory;
 
 use Closure;
@@ -33,17 +33,17 @@ interface hasContent
      *                                 This wins over a withContent
      * @return hasContent
      */
-    public function withContentWrapper(Closure $content_wrapper) : hasContent;
+    public function withContentWrapper(Closure $content_wrapper): hasContent;
 
     /**
      * @param Component $ui_component
      * @return hasContent
      * @deprecated Use withContentWrapper instead
      */
-    public function withContent(Component $ui_component) : hasContent;
+    public function withContent(Component $ui_component): hasContent;
 
     /**
      * @return Component
      */
-    public function getContent() : Component;
+    public function getContent(): Component;
 }

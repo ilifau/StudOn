@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -13,7 +15,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 namespace ILIAS\Setup\CLI;
 
@@ -31,7 +34,7 @@ trait ObjectiveHelper
         Objective $objective,
         Environment $environment,
         IOWrapper $io = null
-    ) : Environment {
+    ): Environment {
         $iterator = new ObjectiveIterator($environment, $objective);
         $current = null;
 
@@ -49,12 +52,12 @@ trait ObjectiveHelper
                 $iterator->next();
                 continue;
             }
-            if ($io) {
+            if ($io !== null) {
                 $io->startObjective($current->getLabel(), $current->isNotable());
             }
             try {
                 $environment = $current->achieve($environment);
-                if ($io) {
+                if ($io !== null) {
                     $io->finishedLastObjective();
                 }
                 $iterator->setEnvironment($environment);
@@ -62,7 +65,7 @@ trait ObjectiveHelper
                 throw $e;
             } catch (\Throwable $e) {
                 $iterator->markAsFailed($current);
-                if ($io) {
+                if ($io !== null) {
                     $message = $e->getMessage();
                     $io->failedLastObjective();
                     if ($io->isVerbose()) {

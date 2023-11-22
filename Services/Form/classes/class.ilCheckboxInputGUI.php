@@ -1,59 +1,39 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2007 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
-include_once 'Services/UIComponent/Toolbar/interfaces/interface.ilToolbarItem.php';
+declare(strict_types=1);
 
 /**
-* This class represents a checkbox property in a property form.
-*
-* @author Alex Killing <alex.killing@gmx.de>
-* @version $Id$
-* @ingroup	ServicesForm
-*/
-class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolbarItem
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * This class represents a checkbox property in a property form.
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
+class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolbarItem, ilTableFilterItem
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected string $value = "1";
+    protected bool $checked = false;
+    protected string $optiontitle = "";
+    protected string $additional_attributes = '';
 
-    protected $value = "1";
-    protected $checked;
-    protected $optiontitle = "";
-    protected $additional_attributes = '';
-
-    // fau: courseUdf - variable for required checking
-    protected $check_required = false;
-    // fau.
-    
-    /**
-    * Constructor
-    *
-    * @param	string	$a_title	Title
-    * @param	string	$a_postvar	Post Variable
-    */
-    public function __construct($a_title = "", $a_postvar = "")
-    {
+    public function __construct(
+        string $a_title = "",
+        string $a_postvar = ""
+    ) {
         global $DIC;
 
         $this->lng = $DIC->language();
@@ -61,150 +41,85 @@ class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolba
         $this->setType("checkbox");
     }
 
-    /**
-    * Set Value.
-    *
-    * @param	string	$a_value	Value
-    */
-    public function setValue($a_value)
+    public function setValue(string $a_value): void
     {
         $this->value = $a_value;
     }
 
-    /**
-    * Get Value.
-    *
-    * @return	string	Value
-    */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
 
-    /**
-    * Set Checked.
-    *
-    * @param	boolean	$a_checked	Checked
-    */
-    public function setChecked($a_checked)
+    public function setChecked(bool $a_checked): void
     {
         $this->checked = $a_checked;
     }
 
-    /**
-    * Get Checked.
-    *
-    * @return	boolean	Checked
-    */
-    public function getChecked()
+    public function getChecked(): bool
     {
         return $this->checked;
     }
 
-    /**
-    * Set Option Title (optional).
-    *
-    * @param	string	$a_optiontitle	Option Title (optional)
-    */
-    public function setOptionTitle($a_optiontitle)
+    public function setOptionTitle(string $a_optiontitle): void
     {
         $this->optiontitle = $a_optiontitle;
     }
 
-    /**
-    * Get Option Title (optional).
-    *
-    * @return	string	Option Title (optional)
-    */
-    public function getOptionTitle()
+    public function getOptionTitle(): string
     {
         return $this->optiontitle;
     }
 
-    /**
-    * Set value by array
-    *
-    * @param	object	$a_item		Item
-    */
-    public function setValueByArray($a_values)
+    public function setValueByArray(array $a_values): void
     {
-        $this->setChecked($a_values[$this->getPostVar()]);
+        $checked = $a_values[$this->getPostVar()] ?? false;
+        $this->setChecked((bool) $checked);
         foreach ($this->getSubItems() as $item) {
             $item->setValueByArray($a_values);
         }
     }
-    
-    /**
-    * Set addiotional attributes
-    *
-    * @param	string	$a_attrs	addition attribute string
-    */
-    public function setAdditionalAttributes($a_attrs)
+
+    public function setAdditionalAttributes(string $a_attrs): void
     {
         $this->additional_attributes = $a_attrs;
     }
-    
-    /**
-    * get addtional attributes
-    *
-    */
-    public function getAdditionalAttributes()
+
+    public function getAdditionalAttributes(): string
     {
         return $this->additional_attributes;
     }
 
-    // fau: courseUdf - set if checking is required
-    public function setCheckRequired($a_check_required = true)
-    {
-        $this->check_required = (bool) $a_check_required;
-    }
-    // fau.
-
     /**
     * Check input, strip slashes etc. set alert, if input is not ok.
-    *
-    * @return	boolean		Input ok, true/false
+    * @return    bool        Input ok, true/false
     */
-    public function checkInput()
+    public function checkInput(): bool
     {
-        $lng = $this->lng;
-        
-        $_POST[$this->getPostVar()] =
-            ilUtil::stripSlashes($_POST[$this->getPostVar()]);
-        
-        // fau: courseUdf - check required if needed
-        if ($this->check_required && empty($_POST[$this->getPostVar()])) {
-            $this->setAlert($lng->txt("msg_input_is_required"));
-            return false;
-        }
-        // fau.
-
         $ok = $this->checkSubItemsInput();
 
         // only not ok, if checkbox not checked
-        if (!$ok && $_POST[$this->getPostVar()] == "") {
+        if ($this->getInput() == "") {
             $ok = true;
         }
 
         return $ok;
     }
-    
-    /**
-    * Sub form hidden on init?
-    *
-    */
-    public function hideSubForm()
+
+    public function getInput(): string
+    {
+        return $this->str($this->getPostVar());
+    }
+
+    public function hideSubForm(): bool
     {
         return !$this->getChecked();
     }
 
-    /**
-    * Render item
-    */
-    public function render($a_mode = '')
+    public function render($a_mode = ''): string
     {
         $tpl = new ilTemplate("tpl.prop_checkbox.html", true, true, "Services/Form");
-        
+
         $tpl->setVariable("POST_VAR", $this->getPostVar());
         $tpl->setVariable("ID", $this->getFieldId());
         $tpl->setVariable("PROPERTY_VALUE", $this->getValue());
@@ -224,7 +139,7 @@ class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolba
                 'disabled="disabled"'
             );
         }
-        
+
         if ($a_mode == "toolbar") {
             // block-inline hack, see: http://blog.mozilla.com/webdev/2009/02/20/cross-browser-inline-block/
             // -moz-inline-stack for FF2
@@ -232,17 +147,12 @@ class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolba
             $tpl->setVariable("STYLE_PAR", 'display: -moz-inline-stack; display:inline-block; zoom: 1; *display:inline;');
         }
 
-        $tpl->setVariable("ARIA_LABEL", ilUtil::prepareFormOutput($this->getTitle()));
+        $tpl->setVariable("ARIA_LABEL", ilLegacyFormElementsUtil::prepareFormOutput($this->getTitle()));
 
         return $tpl->get();
     }
 
-    /**
-    * Insert property html
-    *
-    * @return	int	Size
-    */
-    public function insert($a_tpl)
+    public function insert(ilTemplate $a_tpl): void
     {
         $html = $this->render();
 
@@ -251,40 +161,28 @@ class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolba
         $a_tpl->parseCurrentBlock();
     }
 
-    /**
-    * Get HTML for table filter
-    */
-    public function getTableFilterHTML()
+    public function getTableFilterHTML(): string
     {
         $html = $this->render();
         return $html;
     }
 
-    /**
-    * serialize data
-    */
-    public function serializeData()
+    public function serializeData(): string
     {
         return serialize($this->getChecked());
     }
-    
-    /**
-    * unserialize data
-    */
-    public function unserializeData($a_data)
+
+    public function unserializeData(string $a_data): void
     {
         $data = unserialize($a_data);
 
         if ($data) {
-            $this->setValue($data);
+            $this->setValue((string) $data);
             $this->setChecked(true);
         }
     }
-    
-    /**
-     * Get HTML for toolbar
-     */
-    public function getToolbarHTML()
+
+    public function getToolbarHTML(): string
     {
         $html = $this->render('toolbar');
         return $html;

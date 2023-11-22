@@ -26,12 +26,10 @@ use ilObject;
 
 class Readable
 {
-    /** @var Container */
-    private $container;
+    private Container $container;
     /** @var Closure(int): int[] */
-    private $references_of;
-    /** @var Incident */
-    private $incident;
+    private Closure $references_of;
+    private Incident $incident;
 
     public function __construct(
         Container $container,
@@ -48,13 +46,13 @@ class Readable
      */
     public function references(array $references): bool
     {
-        return $this->incident->any(function (int $ref_id): bool {
-            return $this->container->access()->checkAccess('read', '', $ref_id);
-        }, $references);
+        return $this->incident->any(fn (int $ref_id): bool => (
+            $this->container->access()->checkAccess('read', '', $ref_id)
+        ), $references);
     }
 
     public function objectId(int $obj_id): bool
     {
-        return $this->references(array_map('intval', ($this->references_of)($obj_id)));
+        return $this->references(($this->references_of)($obj_id));
     }
 }

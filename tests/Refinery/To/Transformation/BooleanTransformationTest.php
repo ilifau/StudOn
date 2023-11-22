@@ -1,128 +1,136 @@
 <?php
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
 
 /**
- * @author  Niels Theen <ntheen@databay.de>
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\Tests\Refinery\To\Transformation;
 
-require_once('./libs/composer/vendor/autoload.php');
-
 use ILIAS\Data\Result;
 use ILIAS\Refinery\To\Transformation\BooleanTransformation;
-use ILIAS\Refinery\ConstraintViolationException;
 use ILIAS\Tests\Refinery\TestCase;
+use UnexpectedValueException;
 
 class BooleanTransformationTest extends TestCase
 {
-    /**
-     * @var BooleanTransformation
-     */
-    private $transformation;
+    private BooleanTransformation $transformation;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->transformation = new BooleanTransformation();
     }
 
-    public function testIntegerToBooleanTransformation()
+    public function testIntegerToBooleanTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(200);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
         $this->fail();
     }
 
-    public function testNegativeIntegerToBooleanTransformation()
+    public function testNegativeIntegerToBooleanTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(-200);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
         $this->fail();
     }
 
-    public function testZeroIntegerToBooleanTransformation()
+    public function testZeroIntegerToBooleanTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(0);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
         $this->fail();
     }
 
-    public function testStringToBooleanTransformation()
+    public function testStringToBooleanTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform('hello');
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
         $this->fail();
     }
 
-    public function testFloatToBooleanTransformation()
+    public function testFloatToBooleanTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(10.5);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
         $this->fail();
     }
 
-    public function testNegativeFloatToBooleanTransformation()
+    public function testNegativeFloatToBooleanTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(-10.5);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
         $this->fail();
     }
 
-    public function testZeroFloatToBooleanTransformation()
+    public function testZeroFloatToBooleanTransformation(): void
     {
         $this->expectNotToPerformAssertions();
 
         try {
             $transformedValue = $this->transformation->transform(0.0);
-        } catch (ConstraintViolationException $exception) {
+        } catch (UnexpectedValueException $exception) {
             return;
         }
         $this->fail();
     }
 
-    public function testPositiveBooleanToBooleanTransformation()
+    public function testPositiveBooleanToBooleanTransformation(): void
     {
         $transformedValue = $this->transformation->transform(true);
         $this->assertTrue($transformedValue);
     }
 
-    public function testNegativeBooleanToBooleanTransformation()
+    public function testNegativeBooleanToBooleanTransformation(): void
     {
         $transformedValue = $this->transformation->transform(false);
         $this->assertFalse($transformedValue);
     }
 
-    public function testStringToBooleanApply()
+    public function testStringToBooleanApply(): void
     {
         $resultObject = new Result\Ok('hello');
 
@@ -131,7 +139,7 @@ class BooleanTransformationTest extends TestCase
         $this->assertTrue($transformedObject->isError());
     }
 
-    public function testPositiveIntegerToBooleanApply()
+    public function testPositiveIntegerToBooleanApply(): void
     {
         $resultObject = new Result\Ok(200);
 
@@ -140,7 +148,7 @@ class BooleanTransformationTest extends TestCase
         $this->assertTrue($transformedObject->isError());
     }
 
-    public function testNegativeIntegerToBooleanApply()
+    public function testNegativeIntegerToBooleanApply(): void
     {
         $resultObject = new Result\Ok(-200);
 
@@ -149,7 +157,7 @@ class BooleanTransformationTest extends TestCase
         $this->assertTrue($transformedObject->isError());
     }
 
-    public function testZeroIntegerToBooleanApply()
+    public function testZeroIntegerToBooleanApply(): void
     {
         $resultObject = new Result\Ok(0);
 
@@ -158,7 +166,7 @@ class BooleanTransformationTest extends TestCase
         $this->assertTrue($transformedObject->isError());
     }
 
-    public function testFloatToBooleanApply()
+    public function testFloatToBooleanApply(): void
     {
         $resultObject = new Result\Ok(10.5);
 
@@ -167,7 +175,7 @@ class BooleanTransformationTest extends TestCase
         $this->assertTrue($transformedObject->isError());
     }
 
-    public function testBooleanToBooleanApply()
+    public function testBooleanToBooleanApply(): void
     {
         $resultObject = new Result\Ok(true);
 

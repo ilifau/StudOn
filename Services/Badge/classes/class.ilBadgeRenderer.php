@@ -1,34 +1,36 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
- * Class ilBadgeRenderer
- *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
  */
 class ilBadgeRenderer
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected ilLanguage $lng;
+    protected \ILIAS\UI\Factory $factory;
+    protected \ILIAS\UI\Renderer $renderer;
+    protected ?ilBadgeAssignment $assignment = null;
+    protected ?ilBadge $badge = null;
 
-    /**
-     * @var \ILIAS\UI\Factory
-     */
-    protected $factory;
-
-    /**
-     * @var \ILIAS\UI\Renderer
-     */
-    protected $renderer;
-
-    protected $assignment; // [ilBadgeAssignment]
-    protected $badge; // [ilBadge]
-    
-    public function __construct(ilBadgeAssignment $a_assignment = null, ilBadge $a_badge = null)
-    {
+    public function __construct(
+        ilBadgeAssignment $a_assignment = null,
+        ilBadge $a_badge = null
+    ) {
         global $DIC;
 
         $this->lng = $DIC->language();
@@ -41,8 +43,8 @@ class ilBadgeRenderer
             $this->badge = $a_badge;
         }
     }
-    
-    public function getHTML()
+
+    public function getHTML(): string
     {
         $components = array();
 
@@ -59,15 +61,15 @@ class ilBadgeRenderer
 
         return $this->renderer->render($components);
     }
-    
-    public function renderModalContent()
+
+    public function renderModalContent(): string
     {
         $lng = $this->lng;
         $lng->loadLanguageModule("badge");
 
         $modal_content = array();
 
-        $image = $this->factory->image()->responsive($this->badge->getImagePath(), $this->badge->getImage());
+        $image = $this->factory->image()->responsive(ilWACSignedPath::signFile($this->badge->getImagePath()), $this->badge->getImage());
         $modal_content[] = $image;
 
         $badge_information = [
@@ -83,9 +85,9 @@ class ilBadgeRenderer
 
         if ($this->badge->getParentId()) {
             $parent = $this->badge->getParentMeta();
-            if ($parent["type"] != "bdga") {
+            if ($parent["type"] !== "bdga") {
                 $parent_icon = $this->factory->symbol()->icon()->custom(
-                    ilObject::_getIcon($parent["id"], "big", $parent["type"]),
+                    ilObject::_getIcon((int) $parent["id"], "big", $parent["type"]),
                     $lng->txt("obj_" . $parent["type"])
                 )->withSize("medium");
 
@@ -95,10 +97,10 @@ class ilBadgeRenderer
                     $label = $this->factory->link()->standard($label, ilLink::_getLink($ref, $parent['type']));
                     $label = $this->renderer->render($label);
                 }
-                $badge_information[$lng->txt("object")] = $this->renderer->render($parent_icon) . $label;
+                $badge_information[$lng->txt('object')] = $this->renderer->render($parent_icon) . $label;
             }
         }
-        
+
         if ($this->badge->getValid()) {
             $badge_information[$lng->txt("badge_valid")] = $this->badge->getValid();
         }

@@ -1,47 +1,53 @@
 <?php
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once("./Services/UIComponent/Explorer2/classes/class.ilTreeExplorerGUI.php");
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Taxonomy explorer GUI class
- *
  * @author Alex Killing <alex.killing@gmx.de>
- * @version $Id$
- * @ingroup ServicesTaxonomy
  */
 class ilTaxonomyExplorerGUI extends ilTreeExplorerGUI
 {
+    protected string $requested_tax_node;
+    protected string $onclick = "";
+    protected ilTaxonomyTree $tax_tree;
+    protected string $id;
     /**
-     * @var ilCtrl
+     * @var mixed|string
      */
-    protected $ctrl;
+    protected string $target_gui;
+    protected string $target_cmd;
 
     /**
      * Constructor
-     *
-     * @param
-     * @return
+     * @param object|string|array $a_parent_obj
      */
     public function __construct(
         $a_parent_obj,
-        $a_parent_cmd,
-        $a_tax_id,
-        $a_target_gui,
-        $a_target_cmd,
-        $a_id = ""
+        string $a_parent_cmd,
+        int $a_tax_id,
+        string $a_target_gui,
+        string $a_target_cmd,
+        string $a_id = ""
     ) {
         global $DIC;
         $this->ctrl = $DIC->ctrl();
-        include_once("./Services/Taxonomy/classes/class.ilTaxonomyTree.php");
-        $this->tax_tree = new ilTaxonomyTree($a_tax_id);
-        if ($a_id != "") {
-            $this->id = $a_id;
-        } else {
-            $this->id = "tax_expl_" . $this->tax_tree->getTreeId();
-        }
-        include_once("./Services/Taxonomy/classes/class.ilObjTaxonomy.php");
+        $this->tax_tree = new ilTaxonomyTree((int) $a_tax_id);
+        $this->id = $a_id != "" ? $a_id : "tax_expl_" . $this->tax_tree->getTreeId();
         if (ilObjTaxonomy::lookupSortingMode($a_tax_id) == ilObjTaxonomy::SORT_ALPHABETICAL) {
             $this->setOrderField("title");
         } else {
@@ -50,44 +56,31 @@ class ilTaxonomyExplorerGUI extends ilTreeExplorerGUI
         $this->setPreloadChilds(true);
         $this->target_gui = $a_target_gui;
         $this->target_cmd = $a_target_cmd;
-        //$this->setOrderField("title");
+        $params = $DIC->http()->request()->getQueryParams();
+        $tax_node = (string) ($params["tax_node"] ?? "");
+        $this->requested_tax_node = (string) ilUtil::stripSlashes($tax_node);
         parent::__construct($this->id, $a_parent_obj, $a_parent_cmd, $this->tax_tree);
     }
 
-
     /**
-     * Get content of node
-     *
-     * @param
-     * @return
+     * @inheritDoc
      */
-    public function getNodeContent($a_node)
+    public function getNodeContent($a_node): string
     {
         $rn = $this->getRootNode();
         if ($rn["child"] == $a_node["child"]) {
             return ilObject::_lookupTitle($this->tax_tree->getTreeId());
         } else {
-            // fau: taxDesc - add tooltip for taxonomy description
-            if ($a_node['description']) {
-                require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
-                ilTooltipGUI::addTooltip('ilTaxExplorerNode' . $a_node["child"], $a_node['description']);
-
-                return '<span id="ilTaxExplorerNode' . $a_node["child"] . '">' . $a_node["title"]
-                    . ' <small><span class="glyphicon glyphicon-info-sign"></span></small></span>';
-            } else {
-                return $a_node["title"];
-            }
-            // fau.
+            return $a_node["title"];
         }
     }
-    
+
     /**
-     * Get node href
-     *
-     * @param
-     * @return
+     * @param array|object $a_node
+     * @return string
+     * @throws ilCtrlException
      */
-    public function getNodeHref($a_node)
+    public function getNodeHref($a_node): string
     {
         $ilCtrl = $this->ctrl;
 
@@ -100,49 +93,46 @@ class ilTaxonomyExplorerGUI extends ilTreeExplorerGUI
                 // See: https://mantis.ilias.de/view.php?id=27727
                 $href = $ilCtrl->getLinkTargetByClass($this->target_gui, $this->target_cmd);
             }
-            if (isset($_GET["tax_node"]) && !is_array($_GET['tax_node'])) {
-                $ilCtrl->setParameterByClass($this->target_gui, "tax_node", ilUtil::stripSlashes((string) $_GET["tax_node"]));
+            if ($this->requested_tax_node != "" && !is_array($this->requested_tax_node)) {
+                $ilCtrl->setParameterByClass($this->target_gui, "tax_node", $this->requested_tax_node);
             }
             return $href;
         } else {
             return "#";
         }
     }
-    
+
     /**
-     * Get node icon
-     *
-     * @param
-     * @return
+     * @param array|object $a_node
+     * @return string
      */
-    public function getNodeIcon($a_node)
+    public function getNodeIcon($a_node): string
     {
         return ilUtil::getImagePath("icon_taxn.svg");
     }
-    
+
     /**
-     *
-     *
-     * @param
-     * @return
+     * @param array|object $a_node
+     * @return bool
      */
-    public function isNodeHighlighted($a_node)
+    public function isNodeHighlighted($a_node): bool
     {
-        if ((!$this->onclick && $a_node["child"] == $_GET["tax_node"]) ||
-            ($this->onclick && is_array($this->selected_nodes) && in_array($a_node["child"], $this->selected_nodes))) {
-            return true;
-        }
-        return false;
+        return (!$this->onclick && $a_node["child"] == $this->requested_tax_node) ||
+            ($this->onclick && is_array($this->selected_nodes) && in_array($a_node["child"], $this->selected_nodes));
     }
-    
-    public function setOnClick($a_value)
+
+    public function setOnClick(string $a_value): void
     {
         $this->onclick = $a_value;
     }
-    
-    public function getNodeOnClick($a_node)
+
+    /**
+     * @param array|object $a_node
+     * @return string
+     */
+    public function getNodeOnClick($a_node): string
     {
-        if ($this->onclick) {
+        if ($this->onclick !== '') {
             return str_replace("{NODE_CHILD}", $a_node["child"], $this->onclick);
         } else {
             // #14623

@@ -1,4 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 namespace ILIAS\UI\Implementation\Component\Modal;
 
 use ILIAS\UI\Component\Modal\LightboxDescriptionEnabledPage;
@@ -6,17 +25,17 @@ use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Implementation\Render\ResourceRegistry;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
+use ILIAS\UI\Implementation\Component\Input\Container\Form\FormWithoutSubmitButton;
 
 /**
  * @author Stefan Wanzenried <sw@studer-raimann.ch>
  */
 class Renderer extends AbstractComponentRenderer
 {
-
     /**
      * @inheritdoc
      */
-    public function render(Component\Component $component, RendererInterface $default_renderer)
+    public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
         $this->checkComponent($component);
 
@@ -40,18 +59,13 @@ class Renderer extends AbstractComponentRenderer
     /**
      * @inheritdoc
      */
-    public function registerResources(ResourceRegistry $registry)
+    public function registerResources(ResourceRegistry $registry): void
     {
         parent::registerResources($registry);
         $registry->register('./src/UI/templates/js/Modal/modal.js');
     }
 
-
-    /**
-     * @param Component\Modal\Modal $modal
-     * @param string $id
-     */
-    protected function registerSignals(Component\Modal\Modal $modal)
+    protected function registerSignals(Component\Modal\Modal $modal): Component\JavaScriptBindable
     {
         $show = $modal->getShowSignal();
         $close = $modal->getCloseSignal();
@@ -81,43 +95,36 @@ class Renderer extends AbstractComponentRenderer
         //   created
         // * since withAdditionalOnLoadCode refers to some yet unknown future, it disencourages
         //   tempering with the id _here_.
-        return $modal->withAdditionalOnLoadCode(function ($id) use ($show, $close, $options, $replace) {
-            $options["url"] = "#{$id}";
+        return $modal->withAdditionalOnLoadCode(function ($id) use ($show, $close, $options, $replace): string {
+            $options["url"] = "#$id";
             $options = json_encode($options);
             $code =
-                "$(document).on('{$show}', function(event, signalData) { il.UI.modal.showModal('{$id}', {$options}, signalData); return false; });" .
-                "$(document).on('{$close}', function() { il.UI.modal.closeModal('{$id}'); return false; });";
+                "$(document).on('$show', function(event, signalData) { il.UI.modal.showModal('$id', $options, signalData);});" .
+                "$(document).on('$close', function() { il.UI.modal.closeModal('$id');});";
             if ($replace != "") {
-                $code .= "$(document).on('{$replace}', function(event, signalData) { il.UI.modal.replaceFromSignal('{$id}', signalData);});";
+                $code .= "$(document).on('$replace', function(event, signalData) { il.UI.modal.replaceFromSignal('$id', signalData);});";
             }
             return $code;
         });
     }
 
-    /**
-     * @param Component\Modal\Modal $modal
-     * @return string
-     */
-    protected function renderAsync(Component\Modal\Modal $modal)
+    protected function renderAsync(Component\Modal\Modal $modal): string
     {
         $modal = $this->registerSignals($modal);
         $id = $this->bindJavaScript($modal);
-        return "<span id='{$id}'></span>";
+        return "<span id='$id'></span>";
     }
 
-    /**
-     * @param Component\Modal\Interruptive $modal
-     * @param RendererInterface $default_renderer
-     *
-     * @return string
-     */
-    protected function renderInterruptive(Component\Modal\Interruptive $modal, RendererInterface $default_renderer)
-    {
+    protected function renderInterruptive(
+        Component\Modal\Interruptive $modal,
+        RendererInterface $default_renderer
+    ): string {
         $tpl = $this->getTemplate('tpl.interruptive.html', true, true);
         $modal = $this->registerSignals($modal);
         $id = $this->bindJavaScript($modal);
         $tpl->setVariable('ID', $id);
-        $tpl->setVariable('FORM_ACTION', $modal->getFormAction());
+        $value = $modal->getFormAction();
+        $tpl->setVariable('FORM_ACTION', $value);
         $tpl->setVariable('TITLE', $modal->getTitle());
         $tpl->setVariable('MESSAGE', $modal->getMessage());
         if (count($modal->getAffectedItems())) {
@@ -134,24 +141,23 @@ class Renderer extends AbstractComponentRenderer
             }
         }
         $tpl->setVariable('ACTION_BUTTON_LABEL', $this->txt($modal->getActionButtonLabel()));
+        $tpl->setVariable('ACTION_BUTTON', $modal->getActionButtonLabel());
         $tpl->setVariable('CANCEL_BUTTON_LABEL', $this->txt($modal->getCancelButtonLabel()));
+        $tpl->setVariable('CLOSE_LABEL', $this->txt($modal->getCancelButtonLabel()));
+
         return $tpl->get();
     }
 
-
-    /**
-     * @param Component\Modal\RoundTrip $modal
-     * @param RendererInterface $default_renderer
-     *
-     * @return string
-     */
-    protected function renderRoundTrip(Component\Modal\RoundTrip $modal, RendererInterface $default_renderer)
+    protected function renderRoundTrip(Component\Modal\RoundTrip $modal, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate('tpl.roundtrip.html', true, true);
+        /** @var $modal RoundTrip */
         $modal = $this->registerSignals($modal);
         $id = $this->bindJavaScript($modal);
         $tpl->setVariable('ID', $id);
         $tpl->setVariable('TITLE', $modal->getTitle());
+        $tpl->setVariable('CLOSE_LABEL', $this->txt('close'));
+
         foreach ($modal->getContent() as $content) {
             $tpl->setCurrentBlock('with_content');
             $tpl->setVariable('CONTENT', $default_renderer->render($content));
@@ -162,18 +168,29 @@ class Renderer extends AbstractComponentRenderer
             $tpl->setVariable('BUTTON', $default_renderer->render($button));
             $tpl->parseCurrentBlock();
         }
+
+        // only render form if it contains any inputs (for now).
+        if (!empty($modal->getInputs())) {
+            // render form in modal body.
+            $tpl->setCurrentBlock('with_form');
+            $tpl->setVariable('FORM', $default_renderer->render($modal->getForm()));
+            $tpl->parseCurrentBlock();
+
+            // render submit in modal footer.
+            $submit = $this->getUIFactory()->button()->standard(
+                $modal->getSubmitCaption(),
+                ''
+            )->withOnClick($modal->getForm()->getSubmitSignal());
+            $tpl->setCurrentBlock('with_submit');
+            $tpl->setVariable('SUBMIT_BUTTON', $default_renderer->render($submit));
+            $tpl->parseCurrentBlock();
+        }
+
         $tpl->setVariable('CANCEL_BUTTON_LABEL', $this->txt($modal->getCancelButtonLabel()));
         return $tpl->get();
     }
 
-
-    /**
-     * @param Component\Modal\Lightbox $modal
-     * @param RendererInterface $default_renderer
-     *
-     * @return string
-     */
-    protected function renderLightbox(Component\Modal\Lightbox $modal, RendererInterface $default_renderer)
+    protected function renderLightbox(Component\Modal\Lightbox $modal, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate('tpl.lightbox.html', true, true);
         $modal = $this->registerSignals($modal);
@@ -183,6 +200,8 @@ class Renderer extends AbstractComponentRenderer
         $pages = $modal->getPages();
         $tpl->setVariable('TITLE', $pages[0]->getTitle());
         $tpl->setVariable('ID_CAROUSEL', $id_carousel);
+        $tpl->setVariable('CLOSE_LABEL', $this->txt('close'));
+
         if (count($pages) > 1) {
             $tpl->setCurrentBlock('has_indicators');
             foreach ($pages as $index => $page) {
@@ -217,11 +236,10 @@ class Renderer extends AbstractComponentRenderer
         return $tpl->get();
     }
 
-
     /**
      * @inheritdoc
      */
-    protected function getComponentInterfaceName()
+    protected function getComponentInterfaceName(): array
     {
         return array(
             Component\Modal\Interruptive::class,

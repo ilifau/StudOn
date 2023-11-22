@@ -1,83 +1,88 @@
 <?php
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
 
 use ILIAS\MyStaff\ilMyStaffAccess;
 use ILIAS\MyStaff\ListCertificates\ilMStListCertificatesTableGUI;
+use ILIAS\HTTP\Wrapper\WrapperFactory;
 
 /**
  * Class ilMStListCertificatesGUI
- *
  * @author            Martin Studer <ms@studer-raimann.ch>
- *
  * @ilCtrl_IsCalledBy ilMStListCertificatesGUI: ilMyStaffGUI
  * @ilCtrl_Calls      ilMStListCertificatesGUI: ilFormPropertyDispatchGUI
  * @ilCtrl_Calls      ilMStListCertificatesGUI: ilUserCertificateApiGUI
  */
 class ilMStListCertificatesGUI
 {
-    const CMD_APPLY_FILTER = 'applyFilter';
-    const CMD_INDEX = 'index';
-    const CMD_GET_ACTIONS = "getActions";
-    const CMD_RESET_FILTER = 'resetFilter';
-    /**
-     * @var ilTable2GUI
-     */
-    protected $table;
-    /**
-     * @var ilMyStaffAccess
-     */
-    protected $access;
+    public const CMD_APPLY_FILTER = 'applyFilter';
+    public const CMD_INDEX = 'index';
+    public const CMD_GET_ACTIONS = "getActions";
+    public const CMD_RESET_FILTER = 'resetFilter';
+    protected ilTable2GUI $table;
+    protected ilMyStaffAccess $access;
+    private ilGlobalTemplateInterface $main_tpl;
+    private ilCtrlInterface $ctrl;
+    private ilLanguage $language;
+    private WrapperFactory $httpWrapper;
+    private ILIAS\Refinery\Factory $refinery;
+    private ilAccessHandler $accessHandler;
 
-
-    /**
-     *
-     */
     public function __construct()
     {
+        global $DIC;
+        $this->main_tpl = $DIC->ui()->mainTemplate();
+        $this->ctrl = $DIC->ctrl();
+        $this->language = $DIC->language();
+        $this->httpWrapper = $DIC->http()->wrapper();
+        $this->refinery = $DIC->refinery();
         $this->access = ilMyStaffAccess::getInstance();
+        $this->accessHandler = $DIC->access();
     }
 
-
-    /**
-     *
-     */
-    protected function checkAccessOrFail()
+    protected function checkAccessOrFail(): void
     {
-        global $DIC;
-
         if ($this->access->hasCurrentUserAccessToCertificates()) {
             return;
         } else {
-            ilUtil::sendFailure($DIC->language()->txt("permission_denied"), true);
-            $DIC->ctrl()->redirectByClass(ilDashboardGUI::class, "");
+            $this->main_tpl->setOnScreenMessage('failure', $this->language->txt("permission_denied"), true);
+            $this->ctrl->redirectByClass(ilDashboardGUI::class, "");
         }
     }
 
-
-    /**
-     *
-     */
-    public function executeCommand()
+    final public function executeCommand(): void
     {
-        global $DIC;
-
-        $cmd = $DIC->ctrl()->getCmd();
-        $next_class = $DIC->ctrl()->getNextClass();
+        $cmd = $this->ctrl->getCmd();
+        $next_class = $this->ctrl->getNextClass();
 
         switch ($next_class) {
             case strtolower(ilFormPropertyDispatchGUI::class):
                 $this->checkAccessOrFail();
 
-                $DIC->ctrl()->setReturn($this, self::CMD_INDEX);
+                $this->ctrl->setReturn($this, self::CMD_INDEX);
                 $this->table = new ilMStListCertificatesTableGUI($this, self::CMD_INDEX);
                 $this->table->executeCommand();
                 break;
             case strtolower(ilUserCertificateApiGUI::class):
                 $this->checkAccessOrFail();
-                $DIC->ctrl()->forwardCommand(new ilUserCertificateApiGUI());
+                $this->ctrl->forwardCommand(new ilUserCertificateApiGUI());
                 break;
             default:
                 switch ($cmd) {
-
                     case self::CMD_RESET_FILTER:
                     case self::CMD_APPLY_FILTER:
                     case self::CMD_INDEX:
@@ -92,36 +97,22 @@ class ilMStListCertificatesGUI
         }
     }
 
-
-    /**
-     *
-     */
-    public function index()
+    final public function index(): void
     {
         $this->listUsers();
     }
 
-
-    /**
-     *
-     */
-    public function listUsers()
+    final public function listUsers(): void
     {
-        global $DIC;
-
         $this->checkAccessOrFail();
 
         $this->table = new ilMStListCertificatesTableGUI($this, self::CMD_INDEX);
-        $DIC->ui()->mainTemplate()->setTitle($DIC->language()->txt('mst_list_certificates'));
-        $DIC->ui()->mainTemplate()->setTitleIcon(ilUtil::getImagePath('icon_cert.svg'));
-        $DIC->ui()->mainTemplate()->setContent($this->table->getHTML());
+        $this->main_tpl->setTitle($this->language->txt('mst_list_certificates'));
+        $this->main_tpl->setTitleIcon(ilUtil::getImagePath('icon_cert.svg'));
+        $this->main_tpl->setContent($this->table->getHTML());
     }
 
-
-    /**
-     *
-     */
-    public function applyFilter()
+    final public function applyFilter(): void
     {
         $this->table = new ilMStListCertificatesTableGUI($this, self::CMD_APPLY_FILTER);
         $this->table->writeFilterToSession();
@@ -129,11 +120,7 @@ class ilMStListCertificatesGUI
         $this->index();
     }
 
-
-    /**
-     *
-     */
-    public function resetFilter()
+    final public function resetFilter(): void
     {
         $this->table = new ilMStListCertificatesTableGUI($this, self::CMD_RESET_FILTER);
         $this->table->resetOffset();
@@ -141,25 +128,15 @@ class ilMStListCertificatesGUI
         $this->index();
     }
 
-
-    /**
-     * @return string
-     */
-    public function getId()
+    final public function getId(): string
     {
         $this->table = new ilMStListCertificatesTableGUI($this, self::CMD_INDEX);
 
         return $this->table->getId();
     }
 
-
-    /**
-     *
-     */
-    public function cancel()
+    final public function cancel(): void
     {
-        global $DIC;
-
-        $DIC->ctrl()->redirect($this);
+        $this->ctrl->redirect($this);
     }
 }

@@ -1,8 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
-require_once './Modules/TestQuestionPool/classes/class.assQuestionGUI.php';
-require_once './Modules/TestQuestionPool/interfaces/interface.ilGuiQuestionScoringAdjustable.php';
 require_once './Modules/Test/classes/inc.AssessmentConstants.php';
 
 /**
@@ -48,7 +60,7 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
     /**
      * {@inheritdoc}
      */
-    protected function writePostData($always = false)
+    protected function writePostData(bool $always = false): int
     {
         $hasErrors = (!$always) ? $this->editQuestion(true) : false;
         if (!$hasErrors) {
@@ -66,7 +78,7 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
     *
     * @access public
     */
-    public function editQuestion($checkonly = false)
+    public function editQuestion($checkonly = false): bool
     {
         $save = $this->isSaveCommand();
         $this->getQuestionTemplate();
@@ -88,9 +100,9 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         $this->populateTaxonomyFormSection($form);
 
         $this->addQuestionFormCommandButtons($form);
-        
+
         $errors = false;
-    
+
         if ($save) {
             $form->setValuesByPost();
             $errors = !$form->checkInput();
@@ -107,27 +119,16 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
     }
 
     /**
-     * Question type specific support of intermediate solution output
-     * The function getSolutionOutput respects getUseIntermediateSolution()
-     * @return bool
-     */
-    public function supportsIntermediateSolutionOutput()
-    {
-        return true;
-    }
-
-    /**
     * Get the question solution output
-    *
-    * @param integer $active_id The active user id
-    * @param integer $pass The test pass
-    * @param boolean $graphicalOutput Show visual feedback for right/wrong answers
-    * @param boolean $result_output Show the reached points for parts of the question
-    * @param boolean $show_question_only Show the question without the ILIAS content around
-    * @param boolean $show_feedback Show the question feedback
+    * @param integer $active_id             The active user id
+    * @param integer $pass                  The test pass
+    * @param boolean $graphicalOutput       Show visual feedback for right/wrong answers
+    * @param boolean $result_output         Show the reached points for parts of the question
+    * @param boolean $show_question_only    Show the question without the ILIAS content around
+    * @param boolean $show_feedback         Show the question feedback
     * @param boolean $show_correct_solution Show the correct solution instead of the user solution
-    * @param boolean $show_manual_scoring Show specific information for the manual scoring output
-    * @return The solution output of the question as HTML code
+    * @param boolean $show_manual_scoring   Show specific information for the manual scoring output
+    * @return string solution output of the question as HTML code
     */
     public function getSolutionOutput(
         $active_id,
@@ -139,14 +140,15 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         $show_correct_solution = false,
         $show_manual_scoring = false,
         $show_question_text = true
-    ) {
+    ): string {
         // get the solution of the user for the active pass or from the last pass if allowed
         $template = new ilTemplate("tpl.il_as_qpl_orderinghorizontal_output_solution.html", true, true, "Modules/TestQuestionPool");
 
         if (($active_id > 0) && (!$show_correct_solution)) {
             $elements = [];
-            $solutions = $this->object->getSolutionValues($active_id, $pass, !$this->getUseIntermediateSolution());
-            if (strlen($solutions[0]["value1"])) {
+            $solutions = $this->object->getSolutionValues($active_id, $pass);
+
+            if (count($solutions) && strlen($solutions[0]["value1"])) {
                 $elements = explode("{::}", $solutions[0]["value1"]);
             }
 
@@ -157,7 +159,7 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
             foreach ($elements as $id => $element) {
                 $template->setCurrentBlock("element");
                 $template->setVariable("ELEMENT_ID", "sol_e_" . $this->object->getId() . "_$id");
-                $template->setVariable("ELEMENT_VALUE", ilUtil::prepareFormOutput($element));
+                $template->setVariable("ELEMENT_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($element));
                 $template->parseCurrentBlock();
             }
         } else {
@@ -165,7 +167,7 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
             foreach ($elements as $id => $element) {
                 $template->setCurrentBlock("element");
                 $template->setVariable("ELEMENT_ID", "sol_e_" . $this->object->getId() . "_$id");
-                $template->setVariable("ELEMENT_VALUE", ilUtil::prepareFormOutput($element));
+                $template->setVariable("ELEMENT_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($element));
                 $template->parseCurrentBlock();
             }
         }
@@ -177,23 +179,15 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
                 $reached_points = $this->object->calculateReachedPoints($active_id, $pass);
             }
             if ($graphicalOutput) {
-                // output of ok/not ok icons for user entered solutions
+                $correctness_icon = $this->generateCorrectnessIconsForCorrectness(self::CORRECTNESS_NOT_OK);
                 if ($reached_points == $this->object->getMaximumPoints()) {
-                    $template->setCurrentBlock("icon_ok");
-                    $template->setVariable("ICON_OK", ilUtil::getImagePath("icon_ok.svg"));
-                    $template->setVariable("TEXT_OK", $this->lng->txt("answer_is_right"));
-                    $template->parseCurrentBlock();
-                } else {
-                    $template->setCurrentBlock("icon_ok");
-                    if ($reached_points > 0) {
-                        $template->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_mostly_ok.svg"));
-                        $template->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_not_correct_but_positive"));
-                    } else {
-                        $template->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_not_ok.svg"));
-                        $template->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_wrong"));
-                    }
-                    $template->parseCurrentBlock();
+                    $correctness_icon = $this->generateCorrectnessIconsForCorrectness(self::CORRECTNESS_OK);
+                } elseif ($reached_points > 0) {
+                    $correctness_icon = $this->generateCorrectnessIconsForCorrectness(self::CORRECTNESS_MOSTLY_OK);
                 }
+                $template->setCurrentBlock("icon_ok");
+                $template->setVariable("ICON_OK", $correctness_icon);
+                $template->parseCurrentBlock();
             }
         } else {
             $reached_points = $this->object->getPoints();
@@ -207,8 +201,8 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
             $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
         }
         //		$template->setVariable("SOLUTION_TEXT", ilUtil::prepareFormOutput($solutionvalue));
-        if ($this->object->textsize >= 10) {
-            $template->setVariable("STYLE", " style=\"font-size: " . $this->object->textsize . "%;\"");
+        if ($this->object->getTextSize() >= 10) {
+            $template->setVariable("STYLE", " style=\"font-size: " . $this->object->getTextSize() . "%;\"");
         }
 
         $questionoutput = $template->get();
@@ -219,19 +213,16 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         $feedback = '';
         if ($show_feedback) {
             if (!$this->isTestPresentationContext()) {
-                $fb = $this->getGenericFeedbackOutput($active_id, $pass);
+                $fb = $this->getGenericFeedbackOutput((int) $active_id, $pass);
                 $feedback .= strlen($fb) ? $fb : '';
             }
-            
-            $fb = $this->getSpecificFeedbackOutput(array());
-            $feedback .= strlen($fb) ? $fb : '';
         }
         if (strlen($feedback)) {
             $cssClass = (
                 $this->hasCorrectSolution($active_id, $pass) ?
                 ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
             );
-            
+
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
             $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
         }
@@ -242,8 +233,9 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         }
         return $solutionoutput;
     }
-    
-    public function getPreview($show_question_only = false, $showInlineFeedback = false)
+
+
+    public function getPreview($show_question_only = false, $showInlineFeedback = false): string
     {
         if (is_object($this->getPreviewSession()) && strlen((string) $this->getPreviewSession()->getParticipantsSolution())) {
             $elements = (string) $this->getPreviewSession()->getParticipantsSolution();
@@ -251,19 +243,30 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         } else {
             $elements = $this->object->getRandomOrderingElements();
         }
-        
+
         $template = new ilTemplate("tpl.il_as_qpl_orderinghorizontal_preview.html", true, true, "Modules/TestQuestionPool");
+        $js = <<<JS
+
+        $('#horizontal_{QUESTION_ID}').ilHorizontalOrderingQuestion({
+            result_value_selector  : '.ilOrderingValue',
+            result_separator       : '{::}'
+        });
+
+JS;
+        $js = str_replace('{QUESTION_ID}', $this->object->getId(), $js);
+        $this->tpl->addOnLoadCode($js);
+
         foreach ($elements as $id => $element) {
             $template->setCurrentBlock("element");
             $template->setVariable("ELEMENT_ID", "e_" . $this->object->getId() . "_$id");
-            $template->setVariable("ORDERING_VALUE", ilUtil::prepareFormOutput($element));
-            $template->setVariable("ELEMENT_VALUE", ilUtil::prepareFormOutput($element));
+            $template->setVariable("ORDERING_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($element));
+            $template->setVariable("ELEMENT_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($element));
             $template->parseCurrentBlock();
         }
         $template->setVariable("QUESTION_ID", $this->object->getId());
         $template->setVariable("VALUE_ORDERRESULT", ' value="' . join('{::}', $elements) . '"');
-        if ($this->object->textsize >= 10) {
-            $template->setVariable("STYLE", " style=\"font-size: " . $this->object->textsize . "%;\"");
+        if ($this->object->getTextSize() >= 10) {
+            $template->setVariable("STYLE", " style=\"font-size: " . $this->object->getTextSize() . "%;\"");
         }
         $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
         $questionoutput = $template->get();
@@ -272,7 +275,7 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
             $questionoutput = $this->getILIASPage($questionoutput);
         }
         global $DIC; /* @var ILIAS\DI\Container $DIC */
-        if ($DIC['ilBrowser']->isMobile() || $DIC['ilBrowser']->isIpad()) {
+        if ($DIC->http()->agent()->isMobile() || $DIC->http()->agent()->isIpad()) {
             require_once 'Services/jQuery/classes/class.iljQueryUtil.php';
             iljQueryUtil::initjQuery();
             iljQueryUtil::initjQueryUI();
@@ -281,23 +284,30 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         $this->tpl->addJavascript("./Modules/TestQuestionPool/templates/default/orderinghorizontal.js");
         return $questionoutput;
     }
-    
+
     // hey: prevPassSolutions - pass will be always available from now on
-    public function getTestOutput($active_id, $pass, $is_postponed = false, $use_post_solutions = false, $show_feedback = false)
+    public function getTestOutput($active_id, $pass, $is_postponed = false, $use_post_solutions = false, $show_feedback = false): string
     // hey.
     {
         // generate the question output
         $template = new ilTemplate("tpl.il_as_qpl_orderinghorizontal_output.html", true, true, "Modules/TestQuestionPool");
+        $js = <<<JS
+    $().ready(function() {
+        if (typeof $.fn.ilHorizontalOrderingQuestion != 'undefined') {
+            $('#horizontal_{QUESTION_ID}').ilHorizontalOrderingQuestion({
+                result_value_selector: '.ilOrderingValue',
+                result_separator: '{::}'
+            });
+        }
+    });
+JS;
+        $js = str_replace('{QUESTION_ID}', $this->object->getId(), $js);
+        $this->tpl->addOnLoadCode($js);
+
+
         $elements = $this->object->getRandomOrderingElements();
-        
+
         if ($active_id) {
-            // hey: prevPassSolutions - obsolete due to central check
-            #$solutions = NULL;
-            #include_once "./Modules/Test/classes/class.ilObjTest.php";
-            #if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-            #{
-            #	if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-            #}
             $solutions = $this->object->getTestOutputSolutions($active_id, $pass);
             // hey.
             if (is_array($solutions) && count($solutions) == 1) {
@@ -305,30 +315,30 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
             }
         }
         if (!is_array($solutions) || count($solutions) == 0) {
-            $_SESSION['qst_ordering_horizontal_elements'] = $elements;
+            ilSession::set('qst_ordering_horizontal_elements', $elements);
         } else {
-            unset($_SESSION['qst_ordering_horizontal_elements']);
+            ilSession::clear('qst_ordering_horizontal_elements');
         }
         foreach ($elements as $id => $element) {
             $template->setCurrentBlock("element");
             $template->setVariable("ELEMENT_ID", "e_" . $this->object->getId() . "_$id");
-            $template->setVariable("ORDERING_VALUE", ilUtil::prepareFormOutput($element));
-            $template->setVariable("ELEMENT_VALUE", ilUtil::prepareFormOutput($element));
+            $template->setVariable("ORDERING_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($element));
+            $template->setVariable("ELEMENT_VALUE", ilLegacyFormElementsUtil::prepareFormOutput($element));
             $template->parseCurrentBlock();
         }
         $template->setVariable("QUESTION_ID", $this->object->getId());
-        if ($this->object->textsize >= 10) {
-            $template->setVariable("STYLE", " style=\"font-size: " . $this->object->textsize . "%;\"");
+        if ($this->object->getTextSize() >= 10) {
+            $template->setVariable("STYLE", " style=\"font-size: " . $this->object->getTextSize() . "%;\"");
         }
         $template->setVariable("VALUE_ORDERRESULT", ' value="' . join('{::}', $elements) . '"');
         $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
         $questionoutput = $template->get();
-        if (!$show_question_only) {
-            // get page object output
-            $questionoutput = $this->getILIASPage($questionoutput);
-        }
+        //if (!$show_question_only) {
+        // get page object output
+        $questionoutput = $this->getILIASPage($questionoutput);
+        //}
         global $DIC; /* @var ILIAS\DI\Container $DIC */
-        if ($DIC['ilBrowser']->isMobile() || $DIC['ilBrowser']->isIpad()) {
+        if ($DIC->http()->agent()->isMobile() || $DIC->http()->agent()->isIpad()) {
             require_once 'Services/jQuery/classes/class.iljQueryUtil.php';
             iljQueryUtil::initjQuery();
             iljQueryUtil::initjQueryUI();
@@ -340,68 +350,29 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         return $pageoutput;
     }
 
-    /**
-    * Saves the feedback for a single choice question
-    *
-    * @access public
-    */
-    public function saveFeedback()
-    {
-        include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
-        $errors = $this->feedback(true);
-        $this->object->saveFeedbackGeneric(0, $_POST["feedback_incomplete"]);
-        $this->object->saveFeedbackGeneric(1, $_POST["feedback_complete"]);
-        $this->object->cleanupMediaObjectUsage();
-        parent::saveFeedback();
-    }
-    
-    public function getPresentationJavascripts()
+    public function getPresentationJavascripts(): array
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
-        
+
         $files = array();
-        
-        if ($DIC['ilBrowser']->isMobile() || $DIC['ilBrowser']->isIpad()) {
+
+        if ($DIC->http()->agent()->isMobile() || $DIC->http()->agent()->isIpad()) {
             $files[] = './node_modules/@andxor/jquery-ui-touch-punch-fix/jquery.ui.touch-punch.js';
         }
-        
+
         return $files;
     }
 
-    public function getSpecificFeedbackOutput($userSolution)
+    public function getSpecificFeedbackOutput(array $userSolution): string
     {
-        if (strpos($this->object->getOrderText(), '::')) {
-            $answers = explode('::', $this->object->getOrderText());
-        } else {
-            $answers = explode(' ', $this->object->getOrderText());
-        }
-
-        if (!$this->object->feedbackOBJ->specificAnswerFeedbackExists()) {
-            return '';
-        }
-
-        $output = '<table class="test_specific_feedback"><tbody>';
-
-        foreach ($answers as $idx => $answer) {
-            $feedback = $this->object->feedbackOBJ->getSpecificAnswerFeedbackTestPresentation(
-                $this->object->getId(),
-                0,
-                $idx
-            );
-
-            $output .= "<tr><td>{$answer}</td><td>{$feedback}</td></tr>";
-        }
-
-        $output .= '</tbody></table>';
-
-        return $this->object->prepareTextareaOutput($output, true);
+        return '';
     }
 
-    public function writeQuestionSpecificPostData(ilPropertyFormGUI $form)
+    public function writeQuestionSpecificPostData(ilPropertyFormGUI $form): void
     {
         $this->object->setTextSize($_POST["textsize"]);
         $this->object->setOrderText($_POST["ordertext"]);
-        $this->object->setPoints($_POST["points"]);
+        $this->object->setPoints((float) str_replace(',', '.', $_POST["points"]));
     }
 
     /**
@@ -413,18 +384,18 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
      *
      * @return string[]
      */
-    public function getAfterParticipationSuppressionQuestionPostVars()
+    public function getAfterParticipationSuppressionQuestionPostVars(): array
     {
         return array();
     }
 
-    public function populateQuestionSpecificFormPart(\ilPropertyFormGUI $form)
+    public function populateQuestionSpecificFormPart(\ilPropertyFormGUI $form): ilPropertyFormGUI
     {
         // ordertext
         $ordertext = new ilTextAreaInputGUI($this->lng->txt("ordertext"), "ordertext");
-        $ordertext->setValue($this->object->prepareTextareaOutput($this->object->getOrderText()));
+        $ordertext->setValue((string) self::prepareTextareaOutput($this->object->getOrderText(), false, true));
         $ordertext->setRequired(true);
-        $ordertext->setInfo(sprintf($this->lng->txt("ordertext_info"), $this->object->separator));
+        $ordertext->setInfo(sprintf($this->lng->txt("ordertext_info"), $this->object->getSeparator()));
         $ordertext->setRows(10);
         $ordertext->setCols(80);
         $form->addItem($ordertext);
@@ -452,24 +423,23 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         $points->setMinValue(0.0);
         $points->setMinvalueShouldBeGreater(true);
         $form->addItem($points);
+        return $form;
     }
 
     /**
      * Returns an html string containing a question specific representation of the answers so far
      * given in the test for use in the right column in the scoring adjustment user interface.
-     *
      * @param array $relevant_answers
-     *
      * @return string
      */
-    public function getAggregatedAnswersView($relevant_answers)
+    public function getAggregatedAnswersView(array $relevant_answers): string
     {
         return  $this->renderAggregateView(
             $this->aggregateAnswers($relevant_answers, $this->object->getOrderText())
         )->get();
     }
 
-    public function aggregateAnswers($relevant_answers_chosen, $answer_defined_on_question)
+    public function aggregateAnswers($relevant_answers_chosen, $answer_defined_on_question): array
     {
         $aggregate = array();
         foreach ($relevant_answers_chosen as $answer) {
@@ -489,7 +459,7 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
      *
      * @return ilTemplate
      */
-    public function renderAggregateView($aggregate)
+    public function renderAggregateView($aggregate): ilTemplate
     {
         $tpl = new ilTemplate('tpl.il_as_aggregated_answers_table.html', true, true, "Modules/TestQuestionPool");
 
@@ -501,37 +471,37 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         }
         return $tpl;
     }
-    
-    public function getAnswersFrequency($relevantAnswers, $questionIndex)
+
+    public function getAnswersFrequency($relevantAnswers, $questionIndex): array
     {
         $answers = array();
-        
+
         foreach ($relevantAnswers as $ans) {
             $md5 = md5($ans['value1']);
-            
+
             if (!isset($answers[$md5])) {
                 $answer = str_replace(
                     $this->object->getAnswerSeparator(),
                     '&nbsp;&nbsp;-&nbsp;&nbsp;',
                     $ans['value1']
                 );
-                
+
                 $answers[$md5] = array(
                     'answer' => $answer, 'frequency' => 0
                 );
             }
-            
+
             $answers[$md5]['frequency']++;
         }
-        
+
         return $answers;
     }
-    
-    public function populateCorrectionsFormProperties(ilPropertyFormGUI $form)
+
+    public function populateCorrectionsFormProperties(ilPropertyFormGUI $form): void
     {
         // points
         $points = new ilNumberInputGUI($this->lng->txt("points"), "points");
-        
+
         $points->allowDecimals(true);
         $points->setValue($this->object->getPoints());
         $points->setRequired(true);
@@ -540,12 +510,12 @@ class assOrderingHorizontalGUI extends assQuestionGUI implements ilGuiQuestionSc
         $points->setMinvalueShouldBeGreater(true);
         $form->addItem($points);
     }
-    
+
     /**
      * @param ilPropertyFormGUI $form
      */
-    public function saveCorrectionsFormProperties(ilPropertyFormGUI $form)
+    public function saveCorrectionsFormProperties(ilPropertyFormGUI $form): void
     {
-        $this->object->setPoints((float) $form->getInput('points'));
+        $this->object->setPoints((float) str_replace(',', '.', $form->getInput('points')));
     }
 }

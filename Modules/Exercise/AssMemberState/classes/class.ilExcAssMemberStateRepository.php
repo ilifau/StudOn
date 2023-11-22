@@ -1,23 +1,33 @@
 <?php
 
-/* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * This class determines assignment member state information
  * directly on the persistence layer. Thus its procedures are fast
  * but may not include/respect all higher application logic of the assignment state of members
  *
- * @author killing@leifos.de
- * @ingroup ModulesExercise
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilExcAssMemberStateRepository
 {
-    /**
-     * Constructor
-     *
-     * @param ilDBInterface $db
-     */
-    public function __construct(\ilDBInterface $db = null)
+    protected ilDBInterface $db;
+
+    public function __construct(ilDBInterface $db = null)
     {
         global $DIC;
 
@@ -25,16 +35,17 @@ class ilExcAssMemberStateRepository
             ? $DIC->database()
             : $db;
     }
-    
+
     /**
      * Get all assignments for a user where the user may hand in submissions
      *
      * @param int[] $exc_ids	exercises the user is "member" in
-     * @param int $user_id
      * @return int[]
      */
-    public function getSubmitableAssignmentIdsOfUser(array $exc_ids, int $user_id) : array
-    {
+    public function getSubmitableAssignmentIdsOfUser(
+        array $exc_ids,
+        int $user_id
+    ): array {
         $db = $this->db;
         $set = $db->queryF(
             'SELECT ass.id FROM exc_assignment ass LEFT JOIN exc_idl idl
@@ -64,7 +75,7 @@ class ilExcAssMemberStateRepository
      * @param int[] $exc_ids exercises the user is "tutor" of
      * @return int[]
      */
-    public function getAssignmentIdsWithGradingNeeded(array $exc_ids)
+    public function getAssignmentIdsWithGradingNeeded(array $exc_ids): array
     {
         $db = $this->db;
 
@@ -80,7 +91,7 @@ class ilExcAssMemberStateRepository
         );
         $open_gradings = [];
         while ($rec = $db->fetchAssoc($set)) {
-            $open_gradings[$rec["id"]] = $rec["open_grading"];
+            $open_gradings[$rec["id"]] = (int) $rec["open_grading"];
         }
         return $open_gradings;
     }
@@ -89,11 +100,12 @@ class ilExcAssMemberStateRepository
      * Get all assignments for a user where the user may hand in submissions
      *
      * @param int[] $exc_ids	exercises the user is "member" in
-     * @param int $user_id
      * @return int[]
      */
-    public function getAssignmentIdsWithPeerFeedbackNeeded(array $exc_ids, int $user_id) : array
-    {
+    public function getAssignmentIdsWithPeerFeedbackNeeded(
+        array $exc_ids,
+        int $user_id
+    ): array {
         $db = $this->db;
 
         // peer groups exist
@@ -144,7 +156,6 @@ class ilExcAssMemberStateRepository
         while ($rec = $db->fetchAssoc($set)) {
             $ids[] = $rec["id"];
         }
-
 
         return $ids;
     }

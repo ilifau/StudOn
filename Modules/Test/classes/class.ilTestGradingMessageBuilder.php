@@ -1,6 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author		Björn Heyser <bheyser@databay.de>
@@ -20,9 +34,6 @@ class ilTestGradingMessageBuilder
      */
     private $testOBJ;
 
-    /**
-     * @var ilTemplate
-     */
     private $tpl;
 
     /**
@@ -35,15 +46,23 @@ class ilTestGradingMessageBuilder
      */
     private $activeId;
     /**
-     * @var array
+     * @var \ILIAS\DI\Container
      */
-    private $messageText = [];
+    private $container;
+
+    /**
+     * @var string[] $messageText
+     */
+    private array $messageText = [];
+
     /**
      * @param ilLanguage $lng
      * @param ilObjTest $testOBJ
      */
     public function __construct(ilLanguage $lng, ilObjTest $testOBJ)
     {
+        global $DIC;
+        $this->container = $DIC;
         $this->lng = $lng;
         $this->testOBJ = $testOBJ;
     }
@@ -53,7 +72,7 @@ class ilTestGradingMessageBuilder
         $this->activeId = $activeId;
     }
 
-    public function getActiveId()
+    public function getActiveId(): int
     {
         return $this->activeId;
     }
@@ -61,7 +80,7 @@ class ilTestGradingMessageBuilder
     public function buildMessage()
     {
         $this->loadResultData();
-        
+
         if ($this->testOBJ->isShowGradingStatusEnabled()) {
             $this->addMessagePart($this->buildGradingStatusMsg());
         }
@@ -77,19 +96,15 @@ class ilTestGradingMessageBuilder
 
     private function addMessagePart($msgPart)
     {
-        // fau: testGradingMessage -  avoid spaces for empty grading status message
-        if (!empty($msgPart)) {
-            $this->messageText[] = $msgPart;
-        }
-        // fau.
+        $this->messageText[] = $msgPart;
     }
 
-    private function getFullMessage()
+    private function getFullMessage(): string
     {
         return implode(' ', $this->messageText);
     }
 
-    private function isPassed()
+    private function isPassed(): bool
     {
         return (bool) $this->resultData['passed'];
     }
@@ -97,14 +112,14 @@ class ilTestGradingMessageBuilder
     public function sendMessage()
     {
         if (!$this->testOBJ->isShowGradingStatusEnabled()) {
-            ilUtil::sendInfo($this->getFullMessage());
+            $this->container->ui()->mainTemplate()->setOnScreenMessage('info', $this->getFullMessage());
         } elseif ($this->isPassed()) {
-            ilUtil::sendSuccess($this->getFullMessage());
+            $this->container->ui()->mainTemplate()->setOnScreenMessage('success', $this->getFullMessage());
         } else {
-            ilUtil::sendFailure($this->getFullMessage());
+            $this->container->ui()->mainTemplate()->setOnScreenMessage('failure', $this->getFullMessage());
         }
     }
-    
+
     private function loadResultData()
     {
         $this->resultData = $this->testOBJ->getResultsForActiveId($this->getActiveId());
@@ -120,31 +135,18 @@ class ilTestGradingMessageBuilder
         }
     }
 
-    private function buildGradingStatusMsg()
+    private function buildGradingStatusMsg(): string
     {
-        // fau: testGradingMessage - build grading status message only if no specific mark message is configured
         if ($this->isPassed()) {
-            $markMsg = $this->testOBJ->getMarkTstPassed();
-            return empty($markMsg) ? $this->lng->txt('grading_status_passed_msg') : '';
+            return $this->lng->txt('grading_status_passed_msg');
         }
 
-        $markMsg = $this->testOBJ->getMarkTstFailed();
-        return empty($markMsg) ? $this->lng->txt('grading_status_failed_msg') : '';
-        // fau.
+        return $this->lng->txt('grading_status_failed_msg');
     }
 
-    // fau: testGradingMessage - allow public call and use test specific mark messages
-    public function buildGradingMarkMsg()
+    private function buildGradingMarkMsg()
     {
-        if ($this->isPassed()) {
-            $markMsg = $this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstPassed());
-        } else {
-            $markMsg = $this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstFailed());
-        }
-
-        if (empty($markMsg)) {
-            $markMsg = $this->lng->txt('grading_mark_msg');
-        }
+        $markMsg = $this->lng->txt('grading_mark_msg');
 
         $markMsg = str_replace("[mark]", $this->getMarkOfficial(), $markMsg);
         $markMsg = str_replace("[markshort]", $this->getMarkShort(), $markMsg);
@@ -154,7 +156,6 @@ class ilTestGradingMessageBuilder
 
         return $markMsg;
     }
-    // fau.
 
     private function getMarkOfficial()
     {
@@ -166,17 +167,15 @@ class ilTestGradingMessageBuilder
         return $this->resultData['mark_short'];
     }
 
-    private function getPercentage()
+    private function getPercentage(): string
     {
         $percentage = 0;
 
         if ($this->getMaxPoints() > 0) {
             $percentage = $this->getReachedPoints() / $this->getMaxPoints();
         }
-        // fau: testGradingMessage 
-        return sprintf("%2.2f ", ($percentage) * 100) . "%";
-        //return sprintf("%.2f", $percentage);
-        // fau.
+
+        return sprintf("%.2f", $percentage);
     }
 
     private function getReachedPoints()
@@ -188,8 +187,8 @@ class ilTestGradingMessageBuilder
     {
         return $this->resultData['max_points'];
     }
-    
-    private function areObligationsAnswered()
+
+    private function areObligationsAnswered(): bool
     {
         return (bool) $this->resultData['obligations_answered'];
     }
@@ -198,7 +197,7 @@ class ilTestGradingMessageBuilder
     {
         return str_replace('[markects]', $this->getEctsGrade(), $this->lng->txt('mark_tst_ects'));
     }
-    
+
     private function getEctsGrade()
     {
         return $this->resultData['ects_grade'];
@@ -262,7 +261,7 @@ class ilTestGradingMessageBuilder
         $this->tpl->parseCurrentBlock();
     }
 
-    public function getList()
+    public function getList(): string
     {
         return $this->tpl->get();
     }

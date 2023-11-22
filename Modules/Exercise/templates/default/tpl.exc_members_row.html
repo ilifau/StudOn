@@ -2,9 +2,9 @@
 	
   <td class="std">
 	<!-- BEGIN multi_bl -->
-	<input type="checkbox" name="{NAME_ID}[{VAL_ID}]" value="1" />
-	<input type="hidden" name="id[{VAL_ID}]" value = "1" />
-	<input type="hidden" name="idlid[{VAL_ID}]" value="{VAL_IDL_ID}" />
+	<input type="checkbox" name="{NAME_ID}[]" value="{VAL_ID}" />
+	<input type="hidden" name="{LISTED_NAME_ID}[]" value = "{VAL_ID}" />
+	<input type="hidden" name="listed_idl_ids[{VAL_ID}]" value="{VAL_IDL_ID}" />
 	<!-- END multi_bl -->
   </td>
   
@@ -109,28 +109,16 @@
 		<option value="passed" {SEL_PASSED}>{TXT_PASSED}</option>
 		<option value="failed" {SEL_FAILED}>{TXT_FAILED}</option>
 	</select>
-	  <!-- fau: exPlag - add info for effective status -->
-	  <p style="{EFFECTIVE_STATUS_HIDDEN}" id="{EFFECTIVE_STATUS_ID}">{TXT_EFFECTIVE_STATUS}</p>
-	  <!-- fau. -->
   </td>
   <!-- END status -->
   
   <!-- BEGIN mark -->
   <td class="std small">
 	<input class="form-control" type="text" name="mark[{VAL_ID}]" value="{VAL_MARK}" size="4" maxlength="32" />
-	  <!-- fau: exPlag - add info for effective mark -->
-	  <p style="{EFFECTIVE_MARK_HIDDEN}" id="{EFFECTIVE_MARK_ID}"> {TXT_EFFECTIVE_MARK}</p>
-	  <!-- fau. -->
   </td>
   <!-- END mark -->
-
-	<!-- BEGIN max_points -->
-	<td class="std small">
-		{VAL_MAX_POINTS}
-	</td>
-	<!-- END max_points -->
-
-	<!-- BEGIN no_team_yet_bl -->
+  
+  <!-- BEGIN no_team_yet_bl -->
   <td class="std small" colspan="{NO_TEAM_COLSPAN}">
 	&nbsp;
   </td>
@@ -159,18 +147,8 @@
 	  <input class="form-control" type="text" name="notice[{VAL_ID}]" value="{VAL_NOTICE}" size="25" maxlength="200" />
   </td>
   <!-- END notice -->
-
-	<!-- fau: exPlag - new column -->
-	<!-- BEGIN plagiarism -->
-	<td class="std small">
-		<strong id="{PLAG_INFO_ID}">{VAL_PLAG_INFO}</strong></p>
-		<p id="{PLAG_COMMENT_ID}">{VAL_PLAG_COMMENT}</p>
-		<!-- END plag_student -->
-	</td>
-	<!-- END plagiarism -->
-	<!-- fau. -->
-
-	<td class="std small">
+  
+  <td class="std small">
 	  {ACTIONS}
   </td>
   

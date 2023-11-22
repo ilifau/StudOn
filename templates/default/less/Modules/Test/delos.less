@@ -67,7 +67,7 @@
                 background-image: url('images/answered.svg');
             }
             &.active {
-                font-weight: bold;
+                font-weight: @il-font-weight-bold;
             }
         }
     }
@@ -92,6 +92,10 @@
     }
 }
 
+#tst_pass_details_overview tr {
+    scroll-margin-top: 30px;
+}
+
 // nested vertical ordering question
 .dd-item {
     font-size: @il-font-size-base;
@@ -101,72 +105,3 @@ li.dd-item.ilc_qordli_OrderListItem > ul li.dd-item.ilc_qordli_OrderListItem {
     border: 1px #4c6586 solid;
     border-left: 9px #4c6586 solid;
 }
-
-/* fau: showBestSolutionBelow  - show best solution below the user input */
-.lcol.participant
-{
-    width: 100%;
-    float: none;
-	overflow-x: visible;
-}
-
-.rcol.solution {
-	width: 100%;
-    float: none;
-	overflow-x: visible;
-    margin-top: 1em;
-	padding: 5px;
-	background: #E2FFC7; /* Fallback IE 6-8 */
-	background: rgba(226, 255, 199, .4);
-}
-/* fau. */
-
-/* fau: showBestSolutionBelow  - new style for solution (needed here and in test_print)*/
-.questionPrintviewCorrectSolution {
-	border-left: 3px dotted green;
-	padding-left:10px;
-}
-/* fau. */
-/* fau: testNav - icon for answered/unanswered questions in shortlist */
-ul.shortlist li {
-	padding: 0 0 6px 15px;
-    background-repeat: no-repeat;
-    background-size: 10px;
-    background-position: 0px 5px;
-}
-
-ul.shortlist li.answered {
-    background-image: url('../../../../templates/default/images/answered.svg');
-}
-
-ul.shortlist li.unanswered {
-    background-image: url('../../../../templates/default/images/answered_not.svg');
-}
-/* fau. */
-/* fau: testNav - added and changed styles */
-
-td.ilc_Page {
-    padding: 15px;
-}
-
-.ilTestQuestionSubtitleBlocks
-{
-    margin-top: -12px;
-}
-
-.ilTestMarkQuestionIcon {
-	width: 12px;
-	height: 12px;
-}
-
-.ilTestAnswerStatusIcon {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    margin-top: -3px;
-}
-
-.ilTestQuestionAction.disabled a {
-    color: #b0b0b0!important;
-}
-/* fau. */

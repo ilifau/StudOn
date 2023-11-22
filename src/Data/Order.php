@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ILIAS\Data;
 
@@ -9,35 +11,35 @@ namespace ILIAS\Data;
  */
 class Order
 {
-    const ASC = 'ASC';
-    const DESC = 'DESC';
+    public const ASC = 'ASC';
+    public const DESC = 'DESC';
 
     /**
-     * @var array <subject, direction>
+     * @var array<string, string>
      */
-    protected $order = [];
+    protected array $order = [];
 
-    public function __construct(string $subject, $direction)
+    public function __construct(string $subject, string $direction)
     {
         $this->checkDirection($direction);
         $this->order[$subject] = $direction;
     }
 
-    protected function checkSubject(string $subject)
+    protected function checkSubject(string $subject): void
     {
         if (array_key_exists($subject, $this->order)) {
             throw new \InvalidArgumentException("already sorted by subject '$subject'", 1);
         }
     }
 
-    protected function checkDirection($direction)
+    protected function checkDirection(string $direction): void
     {
         if ($direction !== self::ASC && $direction !== self::DESC) {
             throw new \InvalidArgumentException("Direction bust be Order::ASC or Order::DESC.", 1);
         }
     }
 
-    public function append(string $subject, $direction) : Order
+    public function append(string $subject, string $direction): Order
     {
         $this->checkSubject($subject);
         $this->checkDirection($direction);
@@ -46,7 +48,10 @@ class Order
         return $clone;
     }
 
-    public function get() : array
+    /**
+     * @return array<string, string>
+     */
+    public function get(): array
     {
         return $this->order;
     }

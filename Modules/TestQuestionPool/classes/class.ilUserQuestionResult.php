@@ -1,6 +1,22 @@
 <?php
 
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
  * Class ilUserQuestionResult
  *
  * Date: 10.01.14
@@ -38,11 +54,6 @@ class ilUserQuestionResult
      */
     protected $solutions = array();
 
-    /**
-     * @param iQuestionCondition $question
-     * @param int $active_id
-     * @param int $pass
-     */
     public function __construct($question, $active_id, $pass)
     {
         $this->question = $question;
@@ -54,7 +65,7 @@ class ilUserQuestionResult
      * @param mixed $key
      * @param mixed $value
      */
-    public function addKeyValue($key, $value)
+    public function addKeyValue($key, $value): void
     {
         $this->solutions[] = array(
             self::$USER_SOLUTION_IDENTIFIER_KEY => $key,
@@ -65,7 +76,7 @@ class ilUserQuestionResult
     /**
      * @param string $key
      */
-    public function removeByKey($key)
+    public function removeByKey($key): void
     {
         foreach ($this->solutions as $array_key => $solution) {
             if ($solution[self::$USER_SOLUTION_IDENTIFIER_KEY] == $key) {
@@ -81,7 +92,7 @@ class ilUserQuestionResult
      * @return array
      * @throws Exception
      */
-    public function getUserSolutionsByIdentifier($identifier)
+    public function getUserSolutionsByIdentifier($identifier): array
     {
         if (
             $identifier != self::$USER_SOLUTION_IDENTIFIER_KEY &&
@@ -100,7 +111,7 @@ class ilUserQuestionResult
     /**
      * @return array
      */
-    public function getSolutions()
+    public function getSolutions(): array
     {
         return $this->solutions;
     }
@@ -110,7 +121,7 @@ class ilUserQuestionResult
      *
      * @return array
      */
-    public function getSolutionForKey($key)
+    public function getSolutionForKey($key): ?array
     {
         foreach ($this->solutions as $solution) {
             if ($solution[self::$USER_SOLUTION_IDENTIFIER_KEY] == $key) {
@@ -123,7 +134,7 @@ class ilUserQuestionResult
     /**
      * @param int $reached_percentage
      */
-    public function setReachedPercentage($reached_percentage)
+    public function setReachedPercentage($reached_percentage): void
     {
         $this->reached_percentage = $reached_percentage;
     }
@@ -131,7 +142,7 @@ class ilUserQuestionResult
     /**
      * @return int
      */
-    public function getReachedPercentage()
+    public function getReachedPercentage(): int
     {
         return $this->reached_percentage;
     }
@@ -139,7 +150,7 @@ class ilUserQuestionResult
     /**
      * @return boolean
      */
-    public function hasSolutions()
+    public function hasSolutions(): bool
     {
         return count($this->solutions) > 0;
     }

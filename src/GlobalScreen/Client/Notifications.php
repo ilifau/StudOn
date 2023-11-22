@@ -40,16 +40,12 @@ class Notifications
     /**
      * @var mixed|null
      */
-    private $additional_action;
-    /**
-     * @var \ILIAS\DI\Container
-     */
-    protected $dic;
+    private ?string $additional_action = null;
+    protected Container $dic;
     /**
      * Collected set of collected notifications
-     * @var mixed[]
      */
-    protected $notification_groups;
+    protected array $notification_groups;
     /**
      * Name of the GET param used in the async calls
      */
@@ -62,6 +58,10 @@ class Notifications
      * Value of the MODE GET param, if the Notification Center has been closed
      */
     public const MODE_CLOSED = "closed";
+    /**
+     * Value of the MODE GET param, if a ToastLik has been klicked
+     */
+    public const MODE_HANDLE_TOAST_ACTION = "toast_action";
     /**
      * Value of the MODE GET param, if the Notification Center should be rerendered
      */
@@ -78,18 +78,13 @@ class Notifications
      * Location of the endpoint handling async notification requests
      */
     public const NOTIFY_ENDPOINT = "src/GlobalScreen/Client/notify.php";
+    protected array $identifiers_to_handle = [];
+    protected ?string $single_identifier_to_handle = null;
+    protected array $administrative_notifications = [];
     /**
-     * @var mixed[]
+     * @var \ILIAS\GlobalScreen\Scope\Toast\Factory\isStandardItem[]
      */
-    protected $identifiers_to_handle = [];
-    /**
-     * @var string|null
-     */
-    protected $single_identifier_to_handle;
-    /**
-     * @var mixed[]
-     */
-    protected $administrative_notifications = [];
+    private array $toasts = [];
 
     public function __construct()
     {
@@ -97,15 +92,34 @@ class Notifications
         $this->dic = $DIC;
     }
 
-    public function run() : void
+    public function run(): void
     {
-        $this->notification_groups = $this->dic->globalScreen()->collector()->notifications()->getNotifications();
-        $this->administrative_notifications = $this->dic->globalScreen()->collector()->notifications(
+        /**
+         * @DI $DI
+         */
+        global $DIC;
+        $this->notification_groups = $DIC->globalScreen()->collector()->notifications()->getNotifications();
+        $this->administrative_notifications = $DIC->globalScreen()->collector()->notifications(
         )->getAdministrativeNotifications();
-        $this->identifiers_to_handle = $this->dic->http()->request()->getQueryParams()[self::NOTIFICATION_IDENTIFIERS] ?? [];
-        $this->single_identifier_to_handle = $this->dic->http()->request()->getQueryParams()[self::ITEM_ID] ?? null;
+        $this->identifiers_to_handle = $DIC->http()->request()->getQueryParams()[self::NOTIFICATION_IDENTIFIERS] ?? [];
+        $this->single_identifier_to_handle = $DIC->http()->request()->getQueryParams()[self::ITEM_ID] ?? null;
+        $this->toasts = $DIC->globalScreen()->collector()->toasts()->getToasts();
 
-        switch ($this->dic->http()->request()->getQueryParams()[self::MODE] ?? 'none') {
+        $query = $DIC->http()->wrapper()->query();
+
+        $this->additional_action = $query->has(self::ADDITIONAL_ACTION)
+            ? $query->retrieve(
+                self::ADDITIONAL_ACTION,
+                $DIC->refinery()->kindlyTo()->string()
+            )
+            : null;
+
+        $mode = 'none';
+        if ($query->has(self::MODE)) {
+            $mode = $query->retrieve(self::MODE, $DIC->refinery()->to()->string());
+        }
+
+        switch ($mode) {
             case self::MODE_OPENED:
                 $this->handleOpened();
                 break;
@@ -115,7 +129,24 @@ class Notifications
             case self::MODE_RERENDER:
                 $this->handleRerender();
                 break;
+            case self::MODE_HANDLE_TOAST_ACTION:
+                $this->handleToastAction();
+                break;
+        }
+    }
 
+    private function handleToastAction(): void
+    {
+        foreach ($this->toasts as $toast) {
+            if ($this->hash($toast->getProviderIdentification()->serialize()) === $this->single_identifier_to_handle) {
+                foreach ($toast->getAllToastActions() as $toast_action) {
+                    if ($toast_action->getIdentifier() === $this->additional_action) {
+                        $callable = $toast_action->getAction();
+                        $callable();
+                        return;
+                    }
+                }
+            }
         }
     }
 
@@ -123,7 +154,7 @@ class Notifications
      * Loops through all available open callable provided by the notification
      * providers
      */
-    private function handleOpened() : void
+    private function handleOpened(): void
     {
         foreach ($this->notification_groups as $notification_group) {
             foreach ($notification_group->getNotifications() as $notification) {
@@ -148,7 +179,7 @@ class Notifications
     /**
      * Runs the closed callable if such a callable is provided
      */
-    private function handleClosed() : void
+    private function handleClosed(): void
     {
         foreach ($this->notification_groups as $notification_group) {
             foreach ($notification_group->getNotifications() as $notification) {
@@ -180,7 +211,7 @@ class Notifications
      * @throws ResponseSendingException
      * @throws JsonException
      */
-    private function handleRerender() : void
+    private function handleRerender(): void
     {
         $notifications = [];
         $amount = 0;
@@ -203,7 +234,7 @@ class Notifications
                                           $this->dic->ui()->factory()->counter()->novelty($amount)
                                       )
                                   )
-                              ])
+                              ], JSON_THROW_ON_ERROR)
                           )
                       )
                       ->withHeader(ResponseHeader::CONTENT_TYPE, 'application/json')

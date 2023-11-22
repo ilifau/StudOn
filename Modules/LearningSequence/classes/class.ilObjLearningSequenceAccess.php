@@ -2,19 +2,32 @@
 
 declare(strict_types=1);
 
-include_once("./Services/Object/classes/class.ilObjectAccess.php");
-
 /**
- * Class ilObjLearningSequenceAccess class
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- */
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilObjLearningSequenceAccess extends ilObjectAccess
 {
-    public static $using_code = false;
+    public static bool $using_code = false;
 
-    public static function _getCommands() : array
+    /**
+     * @return array<array<string|bool>>
+     */
+    public static function _getCommands(): array
     {
-        $commands = array(
+        return array(
             [
                 'cmd' => ilObjLearningSequenceGUI::CMD_VIEW,
                 'permission' => 'read',
@@ -42,15 +55,14 @@ class ilObjLearningSequenceAccess extends ilObjectAccess
                 'lang_var' => 'unparticipate'
             ]
         );
-        return $commands;
     }
 
-    public function usingRegistrationCode()
+    public function usingRegistrationCode(): bool
     {
         return self::$using_code;
     }
 
-    public static function isOffline($ref_id)
+    public static function isOffline(int $ref_id): bool
     {
         $obj = ilObjectFactory::getInstanceByRefId($ref_id);
         $act = $obj->getLSActivation();
@@ -90,32 +102,41 @@ class ilObjLearningSequenceAccess extends ilObjectAccess
         return !$online;
     }
 
-    public function _checkAccess($cmd, $permission, $ref_id, $obj_id, $usr_id = "")
+    public function _checkAccess(string $cmd, string $permission, int $ref_id, int $obj_id, ?int $user_id = null): bool
     {
         list($rbacsystem, $il_access, $lng) = $this->getDICDependencies();
 
         switch ($permission) {
             case 'visible':
-                $has_any_administrative_permission = (
-                    $rbacsystem->checkAccessOfUser($usr_id, 'write', $ref_id) ||
-                    $rbacsystem->checkAccessOfUser($usr_id, 'edit_members', $ref_id) ||
-                    $rbacsystem->checkAccessOfUser($usr_id, 'edit_learning_progress', $ref_id)
-                );
+                $has_any_administrative_permission = false;
+                if (!is_null($user_id)) {
+                    $has_any_administrative_permission = (
+                        $rbacsystem->checkAccessOfUser($user_id, 'write', $ref_id) ||
+                        $rbacsystem->checkAccessOfUser($user_id, 'edit_members', $ref_id) ||
+                        $rbacsystem->checkAccessOfUser($user_id, 'edit_learning_progress', $ref_id)
+                    );
+                }
 
                 $is_offine = $this->isOffline($ref_id);
 
                 if ($is_offine && !$has_any_administrative_permission) {
-                    $il_access->addInfoItem(IL_NO_OBJECT_ACCESS, $lng->txt("offline"));
+                    $il_access->addInfoItem(ilAccessInfo::IL_NO_OBJECT_ACCESS, $lng->txt("offline"));
                     return false;
                 }
                 return true;
 
             default:
-                return $rbacsystem->checkAccessOfUser($usr_id, $permission, $ref_id);
+                if (is_null($user_id)) {
+                    return false;
+                }
+                return $rbacsystem->checkAccessOfUser($user_id, $permission, $ref_id);
         }
     }
 
-    protected function getDICDependencies() : array
+    /**
+     * @return array<ilRbacSystem|ilAccess|ilLanguage>
+     */
+    protected function getDICDependencies(): array
     {
         global $DIC;
         $rbacsystem = $DIC['rbacsystem'];

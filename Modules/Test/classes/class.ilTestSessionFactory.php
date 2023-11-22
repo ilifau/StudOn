@@ -55,9 +55,6 @@ class ilTestSessionFactory
         $this->testSession = array();
     }
 
-
-
-
     /**
      * Creates and returns an instance of a test sequence
      * that corresponds to the current test mode
@@ -67,7 +64,11 @@ class ilTestSessionFactory
      */
     public function getSession($activeId = null)
     {
-        if ($activeId === null || $this->testSession[$activeId] === null) {
+        if ($activeId === null ||
+            $this->testSession === array() ||
+            !array_key_exists($activeId, $this->testSession) ||
+            $this->testSession[$activeId] === null
+        ) {
             $testSession = $this->getNewTestSessionObject();
 
             $testSession->setRefId($this->testOBJ->getRefId());
@@ -119,29 +120,17 @@ class ilTestSessionFactory
      */
     private function getNewTestSessionObject()
     {
-        switch ($this->testOBJ->getQuestionSetType()) {
-            case ilObjTest::QUESTION_SET_TYPE_FIXED:
-            case ilObjTest::QUESTION_SET_TYPE_RANDOM:
-
-                require_once 'Modules/Test/classes/class.ilTestSession.php';
-                $testSession = new ilTestSession();
-                break;
-
-            case ilObjTest::QUESTION_SET_TYPE_DYNAMIC:
-
-                require_once 'Modules/Test/classes/class.ilTestSessionDynamicQuestionSet.php';
-                $testSession = new ilTestSessionDynamicQuestionSet();
-                break;
+        if ($this->testOBJ->isDynamicTest()) {
+            return new ilTestSessionDynamicQuestionSet();
         }
-
-        return $testSession;
+        return new ilTestSession();
     }
 
     /**
      * @param $userId
      * @return string
      */
-    private function buildCacheKey($userId)
+    private function buildCacheKey($userId): string
     {
         return "{$this->testOBJ->getTestId()}::{$userId}";
     }

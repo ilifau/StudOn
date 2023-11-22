@@ -1,77 +1,51 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
-include_once './Services/Calendar/classes/class.ilCalendarUserSettings.php';
-include_once './Services/Calendar/classes/iCal/class.ilICalWriter.php';
-include_once './Services/Calendar/classes/class.ilCalendarCategory.php';
-include_once './Services/Calendar/classes/class.ilCalendarEntry.php';
-include_once './Services/Calendar/classes/class.ilCalendarCategoryAssignments.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * @classDescription Export calendar(s) to ical format
- * @author Stefan Meyer <smeyer.ilias@gmx.de>
- * @version $Id$
- *
- * @ingroup ServicesCalendar
+ * @author           Stefan Meyer <smeyer.ilias@gmx.de>
+ * @ingroup          ServicesCalendar
  */
 class ilCalendarExport
 {
-    protected const BYTE_LIMIT = 1000000;
-    const EXPORT_CALENDARS = 1;
-    const EXPORT_APPOINTMENTS = 2;
+    public const EXPORT_CALENDARS = 1;
+    public const EXPORT_APPOINTMENTS = 2;
 
-    /**
-     * @var int
-     */
-    protected $export_type = self::EXPORT_CALENDARS;
-    /**
-     * @var ilLogger
-     */
-    protected $logger = null;
-    /**
-     * @var ilObjUser
-     */
-    protected $il_user;
-    /**
-     * @var int[]
-     */
-    protected $calendars;
-    /**
-     * @var ilCalendarUserSettings
-     */
-    protected $user_settings;
-    /**
-     * @var array
-     */
-    protected $appointments;
+    protected const BYTE_LIMIT = 1000000;
+
+    protected int $export_type = self::EXPORT_CALENDARS;
+
+    private ilLogger $logger;
+    protected ilObjUser $il_user;
+
+    protected array $calendars = array();
+    protected ?ilCalendarUserSettings $user_settings;
+    protected array $appointments = array();
+    protected ilICalWriter $writer;
+
     /**
      * @var ilICalWriter
      */
-    protected $str_writer_export;
-    /**
-     * @var bool
-     */
-    protected $is_export_limited;
+    protected ilICalWriter $str_writer_export;
+
+    protected bool $is_export_limited;
 
     /**
      * @param int[] $a_calendar_ids
@@ -88,17 +62,20 @@ class ilCalendarExport
         $this->str_writer_export = new ilICalWriter();
     }
 
-    public function getUserSettings() : ilCalendarUserSettings
+    public function getUserSettings(): ilCalendarUserSettings
     {
         return $this->user_settings;
     }
 
-    public function setAppointments($a_apps) : void
+    public function setAppointments(array $a_apps): void
     {
         $this->appointments = $a_apps;
     }
 
-    public function getAppointments() : array
+    /**
+     * @return int[]
+     */
+    public function getAppointments(): array
     {
         return $this->appointments;
     }
@@ -106,7 +83,7 @@ class ilCalendarExport
     /**
      * @param int[] $a_cal_ids
      */
-    public function setCalendarIds(array $a_cal_ids) : void
+    public function setCalendarIds(array $a_cal_ids): void
     {
         $this->calendars = $a_cal_ids;
     }
@@ -114,22 +91,21 @@ class ilCalendarExport
     /**
      * @return int[]
      */
-    public function getCalendarIds() : array
+    public function getCalendarIds(): array
     {
         return $this->calendars;
     }
 
-    public function setExportType(int $a_type) : void
+    public function setExportType(int $a_type): void
     {
         $this->export_type = $a_type;
     }
-
-    public function getExportType() : int
+    public function getExportType(): int
     {
         return $this->export_type;
     }
-    
-    public function export() : void
+
+    public function export(): void
     {
         $this->str_writer_export->clear();
         $str_writer_prefix = new ilICalWriter();
@@ -156,33 +132,28 @@ class ilCalendarExport
         }
         $this->str_writer_export->append($str_writer_suffix);
     }
-    
-    protected function createTimezones() : ilICalWriter
+
+    protected function createTimezones(): ilICalWriter
     {
         $str_writer = new ilICalWriter();
         if ($this->getUserSettings()->getExportTimeZoneType() == ilCalendarUserSettings::CAL_EXPORT_TZ_UTC) {
             return $str_writer;
         }
-        
+
         $str_writer->addLine('X-WR-TIMEZONE:' . $this->il_user->getTimeZone());
-        
-        include_once './Services/Calendar/classes/class.ilCalendarUtil.php';
         $tzid_file = ilCalendarUtil::getZoneInfoFile($this->il_user->getTimeZone());
         if (!is_file($tzid_file)) {
             $tzid_file = ilCalendarUtil::getZoneInfoFile('Europe/Berlin');
         }
         $reader = fopen($tzid_file, 'r');
         while ($line = fgets($reader)) {
-            // fau: fixIcalLines - remove also carriage returns
-            $line = str_replace("\r", '', $line);
-            // fau.
             $line = str_replace("\n", '', $line);
             $str_writer->addLine($line);
         }
         return $str_writer;
     }
-    
-    protected function addCategories(int $remaining_bytes) : ilICalWriter
+
+    protected function addCategories(int $remaining_bytes): ilICalWriter
     {
         $single_appointments = [];
         $str_writer_appointments = new ilICalWriter();
@@ -200,7 +171,10 @@ class ilCalendarExport
         }
 
         usort($single_appointments, function (ilCalendarEntry $a, ilCalendarEntry $b) {
-            return $a->getStart() > $b->getStart();
+            if($a->getStart() === $b->getStart()) {
+                return 0;
+            }
+            return $a->getStart() > $b->getStart() ? 1 : -1;
         });
 
         // Apply a filter on limited exports only
@@ -231,22 +205,22 @@ class ilCalendarExport
         return $str_writer_appointments;
     }
 
-    protected function isRepeatingAppointment(ilCalendarEntry $appointment) : bool
+    protected function isRepeatingAppointment(ilCalendarEntry $appointment): bool
     {
         return count(ilCalendarRecurrences::_getRecurrences($appointment->getEntryId())) > 0;
     }
 
-    protected function addAppointments() : ilICalWriter
+    protected function addAppointments(): ilICalWriter
     {
         $str_builder_appointments = new ilICalWriter();
         foreach ($this->getAppointments() as $app) {
-            $str_writer_appointment = $this->createAppointment($app);
+            $str_writer_appointment = $this->createAppointment(new ilCalendarEntry($app));
             $str_builder_appointments->append($str_writer_appointment);
         }
         return $str_builder_appointments;
     }
 
-    protected function createAppointment(ilCalendarEntry $appointment) : ilICalWriter
+    protected function createAppointment(ilCalendarEntry $appointment): ilICalWriter
     {
         if ($appointment->isMilestone()) {
             return $this->createVTODO($appointment);
@@ -255,12 +229,12 @@ class ilCalendarExport
         }
     }
 
-    protected function createVTODO(ilCalendarEntry $app) : ilICalWriter
+    protected function createVTODO(ilCalendarEntry $app): ilICalWriter
     {
         return new ilICalWriter();
     }
 
-    protected function createVEVENT(ilCalendarEntry $app) : ilICalWriter
+    protected function createVEVENT(ilCalendarEntry $app): ilICalWriter
     {
         $str_writer = new ilICalWriter();
         if (!$app->getStart() instanceof ilDateTime) {
@@ -279,7 +253,7 @@ class ilCalendarExport
         $str_writer->addLine('UID:' . ilICalWriter::escapeText(
             $app->getEntryId() . '_' . CLIENT_ID . '@' . ILIAS_HTTP_PATH
         ));
-            
+
         $last_mod = $app->getLastUpdate()->get(IL_CAL_FKT_DATE, 'Ymd\THis\Z', ilTimeZone::UTC);
         $str_writer->addLine('LAST-MODIFIED:' . $last_mod);
 
@@ -324,8 +298,8 @@ class ilCalendarExport
         $str_writer->addLine('END:VEVENT');
         return $str_writer;
     }
-    
-    protected function createRecurrences(ilCalendarEntry $app) : ilICalWriter
+
+    protected function createRecurrences(ilCalendarEntry $app): ilICalWriter
     {
         $str_writer = new ilICalWriter();
         include_once './Services/Calendar/classes/class.ilCalendarRecurrences.php';
@@ -340,13 +314,13 @@ class ilCalendarExport
         }
         return $str_writer;
     }
-    
-    public function getExportString() : string
+
+    public function getExportString(): string
     {
         return $this->str_writer_export->__toString();
     }
 
-    protected function buildAppointmentUrl(ilCalendarEntry $entry) : ilICalWriter
+    protected function buildAppointmentUrl(ilCalendarEntry $entry): ilICalWriter
     {
         $str_writer = new ilICalWriter();
         $cat = ilCalendarCategory::getInstanceByCategoryId(

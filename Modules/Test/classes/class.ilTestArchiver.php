@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTestArchiver
@@ -16,37 +31,37 @@ class ilTestArchiver
 {
     #region Constants / Config
 
-    const DIR_SEP = '/';
+    public const DIR_SEP = '/';
 
-    const HTML_SUBMISSION_FILENAME = 'test_submission.html';
-    const PDF_SUBMISSION_FILENAME = 'test_submission.pdf';
-    const PASS_MATERIALS_PATH_COMPONENT = 'materials';
-    const QUESTION_PATH_COMPONENT_PREFIX = 'q_';
+    public const HTML_SUBMISSION_FILENAME = 'test_submission.html';
+    public const PDF_SUBMISSION_FILENAME = 'test_submission.pdf';
+    public const PASS_MATERIALS_PATH_COMPONENT = 'materials';
+    public const QUESTION_PATH_COMPONENT_PREFIX = 'q_';
 
-    const TEST_BEST_SOLUTION_PATH_COMPONENT = 'best_solution';
-    const HTML_BEST_SOLUTION_FILENAME = 'best_solution.html';
-    const PDF_BEST_SOLUTION_FILENAME = 'best_solution.pdf';
-    const TEST_MATERIALS_PATH_COMPONENT = 'materials';
+    public const TEST_BEST_SOLUTION_PATH_COMPONENT = 'best_solution';
+    public const HTML_BEST_SOLUTION_FILENAME = 'best_solution.html';
+    public const PDF_BEST_SOLUTION_FILENAME = 'best_solution.pdf';
+    public const TEST_MATERIALS_PATH_COMPONENT = 'materials';
 
-    const TEST_RESULT_FILENAME = 'test_result.pdf';
+    protected const TEST_RESULT_FILENAME = 'test_result.pdf';
 
-    const TEST_OVERVIEW_PDF_FILENAME = 'results_overview_html_v';
-    const TEST_OVERVIEW_PDF_POSTFIX = '.pdf';
+    public const TEST_OVERVIEW_PDF_FILENAME = 'results_overview_html_v';
+    public const TEST_OVERVIEW_PDF_POSTFIX = '.pdf';
 
-    const TEST_OVERVIEW_HTML_FILENAME = 'results_overview_pdf_v';
-    const TEST_OVERVIEW_HTML_POSTFIX = '.html';
+    public const TEST_OVERVIEW_HTML_FILENAME = 'results_overview_pdf_v';
+    public const TEST_OVERVIEW_HTML_POSTFIX = '.html';
 
-    const LOG_DTSGROUP_FORMAT = 'D M j G:i:s T Y';
-    const LOG_ADDITION_STRING = ' Adding ';
-    const LOG_CREATION_STRING = ' Creating ';
-    const LOG_UPDATE_STRING = ' Updating ';
-    const LOG_DELETION_STRING = ' Deleting ';
+    public const LOG_DTSGROUP_FORMAT = 'D M j G:i:s T Y';
+    public const LOG_ADDITION_STRING = ' Adding ';
+    public const LOG_CREATION_STRING = ' Creating ';
+    public const LOG_UPDATE_STRING = ' Updating ';
+    public const LOG_DELETION_STRING = ' Deleting ';
 
-    const TEST_LOG_FILENAME = 'test.log';
-    const DATA_INDEX_FILENAME = 'data_index.csv';
-    const ARCHIVE_LOG = 'archive.log';
+    public const TEST_LOG_FILENAME = 'test.log';
+    public const DATA_INDEX_FILENAME = 'data_index.csv';
+    public const ARCHIVE_LOG = 'archive.log';
 
-    const EXPORT_DIRECTORY = 'archive_exports';
+    public const EXPORT_DIRECTORY = 'archive_exports';
 
     #endregion
 
@@ -76,13 +91,14 @@ class ilTestArchiver
 
     #region Properties
 
-    protected $external_directory_path;	/** @var $external_directory_path string External directory base path  */
-    protected $client_id;			 	/** @var $client_id string Client id of the current client */
-    protected $test_obj_id;				/** @var $test_obj_id integer Object-ID of the test, the archiver is instantiated for */
-    protected $archive_data_index;		/** @var $archive_data_index array[string[]] Archive data index as associative array */
+    protected $external_directory_path;
+    protected $client_id;
+    protected $test_obj_id;
+    protected $test_ref_id;
+    protected $archive_data_index;
 
-    protected $ilDB;					/** @var $ilDB ilDBInterface */
-    
+    protected ilDBInterface $ilDB;
+
     /**
      * @var ilTestParticipantData
      */
@@ -95,7 +111,7 @@ class ilTestArchiver
      *
      * @param $test_obj_id integer Object-ID of the test, the archiver is instantiated for.
      */
-    public function __construct($test_obj_id)
+    public function __construct($test_obj_id, $test_ref_id = null)
     {
         /** @var $ilias ILIAS */
         global $DIC;
@@ -103,21 +119,22 @@ class ilTestArchiver
         $this->external_directory_path = $ilias->ini_ilias->readVariable('clients', 'datadir');
         $this->client_id = $ilias->client_id;
         $this->test_obj_id = $test_obj_id;
+        $this->test_ref_id = $test_ref_id;
         $this->ilDB = $ilias->db;
 
         $this->archive_data_index = $this->readArchiveDataIndex();
-        
+
         $this->participantData = null;
     }
-    
+
     /**
      * @return ilTestParticipantData
      */
-    public function getParticipantData()
+    public function getParticipantData(): ?ilTestParticipantData
     {
         return $this->participantData;
     }
-    
+
     /**
      * @param ilTestParticipantData $participantData
      */
@@ -213,7 +230,7 @@ class ilTestArchiver
     public function handInTestBestSolution($html_string, $pdf_path)
     {
         $this->ensureTestArchiveIsAvailable();
-        
+
         $best_solution_path = $this->getTestArchive() . self::DIR_SEP . self::TEST_BEST_SOLUTION_PATH_COMPONENT;
         if (!is_dir($best_solution_path)) {
             mkdir($best_solution_path, 0777, true);
@@ -317,7 +334,7 @@ class ilTestArchiver
      *
      * @return bool $hasTestArchive True, if the archive directory structure exists.
      */
-    protected function hasTestArchive()
+    protected function hasTestArchive(): bool
     {
         return is_dir($this->getTestArchive());
     }
@@ -327,7 +344,7 @@ class ilTestArchiver
      */
     protected function createArchiveForTest()
     {
-        ilUtil::makeDirParents($this->getTestArchive());
+        ilFileUtils::makeDirParents($this->getTestArchive());
         //mkdir( $this->getTestArchive(), 0777, true );
     }
 
@@ -336,7 +353,7 @@ class ilTestArchiver
      *
      * @return string $test_archive Path to this tests archive directory.
      */
-    protected function getTestArchive()
+    protected function getTestArchive(): string
     {
         $test_archive_directory = $this->external_directory_path . self::DIR_SEP . $this->client_id . self::DIR_SEP . 'tst_data'
             . self::DIR_SEP . 'archive' . self::DIR_SEP . 'tst_' . $this->test_obj_id;
@@ -377,10 +394,13 @@ class ilTestArchiver
 
         // Generate test pass overview
         $test = new ilObjTest($this->test_obj_id, false);
-        require_once 'Modules/Test/classes/class.ilParticipantsTestResultsGUI.php';
+        if ($this->test_ref_id !== null) {
+            $test->setRefId($this->test_ref_id);
+        }
+
         $gui = new ilParticipantsTestResultsGUI();
         $gui->setTestObj($test);
-        require_once 'Modules/Test/classes/class.ilTestObjectiveOrientedContainer.php';
+
         $objectiveOrientedContainer = new ilTestObjectiveOrientedContainer();
         $gui->setObjectiveParent($objectiveOrientedContainer);
         $array_of_actives = array();
@@ -393,7 +413,7 @@ class ilTestArchiver
 
         $filename = realpath($this->getTestArchive()) . self::DIR_SEP . 'participant_pass_overview.pdf';
         ilTestPDFGenerator::generatePDF($output_template->get(), ilTestPDFGenerator::PDF_OUTPUT_FILE, $filename, PDF_USER_RESULT);
-        
+
         return;
     }
 
@@ -409,7 +429,7 @@ class ilTestArchiver
      *
      * @return bool
      */
-    public function hasZipExportDirectory()
+    public function hasZipExportDirectory(): bool
     {
         return is_dir($this->getZipExportDirectory());
     }
@@ -424,7 +444,7 @@ class ilTestArchiver
      *
      * @return string
      */
-    public function getZipExportDirectory()
+    public function getZipExportDirectory(): string
     {
         return $this->external_directory_path . self::DIR_SEP . $this->client_id . self::DIR_SEP . 'tst_data'
             . self::DIR_SEP . self::EXPORT_DIRECTORY . self::DIR_SEP . 'tst_' . $this->test_obj_id;
@@ -439,11 +459,11 @@ class ilTestArchiver
     {
         $this->updateTestArchive();
         $this->ensureZipExportDirectoryExists();
-        
+
         $zip_output_path = $this->getZipExportDirectory();
         $zip_output_filename = 'test_archive_obj_' . $this->test_obj_id . '_' . time() . '_.zip';
-        
-        ilUtil::zip($this->getTestArchive(), $zip_output_path . self::DIR_SEP . $zip_output_filename, true);
+
+        ilFileUtils::zip($this->getTestArchive(), $zip_output_path . self::DIR_SEP . $zip_output_filename, true);
         return;
     }
 
@@ -463,7 +483,7 @@ class ilTestArchiver
      *
      * @return bool $hasPassDataDirectory True, if the pass data directory exists.
      */
-    protected function hasPassDataDirectory($active_fi, $pass)
+    protected function hasPassDataDirectory($active_fi, $pass): bool
     {
         $pass_data_dir = $this->getPassDataDirectory($active_fi, $pass);
         return is_dir($this->getPassDataDirectory($active_fi, $pass));
@@ -482,8 +502,8 @@ class ilTestArchiver
         mkdir($this->getPassDataDirectory($active_fi, $pass), 0777, true);
         return;
     }
-    
-    private function buildPassDataDirectory($active_fi, $pass)
+
+    private function buildPassDataDirectory($active_fi, $pass): ?string
     {
         foreach ($this->archive_data_index as $data_index_entry) {
             if ($data_index_entry != null && $data_index_entry['identifier'] == $active_fi . '|' . $pass) {
@@ -491,7 +511,7 @@ class ilTestArchiver
                 return $this->getTestArchive() . self::DIR_SEP . implode(self::DIR_SEP, $data_index_entry);
             }
         }
-        
+
         return null;
     }
 
@@ -503,10 +523,10 @@ class ilTestArchiver
      *
      * @return string $pass_data_directory Path to the pass data directory.
      */
-    protected function getPassDataDirectory($active_fi, $pass)
+    protected function getPassDataDirectory($active_fi, $pass): ?string
     {
         $passDataDir = $this->buildPassDataDirectory($active_fi, $pass);
-        
+
         if (!$passDataDir) {
             $test_obj = new ilObjTest($this->test_obj_id, false);
             if ($test_obj->getAnonymity()) {
@@ -527,7 +547,7 @@ class ilTestArchiver
                     $matriculation = $ilUser->getMatriculation();
                 }
             }
-            
+
             $this->appendToArchiveDataIndex(
                 date(DATE_ISO8601),
                 $active_fi,
@@ -536,10 +556,10 @@ class ilTestArchiver
                 $lastname,
                 $matriculation
             );
-            
+
             $passDataDir = $this->buildPassDataDirectory($active_fi, $pass);
         }
-        
+
         return $passDataDir;
     }
 
@@ -573,7 +593,7 @@ class ilTestArchiver
      *
      * @return bool			$hasPassmaterialsDirectory True, if the directory exists.
      */
-    protected function hasPassMaterialsDirectory($active_fi, $pass)
+    protected function hasPassMaterialsDirectory($active_fi, $pass): bool
     {
         /** @noinspection PhpUsageOfSilenceOperatorInspection */
         if (@is_dir($this->getPassMaterialsDirectory($active_fi, $pass))) {
@@ -594,7 +614,7 @@ class ilTestArchiver
     {
         // Data are taken from the current user as the implementation expects the first interaction of the pass
         // takes place from the usage/behaviour of the current user.
-        
+
         if ($this->getParticipantData()) {
             $usrData = $this->getParticipantData()->getUserDataByActiveId($active_fi);
             $user = new ilObjUser();
@@ -627,7 +647,7 @@ class ilTestArchiver
      *
      * @return string $pass_materials_directory Path to the pass materials directory.
      */
-    protected function getPassMaterialsDirectory($active_fi, $pass)
+    protected function getPassMaterialsDirectory($active_fi, $pass): string
     {
         $pass_data_directory = $this->getPassMaterialsDirectory($active_fi, $pass);
         return $pass_data_directory . self::DIR_SEP . self::PASS_MATERIALS_PATH_COMPONENT;
@@ -656,7 +676,7 @@ class ilTestArchiver
      *
      * @return array[array] $archive_data_index Archive data index.
      */
-    protected function readArchiveDataIndex()
+    protected function readArchiveDataIndex(): array
     {
         /**
          * The Archive Data Index is a csv-file containing the following columns
@@ -670,6 +690,9 @@ class ilTestArchiver
         if (@file_exists($data_index_file)) {
             $lines = explode("\n", file_get_contents($data_index_file));
             foreach ($lines as $line) {
+                if (strlen($line) === 0) {
+                    continue;
+                }
                 $line_items = explode('|', $line);
                 $line_data = [];
                 $line_data['identifier'] = $line_items[0] . '|' . $line_items[1];
@@ -698,17 +721,17 @@ class ilTestArchiver
     protected function appendToArchiveDataIndex($date, $active_fi, $pass, $user_firstname, $user_lastname, $matriculation)
     {
         $line = $this->determinePassDataPath($date, $active_fi, $pass, $user_firstname, $user_lastname, $matriculation);
-        
+
         $this->archive_data_index[] = $line;
         $output_contents = '';
-        
+
         foreach ($this->archive_data_index as $line_data) {
             if ($line_data['identifier'] == "|") {
                 continue;
             }
             $output_contents .= implode('|', $line_data) . "\n";
         }
-        
+
         file_put_contents($this->getTestArchive() . self::DIR_SEP . self::DATA_INDEX_FILENAME, $output_contents);
         $this->readArchiveDataIndex();
         return;
@@ -726,7 +749,7 @@ class ilTestArchiver
      *
      * @return array
      */
-    protected function determinePassDataPath($date, $active_fi, $pass, $user_firstname, $user_lastname, $matriculation)
+    protected function determinePassDataPath($date, $active_fi, $pass, $user_firstname, $user_lastname, $matriculation): array
     {
         $date = date_create_from_format(DATE_ISO8601, $date);
         $line = array(
@@ -766,7 +789,7 @@ class ilTestArchiver
      *
      * @return integer
      */
-    protected function countFilesInDirectory($directory, $pattern = null)
+    protected function countFilesInDirectory($directory, $pattern = null): int
     {
         $filecount = 0;
 

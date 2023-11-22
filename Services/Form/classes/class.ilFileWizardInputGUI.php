@@ -1,57 +1,41 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2007 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
 /**
-* This class represents a file wizard property in a property form.
-*
-* @author Helmut Schottmüller <ilias@aurealis.de>
-* @version $Id: class.ilFileWizardInputGUI.php 18834 2009-02-03 10:10:29Z hschottm $
-* @ingroup	ServicesForm
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Filesystem\Util;
+
+/**
+ * This class represents a file wizard property in a property form.
+ *
+ * @author Helmut Schottmüller <ilias@aurealis.de>
+ */
 class ilFileWizardInputGUI extends ilFileInputGUI
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected ilGlobalTemplateInterface $tpl;
+    protected array $filenames = array();
+    protected bool $allowMove = false;
+    protected string $imagepath_web = "";
 
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
-
-    protected $filenames = array();
-    protected $allowMove = false;
-    protected $imagepath_web = "";
-    
-    /**
-    * Constructor
-    *
-    * @param	string	$a_title	Title
-    * @param	string	$a_postvar	Post Variable
-    */
-    public function __construct($a_title = "", $a_postvar = "")
-    {
+    public function __construct(
+        string $a_title = "",
+        string $a_postvar = ""
+    ) {
         global $DIC;
 
         $this->lng = $DIC->language();
@@ -60,83 +44,48 @@ class ilFileWizardInputGUI extends ilFileInputGUI
         parent::__construct($a_title, $a_postvar);
     }
 
-    /**
-    * Set the web image path
-    *
-    * @param string $a_path Path
-    */
-    public function setImagePathWeb($a_path)
+    public function setImagePathWeb(string $a_path): void
     {
         $this->imagepath_web = $a_path;
     }
-    
-    /**
-    * Get the web image path
-    *
-    * @return string Path
-    */
-    public function getImagePathWeb()
+
+    public function getImagePathWeb(): string
     {
         return $this->imagepath_web;
     }
 
-    /**
-    * Set filenames
-    *
-    * @param	array	$a_value	Value
-    */
-    public function setFilenames($a_filenames)
+    public function setFilenames(array $a_filenames): void
     {
         $this->filenames = $a_filenames;
     }
 
-    /**
-    * Get filenames
-    *
-    * @return	array	filenames
-    */
-    public function getFilenames()
+    public function getFilenames(): array
     {
         return $this->filenames;
     }
 
-    /**
-    * Set allow move
-    *
-    * @param	boolean	$a_allow_move Allow move
-    */
-    public function setAllowMove($a_allow_move)
+    public function setAllowMove(bool $a_allow_move): void
     {
         $this->allowMove = $a_allow_move;
     }
 
-    /**
-    * Get allow move
-    *
-    * @return	boolean	Allow move
-    */
-    public function getAllowMove()
+    public function getAllowMove(): bool
     {
         return $this->allowMove;
     }
 
-    /**
-    * Check input, strip slashes etc. set alert, if input is not ok.
-    *
-    * @return	boolean		Input ok, true/false
-    */
-    public function checkInput()
+    public function checkInput(): bool
     {
         $lng = $this->lng;
-        
+
         // see ilFileInputGUI
         // if no information is received, something went wrong
         // this is e.g. the case, if the post_max_size has been exceeded
-        if (!is_array($_FILES[$this->getPostVar()])) {
+        if (!isset($_FILES[$this->getPostVar()]) || !is_array($_FILES[$this->getPostVar()])) {
             $this->setAlert($lng->txt("form_msg_file_size_exceeds"));
             return false;
         }
-        
+
         $pictures = $_FILES[$this->getPostVar()];
         $uploadcheck = true;
         if (is_array($pictures)) {
@@ -146,25 +95,18 @@ class ilFileWizardInputGUI extends ilFileInputGUI
 
                 $filename = $name;
                 $filename_arr = pathinfo($name);
-                $suffix = $filename_arr["extension"];
-                $mimetype = $pictures["type"][$index];
-                $size_bytes = $pictures["size"][$index];
+                $suffix = $filename_arr["extension"] ?? "";
                 $temp_name = $pictures["tmp_name"][$index];
                 $error = $pictures["error"][$index];
 
-                include_once("./Services/Utilities/classes/class.ilStr.php");
-                $_FILES[$this->getPostVar()]["name"][$index] = ilStr::normalizeUtf8String($_FILES[$this->getPostVar()]["name"][$index]);
+                $_FILES[$this->getPostVar()]["name"][$index] = Util::sanitizeFileName($_FILES[$this->getPostVar()]["name"][$index]);
 
 
                 // error handling
                 if ($error > 0) {
                     switch ($error) {
-                        case UPLOAD_ERR_INI_SIZE:
-                            $this->setAlert($lng->txt("form_msg_file_size_exceeds"));
-                            $uploadcheck = false;
-                            break;
-
                         case UPLOAD_ERR_FORM_SIZE:
+                        case UPLOAD_ERR_INI_SIZE:
                             $this->setAlert($lng->txt("form_msg_file_size_exceeds"));
                             $uploadcheck = false;
                             break;
@@ -202,7 +144,7 @@ class ilFileWizardInputGUI extends ilFileInputGUI
                 }
 
                 // check suffixes
-                if ($pictures["tmp_name"][$index] != "" && is_array($this->getSuffixes())) {
+                if ($pictures["tmp_name"][$index] != "" && is_array($this->getSuffixes()) && count($this->getSuffixes()) > 0) {
                     if (!in_array(strtolower($suffix), $this->getSuffixes())) {
                         $this->setAlert($lng->txt("form_msg_file_wrong_file_type"));
                         $uploadcheck = false;
@@ -211,7 +153,7 @@ class ilFileWizardInputGUI extends ilFileInputGUI
 
                 // virus handling
                 if ($pictures["tmp_name"][$index] != "") {
-                    $vir = ilUtil::virusHandling($temp_name, $filename);
+                    $vir = ilVirusScanner::virusHandling($temp_name, $filename);
                     if ($vir[0] == false) {
                         $this->setAlert($lng->txt("form_msg_file_virus_found") . "<br />" . $vir[1]);
                         $uploadcheck = false;
@@ -223,29 +165,29 @@ class ilFileWizardInputGUI extends ilFileInputGUI
         if (!$uploadcheck) {
             return false;
         }
-        
+
         return $this->checkSubItemsInput();
     }
 
-    /**
-    * Insert property html
-    *
-    * @return	int	Size
-    */
-    public function insert($a_tpl)
+    public function insert(ilTemplate $a_tpl): void
     {
         $lng = $this->lng;
-        
+
         $tpl = new ilTemplate("tpl.prop_filewizardinput.html", true, true, "Services/Form");
 
         $i = 0;
         foreach ($this->filenames as $value) {
             if (strlen($value)) {
                 $tpl->setCurrentBlock("image");
-                $tpl->setVariable("SRC_IMAGE", $this->getImagePathWeb() . ilUtil::prepareFormOutput($value));
-                $tpl->setVariable("PICTURE_FILE", ilUtil::prepareFormOutput($value));
+                $tpl->setVariable(
+                    "SRC_IMAGE",
+                    $this->getImagePathWeb() . ilLegacyFormElementsUtil::prepareFormOutput(
+                        $value
+                    )
+                );
+                $tpl->setVariable("PICTURE_FILE", ilLegacyFormElementsUtil::prepareFormOutput($value));
                 $tpl->setVariable("ID", $this->getFieldId() . "[$i]");
-                $tpl->setVariable("ALT_IMAGE", ilUtil::prepareFormOutput($value));
+                $tpl->setVariable("ALT_IMAGE", ilLegacyFormElementsUtil::prepareFormOutput($value));
                 $tpl->parseCurrentBlock();
             }
             if ($this->getAllowMove()) {
@@ -253,7 +195,6 @@ class ilFileWizardInputGUI extends ilFileInputGUI
                 $tpl->setVariable("CMD_UP", "cmd[up" . $this->getFieldId() . "][$i]");
                 $tpl->setVariable("CMD_DOWN", "cmd[down" . $this->getFieldId() . "][$i]");
                 $tpl->setVariable("ID", $this->getFieldId() . "[$i]");
-                include_once("./Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php");
                 $tpl->setVariable("UP_BUTTON", ilGlyphGUI::get(ilGlyphGUI::UP));
                 $tpl->setVariable("DOWN_BUTTON", ilGlyphGUI::get(ilGlyphGUI::DOWN));
                 $tpl->parseCurrentBlock();
@@ -274,8 +215,7 @@ class ilFileWizardInputGUI extends ilFileInputGUI
                     " disabled=\"disabled\""
                 );
             }
-            
-            include_once("./Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php");
+
             $tpl->setVariable("ADD_BUTTON", ilGlyphGUI::get(ilGlyphGUI::ADD));
             $tpl->setVariable("REMOVE_BUTTON", ilGlyphGUI::get(ilGlyphGUI::REMOVE));
             $tpl->setVariable("TXT_MAX_SIZE", $lng->txt("file_notice") . " " . $this->getMaxFileSizeString());
@@ -289,7 +229,7 @@ class ilFileWizardInputGUI extends ilFileInputGUI
         $a_tpl->setCurrentBlock("prop_generic");
         $a_tpl->setVariable("PROP_GENERIC", $tpl->get());
         $a_tpl->parseCurrentBlock();
-        
+
         $main_tpl = $this->tpl;
         $main_tpl->addJavascript("./Services/Form/js/ServiceFormWizardInput.js");
         $main_tpl->addJavascript("./Services/Form/templates/default/filewizard.js");

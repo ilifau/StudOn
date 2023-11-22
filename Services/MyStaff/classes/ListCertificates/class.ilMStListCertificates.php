@@ -1,34 +1,43 @@
 <?php
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ ********************************************************************
+ */
+declare(strict_types=1);
 
 namespace ILIAS\MyStaff\ListCertificates;
 
-use Certificate\API\Data\UserCertificateDto;
-use Certificate\API\Filter\UserDataFilter;
-use Certificate\API\UserCertificateAPI;
+use ILIAS\Certificate\API\Data\UserCertificateDto;
+use ILIAS\Certificate\API\Filter\UserDataFilter;
+use ILIAS\Certificate\API\UserCertificateAPI;
 use ILIAS\DI\Container;
 use ILIAS\MyStaff\ilMyStaffAccess;
-use ilLPStatus;
 use ilMStListCertificatesGUI;
 use ilMyStaffGUI;
 use ilOrgUnitOperation;
 
 /**
  * Class ilMStListCertificates
- *
  * @author Martin Studer <ms@studer-raimann.ch>
  */
 class ilMStListCertificates
 {
-
-    /**
-     * @var Container
-     */
-    protected $dic;
-
+    protected Container $dic;
 
     /**
      * ilMStListCertificates constructor.
-     *
      * @param Container $dic
      */
     public function __construct(Container $dic)
@@ -36,18 +45,13 @@ class ilMStListCertificates
         $this->dic = $dic;
     }
 
-
     /**
-     * @param array $arr_usr_ids
-     * @param array $options
-     *
      * @return UserCertificateDto[]
      */
-    public function getData(array $options = array()) : array
+    final public function getData(array $options = array()): array
     {
         //Permission Filter
         $operation_access = ilOrgUnitOperation::OP_VIEW_CERTIFICATES;
-
 
         $_options = array(
             'filters' => array(),
@@ -66,8 +70,10 @@ class ilMStListCertificates
             }
             $usr_data_filter = new UserDataFilter();
             $usr_data_filter = $usr_data_filter->withUserIds($users);
-            $usr_data_filter = $usr_data_filter->withObjIds(ilMyStaffAccess::getInstance()->getIdsForUserAndOperation($this->dic->user()->getId(), $operation_access));
-
+            $usr_data_filter = $usr_data_filter->withObjIds(ilMyStaffAccess::getInstance()->getIdsForUserAndOperation(
+                $this->dic->user()->getId(),
+                $operation_access
+            ));
 
             if (!empty($options['filters']['user'])) {
                 $usr_data_filter = $usr_data_filter->withUserIdentification($options['filters']['user']);
@@ -75,7 +81,6 @@ class ilMStListCertificates
             if (!empty($options['filters']['obj_title'])) {
                 $usr_data_filter = $usr_data_filter->withObjectTitle($options['filters']['obj_title']);
             }
-
             if (!empty($options['filters']['org_unit'])) {
                 $org_unit_id = (int) $options['filters']['org_unit'];
                 $usr_data_filter = $usr_data_filter->withOrgUnitIds([$org_unit_id]);
@@ -116,15 +121,15 @@ class ilMStListCertificates
                 $usr_data_filter = $usr_data_filter->withLimitCount((int) $options['limit']['end']);
             }
 
-
-            $data = array_merge($data, $cert_api->getUserCertificateData($usr_data_filter, [ilMyStaffGUI::class, ilMStListCertificatesGUI::class]));
+            $data = array_merge($data, $cert_api->getUserCertificateData(
+                $usr_data_filter,
+                [ilMyStaffGUI::class, ilMStListCertificatesGUI::class]
+            ));
         }
 
         $unique_cert_data = [];
         foreach ($data as $cert_data) {
-            /**
-             * @var UserCertificateDto $cert_data
-             */
+            assert($cert_data instanceof UserCertificateDto);
             $unique_cert_data[$cert_data->getCertificateId()] = $cert_data;
         }
 

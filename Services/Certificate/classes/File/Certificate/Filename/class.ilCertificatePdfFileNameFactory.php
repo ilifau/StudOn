@@ -1,36 +1,43 @@
 <?php
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificatePdfFileNameFactory
 {
-    /** @var ilLanguage */
-    private $lng;
+    private ilLanguage $lng;
 
-    /**
-     * ilCertificatePdfFileNameFactory constructor.
-     * @param ilLanguage $lng
-     */
-    public function __construct(\ilLanguage $lng)
+    public function __construct(ilLanguage $lng)
     {
         $this->lng = $lng;
     }
 
-    public function create(ilUserCertificatePresentation $presentation)
+    public function create(ilUserCertificatePresentation $presentation): string
     {
         $objectType = $presentation->getObjType();
-        $pdfFileGenerator = $this->fetchCertificateGenerator($objectType);
 
-        return $pdfFileGenerator->createFileName($presentation);
+        return $this->fetchCertificateGenerator($objectType)->createFileName($presentation);
     }
 
-    /**
-     * @param string $objectType
-     * @return ilCertificateFilename
-     */
-    private function fetchCertificateGenerator(string $objectType) : ilCertificateFilename
+    private function fetchCertificateGenerator(string $objectType): ilCertificateFilename
     {
         $generator = new ilCertificatePdfFilename($this->lng);
         if ('sahs' === $objectType) {

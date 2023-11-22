@@ -1,5 +1,19 @@
 
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 ilTagging =
 {
@@ -40,43 +54,6 @@ ilTagging =
 			buttons:  {
 			}
 		});
-		this.sendAjaxGetRequest({cmd: "getHTML", cadh: this.hash}, {mode: 'list_tags'});
-		return;
-
-
-
-	if (!this.panel)
-		{
-			var n = document.getElementById('ilTagsPanel');
-			if (!n)
-			{
-				var b = $("body");
-				b.append("<div class='yui-skin-sam'><div id='ilTagsPanel' class='ilOverlay' style='overflow:auto;'>" +
-					"&nbsp;</div>");
-				var n = document.getElementById('ilTagsPanel');
-			}
-			
-			il.Overlay.add("ilTagsPanel", {yuicfg: {}});
-			il.Overlay.show(e, "ilTagsPanel");
-			this.panel = true;
-
-		}
-		else
-		{
-			il.Overlay.show(e, "ilTagsPanel");
-		}
-		
-		ilTagging.insertPanelHTML("");
-
-		var obj = document.getElementById('ilTagsPanel');
-		obj.style.position = 'fixed';
-		obj.style.top = '0px';
-		obj.style.bottom = '0px';
-		obj.style.right = '0px';
-		obj.style.left = '';
-		obj.style.width = '500px';
-		obj.style.height = '100%';
-		
 		this.sendAjaxGetRequest({cmd: "getHTML", cadh: this.hash}, {mode: 'list_tags'});
 	},
 

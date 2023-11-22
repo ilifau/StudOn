@@ -29,7 +29,7 @@ class StandardNotificationRendererTest extends BaseNotificationSetUp
     use Hasher;
 
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         if (!defined("ILIAS_HTTP_PATH")) {
@@ -37,14 +37,14 @@ class StandardNotificationRendererTest extends BaseNotificationSetUp
         }
     }
 
-    public function testConstruct() : void
+    public function testConstruct(): void
     {
         $renderer = new StandardNotificationRenderer($this->getUIFactory());
         $this->assertInstanceOf(StandardNotificationRenderer::class, $renderer);
     }
 
 
-    public function testGetNotificationComponentForItem() : void
+    public function testGetNotificationComponentForItem(): void
     {
         $renderer = new StandardNotificationRenderer($this->getUIFactory());
         $icon = $this->getUIFactory()->symbol()->icon()->standard("mail", "mail");
@@ -56,7 +56,7 @@ class StandardNotificationRendererTest extends BaseNotificationSetUp
     }
 
 
-    public function testGetNotificationComponentForItemWithCloseCallable() : void
+    public function testGetNotificationComponentForItemWithCloseCallable(): void
     {
         $renderer = new StandardNotificationRenderer($this->getUIFactory());
         $icon = $this->getUIFactory()->symbol()->icon()->standard("mail", "mail");
@@ -64,7 +64,7 @@ class StandardNotificationRendererTest extends BaseNotificationSetUp
 
         $standard_notification = $this->factory->standard($this->id)
             ->withNotificationItem($item)
-            ->withClosedCallable(function () : void {
+            ->withClosedCallable(function (): void {
             });
 
         $item = $item->withCloseAction("src/GlobalScreen/Client/notify.php?mode=closed&item_id=" . $this->hash($this->id->serialize()));

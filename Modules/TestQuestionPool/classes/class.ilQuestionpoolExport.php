@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
 
@@ -26,6 +41,12 @@ class ilQuestionpoolExport
     public $mode;
     public $lng;
 
+    private string $export_dir = '';
+    private string $subdir = '';
+    private string $filename = '';
+    private string $zipfilename = '';
+    private ilXmlWriter $xml;
+
     /**
     * Constructor
     * @access	public
@@ -48,7 +69,6 @@ class ilQuestionpoolExport
         $this->db = &$ilDB;
         $this->mode = $a_mode;
         $this->lng = &$lng;
-
         $settings = $this->ilias->getAllSettings();
         $this->inst_id = IL_INST_ID;
         $this->questions = $array_questions;
@@ -89,27 +109,22 @@ class ilQuestionpoolExport
 
     /**
     *   build export file (complete zip file)
-    *
-    *   @access public
-    *   @return
     */
-    public function buildExportFile()
+    public function buildExportFile(): string
     {
         switch ($this->mode) {
             case "xls":
                 return $this->buildExportFileXLS();
-                break;
             case "xml":
             default:
                 return $this->buildExportFileXML();
-                break;
         }
     }
 
     /**
     * build xml export file
     */
-    public function buildExportFileXML()
+    public function buildExportFileXML(): string
     {
         global $DIC;
         $ilBench = $DIC['ilBench'];
@@ -117,26 +132,26 @@ class ilQuestionpoolExport
         $ilBench->start("QuestionpoolExport", "buildExportFile");
 
         include_once("./Services/Xml/classes/class.ilXmlWriter.php");
-        $this->xml = new ilXmlWriter;
+        $this->xml = new ilXmlWriter();
 
         // set dtd definition
         $this->xml->xmlSetDtdDef("<!DOCTYPE Test SYSTEM \"http://www.ilias.uni-koeln.de/download/dtd/ilias_co.dtd\">");
 
         // set generated comment
         $this->xml->xmlSetGenCmt("Export of ILIAS Test Questionpool " .
-            $this->qpl_obj->getId() . " of installation " . $this->inst . ".");
+            $this->qpl_obj->getId() . " of installation " . $this->inst_id);
 
         // set xml header
         $this->xml->xmlHeader();
 
         // create directories
         include_once "./Services/Utilities/classes/class.ilUtil.php";
-        ilUtil::makeDir($this->export_dir . "/" . $this->subdir);
-        ilUtil::makeDir($this->export_dir . "/" . $this->subdir . "/objects");
+        ilFileUtils::makeDir($this->export_dir . "/" . $this->subdir);
+        ilFileUtils::makeDir($this->export_dir . "/" . $this->subdir . "/objects");
 
         // get Log File
         $expDir = $this->qpl_obj->getExportDirectory();
-        ilUtil::makeDirParents($expDir);
+        ilFileUtils::makeDirParents($expDir);
 
         include_once "./Services/Logging/classes/class.ilLog.php";
         $expLog = new ilLog($expDir, "export.log");
@@ -170,18 +185,17 @@ class ilQuestionpoolExport
 
         // zip the file
         $ilBench->start("QuestionpoolExport", "buildExportFile_zipFile");
-        ilUtil::zip($this->export_dir . "/" . $this->subdir, $this->export_dir . "/" . $this->subdir . ".zip");
+        ilFileUtils::zip($this->export_dir . "/" . $this->subdir, $this->export_dir . "/" . $this->subdir . ".zip");
+
         $ilBench->stop("QuestionpoolExport", "buildExportFile_zipFile");
 
-        // destroy writer object
-        $this->xml->_XmlWriter;
         $expLog->write(date("[y-m-d H:i:s] ") . "Finished Export");
         $ilBench->stop("QuestionpoolExport", "buildExportFile");
 
         return $this->export_dir . "/" . $this->subdir . ".zip";
     }
 
-    public function exportXHTMLMediaObjects($a_export_dir)
+    public function exportXHTMLMediaObjects($a_export_dir): void
     {
         include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 
@@ -200,7 +214,7 @@ class ilQuestionpoolExport
     /**
     * build xml export file
     */
-    protected function buildExportFileXLS()
+    protected function buildExportFileXLS(): string
     {
         require_once 'Modules/TestQuestionPool/classes/class.ilAssExcelFormatHelper.php';
         require_once 'Modules/TestQuestionPool/classes/class.assQuestion.php';
@@ -235,9 +249,10 @@ class ilQuestionpoolExport
 
         $excelfile = $this->export_dir . '/' . $this->filename;
         $worksheet->writeToFile($excelfile);
-        ilUtil::zip($excelfile, $this->export_dir . "/" . $this->zipfilename);
+        ilFileUtils::zip($excelfile, $this->export_dir . "/" . $this->zipfilename);
         if (@file_exists($this->export_dir . "/" . $this->filename)) {
             @unlink($this->export_dir . "/" . $this->filename);
         }
+        return $this->export_dir . "/" . $this->zipfilename;
     }
 }

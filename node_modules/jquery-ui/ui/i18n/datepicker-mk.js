@@ -17,8 +17,8 @@
 
 datepicker.regional.mk = {
 	closeText: "Затвори",
-	prevText: "Претходна",
-	nextText: "Следно",
+	prevText: "&#x3C;",
+	nextText: "&#x3E;",
 	currentText: "Денес",
 	monthNames: [ "Јануари", "Февруари", "Март", "Април", "Мај", "Јуни",
 	"Јули", "Август", "Септември", "Октомври", "Ноември", "Декември" ],

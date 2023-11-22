@@ -1,7 +1,22 @@
 <?php
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Services/Table/classes/class.ilTable2GUI.php';
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Michael Jansen <mjansen@databay.de>
@@ -9,22 +24,8 @@ require_once 'Services/Table/classes/class.ilTable2GUI.php';
  */
 class ilMailAttachmentTableGUI extends ilTable2GUI
 {
-    /**
-     * @var \ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @param $a_parent_obj
-     * @param $a_parent_cmd
-     */
-    public function __construct($a_parent_obj, $a_parent_cmd)
+    public function __construct(?object $a_parent_obj, string $a_parent_cmd)
     {
-        global $DIC;
-
-        $this->ctrl = $DIC->ctrl();
-
-        // Call this immediately in constructor
         $this->setId('mail_attachments');
 
         $this->setDefaultOrderDirection('ASC');
@@ -54,46 +55,42 @@ class ilMailAttachmentTableGUI extends ilTable2GUI
         $this->setLimit(PHP_INT_MAX);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         /**
          * We need to encode this because of filenames with the following format: "anystring".txt (with ")
          */
-        $this->tpl->setVariable('VAL_CHECKBOX', ilUtil::formCheckbox($a_set['checked'], 'filename[]', urlencode($a_set['filename'])));
-        $this->tpl->setVariable('VAL_FILENAME', $this->formatValue('filename', $a_set['filename']));
-        $this->tpl->setVariable('VAL_FILESIZE', $this->formatValue('filesize', $a_set['filesize']));
-        $this->tpl->setVariable('VAL_FILECREATEDATE', $this->formatValue('filecreatedate', $a_set['filecreatedate']));
+        $this->tpl->setVariable(
+            'VAL_CHECKBOX',
+            ilLegacyFormElementsUtil::formCheckbox($a_set['checked'], 'filename[]', urlencode($a_set['filename']))
+        );
+        $this->tpl->setVariable(
+            'VAL_FILENAME',
+            $this->formatValue('filename', $a_set['filename'])
+        );
+        $this->tpl->setVariable(
+            'VAL_FILESIZE',
+            $this->formatValue('filesize', (string) $a_set['filesize'])
+        );
+        $this->tpl->setVariable(
+            'VAL_FILECREATEDATE',
+            $this->formatValue('filecreatedate', (string) $a_set['filecreatedate'])
+        );
     }
 
-    /**
-     * @param string $column
-     * @return bool
-     */
-    public function numericOrdering($column)
+    public function numericOrdering(string $a_field): bool
     {
-        if ($column == 'filesize' || $column == 'filecreatedate') {
-            return true;
-        }
-
-        return false;
+        return $a_field === 'filesize' || $a_field === 'filecreatedate';
     }
 
-    /**
-     * @param string $column
-     * @param string $value
-     * @return string
-     */
-    protected function formatValue($column, $value)
+    protected function formatValue(string $column, string $value): ?string
     {
         switch ($column) {
             case 'filecreatedate':
                 return ilDatePresentation::formatDate(new ilDateTime($value, IL_CAL_UNIX));
 
             case 'filesize':
-                return ilUtil::formatSize($value);
+                return ilUtil::formatSize((int) $value);
 
             default:
                 return $value;

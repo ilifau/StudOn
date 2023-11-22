@@ -31,14 +31,14 @@ use ilDBStatement;
 
 class AccessFileUploadAnswerTest extends TestCase
 {
-    public function testConstruct() : void
+    public function testConstruct(): void
     {
         $container = $this->getMockBuilder(Container::class)->disableOriginalConstructor()->getMock();
         $readable = $this->getMockBuilder(Readable::class)->disableOriginalConstructor()->getMock();
         $this->assertInstanceOf(AccessFileUploadAnswer::class, new AccessFileUploadAnswer($container, $readable));
     }
 
-    public function testNoUploadPath() : void
+    public function testNoUploadPath(): void
     {
         $container = $this->getMockBuilder(Container::class)->disableOriginalConstructor()->getMock();
         $readable = $this->getMockBuilder(Readable::class)->disableOriginalConstructor()->getMock();
@@ -48,27 +48,27 @@ class AccessFileUploadAnswerTest extends TestCase
         $this->assertTrue($instance->isPermitted('/data/some/path/file.pdf')->isError());
     }
 
-    public function testFalseWithZeroAsTestId() : void
+    public function testFalseWithZeroAsTestId(): void
     {
         $container = $this->getMockBuilder(Container::class)->disableOriginalConstructor()->getMock();
         $readable = $this->getMockBuilder(Readable::class)->disableOriginalConstructor()->getMock();
 
         $instance = new AccessFileUploadAnswer($container, $readable);
 
-        $object_id_of_test_id = function () : void {
+        $object_id_of_test_id = function (): void {
             $this->assertFalse('Should not be called.');
         };
 
         $this->assertFalse($instance->isPermitted('/data/assessment/tst_0/ignored/file.mp3')->value());
     }
 
-    public function testFalseWithInvalidTestId() : void
+    public function testFalseWithInvalidTestId(): void
     {
         $called = false;
         $container = $this->getMockBuilder(Container::class)->disableOriginalConstructor()->getMock();
         $readable = $this->getMockBuilder(Readable::class)->disableOriginalConstructor()->getMock();
 
-        $object_id_of_test_id = function (int $test) use (&$called) : int {
+        $object_id_of_test_id = function (int $test) use (&$called): int {
             $this->assertEquals(8, $test);
             $called = true;
             return 0;
@@ -80,7 +80,7 @@ class AccessFileUploadAnswerTest extends TestCase
         $this->assertTrue($called);
     }
 
-    public function testCantRead() : void
+    public function testCantRead(): void
     {
         $called = false;
 
@@ -89,15 +89,17 @@ class AccessFileUploadAnswerTest extends TestCase
         $readable = $this->getMockBuilder(Readable::class)->disableOriginalConstructor()->getMock();
         $readable->expects(self::once())->method('references')->with([678])->willReturn(false);
 
-        $object_id_of_test_id = function (int $test) use (&$called) : int {
+
+
+        $object_id_of_test_id = function (int $test) use (&$called): int {
             $this->assertEquals(8, $test);
             $called = true;
             return 934;
         };
 
-        $references_of = function (int $object_id) : array {
+        $references_of = function (int $object_id): array {
             $this->assertEquals(934, $object_id);
-            return ['678'];
+            return [678];
         };
 
         $instance = new AccessFileUploadAnswer($container, $readable, $object_id_of_test_id, $references_of);
@@ -106,7 +108,7 @@ class AccessFileUploadAnswerTest extends TestCase
         $this->assertTrue($called);
     }
 
-    public function testAnonymousWithoutAccessCode() : void
+    public function testAnonymousWithoutAccessCode(): void
     {
         $called = false;
 
@@ -120,18 +122,19 @@ class AccessFileUploadAnswerTest extends TestCase
         $readable = $this->getMockBuilder(Readable::class)->disableOriginalConstructor()->getMock();
         $readable->expects(self::once())->method('references')->with([678])->willReturn(true);
 
+
         $object_id_of_test_id = function (int $test) use (&$called): int {
             $this->assertEquals(8, $test);
             $called = true;
             return 934;
         };
 
-        $references_of = function (int $object_id) : array {
+        $references_of = function (int $object_id): array {
             $this->assertEquals(934, $object_id);
-            return ['678'];
+            return [678];
         };
 
-        $session = function (string $key) : ?array {
+        $session = function (string $key): ?array {
             $this->assertEquals(ilTestSession::ACCESS_CODE_SESSION_INDEX, $key);
 
             return null;
@@ -143,14 +146,14 @@ class AccessFileUploadAnswerTest extends TestCase
         $this->assertTrue($called);
     }
 
-    public function testAnonymousWithInvalidAccessCode() : void
+    public function testAnonymousWithInvalidAccessCode(): void
     {
         $called = false;
 
         $statement = $this->getMockBuilder(ilDBStatement::class)->disableOriginalConstructor()->getMock();
 
         $database = $this->getMockBuilder(ilDBInterface::class)->disableOriginalConstructor()->getMock();
-        $database->expects(self::once())->method('queryF')->willReturnCallback(function (string $query, array $types, array $values) use ($statement) : ilDBStatement {
+        $database->expects(self::once())->method('queryF')->willReturnCallback(function (string $query, array $types, array $values) use ($statement): ilDBStatement {
             $this->assertEquals([8389, 'file.mp3', 'Random access code.', 8], $values);
 
             return $statement;
@@ -168,18 +171,18 @@ class AccessFileUploadAnswerTest extends TestCase
         $container->method('user')->willReturn($user);
         $container->method('database')->willReturn($database);
 
-        $object_id_of_test_id = function (int $test) use (&$called) : int {
+        $object_id_of_test_id = function (int $test) use (&$called): int {
             $this->assertEquals(8, $test);
             $called = true;
             return 934;
         };
 
-        $references_of = function (int $object_id) : array {
+        $references_of = function (int $object_id): array {
             $this->assertEquals(934, $object_id);
-            return ['678'];
+            return [678];
         };
 
-        $session = function (string $key) : ?array {
+        $session = function (string $key): ?array {
             $this->assertEquals(ilTestSession::ACCESS_CODE_SESSION_INDEX, $key);
 
             return [8 => 'Random access code.'];
@@ -191,14 +194,14 @@ class AccessFileUploadAnswerTest extends TestCase
         $this->assertTrue($called);
     }
 
-    public function testAnonymousWithValidAccessCode() : void
+    public function testAnonymousWithValidAccessCode(): void
     {
         $called = false;
 
         $statement = $this->getMockBuilder(ilDBStatement::class)->disableOriginalConstructor()->getMock();
 
         $database = $this->getMockBuilder(ilDBInterface::class)->disableOriginalConstructor()->getMock();
-        $database->expects(self::once())->method('queryF')->willReturnCallback(function (string $query, array $types, array $values) use ($statement) : ilDBStatement {
+        $database->expects(self::once())->method('queryF')->willReturnCallback(function (string $query, array $types, array $values) use ($statement): ilDBStatement {
             $this->assertEquals([8389, 'file.mp3', 'Random access code.', 8], $values);
 
             return $statement;
@@ -216,18 +219,18 @@ class AccessFileUploadAnswerTest extends TestCase
         $container->method('user')->willReturn($user);
         $container->method('database')->willReturn($database);
 
-        $object_id_of_test_id = function (int $test) use (&$called) : int {
+        $object_id_of_test_id = function (int $test) use (&$called): int {
             $this->assertEquals(8, $test);
             $called = true;
             return 934;
         };
 
-        $references_of = function (int $object_id) : array {
+        $references_of = function (int $object_id): array {
             $this->assertEquals(934, $object_id);
-            return ['678'];
+            return [678];
         };
 
-        $session = function (string $key) : ?array {
+        $session = function (string $key): ?array {
             $this->assertEquals(ilTestSession::ACCESS_CODE_SESSION_INDEX, $key);
 
             return [8 => 'Random access code.'];
@@ -239,7 +242,7 @@ class AccessFileUploadAnswerTest extends TestCase
         $this->assertTrue($called);
     }
 
-    public function testUserWhichCanAccessTheTestResults() : void
+    public function testUserWhichCanAccessTheTestResults(): void
     {
         $called = false;
         $checkResultsAccessCalled = false;
@@ -247,14 +250,14 @@ class AccessFileUploadAnswerTest extends TestCase
         $statement = $this->getMockBuilder(ilDBStatement::class)->disableOriginalConstructor()->getMock();
 
         $database = $this->getMockBuilder(ilDBInterface::class)->disableOriginalConstructor()->getMock();
-        $database->expects(self::once())->method('queryF')->willReturnCallback(function (string $query, array $types, array $values) use ($statement) : ilDBStatement {
+        $database->expects(self::once())->method('queryF')->willReturnCallback(function (string $query, array $types, array $values) use ($statement): ilDBStatement {
             $this->assertEquals(['assFileUpload', 8], $values);
 
             return $statement;
         });
         $database->expects(self::once())->method('fetchAssoc')->with($statement)->willReturn([
             'active_fi' => '11111',
-            'value1' => 'file.mp3',
+            'value1' => 'file.mp3'
         ]);
 
         $user = $this->getMockBuilder(ilObjUser::class)->disableOriginalConstructor()->getMock();
@@ -268,26 +271,26 @@ class AccessFileUploadAnswerTest extends TestCase
         $container->method('user')->willReturn($user);
         $container->method('database')->willReturn($database);
 
-        $object_id_of_test_id = function (int $test) use (&$called) : int {
+        $object_id_of_test_id = function (int $test) use (&$called): int {
             $this->assertEquals(8, $test);
             $called = true;
             return 934;
         };
 
-        $references_of = function (int $object_id) : array {
+        $references_of = function (int $object_id): array {
             $this->assertEquals(934, $object_id);
-            return ['678'];
+            return [678];
         };
 
-        $session = function (string $key) : ?array {
+        $session = function (string $key): ?array {
             $this->assertEquals(ilTestSession::ACCESS_CODE_SESSION_INDEX, $key);
 
             return [8 => 'Random access code.'];
         };
 
-        $checkResultsAccess = function (int $reference, int $test, int $active_id) use (&$checkResultsAccessCalled) : bool {
+        $checkResultsAccess = function (int $reference, int $test, int $active_id) use (&$checkResultsAccessCalled): bool {
             $checkResultsAccessCalled = true;
-            $this->assertEquals(678, $reference);
+            $this->assertEquals('678', $reference);
             $this->assertEquals(8, $test);
             $this->assertEquals(11111, $active_id);
 

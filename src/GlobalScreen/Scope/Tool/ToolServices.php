@@ -31,14 +31,8 @@ use ILIAS\GlobalScreen\SingletonTrait;
  */
 class ToolServices
 {
-    /**
-     * @var \ILIAS\GlobalScreen\Scope\Tool\Factory\ToolFactory
-     */
-    private $tool_factory;
-    /**
-     * @var \ILIAS\GlobalScreen\ScreenContext\ContextServices
-     */
-    private $context_services;
+    private ToolFactory $tool_factory;
+    private ContextServices $context_services;
 
     public function __construct()
     {
@@ -50,7 +44,7 @@ class ToolServices
     /**
      * @return ToolFactory
      */
-    public function factory() : ToolFactory
+    public function factory(): ToolFactory
     {
         return $this->tool_factory;
     }
@@ -58,7 +52,7 @@ class ToolServices
     /**
      * @return ContextServices
      */
-    public function context() : ContextServices
+    public function context(): ContextServices
     {
         return $this->context_services;
     }

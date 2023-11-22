@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceDocument
@@ -7,17 +24,17 @@
  */
 class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceSignableDocument
 {
-    const TABLE_NAME = 'tos_documents';
+    private const TABLE_NAME = 'tos_documents';
 
     /**
-     * @var string
+     * @var int
      * @db_has_field        true
      * @db_fieldtype        integer
      * @db_length           4
      * @db_is_primary       true
      * @con_sequence        true
      */
-    protected $id;
+    protected ?int $id = null;
 
     /**
      * @var int
@@ -25,7 +42,7 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $creation_ts = 0;
+    protected int $creation_ts = 0;
 
     /**
      * @var int
@@ -33,7 +50,7 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $modification_ts = 0;
+    protected int $modification_ts = 0;
 
     /**
      * @var int
@@ -41,7 +58,7 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $owner_usr_id = 0;
+    protected int $owner_usr_id = 0;
 
     /**
      * @var int
@@ -49,7 +66,7 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $last_modified_usr_id = 0;
+    protected int $last_modified_usr_id = 0;
 
     /**
      * @var int
@@ -57,7 +74,7 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
      * @con_fieldtype   integer
      * @con_length      4
      */
-    protected $sorting = 0;
+    protected ?int $sorting = 0;
 
     /**
      * @var string
@@ -65,76 +82,51 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
      * @db_fieldtype        text
      * @db_length           255
      */
-    protected $title = '';
+    protected ?string $title = null;
 
     /**
      * @var string
      * @db_has_field        true
      * @db_fieldtype        clob
      */
-    protected $text = '';
+    protected string $text = '';
 
-    /**
-     * @var ilTermsOfServiceDocumentCriterionAssignment[]
-     */
-    protected $criteria = [];
+    /** @var ilTermsOfServiceDocumentCriterionAssignment[] */
+    protected array $criteria = [];
 
-    /**
-     * @var ilTermsOfServiceDocumentCriterionAssignment[]
-     */
-    protected $initialPersistedCriteria = [];
+    /** @var ilTermsOfServiceDocumentCriterionAssignment[] */
+    protected array $initialPersistedCriteria = [];
 
-    /**
-     * @var bool
-     */
-    private $criteriaFetched = false;
+    private bool $criteriaFetched = false;
 
-    /**
-     * @inheritdoc
-     */
-    public static function returnDbTableName()
+    public static function returnDbTableName(): string
     {
         return self::TABLE_NAME;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function content() : string
+    public function content(): string
     {
         return $this->text;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function title() : string
+    public function title(): string
     {
         return $this->title;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function id() : int
+    public function id(): int
     {
-        return (int) $this->id;
+        return $this->id;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function read()
+    public function read(): void
     {
         parent::read();
 
         $this->fetchAllCriterionAssignments();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function buildFromArray(array $array)
+    public function buildFromArray(array $array): ActiveRecord
     {
         $document = parent::buildFromArray($array);
 
@@ -143,17 +135,13 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
         return $document;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function create()
+    public function create(): void
     {
         $this->setCreationTs(time());
 
         parent::create();
 
         foreach ($this->criteria as $criterionAssignment) {
-            /** @var $criterionAssignment ilTermsOfServiceDocumentCriterionAssignment */
             $criterionAssignment->setDocId($this->getId());
             $criterionAssignment->store();
         }
@@ -161,25 +149,22 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
         $this->initialPersistedCriteria = $this->criteria;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function update()
+    public function update(): void
     {
         $this->setModificationTs(time());
 
         foreach ($this->criteria as $criterionAssignment) {
-            /** @var $criterionAssignment ilTermsOfServiceDocumentCriterionAssignment */
             $criterionAssignment->setDocId($this->getId());
             $criterionAssignment->store();
         }
 
         foreach ($this->initialPersistedCriteria as $criterionAssignment) {
-            /** @var $criterionAssignment ilTermsOfServiceDocumentCriterionAssignment */
             $found = array_filter(
                 $this->criteria,
-                function (ilTermsOfServiceDocumentCriterionAssignment $criterionToMatch) use ($criterionAssignment) {
-                    return $criterionToMatch->getId() == $criterionAssignment->getId();
+                static function (ilTermsOfServiceDocumentCriterionAssignment $criterionToMatch) use (
+                    $criterionAssignment
+                ): bool {
+                    return $criterionToMatch->getId() === $criterionAssignment->getId();
                 }
             );
 
@@ -193,13 +178,9 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
         parent::update();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function delete()
+    public function delete(): void
     {
         foreach ($this->initialPersistedCriteria as $criterionAssignment) {
-            /** @var $criterionAssignment ilTermsOfServiceDocumentCriterionAssignment */
             $criterionAssignment->delete();
         }
 
@@ -208,10 +189,7 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
         parent::delete();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function criteria() : array
+    public function criteria(): array
     {
         return $this->criteria;
     }
@@ -220,13 +198,12 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
      * @param ilTermsOfServiceDocumentCriterionAssignment $criterionAssignment
      * @throws ilTermsOfServiceDuplicateCriterionAssignmentException
      */
-    public function attachCriterion(ilTermsOfServiceDocumentCriterionAssignment $criterionAssignment) : void
+    public function attachCriterion(ilTermsOfServiceDocumentCriterionAssignment $criterionAssignment): void
     {
         foreach ($this->criteria as $currentAssignment) {
-            /** @var $criterionAssignment ilTermsOfServiceDocumentCriterionAssignment */
             if ($currentAssignment->equals($criterionAssignment)) {
                 throw new ilTermsOfServiceDuplicateCriterionAssignmentException(sprintf(
-                    "Cannot attach duplicate criterion with criterion typeIdent %s and value: %s",
+                    'Cannot attach duplicate criterion with criterion typeIdent %s and value: %s',
                     $criterionAssignment->getCriterionId(),
                     var_export($criterionAssignment->getCriterionValue(), true)
                 ));
@@ -237,16 +214,18 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
     }
 
     /**
-     * @param ilTermsOfServiceDocumentCriterionAssignment
+     * @param ilTermsOfServiceDocumentCriterionAssignment $criterionAssignment
      * @throws OutOfBoundsException
      */
-    public function detachCriterion(ilTermsOfServiceDocumentCriterionAssignment $criterionAssignment) : void
+    public function detachCriterion(ilTermsOfServiceDocumentCriterionAssignment $criterionAssignment): void
     {
         $numCriteriaBeforeRemoval = count($this->criteria);
 
         $this->criteria = array_filter(
             $this->criteria,
-            function (ilTermsOfServiceDocumentCriterionAssignment $currentAssignment) use ($criterionAssignment) {
+            static function (ilTermsOfServiceDocumentCriterionAssignment $currentAssignment) use (
+                $criterionAssignment
+            ): bool {
                 return !$currentAssignment->equals($criterionAssignment);
             }
         );
@@ -255,17 +234,14 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
 
         if ($numCriteriaAfterRemoval === $numCriteriaBeforeRemoval) {
             throw new OutOfBoundsException(sprintf(
-                "Could not find any criterion with criterion typeIdent %s and value: %s",
+                'Could not find any criterion with criterion typeIdent %s and value: %s',
                 $criterionAssignment->getCriterionId(),
                 var_export($criterionAssignment->getCriterionValue(), true)
             ));
         }
     }
 
-    /**
-     * Reads all criterion assignments from database
-     */
-    public function fetchAllCriterionAssignments() : void
+    public function fetchAllCriterionAssignments(): void
     {
         if (!$this->criteriaFetched) {
             $this->criteriaFetched = true;
@@ -275,7 +251,7 @@ class ilTermsOfServiceDocument extends ActiveRecord implements ilTermsOfServiceS
 
             $criteria = ilTermsOfServiceDocumentCriterionAssignment::where(['doc_id' => $this->getId()])->get();
             foreach ($criteria as $criterionAssignment) {
-                /** @var $criterionAssignment ilTermsOfServiceDocumentCriterionAssignment */
+                /** @var ilTermsOfServiceDocumentCriterionAssignment $criterionAssignment */
                 $this->criteria[] = $criterionAssignment;
             }
 

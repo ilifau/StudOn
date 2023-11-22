@@ -35,15 +35,9 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
 {
     use isSupportedTrait;
 
-    /**
-     * @var \ILIAS\GlobalScreen\Services
-     */
-    private $gs;
+    private \ILIAS\GlobalScreen\Services $gs;
 
-    /**
-     * @var \ilLanguage
-     */
-    private $lng;
+    private \ilLanguage $lng;
 
     /**
      * BaseMetaBarItemRenderer constructor.
@@ -60,7 +54,7 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
      * @param NotificationCenter $item
      * @return Component
      */
-    protected function getSpecificComponentForItem(isItem $item) : Component
+    protected function getSpecificComponentForItem(isItem $item): Component
     {
         $f = $this->ui->factory();
 
@@ -83,7 +77,7 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
      * @param Combined $center
      * @return \ILIAS\UI\Component\JavaScriptBindable|Combined
      */
-    protected function attachJSShowEvent(Combined $center) : \ILIAS\UI\Component\MainControls\Slate\Combined
+    protected function attachJSShowEvent(Combined $center): \ILIAS\UI\Component\MainControls\Slate\Combined
     {
         $toggle_signal = $center->getToggleSignal();
         $url = ClientNotifications::NOTIFY_ENDPOINT . "?" . $this->buildShowQuery();
@@ -104,12 +98,12 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
      * @param Combined $center
      * @return \ILIAS\UI\Component\JavaScriptBindable|Combined
      */
-    protected function attachJSRerenderEvent(Combined $center) : \ILIAS\UI\Component\MainControls\Slate\Combined
+    protected function attachJSRerenderEvent(Combined $center): \ILIAS\UI\Component\MainControls\Slate\Combined
     {
         $url = ClientNotifications::NOTIFY_ENDPOINT . "?" . $this->buildRerenderQuery();
 
         return $center->withAdditionalOnLoadCode(
-            function (string $id) use ($url) : string {
+            function (string $id) use ($url): string {
                 return "document.addEventListener('rerenderNotificationCenter', () => {
                     let xhr = new XMLHttpRequest();
                     xhr.open('GET', '$url');
@@ -134,7 +128,7 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
     /**
      * @return string
      */
-    protected function buildShowQuery() : string
+    protected function buildShowQuery(): string
     {
         return http_build_query([
             ClientNotifications::MODE => ClientNotifications::MODE_OPENED,
@@ -142,7 +136,7 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
         ]);
     }
 
-    protected function buildRerenderQuery() : string
+    protected function buildRerenderQuery(): string
     {
         return http_build_query([ClientNotifications::MODE => ClientNotifications::MODE_RERENDER]);
     }

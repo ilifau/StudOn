@@ -43,7 +43,7 @@ class ToolItemRenderer extends BaseTypeRenderer
      * @param bool   $with_content
      * @return Component
      */
-    public function getComponentForItem(isItem $item, bool $with_content = false) : Component
+    public function getComponentForItem(isItem $item, bool $with_content = false): Component
     {
         /**
          * @var $item Tool

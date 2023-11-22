@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceAcceptanceEntity
@@ -7,43 +24,21 @@
  */
 class ilTermsOfServiceAcceptanceEntity
 {
-    /** @var int */
-    protected $id = 0;
+    protected int $id = 0;
+    protected int $user_id = 0;
+    protected string $text = '';
+    protected int $timestamp = 0;
+    protected string $hash = '';
+    protected string $title = '';
+    protected int $document_id = 0;
+    protected string $criteria = '';
 
-    /** @var int */
-    protected $user_id = 0;
-
-    /** @var string */
-    protected $text = '';
-
-    /** @var int */
-    protected $timestamp = 0;
-
-    /** @var string */
-    protected $hash = '';
-
-    /** @var string */
-    protected $title = '';
-
-    /** @var int */
-    protected $document_id = 0;
-
-    /** @var string */
-    protected $criteria = '';
-
-    /**
-     * @return string
-     */
-    public function getHash() : string
+    public function getHash(): string
     {
         return $this->hash;
     }
 
-    /**
-     * @param string $hash
-     * @return ilTermsOfServiceAcceptanceEntity
-     */
-    public function withHash(string $hash) : self
+    public function withHash(string $hash): self
     {
         $clone = clone $this;
 
@@ -52,19 +47,12 @@ class ilTermsOfServiceAcceptanceEntity
         return $clone;
     }
 
-    /**
-     * @return string
-     */
-    public function getText() : string
+    public function getText(): string
     {
         return $this->text;
     }
 
-    /**
-     * @param string $text
-     * @return ilTermsOfServiceAcceptanceEntity
-     */
-    public function withText(string $text) : self
+    public function withText(string $text): self
     {
         $clone = clone $this;
 
@@ -73,19 +61,12 @@ class ilTermsOfServiceAcceptanceEntity
         return $clone;
     }
 
-    /**
-     * @return int
-     */
-    public function getTimestamp() : int
+    public function getTimestamp(): int
     {
         return $this->timestamp;
     }
 
-    /**
-     * @param int $timestamp
-     * @return ilTermsOfServiceAcceptanceEntity
-     */
-    public function withTimestamp(int $timestamp) : self
+    public function withTimestamp(int $timestamp): self
     {
         $clone = clone $this;
 
@@ -94,19 +75,12 @@ class ilTermsOfServiceAcceptanceEntity
         return $clone;
     }
 
-    /**
-     * @return int
-     */
-    public function getUserId() : int
+    public function getUserId(): int
     {
         return $this->user_id;
     }
 
-    /**
-     * @param int $user_id
-     * @return ilTermsOfServiceAcceptanceEntity
-     */
-    public function withUserId(int $user_id) : self
+    public function withUserId(int $user_id): self
     {
         $clone = clone $this;
 
@@ -115,19 +89,12 @@ class ilTermsOfServiceAcceptanceEntity
         return $clone;
     }
 
-    /**
-     * @return int
-     */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @param $id
-     * @return ilTermsOfServiceAcceptanceEntity
-     */
-    public function withId(int $id) : self
+    public function withId(int $id): self
     {
         $clone = clone $this;
 
@@ -136,19 +103,12 @@ class ilTermsOfServiceAcceptanceEntity
         return $clone;
     }
 
-    /**
-     * @return string
-     */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     * @return ilTermsOfServiceAcceptanceEntity
-     */
-    public function withTitle(string $title) : self
+    public function withTitle(string $title): self
     {
         $clone = clone $this;
 
@@ -157,19 +117,12 @@ class ilTermsOfServiceAcceptanceEntity
         return $clone;
     }
 
-    /**
-     * @return int
-     */
-    public function getDocumentId() : int
+    public function getDocumentId(): int
     {
         return $this->document_id;
     }
 
-    /**
-     * @param int $document_id
-     * @return ilTermsOfServiceAcceptanceEntity
-     */
-    public function withDocumentId(int $document_id) : self
+    public function withDocumentId(int $document_id): self
     {
         $clone = clone $this;
 
@@ -178,19 +131,12 @@ class ilTermsOfServiceAcceptanceEntity
         return $clone;
     }
 
-    /**
-     * @return string
-     */
-    public function getSerializedCriteria() : string
+    public function getSerializedCriteria(): string
     {
         return $this->criteria;
     }
 
-    /**
-     * @param string $criteria
-     * @return ilTermsOfServiceAcceptanceEntity
-     */
-    public function withSerializedCriteria(string $criteria) : self
+    public function withSerializedCriteria(string $criteria): self
     {
         $clone = clone $this;
 

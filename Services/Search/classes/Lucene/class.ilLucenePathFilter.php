@@ -1,88 +1,68 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2006 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
 
-include_once './Services/Search/interfaces/interface.ilLuceneResultFilter.php';
+declare(strict_types=1);
+
 /**
-* Lucene path filter
-*
-* @author Stefan Meyer <meyer@leifos.com>
-* @version $Id$
-*
-*
-* @ingroup ServicesSearch
-*/
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Lucene path filter
+ *
+ * @author  Stefan Meyer <meyer@leifos.com>
+ * @ingroup ServicesSearch
+ */
 class ilLucenePathFilter implements ilLuceneResultFilter
 {
-    protected $root = ROOT_FOLDER_ID;
-    protected $subnodes = array();
-    
-    
-    /**
-     * Constructor
-     * @param int $a_root root id
-     * @return
-     */
-    public function __construct($a_root)
-    {
-        $this->root = $a_root;
-        //$this->init();
-    }
-    
-    /**
-     * Return whether a object reference is valid or not
-     * @param int $a_ref_id reference id of object in question
-     * @return boolean
-     */
-    public function filter($a_ref_id)
+    protected int $root;
+    protected array $subnodes = [];
+    protected ilTree $tree;
+
+    public function __construct(int $a_root)
     {
         global $DIC;
 
-        $tree = $DIC['tree'];
-        
+        $this->tree = $DIC->repositoryTree();
+        $this->root = $a_root;
+    }
+
+    /**
+     * Return whether a object reference is valid or not
+     */
+    public function filter(int $a_ref_id): bool
+    {
         if ($this->root == ROOT_FOLDER_ID) {
             return true;
         }
         if ($this->root == $a_ref_id) {
             return true;
         }
-        return $tree->isGrandChild($this->root, $a_ref_id);
+        return $this->tree->isGrandChild($this->root, $a_ref_id);
     }
-    
+
     /**
      * Read valid reference ids
-     * @return
+     * @return void
      */
-    protected function init()
+    protected function init(): void
     {
-        global $DIC;
-
-        $tree = $DIC['tree'];
-        
         if ($this->root == ROOT_FOLDER_ID) {
             $this->subnodes = array();
         } else {
-            $node = $tree->getNodeData($this->root);
-            $this->subnodes = $tree->getSubTree($node, false);
+            $node = $this->tree->getNodeData($this->root);
+            $this->subnodes = $this->tree->getSubTree($node, false);
         }
     }
 }

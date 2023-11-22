@@ -1,61 +1,40 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2008 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * This class represents a email property in a property form.
- * @author     Alex Killing <alex.killing@gmx.de>
- * @version    $Id$
- * @ingroup    ServicesForm
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilEMailInputGUI extends ilFormPropertyGUI
 {
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
+    protected string $value = "";
+    protected int  $size = 30;
+    protected int $max_length = 80;
+    protected bool $allowRFC822 = false;
+    protected bool $retype = false;
+    protected string $retypevalue = '';
 
-    protected $value;
-    protected $size = 30;
-    protected $max_length = 80;
-    protected $allowRFC822 = false; // [bool]
-
-    /**
-     * @var bool
-     */
-    protected $retype = false;
-
-    /**
-     * @var string
-     */
-    protected $retypevalue = '';
-
-    /**
-     * Constructor
-     * @param    string $a_title      Title
-     * @param    string $a_postvar    Post Variable
-     */
-    public function __construct($a_title = "", $a_postvar = "")
-    {
+    public function __construct(
+        string $a_title = "",
+        string $a_postvar = ""
+    ) {
         global $DIC;
 
         $this->lng = $DIC->language();
@@ -63,82 +42,70 @@ class ilEMailInputGUI extends ilFormPropertyGUI
         $this->setRetype(false);
     }
 
-    /**
-     * Set Value.
-     * @param    string $a_value    Value
-     */
-    public function setValue($a_value)
+    public function setValue(string $a_value): void
     {
         $this->value = $a_value;
     }
 
-    /**
-     * Get Value.
-     * @return    string    Value
-     */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
 
-    /**
-     * Set value by array
-     * @param    array $a_values    value array
-     */
-    public function setValueByArray($a_values)
+    public function setValueByArray(array $a_values): void
     {
-        $this->setValue($a_values[$this->getPostVar()]);
-        $this->setRetypeValue($a_values[$this->getPostVar() . '_retype']);
+        $this->setValue($a_values[$this->getPostVar()] ?? "");
+        $this->setRetypeValue($a_values[$this->getPostVar() . '_retype'] ?? "");
     }
-    
+
     /**
      * Allow extended email address format
      *
      * "example@example.com" vs "example <example@example.com>"
-     *
-     * @param bool $a_value
      */
-    public function allowRFC822($a_value)
+    public function allowRFC822(bool $a_value): void
     {
-        $this->allowRFC822 = (bool) $a_value;
+        $this->allowRFC822 = $a_value;
     }
 
-    /**
-     * Check input, strip slashes etc. set alert, if input is not ok.
-     * @return    boolean        Input ok, true/false
-     */
-    public function checkInput()
+    // get string parameter kindly
+    protected function sanitize($key): string
+    {
+        $t = $this->refinery->kindlyTo()->string();
+        return ilUtil::stripSlashes(
+            (string) ($this->getRequestParam($key, $t) ?? ""),
+            !$this->allowRFC822
+        );
+    }
+
+    public function checkInput(): bool
     {
         $lng = $this->lng;
-        
-        $_POST[$this->getPostVar()] = ilUtil::stripSlashes($_POST[$this->getPostVar()], !(bool) $this->allowRFC822);
-        $_POST[$this->getPostVar() . '_retype'] = ilUtil::stripSlashes($_POST[$this->getPostVar() . '_retype'], !(bool) $this->allowRFC822);
-        if ($this->getRequired() && trim($_POST[$this->getPostVar()]) == "") {
+
+        if ($this->getRequired() && trim($this->str($this->getPostVar())) == "") {
             $this->setAlert($lng->txt("msg_input_is_required"));
-
             return false;
         }
-        if ($this->getRetype() && ($_POST[$this->getPostVar()] != $_POST[$this->getPostVar() . '_retype'])) {
+        if ($this->getRetype() &&
+            ($this->sanitize($this->getPostVar()) != $this->sanitize($this->getPostVar() . '_retype'))) {
             $this->setAlert($lng->txt('email_not_match'));
-
             return false;
         }
-        if (!ilUtil::is_email($_POST[$this->getPostVar()]) &&
-            trim($_POST[$this->getPostVar()]) != ""
+        if (!ilUtil::is_email($this->sanitize($this->getPostVar())) &&
+            trim($this->sanitize($this->getPostVar())) != ""
         ) {
             $this->setAlert($lng->txt("email_not_valid"));
-
             return false;
         }
-
-
         return true;
     }
 
-    /**
-     * @param ilTemplate $a_tpl
-     */
-    public function insert(ilTemplate $a_tpl)
+    public function getInput(): string
+    {
+        return trim($this->sanitize($this->getPostVar()));
+    }
+
+    public function insert(ilTemplate $a_tpl): void
     {
         $lng = $this->lng;
 
@@ -152,7 +119,7 @@ class ilEMailInputGUI extends ilFormPropertyGUI
             $ptpl->setVariable('RPOST_VAR', $this->getPostVar());
 
             $retype_value = $this->getRetypeValue();
-            $ptpl->setVariable('PROPERTY_RETYPE_VALUE', ilUtil::prepareFormOutput($retype_value));
+            $ptpl->setVariable('PROPERTY_RETYPE_VALUE', ilLegacyFormElementsUtil::prepareFormOutput($retype_value));
             if ($this->getDisabled()) {
                 $ptpl->setVariable('RDISABLED', ' disabled="disabled"');
             }
@@ -162,14 +129,14 @@ class ilEMailInputGUI extends ilFormPropertyGUI
 
         $ptpl->setVariable('POST_VAR', $this->getPostVar());
         $ptpl->setVariable('ID', $this->getFieldId());
-        $ptpl->setVariable('PROPERTY_VALUE', ilUtil::prepareFormOutput($this->getValue()));
+        $ptpl->setVariable('PROPERTY_VALUE', ilLegacyFormElementsUtil::prepareFormOutput($this->getValue()));
         $ptpl->setVariable('SIZE', $this->getSize());
         $ptpl->setVariable('MAXLENGTH', $this->getMaxLength());
         if ($this->getDisabled()) {
             $ptpl->setVariable('DISABLED', ' disabled="disabled"');
             $ptpl->setVariable('HIDDEN_INPUT', $this->getHiddenTag($this->getPostVar(), $this->getValue()));
         }
-        
+
         if ($this->getRequired()) {
             $ptpl->setVariable("REQUIRED", "required=\"required\"");
         }
@@ -179,66 +146,42 @@ class ilEMailInputGUI extends ilFormPropertyGUI
         $a_tpl->parseCurrentBlock();
     }
 
-    /**
-     * @param    boolean $a_val
-     */
-    public function setRetype($a_val)
+    public function setRetype(bool $a_val): void
     {
         $this->retype = $a_val;
     }
 
-    /**
-     * @return    boolean
-     */
-    public function getRetype()
+    public function getRetype(): bool
     {
         return $this->retype;
     }
 
-    /**
-     * @param string $a_retypevalue
-     */
-    public function setRetypeValue($a_retypevalue)
+    public function setRetypeValue(string $a_retypevalue): void
     {
         $this->retypevalue = $a_retypevalue;
     }
 
-    /**
-     * @return    string
-     */
-    public function getRetypeValue()
+    public function getRetypeValue(): string
     {
         return $this->retypevalue;
     }
 
-    /**
-     * @param int $size
-     */
-    public function setSize($size)
+    public function setSize(int $size): void
     {
         $this->size = $size;
     }
 
-    /**
-     * @return int
-     */
-    public function getSize()
+    public function getSize(): int
     {
         return $this->size;
     }
 
-    /**
-     * @param int $max_length
-     */
-    public function setMaxLength($max_length)
+    public function setMaxLength(int $max_length): void
     {
         $this->max_length = $max_length;
     }
 
-    /**
-     * @return int
-     */
-    public function getMaxLength()
+    public function getMaxLength(): int
     {
         return $this->max_length;
     }

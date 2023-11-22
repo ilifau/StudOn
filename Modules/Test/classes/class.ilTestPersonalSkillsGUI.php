@@ -1,6 +1,20 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author		Björn Heyser <bheyser@databay.de>
@@ -38,7 +52,7 @@ class ilTestPersonalSkillsGUI
         $this->testId = $testId;
     }
 
-    public function getHTML()
+    public function getHTML(): string
     {
         $gui = new ilPersonalSkillsGUI();
 
@@ -53,7 +67,7 @@ class ilTestPersonalSkillsGUI
 
         $gui->setProfileId($this->getSelectedSkillProfile());
 
-        $html = $gui->getGapAnalysisHTML($this->getUsrId(), $this->getAvailableSkills());
+        $html = $gui->getGapAnalysisHTML((int) $this->getUsrId(), $this->getAvailableSkills());
 
         return $html;
     }
@@ -101,7 +115,7 @@ class ilTestPersonalSkillsGUI
     /**
      * @return int
      */
-    public function getTestId()
+    public function getTestId(): int
     {
         return $this->testId;
     }

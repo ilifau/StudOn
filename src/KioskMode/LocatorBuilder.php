@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /* Copyright (c) 2018 - Richard Klees <richard.klees@concepts-and-training.de> - Extended GPL, see LICENSE */
 
 namespace ILIAS\KioskMode;
@@ -16,13 +19,12 @@ interface LocatorBuilder
     /**
      * Finish building the locator.
      */
-    //public function end(): ControlBuilder;
-    public function end();
+    public function end(): ControlBuilder;
 
     /**
      * Build an entry in the locator.
      *
      * The parameter will be appended to the command when updating state.
      */
-    public function item(string $label, int $parameter) : LocatorBuilder;
+    public function item(string $label, int $parameter): LocatorBuilder;
 }

@@ -1,4 +1,18 @@
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Page modifier is an adapter for components to
@@ -98,27 +112,6 @@ export default class PageModifier {
     }
   }
 
-  showToast(text) {
-    const OSDNotifier = OSDNotifications({
-      initialNotifications: [{
-        notification_osd_id: 123,
-        valid_until: 0,
-        visible_for: 3,
-        data: {
-          title: "",
-          link: false,
-          iconPath: false,
-          shortDescription: text,
-          handlerParams: {
-            osd: {
-              closable: false
-            }
-          }
-        }
-      }]
-    });
-  }
-
   showModal(title, content, button_txt, onclick) {
     const uiModel = this.pageUI.uiModel;
 
@@ -182,14 +175,19 @@ export default class PageModifier {
     const content =  uiModel.errorModalMessage + error;
 
     const link = document.querySelector("#copg-editor-slate-error ul li a");
-    link.addEventListener("click", () => {
-      pm.showModal(il.Language.txt("copg_error"), content);
-      let m = document.querySelector("#il-copg-ed-modal .modal-dialog");
-      if (m) {
-        m.style.width = "90%";
-      }
-    });
-    link.click();
+    if (link) {
+      link.addEventListener("click", () => {
+        pm.showModal(il.Language.txt("copg_error"), content);
+        let m = document.querySelector("#il-copg-ed-modal .modal-dialog");
+        if (m) {
+          m.style.width = "90%";
+        }
+      });
+      link.click();
+    } else {
+      const slate_error = document.querySelector("#copg-editor-slate-error");
+      slate_error.innerHTML = content;
+    }
  }
 
   clearError() {

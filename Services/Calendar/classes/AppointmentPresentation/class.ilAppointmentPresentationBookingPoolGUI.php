@@ -1,19 +1,15 @@
 <?php
-include_once './Services/Calendar/interfaces/interface.ilCalendarAppointmentPresentation.php';
-include_once './Services/Calendar/classes/AppointmentPresentation/class.ilAppointmentPresentationGUI.php';
+
+declare(strict_types=1);
 
 /**
- *
- * @author Jesús López Reyes <lopez@leifos.com>
- * @version $Id$
- *
+ * @author            Jesús López Reyes <lopez@leifos.com>
  * @ilCtrl_IsCalledBy ilAppointmentPresentationBookingPoolGUI: ilCalendarAppointmentPresentationGUI
- *
- * @ingroup ServicesCalendar
+ * @ingroup           ServicesCalendar
  */
 class ilAppointmentPresentationBookingPoolGUI extends ilAppointmentPresentationGUI implements ilCalendarAppointmentPresentation
 {
-    public function collectPropertiesAndActions()
+    public function collectPropertiesAndActions(): void
     {
         $a_app = $this->appointment;
         $cat_info = $this->getCatInfo();
@@ -38,9 +34,9 @@ class ilAppointmentPresentationBookingPoolGUI extends ilAppointmentPresentationG
             if ($b_obj->getDescription()) {
                 $this->addInfoProperty($this->lng->txt("description"), $b_obj->getDescription());
             }
-            // fau: fixAppointmentPresentation - ensure that appointment is array
-            $this->addObjectLinks($obj_id, (array) $this->appointment);
-            // fau.
+
+            $this->addObjectLinks($obj_id, $this->appointment);
+
             //object info (course, grp...)
             //$this->addContainerInfo($obj_id);
 
@@ -60,7 +56,10 @@ class ilAppointmentPresentationBookingPoolGUI extends ilAppointmentPresentationG
             // info file
             if ($b_obj->getFile()) {
                 $this->has_files = true;
-                $link = $this->ctrl->getLinkTargetByClass(array("ilRepositoryGUI", "ilObjBookingPoolGUI", "ilbookingobjectgui"), "deliverInfo");
+                $link = $this->ctrl->getLinkTargetByClass(array("ilRepositoryGUI",
+                                                                "ilObjBookingPoolGUI",
+                                                                "ilbookingobjectgui"
+                ), "deliverInfo");
 
                 $link = $this->ui->renderer()->render(
                     $this->ui->factory()->button()->shy($b_obj->getFile(), $link)
@@ -77,7 +76,11 @@ class ilAppointmentPresentationBookingPoolGUI extends ilAppointmentPresentationG
             if ($b_obj->getPostFile()) {
                 $this->has_files = true;
 
-                $link = $this->ctrl->getLinkTargetByClass(array("ilRepositoryGUI", "ilObjBookingPoolGUI", "ilbookingobjectgui"), "deliverPostFile");
+                $link = $this->ctrl->getLinkTargetByClass(array("ilRepositoryGUI",
+                                                                "ilObjBookingPoolGUI",
+                                                                "ilbookingobjectgui",
+                                                                "ilBookingProcessGUI"
+                ), "deliverPostFile");
 
                 $array_info[] = $this->ui->renderer()->render(
                     $this->ui->factory()->button()->shy($b_obj->getPostFile(), $link)

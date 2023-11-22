@@ -2,7 +2,21 @@
 
 declare(strict_types=1);
 
-/* Copyright (c) 2017 Alexander Killing <killing@leifos.de> Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\Link;
 
@@ -10,28 +24,30 @@ use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Implementation\Render\Template;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
+use LogicException;
 
 class Renderer extends AbstractComponentRenderer
 {
     /**
      * @inheritdoc
      */
-    public function render(Component\Component $component, RendererInterface $default_renderer)
+    public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
         $this->checkComponent($component);
 
         if ($component instanceof Component\Link\Standard) {
-            return $this->renderStandard($component, $default_renderer);
+            return $this->renderStandard($component);
         }
         if ($component instanceof Component\Link\Bulky) {
             return $this->renderBulky($component, $default_renderer);
         }
+        throw new LogicException("Cannot render: " . get_class($component));
     }
 
     protected function setStandardVars(
         string $tpl_name,
         Component\Link\Link $component
-    ) : Template {
+    ): Template {
         $tpl = $this->getTemplate($tpl_name, true, true);
         $action = $component->getAction();
         $label = $component->getLabel();
@@ -44,9 +60,8 @@ class Renderer extends AbstractComponentRenderer
     }
 
     protected function renderStandard(
-        Component\Link\Standard $component,
-        RendererInterface $default_renderer
-    ) : string {
+        Component\Link\Standard $component
+    ): string {
         $tpl_name = "tpl.standard.html";
         $tpl = $this->setStandardVars($tpl_name, $component);
         return $tpl->get();
@@ -55,12 +70,11 @@ class Renderer extends AbstractComponentRenderer
     protected function renderBulky(
         Component\Link\Bulky $component,
         RendererInterface $default_renderer
-    ) : string {
+    ): string {
         $tpl_name = "tpl.bulky.html";
         $tpl = $this->setStandardVars($tpl_name, $component);
         $renderer = $default_renderer->withAdditionalContext($component);
         $tpl->setVariable("SYMBOL", $renderer->render($component->getSymbol()));
-
         $id = $this->bindJavaScript($component);
         $tpl->setVariable("ID", $id);
 
@@ -77,7 +91,7 @@ class Renderer extends AbstractComponentRenderer
     /**
      * @inheritdoc
      */
-    protected function getComponentInterfaceName()
+    protected function getComponentInterfaceName(): array
     {
         return [
             Component\Link\Standard::class,

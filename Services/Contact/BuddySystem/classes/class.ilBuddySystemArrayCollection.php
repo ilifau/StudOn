@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2015 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilBuddySystemArrayCollection
@@ -8,13 +25,8 @@
  */
 abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
 {
-    /** @var array */
-    private $elements = [];
+    private array $elements;
 
-    /**
-     * ilBuddySystemArrayCollection constructor.
-     * @param array $elements
-     */
     public function __construct(array $elements = [])
     {
         $this->elements = $elements;
@@ -31,7 +43,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->containsKey($offset);
     }
@@ -47,10 +59,11 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (!isset($offset)) {
             $this->add($value);
+
             return;
         }
 
@@ -60,7 +73,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->remove($offset);
     }
@@ -68,7 +81,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function count()
+    public function count(): int
     {
         return count($this->elements);
     }
@@ -76,7 +89,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function add($element) : void
+    public function add($element): void
     {
         $this->elements[] = $element;
     }
@@ -84,10 +97,10 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function remove($key) : void
+    public function remove($key): void
     {
-        if (!isset($this->elements[$key]) && !array_key_exists($key, $this->elements)) {
-            throw new InvalidArgumentException(sprintf("Could not find an element for key: %s", $key));
+        if (!$this->containsKey($key)) {
+            throw new InvalidArgumentException(sprintf('Could not find an element for key: %s', $key));
         }
         unset($this->elements[$key]);
     }
@@ -95,19 +108,22 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function removeElement($element) : void
+    public function removeElement($element): void
     {
         $key = array_search($element, $this->elements, true);
         if (false === $key) {
-            throw new InvalidArgumentException("Could not find an key for the passed element.");
+            throw new InvalidArgumentException('Could not find an key for the passed element.');
         }
         unset($this->elements[$key]);
     }
 
     /**
+     * isset is used for performance reasons (array_key_exists is much slower).
+     * array_key_exists is only used in case of a null value (see https://www.php.net/manual/en/function.array-key-exists.php Example #2 array_key_exists() vs isset()).
+     *
      * @inheritDoc
      */
-    public function containsKey($key) : bool
+    public function containsKey($key): bool
     {
         return isset($this->elements[$key]) || array_key_exists($key, $this->elements);
     }
@@ -123,7 +139,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function clear() : void
+    public function clear(): void
     {
         $this->elements = [];
     }
@@ -131,7 +147,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function contains($element) : bool
+    public function contains($element): bool
     {
         return in_array($element, $this->elements, true);
     }
@@ -141,13 +157,13 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
      */
     public function get($key)
     {
-        return isset($this->elements[$key]) ? $this->elements[$key] : null;
+        return $this->elements[$key] ?? null;
     }
 
     /**
      * @inheritDoc
      */
-    public function set($key, $value) : void
+    public function set($key, $value): void
     {
         $this->elements[$key] = $value;
     }
@@ -155,7 +171,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function isEmpty() : bool
+    public function isEmpty(): bool
     {
         return empty($this->elements);
     }
@@ -163,7 +179,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function getKeys() : array
+    public function getKeys(): array
     {
         return array_keys($this->elements);
     }
@@ -171,7 +187,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function getValues() : array
+    public function getValues(): array
     {
         return array_values($this->elements);
     }
@@ -179,7 +195,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function filter(callable $callable)
+    public function filter(callable $callable): ilBuddySystemCollection
     {
         return new static(array_filter($this->elements, $callable));
     }
@@ -187,7 +203,7 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function slice($offset, $length = null)
+    public function slice(int $offset, int $length = null): ilBuddySystemCollection
     {
         return new static(array_slice($this->elements, $offset, $length, true));
     }
@@ -195,8 +211,23 @@ abstract class ilBuddySystemArrayCollection implements ilBuddySystemCollection
     /**
      * @inheritDoc
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return $this->elements;
+    }
+
+    public function equals($other): bool
+    {
+        if (!($other instanceof self)) {
+            return false;
+        }
+
+        $self = $this->toArray();
+        $other = $other->toArray();
+
+        sort($self);
+        sort($other);
+
+        return $self == $other;
     }
 }

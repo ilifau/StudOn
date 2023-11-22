@@ -26,18 +26,9 @@ namespace ILIAS\GlobalScreen\Identification;
  */
 class NullPluginIdentification implements IdentificationInterface
 {
-    /**
-     * @var string
-     */
-    private $internal_identifier;
-    /**
-     * @var string
-     */
-    private $identification;
-    /**
-     * @var string
-     */
-    private $plugin_id;
+    private string $internal_identifier;
+    private string $identification;
+    private string $plugin_id;
 
     /**
      * NullPluginIdentification constructor.
@@ -55,7 +46,7 @@ class NullPluginIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function serialize() : string
+    public function serialize(): string
     {
         return $this->identification;
     }
@@ -63,7 +54,7 @@ class NullPluginIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function unserialize($serialized) : void
+    public function unserialize($serialized): void
     {
         // nothing to do
     }
@@ -71,7 +62,7 @@ class NullPluginIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getClassName() : string
+    public function getClassName(): string
     {
         return $this->plugin_id;
     }
@@ -79,7 +70,7 @@ class NullPluginIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getInternalIdentifier() : string
+    public function getInternalIdentifier(): string
     {
         return $this->internal_identifier;
     }
@@ -87,7 +78,7 @@ class NullPluginIdentification implements IdentificationInterface
     /**
      * @inheritDoc
      */
-    public function getProviderNameForPresentation() : string
+    public function getProviderNameForPresentation(): string
     {
         return $this->plugin_id;
     }
@@ -95,12 +86,12 @@ class NullPluginIdentification implements IdentificationInterface
     /**
      * @return array{data: string}
      */
-    public function __serialize() : array
+    public function __serialize(): array
     {
         return ['data' => $this->serialize()];
     }
 
-    public function __unserialize(array $data) : void
+    public function __unserialize(array $data): void
     {
         $this->unserialize($data['data']);
     }

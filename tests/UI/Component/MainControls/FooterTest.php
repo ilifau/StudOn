@@ -1,24 +1,43 @@
 <?php
 
-/* Copyright (c) 2019 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 require_once("libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
-use \ILIAS\UI\Component as C;
-use \ILIAS\UI\Implementation\Component as I;
+use ILIAS\UI\Component as C;
+use ILIAS\UI\Implementation\Component as I;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
+use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
+use ILIAS\Data;
+use ILIAS\UI\Implementation\Component\Input\Field\Group;
 
 /**
  * Tests for the Footer.
  */
 class FooterTest extends ILIAS_UI_TestBase
 {
-    private $links = [];
-    private $text = '';
-    private $perm_url = '';
+    private array $links = [];
+    private string $text = '';
+    private string $perm_url = '';
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $f = new I\Link\Factory();
         $this->links = [
@@ -29,7 +48,7 @@ class FooterTest extends ILIAS_UI_TestBase
         $this->perm_url = 'http://www.ilias.de/goto.php?target=xxx_123';
     }
 
-    protected function getFactory()
+    protected function getFactory(): I\MainControls\Factory
     {
         $sig_gen = new I\SignalGenerator();
         $counter_factory = new I\Counter\Factory();
@@ -42,11 +61,10 @@ class FooterTest extends ILIAS_UI_TestBase
                 new I\Symbol\Avatar\Factory()
             )
         );
-        $factory = new I\MainControls\Factory($sig_gen, $slate_factory);
-        return $factory;
+        return new I\MainControls\Factory($sig_gen, $slate_factory);
     }
 
-    public function testConstruction()
+    public function testConstruction(): C\MainControls\Footer
     {
         $footer = $this->getFactory()->footer($this->links, $this->text);
         $this->assertInstanceOf(
@@ -56,7 +74,7 @@ class FooterTest extends ILIAS_UI_TestBase
         return $footer;
     }
 
-    public function testConstructionNoLinks()
+    public function testConstructionNoLinks(): C\MainControls\Footer
     {
         $footer = $this->getFactory()->footer([], $this->text);
         $this->assertInstanceOf(
@@ -69,7 +87,7 @@ class FooterTest extends ILIAS_UI_TestBase
     /**
      * @depends testConstruction
      */
-    public function testGetLinks($footer)
+    public function testGetLinks(C\MainControls\Footer $footer): void
     {
         $this->assertEquals(
             $this->links,
@@ -80,7 +98,7 @@ class FooterTest extends ILIAS_UI_TestBase
     /**
      * @depends testConstruction
      */
-    public function testGetText($footer)
+    public function testGetText(C\MainControls\Footer $footer): void
     {
         $this->assertEquals(
             $this->text,
@@ -91,11 +109,11 @@ class FooterTest extends ILIAS_UI_TestBase
     /**
      * @depends testConstruction
      */
-    public function testGetAndSetModalsWithTrigger(C\MainControls\Footer $footer)
+    public function testGetAndSetModalsWithTrigger(C\MainControls\Footer $footer): C\MainControls\Footer
     {
         $bf = new I\Button\Factory();
         $signalGenerator = new SignalGenerator();
-        $mf = new I\Modal\Factory($signalGenerator);
+        $mf = $this->getModalFactory();
         $legacy = new ILIAS\UI\Implementation\Component\Legacy\Legacy('PhpUnit', $signalGenerator);
 
         $shyButton1 = $bf->shy('Button1', '#');
@@ -116,9 +134,9 @@ class FooterTest extends ILIAS_UI_TestBase
     /**
      * @depends testConstruction
      */
-    public function testPermanentURL($footer)
+    public function testPermanentURL(C\MainControls\Footer $footer): C\MainControls\Footer
     {
-        $df = new \ILIAS\Data\Factory();
+        $df = new Data\Factory();
         $footer = $footer->withPermanentURL($df->uri($this->perm_url));
         $perm_url = $footer->getPermanentURL();
         $this->assertInstanceOf("\\ILIAS\\Data\\URI", $perm_url);
@@ -129,21 +147,25 @@ class FooterTest extends ILIAS_UI_TestBase
         return $footer;
     }
 
-    public function getUIFactory()
+    public function getUIFactory(): NoUIFactory
     {
-        $factory = new class extends NoUIFactory {
-            public function listing()
+        return new class () extends NoUIFactory {
+            public function listing(): C\Listing\Factory
             {
                 return new I\Listing\Factory();
             }
+
+            public function link(): C\Link\Factory
+            {
+                return new I\Link\Factory();
+            }
         };
-        return $factory;
     }
 
     /**
      * @depends testConstruction
      */
-    public function testRendering($footer)
+    public function testRendering(C\MainControls\Footer $footer): void
     {
         $r = $this->getDefaultRenderer();
         $html = $r->render($footer);
@@ -174,7 +196,7 @@ EOT;
     /**
      * @depends testConstructionNoLinks
      */
-    public function testRenderingNoLinks($footer)
+    public function testRenderingNoLinks(C\MainControls\Footer $footer): void
     {
         $r = $this->getDefaultRenderer();
         $html = $r->render($footer);
@@ -198,7 +220,7 @@ EOT;
     /**
      * @depends testPermanentURL
      */
-    public function testRenderingPermUrl($footer)
+    public function testRenderingPermUrl($footer): void
     {
         $r = $this->getDefaultRenderer();
         $html = $r->render($footer);
@@ -206,7 +228,7 @@ EOT;
         $expected = <<<EOT
         <div class="il-maincontrols-footer">
             <div class="il-footer-content">
-                <div class="il-footer-permanent-url"><label for="current_perma_link">perma_link</label><input id="current_perma_link" type="text" value="http://www.ilias.de/goto.php?target=xxx_123" readonly="readOnly">
+                <div class="il-footer-permanent-url"><a href="http://www.ilias.de/goto.php?target=xxx_123">perma_link</a>
                 </div>
 
                 <div class="il-footer-text">footer text</div>
@@ -230,7 +252,7 @@ EOT;
     /**
      * @depends testGetAndSetModalsWithTrigger
      */
-    public function testRenderingModalsWithTriggers(C\MainControls\Footer $footer)
+    public function testRenderingModalsWithTriggers(C\MainControls\Footer $footer): void
     {
         $r = $this->getDefaultRenderer();
         $html = $r->render($footer);
@@ -254,14 +276,14 @@ EOT;
                     <div class="modal-dialog" role="document" data-replace-marker="component">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                                 <span class="modal-title">Modal1</span>
                             </div>
                             <div class="modal-body">PhpUnit</div>
                             <div class="modal-footer">
-                                <button class="btn btn-default" data-dismiss="modal" aria-label="Close">cancel</button>
+                                <button class="btn btn-default" data-dismiss="modal">cancel</button>
                             </div>
                         </div>
                     </div>
@@ -270,14 +292,14 @@ EOT;
                     <div class="modal-dialog" role="document" data-replace-marker="component">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                                 <span class="modal-title">Modal2</span>
                             </div>
                             <div class="modal-body">PhpUnit</div>
                             <div class="modal-footer">
-                                <button class="btn btn-default" data-dismiss="modal" aria-label="Close">cancel</button>
+                                <button class="btn btn-default" data-dismiss="modal">cancel</button>
                             </div>
                         </div>
                     </div>
@@ -290,5 +312,16 @@ EOT;
             $this->brutallyTrimHTML($expected),
             $this->brutallyTrimHTML($html)
         );
+    }
+
+    protected function getModalFactory(): I\Modal\Factory
+    {
+        $group_mock = $this->createMock(Group::class);
+        $group_mock->method('withNameFrom')->willReturnSelf();
+
+        $factory_mock = $this->createMock(FieldFactory::class);
+        $factory_mock->method('group')->willReturn($group_mock);
+
+        return new I\Modal\Factory(new SignalGeneratorMock(), $factory_mock);
     }
 }

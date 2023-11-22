@@ -1,4 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Information\Repository;
 
@@ -13,25 +31,24 @@ use ILIAS\ResourceStorage\Revision\Revision;
  */
 class InformationDBRepository implements InformationRepository
 {
-    const TABLE_NAME = 'il_resource_info';
-    const IDENTIFICATION = 'rid';
+    public const TABLE_NAME = 'il_resource_info';
+    public const IDENTIFICATION = 'rid';
 
     /**
-     * @var \ilDBInterface
+     * @var mixed[]
      */
-    protected $db;
+    protected array $cache = [];
+    protected \ilDBInterface $db;
 
-    protected $cache = [];
-
-    /**
-     * @param \ilDBInterface $db
-     */
     public function __construct(\ilDBInterface $db)
     {
         $this->db = $db;
     }
 
-    public function getNamesForLocking() : array
+    /**
+     * @return string[]
+     */
+    public function getNamesForLocking(): array
     {
         return [self::TABLE_NAME];
     }
@@ -39,7 +56,7 @@ class InformationDBRepository implements InformationRepository
     /**
      * @inheritDoc
      */
-    public function blank()
+    public function blank(): Information
     {
         return new FileInformation();
     }
@@ -47,7 +64,7 @@ class InformationDBRepository implements InformationRepository
     /**
      * @inheritDoc
      */
-    public function store(Information $information, Revision $revision) : void
+    public function store(Information $information, Revision $revision): void
     {
         $rid = $revision->getIdentification()->serialize();
         $r = $this->db->queryF(
@@ -99,7 +116,7 @@ class InformationDBRepository implements InformationRepository
     /**
      * @inheritDoc
      */
-    public function get(Revision $revision) : Information
+    public function get(Revision $revision): Information
     {
         $rid = $revision->getIdentification()->serialize();
         if (isset($this->cache[$rid][$revision->getVersionNumber()])) {
@@ -125,7 +142,7 @@ class InformationDBRepository implements InformationRepository
         return $i;
     }
 
-    public function delete(Information $information, Revision $revision) : void
+    public function delete(Information $information, Revision $revision): void
     {
         $rid = $revision->getIdentification()->serialize();
         $this->db->manipulateF(
@@ -142,11 +159,15 @@ class InformationDBRepository implements InformationRepository
         unset($this->cache[$rid][$revision->getVersionNumber()]);
     }
 
-    public function preload(array $identification_strings) : void
+    public function preload(array $identification_strings): void
     {
         $r = $this->db->query(
-            "SELECT * FROM " . self::TABLE_NAME . " WHERE " . $this->db->in(self::IDENTIFICATION,
-                $identification_strings, false, 'text')
+            "SELECT * FROM " . self::TABLE_NAME . " WHERE " . $this->db->in(
+                self::IDENTIFICATION,
+                $identification_strings,
+                false,
+                'text'
+            )
         );
 
         while ($d = $this->db->fetchAssoc($r)) {
@@ -154,19 +175,19 @@ class InformationDBRepository implements InformationRepository
         }
     }
 
-    public function populateFromArray(array $data) : void
+    public function populateFromArray(array $data): void
     {
         $this->cache[$data['rid']][$data['version_number']] = $this->getFileInfoFromArrayData($data);
     }
 
-    private function getFileInfoFromArrayData(array $data) : FileInformation
+    private function getFileInfoFromArrayData(array $data): FileInformation
     {
         $i = new FileInformation();
-        $i->setTitle((string) $data['title']);
-        $i->setSize((int) $data['size']);
-        $i->setMimeType((string) $data['mime_type']);
-        $i->setSuffix((string) $data['suffix']);
-        $i->setCreationDate((new \DateTimeImmutable())->setTimestamp((int) $data['creation_date'] ?? 0));
+        $i->setTitle((string)$data['title']);
+        $i->setSize((int)$data['size']);
+        $i->setMimeType((string)$data['mime_type']);
+        $i->setSuffix((string)$data['suffix']);
+        $i->setCreationDate((new \DateTimeImmutable())->setTimestamp((int)$data['creation_date'] ?? 0));
 
         return $i;
     }

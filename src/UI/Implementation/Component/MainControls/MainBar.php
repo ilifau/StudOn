@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 2018 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Component\MainControls;
 
@@ -12,6 +28,8 @@ use ILIAS\UI\Component\MainControls\Slate\Slate;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
+use InvalidArgumentException;
+use LogicException;
 
 /**
  * MainBar
@@ -29,79 +47,40 @@ class MainBar implements MainControls\MainBar
     public const NONE_ACTIVE = '_none';
 
     /**
-     * @var SignalGeneratorInterface
-     */
-    private $signal_generator;
-
-    /**
-     * @var Signal
-     */
-    private $entry_click_signal;
-
-    /**
-     * @var Signal
-     */
-    private $tools_click_signal;
-
-    /**
-     * @var Signal
-     */
-    private $tools_removal_signal;
-
-    /**
-     * @var Signal
-     */
-    private $disengage_all_signal;
-
-    /**
      * @var array <string, Bulky|Slate>
      */
-    protected $entries = [];
-
-    /**
-     * @var array <string, Slate>
-     */
-    private $tool_entries = [];
-
-    /**
-     * @var Button\Bulky
-     */
-    private $tools_button;
-
-    /**
-     * @var Button\Bulky
-     */
-    private $more_button;
-
-    /**
-     * @var string | null
-     */
-    private $active;
+    protected array $entries = [];
 
     /**
      * @var string[]
      */
-    private $initially_hidden_ids = [];
+    private array $initially_hidden_ids = [];
 
     /**
      * @var array<string, Signal>
      */
-    private $tool_signals = [];
+    private array $tool_signals = [];
 
     /**
      * @var array<string, Button\Close>
      */
-    private $close_buttons = [];
+    private array $close_buttons = [];
 
     /**
-     * @var string
+     * @var array <string, Slate>
      */
-    private $mainbar_tree_position;
+    private array $tool_entries = [];
 
-    /**
-     * @var Signal
-     */
-    protected $toggle_tools_signal;
+    private ?Button\Bulky $tools_button = null;
+    private Button\Bulky $more_button;
+    private ?string $active = null;
+    private string $mainbar_tree_position;
+    private SignalGeneratorInterface $signal_generator;
+    private Signal $entry_click_signal;
+    private Signal $tools_click_signal;
+    private Signal $tools_removal_signal;
+    private Signal $disengage_all_signal;
+    protected Signal $toggle_tools_signal;
 
     public function __construct(SignalGeneratorInterface $signal_generator)
     {
@@ -112,7 +91,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getEntries() : array
+    public function getEntries(): array
     {
         return $this->entries;
     }
@@ -120,7 +99,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function withAdditionalEntry(string $id, $entry) : MainControls\MainBar
+    public function withAdditionalEntry(string $id, $entry): MainControls\MainBar
     {
         $classes = [
             Button\Bulky::class,
@@ -131,7 +110,7 @@ class MainBar implements MainControls\MainBar
         $this->checkArgListElements("Bulky or Slate", $check, $classes);
 
         if (array_key_exists($id, $this->entries)) {
-            throw new \InvalidArgumentException("The id of this entry is already taken.", 1);
+            throw new InvalidArgumentException("The id of this entry is already taken.", 1);
         }
 
         $clone = clone $this;
@@ -142,7 +121,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getToolEntries() : array
+    public function getToolEntries(): array
     {
         return $this->tool_entries;
     }
@@ -155,13 +134,13 @@ class MainBar implements MainControls\MainBar
         Slate $entry,
         bool $initially_hidden = false,
         Button\Close $close_button = null
-    ) : MainControls\MainBar {
+    ): MainControls\MainBar {
         if (!$this->tools_button) {
-            throw new \LogicException("There must be a tool-button configured to add tool-entries", 1);
+            throw new LogicException("There must be a tool-button configured to add tool-entries", 1);
         }
 
         if (array_key_exists($id, $this->tool_entries)) {
-            throw new \InvalidArgumentException("The id of this entry is already taken.", 1);
+            throw new InvalidArgumentException("The id of this entry is already taken.", 1);
         }
 
         $clone = clone $this;
@@ -184,7 +163,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function withToolsButton(Button\Bulky $button) : MainControls\MainBar
+    public function withToolsButton(Button\Bulky $button): MainControls\MainBar
     {
         $clone = clone $this;
         $clone->tools_button = $button;
@@ -194,7 +173,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getToolsButton() : Button\Bulky
+    public function getToolsButton(): Button\Bulky
     {
         return $this->tools_button;
     }
@@ -202,7 +181,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getEntryClickSignal() : Signal
+    public function getEntryClickSignal(): Signal
     {
         return $this->entry_click_signal;
     }
@@ -210,7 +189,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getToolsClickSignal() : Signal
+    public function getToolsClickSignal(): Signal
     {
         return $this->tools_click_signal;
     }
@@ -218,7 +197,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getToolsRemovalSignal() : Signal
+    public function getToolsRemovalSignal(): Signal
     {
         return $this->tools_removal_signal;
     }
@@ -226,7 +205,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getDisengageAllSignal() : Signal
+    public function getDisengageAllSignal(): Signal
     {
         return $this->disengage_all_signal;
     }
@@ -234,7 +213,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getToggleToolsSignal() : Signal
+    public function getToggleToolsSignal(): Signal
     {
         return $this->toggle_tools_signal;
     }
@@ -242,7 +221,7 @@ class MainBar implements MainControls\MainBar
     /**
      * Set the signals for this component
      */
-    protected function initSignals()
+    protected function initSignals(): void
     {
         $this->entry_click_signal = $this->signal_generator->create();
         $this->tools_click_signal = $this->signal_generator->create();
@@ -253,7 +232,7 @@ class MainBar implements MainControls\MainBar
         $this->toggle_tools_signal->addOption('action', self::ENTRY_ACTION_TOGGLE_TOOLS);
     }
 
-    public function withResetSignals() : MainControls\MainBar
+    public function withResetSignals(): MainControls\MainBar
     {
         $clone = clone $this;
         $clone->initSignals();
@@ -266,7 +245,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getActive()
+    public function getActive(): ?string
     {
         return $this->active;
     }
@@ -274,7 +253,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function withActive(string $active) : MainControls\MainBar
+    public function withActive(string $active): MainControls\MainBar
     {
         $valid_entries = array_merge(
             array_keys($this->entries),
@@ -282,7 +261,7 @@ class MainBar implements MainControls\MainBar
             [self::NONE_ACTIVE]
         );
         if (!in_array($active, $valid_entries)) {
-            throw new \InvalidArgumentException("Invalid entry to activate: $active", 1);
+            throw new InvalidArgumentException("Invalid entry to activate: $active", 1);
         }
 
         $clone = clone $this;
@@ -293,7 +272,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getInitiallyHiddenToolIds() : array
+    public function getInitiallyHiddenToolIds(): array
     {
         return array_unique($this->initially_hidden_ids);
     }
@@ -301,7 +280,7 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getEngageToolSignal(string $tool_id) : Signal
+    public function getEngageToolSignal(string $tool_id): Signal
     {
         return $this->tool_signals[$tool_id];
     }
@@ -309,13 +288,13 @@ class MainBar implements MainControls\MainBar
     /**
      * @inheritdoc
      */
-    public function getCloseButtons() : array
+    public function getCloseButtons(): array
     {
         return $this->close_buttons;
     }
 
 
-    public function withClearedEntries() : MainControls\MainBar
+    public function withClearedEntries(): MainControls\MainBar
     {
         $clone = clone $this;
         $clone->entries = [];
@@ -326,9 +305,9 @@ class MainBar implements MainControls\MainBar
     public function getTriggerSignal(
         string $entry_id,
         string $action
-    ) : Signal {
+    ): Signal {
         if (!in_array($action, [self::ENTRY_ACTION_TRIGGER, self::ENTRY_ACTION_REMOVE])) {
-            throw new \InvalidArgumentException("invalid action for mainbar entry: $action", 1);
+            throw new InvalidArgumentException("invalid action for mainbar entry: $action", 1);
         }
         $signal = $this->signal_generator->create();
         $signal->addOption('entry_id', $entry_id);
@@ -336,14 +315,14 @@ class MainBar implements MainControls\MainBar
         return $signal;
     }
 
-    public function withMainBarTreePosition(string $tree_pos) : MainBar
+    public function withMainBarTreePosition(string $tree_pos): MainBar
     {
         $clone = clone $this;
         $clone->mainbar_tree_position = $tree_pos;
         return $clone;
     }
 
-    public function withMappedSubNodes(callable $f) : MainBar
+    public function withMappedSubNodes(callable $f): MainBar
     {
         $clone = clone $this;
 

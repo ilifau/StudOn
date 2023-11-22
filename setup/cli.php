@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /* Copyright (c) 2019 Richard Klees <richard.klees@concepts-and-training.de> Extended GPL, see docs/LICENSE */
 
 $executed_in_directory = getcwd();
@@ -32,7 +34,6 @@ use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
 use ILIAS\UI\Component\Input\Field\File;
 use ILIAS\UI\Component\Input\Field\Tag;
 use ILIAS\UI\Component\Input\Field\UploadHandler;
-use ILIAS\UI\Component\Input\Field\ViewControl\Factory as ViewControlFactory;
 
 $c = build_container_for_setup($executed_in_directory);
 $app = $c["app"];
@@ -47,9 +48,9 @@ function setup_exit($message)
     }
 }
 
-function build_container_for_setup(string $executed_in_directory)
+function build_container_for_setup(string $executed_in_directory): \Pimple\Container
 {
-    $c = new \Pimple\Container;
+    $c = new \Pimple\Container();
 
     $c["app"] = function ($c) {
         return new \ILIAS\Setup\CLI\App(
@@ -121,7 +122,6 @@ function build_container_for_setup(string $executed_in_directory)
             $c["data_factory"],
             $c["lng"],
             $c["interface_finder"],
-            $c["plugin_raw_reader"],
             [
                 "common" => $c["common_agent"]
             ]
@@ -145,6 +145,7 @@ function build_container_for_setup(string $executed_in_directory)
 
     $c["config_reader"] = function ($c) use ($executed_in_directory) {
         return new \ILIAS\Setup\CLI\ConfigReader(
+            $c["json.parser"],
             $executed_in_directory
         );
     };
@@ -153,8 +154,8 @@ function build_container_for_setup(string $executed_in_directory)
         return new \ILIAS\Setup\ImplementationOfInterfaceFinder();
     };
 
-    $c["plugin_raw_reader"] = function ($c) {
-        return new \ilPluginRawReader();
+    $c["json.parser"] = function ($c) {
+        return new \Seld\JsonLint\JsonParser();
     };
 
     return $c;

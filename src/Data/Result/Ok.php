@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /* Copyright (c) 2017 Stefan Hecken <stefan.hecken@concepts-and-training.de> Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Data\Result;
@@ -12,7 +15,6 @@ use ILIAS\Data\Result;
  */
 class Ok implements Result
 {
-
     /**
      * @var mixed
      */
@@ -26,7 +28,7 @@ class Ok implements Result
     /**
      * @inheritdoc
      */
-    public function isOK()
+    public function isOK(): bool
     {
         return true;
     }
@@ -42,7 +44,7 @@ class Ok implements Result
     /**
      * @inheritdoc
      */
-    public function isError()
+    public function isError(): bool
     {
         return false;
     }
@@ -66,7 +68,7 @@ class Ok implements Result
     /**
      * @inheritdoc
      */
-    public function map(callable $f)
+    public function map(callable $f): Result
     {
         $clone = clone $this;
         $value = $f($this->value);
@@ -77,7 +79,7 @@ class Ok implements Result
     /**
      * @inheritdoc
      */
-    public function then(callable $f)
+    public function then(callable $f): Result
     {
         $result = $f($this->value);
 
@@ -95,7 +97,7 @@ class Ok implements Result
     /**
      * @inheritdoc
      */
-    public function except(callable $f)
+    public function except(callable $f): Result
     {
         return $this;
     }

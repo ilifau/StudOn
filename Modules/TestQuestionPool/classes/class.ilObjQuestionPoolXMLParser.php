@@ -1,7 +1,19 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-require_once 'Services/Xml/classes/class.ilSaxParser.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author        Björn Heyser <bheyser@databay.de>
@@ -11,62 +23,60 @@ require_once 'Services/Xml/classes/class.ilSaxParser.php';
  */
 class ilObjQuestionPoolXMLParser extends ilSaxParser
 {
-    /**
-     * @var ilObjQuestionPool
-     */
-    private $poolOBJ;
-    
+    private \ilObjQuestionPool $poolOBJ;
+
     private $inSettingsTag;
-    
+
     private $inMetaDataTag;
     private $inMdGeneralTag;
-    private $descriptionProcessed = false;
+    private bool $descriptionProcessed = false;
+    private string $cdata = "";
 
     /**
      * @param ilObjQuestionPool $poolOBJ
      * @param $xmlFile
      */
-    public function __construct(ilObjQuestionPool $poolOBJ, $xmlFile)
+    public function __construct(ilObjQuestionPool $poolOBJ, ?string $xmlFile)
     {
         $this->poolOBJ = $poolOBJ;
-        
+
         $this->inSettingsTag = false;
         $this->inMetaDataTag = false;
         $this->inMdGeneralTag = false;
-        
+
         return parent::__construct($xmlFile);
     }
-    
-    public function setHandlers($xmlParser)
+
+    public function setHandlers($a_xml_parser): void
     {
-        xml_set_object($xmlParser, $this);
-        xml_set_element_handler($xmlParser, 'handlerBeginTag', 'handlerEndTag');
-        xml_set_character_data_handler($xmlParser, 'handlerCharacterData');
+        xml_set_object($a_xml_parser, $this);
+        xml_set_element_handler($a_xml_parser, 'handlerBeginTag', 'handlerEndTag');
+        xml_set_character_data_handler($a_xml_parser, 'handlerCharacterData');
     }
-    
-    public function handlerBeginTag($xmlParser, $tagName, $tagAttributes)
+
+    public function handlerBeginTag($xmlParser, $tagName, $tagAttributes): void
     {
         switch ($tagName) {
             case 'MetaData':
                 $this->inMetaDataTag = true;
                 break;
-            
+
             case 'General':
                 if ($this->inMetaDataTag) {
                     $this->inMdGeneralTag = true;
                 }
                 break;
-            
+
             case 'Description':
                 if ($this->inMetaDataTag && $this->inMdGeneralTag) {
                     $this->cdata = '';
                 }
                 break;
-            
+
             case 'Settings':
                 $this->inSettingsTag = true;
                 break;
-            
+
             case 'ShowTaxonomies':
             case 'NavTaxonomy':
             case 'SkillService':
@@ -77,7 +87,7 @@ class ilObjQuestionPoolXMLParser extends ilSaxParser
         }
     }
 
-    public function handlerEndTag($xmlParser, $tagName)
+    public function handlerEndTag($xmlParser, $tagName): void
     {
         switch ($tagName) {
             case 'MetaData':
@@ -106,12 +116,12 @@ class ilObjQuestionPoolXMLParser extends ilSaxParser
                 $this->poolOBJ->setShowTaxonomies((bool) $this->cdata);
                 $this->cdata = '';
                 break;
-                
+
             case 'NavTaxonomy':
                 $this->poolOBJ->setNavTaxonomyId((int) $this->cdata);
                 $this->cdata = '';
                 break;
-            
+
             case 'SkillService':
                 $this->poolOBJ->setSkillServiceEnabled((bool) $this->cdata);
                 $this->cdata = '';
@@ -119,7 +129,7 @@ class ilObjQuestionPoolXMLParser extends ilSaxParser
         }
     }
 
-    public function handlerCharacterData($xmlParser, $charData)
+    public function handlerCharacterData($xmlParser, $charData): void
     {
         if ($charData != "\n") {
             // Replace multiple tabs with one space

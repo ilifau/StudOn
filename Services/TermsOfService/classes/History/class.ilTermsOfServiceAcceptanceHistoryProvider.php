@@ -1,5 +1,22 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTermsOfServiceAcceptanceHistoryProvider
@@ -7,10 +24,7 @@
  */
 class ilTermsOfServiceAcceptanceHistoryProvider extends ilTermsOfServiceTableDatabaseDataProvider
 {
-    /**
-     * @inheritdoc
-     */
-    protected function getSelectPart(array $params, array $filter) : string
+    protected function getSelectPart(array $params, array $filter): string
     {
         $fields = [
             'tos_acceptance_track.tosv_id',
@@ -27,10 +41,7 @@ class ilTermsOfServiceAcceptanceHistoryProvider extends ilTermsOfServiceTableDat
         return implode(', ', $fields);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getFromPart(array $params, array $filter) : string
+    protected function getFromPart(array $params, array $filter): string
     {
         $joins = [
             'INNER JOIN tos_acceptance_track ON tos_acceptance_track.usr_id = ud.usr_id',
@@ -41,14 +52,11 @@ class ilTermsOfServiceAcceptanceHistoryProvider extends ilTermsOfServiceTableDat
         return 'usr_data ud ' . implode(' ', $joins);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getWherePart(array $params, array $filter) : string
+    protected function getWherePart(array $params, array $filter): string
     {
         $where = [];
 
-        if (isset($filter['query']) && is_string($filter['query']) && strlen($filter['query']) > 0) {
+        if (isset($filter['query']) && is_string($filter['query']) && $filter['query'] !== '') {
             $where[] = '(' . implode(' OR ', [
                     $this->db->like('ud.login', 'text', '%' . $filter['query'] . '%'),
                     $this->db->like('ud.firstname', 'text', '%' . $filter['query'] . '%'),
@@ -82,26 +90,17 @@ class ilTermsOfServiceAcceptanceHistoryProvider extends ilTermsOfServiceTableDat
         return implode(' AND ', $where);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getGroupByPart(array $params, array $filter) : string
+    protected function getGroupByPart(array $params, array $filter): string
     {
         return '';
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getHavingPart(array $params, array $filter) : string
+    protected function getHavingPart(array $params, array $filter): string
     {
         return '';
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getOrderByPart(array $params, array $filter) : string
+    protected function getOrderByPart(array $params, array $filter): string
     {
         if (isset($params['order_field'])) {
             if (!is_string($params['order_field'])) {
@@ -117,16 +116,14 @@ class ilTermsOfServiceAcceptanceHistoryProvider extends ilTermsOfServiceTableDat
                 throw new InvalidArgumentException('Please provide a valid order field.');
             }
 
-            if ($params['order_field'] == 'ts') {
+            if ($params['order_field'] === 'ts') {
                 $params['order_field'] = 'tos_acceptance_track.ts';
             }
 
             if (!isset($params['order_direction'])) {
                 $params['order_direction'] = 'ASC';
-            } else {
-                if (!in_array(strtolower($params['order_direction']), ['asc', 'desc'])) {
-                    throw new InvalidArgumentException('Please provide a valid order direction.');
-                }
+            } elseif (!in_array(strtolower($params['order_direction']), ['asc', 'desc'])) {
+                throw new InvalidArgumentException('Please provide a valid order direction.');
             }
 
             return $params['order_field'] . ' ' . $params['order_direction'];

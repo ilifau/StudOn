@@ -1,35 +1,39 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\UI\Component\Input\Container\Filter\Standard;
 
 /**
  * Utilities for container filter
  *
- * @author killing@leifos.de
- * @ingroup ServicesContainer
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilContainerFilterUtil
 {
-    /**
-     * @var ilContainerFilterAdvMDAdapter
-     */
-    protected $adv_adapter;
+    protected ilContainerFilterAdvMDAdapter $adv_adapter;
+    protected ilLanguage $lng;
+    protected ilContainerFilterService $service;
 
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilContainerFilterService
-     */
-    protected $service;
-
-    /**
-     * Constructor
-     */
-    public function __construct(ilContainerFilterService $service, ilContainerFilterAdvMDAdapter $adv_adapter, ilLanguage $lng)
-    {
+    public function __construct(
+        ilContainerFilterService $service,
+        ilContainerFilterAdvMDAdapter $adv_adapter,
+        ilLanguage $lng
+    ) {
         $this->adv_adapter = $adv_adapter;
         $this->lng = $lng;
         $this->service = $service;
@@ -37,16 +41,15 @@ class ilContainerFilterUtil
 
     /**
      * Get title of field
-     * @param $record_id
-     * @param $field_id
-     * @return string
      * @throws ilException
      */
-    public function getContainerFieldTitle($record_id, $field_id)
-    {
+    public function getContainerFieldTitle(
+        int $record_id,
+        int $field_id
+    ): string {
         $lng = $this->lng;
 
-        if ($record_id == 0) {
+        if ($record_id === 0) {
             return $lng->txt("cont_std_filter_title_" . $field_id);
         }
 
@@ -56,15 +59,13 @@ class ilContainerFilterUtil
 
     /**
      * Get title of record
-     * @param $record_id
-     * @return string
      * @throws ilException
      */
-    public function getContainerRecordTitle($record_id)
+    public function getContainerRecordTitle(int $record_id): string
     {
         $lng = $this->lng;
 
-        if ($record_id == 0) {
+        if ($record_id === 0) {
             return $lng->txt("cont_std_record_title");
         }
 
@@ -74,15 +75,16 @@ class ilContainerFilterUtil
 
     /**
      * Get filter element for reference id
-     *
-     * @param $ref_id
-     * @param $action
-     * @return \ILIAS\UI\Component\Input\Container\Filter\Standard
      * @throws ilException
      */
-    public function getFilterForRefId($ref_id, $action, bool $admin = false) : \ILIAS\UI\Component\Input\Container\Filter\Standard
-    {
+    public function getFilterForRefId(
+        int $ref_id,
+        string $action,
+        bool $admin = false
+    ): Standard {
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
+
         $ui = $DIC->ui()->factory();
         $service = $this->service;
         $lng = $this->lng;
@@ -111,27 +113,16 @@ class ilContainerFilterUtil
 
         foreach ($set->getFields() as $field) {
             // standard fields
-            if ($field->getRecordSetId() == 0) {
+            if ($field->getRecordSetId() === 0) {
                 $title = $service->util()->getContainerFieldTitle(0, $field->getFieldId());
                 $key = "std_" . $field->getFieldId();
                 switch ($field->getFieldId()) {
-                    case ilContainerFilterField::STD_FIELD_TITLE:
-                        $fields[$key] = $ui->input()->field()->text($title);
-                        $fields_act[] = false;
-                        break;
                     case ilContainerFilterField::STD_FIELD_DESCRIPTION:
-                        $fields[$key] = $ui->input()->field()->text($title);
-                        $fields_act[] = false;
-                        break;
                     case ilContainerFilterField::STD_FIELD_TITLE_DESCRIPTION:
-                        $fields[$key] = $ui->input()->field()->text($title);
-                        $fields_act[] = false;
-                        break;
                     case ilContainerFilterField::STD_FIELD_KEYWORD:
-                        $fields[$key] = $ui->input()->field()->text($title);
-                        $fields_act[] = false;
-                        break;
                     case ilContainerFilterField::STD_FIELD_AUTHOR:
+                    case ilContainerFilterField::STD_FIELD_TUTORIAL_SUPPORT:
+                    case ilContainerFilterField::STD_FIELD_TITLE:
                         $fields[$key] = $ui->input()->field()->text($title);
                         $fields_act[] = false;
                         break;
@@ -146,10 +137,6 @@ class ilContainerFilterUtil
                             }
                         }
                         $fields[$key] = $ui->input()->field()->select($title, $options);
-                        $fields_act[] = false;
-                        break;
-                    case ilContainerFilterField::STD_FIELD_TUTORIAL_SUPPORT:
-                        $fields[$key] = $ui->input()->field()->text($title);
                         $fields_act[] = false;
                         break;
                     case ilContainerFilterField::STD_FIELD_OBJECT_TYPE:
@@ -167,15 +154,7 @@ class ilContainerFilterUtil
                 switch ($service->advancedMetadata()->getAdvType($field->getFieldId())) {
                     case ilAdvancedMDFieldDefinition::TYPE_SELECT:
                     case ilAdvancedMDFieldDefinition::TYPE_SELECT_MULTI:
-                        $options = [];
-                        foreach ($service->advancedMetadata()->getOptions($field->getFieldId()) as $id => $op) {
-                            /**
-                             * Workaround: Adding 1 to the value for selects is necessary in
-                             * R7 since KS selects are confused by the value 0. For R8 this
-                             * is somehow not a problem.
-                             */
-                            $options[$id + 1] = $op;
-                        }
+                        $options = $service->advancedMetadata()->getOptions($field->getFieldId());
                         $fields["adv_" . $field->getFieldId()] =
                             $ui->input()->field()->select($title, $options);
                         $fields_act[] = false;

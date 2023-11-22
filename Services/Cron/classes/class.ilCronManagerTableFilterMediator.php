@@ -1,14 +1,26 @@
-<?php declare(strict_types=1);
+<?php
 
-/* Copyright (c) 1998-2020 ILIAS open source, Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use ILIAS\UI\Component\Input\Container\Filter\Standard;
 use ILIAS\UI\Factory;
 
-/**
- * Class ilCronManagerTableFilterMediator
- * @author Michael Jansen <mjansen@databay.de>
- */
 class ilCronManagerTableFilterMediator
 {
     private const FILTER_PROPERTY_NAME_TITLE = 'title';
@@ -20,22 +32,11 @@ class ilCronManagerTableFilterMediator
     private const FILTER_STATUS_ACTIVE = 1;
     private const FILTER_STATUS_INACTIVE = 2;
 
-    /** @var ilCronJobCollection */
-    private $items;
-    /** @var Factory */
-    private $uiFactory;
-    /** @var ilUIService */
-    private $uiService;
-    /** @var ilLanguage */
-    private $lng;
+    private ilCronJobCollection $items;
+    private Factory $uiFactory;
+    private ilUIService $uiService;
+    private ilLanguage $lng;
 
-    /**
-     * ilCronManagerTableFilterMediator constructor.
-     * @param ilCronJobCollection $repository
-     * @param Factory $uiFactory
-     * @param ilUIService $uiService
-     * @param ilLanguage $lng
-     */
     public function __construct(
         ilCronJobCollection $repository,
         Factory $uiFactory,
@@ -48,13 +49,9 @@ class ilCronManagerTableFilterMediator
         $this->lng = $lng;
     }
 
-    /**
-     * @param string $action
-     * @return Standard
-     */
-    public function filter(string $action) : Standard
+    public function filter(string $action): Standard
     {
-        $componentOptions = array_unique(array_map(function (ilCronJobEntity $entity) : string {
+        $componentOptions = array_unique(array_map(function (ilCronJobEntity $entity): string {
             if ($entity->isPlugin()) {
                 return $this->lng->txt('cmps_plugin') . '/' . $entity->getComponent();
             }
@@ -120,7 +117,7 @@ class ilCronManagerTableFilterMediator
             self::FILTER_PROPERTY_NAME_RESULT => $result,
         ];
 
-        $filter = $this->uiService->filter()->standard(
+        return $this->uiService->filter()->standard(
             'cron_job_adm_table',
             $action,
             $fields,
@@ -128,23 +125,17 @@ class ilCronManagerTableFilterMediator
             true,
             true
         );
-
-        return $filter;
     }
 
-    /**
-     * @param Standard $filter
-     * @return ilCronJobCollection
-     */
-    public function filteredJobs(Standard $filter) : ilCronJobCollection
+    public function filteredJobs(Standard $filter): ilCronJobCollection
     {
         $filterValues = $this->uiService->filter()->getData($filter);
 
-        return $this->items->filter(function (ilCronJobEntity $entity) use ($filterValues) : bool {
+        return $this->items->filter(function (ilCronJobEntity $entity) use ($filterValues): bool {
             if (
                 isset($filterValues[self::FILTER_PROPERTY_NAME_TITLE]) &&
                 is_string($filterValues[self::FILTER_PROPERTY_NAME_TITLE]) &&
-                strlen($filterValues[self::FILTER_PROPERTY_NAME_TITLE]) > 0
+                $filterValues[self::FILTER_PROPERTY_NAME_TITLE] !== ''
             ) {
                 $titleFilterValue = $filterValues[self::FILTER_PROPERTY_NAME_TITLE];
                 if (ilStr::strIPos($entity->getEffectiveTitle(), $titleFilterValue) === false) {
@@ -155,7 +146,7 @@ class ilCronManagerTableFilterMediator
             if (
                 isset($filterValues[self::FILTER_PROPERTY_NAME_COMPONENT]) &&
                 is_string($filterValues[self::FILTER_PROPERTY_NAME_COMPONENT]) &&
-                strlen($filterValues[self::FILTER_PROPERTY_NAME_COMPONENT]) > 0
+                $filterValues[self::FILTER_PROPERTY_NAME_COMPONENT] !== ''
             ) {
                 $component = $entity->getComponent();
                 if ($entity->isPlugin()) {
@@ -170,7 +161,7 @@ class ilCronManagerTableFilterMediator
             if (
                 isset($filterValues[self::FILTER_PROPERTY_NAME_SCHEDULE]) &&
                 is_string($filterValues[self::FILTER_PROPERTY_NAME_SCHEDULE]) &&
-                strlen($filterValues[self::FILTER_PROPERTY_NAME_SCHEDULE]) > 0
+                $filterValues[self::FILTER_PROPERTY_NAME_SCHEDULE] !== ''
             ) {
                 if ((int) $filterValues[self::FILTER_PROPERTY_NAME_SCHEDULE] !== $entity->getEffectiveScheduleType()) {
                     return false;
@@ -180,7 +171,7 @@ class ilCronManagerTableFilterMediator
             if (
                 isset($filterValues[self::FILTER_PROPERTY_NAME_STATUS]) &&
                 is_string($filterValues[self::FILTER_PROPERTY_NAME_STATUS]) &&
-                strlen($filterValues[self::FILTER_PROPERTY_NAME_STATUS]) > 0
+                $filterValues[self::FILTER_PROPERTY_NAME_STATUS] !== ''
             ) {
                 if (
                     (int) $filterValues[self::FILTER_PROPERTY_NAME_STATUS] === self::FILTER_STATUS_ACTIVE &&
@@ -198,7 +189,7 @@ class ilCronManagerTableFilterMediator
             if (
                 isset($filterValues[self::FILTER_PROPERTY_NAME_RESULT]) &&
                 is_string($filterValues[self::FILTER_PROPERTY_NAME_RESULT]) &&
-                strlen($filterValues[self::FILTER_PROPERTY_NAME_RESULT]) > 0
+                $filterValues[self::FILTER_PROPERTY_NAME_RESULT] !== ''
             ) {
                 if ((int) $filterValues[self::FILTER_PROPERTY_NAME_RESULT] !== $entity->getJobResultStatus()) {
                     return false;

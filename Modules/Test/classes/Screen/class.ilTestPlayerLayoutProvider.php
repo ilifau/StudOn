@@ -41,23 +41,22 @@ use ILIAS\UI\Component\Image\Image;
  */
 class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements ModificationProvider
 {
-    const TEST_PLAYER_KIOSK_MODE_ENABLED = 'test_player_kiosk_mode_enabled';
-    const TEST_PLAYER_TITLE = 'test_player_kiosk_mode_title';
-    const TEST_PLAYER_SHORT_TITLE = 'test_player_kiosk_mode_instance_name';
+    public const TEST_PLAYER_KIOSK_MODE_ENABLED = 'test_player_kiosk_mode_enabled';
+    public const TEST_PLAYER_TITLE = 'test_player_kiosk_mode_title';
+    public const TEST_PLAYER_SHORT_TITLE = 'test_player_kiosk_mode_instance_name';
 
 
-    public function isInterestedInContexts() : ContextCollection
+    public function isInterestedInContexts(): ContextCollection
     {
         return $this->context_collection->repository();
     }
 
-
-    public function getLogoModification(CalledContexts $called_contexts) : ?LogoModification
+    public function getLogoModification(CalledContexts $called_contexts): ?LogoModification
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $logo = $this->globalScreen()->layout()->factory()->logo();
 
-            $logo = $logo->withModification(function (?Image $current) : ?Image {
+            $logo = $logo->withModification(function (?Image $current): ?Image {
                 return null;
             });
 
@@ -66,12 +65,12 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
 
         return null;
     }
-    public function getResponsiveLogoModification(CalledContexts $called_contexts) : ?LogoModification
+    public function getResponsiveLogoModification(CalledContexts $called_contexts): ?LogoModification
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $logo = $this->globalScreen()->layout()->factory()->logo();
 
-            $logo = $logo->withModification(function (?Image $current) : ?Image {
+            $logo = $logo->withModification(function (?Image $current): ?Image {
                 return null;
             });
 
@@ -81,13 +80,12 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
         return null;
     }
 
-
-    public function getMainBarModification(CalledContexts $called_contexts) : ?MainBarModification
+    public function getMainBarModification(CalledContexts $called_contexts): ?MainBarModification
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $mainBar = $this->globalScreen()->layout()->factory()->mainbar();
 
-            $mainBar = $mainBar->withModification(function (?MainBar $current) : ?MainBar {
+            $mainBar = $mainBar->withModification(function (?MainBar $current): ?MainBar {
                 return null;
             });
 
@@ -97,13 +95,12 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
         return null;
     }
 
-
-    public function getMetaBarModification(CalledContexts $called_contexts) : ?MetaBarModification
+    public function getMetaBarModification(CalledContexts $called_contexts): ?MetaBarModification
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $metaBar = $this->globalScreen()->layout()->factory()->metabar();
 
-            $metaBar = $metaBar->withModification(function (?MetaBar $current) : ?MetaBar {
+            $metaBar = $metaBar->withModification(function (?MetaBar $current): ?MetaBar {
                 return null;
             });
 
@@ -113,13 +110,12 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
         return null;
     }
 
-
-    public function getFooterModification(CalledContexts $called_contexts) : ?FooterModification
+    public function getFooterModification(CalledContexts $called_contexts): ?FooterModification
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $footer = $this->globalScreen()->layout()->factory()->footer();
 
-            $footer = $footer->withModification(function (?Footer $current) : ?Footer {
+            $footer = $footer->withModification(function (?Footer $current): ?Footer {
                 return null;
             });
 
@@ -129,13 +125,7 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
         return null;
     }
 
-
-    /**
-     * @param CalledContexts $called_contexts
-     *
-     * @return bool
-     */
-    protected function isKioskModeEnabled(CalledContexts $called_contexts) : bool
+    protected function isKioskModeEnabled(CalledContexts $called_contexts): bool
     {
         $additionalData = $called_contexts->current()->getAdditionalData();
         $isKioskModeEnabled = $additionalData->is(self::TEST_PLAYER_KIOSK_MODE_ENABLED, true);
@@ -143,17 +133,16 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
         return $isKioskModeEnabled;
     }
 
-
-    public function getShortTitleModification(CalledContexts $called_contexts) : ?ShortTitleModification
+    public function getShortTitleModification(CalledContexts $called_contexts): ?ShortTitleModification
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $title = $called_contexts->current()->getAdditionalData()->get(self::TEST_PLAYER_SHORT_TITLE);
-            if ($title === null) {
+            if($title == null) {
                 $title = '';
             }
             return $this->globalScreen()->layout()->factory()->short_title()
             ->withModification(
-                function (?string $content) use ($title) : ?string {
+                function (?string $content) use ($title): ?string {
                     return $title;
                 }
             )
@@ -162,16 +151,16 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
         return null;
     }
 
-    public function getViewTitleModification(CalledContexts $called_contexts) : ?ViewTitleModification
+    public function getViewTitleModification(CalledContexts $called_contexts): ?ViewTitleModification
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $title = $called_contexts->current()->getAdditionalData()->get(self::TEST_PLAYER_TITLE);
-            if ($title === null) {
+            if($title == null) {
                 $title = '';
             }
             return $this->globalScreen()->layout()->factory()->view_title()
             ->withModification(
-                function (?string $content) use ($title) : ?string {
+                function (?string $content) use ($title): ?string {
                     return $title;
                 }
             )
@@ -179,4 +168,5 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
         }
         return null;
     }
+
 }

@@ -1,251 +1,204 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
- * Explorer base GUI class.
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
  * The class is supposed to work on a hierarchie of nodes that are identified
  * by IDs. Whether nodes are represented by associative arrays or objects
  * is not defined by this abstract class.
  *
- * @author	Alex Killing <alex.killing@gmx.de>
- * @version	$Id$
- *
- * @ingroup ServicesUIComponent
+ * @author Alexander Killing <killing@leifos.de>
  */
 abstract class ilExplorerBaseGUI
 {
-    /**
-     * @var Logger
-     */
-    protected $log;
+    protected string $node_parameter_name;
+    protected ilLogger $log;
+    protected ilCtrl $ctrl;
+    protected ?ilGlobalTemplateInterface $tpl;
+
+    protected static string $js_tree_path = "./node_modules/jstree/dist/jstree.js";
+    protected static string $js_tree_path_css = "./node_modules/jstree/dist/themes/default/style.min.css";
+
+    protected static string $js_expl_path = "./Services/UIComponent/Explorer2/js/Explorer2.js";
+    protected bool $skip_root_node = false;
+    protected bool $ajax = false;
+    protected array $custom_open_nodes = array();
+    protected array $selected_nodes = array();
+    protected string $select_postvar = "";
+    protected bool $offline_mode = false;
+    protected array $sec_highl_nodes = array();
+    protected bool $enable_dnd = false;
+    protected string $search_term = "";
+    protected array $open_nodes = [];
+    protected ilSessionIStorage $store;
+    protected bool $select_multi = false;
 
     /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var ilGlobalTemplate
-     */
-    protected $tpl;
-
-    protected static $js_tree_path = "./node_modules/jstree/dist/jstree.js";
-    protected static $js_tree_path_css = "./node_modules/jstree/dist/themes/default/style.min.css";
-
-    protected static $js_expl_path = "./Services/UIComponent/Explorer2/js/Explorer2.js";
-    protected $skip_root_node = false;
-    protected $ajax = false;
-    protected $custom_open_nodes = array();
-    protected $selected_nodes = array();
-    protected $select_postvar = "";
-    protected $offline_mode = false;
-    protected $sec_highl_nodes = array();
-    protected $enable_dnd = false;
-    protected $search_term = "";
-
-    /** @var array */
-    protected $open_nodes = [];
-
-    /** @var ilSessionIStorage */
-    protected $store;
-
-    /**
-     * @var string|object
+     * @var string|object|array
      */
     protected $parent_obj;
+    protected int $child_limit = 0;
+    private bool $nodeOnclickEnabled;
+    protected string $parent_cmd = '';
 
-    /**
-     * @var int
-     */
-    protected $child_limit = 0;
+    protected string $requested_exp_cmd = "";
+    protected string $requested_exp_cont = "";
+    protected string $requested_searchterm = "";
+    protected string $requested_node_id = "";
+    protected string $id;
 
-    private $nodeOnclickEnabled;
-
-    /** @var string  */
-    protected $parent_cmd = '';
-
-    /**
-     * Constructor
-     */
-    public function __construct($a_expl_id, $a_parent_obj, $a_parent_cmd)
-    {
+    public function __construct(
+        string $a_expl_id,
+        $a_parent_obj,
+        string $a_parent_cmd,
+        string $a_node_parameter_name = "node_id"
+    ) {
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
-
         $this->log = $DIC["ilLog"];
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC["tpl"];
         $this->id = $a_expl_id;
         $this->parent_obj = $a_parent_obj;
         $this->parent_cmd = $a_parent_cmd;
+        $this->node_parameter_name = $a_node_parameter_name;
         // get open nodes
-        include_once("./Services/Authentication/classes/class.ilSessionIStorage.php");
         $this->store = new ilSessionIStorage("expl2");
         $open_nodes = $this->store->get("on_" . $this->id);
-        $this->open_nodes = unserialize($open_nodes);
+        $this->open_nodes = unserialize($open_nodes, ['allowed_classes' => false]) ?: [];
         if (!is_array($this->open_nodes)) {
             $this->open_nodes = array();
         }
 
-        $this->requested_node_id = $_GET["node_id"];
+        $params = $DIC->http()->request()->getQueryParams();
+        $this->requested_node_id = ($params[$a_node_parameter_name] ?? "");
+        $this->requested_exp_cmd = ($params["exp_cmd"] ?? "");
+        $this->requested_exp_cont = ($params["exp_cont"] ?? "");
+        $this->requested_searchterm = ($params["searchterm"] ?? "");
 
         $this->nodeOnclickEnabled = true;
         ilYuiUtil::initConnection();
     }
-    
-    /**
-     * Set child limit
-     *
-     * @param int $a_val child limit
-     */
-    public function setChildLimit($a_val)
+
+    public function setChildLimit(int $a_val): void
     {
         $this->child_limit = $a_val;
     }
-    
-    /**
-     * Get child limit
-     *
-     * @return int child limit
-     */
-    public function getChildLimit()
+
+    public function getChildLimit(): int
     {
         return $this->child_limit;
     }
-    
-    /**
-     * Set search term
-     *
-     * @param string $a_val search term
-     */
-    public function setSearchTerm($a_val)
+
+    public function setSearchTerm(string $a_val): void
     {
         $this->search_term = $a_val;
     }
-    
-    /**
-     * Get search term
-     *
-     * @return string search term
-     */
-    public function getSearchTerm()
+
+    public function getSearchTerm(): string
     {
         return $this->search_term;
     }
-    
-    
-    /**
-     * Set main template (that is responsible for adding js/css)
-     *
-     * @param ilTemplate|null $a_main_tpl
-     */
-    public function setMainTemplate($a_main_tpl = null)
+
+    public function setMainTemplate(ilGlobalTemplateInterface $a_main_tpl = null): void
     {
         $this->tpl = $a_main_tpl;
     }
-    
 
-    /**
-     * Get local path of explorer js
-     */
-    public static function getLocalExplorerJsPath()
+    public static function getLocalExplorerJsPath(): string
     {
         return self::$js_expl_path;
     }
 
-    /**
-     * Get local path of jsTree js
-     */
-    public static function getLocalJsTreeJsPath()
+    public static function getLocalJsTreeJsPath(): string
     {
         return self::$js_tree_path;
     }
 
-    /**
-     * Get local path of jsTree js
-     */
-    public static function getLocalJsTreeCssPath()
+    public static function getLocalJsTreeCssPath(): string
     {
         return self::$js_tree_path_css;
     }
 
-    /**
-     * Create html export directories
-     *
-     * @param string $a_target_dir target directory
-     */
-    public static function createHTMLExportDirs($a_target_dir)
+    public static function createHTMLExportDirs(string $a_target_dir): void
     {
-        ilUtil::makeDirParents($a_target_dir . "/Services/UIComponent/Explorer2/lib/jstree-v.pre1.0");
-        ilUtil::makeDirParents($a_target_dir . "/Services/UIComponent/Explorer2/js");
+        ilFileUtils::makeDirParents($a_target_dir . "/Services/UIComponent/Explorer2/lib/jstree-v.pre1.0");
+        ilFileUtils::makeDirParents($a_target_dir . "/Services/UIComponent/Explorer2/js");
     }
-
 
 
     //
     // Abstract functions that need to be overwritten in derived classes
     //
-    
+
     /**
      * Get root node.
      *
      * Please note that the class does not make any requirements how
      * nodes are represented (array or object)
      *
-     * @return mixed root node object/array
+     * @return object|array|null
      */
     abstract public function getRootNode();
-    
+
     /**
-     * Get childs of node
-     *
-     * @param string $a_parent_id parent node id
-     * @return array childs
+     * Get children of node
+     * @param string $a_parent_node_id
+     * @return array
      */
-    abstract public function getChildsOfNode($a_parent_node_id);
-    
+    abstract public function getChildsOfNode($a_parent_node_id): array;
+
     /**
      * Get content of a node
-     *
-     * @param mixed $a_node node array or object
+     * @param object|array $a_node node array or object
      * @return string content of the node
      */
-    abstract public function getNodeContent($a_node);
+    abstract public function getNodeContent($a_node): string;
 
     /**
      * Get id of a node
-     *
-     * @param mixed $a_node node array or object
+     * @param object|array $a_node node array or object
      * @return string id of node
      */
     abstract public function getNodeId($a_node);
 
-    
+
     //
     // Functions with standard implementations that may be overwritten
     //
 
     /**
      * Get href for node
-     *
-     * @param mixed $a_node node object/array
+     * @param object|array $a_node
      * @return string href attribute
      */
-    public function getNodeHref($a_node)
+    public function getNodeHref($a_node): string
     {
         return "#";
     }
 
     /**
-     * Node has childs?
-     *
+     * Node has children
      * Please note that this standard method may not
      * be optimal depending on what a derived class does in isNodeVisible.
-     *
-     * @param
-     * @return
+     * @param object|array $a_node
+     * @return bool
      */
-    public function nodeHasVisibleChilds($a_node)
+    public function nodeHasVisibleChilds($a_node): bool
     {
         $childs = $this->getChildsOfNode($this->getNodeId($a_node));
 
@@ -256,62 +209,56 @@ abstract class ilExplorerBaseGUI
         }
         return false;
     }
-    
+
     /**
      * Sort childs
-     *
      * @param array $a_childs array of child nodes
-     * @param mixed $a_parent_node parent node
-     *
+     * @param string $a_parent_node_id parent node
      * @return array array of childs nodes
      */
-    public function sortChilds($a_childs, $a_parent_node_id)
+    public function sortChilds(array $a_childs, $a_parent_node_id): array
     {
         return $a_childs;
     }
 
     /**
      * Get node icon path
-     *
-     * @param mixed $a_node node object/array
+     * @param object|array $a_node
      * @return string image file path
      */
-    public function getNodeIcon($a_node)
+    public function getNodeIcon($a_node): string
     {
         return "";
     }
 
     /**
      * Get node icon alt attribute
-     *
-     * @param mixed $a_node node object/array
+     * @param object|array $a_node
      * @return string image alt attribute
      */
-    public function getNodeIconAlt($a_node)
+    public function getNodeIconAlt($a_node): string
     {
         return "";
     }
 
     /**
      * Get node target (frame) attribute
-     *
-     * @param mixed $a_node node object/array
+     * @param object|array $a_node node
      * @return string target
      */
-    public function getNodeTarget($a_node)
+    public function getNodeTarget($a_node): string
     {
         return "";
     }
 
     /**
      * Get node onclick attribute
-     *
-     * @param mixed $a_node node object/array
+     * @param object|array $a_node node
      * @return string onclick value
      */
-    public function getNodeOnClick($a_node)
+    public function getNodeOnClick($a_node): string
     {
-        if ($this->select_postvar != "") {
+        if ($this->select_postvar !== "") {
             return $this->getSelectOnClick($a_node);
         }
         return "";
@@ -319,132 +266,99 @@ abstract class ilExplorerBaseGUI
 
     /**
      * Is node visible?
-     *
-     * @param mixed $a_node node object/array
-     * @return boolean node visible true/false
+     * @param object|array $a_node node
+     * @return bool node visible true/false
      */
-    public function isNodeVisible($a_node)
+    public function isNodeVisible($a_node): bool
     {
         return true;
     }
 
     /**
      * Is node highlighted?
-     *
-     * @param mixed $a_node node object/array
-     * @return boolean node highlighted true/false
+     * @param object|array $a_node node
+     * @return bool node highlighted true/false
      */
-    public function isNodeHighlighted($a_node)
+    public function isNodeHighlighted($a_node): bool
     {
         return false;
     }
 
     /**
      * Is node clickable?
-     *
-     * @param mixed $a_node node object/array
-     * @return boolean node clickable true/false
+     * @param object|array $a_node node
+     * @return bool node clickable true/false
      */
-    public function isNodeClickable($a_node)
+    public function isNodeClickable($a_node): bool
     {
         return true;
     }
 
     /**
      * Is node selectable?
-     *
-     * @param mixed $a_node node object/array
-     * @return boolean node selectable true/false
+     * @param object|array $a_node node
+     * @return bool node selectable true/false
      */
-    protected function isNodeSelectable($a_node)
+    protected function isNodeSelectable($a_node): bool
     {
         return true;
     }
 
-    
+
     //
     // Basic configuration / setter/getter
     //
-    
+
     /**
      * Get id of explorer element
-     *
-     * @return integer id
+     * @return string id
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
-    
-    /**
-     * Set skip root node
-     *
-     * If set to false, the top node will not be displayed.
-     *
-     * @param boolean $a_val skip root node
-     */
-    public function setSkipRootNode($a_val)
+
+    public function setSkipRootNode(bool $a_val): void
     {
         $this->skip_root_node = $a_val;
     }
-    
-    /**
-     * Get skip root node
-     *
-     * @return boolean skip root node
-     */
-    public function getSkipRootNode()
+
+    public function getSkipRootNode(): bool
     {
         return $this->skip_root_node;
     }
-    
-    /**
-     * Set ajax
-     *
-     * @param boolean $a_val ajax
-     */
-    public function setAjax($a_val)
+
+    public function setAjax(bool $a_val): void
     {
         $this->ajax = $a_val;
     }
-    
-    /**
-     * Get ajax
-     *
-     * @return boolean ajax
-     */
-    public function getAjax()
+
+    public function getAjax(): bool
     {
         return $this->ajax;
     }
 
     /**
      * Set secondary (background) highlighted nodes
-     *
-     * @param array $a_val array of node ids
      */
-    public function setSecondaryHighlightedNodes($a_val)
+    public function setSecondaryHighlightedNodes(array $a_val): void
     {
         $this->sec_highl_nodes = $a_val;
     }
 
     /**
      * Get secondary (background) highlighted nodes
-     *
-     * @return array array of node ids
      */
-    public function getSecondaryHighlightedNodes()
+    public function getSecondaryHighlightedNodes(): array
     {
         return $this->sec_highl_nodes;
     }
-    
+
     /**
      * Set node to be opened (additional custom opened node, not standard expand behaviour)
-     *
-     * @param
-     * @return
+     * @param string $a_id
      */
-    public function setNodeOpen($a_id)
+    public function setNodeOpen($a_id): void
     {
         if (!in_array($a_id, $this->custom_open_nodes)) {
             $this->custom_open_nodes[] = $a_id;
@@ -453,11 +367,9 @@ abstract class ilExplorerBaseGUI
 
     /**
      * Get onclick attribute for node toggling
-     *
-     * @param
-     * @return
+     * @param object|array $a_node
      */
-    final protected function getNodeToggleOnClick($a_node)
+    final protected function getNodeToggleOnClick($a_node): string
     {
         return "$('#" . $this->getContainerId() . "').jstree('toggle_node' , '#" .
             $this->getDomNodeIdForNodeId($this->getNodeId($a_node)) . "'); return false;";
@@ -465,59 +377,43 @@ abstract class ilExplorerBaseGUI
 
     /**
      * Get onclick attribute for selecting radio/checkbox
-     *
-     * @param
-     * @return
+     * @param object|array $a_node
      */
-    final protected function getSelectOnClick($a_node)
+    final protected function getSelectOnClick($a_node): string
     {
         $dn_id = $this->getDomNodeIdForNodeId($this->getNodeId($a_node));
         $oc = "il.Explorer2.selectOnClick(event, '" . $dn_id . "'); return false;";
         return $oc;
     }
-    
+
     /**
      * Set select mode (to deactivate, pass an empty string as postvar)
-     *
-     * @param string $a_postvar variable used for post, a "[]" is added automatically
-     * @param boolean $a_multi multi select (checkboxes) or not (radio)
-     * @return
+     * @param string  $a_postvar variable used for post, a "[]" is added automatically
+     * @param bool $a_multi   multi select (checkboxes) or not (radio)
      */
-    public function setSelectMode($a_postvar, $a_multi = false)
+    public function setSelectMode(string $a_postvar, bool $a_multi = false): void
     {
         $this->select_postvar = $a_postvar;
         $this->select_multi = $a_multi;
     }
-    
+
     /**
      * Set node to be opened (additional custom opened node, not standard expand behaviour)
-     *
-     * @param
-     * @return
+     * @param string $a_id
      */
-    public function setNodeSelected($a_id)
+    public function setNodeSelected($a_id): void
     {
         if (!in_array($a_id, $this->selected_nodes)) {
             $this->selected_nodes[] = $a_id;
         }
     }
 
-    /**
-     * Set offline mode
-     *
-     * @param bool $a_val offline mode
-     */
-    public function setOfflineMode($a_val)
+    public function setOfflineMode(bool $a_val): void
     {
         $this->offline_mode = $a_val;
     }
 
-    /**
-     * Get offline mode
-     *
-     * @return bool offline mode
-     */
-    public function getOfflineMode()
+    public function getOfflineMode(): bool
     {
         return $this->offline_mode;
     }
@@ -528,57 +424,45 @@ abstract class ilExplorerBaseGUI
 
     /**
      * Handle explorer internal command.
-     *
-     * @return boolean true, if an internal command has been performed.
      */
-    public function handleCommand()
+    public function handleCommand(): bool
     {
-        if ($_GET["exp_cmd"] != "" &&
-            $_GET["exp_cont"] == $this->getContainerId()) {
-            $cmd = $_GET["exp_cmd"];
+        if ($this->requested_exp_cmd !== "" &&
+            $this->requested_exp_cont === $this->getContainerId()) {
+            $cmd = $this->requested_exp_cmd;
             if (in_array($cmd, array("openNode", "closeNode", "getNodeAsync"))) {
                 $this->$cmd();
             }
-            
+
             return true;
         }
         return false;
     }
-    
-    /**
-     * Get container id
-     *
-     * @param
-     * @return
-     */
-    public function getContainerId()
+
+    public function getContainerId(): string
     {
         return "il_expl2_jstree_cont_" . $this->getId();
     }
-    
+
     /**
      * Open node
      */
-    public function openNode()
+    public function openNode(): void
     {
-        $ilLog = $this->log;
-        
-        $id = $this->getNodeIdForDomNodeId($_GET["node_id"]);
+        $id = $this->getNodeIdForDomNodeId($this->requested_node_id);
         if (!in_array($id, $this->open_nodes)) {
             $this->open_nodes[] = $id;
         }
         $this->store->set("on_" . $this->id, serialize($this->open_nodes));
         exit;
     }
-    
+
     /**
      * Close node
      */
-    public function closeNode()
+    public function closeNode(): void
     {
-        $ilLog = $this->log;
-        
-        $id = $this->getNodeIdForDomNodeId($_GET["node_id"]);
+        $id = $this->getNodeIdForDomNodeId($this->requested_node_id);
         if (in_array($id, $this->open_nodes)) {
             $k = array_search($id, $this->open_nodes);
             unset($this->open_nodes[$k]);
@@ -586,11 +470,11 @@ abstract class ilExplorerBaseGUI
         $this->store->set("on_" . $this->id, serialize($this->open_nodes));
         exit;
     }
-    
+
     /**
      * Get node asynchronously
      */
-    public function getNodeAsync()
+    public function getNodeAsync(): string
     {
         $this->beforeRendering();
 
@@ -600,13 +484,12 @@ abstract class ilExplorerBaseGUI
         if (!in_array($root, $this->open_nodes)) {
             $this->open_nodes[] = $root;
         }
-
-        if ($_GET["node_id"] != "") {
-            $id = $this->getNodeIdForDomNodeId($_GET["node_id"]);
-            $this->setSearchTerm(ilUtil::stripSlashes($_GET["searchterm"]));
+        if ($this->requested_node_id !== "") {
+            $id = $this->getNodeIdForDomNodeId($this->requested_node_id);
+            $this->setSearchTerm(ilUtil::stripSlashes($this->requested_searchterm));
             $this->renderChilds($id, $etpl);
         } else {
-            $id = $this->getNodeId($this->getRootNode());
+            $this->getNodeId($this->getRootNode());
             $this->renderNode($this->getRootNode(), $etpl);
         }
         echo $etpl->get("tag");
@@ -616,17 +499,15 @@ abstract class ilExplorerBaseGUI
     /**
      * Before rendering
      */
-    public function beforeRendering()
+    public function beforeRendering(): void
     {
     }
 
     /**
      * Get all open nodes
-     *
-     * @param
-     * @return
+     * @param string $node_id
      */
-    protected function isNodeOpen($node_id)
+    protected function isNodeOpen($node_id): bool
     {
         return ($this->getNodeId($this->getRootNode()) == $node_id
             || in_array($node_id, $this->open_nodes)
@@ -636,11 +517,8 @@ abstract class ilExplorerBaseGUI
 
     /**
      * Get on load code
-     *
-     * @param
-     * @return
      */
-    public function getOnLoadCode()
+    public function getOnLoadCode(): string
     {
         $ilCtrl = $this->ctrl;
 
@@ -658,14 +536,15 @@ abstract class ilExplorerBaseGUI
                 $open_nodes[] = $dnode;
             }
         }
-
         // ilias config options
         $url = "";
         if (!$this->getOfflineMode()) {
             if (is_object($this->parent_obj)) {
                 $url = $ilCtrl->getLinkTarget($this->parent_obj, $this->parent_cmd, "", true);
             } else {
-                $url = $ilCtrl->getLinkTargetByClass($this->parent_obj, $this->parent_cmd, "", true);
+                if (!is_null($this->parent_obj)) {
+                    $url = $ilCtrl->getLinkTargetByClass($this->parent_obj, $this->parent_cmd, "", true);
+                }
             }
         }
 
@@ -680,6 +559,7 @@ abstract class ilExplorerBaseGUI
             "url" => $url,
             "second_hnodes" => $shn,
             "ajax" => $this->getAjax(),
+            "node_par_name" => $this->node_parameter_name
         );
 
 
@@ -695,11 +575,14 @@ abstract class ilExplorerBaseGUI
             "plugins" => $this->getJSTreePlugins(),
             "html_data" => array()
         );
-
-        return 'il.Explorer2.init(' . json_encode($config) . ', ' . json_encode($js_tree_config) . ');';
+        return (
+            'il.Explorer2.init(' .
+            json_encode($config, JSON_THROW_ON_ERROR) . ', ' .
+            json_encode($js_tree_config, JSON_THROW_ON_ERROR) . ');'
+        );
     }
 
-    protected function getJSTreePlugins()
+    protected function getJSTreePlugins(): array
     {
         $plugins = array("html_data", "themes", "json_data");
         if ($this->isEnableDnd()) {
@@ -709,32 +592,22 @@ abstract class ilExplorerBaseGUI
     }
 
 
-    /**
-     * Init JS
-     */
-    public static function init($a_main_tpl = null)
+    // Init JS/CSS
+    public static function init(ilGlobalTemplateInterface $a_main_tpl = null): void
     {
         global $DIC;
 
-        if ($a_main_tpl == null) {
-            $tpl = $DIC["tpl"];
-        } else {
-            $tpl = $a_main_tpl;
-        }
+        $tpl = $a_main_tpl ?? $DIC["tpl"];
 
-        include_once("./Services/jQuery/classes/class.iljQueryUtil.php");
         iljQueryUtil::initjQuery($tpl);
 
-        $tpl->addJavascript(self::getLocalExplorerJsPath());
-        $tpl->addJavascript(self::getLocalJsTreeJsPath());
+        $tpl->addJavaScript(self::getLocalExplorerJsPath());
+        $tpl->addJavaScript(self::getLocalJsTreeJsPath());
         $tpl->addCss(self::getLocalJsTreeCssPath());
     }
-    
-    
-    /**
-     * Get HTML
-     */
-    public function getHTML()
+
+
+    public function getHTML(): string
     {
         $tpl = $this->tpl;
         $ilCtrl = $this->ctrl;
@@ -796,14 +669,12 @@ abstract class ilExplorerBaseGUI
         //echo $content.$add; exit;
         return $content . $add;
     }
-    
+
     /**
      * Render node
-     *
-     * @param
-     * @return
+     * @param object|array $a_node
      */
-    public function renderNode($a_node, $tpl)
+    public function renderNode($a_node, ilTemplate $tpl): void
     {
         $skip = ($this->getSkipRootNode()
             && $this->getNodeId($this->getRootNode()) == $this->getNodeId($a_node));
@@ -811,7 +682,7 @@ abstract class ilExplorerBaseGUI
             $this->listItemStart($tpl, $a_node);
 
             // select mode?
-            if ($this->select_postvar != "" && $this->isNodeSelectable($a_node)) {
+            if ($this->select_postvar !== "" && $this->isNodeSelectable($a_node)) {
                 if ($this->select_multi) {
                     $tpl->setCurrentBlock("cb");
                     if (in_array($this->getNodeId($a_node), $this->selected_nodes)) {
@@ -819,7 +690,6 @@ abstract class ilExplorerBaseGUI
                     }
                     $tpl->setVariable("CB_VAL", $this->getNodeId($a_node));
                     $tpl->setVariable("CB_NAME", $this->select_postvar . "[]");
-                    $tpl->parseCurrentBlock();
                 } else {
                     $tpl->setCurrentBlock("rd");
                     if (in_array($this->getNodeId($a_node), $this->selected_nodes)) {
@@ -827,8 +697,8 @@ abstract class ilExplorerBaseGUI
                     }
                     $tpl->setVariable("RD_VAL", $this->getNodeId($a_node));
                     $tpl->setVariable("RD_NAME", $this->select_postvar);
-                    $tpl->parseCurrentBlock();
                 }
+                $tpl->parseCurrentBlock();
             }
 
 
@@ -836,7 +706,7 @@ abstract class ilExplorerBaseGUI
                 $tpl->touchBlock("hl");
             }
             $tpl->setCurrentBlock("content");
-            if ($this->getNodeIcon($a_node) != "") {
+            if ($this->getNodeIcon($a_node) !== "") {
                 $tpl->setVariable("ICON", ilUtil::img($this->getNodeIcon($a_node), $this->getNodeIconAlt($a_node)) . " ");
             }
             $tpl->setVariable("CONTENT", $this->getNodeContent($a_node));
@@ -844,7 +714,7 @@ abstract class ilExplorerBaseGUI
                 $tpl->setVariable("HREF", $this->getNodeHref($a_node));
             }
             $target = $this->getNodeTarget($a_node);
-            if ($target != "") {
+            if ($target !== "") {
                 $targetRelatedParams = array(
                     'target="' . $target . '"'
                 );
@@ -860,7 +730,7 @@ abstract class ilExplorerBaseGUI
                 $tpl->setVariable("A_CLASS", 'class="disabled"');
             } else {
                 $onclick = $this->getNodeOnClick($a_node);
-                if ($onclick != "") {
+                if ($onclick !== "") {
                     $tpl->setVariable("ONCLICK", 'onclick="' . $onclick . '"');
                 }
             }
@@ -868,29 +738,27 @@ abstract class ilExplorerBaseGUI
 
             $tpl->touchBlock("tag");
         }
-        
+
         if (!$this->getAjax() || in_array($this->getNodeId($a_node), $this->open_nodes)
             || in_array($this->getNodeId($a_node), $this->custom_open_nodes)) {
             $this->renderChilds($this->getNodeId($a_node), $tpl);
         }
-        
+
         if (!$skip) {
             $this->listItemEnd($tpl);
         }
     }
-    
+
     /**
      * Render childs
-     *
-     * @param
-     * @return
+     * @param string $a_node_id
      */
-    final public function renderChilds($a_node_id, $tpl)
+    final public function renderChilds($a_node_id, ilTemplate $tpl): void
     {
         $childs = $this->getChildsOfNode($a_node_id);
         $childs = $this->sortChilds($childs, $a_node_id);
 
-        if (count($childs) > 0 || ($this->getSearchTerm() != "" && $this->requested_node_id == $this->getDomNodeIdForNodeId($a_node_id))) {
+        if (count($childs) > 0 || ($this->getSearchTerm() !== "" && $this->requested_node_id === $this->getDomNodeIdForNodeId($a_node_id))) {
             // collect visible childs
 
             $visible_childs = [];
@@ -909,15 +777,14 @@ abstract class ilExplorerBaseGUI
 
             // search field, if too many childs
             $any = false;
-            if ($this->getChildLimit() > 0 && $this->getChildLimit() < $cnt_child
-                || ($this->getSearchTerm() != "")) {
+            if (($this->getChildLimit() > 0 && $this->getChildLimit() < $cnt_child) || $this->getSearchTerm() !== "") {
                 if (!$any) {
                     $this->listStart($tpl);
                     $any = true;
                 }
                 $tpl->setCurrentBlock("list_search");
                 $tpl->setVariable("SEARCH_CONTAINER_ID", $a_node_id);
-                if ($this->requested_node_id == $this->getDomNodeIdForNodeId($a_node_id)) {
+                if ($this->requested_node_id === $this->getDomNodeIdForNodeId($a_node_id)) {
                     $tpl->setVariable("SEARCH_VAL", $this->getSearchTerm());
                 }
                 $tpl->parseCurrentBlock();
@@ -945,34 +812,27 @@ abstract class ilExplorerBaseGUI
 
     /**
      * Get DOM node id for node id
-     *
-     * @param
-     * @return
+     * @param string $a_node_id
      */
-    public function getDomNodeIdForNodeId($a_node_id)
+    public function getDomNodeIdForNodeId($a_node_id): string
     {
         return "exp_node_" . $this->getId() . "_" . $a_node_id;
     }
-    
+
     /**
      * Get node id for dom node id
-     *
-     * @param
-     * @return
      */
-    public function getNodeIdForDomNodeId($a_dom_node_id)
+    public function getNodeIdForDomNodeId(string $a_dom_node_id): string
     {
         $i = strlen("exp_node_" . $this->getId() . "_");
         return substr($a_dom_node_id, $i);
     }
-        
+
     /**
      * List item start
-     *
-     * @param
-     * @return
+     * @param object|array $a_node
      */
-    public function listItemStart($tpl, $a_node)
+    public function listItemStart(ilTemplate $tpl, $a_node): void
     {
         $tpl->setCurrentBlock("list_item_start");
         if ($this->getAjax() && $this->nodeHasVisibleChilds($a_node) && !$this->isNodeOpen($this->getNodeId($a_node))) {
@@ -990,68 +850,41 @@ abstract class ilExplorerBaseGUI
         $tpl->touchBlock("tag");
     }
 
-    /**
-     * List item end
-     *
-     * @param
-     * @return
-     */
-    public function listItemEnd($tpl)
+    public function listItemEnd(ilTemplate $tpl): void
     {
         $tpl->touchBlock("list_item_end");
         $tpl->touchBlock("tag");
     }
 
-    /**
-     * List start
-     *
-     * @param
-     * @return
-     */
-    public function listStart($tpl)
+    public function listStart(ilTemplate $tpl): void
     {
         $tpl->touchBlock("list_start");
         $tpl->touchBlock("tag");
     }
 
-    /**
-     * List end
-     *
-     * @param
-     * @return
-     */
-    public function listEnd($tpl)
+    public function listEnd(ilTemplate $tpl): void
     {
         $tpl->touchBlock("list_end");
         $tpl->touchBlock("tag");
     }
 
-    /**
-     * @return boolean
-     */
-    public function isNodeOnclickEnabled()
+    public function isNodeOnclickEnabled(): bool
     {
         return $this->nodeOnclickEnabled;
     }
 
-    /**
-     * @param boolean $nodeOnclickEnabled
-     */
-    public function setNodeOnclickEnabled($nodeOnclickEnabled)
+    public function setNodeOnclickEnabled(bool $nodeOnclickEnabled): void
     {
         $this->nodeOnclickEnabled = $nodeOnclickEnabled;
     }
 
-    public function isEnableDnd()
+    public function isEnableDnd(): bool
     {
         return $this->enable_dnd;
     }
 
-    /**
-     * Enable Drag & Drop functionality
-     * @param boolean $enable_dnd
-     */
-    public function setEnableDnd($enable_dnd)
+    // Enable Drag & Drop functionality
+    public function setEnableDnd(bool $enable_dnd): void
     {
         $this->enable_dnd = $enable_dnd;
     }

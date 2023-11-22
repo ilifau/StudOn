@@ -1,16 +1,27 @@
 <?php
 
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Handles exercise repository object assignments. Main entry point for consumers.
- *
- * @author @leifos.de
- * @ingroup
+ * @author Alexander Killing <killing@leifos.de>
  */
 class ilExcRepoObjAssignment implements ilExcRepoObjAssignmentInterface
 {
-
     /**
      * Constructor
      *
@@ -19,51 +30,23 @@ class ilExcRepoObjAssignment implements ilExcRepoObjAssignmentInterface
     {
     }
 
-    /**
-     * Get instance
-     *
-     * @param
-     * @return
-     */
-    public static function getInstance()
+    public static function getInstance(): self
     {
         return new self();
     }
 
     /**
-     * Get assignment(s) information of repository object
-     *
-     * @param int $a_ref_id ref id
-     * @param int $a_user_id if user id is provided, only readable links will be added
-     * @return ilExcRepoObjAssignmentInfoInterface[]
+     * @return \ilExcRepoObjAssignmentInfo[]
      */
-    public function getAssignmentInfoOfObj($a_ref_id, $a_user_id)
+    public function getAssignmentInfoOfObj(int $a_ref_id, int $a_user_id): array
     {
         return ilExcRepoObjAssignmentInfo::getInfo($a_ref_id, $a_user_id);
     }
 
-    /**
-     * Get assignment access info for a repository object
-     *
-     * @param int $a_ref_id ref id
-     * @param int $a_user_id user id
-     * @return ilExcRepoObjAssignmentAccessInfoInterface
-     */
-    public function getAccessInfo($a_ref_id, $a_user_id)
-    {
+    public function getAccessInfo(
+        int $a_ref_id,
+        int $a_user_id
+    ): ilExcRepoObjAssignmentAccessInfoInterface {
         return ilExcRepoObjAssignmentAccessInfo::getInfo($a_ref_id, $a_user_id);
-    }
-
-    /**
-     * Is access denied
-     *
-     * @param int $a_ref_id ref id
-     * @param int $a_user_id user id
-     * @return bool
-     */
-    public function isGranted($a_ref_id, $a_user_id)
-    {
-        $info = ilExcRepoObjAssignmentAccessInfo::getInfo($a_ref_id, $a_user_id);
-        return !$info->isGranted();
     }
 }

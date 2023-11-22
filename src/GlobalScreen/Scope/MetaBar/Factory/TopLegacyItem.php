@@ -33,18 +33,9 @@ class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
 {
     use \ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
 
-    /**
-     * @var \ILIAS\UI\Component\Symbol\Symbol|null
-     */
-    protected $symbol;
-    /**
-     * @var string
-     */
-    protected $title = "";
-    /**
-     * @var \ILIAS\UI\Component\Legacy\Legacy|null
-     */
-    protected $content;
+    protected ?Symbol $symbol = null;
+    protected string $title = "";
+    protected ?Legacy $content = null;
 
     /**
      * @inheritDoc
@@ -58,7 +49,7 @@ class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function withSymbol(Symbol $symbol) : hasSymbol
+    public function withSymbol(Symbol $symbol): hasSymbol
     {
         $clone = clone($this);
         $clone->symbol = $symbol;
@@ -69,7 +60,7 @@ class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function getSymbol() : Symbol
+    public function getSymbol(): Symbol
     {
         return $this->symbol;
     }
@@ -77,7 +68,7 @@ class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function hasSymbol() : bool
+    public function hasSymbol(): bool
     {
         return ($this->symbol instanceof Symbol);
     }
@@ -85,7 +76,7 @@ class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function withTitle(string $title) : hasTitle
+    public function withTitle(string $title): hasTitle
     {
         $clone = clone($this);
         $clone->title = $title;
@@ -96,12 +87,12 @@ class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @inheritDoc
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function withLegacyContent(Legacy $content) : self
+    public function withLegacyContent(Legacy $content): self
     {
         $clone = clone $this;
         $clone->content = $content;
@@ -112,7 +103,7 @@ class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @return Legacy
      */
-    public function getLegacyContent() : Legacy
+    public function getLegacyContent(): Legacy
     {
         return $this->content;
     }
@@ -120,7 +111,7 @@ class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
     /**
      * @return bool
      */
-    public function hasLegacyContent() : bool
+    public function hasLegacyContent(): bool
     {
         return ($this->content instanceof Legacy);
     }

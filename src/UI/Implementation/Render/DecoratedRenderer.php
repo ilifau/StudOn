@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-/******************************************************************************
- *
+declare(strict_types=1);
+
+/**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
  *
@@ -12,10 +13,10 @@
  *
  * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
- *     https://www.ilias.de
- *     https://github.com/ILIAS-eLearning
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
  *
- *****************************************************************************/
+ *********************************************************************/
 
 namespace ILIAS\UI\Implementation\Render;
 
@@ -34,7 +35,7 @@ abstract class DecoratedRenderer implements Renderer
     /**
      * @inheritdoc
      */
-    public function withAdditionalContext(Component $context) : DecoratedRenderer
+    public function withAdditionalContext(Component $context): DecoratedRenderer
     {
         $clone = clone $this;
         $clone->default = $clone->default->withAdditionalContext($context);
@@ -48,13 +49,13 @@ abstract class DecoratedRenderer implements Renderer
      * @return string|null Return the manipulated rendering of the component or NULL if the component should be
      * rendered native
      */
-    abstract protected function manipulateRendering($component, Renderer $root) : ?string;
+    abstract protected function manipulateRendering($component, Renderer $root): ?string;
 
     /**
      * Manipulates the async Rendering separately if needed.
      * @see manipulateRendering
      */
-    protected function manipulateAsyncRendering($component, Renderer $root) : ?string
+    protected function manipulateAsyncRendering($component, Renderer $root): ?string
     {
         return null;
     }
@@ -63,7 +64,7 @@ abstract class DecoratedRenderer implements Renderer
      * Renders the component by default. Can be used for appending and prepending manipulations.
      * @see manipulateRendering
      */
-    final protected function renderDefault($component, ?Renderer $root = null) : string
+    final protected function renderDefault($component, ?Renderer $root = null): string
     {
         $root = $root ?? $this;
         return $this->default->render($component, $root);
@@ -72,7 +73,7 @@ abstract class DecoratedRenderer implements Renderer
     /**
      * @inheritdoc
      */
-    final public function render($component, ?Renderer $root = null) : string
+    final public function render($component, ?Renderer $root = null): string
     {
         $root = $root ?? $this;
         return $this->manipulateRendering($component, $root) ?? $this->default->render($component, $root);
@@ -81,7 +82,7 @@ abstract class DecoratedRenderer implements Renderer
     /**
      * @inheritdoc
      */
-    final public function renderAsync($component, ?Renderer $root = null) : string
+    final public function renderAsync($component, ?Renderer $root = null): string
     {
         $root = $root ?? $this;
         return $this->manipulateAsyncRendering($component, $root) ?? $this->default->renderAsync($component, $root);

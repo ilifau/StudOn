@@ -1,61 +1,60 @@
-<?php declare(strict_types=1);
-/* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * @author  Michael Jansen <mjansen@databay.de>
  */
 abstract class ilTermsOfServiceTableGUI extends ilTable2GUI
 {
-    /** @var ilTermsOfServiceTableDataProvider|null */
-    protected $provider;
+    protected ?ilTermsOfServiceTableDataProvider $provider = null;
+    protected array $visibleOptionalColumns = [];
+    protected array $optionalColumns = [];
+    protected array $filter = [];
+    protected array $optional_filter = [];
 
-    /** @var array */
-    protected $visibleOptionalColumns = [];
-
-    /** @var array */
-    protected $optionalColumns = [];
-
-    /** @var array */
-    protected $filter = [];
-
-    /** @var array */
-    protected $optional_filter = [];
-
-    /**
-     * @inheritdoc
-     */
-    public function __construct($a_parent_obj, $command = '', $a_template_context = '')
+    public function __construct(ilTermsOfServiceControllerEnabled $gui, string $command)
     {
-        parent::__construct($a_parent_obj, $command, $a_template_context);
+        parent::__construct($gui, $command);
 
         $columns = $this->getColumnDefinition();
-        $this->optionalColumns = (array) $this->getSelectableColumns();
-        $this->visibleOptionalColumns = (array) $this->getSelectedColumns();
+        $this->optionalColumns = $this->getSelectableColumns();
+        $this->visibleOptionalColumns = $this->getSelectedColumns();
 
         foreach ($columns as $index => $column) {
             if ($this->isColumnVisible($index)) {
                 $this->addColumn(
                     $column['txt'],
                     isset($column['sortable']) && $column['sortable'] ? $column['field'] : '',
-                    isset($column['width']) ? $column['width'] : '',
+                    $column['width'] ?? '',
                     isset($column['is_checkbox']) ? (bool) $column['is_checkbox'] : false
                 );
             }
         }
     }
 
-    /**
-     * @param ilTermsOfServiceTableDataProvider $provider
-     */
-    public function setProvider(ilTermsOfServiceTableDataProvider $provider) : void
+    public function setProvider(ilTermsOfServiceTableDataProvider $provider): void
     {
         $this->provider = $provider;
     }
 
-    /**
-     * @return ilTermsOfServiceTableDataProvider|null
-     */
-    public function getProvider() : ? ilTermsOfServiceTableDataProvider
+    public function getProvider(): ?ilTermsOfServiceTableDataProvider
     {
         return $this->provider;
     }
@@ -64,7 +63,7 @@ abstract class ilTermsOfServiceTableGUI extends ilTable2GUI
      * @param array $params
      * @param array $filter
      */
-    protected function onBeforeDataFetched(array &$params, array &$filter) : void
+    protected function onBeforeDataFetched(array &$params, array &$filter): void
     {
     }
 
@@ -72,34 +71,32 @@ abstract class ilTermsOfServiceTableGUI extends ilTable2GUI
      * This method can be used to add some field values dynamically or manipulate existing values of the table row array
      * @param array $row
      */
-    protected function prepareRow(array &$row) : void
+    protected function prepareRow(array &$row): void
     {
     }
 
     /**
+     * This method can be used to process the array of all fetched data
      * @param array $data
      */
-    protected function preProcessData(array &$data) : void
+    protected function preProcessData(array &$data): void
     {
     }
 
     /**
      * Define a final formatting for a cell value
      * @param string $column
-     * @param array  $row
+     * @param array $row
      * @return string
      */
-    protected function formatCellValue(string $column, array $row) : string
+    protected function formatCellValue(string $column, array $row): string
     {
-        return trim($row[$column]);
+        return trim($row[$column] ?? '');
     }
 
-    /**
-     * @return array
-     */
-    public function getSelectableColumns()
+    public function getSelectableColumns(): array
     {
-        $optionalColumns = array_filter($this->getColumnDefinition(), function ($column) {
+        $optionalColumns = array_filter($this->getColumnDefinition(), static function ($column): bool {
             return isset($column['optional']) && $column['optional'];
         });
 
@@ -111,11 +108,7 @@ abstract class ilTermsOfServiceTableGUI extends ilTable2GUI
         return $columns;
     }
 
-    /**
-     * @param int $index
-     * @return bool
-     */
-    protected function isColumnVisible(int $index) : bool
+    protected function isColumnVisible(int $index): bool
     {
         $columnDefinition = $this->getColumnDefinition();
         if (array_key_exists($index, $columnDefinition)) {
@@ -135,12 +128,9 @@ abstract class ilTermsOfServiceTableGUI extends ilTable2GUI
         return false;
     }
 
-    /**
-     * @param array $row
-     */
-    final protected function fillRow($row)
+    final protected function fillRow(array $a_set): void
     {
-        $this->prepareRow($row);
+        $this->prepareRow($a_set);
 
         foreach ($this->getColumnDefinition() as $index => $column) {
             if (!$this->isColumnVisible($index)) {
@@ -148,8 +138,8 @@ abstract class ilTermsOfServiceTableGUI extends ilTable2GUI
             }
 
             $this->tpl->setCurrentBlock('column');
-            $value = $this->formatCellValue($column['field'], $row);
-            if ((string) $value === '') {
+            $value = $this->formatCellValue($column['field'], $a_set);
+            if ($value === '') {
                 $this->tpl->touchBlock('column');
             } else {
                 $this->tpl->setVariable('COLUMN_VALUE', $value);
@@ -159,22 +149,14 @@ abstract class ilTermsOfServiceTableGUI extends ilTable2GUI
         }
     }
 
-    /**
-     * @return array
-     */
-    abstract protected function getColumnDefinition() : array;
+    abstract protected function getColumnDefinition(): array;
 
-    /**
-     *
-     */
-    public function populate() : void
+    public function populate(): void
     {
         if ($this->getExternalSegmentation() && $this->getExternalSorting()) {
             $this->determineOffsetAndOrder();
-        } else {
-            if (!$this->getExternalSegmentation() && $this->getExternalSorting()) {
-                $this->determineOffsetAndOrder(true);
-            }
+        } elseif (!$this->getExternalSegmentation() && $this->getExternalSorting()) {
+            $this->determineOffsetAndOrder(true);
         }
 
         $params = [];
@@ -188,7 +170,7 @@ abstract class ilTermsOfServiceTableGUI extends ilTable2GUI
         }
 
         $this->determineSelectedFilters();
-        $filter = (array) $this->filter;
+        $filter = $this->filter;
 
         foreach ($this->optional_filter as $key => $value) {
             if ($this->isFilterSelected($key)) {
