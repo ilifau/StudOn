@@ -60,36 +60,12 @@ class SyncToCampo extends SyncBase
         $this->info('sync StudOnMembers for Term ' . $term->toString() . '...');
         // get the members noted in the staging database
         $existing = $this->staging->repo()->getStudOnMembers($term);
-        // get the sending setting of courses in the term
+        // get the sending setting of courses in the term (course_id => send_passed)
         $sending = $this->sync->repo()->getCourseSendPassedToSyncBack($term);
-        // Get the module ids of modules for which a 'passed' status of members should be sent to campo
+        // get the module ids of modules for which a 'passed' status of members should be sent to campo
         $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
         
-        /* 
-            2023-11-20: no check for end time
-            The option to send a status for all course members is removed
-            Status is only sent if the learning progress is set
-            There is no need anymore to wait for a course end
-            
-        // get the timestamps of the maximum individual dates of all courses indexed by course ids
-        $times = $this->sync->repo()->getCoursesMaxDatesAsTimestamps();
-        // earlies maximum date of courses for which a passed status should be sent
-        $earliest_passed = $this->dic->fau()->tools()->convert()->dbDateToUnix(
-            $this->tools->convert()->unixToDbDate(time() - 86400)
-        );
-        // fallback end date for courses without a planned or individual end date
-        $term_end = $this->study->getTermEndTime($term);
-        */
-        
         foreach ($this->sync->repo()->getMembersOfCoursesToSyncBack($term) as $member) {
-            /* 
-                2023-11-20: no check for end time (see above)
-            
-            $end_time = $times[$member->getCourseId()] ?? $term_end;
-            if ($end_time > $earliest_passed) {
-                $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
-            }
-            */
             
             if ($member->getStatus() == StudOnMember::STATUS_PASSED) {
                 

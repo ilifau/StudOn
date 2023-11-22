@@ -596,8 +596,8 @@ fau#:#fau_campo_settings#:#Campo Settings
 fau#:#fau_campo_send_passed_alert#:#This setting is only visible to StudOn administrators and should only be set in exceptional cases. By default, the transmission of the status depends on the study program of the selected module.
 fau#:#fau_campo_send_passed_label#:#Show in Transcript Of Records
 fau#:#fau_campo_send_passed_info#:#Determines which members get the course shown in their transcript of records for the selected module/area.
-fau#:#fau_campo_send_passed_lp#:#All members with status 'passed'
-fau#:#fau_campo_send_passed_all#:#members with status 'passed' and a module that allows showing the courses
+fau#:#fau_campo_send_passed_lp#:#All members with status 'passed' and a selected module
+fau#:#fau_campo_send_passed_all#:#members with status 'passed' and a selected module that allows showing the courses
 fau#:#fau_campo_member_status_for_campo#:#Status message to campo
 fau#:#fau_campo_member_status_in_studon#:#Status in StudOn
 fau#:#fau_campo_member_status_registered_lp#:#registered (according to status in StudOn)
