@@ -24,7 +24,7 @@
 /ilias.ini.php
 /ilias.log
 /db_template_writer.php
-/setup/sql/dbupdate_custom.php
+# fau: gitIgnore - don't ignore /setup/sql/dbupdate_custom.php.
 /install_client.php
 /Services/GlobalScreen/artifacts/global_screen_providers.php
 /Services/Style/System/data/data.php
@@ -38,6 +38,10 @@
 /data
 /Customizing/global
 /Customizing/clients
+# fau: gitIgnore - ignore plugins and skin but not the rest of customizing
+/Customizing/global/plugins
+# /Customizing/global/skin
+# fau.
 virtual-data
 /libs/composer/vendor
 /node_modules/**/.cache
