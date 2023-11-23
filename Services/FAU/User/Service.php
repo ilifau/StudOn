@@ -58,7 +58,9 @@ class Service extends SubService
 
         if (($user->getAuthMode() == 'local' || $user->getAuthMode() == 'default')
             && !empty($user->getExternalAccount())) {
-            $errors[] = $this->lng->txt('user_error_local_with_ext_account');
+            if (strpos($user->getExternalAccount(), '@') === false) {
+                $errors[] = $this->lng->txt('user_error_local_with_ext_account');
+            }
         }
 
         if ($user->getAuthMode() != 'local' && $user->getAuthMode() != 'default'
