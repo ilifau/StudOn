@@ -950,7 +950,7 @@ trac#:#trac_mode_questions_percent#:#Anteil (%)
 trac#:#trac_required_questions_percent#:#Anteil richtig beantworteter Fragen (%)
 user#:#user_error_auth_settings_wrong#:#Die Authentifizierungsdaten sind nicht gültig.
 user#:#user_error_shib_with_empty_ext_account#:#Der Authentifizierungsmodus "Shibboleth" benötigt eine gültige IDM-Kennung als externes Benutzerkonto.
-user#:#user_error_local_with_ext_account#:#Beim Authentifizierungsmodus "StudOn-Datenbank" darf kein externes Benutzerkonto eingetragen sein.
+user#:#user_error_local_with_ext_account#:#Beim Authentifizierungsmodus "StudOn-Datenbank" darf kein externes Benutzerkonto eingetragen sein (Ausname: *@vhb.org).
 user#:#user_error_idle_ext_account_not_local#:#Die inaktive IDM-Kennung darf nur beim Authentifizierungsmodus "StudOn-Datenbank" gesetzt werden.
 user#:#user_error_identifier_is_used#:#Die Kennung %s ist bereits im Benutzerkonto %s als Benutzername, externes Benutzerkonto oder inaktive IDM-Kennung eingetragen!
 user#:#browser_agent#:#Browser-Familie
