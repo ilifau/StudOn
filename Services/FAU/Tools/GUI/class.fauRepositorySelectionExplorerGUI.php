@@ -20,7 +20,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
     /**
      * @var ilCtrl
      */
-    protected $ctrl;
+    protected ilCtrl $ctrl;
 
     /**
      * @var ilAccessHandler
