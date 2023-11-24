@@ -243,7 +243,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
      * @param array
      * @return
      */
-    public function getNodeContent($a_node)
+    public function getNodeContent($a_node): string
     {
         $title = $a_node["title"];
 
