@@ -86,7 +86,7 @@ class fauComboInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
      *
      * @return	boolean		Input ok, true/false
      */
-    public function checkInput()
+    public function checkInput(): bool
     {
         $_POST[$this->getPostVar()] = ilUtil::stripSlashes($_POST[$this->getPostVar()]);
         if ($this->getRequired() && trim($_POST[$this->getPostVar()]) == "") {
