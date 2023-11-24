@@ -191,7 +191,7 @@ class fauComboInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     /**
      * Get HTML for table filter
      */
-    public function getTableFilterHTML()
+    public function getTableFilterHTML(): string
     {
         $html = $this->render();
         return $html;
