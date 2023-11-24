@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px"
+	 height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#F2F2F2;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;}
+	.st1{fill:#DDDDDD;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;}
+	.st2{fill:#BAE1FF;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st3{fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="Ebene_2">
+</g>
+<g id="Layer_1">
+	<g>
+		<polyline class="st0" points="25,23.9 28,23.9 28,7.9 14,7.9 12,5.9 6,5.9 6,9.9 		"/>
+		<polygon class="st1" points="17,11.9 11,11.9 9,9.9 3,9.9 3,11.9 3,27.9 25,27.9 25,11.9 		"/>
+		<g>
+			<path class="st2" d="M29,9.9c0,3.2-2.6,5.8-5.8,5.8c-3.2,0-5.8-2.6-5.8-5.8c0-1.1,0.3-2.1,0.8-3c1-1.7,2.9-2.8,5-2.8
+				c2.1,0,3.9,1.1,5,2.8C28.7,7.8,29,8.8,29,9.9z"/>
+			<g>
+				<line class="st3" x1="23.2" y1="4.1" x2="23.2" y2="15.7"/>
+				<path class="st3" d="M20.6,4.9c-0.5,1.5-0.7,3.2-0.7,5c0,1.8,0.3,3.5,0.7,5"/>
+				<path class="st3" d="M25.8,14.9c0.5-1.5,0.7-3.2,0.7-5c0-1.8-0.3-3.5-0.7-5"/>
+			</g>
+			<g>
+				<line class="st3" x1="18.1" y1="9.9" x2="28.3" y2="9.9"/>
+				<path class="st3" d="M18.9,6.8c1.1,0.6,2.7,1,4.4,1s3.2-0.4,4.4-1"/>
+				<path class="st3" d="M27.6,13c-1.1-0.6-2.7-1-4.4-1c-1.7,0-3.2,0.4-4.4,1"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>

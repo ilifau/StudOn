@@ -36,9 +36,9 @@
 
 # Directories
 /data
-/Customizing/global
-/Customizing/clients
 # fau: gitIgnore - ignore plugins and skin but not the rest of customizing
+# /Customizing/global
+# /Customizing/clients
 /Customizing/global/plugins
 # /Customizing/global/skin
 # fau.

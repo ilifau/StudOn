@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFB3BA;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:#161616;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st3{fill:#BAE1FF;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g>
+	<g>
+		<path class="st0" d="M17.1,26.6l-2.8,0v-5.8c0-0.2-0.1-0.3-0.3-0.3H11c-0.2,0-0.3,0.1-0.3,0.3v5.8l-2.8,0c-0.3,0-0.5,0.4-0.2,0.7
+			l4.6,3.9c0.1,0.1,0.3,0.1,0.5,0l4.6-4C17.6,27,17.4,26.6,17.1,26.6z"/>
+		<g>
+			<polyline class="st1" points="8.4,24 4.2,24 4.2,7.4 8.9,2.8 20.8,2.8 20.8,24 16.7,24 			"/>
+			<polygon class="st2" points="4.2,7.4 8.8,7.5 8.9,2.8 			"/>
+		</g>
+	</g>
+	<g>
+		<path class="st3" d="M27.8,6.5c0,3.2-2.6,5.8-5.8,5.8c-3.2,0-5.8-2.6-5.8-5.8c0-1.1,0.3-2.1,0.8-3c1-1.7,2.9-2.8,5-2.8
+			c2.1,0,3.9,1.1,5,2.8C27.5,4.4,27.8,5.4,27.8,6.5z"/>
+		<g>
+			<line class="st1" x1="22" y1="0.7" x2="22" y2="12.3"/>
+			<path class="st1" d="M19.3,1.5c-0.5,1.5-0.7,3.2-0.7,5c0,1.8,0.3,3.5,0.7,5"/>
+			<path class="st1" d="M24.6,11.5c0.5-1.5,0.7-3.2,0.7-5c0-1.8-0.3-3.5-0.7-5"/>
+		</g>
+		<g>
+			<line class="st1" x1="16.9" y1="6.5" x2="27.1" y2="6.5"/>
+			<path class="st1" d="M17.6,3.4c1.1,0.6,2.7,1,4.4,1s3.2-0.4,4.4-1"/>
+			<path class="st1" d="M26.3,9.7c-1.1-0.6-2.7-1-4.4-1c-1.7,0-3.2,0.4-4.4,1"/>
+		</g>
+	</g>
+</g>
+</svg>
