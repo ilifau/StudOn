@@ -15,7 +15,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
     /**
      * @var ilLanguage
      */
-    protected $lng;
+    protected ilLanguage $lng;
 
     /**
      * @var ilCtrl
