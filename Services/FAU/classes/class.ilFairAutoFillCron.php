@@ -21,7 +21,7 @@ class ilFairAutofillCron extends ilCronJob
         return $DIC->language()->txt("fair_autofill_cron");
     }
     
-    public function getDescription()
+    public function getDescription(): string
     {
         global $DIC;
         
