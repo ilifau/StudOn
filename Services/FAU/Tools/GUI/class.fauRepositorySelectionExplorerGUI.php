@@ -255,7 +255,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
         return $title;
     }
 
-    public function getNodeHref($a_node)
+    public function getNodeHref($a_node): string
     {
         return '#';
     }
