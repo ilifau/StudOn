@@ -9,7 +9,7 @@ include_once "Services/Cron/classes/class.ilCronJob.php";
  */
 class ilFairAutofillCron extends ilCronJob
 {
-    public function getId()
+    public function getId(): string
     {
         return "fau_fair_autofill";
     }
