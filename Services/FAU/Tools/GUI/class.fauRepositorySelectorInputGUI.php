@@ -52,7 +52,7 @@ class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
     /**
      * {@inheritdoc}
      */
-    public function getTitleForNodeId($a_id)
+    public function getTitleForNodeId($a_id): string
     {
         return ilObject::_lookupTitle(ilObject::_lookupObjId($a_id));
     }
