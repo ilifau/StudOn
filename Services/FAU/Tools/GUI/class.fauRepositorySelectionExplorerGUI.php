@@ -1,4 +1,4 @@
-<?phpgetNodeHref
+<?php
 
 class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
 {
