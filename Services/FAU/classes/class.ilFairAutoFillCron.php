@@ -38,7 +38,7 @@ class ilFairAutofillCron extends ilCronJob
         return 10;
     }
     
-    public function hasAutoActivation()
+    public function hasAutoActivation(): bool
     {
         return true;
     }
