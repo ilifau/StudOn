@@ -11,7 +11,7 @@ class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
     /**
      * @var fauRepositorySelectionExplorerGUI
      */
-    protected $explorer_gui;
+    protected ilExplorerBaseGUI $explorer_gui;
 
     /**
      * {@inheritdoc}
