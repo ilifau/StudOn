@@ -43,7 +43,7 @@ class ilFairAutofillCron extends ilCronJob
         return true;
     }
     
-    public function hasFlexibleSchedule()
+    public function hasFlexibleSchedule(): bool
     {
         return true;
     }
