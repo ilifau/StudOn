@@ -14,7 +14,7 @@ class ilFairAutofillCron extends ilCronJob
         return "fau_fair_autofill";
     }
     
-    public function getTitle()
+    public function getTitle(): string
     {
         global $DIC;
         
