@@ -58,7 +58,7 @@ class ilFAUAppEventListener implements ilAppEventListener
      * @param	array	$a_parameter	parameter array (assoc), array("name" => ..., "phone_office" => ...)	 *
      * @static
      */
-    public static function handleEvent($a_component, $a_event, $a_parameter)
+    public static function handleEvent($a_component, $a_event, $a_parameter): void
     {
         if (!self::getInstance()->isActive()) {
             return;
