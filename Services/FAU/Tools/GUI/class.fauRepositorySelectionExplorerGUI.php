@@ -1,4 +1,4 @@
-<?php
+<?phpgetNodeHref
 
 class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
 {
@@ -84,7 +84,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
      *
      * @return array array of childs nodes
      */
-    public function sortChilds($a_childs, $a_parent_node_id)
+    public function sortChilds($a_childs, $a_parent_node_id): array
     {
         $objDefinition = $this->obj_definition;
         $ilAccess = $this->access;
