@@ -30,7 +30,7 @@ class ilSyncWithCampoCron extends ilCronJob
         return self::SCHEDULE_TYPE_IN_HOURS;
     }
     
-    public function getDefaultScheduleValue()
+    public function getDefaultScheduleValue(): ?int
     {
         return 1;
     }
