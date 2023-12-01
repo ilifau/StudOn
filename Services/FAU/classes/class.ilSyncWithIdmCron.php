@@ -6,7 +6,7 @@
  */
 class ilSyncWithIdmCron extends ilCronJob
 {
-    public function getId()
+    public function getId(): string
     {
         return "fau_sync_with_idm";
     }
