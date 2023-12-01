@@ -287,7 +287,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
     /**
      * @inheritDoc
      */
-    public function setNodeSelected($a_id)
+    public function setNodeSelected($a_id): void
     {
         parent::setNodeSelected($a_id);
         $this->setPathOpen($a_id);
