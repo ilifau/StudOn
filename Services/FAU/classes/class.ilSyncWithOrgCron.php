@@ -25,7 +25,7 @@ class ilSyncWithOrgCron extends ilCronJob
         return $DIC->language()->txt("fau_org_data_update_info");
     }
     
-    public function getDefaultScheduleType()
+    public function getDefaultScheduleType(): int
     {
         return self::SCHEDULE_TYPE_IN_HOURS;
     }
