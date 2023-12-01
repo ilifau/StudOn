@@ -73,7 +73,7 @@ class ilStudyCosCondTableGUI extends ilTable2GUI
      * Fill a single data row
      * @param array $a_set
      */
-    protected function fillRow($a_set)
+    protected function fillRow(array $a_set): void
     {
         $this->ctrl->setParameter($this->getParentObject(), "cond_id", $a_set["cond_id"]);
         $this->tpl->setVariable("LINK_EDIT", $this->ctrl->getLinkTarget($this->getParentObject(), "editCourseCond"));
