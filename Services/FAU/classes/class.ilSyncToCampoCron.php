@@ -18,7 +18,7 @@ class ilSyncToCampoCron extends ilCronJob
         return $DIC->language()->txt("fau_campo_members_update");
     }
     
-    public function getDescription()
+    public function getDescription(): string
     {
         global $DIC;
         
