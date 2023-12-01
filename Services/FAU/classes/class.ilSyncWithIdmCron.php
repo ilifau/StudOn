@@ -11,7 +11,7 @@ class ilSyncWithIdmCron extends ilCronJob
         return "fau_sync_with_idm";
     }
     
-    public function getTitle()
+    public function getTitle(): string
     {
         global $DIC;
         
