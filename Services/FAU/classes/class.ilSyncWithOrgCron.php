@@ -35,7 +35,7 @@ class ilSyncWithOrgCron extends ilCronJob
         return 24;
     }
     
-    public function hasAutoActivation()
+    public function hasAutoActivation(): bool
     {
         return false;
     }
