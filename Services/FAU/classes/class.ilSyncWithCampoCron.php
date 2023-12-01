@@ -35,7 +35,7 @@ class ilSyncWithCampoCron extends ilCronJob
         return 1;
     }
     
-    public function hasAutoActivation()
+    public function hasAutoActivation(): bool
     {
         return false;
     }
