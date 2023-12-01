@@ -45,7 +45,7 @@ class ilSyncWithIdmCron extends ilCronJob
         return true;
     }
     
-    public function run()
+    public function run(): ilCronJobResult
     {
         global $DIC;
 
