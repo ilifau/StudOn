@@ -11,7 +11,7 @@ class ilSyncToCampoCron extends ilCronJob
         return "fau_sync_to_campo";
     }
     
-    public function getTitle()
+    public function getTitle(): string
     {
         global $DIC;
         
