@@ -25,7 +25,7 @@ class ilSyncWithIdmCron extends ilCronJob
         return $DIC->language()->txt("fau_idm_data_update_info");
     }
     
-    public function getDefaultScheduleType()
+    public function getDefaultScheduleType(): int
     {
         return self::SCHEDULE_TYPE_DAILY;
     }
