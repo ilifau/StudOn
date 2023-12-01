@@ -276,7 +276,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
     /**
      * {@inheritdoc}
      */
-    protected function isNodeSelectable($a_node)
+    protected function isNodeSelectable($a_node): bool
     {
         if (!empty($this->selectableTypes)) {
             return in_array($a_node['type'], $this->selectableTypes);
