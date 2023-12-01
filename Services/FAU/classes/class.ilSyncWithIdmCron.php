@@ -18,7 +18,7 @@ class ilSyncWithIdmCron extends ilCronJob
         return $DIC->language()->txt("fau_idm_data_update");
     }
     
-    public function getDescription()
+    public function getDescription(): string
     {
         global $DIC;
         
