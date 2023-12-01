@@ -40,7 +40,7 @@ class ilSyncToCampoCron extends ilCronJob
         return false;
     }
     
-    public function hasFlexibleSchedule()
+    public function hasFlexibleSchedule(): bool
     {
         return true;
     }
