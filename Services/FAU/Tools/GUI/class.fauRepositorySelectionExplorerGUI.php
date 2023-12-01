@@ -266,7 +266,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
      * @param array
      * @return
      */
-    public function getNodeIcon($a_node)
+    public function getNodeIcon($a_node): string
     {
         $obj_id = ilObject::_lookupObjId($a_node["child"]);
         return ilObject::_getIcon($obj_id, "tiny", $a_node["type"]);
