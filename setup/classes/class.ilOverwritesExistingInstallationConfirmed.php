@@ -99,7 +99,9 @@ class ilOverwritesExistingInstallationConfirmed extends ilSetupObjective
 
     public function clientIniExists(): bool
     {
-        return file_exists($this->getClientDir() . "/client.ini.php");
+        // fau: customClientIni - take name of the installation directory as name for the client ini
+        return file_exists($this->getClientDir() . "" . basename(dirname(__DIR__, 2)) . '.ini.php');
+        // fau.
     }
 
     protected function getClientDir(): string
