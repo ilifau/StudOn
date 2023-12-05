@@ -16,6 +16,10 @@
  *
  *********************************************************************/
 
+ // fau: customSettings - require ilCust as early as possible (for plugins), settings are lazy loaded
+require_once 'Customizing/classes/class.ilCust.php';
+// fau.
+
 /**
  * Service context (factory) class
  *
