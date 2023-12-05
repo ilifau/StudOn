@@ -87,9 +87,7 @@ class ilIniFilesLoadedObjective implements Setup\Objective
         }
 
         if ($environment->getResource(Setup\Environment::RESOURCE_CLIENT_INI) == null) {
-            // fau: customClientIni - take name of the installation directory as name for the client ini
-            $path = $this->getClientDir($client_id) . "/" . basename(dirname(__DIR__, 2)) . '.ini.php';
-            // fau.
+            $path = $this->getClientDir($client_id) . "/client.ini.php";
             $client_ini = new ilIniFile($path);
             $client_ini->read();
             $environment = $environment

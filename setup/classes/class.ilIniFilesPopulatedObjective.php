@@ -101,9 +101,7 @@ class ilIniFilesPopulatedObjective implements Setup\Objective
 
     protected function getClientIniPath(string $client_id): string
     {
-        // fau: customClientIni - take name of the installation directory as name for the client ini
-        return $this->getClientDir($client_id) . "/" . basename(dirname(__DIR__, 2)) . '.ini.php';
-        // fau.
+        return $this->getClientDir($client_id) . "/client.ini.php";
     }
 
     protected function getILIASIniPath(): string

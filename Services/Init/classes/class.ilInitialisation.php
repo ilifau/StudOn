@@ -489,17 +489,13 @@ class ilInitialisation
             self::abortAndDie("Fatal Error: ilInitialisation::initClientIniFile called without CLIENT_ID.");
         }
 
-        // fau: customClientIni - take name of the installation directory as name for the client ini
-        $ini_file = "/". basename(realpath('.')) . '.ini.php';
+        $ini_file = "/client.ini.php";
         if (defined('CLIENT_WEB_DIR')) {
             $ini_file = CLIENT_WEB_DIR . $ini_file;
         } else {
-            $ini_file = "./" . ILIAS_WEB_DIR . "/" . CLIENT_ID . $ini_file;
-        }    
-        if (!is_file($ini_file)) {
-            throw new \ilException("Missing $ini_file");
+            $ini_file = "./" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/client.ini.php";
         }
-        // fau.        
+
         // get settings from ini file
         $ilClientIniFile = new ilIniFile($ini_file);
         $ilClientIniFile->read();
