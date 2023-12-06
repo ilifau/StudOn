@@ -35,6 +35,11 @@ class Standard extends Item implements C\Item\Standard
      * @var null|string|Image|Avatar
      */
     protected $lead = null;
+    // fau: studySearch - properties for checkboxes
+    protected $checkbox_name = null;
+    protected $checkbox_value = null;
+    // fau
+
     protected ?C\Chart\ProgressMeter\ProgressMeter $chart = null;
     protected ?Audio $audio = null;
 
@@ -110,7 +115,25 @@ class Standard extends Item implements C\Item\Standard
         $clone->lead = $text;
         return $clone;
     }
+    // fau: studySearch - implement checkbox functions
+    public function withCheckbox(string $name, ?string $value = null) : C\Item\Item
+    {
+        $clone = clone $this;
+        $clone->checkbox_name = $name;
+        $clone->checkbox_value = $value;
+        return $clone;
+    }
 
+    public function getCheckboxName() : ?string
+    {
+        return $this->checkbox_name;
+    }
+
+    public function getCheckboxValue() : ?string
+    {
+        return $this->checkbox_value;
+    }
+    // fau.
     /**
      * @inheritdoc
      */
