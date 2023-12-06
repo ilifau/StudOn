@@ -118,7 +118,7 @@ class ilLanguage
         return true;
     }
 
-    public function getLangKey()
+    public function getLangKey(): string
     {
         return $this->lang_key;
     }
