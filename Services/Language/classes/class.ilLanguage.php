@@ -110,12 +110,15 @@ class ilLanguage
             $this->cached_modules = $this->global_cache->getTranslations();
         }
         $this->loadLanguageModule("common");
+    
+        // fau: fauService - load the fau language module by default
+        $this->loadLanguageModule('fau');
+        // fau.
+
+        return true;
     }
 
-    /**
-     * Return lang key
-     */
-    public function getLangKey(): string
+    public function getLangKey()
     {
         return $this->lang_key;
     }
