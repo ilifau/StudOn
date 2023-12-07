@@ -35,7 +35,7 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
     {
         $this->tpl->loadStandardTemplate();
         $this->tpl->setTitle($this->lng->txt('fau_search'));
-        $this->tpl->setTitleIcon(ilObject::_getIcon("", "big", "src"));
+        $this->tpl->setTitleIcon(ilObject::_getIcon(0, "big", "src"));
 
         $cmd = $this->ctrl->getCmd('show');
         $next_class = $this->ctrl->getNextClass();
