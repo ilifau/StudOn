@@ -13,7 +13,7 @@ use FAU\Study\Data\Course;
  *
  * @ilCtrl_Calls fauStudyMyModulesGUI: ilPropertyFormGUI, ilObjRootFolderGUI
  */
-class fauStudyMyModulesGUI extends BaseGUI
+class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
 {
     const CHECKBOX_NAME = 'id[]';
     const PAGINATION_NAME = 'page';

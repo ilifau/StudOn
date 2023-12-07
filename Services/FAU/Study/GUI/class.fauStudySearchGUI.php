@@ -12,7 +12,7 @@ use FAU\Study\Data\ImportId;
  *
  * @ilCtrl_Calls fauStudySearchGUI: ilPropertyFormGUI, ilObjRootFolderGUI
  */
-class fauStudySearchGUI extends BaseGUI
+class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
 {
     const CHECKBOX_NAME = 'id[]';
     const PAGINATION_NAME = 'page';

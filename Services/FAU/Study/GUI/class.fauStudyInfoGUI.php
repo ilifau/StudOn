@@ -15,7 +15,7 @@ use ILIAS\UI\Component\Modal\Modal;
  * GUI for the display of course related data
  * @ilCtrl_Calls fauStudyInfoGUI:
  */
-class fauStudyInfoGUI extends BaseGUI
+class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
 {
     protected Service $service;
     protected Repository $repo;

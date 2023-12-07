@@ -9,7 +9,7 @@ use FAU\Study\Data\Event;
  * GUI for the display of hard restrictions and check results
  * @ilCtrl_Calls fauHardRestrictionsGUI:
  */
-class fauHardRestrictionsGUI extends BaseGUI
+class fauHardRestrictionsGUI extends BaseGUI implements ilCtrlBaseClassInterface
 {
     protected Service $service;
 
