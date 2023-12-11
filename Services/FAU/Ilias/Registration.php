@@ -191,15 +191,15 @@ abstract class Registration extends AbstractRegistration
 
             $addedGroup = null;
             foreach ($directGroups as $group) {
-                if ($group->getParticipants()->addLimited($this->user->getId(), IL_GRP_MEMBER, $group->getRegistrationLimit())) {
+                if ($group->getParticipants()->addLimited($this->user->getId(), ilParticipants::IL_GRP_MEMBER, $group->getRegistrationLimit())) {
                     $addedGroup = $group;
                     // ilias group is campo course, store the selection there
                     $this->dic->fau()->user()->saveMembership($group->getObjId(), $this->user->getId(), $module_id);
-                    $addedGroup->getParticipants()->addLimitedSuccess($this->user->getId(), IL_GRP_MEMBER);
+                    $addedGroup->getParticipants()->addLimitedSuccess($this->user->getId(), ilParticipants::IL_GRP_MEMBER);
                     break;
                 }
                 elseif ($this->dic->rbac()->review()->isAssigned($this->user->getId(),
-                    $group->getParticipants()->getRoleId(IL_GRP_MEMBER))) {
+                    $group->getParticipants()->getRoleId(ilParticipants::IL_GRP_MEMBER))) {
                     $this->setRegistrationAction(self::showAlreadyMember);
                     break;
                 }
@@ -345,7 +345,7 @@ abstract class Registration extends AbstractRegistration
             $groupList = $group->getWaitingList();
 
             if (!$group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
-                $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER), $subject, $to_confirm, $sub_time);
+                $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(ilParticipants::IL_GRP_MEMBER), $subject, $to_confirm, $sub_time);
                 $groupList->updateModuleId($this->user->getId(), $module_id);
             }
             elseif ($group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
@@ -422,7 +422,7 @@ abstract class Registration extends AbstractRegistration
                 else {
                     foreach ($this->getFillableGroups($user_id) as $group) {
                         // first found group is taken
-                        $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
+                        $group->getParticipants()->add($user_id, ilParticipants::IL_GRP_MEMBER);
                         $this->dic->fau()->user()->saveMembership($group->getObjId(), $user_id, (int) $module_id);
                         break;
                     }

@@ -176,7 +176,7 @@ class ilFAUAppEventListener implements ilAppEventListener
      */
     protected function handleAddParticipant(int $obj_id, int $user_id, int $role_id)
     {
-        if ($role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
+        if ($role_id == ilParticipants::IL_CRS_MEMBER || $role_id == ilParticipants::IL_GRP_MEMBER) {
             $this->dic->fau()->user()->saveMembership($obj_id, $user_id);
         }
         // fau: cascadeMembers - add as members to parent courses and groups
@@ -190,7 +190,7 @@ class ilFAUAppEventListener implements ilAppEventListener
      */
     protected function handleDeleteParticipant(int $obj_id, int $user_id, int $role_id)
     {
-        if ($role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
+        if ($role_id == ilParticipants::IL_CRS_MEMBER || $role_id == ilParticipants::IL_GRP_MEMBER) {
             $this->dic->fau()->user()->deleteMembership($obj_id, $user_id);
         }
         // fau: cascadeMembers - add as members to parent courses and groups
@@ -249,10 +249,10 @@ class ilFAUAppEventListener implements ilAppEventListener
                         switch ($type) {
                             case 'crs':
                                 $participants = ilCourseParticipants::_getInstanceByObjId($path_obj_id);
-                                $participants->add($user_id, IL_CRS_MEMBER);
+                                $participants->add($user_id, ilParticipants::IL_CRS_MEMBER);
                             case 'grp':
                                 $participants = ilGroupParticipants::_getInstanceByObjId($path_obj_id);
-                                $participants->add($user_id, IL_GRP_MEMBER);
+                                $participants->add($user_id, ilParticipants::IL_GRP_MEMBER);
                         }
                     }
                 }

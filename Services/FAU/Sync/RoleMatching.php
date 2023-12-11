@@ -224,7 +224,7 @@ class RoleMatching
      */
     protected function updateParticipantInDirectObject(ilParticipants $participants, Member $member)
     {
-        $admin_role = $participants instanceof ilCourseParticipants ? IL_CRS_ADMIN : IL_GRP_ADMIN;
+        $admin_role = $participants instanceof ilCourseParticipants ? ilParticipants::IL_CRS_ADMIN : ilParticipants::IL_GRP_ADMIN;
 
         if ($member->hasAnyRole()) {
             // member has responsibility, so add it or set it as admin
@@ -261,9 +261,9 @@ class RoleMatching
             if ($participants->isAdmin($member->getUserId())) {
                 return;
             } elseif ($participants->isAssigned($member->getUserId())) {
-                $participants->updateRoleAssignments($member->getUserId(), [$participants->getRoleId(IL_CRS_ADMIN)]);
+                $participants->updateRoleAssignments($member->getUserId(), [$participants->getRoleId(ilParticipants::IL_CRS_ADMIN)]);
             } else {
-                $participants->add($member->getUserId(), IL_CRS_ADMIN);
+                $participants->add($member->getUserId(), ilParticipants::IL_CRS_ADMIN);
             }
         }
         elseif ($member->hasAnyRole()) {
@@ -271,9 +271,9 @@ class RoleMatching
             if ($participants->isTutor($member->getUserId())) {
                 return;
             } elseif ($participants->isAssigned($member->getUserId())) {
-                $participants->updateRoleAssignments($member->getUserId(), [$participants->getRoleId(IL_CRS_TUTOR)]);
+                $participants->updateRoleAssignments($member->getUserId(), [$participants->getRoleId(ilParticipants::IL_CRS_TUTOR)]);
             } else {
-                $participants->add($member->getUserId(), IL_CRS_TUTOR);
+                $participants->add($member->getUserId(), ilParticipants::IL_CRS_TUTOR);
             }
         }
         else {

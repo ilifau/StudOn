@@ -7,6 +7,7 @@ use ilGroupParticipants;
 use ilGroupWaitingList;
 use ilMailNotification;
 use ilGroupMembershipMailNotification;
+use ilParticipants;
 
 /**
  * Extension of the registration with group specific functions
@@ -65,12 +66,12 @@ class GroupRegistration extends Registration
 
     protected function getMemberRoleConstant() : int
     {
-        return IL_GRP_MEMBER;
+        return ilParticipants::IL_GRP_MEMBER;
     }
 
     protected function getMemberRoleId() : int
     {
-        return (int) $this->participants->getRoleId(IL_GRP_MEMBER);
+        return (int) $this->participants->getRoleId(ilParticipants::IL_GRP_MEMBER);
     }
 
     public function getNotificationTypeAddedAdmins() : int

@@ -211,7 +211,7 @@ class Transfer
                 foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
                     if (!ilObject::_isInTrash($ref_id)) {
                         $source = new ilObjCourse($ref_id);
-                        $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), IL_CRS_MEMBER, IL_CRS_MEMBER);
+                        $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), ilParticipants::IL_CRS_MEMBER, ilParticipants::IL_CRS_MEMBER);
                         $this->dic->fau()->ilias()->repo()->copyWaitingList($source->getId(), $target->getId());
                         $this->dic->fau()->ilias()->repo()->clearWaitingList($source->getId());
                         $source->setImportId(null);
@@ -339,9 +339,9 @@ class Transfer
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
-        $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_ADMIN, IL_CRS_ADMIN);
-        $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_TUTOR, IL_CRS_TUTOR);
-        $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_MEMBER, IL_CRS_MEMBER);
+        $this->moveParticipants($sourceMembers, $targetMembers, ilParticipants::IL_CRS_ADMIN, ilParticipants::IL_CRS_ADMIN);
+        $this->moveParticipants($sourceMembers, $targetMembers, ilParticipants::IL_CRS_TUTOR, ilParticipants::IL_CRS_TUTOR);
+        $this->moveParticipants($sourceMembers, $targetMembers, ilParticipants::IL_CRS_MEMBER, ilParticipants::IL_CRS_MEMBER);
     }
 
     /**
@@ -355,8 +355,8 @@ class Transfer
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
-        $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_ADMIN, IL_GRP_ADMIN);
-        $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_MEMBER, IL_GRP_MEMBER);
+        $this->moveParticipants($sourceMembers, $targetMembers, ilParticipants::IL_GRP_ADMIN, ilParticipants::IL_GRP_ADMIN);
+        $this->moveParticipants($sourceMembers, $targetMembers, ilParticipants::IL_GRP_MEMBER, ilParticipants::IL_GRP_MEMBER);
     }
 
 
@@ -372,9 +372,9 @@ class Transfer
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
-        $this->moveParticipants($parentMembers, $targetMembers, IL_CRS_ADMIN, IL_CRS_ADMIN);
-        $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_ADMIN, IL_CRS_ADMIN);
-        $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_MEMBER, IL_CRS_MEMBER);
+        $this->moveParticipants($parentMembers, $targetMembers, ilParticipants::IL_CRS_ADMIN, ilParticipants::IL_CRS_ADMIN);
+        $this->moveParticipants($sourceMembers, $targetMembers, ilParticipants::IL_GRP_ADMIN, ilParticipants::IL_CRS_ADMIN);
+        $this->moveParticipants($sourceMembers, $targetMembers, ilParticipants::IL_GRP_MEMBER, ilParticipants::IL_CRS_MEMBER);
     }
 
     /**
@@ -392,12 +392,12 @@ class Transfer
         foreach ($this->dic->fau()->user()->repo()->getMembersOfObject($target->getId()) as $member) {
             // don't add the event responsibles to the group
             if ($member->isCourseResponsible() || $member->isInstructor() || $member->isIndividualInstructor()) {
-                $targetMembers->add($member->getUserId(), IL_GRP_ADMIN);
+                $targetMembers->add($member->getUserId(), ilParticipants::IL_GRP_ADMIN);
             }
         }
 
         foreach($sourceMembers->getMembers() as $user_id) {
-            $targetMembers->add($user_id, IL_GRP_MEMBER);
+            $targetMembers->add($user_id, ilParticipants::IL_GRP_MEMBER);
         }
     }
 
@@ -409,15 +409,15 @@ class Transfer
     {
         $ids = [];
         switch ($source_role) {
-            case IL_CRS_ADMIN:
-            case IL_GRP_ADMIN:
+            case ilParticipants::IL_CRS_ADMIN:
+            case ilParticipants::IL_GRP_ADMIN:
                 $ids = $source->getAdmins();
                 break;
-            case IL_CRS_MEMBER:
-            case IL_GRP_MEMBER:
+            case ilParticipants::IL_CRS_MEMBER:
+            case ilParticipants::IL_GRP_MEMBER:
                 $ids = $source->getMembers();
                 break;
-            case IL_CRS_TUTOR:
+            case ilParticipants::IL_CRS_TUTOR:
                 $ids = $source->getTutors();
                 break;
         }

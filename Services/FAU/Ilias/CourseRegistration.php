@@ -7,6 +7,7 @@ use ilCourseParticipants;
 use ilCourseWaitingList;
 use ilMailNotification;
 use ilCourseMembershipMailNotification;
+use ilParticipants;
 
 /**
  * Extension of the registration with course specific functions
@@ -65,7 +66,7 @@ class CourseRegistration extends Registration
 
     protected function getMemberRoleConstant() : int
     {
-        return IL_CRS_MEMBER;
+        return ilParticipants::IL_CRS_MEMBER;
     }
 
     public function getNotificationTypeAddedAdmins() : int
