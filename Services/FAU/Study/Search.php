@@ -138,11 +138,14 @@ class Search
 
         // do further lookups only for the page entries
         foreach ($list as $index => $event) {
-            $list[$index] = $event
-                ->withIliasTitle(ilObject::_lookupTitle($event->getIliasObjId()))
-                ->withIliasDescription(ilObject::_lookupDescription($event->getIliasObjId()))
-                ->withVisible($this->dic->access()->checkAccess('visible', '', $event->getIliasRefId()))
-                ->withMoveable($this->dic->access()->checkAccess('delete', 'cut', $event->getIliasRefId()));
+            if($event->getIliasObjId())
+            {
+                $list[$index] = $event
+                    ->withIliasTitle(ilObject::_lookupTitle($event->getIliasObjId()))
+                    ->withIliasDescription(ilObject::_lookupDescription($event->getIliasObjId()))
+                    ->withVisible($this->dic->access()->checkAccess('visible', '', $event->getIliasRefId()))
+                    ->withMoveable($this->dic->access()->checkAccess('delete', 'cut', $event->getIliasRefId()));
+            }
         }
 
         return array_values($list);
