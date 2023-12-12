@@ -181,12 +181,12 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
             $fitting->addSubItem($studydata);
         $form->addItem($fitting);
         
-        $cos = new fauComboInputGUI($this->lng->txt('studydata_cos'), 'cos_ids');
+        $cos = new ilSelectInputGUI($this->lng->txt('studydata_cos'), 'cos_ids');
         $cos->setOptions($this->dic->fau()->study()->getCourseOfStudySelectOptions(0));
         $cos->setValue($condition->getCosIds());
         $form->addItem($cos);
 
-        $mod = new fauComboInputGUI($this->lng->txt('studydata_module'), 'module_ids');
+        $mod = new ilSelectInputGUI($this->lng->txt('studydata_module'), 'module_ids');
         $mod->setOptions($this->dic->fau()->study()->getModuleSelectOptions(0));
         $mod->setValue($condition->getModuleIds());
         $form->addItem($mod);

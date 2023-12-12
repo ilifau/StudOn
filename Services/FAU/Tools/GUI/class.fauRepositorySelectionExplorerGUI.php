@@ -244,6 +244,5 @@ class fauRepositorySelectionExplorerGUI extends ilRepositorySelectorExplorerGUI
         }
 
         return $childs;
-    }
-    
+    }   
 }
