@@ -51,4 +51,9 @@ class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
     {
         return ilObject::_lookupTitle(ilObject::_lookupObjId($a_id));
     }
+
+    public function getExplorerGUI(): fauRepositorySelectionExplorerGUI
+    {
+        return $this->explorer_gui;
+    }
 }

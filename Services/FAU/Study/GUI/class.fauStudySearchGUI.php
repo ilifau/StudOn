@@ -191,9 +191,14 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $mod->setValue($condition->getModuleIds());
         $form->addItem($mod);
 
-        $ref = new fauRepositorySelectorInputGUI($this->lng->txt('search_area'), 'search_ref_id');
-        $ref->setTypeWhitelist(['root', 'cat']);
-        $ref->setSelectableTypes(['cat']);
+        $ref = new fauRepositorySelectorInputGUI(
+            $this->lng->txt('search_area'), 
+            'search_ref_id', 
+            true,
+            $form
+        );
+        $ref->getExplorerGUI()->setSelectableTypes(["cat"]);
+        $ref->getExplorerGUI()->setTypeWhiteList(["root", "cat"]);
         $ref->setValue($condition->getIliasRefId());
         $form->addItem($ref);
 
