@@ -2,47 +2,19 @@
 
 class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
 {
-    /**
-     * @var ilSetting
-     */
-    protected $settings;
-
-    /**
-     * @var ilObjectDefinition
-     */
-    protected $obj_definition;
-
-    /**
-     * @var ilLanguage
-     */
-    protected ilLanguage $lng;
-
-    /**
-     * @var ilCtrl
-     */
+    protected ilObjectDefinition $obj_definition;
+    protected array $type_grps = [];
+    protected ilSetting $settings;
     protected ilCtrl $ctrl;
-
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
-
-    /**
-     * @var ilRbacSystem
-     */
-    protected $rbacsystem;
-
-    /**
-     * @var ilDBInterface
-     */
-    protected $db;
-
+    protected ilAccessHandler $access;
+    protected ilRbacSystem $rbacsystem;
+    protected ilDBInterface $db;
     /**
      * Set the types that can be selected
-     * @var array
      */
-    protected $selectableTypes = ['cat'];
+    protected array $selectableTypes = ['cat'];
 
+    
     /**
      * {@inheritdoc}
      */
@@ -53,7 +25,6 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
         $this->tree = $DIC->repositoryTree();
         $this->settings = $DIC->settings();
         $this->obj_definition = $DIC["objDefinition"];
-        $this->lng = $DIC->language();
         $this->ctrl = $DIC->ctrl();
         $this->access = $DIC->access();
         $this->rbacsystem = $DIC->rbac()->system();
@@ -70,7 +41,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
      * Set the types that can be selected
      * @param array $a_types
      */
-    public function setSelectableTypes($a_types)
+    public function setSelectableTypes(array $a_types): void
     {
         $this->selectableTypes = $a_types;
         $this->setTypeWhiteList(array_merge($this->getTypeWhiteList(), $a_types));
@@ -84,7 +55,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
      *
      * @return array array of childs nodes
      */
-    public function sortChilds($a_childs, $a_parent_node_id): array
+    public function sortChilds(array $a_childs, $a_parent_node_id): array
     {
         $objDefinition = $this->obj_definition;
         $ilAccess = $this->access;

@@ -9,44 +9,39 @@
 class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
 {
     /**
-     * @var fauRepositorySelectionExplorerGUI
+     * @param object|null $forwarder object that forwards to ilFormPropertyDispatchGUI, usually a form object
+     *                               but might be a table as well, e.g. if inputs are used in filter
      */
-    protected ilExplorerBaseGUI $explorer_gui;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($title, $a_postvar, $a_explorer_gui = null, $a_multi = false)
+    public function __construct(
+        string $a_title,
+        string $a_postvar,
+        bool $a_multi = false,
+        ?object $forwarder = null
+    ) 
     {
         global $DIC;
-        $DIC->ctrl()->setParameterByClass('ilformpropertydispatchgui', 'postvar', $a_postvar);
 
-        ilOverlayGUI::initJavascript();
+        $this->ctrl = $DIC->ctrl();
+        $this->multi_nodes = $a_multi;
+        $this->postvar = $a_postvar;       
+        
+        $forwarder_class = (is_null($forwarder))
+        ? ilPropertyFormGUI::class
+        : get_class($forwarder);
 
-        $this->explorer_gui = $a_explorer_gui ?? new fauRepositorySelectionExplorerGUI(
-            array('ilpropertyformgui', 'ilformpropertydispatchgui', 'fauRepositorySelectorInputGUI'),
-            'handleExplorerCommand');
-        $this->explorer_gui->setSelectMode($a_postvar.'_sel', $a_multi);
+        $this->explorer_gui = new fauRepositorySelectionExplorerGUI(
+            [$forwarder_class, ilFormPropertyDispatchGUI::class, fauRepositorySelectorInputGUI::class],
+            $this->getExplHandleCmd(),
+            $this,
+            "selectRepositoryItem",
+            "root_id",
+            "rep_exp_sel_" . $a_postvar
+        );
 
-        parent::__construct($title, $a_postvar, $this->explorer_gui, $a_multi);
-        $this->setType('repository_select');
-    }
+        $this->explorer_gui->setSelectMode($a_postvar . "_sel", $this->multi_nodes);
 
-    /**
-     * Set the types that should be shown
-     * @param string[] $a_types
-     */
-    public function setTypeWhitelist(array $a_types)
-    {
-        $this->explorer_gui->setTypeWhiteList($a_types);
-    }
-    /**
-     * Set the types that can be selected
-     * @param string[] $a_types
-     */
-    public function setSelectableTypes(array $a_types)
-    {
-        $this->explorer_gui->setSelectableTypes($a_types);
+        parent::__construct($a_title, $a_postvar, $this->explorer_gui, $this->multi_nodes);
+        $this->setType("rep_select");
     }
 
     /**
