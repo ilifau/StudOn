@@ -1,50 +1,37 @@
 <?php
 
-class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
+class fauRepositorySelectionExplorerGUI extends ilRepositorySelectorExplorerGUI
 {
-    protected ilObjectDefinition $obj_definition;
-    protected array $type_grps = [];
     protected ilSetting $settings;
     protected ilCtrl $ctrl;
-    protected ilAccessHandler $access;
     protected ilRbacSystem $rbacsystem;
     protected ilDBInterface $db;
-    /**
-     * Set the types that can be selected
-     */
-    protected array $selectableTypes = ['cat'];
-
     
     /**
      * {@inheritdoc}
      */
-    public function __construct($a_parent_obj, $a_parent_cmd)
-    {
+    public function __construct(
+        $a_parent_obj,
+        string $a_parent_cmd,
+        $a_selection_gui = null,
+        string $a_selection_cmd = "selectObject",
+        string $a_selection_par = "sel_ref_id",
+        string $a_id = "fau_explorer_selection",
+        string $a_node_parameter_name = "node_id"
+    )
+    {        
+        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
-
-        $this->tree = $DIC->repositoryTree();
+        /**
+        * Set the types that can be selected
+        */
+        $this->selectable_types = ['cat'];
         $this->settings = $DIC->settings();
-        $this->obj_definition = $DIC["objDefinition"];
         $this->ctrl = $DIC->ctrl();
-        $this->access = $DIC->access();
         $this->rbacsystem = $DIC->rbac()->system();
         $this->db = $DIC->database();
-
-        $element_id = 'fau_explorer_selection';
-
-        parent::__construct($element_id, $a_parent_obj, $a_parent_cmd, $DIC->repositoryTree());
-        $this->setAjax(true);
         $this->setTypeWhiteList(array('root', 'cat', 'crs', 'grp', 'fold'));
-    }
-
-    /**
-     * Set the types that can be selected
-     * @param array $a_types
-     */
-    public function setSelectableTypes(array $a_types): void
-    {
-        $this->selectableTypes = $a_types;
-        $this->setTypeWhiteList(array_merge($this->getTypeWhiteList(), $a_types));
+        parent::__construct($a_parent_obj, $a_parent_cmd, $a_selection_gui, $a_selection_cmd, $a_selection_par, $a_id, $a_node_parameter_name);
     }
 
     /**
@@ -55,6 +42,7 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
      *
      * @return array array of childs nodes
      */
+    /*
     public function sortChilds(array $a_childs, $a_parent_node_id): array
     {
         $objDefinition = $this->obj_definition;
@@ -206,65 +194,56 @@ class fauRepositorySelectionExplorerGUI extends ilTreeExplorerGUI
         }
 
         return $childs;
-    }
+    }*/
+   
 
-    /**
-     * Get node content
-     *
-     * @param array
-     * @return
-     */
-    public function getNodeContent($a_node): string
+    public function sortChilds(array $a_childs, $a_parent_node_id): array
     {
-        $title = $a_node["title"];
+        $objDefinition = $this->obj_definition;
 
-        if ($a_node["child"] == $this->getNodeId($this->getRootNode())) {
-            if ($title == "ILIAS") {
-                $title = $this->lng->txt("repository");
+        $parent_obj_id = ilObject::_lookupObjId((int) $a_parent_node_id);
+
+        if ($parent_obj_id > 0) {
+            $parent_type = ilObject::_lookupType($parent_obj_id);
+        } else {
+            $parent_type = "dummy";
+            $this->type_grps["dummy"] = ["root" => "dummy"];
+        }
+
+        if (empty($this->type_grps[$parent_type])) {
+            $this->type_grps[$parent_type] =
+                $objDefinition::getGroupedRepositoryObjectTypes($parent_type);
+        }
+        $group = [];
+
+        foreach ($a_childs as $child) {
+            $g = $objDefinition->getGroupOfObj($child["type"]);
+            if ($g == "") {
+                $g = $child["type"];
+            }
+            $group[$g][] = $child;
+        }
+
+        // #14587 - $objDefinition->getGroupedRepositoryObjectTypes does NOT include side blocks!
+        $wl = $this->getTypeWhiteList();
+        if (is_array($wl) && in_array("poll", $wl, true)) {
+            $this->type_grps[$parent_type]["poll"] = [];
+        }
+
+        $childs = [];
+        foreach ($this->type_grps[$parent_type] as $t => $g) {
+            if (isset($group[$t])) {
+                // do we have to sort this group??
+                $sort = ilContainerSorting::_getInstance($parent_obj_id);
+                $group = $sort->sortItems($group);
+
+                foreach ($group[$t] as $k => $item) {
+                    $childs[] = $item;
+                }
             }
         }
-        return $title;
+
+        return $childs;
     }
-
-    public function getNodeHref($a_node): string
-    {
-        return '#';
-    }
-
-    /**
-     * Get node icon
-     *
-     * @param array
-     * @return
-     */
-    public function getNodeIcon($a_node): string
-    {
-        $obj_id = ilObject::_lookupObjId($a_node["child"]);
-        return ilObject::_getIcon($obj_id, "tiny", $a_node["type"]);
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function isNodeSelectable($a_node): bool
-    {
-        if (!empty($this->selectableTypes)) {
-            return in_array($a_node['type'], $this->selectableTypes);
-        }
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setNodeSelected($a_id): void
-    {
-        parent::setNodeSelected($a_id);
-        $this->setPathOpen($a_id);
-    }
-
-
-
-
+    
 }
