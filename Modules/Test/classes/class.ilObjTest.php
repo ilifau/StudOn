@@ -4210,7 +4210,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 
         $arrResults = [];
 
-        // fau: fixWrongQuestionCount - filter questions wrongly assigned to the pass
+        // fau: fixWrongQuestionsCount - filter questions wrongly assigned to the pass
         $query = "
 			SELECT		tst_test_result.question_fi,
 						tst_test_result.points reached,
