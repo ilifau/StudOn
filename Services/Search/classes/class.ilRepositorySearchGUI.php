@@ -43,22 +43,22 @@ include_once("./Services/User/classes/class.ilUserAutoComplete.php");
 class ilRepositorySearchGUI
 {
     private $search_results = array();
-    
+
     protected $add_options = array();
     protected $default_option = '';
     protected $object_selection = false;
 
     protected $searchable_check = true;
     protected $search_title = '';
-    
+
     public $search_type = 'usr';
     protected $user_limitations = true;
-    
+
     /**
      * @var callable
      */
     protected $user_filter = null;
-    
+
     /**
      * @var int
      */
@@ -112,7 +112,7 @@ class ilRepositorySearchGUI
         $this->result_obj->setMaxHits(1000000);
         $this->settings = new ilSearchSettings();
     }
-    
+
     /**
      * Closure for filtering users
      * e.g
@@ -205,7 +205,7 @@ class ilRepositorySearchGUI
         if (!$toolbar instanceof ilToolbarGUI) {
             $toolbar = $ilToolbar;
         }
-        
+
         // Fill default options
         if (!isset($a_options['auto_complete_name'])) {
             $a_options['auto_complete_name'] = $lng->txt('obj_user');
@@ -219,7 +219,7 @@ class ilRepositorySearchGUI
         if (!isset($a_options['user_type_default'])) {
             $a_options['user_type_default'] = null;
         }
-        
+
         $ajax_url = $ilCtrl->getLinkTargetByClass(
             array(get_class($parent_object),'ilRepositorySearchGUI'),
             'doUserAutoComplete',
@@ -249,7 +249,7 @@ class ilRepositorySearchGUI
                 $toolbar->addStickyItem($si);
             }
         }
-        
+
         include_once './Services/User/classes/class.ilUserClipboard.php';
         $clip = ilUserClipboard::getInstance($GLOBALS['DIC']['ilUser']->getId());
         if ($clip->hasContent()) {
@@ -284,13 +284,13 @@ class ilRepositorySearchGUI
                 $toolbar->addStickyItem($button);
             }
         }
-        
+
         if ((bool) $a_options['add_search'] ||
             is_numeric($a_options['add_from_container'])) {
             $lng->loadLanguageModule("search");
-            
+
             $toolbar->addSeparator();
-                    
+
             if ((bool) $a_options['add_search']) {
                 include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
                 $button = ilLinkButton::getInstance();
@@ -311,9 +311,9 @@ class ilRepositorySearchGUI
                     if ((bool) $a_options['add_search']) {
                         $toolbar->addSpacer();
                     }
-                    
+
                     $ilCtrl->setParameterByClass('ilRepositorySearchGUI', "list_obj", ilObject::_lookupObjId($parent_container_ref_id));
-                    
+
                     include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
                     $button = ilLinkButton::getInstance();
                     $button->setCaption("search_add_members_from_container_" . $parent_container_type);
@@ -322,7 +322,7 @@ class ilRepositorySearchGUI
                 }
             }
         }
-        
+
         $toolbar->setFormAction(
             $ilCtrl->getFormActionByClass(
                 array(
@@ -345,8 +345,8 @@ class ilRepositorySearchGUI
             return ilJsonUtil::encode(new stdClass());
             exit;
         }
-        
-        
+
+
         if (!isset($_GET['autoCompleteField'])) {
             $a_fields = array('login','firstname','lastname','email');
             $result_field = 'login';
@@ -389,7 +389,7 @@ class ilRepositorySearchGUI
     {
         return $this->string;
     }
-        
+
     /**
     * Control
     * @access public
@@ -468,7 +468,7 @@ class ilRepositorySearchGUI
     {
         $class = $this->callback['class'];
         $method = $this->callback['method'];
-        
+
         // call callback if that function does give a return value => show error message
         // listener redirects if everything is ok.
         $class->$method((array) $_POST['user']);
@@ -499,28 +499,28 @@ class ilRepositorySearchGUI
             $GLOBALS['DIC']['ilCtrl']->returnToParent($this);
         }
     }
-    
+
     protected function showClipboard()
     {
         $GLOBALS['DIC']['ilCtrl']->setParameter($this, 'user_type', (int) $_REQUEST['user_type']);
-        
+
         ilLoggerFactory::getLogger('crs')->dump($_REQUEST);
-        
+
         $GLOBALS['DIC']['ilTabs']->clearTargets();
         $GLOBALS['DIC']['ilTabs']->setBackTarget(
             $GLOBALS['DIC']['lng']->txt('back'),
             $GLOBALS['DIC']['ilCtrl']->getParentReturn($this)
         );
-        
+
         include_once './Services/User/classes/class.ilUserClipboardTableGUI.php';
         $clip = new ilUserClipboardTableGUI($this, 'showClipboard', $GLOBALS['DIC']['ilUser']->getId());
         $clip->setFormAction($GLOBALS['DIC']['ilCtrl']->getFormAction($this));
         $clip->init();
         $clip->parse();
-        
+
         $GLOBALS['DIC']['tpl']->setContent($clip->getHTML());
     }
-    
+
     /**
      * add users from clipboard
      */
@@ -557,7 +557,7 @@ class ilRepositorySearchGUI
         $clip = ilUserClipboard::getInstance($GLOBALS['DIC']['ilUser']->getId());
         $clip->delete($users);
         $clip->save();
-        
+
         ilUtil::sendSuccess($this->lng->txt('settings_saved'), true);
         $this->ctrl->redirect($this, 'showClipboard');
     }
@@ -571,7 +571,7 @@ class ilRepositorySearchGUI
         $clip = ilUserClipboard::getInstance($GLOBALS['DIC']['ilUser']->getId());
         $clip->clear();
         $clip->save();
-        
+
         ilUtil::sendSuccess($this->lng->txt('settings_saved'), true);
         $this->ctrl->returnToParent($this);
     }
@@ -610,7 +610,7 @@ class ilRepositorySearchGUI
     public function setPermissionQueryCallback($class, $method)
     {
     }
-    
+
     public function showSearch()
     {
         // only autocomplete input field, no search form if user privay should be respected
@@ -621,26 +621,26 @@ class ilRepositorySearchGUI
         $this->initFormSearch();
         $this->tpl->setContent($this->form->getHTML());
     }
-    
+
     /**
      * submit from autocomplete
      */
     public function showSearchSelected()
     {
         $selected = (int) $_REQUEST['selected_id'];
-        
+
         #include_once './Services/Object/classes/class.ilObjectFactory.php';
         #$factory = new ilObjectFactory();
         #$user = $factory->getInstanceByObjId($selected);
-        
+
         #$this->initFormSearch($user);
         #$this->tpl->setContent($this->form->getHTML());
-        
+
         $this->tpl->addBlockFile('ADM_CONTENT', 'adm_content', 'tpl.rep_search_result.html', 'Services/Search');
         $this->addNewSearchButton();
         $this->showSearchUserTable(array($selected), 'showSearchResults');
     }
-    
+
     public function initFormSearch(ilObjUser $user = null)
     {
         global $DIC;
@@ -648,33 +648,33 @@ class ilRepositorySearchGUI
         $ilCtrl = $DIC['ilCtrl'];
 
         include_once './Services/Form/classes/class.ilPropertyFormGUI.php';
-        
+
         $this->form = new ilPropertyFormGUI();
         $this->form->setFormAction($this->ctrl->getFormAction($this, 'showSearch'));
         $this->form->setTitle($this->getTitle());
         $this->form->addCommandButton('performSearch', $this->lng->txt('search'));
         $this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
-        
-        
+
+
         $kind = new ilRadioGroupInputGUI($this->lng->txt('search_type'), 'search_for');
         $kind->setValue($this->search_type);
         $this->form->addItem($kind);
-        
+
         // Users
         $users = new ilRadioOption($this->lng->txt('search_for_users'), 'usr');
-            
+
         // UDF
         include_once 'Services/Search/classes/class.ilUserSearchOptions.php';
         foreach (ilUserSearchOptions::_getSearchableFieldsInfo(!$this->isSearchableCheckEnabled()) as $info) {
             switch ($info['type']) {
                 case FIELD_TYPE_UDF_SELECT:
                 case FIELD_TYPE_SELECT:
-                        
+
                     $sel = new ilSelectInputGUI($info['lang'], "rep_query[usr][" . $info['db'] . "]");
                     $sel->setOptions($info['values']);
                     $users->addSubItem($sel);
                     break;
-    
+
                 case FIELD_TYPE_MULTI:
                 case FIELD_TYPE_UDF_TEXT:
                 case FIELD_TYPE_TEXT:
@@ -700,7 +700,7 @@ class ilRepositorySearchGUI
                         ));
                         $ul->setSize(30);
                         $ul->setMaxLength(120);
-                        
+
                         if ($user instanceof ilObjUser) {
                             switch ($info['db']) {
                                 case 'firstname':
@@ -714,9 +714,9 @@ class ilRepositorySearchGUI
                                     break;
                             }
                         }
-                        
-                        
-                        
+
+
+
                         $users->addSubItem($ul);
                     } else {
                         $txt = new ilTextInputGUI($info['lang'], "rep_query[usr][" . $info['db'] . "]");
@@ -779,7 +779,7 @@ class ilRepositorySearchGUI
             $kind->addOption($orgus);
         }
         }
-        // fau.
+    // fau.
     }
 
 
@@ -820,7 +820,7 @@ class ilRepositorySearchGUI
             $this->start();
             return false;
         }
-    
+
         // unset search_append if called directly
         if ($_POST['cmd']['performSearch']) {
             unset($_SESSION['search_append']);
@@ -859,11 +859,11 @@ class ilRepositorySearchGUI
             default:
                 echo 'not defined';
         }
-        
+
         $this->result_obj->setRequiredPermission('read');
         $this->result_obj->addObserver($this, 'searchResultFilterListener');
         $this->result_obj->filter(ROOT_FOLDER_ID, QP_COMBINATION_OR);
-        
+
         // User access filter
         // fau: searchMatriculations - 	treat the search result
         if ($this->search_type == 'usr' || $this->search_type == 'matr') {
@@ -874,7 +874,7 @@ class ilRepositorySearchGUI
             } else {
                 $result_ids = $this->result_obj->getResultIds();
             }
-            
+
             include_once './Services/User/classes/class.ilUserFilter.php';
             $this->search_results = array_intersect(
                 $result_ids,
@@ -916,7 +916,7 @@ class ilRepositorySearchGUI
             if (!$query_string) {
                 continue;
             }
-        
+
             if (!is_object($query_parser = $this->__parseQueryString($query_string, true, ($info['type'] == FIELD_TYPE_SELECT)))) {
                 ilUtil::sendInfo($query_parser);
                 return false;
@@ -924,8 +924,8 @@ class ilRepositorySearchGUI
             switch ($info['type']) {
                 case FIELD_TYPE_UDF_SELECT:
                     // Do a phrase query for select fields
-                    $query_parser = $this->__parseQueryString('"' . $query_string . '"');
-                            
+                    $query_parser = $this->__parseQueryString($query_string);
+
                     // no break
                 case FIELD_TYPE_UDF_TEXT:
                     $udf_search = ilObjectSearchFactory::_getUserDefinedFieldSearchInstance($query_parser);
@@ -937,16 +937,16 @@ class ilRepositorySearchGUI
                     break;
 
                 case FIELD_TYPE_SELECT:
-                    
+
                     if ($info['db'] == 'org_units') {
                         $user_search = ilObjectSearchFactory::getUserOrgUnitAssignmentInstance($query_parser);
                         $result_obj = $user_search->performSearch();
                         $this->__storeEntries($result_obj);
                         break;
                     }
-                    
+
                     // Do a phrase query for select fields
-                    $query_parser = $this->__parseQueryString('"' . $query_string . '"', true, true);
+                    $query_parser = $this->__parseQueryString($query_string, true, true);
 
                     // no break
                 case FIELD_TYPE_TEXT:
@@ -957,14 +957,14 @@ class ilRepositorySearchGUI
                     // store entries
                     $this->__storeEntries($result_obj);
                     break;
-                
+
                 case FIELD_TYPE_MULTI:
                     $multi_search = ilObjectSearchFactory::getUserMultiFieldSearchInstance($query_parser);
                     $multi_search->setFields(array($name));
                     $result_obj = $multi_search->performSearch();
                     $this->__storeEntries($result_obj);
                     break;
-                
+
             }
         }
     }
@@ -1047,7 +1047,7 @@ class ilRepositorySearchGUI
             ilUtil::sendInfo($query_parser, true);
             return false;
         }
-        
+
         // Perform like search
         include_once 'Services/Search/classes/Like/class.ilLikeObjectSearch.php';
         $object_search = new ilLikeObjectSearch($query_parser);
@@ -1067,12 +1067,12 @@ class ilRepositorySearchGUI
         $query_parser = new ilQueryParser(ilUtil::stripSlashes($a_string));
         $query_parser->setCombination($a_combination_or ? QP_COMBINATION_OR : QP_COMBINATION_AND);
         $query_parser->setMinWordLength(1);
-        
+
         // #17502
         if (!(bool) $a_ignore_length) {
             $query_parser->setGlobalMinLength(3); // #14768
         }
-        
+
         $query_parser->parse();
 
         if (!$query_parser->validate()) {
@@ -1101,7 +1101,7 @@ class ilRepositorySearchGUI
             #echo 2;
             $_SESSION['rep_search_type'] = 'usr';
         }
-        
+
         $this->search_type = $_SESSION['rep_search_type'];
         #echo $this->search_type;
 
@@ -1164,15 +1164,15 @@ class ilRepositorySearchGUI
         );
         $this->tpl->setVariable('ACTION_BUTTONS', $toolbar->getHTML());
     }
-    
+
     public function showSearchResults()
     {
         $counter = 0;
         $f_result = array();
-        
+
         $this->tpl->addBlockFile('ADM_CONTENT', 'adm_content', 'tpl.rep_search_result.html', 'Services/Search');
         $this->addNewSearchButton();
-        
+
         switch ($this->search_type) {
             case "usr":
                 $this->showSearchUserTable($_SESSION['rep_search']['usr'], 'showSearchResults');
@@ -1208,9 +1208,9 @@ class ilRepositorySearchGUI
             // remember link target to admin search gui (this)
             $_SESSION["usr_search_link"] = $this->ctrl->getLinkTarget($this, 'show');
         }
-        
+
         include_once './Services/Search/classes/class.ilRepositoryUserResultTableGUI.php';
-        
+
         $table = new ilRepositoryUserResultTableGUI($this, $a_parent_cmd, $is_in_admin);
         if (count($this->add_options)) {
             $table->addMultiItemSelectionButton(
@@ -1225,10 +1225,10 @@ class ilRepositorySearchGUI
         }
         $table->setUserLimitations($this->getUserLimitations());
         $table->parseUserIds($a_usr_ids);
-        
+
         $this->tpl->setVariable('RES_TABLE', $table->getHTML());
     }
-    
+
     /**
      * Show usr table
      * @return
@@ -1237,10 +1237,10 @@ class ilRepositorySearchGUI
     protected function showSearchRoleTable($a_obj_ids)
     {
         include_once './Services/Search/classes/class.ilRepositoryObjectResultTableGUI.php';
-        
+
         $table = new ilRepositoryObjectResultTableGUI($this, 'showSearchResults', $this->object_selection);
         $table->parseObjectIds($a_obj_ids);
-        
+
         $this->tpl->setVariable('RES_TABLE', $table->getHTML());
     }
 
@@ -1252,13 +1252,13 @@ class ilRepositorySearchGUI
     protected function showSearchGroupTable($a_obj_ids)
     {
         include_once './Services/Search/classes/class.ilRepositoryObjectResultTableGUI.php';
-        
+
         $table = new ilRepositoryObjectResultTableGUI($this, 'showSearchResults', $this->object_selection);
         $table->parseObjectIds($a_obj_ids);
-        
+
         $this->tpl->setVariable('RES_TABLE', $table->getHTML());
     }
-    
+
     /**
      *
      * @return
@@ -1267,10 +1267,10 @@ class ilRepositorySearchGUI
     protected function showSearchCourseTable($a_obj_ids)
     {
         include_once './Services/Search/classes/class.ilRepositoryObjectResultTableGUI.php';
-        
+
         $table = new ilRepositoryObjectResultTableGUI($this, 'showSearchResults', $this->object_selection);
         $table->parseObjectIds($a_obj_ids);
-        
+
         $this->tpl->setVariable('RES_TABLE', $table->getHTML());
     }
 
@@ -1290,9 +1290,9 @@ class ilRepositorySearchGUI
             $this->showSearchResults();
             return false;
         }
-        
+
         $_SESSION['rep_search']['objs'] = $_POST['obj'];
-        
+
         // Get all members
         $members = array();
         foreach ($_POST['obj'] as $obj_id) {
@@ -1300,7 +1300,7 @@ class ilRepositorySearchGUI
             switch ($type) {
                 case 'crs':
                 case 'grp':
-                    
+
                     include_once './Services/Membership/classes/class.ilParticipants.php';
                     if (ilParticipants::hasParticipantListAccess($obj_id)) {
                         $part = [];
@@ -1314,16 +1314,16 @@ class ilRepositorySearchGUI
                         } else {
                             $part = ilParticipants::getInstanceByObjId($obj_id)->getParticipants();
                         }
-                        
+
                         $members = array_merge((array) $members, $part);
                     }
                     break;
-                    
+
                 case 'role':
                     global $DIC;
 
                     $rbacreview = $DIC['rbacreview'];
-                    
+
                     $assigned = [];
                     if (is_callable($this->user_filter)) {
                         $assigned = call_user_func_array(
@@ -1335,7 +1335,7 @@ class ilRepositorySearchGUI
                     } else {
                         $assigned = $rbacreview->assignedUsers($obj_id);
                     }
-                    
+
                     $members = array_merge($members, ilUserFilter::getInstance()->filter($assigned));
                     break;
                 case 'orgu':
@@ -1359,14 +1359,14 @@ class ilRepositorySearchGUI
         }
         $members = array_unique((array) $members);
         $this->__appendToStoredResults($members);
-        
+
         $this->tpl->addBlockFile('ADM_CONTENT', 'adm_content', 'tpl.rep_search_result.html', 'Services/Search');
-        
+
         $this->addNewSearchButton();
         $this->showSearchUserTable($_SESSION['rep_search']['usr'], 'storedUserList');
         return true;
     }
-    
+
     /**
      * Called from table sort
      * @return
@@ -1377,7 +1377,7 @@ class ilRepositorySearchGUI
         $this->listUsers();
         return true;
     }
-    
+
     /**
      * Listener called from ilSearchResult
      * Id is obj_id for role, usr

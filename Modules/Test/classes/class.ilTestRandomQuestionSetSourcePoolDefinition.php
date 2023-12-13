@@ -541,11 +541,6 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 'pool_title' => array('text', $this->getPoolTitle()),
                 'pool_path' => array('text', $this->getPoolPath()),
                 'pool_quest_count' => array('integer', $this->getPoolQuestionCount()),
-                // fau: taxFilter/typeFilter - use new db fields
-                #'origin_tax_fi' => array('integer', $this->getOriginalFilterTaxId()),
-                #'origin_node_fi' => array('integer', $this->getOriginalFilterTaxNodeId()),
-                #'mapped_tax_fi' => array('integer', $this->getMappedFilterTaxId()),
-                #'mapped_node_fi' => array('integer', $this->getMappedFilterTaxNodeId()),
                 'origin_tax_filter' => array('text', $this->getOriginalTaxonomyFilterForDbValue()),
                 'mapped_tax_filter' => array('text', $this->getMappedTaxonomyFilterForDbValue()),
                 'type_filter' => array('text', $this->getTypeFilterForDbValue()),
@@ -582,11 +577,6 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 'pool_title' => array('text', $this->getPoolTitle()),
                 'pool_path' => array('text', $this->getPoolPath()),
                 'pool_quest_count' => array('integer', $this->getPoolQuestionCount()),
-                // fau: taxFilter/typeFilter - use new db fields
-                #'origin_tax_fi' => array('integer', $this->getOriginalFilterTaxId()),
-                #'origin_node_fi' => array('integer', $this->getOriginalFilterTaxNodeId()),
-                #'mapped_tax_fi' => array('integer', $this->getMappedFilterTaxId()),
-                #'mapped_node_fi' => array('integer', $this->getMappedFilterTaxNodeId()),
                 'origin_tax_filter' => array('text', $this->getOriginalTaxonomyFilterForDbValue()),
                 'mapped_tax_filter' => array('text', $this->getMappedTaxonomyFilterForDbValue()),
                 'type_filter' => array('text', $this->getTypeFilterForDbValue()),

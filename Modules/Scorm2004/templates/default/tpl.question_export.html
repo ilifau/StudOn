@@ -19,7 +19,7 @@
 		jQuery('div#container{VAL_ID}').autoRender(questions[{VAL_ID}]);
 		{HANDLE_IMAGES}
 
-        if (typeof MathJax != "undefined") {
+        if (typeof MathJax != "undefined" && typeof MathJax.Hub != "undefined") {
             MathJax.Hub.Queue(["Typeset",MathJax.Hub, "container{VAL_ID}"]);
         }
     }
@@ -57,7 +57,7 @@
 
 				question.init();
 
-                if (typeof MathJax != "undefined") {
+                if (typeof MathJax != "undefined" && typeof MathJax.Hub != "undefined") {
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub, "container{VAL_ID}"]);
                 }
 			}
@@ -116,7 +116,7 @@
 
 	{HANDLE_IMAGES}
 
-    if (typeof MathJax != "undefined") {
+    if (typeof MathJax != "undefined" && typeof MathJax.Hub != "undefined") {
         MathJax.Hub.Queue(["Typeset",MathJax.Hub, "container{VAL_ID}"]);
     }
 
@@ -143,7 +143,7 @@
 	$(document).ready(function() {
 		renderILQuestion{VAL_ID}();
 
-        if (typeof MathJax != "undefined") {
+        if (typeof MathJax != "undefined" && typeof MathJax.Hub != "undefined") {
             MathJax.Hub.Queue(["Typeset",MathJax.Hub, "container{VAL_ID}"]);
         }
 	});
@@ -316,7 +316,7 @@
 			
 			questionData.engineInstance = question;
 
-            if (typeof MathJax != "undefined") {
+            if (typeof MathJax != "undefined" && typeof MathJax.Hub != "undefined") {
                 MathJax.Hub.Queue(["Typeset",MathJax.Hub, "container{VAL_ID}"]);
             }
 		}

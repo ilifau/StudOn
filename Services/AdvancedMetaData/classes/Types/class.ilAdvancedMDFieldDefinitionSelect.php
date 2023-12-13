@@ -324,19 +324,20 @@ class ilAdvancedMDFieldDefinitionSelect extends ilAdvancedMDFieldDefinition
 
         if (sizeof($missing)) {
             $this->confirmed_objects = $this->buildConfirmedObjects($a_form);
+            $already_confirmed = is_array($this->confirmed_objects);
 
-            if (!is_array($this->confirmed_objects)) {
-                $search = ilADTFactory::getInstance()->getSearchBridgeForDefinitionInstance($this->getADTDefinition(), false, $multi);
-                foreach ($missing as $missing_idx => $missing_value) {
-                    $in_use = $this->findBySingleValue($search, $missing_idx);
-                    if (is_array($in_use)) {
-                        foreach ($in_use as $item) {
-                            if (array_key_exists($missing_idx, $index_map)) {
-                                $complete_id = $item[0] . "_" . $item[1] . "_" . $item[2];
-                                $new_index = $index_map[$missing_idx];
-                                $this->confirmed_objects[$missing_idx][$complete_id] = $new_index;
-                                continue;
-                            }
+            $search = ilADTFactory::getInstance()->getSearchBridgeForDefinitionInstance($this->getADTDefinition(), false, $multi);
+            foreach ($missing as $missing_idx => $missing_value) {
+                $in_use = $this->findBySingleValue($search, $missing_idx);
+                if (is_array($in_use)) {
+                    foreach ($in_use as $item) {
+                        if (array_key_exists($missing_idx, $index_map)) {
+                            $complete_id = $item[0] . "_" . $item[1] . "_" . $item[2];
+                            $new_index = $index_map[$missing_idx];
+                            $this->confirmed_objects[$missing_idx][$complete_id] = $new_index;
+                            continue;
+                        }
+                        if (!$already_confirmed) {
                             $this->confirm_objects[$missing_idx][] = $item;
                             $this->confirm_objects_values[$missing_idx] = $old[$missing_idx];
                         }
@@ -584,6 +585,8 @@ class ilAdvancedMDFieldDefinitionSelect extends ilAdvancedMDFieldDefinition
             $search = ilADTFactory::getInstance()->getSearchBridgeForDefinitionInstance($def, false, true);
             ilADTFactory::initActiveRecordByType();
 
+            $page_list_mappings = [];
+
             foreach ($this->confirmed_objects as $old_option => $item_ids) {
                 // get complete old values
                 $old_values = array();
@@ -642,10 +645,16 @@ class ilAdvancedMDFieldDefinitionSelect extends ilAdvancedMDFieldDefinition
                     
                     if ($sub_type == "wpg") {
                         // #15763 - adapt advmd page lists
-                        include_once "Modules/Wiki/classes/class.ilPCAMDPageList.php";
-                        ilPCAMDPageList::migrateField($obj_id, $this->getFieldId(), $old_option, $new_option, true);
+                        $page_list_mappings[(string) $old_option] = (string) $new_option;
                     }
                 }
+            }
+
+            if (!empty($page_list_mappings)) {
+                ilPCAMDPageList::migrateField(
+                    $this->getFieldId(),
+                    $page_list_mappings
+                );
             }
 
             $this->confirmed_objects = array();

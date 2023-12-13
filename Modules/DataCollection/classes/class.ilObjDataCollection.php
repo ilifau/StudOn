@@ -126,7 +126,7 @@ class ilObjDataCollection extends ilObject2
      * @param      $a_table_id
      * @param null $a_record_id
      */
-    public static function sendNotification($a_action, $a_table_id, $a_record_id = null)
+    public function sendNotification($a_action, $a_table_id, $a_record_id = null)
     {
         global $DIC;
         $ilUser = $DIC['ilUser'];
@@ -137,9 +137,7 @@ class ilObjDataCollection extends ilObject2
             return;
         }
 
-        $dclObj = new ilObjDataCollection($_GET['ref_id']);
-
-        if ($dclObj->getNotification() != 1) {
+        if ($this->getNotification() != 1) {
             return;
         }
         $obj_table = ilDclCache::getTableCache($a_table_id);
@@ -202,7 +200,7 @@ class ilObjDataCollection extends ilObject2
                             }
                         }
                     }
-                    $message .= $t;
+                    $message .= $this->prepareMessageText($t);
                 }
                 $message .= "------------------------------------\n";
                 $message .= $ulng->txt('dcl_changed_by') . ": " . $ilUser->getFullname() . " " . ilUserUtil::getNamePresentation($ilUser->getId())
@@ -213,7 +211,14 @@ class ilObjDataCollection extends ilObject2
 
                 $mail_obj = new ilMail(ANONYMOUS_USER_ID);
                 $mail_obj->appendInstallationSignature(true);
-                $mail_obj->enqueue(ilObjUser::_lookupLogin($user_id), "", "", $subject, $message, array());
+                $mail_obj->enqueue(
+                    ilObjUser::_lookupLogin($user_id),
+                    "",
+                    "",
+                    $subject,
+                    $message,
+                    array()
+                );
             } else {
                 unset($users[$idx]);
             }
@@ -546,5 +551,25 @@ class ilObjDataCollection extends ilObject2
 
     public function getStyleSheetId()
     {
+    }
+
+    public function prepareMessageText(string $body): string
+    {
+        if (preg_match_all('/<.*?br.*?>/', $body, $matches)) {
+            $matches = array_unique($matches[0]);
+            $brNewLineMatches = array_map(static function($match): string {
+                return $match . "\n";
+            }, $matches);
+
+            //Remove carriage return to guarantee all new line can be properly found
+            $body = str_replace("\r", '', $body);
+            //Replace occurrence of <br> + \n with a single \n
+            $body = str_replace($brNewLineMatches, "\n", $body);
+            //Replace additional <br> with a \”
+            $body = str_replace($matches, "\n", $body);
+            //Revert removal of carriage return
+            return str_replace("\n", "\r\n", $body);
+        }
+        return $body;
     }
 }

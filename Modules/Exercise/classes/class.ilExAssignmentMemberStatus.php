@@ -478,9 +478,7 @@ class ilExAssignmentMemberStatus
     {
         return array(
             "notice" => array("text", $this->getNotice())
-            // fau: fixExStatusUpdate - prevent null for saving returned flag
             ,"returned" => array("integer", (int) $this->getReturned())
-            // fau.
             ,"solved" => array("integer", $this->getSolved())
             ,"status_time" => array("timestamp", $this->getStatusTime())
             ,"sent" => array("integer", $this->getSent())
