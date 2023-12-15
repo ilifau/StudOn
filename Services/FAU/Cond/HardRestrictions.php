@@ -749,11 +749,11 @@ class HardRestrictions
         $checkedModule = $module->withoutRestrictions();
 
         // get the relevant subjects of the student for the module
-        // if no subject matches, then the module should not be allowed
         $cos_ids = $person->getCourseOfStudyDbIds($term);
         $subjects = $person->getSubjectsWithCourseOfStudyDbIds($term, $cos_ids);
 
         // the fitting cos_ids may be more than the cos ids of the person
+        // at least one must exist for module to be allowed
         $fitting_cos_ids = $this->getFittingCosIdsForModule($module->getModuleId(), $cos_ids, $term);
         $checkedModule = $checkedModule->withFittingCosIds($fitting_cos_ids);
         if (!empty($fitting_cos_ids)) {
@@ -776,7 +776,7 @@ class HardRestrictions
             }
         }
 
-        if (empty($subjects) || $oneRestrictionFailed) {
+        if (empty($fitting_cos_ids) || $oneRestrictionFailed) {
             $this->checkedForbiddenModules[$checkedModule->getModuleId()] = $checkedModule;
             return false;
         }
