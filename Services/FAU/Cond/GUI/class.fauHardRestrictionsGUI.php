@@ -48,7 +48,6 @@ class fauHardRestrictionsGUI extends BaseGUI
                 switch ($cmd)
                 {
                     case 'showRestrictionsModal':
-                    case 'showResultModal':
                         $this->$cmd();
                         break;
 
@@ -61,13 +60,14 @@ class fauHardRestrictionsGUI extends BaseGUI
     }
 
     /**
-     * Get the link for a modal to show all restrictions of an event (without check)
-     * @param int    $event_id
-     * @return string   html code of the link
+     * Get the link for a modal to show all restrictions of an event 
+     * The restrictions will be checked for the current user
      */
-    public function getRestrictionsModalLink(int $event_id) : string
+    public function getRestrictionsModalLink(ImportId $import_id, int $ref_id) : string
     {
-        $this->ctrl->setParameter($this, 'event_id', $event_id);
+        $this->ctrl->setParameter($this, 'ref_id', $ref_id);
+        $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
+        $this->ctrl->setParameter($this, 'user_id', $this->dic->user()->getId());
 
         $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
             ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
@@ -79,9 +79,11 @@ class fauHardRestrictionsGUI extends BaseGUI
     }
 
     /**
-     * Get a linked modal to show the result of a restrictions check
+     * Get the link for a modal to show all restrictions of an event
+     * The link will already show the check result for a user
+     * 
      * @param \FAU\Cond\HardRestrictions $restrictions checked restrictions
-     * @param int|null    $selected_module_id ID of the selected modal by the user
+     * @param int|null    $selected_module_id ID of the selected module by the user
      * @param string|null $link_label specific link label to be used for link
      * @return string
      */
@@ -102,48 +104,55 @@ class fauHardRestrictionsGUI extends BaseGUI
         }
 
         $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
-            ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showResultModal'));
+            ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
 
         $button = $this->factory->button()->shy($link_label, '#')
             ->withOnClick($modal->getShowSignal());
 
         return $this->renderer->render([$modal, $button]);
     }
-
-
-    /**
-     * Get an async modal with content to show restrictions
-     */
-    protected function showRestrictionsModal()
-    {
-        $params = $this->request->getQueryParams();
-        $event_id = isset($params['event_id']) ? (int) $params['event_id'] : null;
-
-        $event = $this->dic->fau()->study()->repo()->getEvent($event_id, Event::model());
-        $title = sprintf($this->lng->txt('fau_check_info_restrictions_for'), $event->getTitle());
-        $content = $this->factory->listing()->unordered($this->service->hard()->getEventRestrictionTexts($event_id));
-        $modal = $this->factory->modal()->roundtrip($title, $content)
-            ->withCancelButtonLabel('close');
-        echo $this->renderer->render($modal);
-        exit;
-    }
-
+    
 
     /**
      * Get an async modal with content to show the result of a restrictions check
      */
-    protected function showResultModal()
+    protected function showRestrictionsModal()
     {
         $params = $this->request->getQueryParams();
         $ref_id = isset($params['ref_id']) ? (int) $params['ref_id'] : 0;
         $import_id = ImportId::fromString((string) $params['import_id'] ?? '');
         $user_id = isset($params['user_id']) ? (int) $params['user_id'] : 0;
         $selected_module_id = isset($params['module_id']) ? (int) $params['module_id'] : 0;
-
-        if (!$user_id == $this->dic->user()->getId() && !$this->dic->access()->checkAccess('manage_members', '', $ref_id)) {
- //           exit;
+        
+        // check if modal can be shown for other users (data protection)
+        if ($user_id != $this->dic->user()->getId()) {
+            
+            switch (ilObject::_lookupType($ref_id, true)) {
+                case 'crs':
+                case 'grp':
+                    if (!$this->dic->access()->checkAccess('manage_members', '', $ref_id)) {
+                        exit;
+                    }
+                    if (!ilParticipants::getInstance($ref_id)->isAssigned($user_id)) {
+                        exit;
+                    }
+                    break;
+                    
+                case 'xcos':
+                    if (!$this->dic->access()->checkAccess('write', '', $ref_id)) {
+                        exit;
+                    }
+                    if (empty(ilCoSubUser::_getById(ilObject::_lookupObjId($ref_id), $user_id))) {
+                        exit;
+                    }
+            }
         }
 
+        // get the selelcted module if not provided
+        if (empty($selected_module_id)) {
+            $selected_module_id = (int) $this->dic->fau()->user()->getSelectedModuleId(ilObject::_lookupObjId($ref_id), $user_id);
+        }
+        
         $restrictions = $this->dic->fau()->cond()->hard();
         $restrictions->checkByImportId($import_id, $user_id);
         $module_info = '';
