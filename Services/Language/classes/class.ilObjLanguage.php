@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,10 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
-require_once "./Services/Object/classes/class.ilObject.php";
+declare(strict_types=1);
 
 /**
  * Class ilObjLanguage
@@ -445,9 +442,8 @@ class ilObjLanguage extends ilObject
                 } elseif ($scope === "local") {
                     // get the modification date of the local file
                     // get the newer local changes for a local file
-                    // fau: keepAllLocalChanges - import local file without change date, find local changes without restriction
-                    $local_changes = $this->getLocalChanges();
-                    // fau.
+                    $min_date = date("Y-m-d H:i:s", filemtime($lang_file));
+                    $local_changes = $this->getLocalChanges($min_date);
                 }
                 $dbAccess = new ilObjLanguageDBAccess($ilDB, $this->key, $content, $local_changes, $scope);
                 $lang_array = $dbAccess->insertLangEntries($lang_file);

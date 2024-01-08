@@ -167,11 +167,12 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
         } else {
             $rank = array();
             foreach ($this->object->answers as $answer) {
+                $points_string_for_key = (string) $answer->getPoints();
                 if ($answer->getPoints() > 0) {
-                    if (!array_key_exists($answer->getPoints(), $rank)) {
-                        $rank[$answer->getPoints()] = array();
+                    if (!array_key_exists($points_string_for_key, $rank)) {
+                        $rank[$points_string_for_key] = array();
                     }
-                    array_push($rank[$answer->getPoints()], $answer->getAnswertext());
+                    array_push($rank[$points_string_for_key], $answer->getAnswertext());
                 }
             }
             krsort($rank, SORT_NUMERIC);
@@ -255,7 +256,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
                 }
             }
             $template->setVariable("COUNTER", $i + 1);
-            $template->setVariable("TEXTFIELD_ID", $i + 1);
+            $template->setVariable("TEXTFIELD_ID", $i);
             $template->setVariable("TEXTFIELD_SIZE", $width);
             $template->parseCurrentBlock();
         }
@@ -288,7 +289,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
                 }
             }
             $template->setVariable("COUNTER", $i + 1);
-            $template->setVariable("TEXTFIELD_ID", $i + 1);
+            $template->setVariable("TEXTFIELD_ID", $i);
             $template->setVariable("TEXTFIELD_SIZE", $width);
             $template->parseCurrentBlock();
         }

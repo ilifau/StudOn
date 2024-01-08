@@ -97,10 +97,7 @@
 		"exclude-from-classmap": [
 			"./Services/Migration",
 			"./*/*/lib", "./*/*/test",
-			"./Customizing/**/vendor",
-			"fau: excludeAutoload - add some plugins",
-			"./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assSQLQuestion",
-			"fau."
+			"./Customizing/**/vendor"
 		]
 	},
 	"extra": {

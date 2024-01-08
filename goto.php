@@ -45,43 +45,9 @@ if (is_object($ilPluginAdmin)) {
     }
 }
 
-// fau: campoLink - treat course link from campo
-if (substr($_GET['target'], 0, 6) == 'campo_') {
-    global $DIC;
-    $DIC->fau()->study()->redirectFromTarget($_GET['target']);
-}
-if (substr($_GET['target'], 0, 8) == 'orgunit_') {
-    global $DIC;
-    $DIC->fau()->org()->redirectFromTarget($_GET['target']);
-}
-
-// fau.
-
-// fau: numericLink - lookup the type when only the ref_id or obj_id is given
-if (is_numeric($_GET['target'])) {
-    $type = ilObject::_lookupType((int) $_GET['target'], true);
-
-    // check if obj_id is given
-    if (empty($type)) {
-        $ref_ids = ilObject::_getAllReferences($_GET['target']);
-        foreach ($ref_ids as $ref_id) {
-            if (!ilObject::_isInTrash($ref_id)) {
-                $_GET['target'] = $ref_id;
-                $type = ilObject::_lookupType((int) $_GET['target'], true);
-                break;
-            }
-        }
-    }
-
-    if (!empty($type)) {
-        $_GET['target'] = $type . '_' . (int) $_GET['target'];
-    }
-}
-// fau.
-
-$r_pos = strpos($_GET["target"], "_");
-$rest = substr($_GET["target"], $r_pos+1);
-$target_arr = explode("_", $_GET["target"]);
+$r_pos = strpos($requested_target, "_");
+$rest = substr($requested_target, $r_pos + 1);
+$target_arr = explode("_", $requested_target);
 $target_type = $target_arr[0];
 $target_id = $target_arr[1] ?? ''; // optional for plugins
 $additional = $target_arr[2] ?? '';		// optional for pages

@@ -382,6 +382,7 @@ class ilObjectCopyGUI
         $exp->setTargetGet('ref_id');
         $exp->setPostVar('source');
         $exp->setCheckedItems($this->getSources());
+        $exp->highlightNode((string) $this->getFirstTarget());
 
         // Filter to container
         foreach (['cat', 'root', 'fold'] as $container) {
@@ -725,7 +726,7 @@ class ilObjectCopyGUI
         $back_cmd = "";
         switch ($this->getMode()) {
             case self::SOURCE_SELECTION:
-                $back_cmd = 'showSourceSelectionTree';
+                $back_cmd = 'adoptContent';
                 break;
 
             case self::TARGET_SELECTION:

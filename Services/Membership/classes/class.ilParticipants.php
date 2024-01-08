@@ -631,20 +631,7 @@ abstract class ilParticipants
     {
         return $this->roles;
     }
- /**
-     * fau: fauService - get role id for role matching in sync
-     *
-     * needed to check membership and count of members
-     * to avoid overbooking by heavy traffic
-     *
-     * @param 	integer		role type constant, e.g. IL_GRP_MEMBER
-     * @return	integer		actual role id
-     */
-    public function getRoleId($a_role_type)
-    {
-        return $this->role_data[$a_role_type];
-    }
-    // fau.
+
     /**
      * Get assigned roles
      */
