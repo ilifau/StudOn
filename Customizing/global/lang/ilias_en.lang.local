@@ -823,7 +823,6 @@ fau#:#fau_transfer_delete_source_info#:#The current Campo course should be delet
 fau#:#fau_transfer_move_members#:#Rewrite old Members
 fau#:#fau_transfer_move_members_info#:#The members of the selected course and its groups are reclassified as previous members. Thus, they keep access (e.g. for exam preparation), but their places become free for new members. You can later remove the previous members without a resignation message to campo.
 fau#:#fau_transfer_next#:#Next
-fau#:#fau_transfer_failed_no_write#:#You do not have the right to manage members in the selected course!
 fau#:#fau_transfer_source_group_desc#:#The Campo connection of this group was transferred to another group.
 fau#:#fau_transfer_group_multiple_selected#:#This group is selected several times!
 fau#:#fau_transfer_groups_multiple_selected#:#The group assignment is not unique. Each group of the selected course may only be used once!

@@ -29,14 +29,12 @@ administration#:#adm_activate_db_benchmark_instant_desc#:#Die Datenbankabfragen 
 administration#:#adm_db_bench_grouped_by_sql#:#Nach SQL gruppieren###fau: extendBenchmark
 administration#:#language_scope_file#:#Per Datei###fau: syncLangFile
 administration#:#language_scope_file_info#:#Exportiert alle Datenbankeinträge zu Sprachvariablen, die in der hochgeladenen Datei angegeben sind. Das kann verwendet werden, um eine lokale Sprachdatei auf den aktuellen Datenbank-Stand zu bringen.###fau: syncLangFile
-assessment#:#ass_campo_export#:#Ergebnisse für die Notenverbuchung in <i>campo</i> exportieren###fau: campoGrades
 assessment#:#ass_campo_file_written#:#Die Ergebnisdatei für <i>mein campo</i> wurde geschrieben.###fau: campoGrades
 assessment#:#ass_campo_matriculation_numbers#:#Matrikelnummern###fau: campoGrades
 assessment#:#ass_campo_matriculation_numbers_info#:#Exportieren Sie die Liste der angemeldeten Prüfungsteilnehmer/innen als Excel-Datei aus Campo. Kopieren Sie die Matrikelnummern aus der Datei in dieses Feld. Jede Matrikelnummer muss in einer eigenen Zeile stehen. Erstellen Sie die Exportdatei und öffnen Sie die exportierte CSV-Datei in Excel. Für jede kopierte Matrikelnummer sollte eine Zeile enthalten sein und die Bewertung bei den Teilnehmer/innen dieses Tests enthalten. Kopieren Sie die Bewertungen in die Spalte "Leistung" der Datei aus Campo. Diese Datei können Sie dann zur Notenverbuchung wieder in Campo importieren.
 assessment#:#ass_campo_other_fields#:#Weitere Felder###fau: campoGrades
 assessment#:#ass_campo_test_date#:#individuelles Prüfungsdatum###fau: campoGrades
 assessment#:#ass_campo_test_starttime#:#individieller Prüfungsbeginn###fau: campoGrades
-assessment#:#ass_create_export_campo#:#Erstelle Ergebnisdatei für campo###fau: campoGrades
 assessment#:#detailed_output_scoring#:#Detailansgabe mit Lösungen und Punkten
 assessment#:#err_cloze_not_numeric#:#Sie haben Text in eine Lücke eingegeben, die einen Zahlenwert erfordert!
 assessment#:#fq_err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert oder einen Bruch ein.
@@ -353,7 +351,6 @@ content#:#cont_layout_help#:#Hilfe
 content#:#cont_layout_help_desc#:#Layout für die StudOn-Hilfemodule
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout für "Informationen über StudOn"
-content#:#cont_link_info#:#Hinweis: Falls Ihnen ganz unten ein oder mehrere Objekte angezeigt werden, wählen Sie bitte eines davon aus. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal
 cron#:#cron_set_last_run#:#Setze letzten Durchlauf
 cron#:#cron_set_last_run_info#:#Der nächste Start wird ausgehend vom letzten Durchlauf anhand des Zeitplans bestimmt
 crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
@@ -826,7 +823,6 @@ fau#:#fau_transfer_delete_source_info#:#Der aktuelle Campo-Kurs soll nach der Ü
 fau#:#fau_transfer_move_members#:#Alte Mitglieder umschreiben
 fau#:#fau_transfer_move_members_info#:#Die Mitglieder des gewählten Kurses und seiner Gruppen werden als vorherige Mitglieder umgeschrieben. Damit behalten sie weiterhin Zugriff (z.B. zur Prüfungsvorbereitung), aber ihre Plätze werden frei für neue Mitglieder. Sie können später die vorherigen Mitglieder entfernen, ohne dass eine Austritts-Meldung an campo erfolgt.
 fau#:#fau_transfer_next#:#Weiter
-fau#:#fau_transfer_failed_no_write#:#Sie haben in dem gewählten Kurs nicht das Recht, Mitglieder zu verwalten!
 fau#:#fau_transfer_source_group_desc#:#Die Campo-Verbindung dieser Gruppe wurde auf ein andere Gruppe übertragen.
 fau#:#fau_transfer_group_multiple_selected#:#Diese Gruppe wurde mehrfach ausgewählt!
 fau#:#fau_transfer_groups_multiple_selected#:#Die Gruppenzuordnung ist nicht eindeutig. Jede Gruppe des gewählten Kurses darf nur einmal verwendet werden!
@@ -975,12 +971,6 @@ videoportal#:#vp_no_user_found#:#Zum IDM-Benutzer wurde kein entsprechender Stud
 content#:#cont_link_info#:#Hinweis: Falls Ihnen ganz unten ein oder mehrere Objekte angezeigt werden, wählen Sie bitte eines davon aus. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal
 assessment#:#ass_create_export_campo#:#Erstelle Ergebnisdatei für campo###fau: campoGrades
 assessment#:#ass_campo_export#:#Ergebnisse für die Notenverbuchung in <i>campo</i> exportieren###fau: campoGrades
-assessment#:#ass_campo_file_written#:#Die Ergebnisdatei für <i>mein campo</i> wurde geschrieben.###fau: campoGrades
-assessment#:#ass_campo_other_fields#:#Weitere Felder###fau: campoGrades
-assessment#:#ass_campo_matriculation_numbers#:#Matrikelnummern###fau: campoGrades
-assessment#:#ass_campo_test_date#:#individuelles Prüfungsdatum###fau: campoGrades
-assessment#:#ass_campo_test_starttime#:#individueller Prüfungsbeginn###fau: campoGrades
-assessment#:#ass_campo_matriculation_numbers_info#:#Exportieren Sie die Liste der angemeldeten Prüfungsteilnehmer/innen als Excel-Datei aus Campo. Kopieren Sie die Matrikelnummern aus der Datei in dieses Feld. Jede Matrikelnummer muss in einer eigenen Zeile stehen. Erstellen Sie die Exportdatei und öffnen Sie die exportierte CSV-Datei in Excel. Für jede kopierte Matrikelnummer sollte eine Zeile enthalten sein und die Bewertung bei den Teilnehmer/innen dieses Tests enthalten. Kopieren Sie die Bewertungen in die Spalte "Leistung" der Datei aus Campo. Diese Datei können Sie dann zur Notenverbuchung wieder in Campo importieren.
 pwassist#:#pwassist_enter_username_and_email#:#Geben Sie einen Benutzernamen und die dazugehörende E-Mail-Adresse ein, und klicken Sie auf Abschicken.<br/>StudOn sendet eine E-Mail an diese Adresse. Die E-Mail enthält eine Adresse zu einer Webseite, mit der Sie ein neues Passwort für das Benutzerkonto eingeben können. Bitte überprüfen Sie auch den SPAM-Ordner Ihres Postfaches, da die E-Mails der Passwort-Unterstützung gelegentlich dort landen.<br/>Falls Sie mit dieser Funktion Ihr Passwort nicht setzen können, benachrichtigen Sie bitte Ihre Kursleitung oder senden Sie eine E-Mail an studon@fau.de.
 trac#:#trac_export#:#Export###fau: LPExport
 trac#:#trac_export_title#:#Lernfortschritt-Export###fau: LPExport
