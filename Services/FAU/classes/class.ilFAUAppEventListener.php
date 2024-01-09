@@ -250,9 +250,11 @@ class ilFAUAppEventListener implements ilAppEventListener
                             case 'crs':
                                 $participants = ilCourseParticipants::_getInstanceByObjId($path_obj_id);
                                 $participants->add($user_id, IL_CRS_MEMBER);
+                                break;
                             case 'grp':
                                 $participants = ilGroupParticipants::_getInstanceByObjId($path_obj_id);
                                 $participants->add($user_id, IL_GRP_MEMBER);
+                                break;
                         }
                     }
                 }
