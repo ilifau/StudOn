@@ -85,7 +85,7 @@ class RoleMatching
      * 
      * @see updateIliasRolesOfCourse, applyNewUserCourseRoles
      */
-    protected function updateRolesInIliasObject(int $ref_id, ?int $user_id = null, ?int $course_id = null, ?int $event_id = null, ?Term $term = null)
+    public function updateRolesInIliasObject(int $ref_id, ?int $user_id = null, ?int $course_id = null, ?int $event_id = null, ?Term $term = null)
     {
         $obj_id = ilObject::_lookupObjId($ref_id);
         $participants = ilParticipants::getInstance($ref_id);

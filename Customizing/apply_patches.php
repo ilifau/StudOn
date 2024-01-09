@@ -49,6 +49,7 @@ $p->login();
 //$p->applyPatch('ilFauPatches.removeUntouchedDoubleCourses');
 //$p->applyPatch('ilFauPatches.cleanupDoubleAccounts');
 
+//$p->applyPatch('ilFauPatches.fillParentCourseRoles');
 
 /*****************
 * Specific actions
