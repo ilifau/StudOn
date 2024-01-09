@@ -55,7 +55,7 @@ class RoleMatching
     /**
      * Update the ilias roles of responsibilities and instructors for campo course (parallel group)
      * 
-     * Compare the actual responsibilities and instructors from campo with the status those remembered from the last sync
+     * Compare the actual responsibilities and instructors from campo with the status of those remembered from the last sync
      * The status is remembered in the table "fau_user_members"
      * Update the roles in the studon object if the effective role:
      *  - differs between the remembered status and the new status (changed in campo)
@@ -83,7 +83,7 @@ class RoleMatching
      * Update the roles of responsibilities and instructors in a single ilias course or group
      * Called for updating the roles of a campo course or an ilias user
      * 
-     * @see updateIliasRolesOfCourse
+     * @see updateIliasRolesOfCourse, applyNewUserCourseRoles
      */
     protected function updateRolesInIliasObject(int $ref_id, ?int $user_id = null, ?int $course_id = null, ?int $event_id = null, ?Term $term = null)
     {
@@ -123,7 +123,7 @@ class RoleMatching
                 break;
         }
 
-        // get the campo member status objects for the ilias object
+        // get the campo member status from the last sync for the ilias object (table fau_user_members)
         $cur_members = $this->user->repo()->getMembersOfObject($obj_id, $user_id, false);
         
         // get all user ids that have a role defined by campo for this target
@@ -180,12 +180,12 @@ class RoleMatching
             $current_role = 
                 $participants->isAdmin($user_id) ? IL_CRS_ADMIN 
                 : ($participants->isTutor($user_id) ? IL_CRS_TUTOR 
-                    : null);                                            // other roles are not derived from by campo
+                    : null);                                            // other roles are not determined by campo
         }
         else {
             $current_role =
                 $participants->isAdmin($user_id) ? IL_GRP_ADMIN 
-                    : null;                                             // other roles are not derived from by campo
+                    : null;                                             // other roles are not determined by campo
 
         }
 
@@ -250,17 +250,18 @@ class RoleMatching
 
     /**
      * Check if the participant list in the object differs from the remembered list of changes by campo
+     * Used to check if a object is touched and should not be deleted when the campo course is deleted
      */
     public function hasLocalMemberChanges($ref_id) : bool
     {
         $obj_id = ilObject::_lookupObjId($ref_id);
         if (ilObject::_lookupType($obj_id) == 'crs') {
-            // in courses the event responsibles are admins, the others are tutors
+            // in ilias courses the event responsibles are admins, the others are tutors
             $part_ids = (new ilCourseParticipants($obj_id))->getParticipants();
             $mem_ids = $this->user->repo()->getUserIdsOfObjectMembers($obj_id, false,
                 1, 1, 1, 1);
         } elseif (ilObject::_lookupType($obj_id) == 'grp') {
-            // in groups the event responsibles are no participants, the others are admins
+            // in ilias groups the event responsibles are no participants, the others are admins
             $part_ids = (new ilGroupParticipants($obj_id))->getParticipants();
             $mem_ids = $this->user->repo()->getUserIdsOfObjectMembers($obj_id, false,
                 null, 1, 1, 1);
@@ -369,7 +370,7 @@ class RoleMatching
 
 
     /**
-     * Find an author role
+     * Find the author role in an ilias category
      * @return ?int $role_id
      */
     public function findAuthorRole(int $ref_id) : ?int
@@ -378,7 +379,7 @@ class RoleMatching
     }
 
     /**
-     * Find a manager role
+     * Find the manager role in an ilias category
      * @return ?int $role_id
      */
     public function findManagerRole(int $ref_id) : ?int
@@ -392,7 +393,7 @@ class RoleMatching
      *
      * @param $ref_id
      * @param string[] $required_operations     names of the required permissions, all must match
-     * @param string[] $forbidden_operations    names of the forbidden permissions, none shound match
+     * @param string[] $forbidden_operations    names of the forbidden permissions, none should match
      * @return int|null     found role id
      */
     protected function findRoleByPermissions($ref_id, array $required_operations, array $forbidden_operations) : ?int
