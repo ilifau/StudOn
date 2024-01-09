@@ -45,6 +45,7 @@ if (is_object($ilPluginAdmin)) {
     }
 }
 
+
 // fau: campoLink - treat course link from campo
 if (substr($_GET['target'], 0, 6) == 'campo_') {
     global $DIC;
@@ -79,9 +80,9 @@ if (is_numeric($_GET['target'])) {
 }
 // fau.
 
-$r_pos = strpos($_GET["target"], "_");
-$rest = substr($_GET["target"], $r_pos+1);
-$target_arr = explode("_", $_GET["target"]);
+$r_pos = strpos($requested_target, "_");
+$rest = substr($requested_target, $r_pos + 1);
+$target_arr = explode("_", $requested_target);
 $target_type = $target_arr[0];
 $target_id = $target_arr[1] ?? ''; // optional for plugins
 $additional = $target_arr[2] ?? '';		// optional for pages

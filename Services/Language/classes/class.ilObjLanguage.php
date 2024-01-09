@@ -233,16 +233,16 @@ class ilObjLanguage extends ilObject
             $this->setDescription($this->getStatus());
             $this->update();
 
-            if ($this->isLocal() && $this->check("local")) {
-                $this->insert("local");
-                $this->setTitle($this->getKey());
-                $this->setDescription($this->getStatus());
-                $this->update();
+                if ($this->isLocal() == true) {
+                    if ($this->check('local')) {
+                        $this->insert('local');
+                        $this->setTitle($this->getKey());
+                        $this->setDescription($this->getStatus());
+                        $this->update();
+                    }
+                }
+                return true;
             }
-
-            return true;
-        }
-
         return false;
     }
 
