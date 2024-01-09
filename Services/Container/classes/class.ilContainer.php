@@ -594,7 +594,7 @@ class ilContainer extends ilObject
         include_once("./Services/Object/classes/class.ilObjectTranslation.php");
         $ot = ilObjectTranslation::getInstance($this->getId());
         // fau: fixClonePageTranslation - set the new translation object in the cloned container object
-        // otherwise, cloned courses anf groups will loose their page translation settings in update()
+        // otherwise, cloned courses and groups will loose their page translation settings in update()
         $new_ot = $ot->copy($new_obj->getId());
         $new_obj->setObjectTranslation($new_ot);
         // fau.

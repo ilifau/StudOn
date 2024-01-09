@@ -178,7 +178,7 @@ class Repository extends RecordRepo
      *
      * @return StudOnMember[]
      */
-    public function getMembersOfCoursesToSyncBack(Term $term) : array
+    public function getMembersOfCoursesInTermToSyncBack(Term $term) : array
     {
         $query = "
             SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id,
@@ -210,6 +210,45 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, StudOnMember::model(), false, true);
     }
 
+
+    /**
+     * Get the passed members of all courses for sending back to campo
+     *
+     * - The status of courses is taken from the 'passed' flag in the obj_members table
+     * - The status of groups is taken from the learning progress because groups don't have a separate setting for 'passed'
+     *
+     * @return StudOnMember[]
+     */
+    public function getPassedMembersOfCoursesToSyncBack($passing_module_ids) : array
+    {
+        $query = "
+            SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id, 'passed' AS `status`
+            FROM fau_study_courses c
+            JOIN object_reference r ON r.obj_id = c.ilias_obj_id
+            JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
+            JOIN object_data o ON o.obj_id = fa.rol_id AND o.title LIKE 'il_crs_member%'
+            JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
+            JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
+            LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id
+            LEFT JOIN obj_members om ON om.obj_id = r.obj_id AND om.usr_id = ua.usr_id 
+            WHERE om.passed = 1
+            AND (c.send_passed = 'lp' OR ". $this->db->in('m.module_id', $passing_module_ids, false, 'integer') . ") 
+			UNION
+            SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id, 'passed' AS `status`
+            FROM fau_study_courses c
+            JOIN object_reference r ON r.obj_id = c.ilias_obj_id
+            JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
+            JOIN object_data o ON o.obj_id = fa.rol_id AND o.title LIKE 'il_grp_member%'
+            JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
+            JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
+            LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id
+            LEFT JOIN ut_lp_marks s ON s.obj_id = r.obj_id AND s.usr_id = p.user_id 
+            WHERE s.status = 2
+            AND (c.send_passed = 'lp' OR ". $this->db->in('m.module_id', $passing_module_ids, false, 'integer') . ") 
+            ";
+
+        return $this->queryRecords($query, StudOnMember::model(), false, true);
+    }
 
     /**
      * Get the 'send_passed' settings of courses in a term where members or settings can be sent back to campo

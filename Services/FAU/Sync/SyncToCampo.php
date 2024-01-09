@@ -22,8 +22,11 @@ class SyncToCampo extends SyncBase
     {
         foreach ($this->sync->getTermsToSync(true) as $term) {
             $this->syncCourses($term);
-            $this->syncMembers($term);
+            $this->syncMembersInTerm($term);
         }
+        
+        // 2023-11-06 passed members should be synced for all terms
+        $this->syncAllPassedMembers();
     }
 
     /**
@@ -55,17 +58,17 @@ class SyncToCampo extends SyncBase
     /**
      * Update all members of courses in a term in the staging table
      */
-    public function syncMembers(Term $term) : void
+    public function syncMembersInTerm(Term $term) : void
     {
         $this->info('sync StudOnMembers for Term ' . $term->toString() . '...');
         // get the members noted in the staging database
-        $existing = $this->staging->repo()->getStudOnMembers($term);
+        $existing = $this->staging->repo()->getStudOnMembersInTerm($term);
         // get the sending setting of courses in the term (course_id => send_passed)
         $sending = $this->sync->repo()->getCourseSendPassedToSyncBack($term);
         // get the module ids of modules for which a 'passed' status of members should be sent to campo
         $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
         
-        foreach ($this->sync->repo()->getMembersOfCoursesToSyncBack($term) as $member) {
+        foreach ($this->sync->repo()->getMembersOfCoursesInTermToSyncBack($term) as $member) {
             
             if ($member->getStatus() == StudOnMember::STATUS_PASSED) {
                 
@@ -77,11 +80,7 @@ class SyncToCampo extends SyncBase
                 }
             }
             
-            if (!isset($existing[$member->key()])) {
-                $this->staging->repo()->save($member);
-                $this->increaseItemsAdded();
-            }
-            elseif ($existing[$member->key()]->hash() != $member->hash()) {
+            if (!isset($existing[$member->key()]) || $existing[$member->key()]->hash() != $member->hash()) {
                 $this->staging->repo()->save($member);
                 $this->increaseItemsUpdated();
             }
@@ -95,6 +94,27 @@ class SyncToCampo extends SyncBase
             if (isset($sending[$member->getCourseId()])) {
                 $this->staging->repo()->delete($member);
                 $this->increaseItemsDeleted();
+            }
+        }
+    }
+
+
+    /**
+     * Update all passed members in the staging table, regardless of the term
+     */
+    public function syncAllPassedMembers() : void
+    {
+        $this->info('sync passed StudOnMembers...');
+
+        // get the passedmembers noted in the staging database
+        $existing = $this->staging->repo()->getPassedStudOnMembers();
+
+        // get the module ids of modules for which a 'passed' status of members should be sent to campo
+        $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
+        foreach ($this->sync->repo()->getPassedMembersOfCoursesToSyncBack($passing_module_ids) as $member) {
+            if (!isset($existing[$member->key()]) || $existing[$member->key()]->hash() != $member->hash()) {
+                $this->staging->repo()->save($member);
+                $this->increaseItemsUpdated();
             }
         }
     }

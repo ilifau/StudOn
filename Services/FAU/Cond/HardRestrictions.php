@@ -749,11 +749,14 @@ class HardRestrictions
         $checkedModule = $module->withoutRestrictions();
 
         // get the relevant subjects of the student for the module
-        // if no subject matches, then the module should not be allowed
-        $cos_ids = $this->dic->fau()->study()->repo()->getCoursesOfStudyIdsForModule($module->getModuleId());
+        $cos_ids = $person->getCourseOfStudyDbIds($term);
         $subjects = $person->getSubjectsWithCourseOfStudyDbIds($term, $cos_ids);
-        $checkedModule = $checkedModule->withFittingCosIds(array_keys($subjects));
-        if (!empty($subjects)) {
+
+        // the fitting cos_ids may be more than the cos ids of the person
+        // at least one must exist for module to be allowed
+        $fitting_cos_ids = $this->getFittingCosIdsForModule($module->getModuleId(), $cos_ids, $term);
+        $checkedModule = $checkedModule->withFittingCosIds($fitting_cos_ids);
+        if (!empty($fitting_cos_ids)) {
             // module fits for the users study and may be selectable for a registration request
             // but further restrictions have to be checked
             $this->checkedFittingModules[$checkedModule->getModuleId()] = $checkedModule;
@@ -773,7 +776,7 @@ class HardRestrictions
             }
         }
 
-        if (empty($subjects) || $oneRestrictionFailed) {
+        if (empty($fitting_cos_ids) || $oneRestrictionFailed) {
             $this->checkedForbiddenModules[$checkedModule->getModuleId()] = $checkedModule;
             return false;
         }
@@ -924,4 +927,25 @@ class HardRestrictions
 
         return $checkedRestriction->withSatisfied($oneExpressionPassed);
     }
+
+    /**
+     * Get the cos_ids that fit to the a module for a student
+     * This may be cos_ids directly shared between the studies and the module
+     * Or if may by cos_ids with a shared certain degree between the studies and the module
+     *
+     * @param int   $module_id
+     * @param int[] $cos_ids
+     * @param Term  $term
+     * @return int[]
+     */
+    protected function getFittingCosIdsForModule(int $module_id, array $cos_ids, Term $term) : array
+    {
+        $degrees = $this->dic->fau()->study()->repo()->getFittingDegrees($cos_ids, [
+            'Austauschstudium Bachelor',
+            'Austauschstudium Master',
+            'Austauschstudium Promotion'
+        ]);
+        return $this->dic->fau()->study()->repo()->getFittingCosIds($module_id, $cos_ids, $degrees);
+    }
+
 }
