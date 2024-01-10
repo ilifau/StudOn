@@ -119,6 +119,7 @@ class Transfer
 
             $target = $this->dic->fau()->ilias()->objects()->createIliasCourse($cat_ref_id, $term, $event, $course);
             $this->changeParallelGroupToCourse($parent, $source, $target);
+            $this->dic->fau()->sync()->roles()->updateRolesInIliasObject($target->getRefId(), null, $course->getCourseId(), $event->getEventId(), $term);
 
             $this->dic->fau()->study()->repo()->save($course->withIliasObjId($target->getId()));
             $source->setImportId(null);

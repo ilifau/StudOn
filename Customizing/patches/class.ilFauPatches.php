@@ -4,6 +4,7 @@ use FAU\Study\Data\LostCourse;
 use ILIAS\DI\Container;
 use FAU\Setup\Setup;
 use FAU\Study\Data\Term;
+use FAU\Study\Data\ImportId;
 
 /**
  * fau: fauService - patches to handle fau data
@@ -93,6 +94,32 @@ class ilFauPatches
     {
         $service = $this->dic->fau()->sync()->ilias();
         $service->createMissingOrgRoles($params['exclude']);
+    }
+
+    /**
+     * Initially fill the course roles in parent courses of parallel groups
+     */
+    public function fillParentCourseRoles() {
+
+        $matching = $this->dic->fau()->sync()->roles();
+        
+        $query = "
+        SELECT r.ref_id, o.import_id 
+        FROM object_data o 
+        JOIN object_reference r ON r.obj_id = o.obj_id
+        WHERE o.`type` = 'crs'
+        AND o.import_id LIKE 'FAU%' 
+        AND o.import_id NOT LIKE '%Course%' 
+        AND r.deleted IS NULL
+        ";
+        
+        $result = $this->dic->database()->query($query);
+        while ($row = $this->dic->database()->fetchAssoc($result)) {
+            $ref_id = (int) $row['ref_id'];
+            $import_id = ImportId::fromString($row['import_id']);
+            echo $ref_id . ' ' . $import_id->toString() . "\n";
+            $matching->updateRolesInIliasObject($ref_id, null, null, $import_id->getEventId(), Term::fromString($import_id->getTermId()));
+        }
     }
     
     /**

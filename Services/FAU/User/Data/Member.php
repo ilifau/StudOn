@@ -28,6 +28,10 @@ use FAU\Sync\SyncWithIlias;
  */
 class Member extends RecordData
 {
+    const CONTEXT_SINGLE_COURSE = 'single_course';
+    const CONTEXT_PARENT_COURSE = 'parent_course';
+    const CONTEXT_NESTED_GROUP = 'nested_group';
+    
     const ROLE_EVENT_RESPONSIBLE = 'event_responsible';
     const ROLE_COURSE_RESPONSIBLE = 'course_responsible';
     const ROLE_INSTRUCTOR = 'instructor';
@@ -246,5 +250,40 @@ class Member extends RecordData
         $clone->instructor = 0;
         $clone->individual_instructor = 0;
         return $clone;
+    }
+
+    /**
+     * Get the constant of an ILIAS role for the campo role in a context
+     * Return null for simple members (without campo role)
+     * 
+     * @param string $context
+     * @return int|null
+     */
+    public function getIliasRole(string $context): ?int
+    {
+        switch ($context) {
+            case self::CONTEXT_SINGLE_COURSE:
+                if ($this->hasAnyRole()) {
+                    return IL_CRS_ADMIN;
+                }
+                break;
+
+            case self::CONTEXT_PARENT_COURSE:
+                if ($this->isEventResponsible()) {
+                    return IL_CRS_ADMIN;
+                }
+                elseif ($this->hasAnyRole()) {
+                    return IL_CRS_TUTOR;
+                } 
+                break;
+                                 
+            case self::CONTEXT_NESTED_GROUP:
+                if ($this->isCourseResponsible()
+                || $this->isInstructor()
+                || $this->isIndividualInstructor()) {
+                    return IL_GRP_ADMIN;
+                }
+        }
+        return null;
     }
 }

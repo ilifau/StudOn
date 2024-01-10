@@ -20,7 +20,6 @@ class Service extends SubService
     protected \ilLanguage $lng;
 
     protected Repository $repository;
-    protected Matching $matching;
     protected Search $search;
     protected Dates $dates;
     protected Persons $persons;
@@ -37,18 +36,7 @@ class Service extends SubService
         }
         return $this->repository;
     }
-
-    /**
-     * Get the matching functions
-     */
-    public function matching() : Matching
-    {
-        if(!isset($this->matching)) {
-            $this->matching = new Matching($this->dic);
-        }
-        return $this->matching;
-    }
-
+    
     /**
      * Get the searching functions
      */
@@ -113,22 +101,7 @@ class Service extends SubService
         return $link;
     }
 
-
-    /**
-     * Get the link to campo for an ilias course
-     */
-    public function getCampoLinkForObject(int $obj_id) : string
-    {
-        $importId = $this->repo()->getImportId($obj_id);
-        If (!empty($event_id = $importId->getEventId())) {
-            $term = Term::fromString($importId->getTermId());
-            $url = $this->getCampoUrl($event_id, $term);
-            $title = $this->lng->txt('fau_campo_link') . ($term->isValid() ? ' (' . $this->dic->fau()->study()->getTermText($term, true) .')' : '');
-            return '<a target="_blank" href="' . $url . '">' . $title . '</a>';
-        }
-        return '';
-    }
-
+    
 
     /**
      * Get the select options for courses of study
