@@ -120,6 +120,7 @@ class fauHardRestrictionsGUI extends BaseGUI
     {
         $params = $this->request->getQueryParams();
         $ref_id = isset($params['ref_id']) ? (int) $params['ref_id'] : 0;
+        $obj_id = ilObject::_lookupObjId($ref_id);
         $import_id = ImportId::fromString((string) $params['import_id'] ?? '');
         $user_id = isset($params['user_id']) ? (int) $params['user_id'] : 0;
         $selected_module_id = isset($params['module_id']) ? (int) $params['module_id'] : 0;
@@ -133,7 +134,7 @@ class fauHardRestrictionsGUI extends BaseGUI
                     if (!$this->dic->access()->checkAccess('manage_members', '', $ref_id)) {
                         exit;
                     }
-                    if (!ilParticipants::getInstance($ref_id)->isAssigned($user_id)) {
+                    if (!ilParticipants::getInstance($ref_id)->isAssigned($user_id) && !ilWaitingList::_isOnList($user_id, $obj_id)) {
                         exit;
                     }
                     break;
@@ -142,7 +143,7 @@ class fauHardRestrictionsGUI extends BaseGUI
                     if (!$this->dic->access()->checkAccess('write', '', $ref_id)) {
                         exit;
                     }
-                    if (empty(ilCoSubUser::_getById(ilObject::_lookupObjId($ref_id), $user_id))) {
+                    if (empty(ilCoSubUser::_getById($obj_id, $user_id))) {
                         exit;
                     }
             }
