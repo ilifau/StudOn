@@ -749,6 +749,10 @@ class ilObjUserGUI extends ilObjectGUI
         // External account
         $user->setAuthMode($this->form_gui->getInput('auth_mode'));
         $user->setExternalAccount($this->form_gui->getInput('ext_account'));
+        // fau: samlChange - load form value for idle ext account
+        $user->setIdleExtAccount($this->form_gui->getInput('idle_ext_account'));
+        // fau.
+        
 
         if ((int) $user->getActive() != (int) $this->form_gui->getInput('active')) {
             $user->setActive($this->form_gui->getInput('active'), $ilUser->getId());
@@ -986,6 +990,9 @@ class ilObjUserGUI extends ilObjectGUI
         //$data["passwd"] = "********";
         //$data["passwd2"] = "********";
         $data["ext_account"] = $this->object->getExternalAccount();
+        // fau: samlChange - get data for idle_ext_account
+        $data["idle_ext_account"] = $this->object->getIdleExtAccount();
+        // fau.
 
         // system information
         $data["create_date"] = ilDatePresentation::formatDate(new ilDateTime(
@@ -1166,8 +1173,16 @@ class ilObjUserGUI extends ilObjectGUI
             $ext->setMaxLength(250);
             $ext->setInfo($lng->txt("user_ext_account_desc"));
             $this->form_gui->addItem($ext);
-        }
 
+            // fau: samlChange - add idle ext_account to form
+            $ext = new ilTextInputGUI($lng->txt("idle_ext_account"), "idle_ext_account");
+            $ext->setSize(40);
+            $ext->setMaxLength(250);
+            $ext->setInfo($lng->txt("idle_ext_account_info"));
+            $this->form_gui->addItem($ext);
+            // fau.
+        }
+        
         // login data
         $sec_si = new ilFormSectionHeaderGUI();
         $sec_si->setTitle($this->lng->txt("system_information"));

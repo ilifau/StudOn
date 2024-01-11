@@ -89,6 +89,11 @@ class ilObjUser extends ilObject
     protected bool $passwd_policy_reset = false;
     public int $login_attempts = 0;
     public array $user_defined_data = array(); // Missing array type.
+
+    // fau: samlChange - new class variable idle_ext_account
+    protected ?string $idle_ext_account = null;
+    // fau.
+
     /** @var array<string, string> */
     protected array $oldPrefs = [];
     /** @var array<string, string> */
@@ -312,6 +317,9 @@ class ilObjUser extends ilObject
         //authentication
         $this->setAuthMode((string) ($a_data['auth_mode'] ?? null));
         $this->setExternalAccount((string) ($a_data['ext_account'] ?? ''));
+        // fau: samlChange - set idle ext account
+        $this->setIdleExtAccount($a_data['idle_ext_account'] ?? null);
+        // fau.
 
         $this->setIsSelfRegistered((bool) ($a_data['is_self_registered'] ?? false));
     }
@@ -399,6 +407,9 @@ class ilObjUser extends ilObject
             "time_limit_owner" => array("integer", $this->getTimeLimitOwner()),
             "auth_mode" => array("text", $this->getAuthMode()),
             "ext_account" => array("text", $this->getExternalAccount()),
+            // fau: samlChange - add idle ext account to saveAsNew
+            "idle_ext_account" => array("text", $this->getIdleExtAccount()),
+            // fau.
             "profile_incomplete" => array("integer", $this->getProfileIncomplete()),
             "latitude" => array("text", $this->latitude),
             "longitude" => array("text", $this->longitude),
@@ -476,6 +487,9 @@ class ilObjUser extends ilObject
             "profile_incomplete" => ["integer", $this->getProfileIncomplete()],
             "auth_mode" => ["text", $this->getAuthMode()],
             "ext_account" => ["text", $this->getExternalAccount()],
+            // fau: samlChange - add idle ext account to update
+            "idle_ext_account" => array("text", $this->getIdleExtAccount()),
+            // fau.            
             "latitude" => ["text", $this->latitude],
             "longitude" => ["text", $this->longitude],
             "loc_zoom" => ["integer", (int) $this->loc_zoom],
@@ -2643,6 +2657,24 @@ class ilObjUser extends ilObject
     {
         return $this->ext_account;
     }
+
+    // fau: samlChange - getter and setter
+    /**
+     * Set the idle ext account
+     */
+    public function setIdleExtAccount(?string $a_str)
+    {
+        $this->idle_ext_account = $a_str;
+    }
+
+    /**
+     * Get the idle ext account
+     */
+    public function getIdleExtAccount() : ?string
+    {
+        return $this->idle_ext_account;
+    }
+    // fau.
 
     /**
      * Get list of external account by authentication method
