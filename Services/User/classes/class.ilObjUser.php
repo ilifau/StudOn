@@ -543,6 +543,25 @@ class ilObjUser extends ilObject
         $ilDB->manipulateF("UPDATE usr_data SET agree_date = " . $ilDB->now() .
              " WHERE usr_id = %s", array("integer"), array($this->getId()));
     }
+   
+    // fau: samlAuth - new function _findLoginByField
+    public static function _findLoginByField($fieldname, $value) : string
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        $query = "SELECT login FROM usr_data " .
+        "WHERE " . $fieldname . " = " . $ilDB->quote($value, 'text');
+        $result = $ilDB->query($query);
+
+        // take the first found
+        if ($row = $ilDB->fetchAssoc($result)) {
+            return $row['login'];
+        }
+
+        return '';
+    }
+    // fau.    
 
     private static function _lookup(
         int $a_user_id,
