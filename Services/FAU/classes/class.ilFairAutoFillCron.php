@@ -7,7 +7,7 @@ include_once "Services/Cron/classes/class.ilCronJob.php";
 /**
  * Cron job for auto-filling course/group after fair period
  */
-class ilFairAutofillCron extends ilCronJob
+class ilFairAutoFillCron extends ilCronJob
 {
     public function getId(): string
     {
