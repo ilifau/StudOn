@@ -100,7 +100,7 @@ class SyncWithIdm extends SyncBase
             
             $userObj = new ilObjUser($userData->getUserId());
             $userObj->setAuthMode('local');
-            $userObj->setPasswd(random_bytes(20), IL_PASSWD_PLAIN);
+            $userObj->setPasswd(random_bytes(20), ilObjUser::PASSWD_PLAIN);
             $userObj->setIdleExtAccount($userObj->getExternalAccount());
             $userObj->setExternalAccount(null);
             $userObj->setTimeLimitUnlimited(false);
