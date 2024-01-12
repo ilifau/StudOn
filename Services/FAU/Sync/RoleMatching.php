@@ -374,8 +374,8 @@ class RoleMatching
         foreach ($person->getOrgRoles() as $role) {
             $unit = $this->dic->fau()->org()->repo()->getOrgunitByNumber($role->getOrgunit());
             if (isset($unit)
-                && ilObject::_exists($unit->getIliasRefId(), true, 'cat')
-                && !ilObject::_isInTrash($unit->getIliasRefId())
+                && ilObject::_exists((int) $unit->getIliasRefId(), true, 'cat')
+                && !ilObject::_isInTrash((int) $unit->getIliasRefId())
             ) {
                 $idmSet[$role->getType() . $unit->getIliasRefId()] = [
                     $role->getType(),
