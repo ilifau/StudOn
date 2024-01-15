@@ -62,7 +62,7 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
     {
         $list = $this->service->dates()->getPlannedDatesList($import_id->getCourseId(), false);
         $text = implode(' | ', $list);
-        return ilUtil::shortenText($text, 100, true);
+        return ilStr::shortenTextExtended($text, 100, true);
     }
 
     /**
@@ -74,7 +74,7 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
         // don't show event responsibles
         $list = $this->service->persons()->getResponsiblesList(null, $import_id->getCourseId(), false);
         $text = implode(' | ', array_unique($list));
-        return ilUtil::shortenText($text, 100, true);
+        return ilStr::shortenTextExtended($text, 100, true);
     }
 
 
