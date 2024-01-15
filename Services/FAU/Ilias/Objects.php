@@ -164,12 +164,12 @@ class Objects
             $ref_id,
             $obj_id,
             (bool) $info['reg_info_mem_limit'],
-            (bool) $info['reg_info_waiting_list'],
+            array_key_exists('reg_info_waiting_list', $info) ? (bool) $info['reg_info_waiting_list'] : false,
             (int) $info['reg_info_max_members'],
-            (int) $info['reg_info_members'],
-            (int) $info['reg_info_subscribers'],
-            (int) $info['reg_info_waiting_status'],
-            (bool) $info['ref_info_is_assigned']
+            array_key_exists('reg_info_members', $info) ? (int) $info['reg_info_members'] : 0,
+            array_key_exists('reg_info_subscribers', $info) ? (int) $info['reg_info_subscribers'] : 0,
+            array_key_exists('reg_info_waiting_status', $info) ? (int) $info['reg_info_waiting_status'] : ilWaitingList::REQUEST_NOT_ON_LIST,
+            array_key_exists('ref_info_is_assigned', $info) ? (bool) $info['ref_info_is_assigned'] : false,
         );
 
 
