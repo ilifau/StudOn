@@ -7,11 +7,8 @@ class fauCourseSettingsGUI extends BaseGUI
 {
     /**
      * Add the campo settings to a form
-     * @param ilPropertyFormGUI $form
-     * @param ilObjCourse|ilObjGroup $object
-     * @return void
      */
-    public function addCampoSettingsToForm($form, $object)
+    public function addCampoSettingsToForm(ilPropertyFormGUI $form, ilObjCourse|ilObjGroup $object): void
     {
         $import_id = \FAU\Study\Data\ImportId::fromString($object->getImportId());
         if ($import_id->isForCampo() && ilCust::administrationIsVisible()) {
@@ -35,11 +32,8 @@ class fauCourseSettingsGUI extends BaseGUI
 
     /**
      * Save the campo settings from a form
-     * @param ilPropertyFormGUI $form
-     * @param ilObjCourse|ilObjGroup $object
-     * @return void
      */
-    public function saveCampoSettingsFromForm($form, $object)
+    public function saveCampoSettingsFromForm(ilPropertyFormGUI $form, ilObjCourse|ilObjGroup $object): void
     {
         $import_id = \FAU\Study\Data\ImportId::fromString($object->getImportId());
         if ($import_id->isForCampo() && ilCust::administrationIsVisible()) {
