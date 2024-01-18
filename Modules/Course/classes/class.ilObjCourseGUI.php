@@ -19,6 +19,7 @@ declare(strict_types=0);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+use FAU\Ilias\ObjCourseGUIHelper;
 
 /**
  * Class ilObjCourseGUI
@@ -43,6 +44,10 @@ use ILIAS\Refinery\Factory;
  */
 class ilObjCourseGUI extends ilContainerGUI
 {
+    // fau: fairSub
+    use ObjCourseGUIHelper;
+    // fau.
+
     public const BREADCRUMB_DEFAULT = 0;
     public const BREADCRUMB_CRS_ONLY = 1;
     public const BREADCRUMB_FULL_PATH = 2;
@@ -380,6 +385,14 @@ class ilObjCourseGUI extends ilContainerGUI
                     ilDatePresentation::formatDate(new ilDateTime($this->object->getSubscriptionStart(), IL_CAL_UNIX))
                 );
             }
+            // fau: fairSub - show fair period on info screen
+            if ($this->object->isSubscriptionMembershipLimited()
+                && $this->object->getSubscriptionMaxMembers()
+                && $this->object->getSubscriptionType() != IL_CRS_SUBSCRIPTION_OBJECT) {
+                $info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
+                    $this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));
+            }
+            // fau.            
             if ($this->object->isSubscriptionMembershipLimited()) {
                 if ($this->object->getSubscriptionMinMembers()) {
                     $info->addProperty(
@@ -807,26 +820,50 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->setCancellationEnd($form->getItemByPostVar("cancel_end")->getDate());
 
         // waiting list
+        // fau: fairSub - remember old settings
+        $old_max_members = $this->object->getSubscriptionMaxMembers();
+        $old_subscription_fair = $this->object->getSubscriptionFair();
+        // fau.        
         $this->object->enableSubscriptionMembershipLimitation((bool) $form->getInput('subscription_membership_limitation'));
         $this->object->setSubscriptionMaxMembers((int) $form->getInput('subscription_max'));
         $this->object->setSubscriptionMinMembers((int) $form->getInput('subscription_min'));
         $old_autofill = $this->object->hasWaitingListAutoFill();
-        switch ((int) $form->getInput('waiting_list')) {
-            case 2:
+
+        // fau: fairSub - save the fair period and waiting list options
+        // check a deactivation of the fair period done in db
+        if ($old_subscription_fair >= 0) {
+            /** @var ilDateTime $sub_fair */
+            $sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
+            $this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
+        }
+
+        switch ((string) $form->getInput('waiting_list')) {
+            case 'auto':
+                $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
                 $this->object->enableWaitingList(true);
                 $this->object->setWaitingListAutoFill(true);
                 break;
 
-            case 1:
+            case 'auto_manu':
+                $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
                 $this->object->enableWaitingList(true);
                 $this->object->setWaitingListAutoFill(false);
                 break;
 
+            case 'manu':
+                $this->object->setSubscriptionAutoFill(false);
+                $this->object->enableWaitingList(true);
+                $this->object->setWaitingListAutoFill(false);
+                break;
+
+            case 'no_list':
             default:
+                $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
                 $this->object->enableWaitingList(false);
                 $this->object->setWaitingListAutoFill(false);
                 break;
         }
+        // fau.
         $this->object->handleAutoFill();
 
         $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTitleIconVisibility();
@@ -880,9 +917,66 @@ class ilObjCourseGUI extends ilContainerGUI
             }
         }
 
-        if (!$old_autofill && $this->object->hasWaitingListAutoFill()) {
+        // fau: fairSub - call object validation
+        if (!$this->object->validate()) {
+            ilUtil::sendFailure($this->object->getMessage());
+            $this->editObject();
+            return;
+        }
+        // fau.
+
+        // fau: fairSub - check and correct the fair time
+        // fau: paraSub - check also if the object has parallel groups
+        if ($this->object->getSubscriptionFair() >= 0 && (
+            $this->object->hasParallelGroups() ||
+            ($this->object->isSubscriptionMembershipLimited() && $this->object->getSubscriptionMaxMembers() > 0)
+        )
+    ) {
+        $fair_message = '';
+        if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED) {
+            if ($this->object->getSubscriptionFair() < $this->object->getSubscriptionStart() + $this->object->getSubscriptionMinFairSeconds()) {
+                $this->object->setSubscriptionFair($this->object->getSubscriptionStart() + $this->object->getSubscriptionMinFairSeconds());
+                $fair_message = $this->lng->txt("sub_fair_to_sub_start_min");
+            } elseif ($this->object->getSubscriptionFair() > $this->object->getSubscriptionEnd()) {
+                $this->object->setSubscriptionFair($this->object->getSubscriptionEnd());
+                $fair_message = $this->lng->txt("sub_fair_to_sub_end");
+            }
+        } elseif (!$this->object->getActivationUnlimitedStatus()) {
+            if ($this->object->getSubscriptionFair() < $this->object->getActivationStart() + $this->object->getSubscriptionMinFairSeconds()) {
+                $this->object->setSubscriptionFair($this->object->getActivationStart() + $this->object->getSubscriptionMinFairSeconds());
+                $fair_message = $this->lng->txt("sub_fair_to_act_start_min");
+            } elseif ($this->object->getSubscriptionFair() > $this->object->getActivationEnd()) {
+                $this->object->setSubscriptionFair($this->object->getActivationEnd());
+                $fair_message = $this->lng->txt("sub_fair_to_act_end");
+            }
+        }
+
+        // handle a change of the fair time
+        if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair()) {
+            require_once('Modules/Course/classes/class.ilCourseWaitingList.php');
+            if (!ilCourseWaitingList::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
+                ilUtil::sendFailure($this->lng->txt('sub_fair_not_changeable'));
+                $this->editObject();
+                return;
+            } else {
+                ilCourseWaitingList::_changeFairTime($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair());
+                $this->object->saveSubscriptionLastFill(null);
+            }
+        }
+
+        if (!empty($fair_message)) {
+            ilUtil::sendInfo($fair_message, true);
+        }
+    }
+    // fau.
+
+        // fau: fairSub - trigger autofill if max members are increased
+        if ((!$old_autofill || $old_max_members < (int) $this->object->getSubscriptionMaxMembers()) &&
+            $this->object->hasWaitingListAutoFill()) {
             $this->object->handleAutoFill();
         }
+        // fau.
+        
         $this->object->update();
 
         ilObjectServiceSettingsGUI::updateServiceSettingsForm(
@@ -1153,7 +1247,8 @@ class ilObjCourseGUI extends ilContainerGUI
         $max->setInfo($this->lng->txt('crs_reg_max_info'));
 
         $lim->addSubItem($max);
-
+// fau: fairSub - add the fair settings to the form
+if(0){
         $wait = new ilRadioGroupInputGUI($this->lng->txt('crs_waiting_list'), 'waiting_list');
         $option = new ilRadioOption($this->lng->txt('none'), '0');
         $wait->addOption($option);
@@ -1174,7 +1269,13 @@ class ilObjCourseGUI extends ilContainerGUI
             $wait->setValue('0');
         }
         $lim->addSubItem($wait);
+}
+else{
+       $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addFairSubSettingsToForm($lim, $this->object);
+}
+// fau. 
         $form->addItem($lim);
+
         $pres = new ilFormSectionHeaderGUI();
         $pres->setTitle($this->lng->txt('crs_view_mode'));
 
@@ -1400,6 +1501,9 @@ class ilObjCourseGUI extends ilContainerGUI
         // Edit ecs export settings
         $ecs = new ilECSCourseSettings($this->object);
         $ecs->addSettingsToForm($form, 'crs');
+        // fau: campoSub - add the campo settings to the form
+        $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addCampoSettingsToForm($form, $this->object);
+        // fau.
         return $form;
     }
 
