@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\Ilias;
+namespace FAU\Ilias\Helper;
 use ilCust;
 /**
  * trait for providing additional ilObjCourse methods

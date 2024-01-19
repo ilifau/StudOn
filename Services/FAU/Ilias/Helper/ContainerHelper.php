@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\Ilias;
+namespace FAU\Ilias\Helper;
 
 /**
  * trait for providing additional ilContainer methods

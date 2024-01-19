@@ -19,7 +19,7 @@ declare(strict_types=0);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
-use FAU\Ilias\ObjCourseGUIHelper;
+use FAU\Ilias\Helper\ObjCourseGUIHelper;
 
 /**
  * Class ilObjCourseGUI
@@ -918,8 +918,8 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         // fau: fairSub - call object validation
-        if (!$this->object->validate()) {
-            ilUtil::sendFailure($this->object->getMessage());
+        if ($this->object->validate()) {
+            $this->tpl->setOnScreenMessage('failure', $this->object->getMessage());
             $this->editObject();
             return;
         }
@@ -933,7 +933,7 @@ class ilObjCourseGUI extends ilContainerGUI
         )
     ) {
         $fair_message = '';
-        if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED) {
+        if ($this->object->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_LIMITED) {
             if ($this->object->getSubscriptionFair() < $this->object->getSubscriptionStart() + $this->object->getSubscriptionMinFairSeconds()) {
                 $this->object->setSubscriptionFair($this->object->getSubscriptionStart() + $this->object->getSubscriptionMinFairSeconds());
                 $fair_message = $this->lng->txt("sub_fair_to_sub_start_min");
@@ -1271,7 +1271,53 @@ if(0){
         $lim->addSubItem($wait);
 }
 else{
-       $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addFairSubSettingsToForm($lim, $this->object);
+       // $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addFairSubSettingsToForm($lim, $this->object);
+        // fau: fairSub - add fair date and arrange and explain options for waiting list
+        if ($this->object->getSubscriptionFair() < 0) {
+            $fair_date = new ilNonEditableValueGUI($this->lng->txt('sub_fair_date'));
+            $fair_date_info = $this->lng->txt('sub_fair_inactive_message');
+            $fair_date_link = '<br />» <a href="' . $this->ctrl->getLinkTarget($this, 'activateSubFair') . '">' . $this->lng->txt('sub_fair_activate') . '</a>';
+            $wait_options = array(
+                'auto' => 'sub_fair_inactive_autofill',
+                'manu' => 'sub_fair_inactive_waiting',
+                'no_list' => 'sub_fair_inactive_no_list'
+            );
+        } else {
+            $fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'), 'subscription_fair');
+            $fair_date->setShowTime(true);
+            $fair_date->setDate(new ilDateTime($this->object->getSubscriptionFair(), IL_CAL_UNIX));
+            $fair_date_info = $this->lng->txt('sub_fair_date_info');
+            $fair_date_link = '<br />» <a href="' . $this->ctrl->getLinkTarget($this, 'confirmDeactivateSubFair') . '">' . $this->lng->txt('sub_fair_deactivate') . '</a>';
+            $wait_options = array(
+                'auto' => 'sub_fair_autofill',
+                'auto_manu' => 'sub_fair_auto_manu',
+                'manu' => 'sub_fair_waiting',
+                'no_list' => 'sub_fair_no_list'
+            );
+        }
+
+        $fair_date->setInfo($fair_date_info . (ilCust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
+        $lim->addSubItem($fair_date);
+
+        $wait = new ilRadioGroupInputGUI($this->lng->txt('crs_waiting_list'), 'waiting_list');
+        foreach ($wait_options as $postvalue => $langvar) {
+            $option = new ilRadioOption($this->lng->txt($langvar), $postvalue);
+            $option->setInfo($this->lng->txt($langvar . '_info'));
+            $wait->addOption($option);
+        }
+
+        if ($this->object->hasWaitingListAutoFill()) {
+            $wait->setValue('auto');
+        } elseif ($this->object->getSubscriptionAutoFill() && $this->object->enabledWaitingList()) {
+            $wait->setValue('auto_manu');
+        } elseif ($this->object->enabledWaitingList()) {
+            $wait->setValue('manu');
+        } else {
+            $wait->setValue('no_list');
+        }
+
+        $lim->addSubItem($wait);
+        // fau.       
 }
 // fau. 
         $form->addItem($lim);

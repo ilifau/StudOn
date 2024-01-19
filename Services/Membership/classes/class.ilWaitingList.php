@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use FAU\Ilias\Helper\WaitingListHelper;
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -25,12 +26,7 @@ declare(strict_types=1);
  */
 abstract class ilWaitingList
 {
-    // fau: fairSub - class constants for confirmation status
-    const REQUEST_NOT_ON_LIST = -1;
-    const REQUEST_NOT_TO_CONFIRM = 0;
-    const REQUEST_TO_CONFIRM = 1;
-    const REQUEST_CONFIRMED = 2;
-    // fau.    
+    use WaitingListHelper;
 
     public static array $is_on_list = [];
     private int $obj_id = 0;

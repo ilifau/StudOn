@@ -16,8 +16,8 @@
  *
  *********************************************************************/
 
- use FAU\Ilias\ObjCourseHelper;
- use FAU\Ilias\ContainerHelper;
+ use FAU\Ilias\Helper\ObjCourseHelper;
+ use FAU\Ilias\Helper\ContainerHelper;
 /**
  * Class ilObjCourse
  * @author  Stefan Meyer <meyer@leifos.com>
@@ -864,7 +864,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
         }
 
         // fau: fairSub - validate activation and subscription times
-        if (!$this->getActivationUnlimitedStatus() && $this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED &&
+        if (!$this->getActivationUnlimitedStatus() && $this->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_LIMITED &&
             ($this->getSubscriptionStart() < $this->getActivationStart() || $this->getSubscriptionEnd() > $this->getActivationEnd())) {
             $this->appendMessage($this->lng->txt("sub_time_not_in_activation_time"));
         }
@@ -873,7 +873,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             $this->getActivationEnd() < $this->getActivationStart() + $this->getSubscriptionMinFairSeconds()) {
             $this->appendMessage(sprintf($this->lng->txt("sub_fair_activation_min_minutes"), ceil($this->getSubscriptionMinFairSeconds() / 60)));
         }
-        if (($this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED) &&
+        if (($this->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_LIMITED) &&
             $this->getSubscriptionEnd() < $this->getSubscriptionStart() + $this->getSubscriptionMinFairSeconds()) {
             $this->appendMessage(sprintf($this->lng->txt("sub_fair_subscription_min_minutes"), ceil($this->getSubscriptionMinFairSeconds() / 60)));
         }
@@ -1013,9 +1013,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             "activation_type = " . $this->db->quote(!$this->getOfflineStatus(), 'integer') . ", " .
             "sub_limitation_type = " . $this->db->quote($this->getSubscriptionLimitationType(), 'integer') . ", " .
             // fau: fairSub - save sub_fair and sub_last_fill
-            "sub_fair = " . $ilDB->quote($this->getSubscriptionFair(), 'integer') . ", " .
-            "sub_auto_fill = " . $ilDB->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
-            "sub_last_fill = " . $ilDB->quote($this->getSubscriptionLastFill(), 'integer') . ", " .
+            "sub_fair = " . $this->db->quote($this->getSubscriptionFair(), 'integer') . ", " .
+            "sub_auto_fill = " . $this->db->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
+            "sub_last_fill = " . $this->db->quote($this->getSubscriptionLastFill(), 'integer') . ", " .
             // fau.
             "sub_start = " . $this->db->quote($this->getSubscriptionStart(), 'integer') . ", " .
             "sub_end = " . $this->db->quote($this->getSubscriptionEnd(), 'integer') . ", " .

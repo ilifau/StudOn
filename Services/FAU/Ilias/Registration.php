@@ -13,6 +13,7 @@ use ilObjCourseGrouping;
 use ilObjectFactory;
 use ilObject;
 use ilForumNotification;
+use FAU\Ilias\Helper\WaitingListHelper;
 
 /**
  * Base class handling course or group registrations

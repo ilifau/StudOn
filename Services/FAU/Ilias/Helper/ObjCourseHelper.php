@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\Ilias;
+namespace FAU\Ilias\Helper;
 use ilDatePresentation;
 use ilDateTime;
 use ilCourseWaitingList;

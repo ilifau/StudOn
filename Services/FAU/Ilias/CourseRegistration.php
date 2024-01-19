@@ -2,47 +2,36 @@
 
 namespace FAU\Ilias;
 
-use ilObjCourse;
-use ilCourseParticipants;
-use ilCourseWaitingList;
 use ilMailNotification;
 use ilCourseMembershipMailNotification;
 use ilParticipants;
+use ilCourseConstants;
+use FAU\Ilias\Helper\CourseConstantsHelper;
 
 /**
  * Extension of the registration with course specific functions
  */
 class CourseRegistration extends Registration
 {
-    /** @var ilObjCourse */
-    protected  $object;
-
-    /** @var ilCourseParticipants */
-    protected  $participants;
-
-    /** @var ilCourseWaitingList */
-    protected  $waitingList;
-
-
     /**
      * Init the subscription type from course constant
      */
     protected function initSubType() : void
     {
         switch ($this->object->getSubscriptionType()) {
-            case IL_CRS_SUBSCRIPTION_DIRECT:
+            case ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT:
                 $this->subType = self::subDirect;
                 break;
-            case IL_CRS_SUBSCRIPTION_PASSWORD:
+            case ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD:
                 $this->subType = self::subPassword;
                 break;
-            case IL_CRS_SUBSCRIPTION_CONFIRMATION:
+            case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
                 $this->subType = self::subConfirmation;
                 break;
-            case IL_CRS_SUBSCRIPTION_OBJECT:
+            case CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT:
                 $this->subType = self::subObject;
                 break;
-            case IL_CRS_SUBSCRIPTION_DEACTIVATED:
+            case ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED:
             default:
                 $this->subType = self::subDeactivated;
                 break;
