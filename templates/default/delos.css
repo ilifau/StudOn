@@ -11191,7 +11191,7 @@ footer {
   grid-template-areas: "icon title close" "none description description" "none actions actions";
   grid-template-columns: 20px 1fr 20px;
   grid-gap: 9px;
-  box-shadow: 3px 9px 9px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 9px 9px 0 rgb(0 0 0);
   transform: translateX(150%);
   transition: all 0.25s ease-in-out;
 }
@@ -13954,9 +13954,14 @@ button.copg-add.dropdown-toggle.btn:hover .il-copg-add-text,
   color: #4c6586;
   font-size: 1rem;
 }
-button.copg-add.dropdown-toggle.btn:hover {
+button.copg-add.dropdown-toggle.btn:hover,
+button.copg-add.dropdown-toggle.btn:focus-visible {
   background-color: #e2e8ef;
   color: #6f6f6f;
+}
+button.copg-add.dropdown-toggle.btn:focus-visible {
+  outline: 3px solid #0078D7;
+  outline-offset: -3px;
 }
 [data-copg-ed-type='add-area'] ul.dropdown-menu {
   left: 45%;
@@ -14054,7 +14059,7 @@ div.copg-current-edit,
 #tinytarget_ifr {
   border-style: solid;
   border-width: 2px;
-  border-color: #bbda9b;
+  border-color: #557b2e;
 }
 div.il_editarea_selected:hover {
   border-color: #6ea03c;
@@ -14517,12 +14522,12 @@ div.ilCOPGMediaPrint {
   padding: 0;
   margin: 5px 0;
 }
-#copg-editor-slate-content p.ilTinyInfo {
+#copg-editor-slate-content h3.ilTinyInfo {
   padding: 4px;
   width: 100%;
 }
 @media only screen and (max-width: 768px) {
-  #copg-editor-slate-content p.ilTinyInfo {
+  #copg-editor-slate-content h3.ilTinyInfo {
     display: none;
   }
 }
@@ -19643,6 +19648,11 @@ div.ilc_Page.readonly textarea[disabled] {
 }
 .ilc_question_SingleChoice .ilc_qanswer_Answer > div {
   vertical-align: top;
+}
+.ilc_question_MatchingQuestion #sourceArea {
+  height: fit-content;
+  position: sticky;
+  top: 40px;
 }
 #tst_output {
   display: flex;
