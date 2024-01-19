@@ -234,7 +234,7 @@ class ilStudyCondGUI
             $condition = $this->getCosConditionFromForm(0, $this->parent_obj_id, $this->form_gui);
             $this->dic->fau()->cond()->repo()->save($condition);
             
-            ilUtil::sendInfo($this->lng->txt("studycond_condition_saved"), true);
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt("studycond_condition_saved"), true);
             $this->ctrl->redirect($this, 'listConditions');
         } else {
             $this->form_gui->setValuesByPost();
@@ -253,7 +253,7 @@ class ilStudyCondGUI
             $condition = $this->getDocConditionFromForm(0, $this->parent_obj_id, $this->form_gui);
             $this->dic->fau()->cond()->repo()->save($condition);
 
-            ilUtil::sendInfo($this->lng->txt("studycond_condition_saved"), true);
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt("studycond_condition_saved"), true);
             $this->ctrl->redirect($this, 'listConditions');
         } else {
             $this->form_gui->setValuesByPost();
@@ -275,7 +275,7 @@ class ilStudyCondGUI
             $condition = $this->getCosConditionFromForm($_GET["cond_id"], $this->parent_obj_id, $this->form_gui);
             $this->dic->fau()->cond()->repo()->save($condition);
             
-            ilUtil::sendInfo($this->lng->txt("studycond_condition_updated"), true);
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt("studycond_condition_updated"), true);
             $this->ctrl->redirect($this, 'listConditions');
         } else {
             $this->form_gui->setValuesByPost();
@@ -296,7 +296,7 @@ class ilStudyCondGUI
             $condition = $this->getDocConditionFromForm($_GET["cond_id"], $this->parent_obj_id, $this->form_gui);
             $this->dic->fau()->cond()->repo()->save($condition);
 
-            ilUtil::sendInfo($this->lng->txt("studycond_condition_updated"), true);
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt("studycond_condition_updated"), true);
             $this->ctrl->redirect($this, 'listConditions');
         } else {
             $this->form_gui->setValuesByPost();
@@ -313,7 +313,7 @@ class ilStudyCondGUI
         if (!empty($cond = $this->dic->fau()->cond()->repo()->getCosCondition($_GET["cond_id"]))) {
             if ($cond->getIliasObjId() == $this->parent_obj_id) {
                 $this->dic->fau()->cond()->repo()->delete($cond);
-                ilUtil::sendInfo($this->lng->txt("studycond_condition_deleted"), true);
+                $this->tpl->setOnScreenMessage('info', $this->lng->txt("studycond_condition_deleted"), true);
             }
         }
         $this->ctrl->redirect($this, 'listConditions');
@@ -327,7 +327,7 @@ class ilStudyCondGUI
         if (!empty($cond = $this->dic->fau()->cond()->repo()->getDocCondition($_GET["cond_id"]))) {
             if ($cond->getIliasObjId() == $this->parent_obj_id) {
                 $this->dic->fau()->cond()->repo()->delete($cond);
-                ilUtil::sendInfo($this->lng->txt("studycond_condition_deleted"), true);
+                $this->tpl->setOnScreenMessage('info', $this->lng->txt("studycond_condition_deleted"), true);
             }
         }
         $this->ctrl->redirect($this, 'listConditions');

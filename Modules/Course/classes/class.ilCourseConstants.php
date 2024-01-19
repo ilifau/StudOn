@@ -17,6 +17,7 @@ declare(strict_types=0);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+use FAU\ILIAS\Helper\CourseConstantsHelper;
 
 class ilCourseConstants
 {

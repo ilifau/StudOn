@@ -545,10 +545,10 @@ class Service extends SubService
                     if (!empty($ref_id)) {
                         $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
                     }
-                    ilUtil::sendFailure($this->lng->txt('campo_course_not_created'), true);
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('campo_course_not_created'), true);
                 }
                 else {
-                    ilUtil::sendFailure($this->lng->txt('campo_course_not_found'), true);
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('campo_course_not_found'), true);
                 }
             }
         }
