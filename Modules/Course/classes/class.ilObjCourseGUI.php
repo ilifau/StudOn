@@ -2534,6 +2534,7 @@ else{
                     && $cmd != 'deliverCertificate'
                     && $cmd != 'performUnsubscribe'
                     && $cmd != 'removeFromDesk'
+                    && $cmd !== 'leave'
                     && !$this->access->checkAccess("read", '', $this->object->getRefId())
                     || $cmd == 'join'
                     || $cmd == 'subscribe') {
