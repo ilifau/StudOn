@@ -65,7 +65,7 @@ class fauCourseTransferGUI extends BaseGUI
      */
     protected function selectTargetCourse()
     {
-        ilUtil::sendInfo($this->lng->txt('fau_transfer_course_message'));
+        $this->tpl->setOnScreenMessage('info', $this->lng->txt('fau_transfer_course_message'));
 
         $toolbar_gui = new ilToolbarGUI();
         $toolbar_gui->addFormButton($this->lng->txt('fau_transfer_next'),'showTransferOptions');
@@ -212,7 +212,7 @@ class fauCourseTransferGUI extends BaseGUI
             }
             if ($assign_failed) {
                 $form->setValuesByPost();
-                ilUtil::sendFailure($this->lng->txt('fau_transfer_groups_multiple_selected'));
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_groups_multiple_selected'));
                 $this->tpl->setContent($form->getHTML());
                 return;
             }
@@ -222,7 +222,7 @@ class fauCourseTransferGUI extends BaseGUI
         $target = new ilObjCourse($ref_id, true);
         $this->transfer->moveCampoConnection($this->object, $target, $update_title, $move_members, $delete_source, $assign_groups, $update_group_titles);
 
-        ilUtil::sendSuccess($this->lng->txt('fau_transfer_success'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('fau_transfer_success'), true);
         $this->ctrl->redirectToURL(ilLink::_getLink($ref_id));
     }
 
@@ -236,23 +236,23 @@ class fauCourseTransferGUI extends BaseGUI
         $import_id = ImportId::fromString(ilObject::_lookupImportId($obj_id));
 
         if ($ref_id == $this->object->getRefId()) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_same_object'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_same_object'), true);
             $this->returnToParent();
         }
         if (ilObject::_lookupType($ref_id, true) != 'crs') {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_course'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_course'), true);
             $this->returnToParent();
         }
         if (!$this->access->checkAccess('write','', $ref_id, 'crs')) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_write'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_write'), true);
             $this->returnToParent();
         }
         if (!$this->access->checkAccess('manage_members','', $ref_id, 'crs')) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_manage_members'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_manage_members'), true);
             $this->returnToParent();
         }
         if ($import_id->isForCampo()) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_already_connected'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_already_connected'), true);
             $this->returnToParent();
         }
     }
@@ -263,7 +263,7 @@ class fauCourseTransferGUI extends BaseGUI
      */
     protected function showSplitOptions()
     {
-        ilUtil::sendInfo($this->lng->txt('fau_split_course_message'));
+        $this->tpl->setOnScreenMessage('info', $this->lng->txt('fau_split_course_message'));
         $form = $this->initSplitOptionsForm();
         $this->tpl->setContent($form->getHTML());
     }
@@ -310,7 +310,7 @@ class fauCourseTransferGUI extends BaseGUI
 
         $this->transfer->splitCampoCourse($this->object, $delete_source);
 
-        ilUtil::sendSuccess($this->lng->txt('fau_split_success'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('fau_split_success'), true);
         $this->ctrl->redirectToURL(ilLink::_getLink($cat_ref_id));
     }
 
@@ -319,7 +319,7 @@ class fauCourseTransferGUI extends BaseGUI
      */
     protected function showSolveOptions()
     {
-        ilUtil::sendInfo($this->lng->txt('fau_solve_conflict_message'));
+        $this->tpl->setOnScreenMessage('info', $this->lng->txt('fau_solve_conflict_message'));
         $form = $this->initSolveForm();
         $this->tpl->setContent($form->getHTML());
     }
@@ -380,15 +380,15 @@ class fauCourseTransferGUI extends BaseGUI
 
 
         if (ilObject::_lookupType($ref_id, true) != 'crs') {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_course'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_course'), true);
             $this->returnToParent();
         }
         if (!$this->access->checkAccess('write','', $ref_id, 'crs')) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_write'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_write'), true);
             $this->returnToParent();
         }
         if (!$this->access->checkAccess('manage_members','', $ref_id, 'crs')) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_manage_members'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_manage_members'), true);
             $this->returnToParent();
         }
 
@@ -396,7 +396,7 @@ class fauCourseTransferGUI extends BaseGUI
         $import_id = ImportId::fromString($target->getImportId());
 
         $this->dic->fau()->ilias()->transfer()->solveCourseConflicts($import_id, $target);
-        ilUtil::sendSuccess($this->lng->txt('fau_solve_success'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('fau_solve_success'), true);
         $this->ctrl->redirectToURL(ilLink::_getLink($ref_id));
     }
 }

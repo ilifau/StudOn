@@ -116,10 +116,10 @@ class Service extends SubService
                 if (!empty($ref_id = $unit->getIliasRefId())) {
                     $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
                 }
-                ilUtil::sendFailure(sprintf($this->lng->txt('campo_orgunit_not_connected'), $unit->getLongtext() . '(' . $unit->getFauorgNr() . ')'), true);
+                $this->tpl->setOnScreenMessage('failure', sprintf($this->lng->txt('campo_orgunit_not_connected'), $unit->getLongtext() . '(' . $unit->getFauorgNr() . ')'), true);
             }
             else {
-                ilUtil::sendFailure(sprintf($this->lng->txt('campo_orgunit_not_found'), $number), true);
+                $this->tpl->setOnScreenMessage('failure', sprintf($this->lng->txt('campo_orgunit_not_found'), $number), true);
             }
 
         }

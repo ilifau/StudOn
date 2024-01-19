@@ -955,7 +955,7 @@ class ilObjCourseGUI extends ilContainerGUI
         if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair()) {
             require_once('Modules/Course/classes/class.ilCourseWaitingList.php');
             if (!ilCourseWaitingList::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
-                ilUtil::sendFailure($this->lng->txt('sub_fair_not_changeable'));
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('sub_fair_not_changeable'));
                 $this->editObject();
                 return;
             } else {
@@ -965,7 +965,7 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         if (!empty($fair_message)) {
-            ilUtil::sendInfo($fair_message, true);
+            $this->tpl->setOnScreenMessage('info', $fair_message, true);
         }
     }
     // fau.

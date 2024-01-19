@@ -2,8 +2,10 @@
 
 namespace FAU\Ilias\Helper;
 use ilCust;
+use ilConfirmationGUI;
+
 /**
- * trait for providing additional ilObjCourse methods
+ * trait for providing additional ilObjCourseGUI methods
  */
 trait ObjCourseGUIHelper 
 {
@@ -11,12 +13,12 @@ trait ObjCourseGUIHelper
     public function activateSubFairObject()
     {
         if (!ilCust::deactivateFairTimeIsAllowed()) {
-            ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
         } else {
             $this->object->setSubscriptionFair($this->object->getSubscriptionStart() + $this->object->getSubscriptionMinFairSeconds());
             $this->object->setSubscriptionAutoFill(true);
             $this->object->update();
-            ilUtil::sendSuccess($this->lng->txt('sub_fair_activated'), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('sub_fair_activated'), true);
         }
         $this->ctrl->redirect($this, 'edit');
     }
@@ -24,14 +26,14 @@ trait ObjCourseGUIHelper
     public function deactivateSubFairObject()
     {
         if (!ilCust::deactivateFairTimeIsAllowed()) {
-            ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
         } elseif ($this->object->inSubscriptionFairTime()) {
-            ilUtil::sendFailure($this->lng->txt('sub_fair_deactivate_in_phase'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('sub_fair_deactivate_in_phase'), true);
         } else {
             $this->object->setSubscriptionFair(-1);
             $this->object->setSubscriptionAutoFill(false);
             $this->object->update();
-            ilUtil::sendSuccess($this->lng->txt('sub_fair_deactivated'), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('sub_fair_deactivated'), true);
         }
         $this->ctrl->redirect($this, 'edit');
     }
@@ -39,9 +41,9 @@ trait ObjCourseGUIHelper
     public function confirmDeactivateSubFairObject()
     {
         if (!ilCust::deactivateFairTimeIsAllowed()) {
-            ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
         } elseif ($this->object->inSubscriptionFairTime()) {
-            ilUtil::sendFailure($this->lng->txt('sub_fair_deactivate_in_phase'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('sub_fair_deactivate_in_phase'), true);
             $this->ctrl->redirect($this, 'edit');
         }
 
