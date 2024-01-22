@@ -137,3 +137,4 @@ $p->login();
 //$p->applyPatch('ilPermissionPatches7.initPluginsCopyPermissions');
 //$p->applyPatch('ilPermissionPatches7.initCourseRefLearningProgress');
 //$p->applyPatch('ilPermissionPatches7.initInteractiveVideoLearningProgress');
+//$p->applyPatch('ilPermissionPatches7.initLongEssayAssessmentFromLongEssayTask');

@@ -79,4 +79,38 @@ class ilPermissionPatches7
             ['write', 'edit_learning_progress']
         ]);
     }
+
+    /**
+     * 2024-01-22 (not yet executed)
+     * Permissons for the LongEssayTask plugin were set in specific courses (law faculty)
+     * Now the LongEssayAssessment should be used there instead
+     * Creation of LongEssayTask is deactivated in the repository settings
+     * 
+     * Todo: when LongEssayAssessment is officially supported anywhere in studon
+     * copy permissions from tst, set the 'maintain' permissions like the write permissions
+     */
+    public function initLongEssayAssessmentFromLongEssayTask() 
+    {
+        $pu = new ilPermissionUtils(true);
+
+        $pu->copyDefaultPermission('xlet','visible',			    'xlas','visible');
+        $pu->copyDefaultPermission('xlet','read',				    'xlas','read');
+        $pu->copyDefaultPermission('xlet','copy',				    'xlas','copy');
+        $pu->copyDefaultPermission('xlet','write',				'xlas','write');
+        $pu->copyDefaultPermission('xlet','delete',				'xlas','delete');
+        $pu->copyDefaultPermission('xlet','maintain_task',		'xlas','maintain_task');
+        $pu->copyDefaultPermission('xlet','maintain_writers',		'xlas','maintain_writers');
+        $pu->copyDefaultPermission('xlet','maintain_correctors',	'xlas','maintain_correctors');
+        $pu->copyDefaultPermission('xlet','edit_permission',		'xlas','edit_permission');
+
+        $pu->copyDefaultPermissions(
+            array('cat','crs','grp','fold'), array(
+            array('create_xlet', 'create_xlas'),
+        ));
+
+        $pu->copyPermissions(
+            array('cat','crs','grp','fold'), array(
+            array('create_xlet', 'create_xlas'),
+        ));
+    }
 }
