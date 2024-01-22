@@ -278,8 +278,16 @@ class Service extends SubService
     public function getStudiesAsText(int $user_id) : string
     {
         return $this->getStudiesText($this->repo()->getPersonOfUser($user_id));
-     }
+    }
 
+    /**
+     * Get ID of the selected module for a user and an object
+     */
+    public function getSelectedModuleId(int $obj_id, int $user_id) : ?int
+    {
+        $memberObj = $this->repo()->getMember($obj_id, $user_id, Member::model());
+        return $memberObj->getModuleId();
+    }
 
     /**
      * Find the Id of a studOn user by the IDM id

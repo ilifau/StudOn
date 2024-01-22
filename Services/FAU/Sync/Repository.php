@@ -111,22 +111,7 @@ class Repository extends RecordRepo
         return $this->getIntegerList($query, $key);
     }
 
-
-
-    /**
-     * Get the ids of existing ilias objects for an event in a term
-     * @return int[]
-     */
-    public function getObjectIdsForEventInTerm(int $event_id, Term $term, $useCache = true) : array
-    {
-        $query = "SELECT c.ilias_obj_id FROM fau_study_courses c"
-            . " JOIN object_reference r ON r.obj_id = c.ilias_obj_id AND r.deleted IS NULL"
-            . " WHERE c.event_id = " . $this->db->quote($event_id, 'integer')
-            . " AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
-            . " AND c. term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
-        return $this->getIntegerList($query, 'ilias_obj_id', $useCache = true);
-    }
-
+    
     /**
      * Get the ids of RBAC operations
      * @param string[] $names
@@ -312,61 +297,5 @@ class Repository extends RecordRepo
             AND c.term_type_id = ". $this->db->quote($term->getTypeId(), 'integer');
 
         return $this->queryRecords($query, StudOnCourse::model(), false, true);
-    }
-
-    /**
-     * Get the timestamps of the maximum individual dates of all courses indexed by course ids
-     * @return int[] 
-     */
-    public function getCoursesMaxDatesAsTimestamps() : array
-    {
-        $query = "
-            SELECT p.course_id, MAX(UNIX_TIMESTAMP(p.enddate)) max_planned_date, MAX(UNIX_TIMESTAMP(i.`date`)) max_individual_date
-            FROM fau_study_plan_dates p 
-            LEFT JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id 
-            GROUP BY p.course_id 
-        ";
-        $times = [];
-        $result = $this->db->query($query);
-        while ($row = $this->db->fetchAssoc($result)) {
-            $max_planned = $row['max_planned_date'] ?? 0;
-            $max_individual = $row['max_individual_date'] ?? 0;
-            
-            if ($max_planned == 0 && $max_individual == 0) {
-                continue;
-            }
-            else {
-                $times[$row['course_id']] = max($max_planned, $max_individual);
-            }
-        }
-        return $times;
-    }
-
-    /**
-     * Get the timestamps of the maximum individual date of a course
-     * @param int $course_id
-     * @return int|null
-     */
-    public function getCourseMaxDateAsTimestamp(int $course_id) : ?int
-    {
-        $query = "
-            SELECT MAX(UNIX_TIMESTAMP(p.enddate)) max_planned_date, MAX(UNIX_TIMESTAMP(i.`date`)) max_individual_date
-            FROM fau_study_plan_dates p 
-            LEFT JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id    
-            WHERE p.course_id =" . $this->db->quote($course_id, 'int') . "       
-        ";
-        $result = $this->db->query($query);
-        if ($row = $this->db->fetchAssoc($result)) {
-            $max_planned = $row['max_planned_date'] ?? 0;
-            $max_individual = $row['max_individual_date'] ?? 0;
-
-            if ($max_planned == 0 && $max_individual == 0) {
-                return null;
-            }
-            else {
-               return max($max_planned, $max_individual);
-            }
-        }
-        return null;
     }
 }
