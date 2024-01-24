@@ -1149,7 +1149,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
         // fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
         $query = "INSERT INTO crs_settings (obj_id,syllabus,contact_name,contact_responsibility," .
             "contact_phone,contact_email,contact_consultation," .
-            "sub_limitation_type,sub_start,sub_end,,sub_fair,sub_auto_fill,sub_last_fill,sub_type,sub_password,sub_mem_limit," .
+            "sub_limitation_type,sub_start,sub_end,sub_fair,sub_auto_fill,sub_last_fill,sub_type,sub_password,sub_mem_limit," .
             "sub_max_members,sub_notify,view_mode,timing_mode,abo," .
             "latitude,longitude,location_zoom,enable_course_map,waiting_list,show_members,show_members_export, " .
             "session_limit,session_prev,session_next, reg_ac_enabled, reg_ac, auto_notification, status_dt,mail_members_type) " .
