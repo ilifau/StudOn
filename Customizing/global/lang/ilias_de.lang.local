@@ -357,7 +357,7 @@ crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
 crs#:#crs_error_preconditions#:#Sie konnten nicht aufgenommen werden!
 crs#:#crs_event_registration_not_possible#:#Die Anmeldung zum Termin '%s' ist nicht möglich!
 crs#:#crs_event_subscription_after_confirmation#:#Sie können sich zu den Terminen erst nach der Annahme Ihres Aufnahmeantrags anmelden.
-crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub - changed link text
+crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub#1 - changed link text
 crs#:#crs_mail_subscribe_to_events#:#Für diesen Kurs ist die Anmeldung zu Terminen (Sitzungen) vorgesehen. Bitte gehen Sie zum Kursinhalt, um sich zu den Terminen anzumelden!
 crs#:#crs_max_members_mode#:#Verfahren:
 crs#:#crs_mem_set_passed#:#Bestanden setzen
