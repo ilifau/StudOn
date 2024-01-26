@@ -71,12 +71,10 @@ class ilCourseAppEventListener
             $new_status
         );
 
-        // fau: fairSub - trigger autofill also, if member leaves course or if member is removed in membership admin
-        if ($a_event == 'deassignUser' || $a_event == 'deleteParticipant') {
+        if ($a_event == 'deassignUser') {
             $self = new self();
             $self->doAutoFill($a_parameters['obj_id']);
         }
-        // fau.
     }
 
     /**
@@ -126,13 +124,11 @@ class ilCourseAppEventListener
 
     public static function handleEvent(string $a_component, string $a_event, array $a_parameter): void
     {
-        // fau: fairSub - listen to course events to recognize deleteParticipant for an autofill
-        if ($a_component == 'Services/AccessControl' || $a_component == 'Modules/Course') {
+        if ($a_component == 'Services/AccessControl') {
             $listener = new self();
             $listener->handleUserAssignments($a_event, $a_parameter);
         }
-        // fau.
-        
+
         switch ($a_component) {
             case 'Modules/Course':
                 if ($a_event == 'addParticipant') {
@@ -147,13 +143,20 @@ class ilCourseAppEventListener
         }
 
         if ($a_component == "Services/Tracking" && $a_event == "updateStatus") {
-            // see ilObjCourseGUI::updateLPFromStatus()php 
-            $status = $a_parameter["status"];
+            // see ilObjCourseGUI::updateLPFromStatus()
+            if (self::$blocked_for_lp) {
+                return;
+            }
+
+            // #13905
+            if (!ilObjUserTracking::_enabledLearningProgress()) {
+                return;
+            }
 
             $obj_id = $a_parameter["obj_id"];
             $user_id = $a_parameter["usr_id"];
             $status = $a_parameter["status"];
-            
+
             if ($obj_id && $user_id) {
                 if (ilObject::_lookupType($obj_id) != "crs") {
                     return;
