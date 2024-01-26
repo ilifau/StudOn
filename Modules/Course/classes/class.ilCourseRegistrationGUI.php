@@ -85,7 +85,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $now = new ilDateTime(time(), IL_CAL_UNIX, 'UTC');
 
         if ($this->container->getSubscriptionUnlimitedStatus()) {
-            // fau: fairSub	- add info about fair time for unlimited subscription
+            // fau: fairSub#32	- add info about fair time for unlimited subscription
             if ($this->container->inSubscriptionFairTime()) {
                 $suffix = " | " . $this->lng->txt('sub_fair_date') . ': ' . $this->container->getSubscriptionFairDisplay(false);
             }
@@ -126,7 +126,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             $tpl->setVariable('FIRST', ilDatePresentation::formatDate($end));
         }
 
-        // fau: fairSub	- add info about fair time for limited subscription
+        // fau: fairSub#33	- add info about fair time for limited subscription
         // fau: paraSub	- treat course with parallel groups like limitated
         if (($this->container->isSubscriptionMembershipLimited() && $this->container->getSubscriptionMaxMembers()) || $this->container->hasParallelGroups()) {
             if ($this->container->getSubscriptionFair() >= 0) {
@@ -176,13 +176,13 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 $tpl->setVariable('WARN_FREE', $free);
             }
 
-            // fau: fairSub - get already instantiated waiting list and use own check function
+            // fau: fairSub#34 - get already instantiated waiting list and use own check function
             $waiting_list = $this->getWaitingList();
             if ($this->isWaitingListActive()) {
                 // fau.
                 if ($waiting_list->isOnList($this->user->getId())) {
                     $tpl->setVariable('TXT_WAIT', $this->lng->txt('mem_waiting_list_position'));
-                    // fau: fairSub - show effective position and other sharing users
+                    // fau: fairSub#35 - show effective position and other sharing users
                     $tpl->setVariable('NUM_WAIT', $waiting_list->getPositionInfo($ilUser->getId()));
                 // fau.
                 } else {
@@ -194,7 +194,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                     }
                 }
             }
-            // fau: fairSub - add message and adjust label for fair subscription
+            // fau: fairSub#36 - add message and adjust label for fair subscription
             if ($this->container->getSubscriptionFair() < 0) {
                 ilUtil::sendInfo($this->lng->txt('sub_fair_inactive_message'));
             }
@@ -211,7 +211,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             } elseif (
                 $this->container->enabledWaitingList() && $this->container->isSubscriptionMembershipLimited() && $waiting_list->isOnList($this->user->getId())
             ) {
-                // fau: fairSub - allow to change a registration
+                // fau: fairSub#37 - allow to change a registration
                 $this->enableRegistration(true);
             }
             // fau.
@@ -220,7 +220,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 $this->tpl->setOnScreenMessage('failure', $this->lng->txt('crs_warn_no_max_set_on_waiting_list'));
             #$alert = $this->lng->txt('crs_warn_no_max_set_on_waiting_list');
             }
-            // fau: fairSub - add to waiting list if free places are needed for already waiting users (see also add() function)
+            // fau: fairSub#38 - add to waiting list if free places are needed for already waiting users (see also add() function)
             elseif (
                 $free and
                 $this->container->enabledWaitingList() and
@@ -260,7 +260,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         switch ($this->container->getSubscriptionType()) {
             case ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT:
 
-// fau: fairSub - allow "request" info if waiting list is active
+// fau: fairSub#39 - allow "request" info if waiting list is active
 // fau.
 
                 $txt = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
@@ -286,7 +286,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
             case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
 
-// fau: fairSub - allow "request" info if waiting list is active
+// fau: fairSub#40 - allow "request" info if waiting list is active
 // fau.
 
                 $txt = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
@@ -295,10 +295,10 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 $sub = new ilTextAreaInputGUI($this->lng->txt('crs_reg_subject'), 'subject');
                 $sub->setInfo($this->lng->txt('crs_info_reg_confirmation'));
                 $sub->setCols(40);
-                // fau: fairSub - extend size of subject field
+                // fau: fairSub#41 - extend size of subject field
                 $sub->setRows(10);
                 // fau.
-            // fau: fairSub - treat existing subscription on waiting list
+            // fau: fairSub#42 - treat existing subscription on waiting list
             if ($this->getWaitingList()->isOnList($this->user->getId())) {
                 $sub->setValue($this->getWaitingList()->getSubject($this->user->getId()));
                 if ($this->getWaitingList()->isToConfirm($this->user->getId())) {
@@ -319,7 +319,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
     protected function addCommandButtons(): void
     {
-        // fau: fairSub - use parent addCommandButtons()
+        // fau: fairSub#43 - use parent addCommandButtons()
         parent::addCommandButtons();
         // fau.
     }
@@ -365,7 +365,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     }
 
     // fau: heavySub - avoid failures on heavy concurrency
-    // fau: fairSub - add subscription requests and requests in fair time to waiting list
+    // fau: fairSub#44 - add subscription requests and requests in fair time to waiting list
     // fau: studyCond - use condition based subscription type
     // fau: paraSub - handle subscription to parallel groups and use for updating requests
     /**

@@ -44,7 +44,7 @@ use FAU\Ilias\Helper\ObjCourseGUIHelper;
  */
 class ilObjCourseGUI extends ilContainerGUI
 {
-    // fau: fairSub
+    // fau: fairSub#19 - use helper class for ObjCourseGUI
     use ObjCourseGUIHelper;
     // fau.
 
@@ -385,7 +385,7 @@ class ilObjCourseGUI extends ilContainerGUI
                     ilDatePresentation::formatDate(new ilDateTime($this->object->getSubscriptionStart(), IL_CAL_UNIX))
                 );
             }
-            // fau: fairSub - show fair period on info screen
+            // fau: fairSub#20 - show fair period on info screen
             if ($this->object->isSubscriptionMembershipLimited()
                 && $this->object->getSubscriptionMaxMembers()
                 && $this->object->getSubscriptionType() != IL_CRS_SUBSCRIPTION_OBJECT) {
@@ -820,7 +820,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->setCancellationEnd($form->getItemByPostVar("cancel_end")->getDate());
 
         // waiting list
-        // fau: fairSub - remember old settings
+        // fau: fairSub#21 - remember old settings
         $old_max_members = $this->object->getSubscriptionMaxMembers();
         $old_subscription_fair = $this->object->getSubscriptionFair();
         // fau.        
@@ -829,7 +829,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->setSubscriptionMinMembers((int) $form->getInput('subscription_min'));
         $old_autofill = $this->object->hasWaitingListAutoFill();
 
-        // fau: fairSub - save the fair period and waiting list options
+        // fau: fairSub#22 - save the fair period and waiting list options
         // check a deactivation of the fair period done in db
         if ($old_subscription_fair >= 0) {
             /** @var ilDateTime $sub_fair */
@@ -917,7 +917,7 @@ class ilObjCourseGUI extends ilContainerGUI
             }
         }
 
-        // fau: fairSub - call object validation
+        // fau: fairSub#23- call object validation
         if ($this->object->validate()) {
             $this->tpl->setOnScreenMessage('failure', $this->object->getMessage());
             $this->editObject();
@@ -925,7 +925,7 @@ class ilObjCourseGUI extends ilContainerGUI
         }
         // fau.
 
-        // fau: fairSub - check and correct the fair time
+        // fau: fairSub#24 - check and correct the fair time
         // fau: paraSub - check also if the object has parallel groups
         if ($this->object->getSubscriptionFair() >= 0 && (
             $this->object->hasParallelGroups() ||
@@ -970,7 +970,7 @@ class ilObjCourseGUI extends ilContainerGUI
     }
     // fau.
 
-        // fau: fairSub - trigger autofill if max members are increased
+        // fau: fairSub#25 - trigger autofill if max members are increased
         if ((!$old_autofill || $old_max_members < (int) $this->object->getSubscriptionMaxMembers()) &&
             $this->object->hasWaitingListAutoFill()) {
             $this->object->handleAutoFill();
@@ -1247,32 +1247,9 @@ class ilObjCourseGUI extends ilContainerGUI
         $max->setInfo($this->lng->txt('crs_reg_max_info'));
 
         $lim->addSubItem($max);
-// fau: fairSub - add the fair settings to the form
-if(0){
-        $wait = new ilRadioGroupInputGUI($this->lng->txt('crs_waiting_list'), 'waiting_list');
-        $option = new ilRadioOption($this->lng->txt('none'), '0');
-        $wait->addOption($option);
 
-        $option = new ilRadioOption($this->lng->txt('crs_waiting_list_no_autofill'), '1');
-        $option->setInfo($this->lng->txt('crs_wait_info'));
-        $wait->addOption($option);
-
-        $option = new ilRadioOption($this->lng->txt('crs_waiting_list_autofill'), '2');
-        $option->setInfo($this->lng->txt('crs_waiting_list_autofill_info'));
-        $wait->addOption($option);
-
-        if ($this->object->hasWaitingListAutoFill()) {
-            $wait->setValue('2');
-        } elseif ($this->object->enabledWaitingList()) {
-            $wait->setValue('1');
-        } else {
-            $wait->setValue('0');
-        }
-        $lim->addSubItem($wait);
-}
-else{
-       // $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addFairSubSettingsToForm($lim, $this->object);
-        // fau: fairSub - add fair date and arrange and explain options for waiting list
+        // $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addFairSubSettingsToForm($lim, $this->object);
+        // fau: fairSub#26 - add fair date and arrange and explain options for waiting list
         if ($this->object->getSubscriptionFair() < 0) {
             $fair_date = new ilNonEditableValueGUI($this->lng->txt('sub_fair_date'));
             $fair_date_info = $this->lng->txt('sub_fair_inactive_message');
@@ -1318,8 +1295,7 @@ else{
 
         $lim->addSubItem($wait);
         // fau.       
-}
-// fau. 
+
         $form->addItem($lim);
 
         $pres = new ilFormSectionHeaderGUI();

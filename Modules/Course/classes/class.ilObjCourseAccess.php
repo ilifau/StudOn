@@ -169,7 +169,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                     return false;
                 }
 
-                // fau: fairSub - add waiting list check for join permission
+                // fau: fairSub#28 - add waiting list check for join permission
                 if (ilCourseWaitingList::_isOnList($a_user_id, $a_obj_id)) {
                     return false;
                 }
@@ -196,7 +196,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
         $commands[] = array("permission" => "join", "cmd" => "join", "lang_var" => "join");
 
-        // fau: fairSub - general command for editing requests
+        // fau: fairSub#29 - general command for editing requests
         // on waiting list
         $commands[] = array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
         // fau.
@@ -334,7 +334,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
         $ilUser = $DIC->user();
         $lng = $DIC->language();
 
-        // fau: fairSub - query for fair period
+        // fau: fairSub#30 - query for fair period
         $query = 'SELECT sub_limitation_type, sub_start, sub_end, sub_mem_limit, sub_max_members, sub_fair FROM crs_settings ' .
             'WHERE obj_id = ' . $ilDB->quote($a_obj_id);
         $res = $ilDB->query($query);
@@ -354,7 +354,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
         // Limited registration
         if ($info['reg_info_type'] == ilCourseConstants::SUBSCRIPTION_LIMITED) {
-            // fau: fairSub - add info about fair period
+            // fau: fairSub#31 - add info about fair period
             $fair_suffix = '';
             if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0) {
                 if ($info['reg_info_sub_fair'] < 0) {

@@ -9,7 +9,7 @@ use ilConfirmationGUI;
  */
 trait ObjCourseGUIHelper 
 {
-    // fau: fairSub - activation and deactivation of the fair period
+    // fau: fairSub#27 - activation and deactivation of the fair period
     public function activateSubFairObject()
     {
         if (!ilCust::deactivateFairTimeIsAllowed()) {
