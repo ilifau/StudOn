@@ -95,6 +95,7 @@ abstract class ilWaitingList
         return $this->obj_id;
     }
 
+    
     public function addToList(int $a_usr_id): bool
     {
         if ($this->isOnList($a_usr_id)) {

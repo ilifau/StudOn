@@ -1816,60 +1816,12 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
     /**
      * Handle course auto fill
      */
-    public function handleAutoFill(): void
+    public function handleAutoFill()
     {
-    // fau: fairSub - use extended function for auto fill
-    if (0){    
-    // fau.
-        if (
-            !$this->enabledWaitingList() || !$this->hasWaitingListAutoFill()
-        ) {
-            $this->course_logger->debug('Waiting list or auto fill disabled.');
-            return;
-        }
-
-        $max = $this->getSubscriptionMaxMembers();
-        $now = ilCourseParticipants::lookupNumberOfMembers($this->getRefId());
-
-        $this->course_logger->debug('Max members: ' . $max);
-        $this->course_logger->debug('Current members: ' . $now);
-
-        if ($max <= $now) {
-            return;
-        }
-
-        // see assignFromWaitingListObject()
-        $waiting_list = new ilCourseWaitingList($this->getId());
-
-        foreach ($waiting_list->getUserIds() as $user_id) {
-            if (!$tmp_obj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
-                $this->course_logger->warning('Cannot create user instance for id: ' . $user_id);
-                continue;
-            }
-            if ($this->getMembersObject()->isAssigned($user_id)) {
-                $this->course_logger->warning('User is already assigned to course. uid: ' . $user_id . ' course_id: ' . $this->getRefId());
-                continue;
-            }
-            $this->getMembersObject()->add($user_id, ilParticipants::IL_CRS_MEMBER);
-            $this->getMembersObject()->sendNotification(ilCourseMembershipMailNotification::TYPE_ADMISSION_MEMBER, $user_id, true);
-            $waiting_list->removeFromList($user_id);
-            $this->checkLPStatusSync($user_id);
-
-            $this->course_logger->info('Assigned user from waiting list to course: ' . $this->getTitle());
-            $now++;
-            if ($now >= $max) {
-                break;
-            }
-        }
-    // fau: fairSub - use extended function for auto fill    
-    }
-    //fau.
-    // fau: fairSub - use extended function for auto fill 
-    else{
+        // fau: fairSub - use extended function for auto fill
         global $DIC;
         $DIC->fau()->ilias()->getRegistration($this)->doAutoFill();
-    } 
-    // fau.
+        // fau.
     }
 
     public static function mayLeave(int $a_course_id, int $a_user_id = 0, &$a_date = null): bool

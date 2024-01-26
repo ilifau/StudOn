@@ -147,20 +147,13 @@ class ilCourseAppEventListener
         }
 
         if ($a_component == "Services/Tracking" && $a_event == "updateStatus") {
-            // see ilObjCourseGUI::updateLPFromStatus()
-            if (self::$blocked_for_lp) {
-                return;
-            }
-
-            // #13905
-            if (!ilObjUserTracking::_enabledLearningProgress()) {
-                return;
-            }
+            // see ilObjCourseGUI::updateLPFromStatus()php 
+            $status = $a_parameter["status"];
 
             $obj_id = $a_parameter["obj_id"];
             $user_id = $a_parameter["usr_id"];
             $status = $a_parameter["status"];
-
+            
             if ($obj_id && $user_id) {
                 if (ilObject::_lookupType($obj_id) != "crs") {
                     return;
