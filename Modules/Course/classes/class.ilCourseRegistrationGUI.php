@@ -17,6 +17,10 @@ declare(strict_types=0);
  *
  *********************************************************************/
 
+// fau: fairSub#61 - use helper class
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
+// fau. 
+
 /**
  * GUI class for course registrations
  * @author       Stefan Meyer <smeyer.ilias@gmx.de>
@@ -183,7 +187,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 if ($waiting_list->isOnList($this->user->getId())) {
                     $tpl->setVariable('TXT_WAIT', $this->lng->txt('mem_waiting_list_position'));
                     // fau: fairSub#35 - show effective position and other sharing users
-                    $tpl->setVariable('NUM_WAIT', $waiting_list->getPositionInfo($ilUser->getId()));
+                    $tpl->setVariable('NUM_WAIT', $waiting_list->getPositionInfo($this->user->getId()));
                 // fau.
                 } else {
                     $tpl->setVariable('TXT_WAIT', $this->lng->txt('mem_waiting_list'));
@@ -226,7 +230,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 $this->container->enabledWaitingList() and
                 $this->container->isSubscriptionMembershipLimited() and
                 ($this->getWaitingList()->getCountUsers() >= $free)) {
-                    $this->tpl->setOnScreenMessage('info', $this->lng->txt('crs_warn_wl_set_on_waiting_list'));
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('crs_warn_wl_set_on_waiting_list'));
             #$alert = $this->lng->txt('crs_warn_wl_set_on_waiting_list');
         }
         // fau.
@@ -382,7 +386,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $this->setAccepted(true);
 
         // perform the registration (result determines the next action)
-        $this->registration->doRegistration(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
+        $this->registration->doRegistration(ilUtil::stripSlashes((string) $_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
 
         // get the link to the upper container
         $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id",

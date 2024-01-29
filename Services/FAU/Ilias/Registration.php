@@ -13,7 +13,7 @@ use ilObjCourseGrouping;
 use ilObjectFactory;
 use ilObject;
 use ilForumNotification;
-use FAU\Ilias\Helper\WaitingListHelper;
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 
 /**
  * Base class handling course or group registrations
@@ -627,7 +627,7 @@ abstract class Registration extends AbstractRegistration
      */
     protected function getNewToConfirm() : int
     {
-        return ($this->subType == self::subConfirmation) ? ilWaitingList::REQUEST_TO_CONFIRM : ilWaitingList::REQUEST_NOT_TO_CONFIRM;
+        return ($this->subType == self::subConfirmation) ? WaitingListConstantsHelper::REQUEST_TO_CONFIRM : WaitingListConstantsHelper::REQUEST_NOT_TO_CONFIRM;
     }
 
     /**
