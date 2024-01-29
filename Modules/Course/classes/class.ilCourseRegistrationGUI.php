@@ -196,11 +196,11 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             }
             // fau: fairSub#36 - add message and adjust label for fair subscription
             if ($this->container->getSubscriptionFair() < 0) {
-                ilUtil::sendInfo($this->lng->txt('sub_fair_inactive_message'));
+                $this->tpl->setOnScreenMessage('info', $this->lng->txt('sub_fair_inactive_message'));
             }
 
             if ($this->container->inSubscriptionFairTime()) {
-                ilUtil::sendInfo(sprintf($this->lng->txt('sub_fair_subscribe_message'), $this->container->getSubscriptionFairDisplay(true)));
+                $this->tpl->setOnScreenMessage('info', sprintf($this->lng->txt('sub_fair_subscribe_message'), $this->container->getSubscriptionFairDisplay(true)));
             } elseif (
             // fau.
                 !$free && !$this->container->enabledWaitingList()) {
@@ -226,7 +226,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 $this->container->enabledWaitingList() and
                 $this->container->isSubscriptionMembershipLimited() and
                 ($this->getWaitingList()->getCountUsers() >= $free)) {
-            ilUtil::sendFailure($this->lng->txt('crs_warn_wl_set_on_waiting_list'));
+                    $this->tpl->setOnScreenMessage('info', $this->lng->txt('crs_warn_wl_set_on_waiting_list'));
             #$alert = $this->lng->txt('crs_warn_wl_set_on_waiting_list');
         }
         // fau.
@@ -392,7 +392,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         switch ($this->registration->getRegistrationAction()) {
             case Registration::notifyAdded:
                 if (!$_SESSION["pending_goto"]) {
-                    ilUtil::sendSuccess($this->lng->txt("crs_subscription_successful"), true);
+                    $this->tpl->setOnScreenMessage('success', $this->lng->txt("crs_subscription_successful"), true);
                     $this->ctrl->returnToParent($this);
                 } else {
                     $tgt = $_SESSION["pending_goto"];
@@ -403,32 +403,32 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
             case Registration::notifyAddedToWaitingList:
                 $info = sprintf($this->lng->txt('sub_added_to_waiting_list'), $this->getWaitingList()->getPositionInfo($DIC->user()->getId()));
-                ilUtil::sendSuccess($info, true);
+                $this->tpl->setOnScreenMessage('success', $info, true);
                 $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showAddedToWaitingListFair:
-                ilUtil::sendSuccess($this->lng->txt("sub_fair_added_to_waiting_list"), true);
+                $this->tpl->setOnScreenMessage('success', $this->lng->txt("sub_fair_added_to_waiting_list"), true);
                 $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showUpdatedWaitingList:
-                ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
+                $this->tpl->setOnScreenMessage('success', $this->lng->txt('sub_request_saved'), true);
                 $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showLimitReached:
-                ilUtil::sendSuccess($this->lng->txt("crs_reg_limit_reached"), true);
+                $this->tpl->setOnScreenMessage('success', $this->lng->txt("crs_reg_limit_reached"), true);
                 $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showAlreadyMember:
-                ilUtil::sendInfo($this->lng->txt("crs_reg_user_already_assigned"), true);
+                $this->tpl->setOnScreenMessage('info', $this->lng->txt("crs_reg_user_already_assigned"), true);
                 $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showGenericFailure:
-                ilUtil::sendFailure($this->lng->txt("crs_reg_user_generic_failure"), true);
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("crs_reg_user_generic_failure"), true);
                 $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
         }

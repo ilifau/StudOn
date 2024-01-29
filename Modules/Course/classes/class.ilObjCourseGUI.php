@@ -19,7 +19,11 @@ declare(strict_types=0);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+// fau: fairSub#52 - use helper namespaces
 use FAU\Ilias\Helper\ObjCourseGUIHelper;
+use FAU\Ilias\Helper\CourseConstantsHelper;
+use FAU\Ilias\Helper\WaitingListHelper;
+//fau.
 
 /**
  * Class ilObjCourseGUI
@@ -46,6 +50,7 @@ class ilObjCourseGUI extends ilContainerGUI
 {
     // fau: fairSub#19 - use helper class for ObjCourseGUI
     use ObjCourseGUIHelper;
+    use WaitingListHelper;
     // fau.
 
     public const BREADCRUMB_DEFAULT = 0;
@@ -388,7 +393,7 @@ class ilObjCourseGUI extends ilContainerGUI
             // fau: fairSub#20 - show fair period on info screen
             if ($this->object->isSubscriptionMembershipLimited()
                 && $this->object->getSubscriptionMaxMembers()
-                && $this->object->getSubscriptionType() != IL_CRS_SUBSCRIPTION_OBJECT) {
+                && $this->object->getSubscriptionType() != CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
                 $info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
                     $this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));
             }
@@ -954,7 +959,7 @@ class ilObjCourseGUI extends ilContainerGUI
         // handle a change of the fair time
         if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair()) {
             require_once('Modules/Course/classes/class.ilCourseWaitingList.php');
-            if (!ilCourseWaitingList::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
+            if (!WaitingListHelper::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
                 $this->tpl->setOnScreenMessage('failure', $this->lng->txt('sub_fair_not_changeable'));
                 $this->editObject();
                 return;

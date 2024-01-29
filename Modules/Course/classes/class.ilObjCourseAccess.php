@@ -170,7 +170,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                 }
 
                 // fau: fairSub#28 - add waiting list check for join permission
-                if (ilCourseWaitingList::_isOnList($a_user_id, $a_obj_id)) {
+                if (ilCourseWaitingList::_isOnList($user_id, $obj_id)) {
                     return false;
                 }
                 // fau.                
