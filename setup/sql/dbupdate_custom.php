@@ -717,7 +717,7 @@
 <#42>
 <?php
     /**
-     * fau: lmLayout - change outdated layout win2toc to toc2win
+     * change outdated layout win2toc to toc2win
      */
     $ilDB->manipulate("UPDATE content_object SET default_layout='toc2win' WHERE default_layout='win2toc'");
     $ilDB->manipulate("UPDATE lm_data SET layout='toc2win' WHERE layout='win2toc'");
