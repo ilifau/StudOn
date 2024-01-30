@@ -87,7 +87,7 @@ trait WaitingListHelper
         $ilDB->manipulate($query);
     }    
 
-    // fau: fairSub - new function addWithChecks
+    // fau: fairSub#62 - new function addWithChecks
     /**
      * adds a user to the waiting list with check for membership
      *
@@ -138,7 +138,7 @@ trait WaitingListHelper
     }
     // fau.    
 
-    // fau: fairSub - new function recalculate()
+    // fau: fairSub#64 - new function recalculate()
     /**
      * Re-calculated additional data based on the raw data
      * This can ce called after manipulating the users array
@@ -233,7 +233,7 @@ trait WaitingListHelper
 
 
 
-    // fau: fairSub - new function updateSubject(), acceptOnList()
+    // fau: fairSub#66 - new function updateSubject(), acceptOnList()
     /**
      * update subject
      * @param int $a_usr_id
@@ -277,7 +277,7 @@ trait WaitingListHelper
 
     // fau.
 
-    // fau: fairSub - new static function _getStatus()
+    // fau: fairSub#67 - new static function _getStatus()
     /**
      * Get the status of a user
      * @return bool
@@ -308,7 +308,7 @@ trait WaitingListHelper
     }
     // fau.    
 
-    // fau: fairSub - new function getFirstBlockedPlaces()
+    // fau: fairSub#65 - new function getFirstBlockedPlaces()
     /**
      * Get the number of places that must be kept free before the first user can be added from the list
      * This is the number of pending confirmation with earlier or equal submision time than the first user without
@@ -327,7 +327,7 @@ trait WaitingListHelper
     // fau.
 
 
-    // fau: fairSub - new function getPositionUsers(), getEffectivePosition(), getPositionOthers()
+    // fau: fairSub#68 - new function getPositionUsers(), getEffectivePosition(), getPositionOthers()
 
     /**
      * Get all position numbers
@@ -388,7 +388,7 @@ trait WaitingListHelper
     }
     // fau.
 
-    // fau: fairSub - new functions getSubject(), isToConfirm(), getStatus()
+    // fau: fairSub#69 - new functions getSubject(), isToConfirm(), getStatus()
     /**
      * Get the message of the entry
      * @param int $a_usr_id
@@ -407,7 +407,7 @@ trait WaitingListHelper
      */
     public function isToConfirm($a_usr_id)
     {
-        return isset($this->users[$a_usr_id]) ? ($this->users[$a_usr_id]['to_confirm'] == self::REQUEST_TO_CONFIRM) : false;
+        return isset($this->users[$a_usr_id]) ? ($this->users[$a_usr_id]['to_confirm'] == WaitingListConstantsHelper::REQUEST_TO_CONFIRM) : false;
     }
 
     /**
@@ -415,7 +415,8 @@ trait WaitingListHelper
      */
     public function getStatus($a_usr_id)
     {
-        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['to_confirm'] : self::REQUEST_NOT_ON_LIST;
+        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['to_confirm'] : WaitingListConstantsHelper::REQUEST_NOT_ON_LIST;
     }
     // fau.
+
 }

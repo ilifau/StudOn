@@ -20,6 +20,9 @@ declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+// fau: fairSub#95 - use MembershipGUIHelper
+use FAU\Ilias\Helper\MembershipGUIHelper;
+// fau.
 
 /**
  * Base class for member tab content
@@ -27,6 +30,10 @@ use ILIAS\Refinery\Factory;
  */
 class ilMembershipGUI
 {
+    // fau: fairSub#96 - use MembershipGUIHelper
+    use MembershipGUIHelper;
+    // fau.
+
     private ilObject $repository_object;
     private ?ilObjectGUI $repository_gui;
     protected GlobalHttpState $http;
@@ -1319,6 +1326,19 @@ class ilMembershipGUI
         // set confirm/cancel commands
         $c_gui->setFormAction($this->ctrl->getFormAction($this, "assignFromWaitingList"));
         $c_gui->setHeaderText($this->lng->txt("info_assign_sure"));
+        // fau: fairSub#91 - add message about fairness for adding members directly from waiting list
+        if ($this instanceof ilCourseMembershipGUI || $this instanceof ilGroupMembershipGUI) {
+            $grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this->getParentObject());
+            $question = $this->lng->txt("info_assign_sure");
+            $question .= '<br /><span class="small">' . $this->lng->txt('sub_assign_waiting_fair_info') . '</span>';
+            if (!empty($grouping_ref_ids)) {
+                $question .= '<br /><span class="small">' . $this->lng->txt('sub_assign_waiting_groupings_info') . '</span>';
+            }
+            $c_gui->setHeaderText($question);
+        } else {
+            $c_gui->setHeaderText($this->lng->txt("info_assign_sure"));
+        }
+        // fau.        
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
         $c_gui->setConfirm($this->lng->txt("confirm"), "assignFromWaitingList");
 
@@ -1348,6 +1368,12 @@ class ilMembershipGUI
         }
 
         $waiting_list = $this->initWaitingList();
+        // fau: fairSub#92 - get the reference ids of grouped objects
+        if ($this instanceof ilCourseMembershipGUI || $this instanceof ilGroupMembershipGUI) {
+            // ilObjCourseGrouping is used for courses and groups
+            $grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this->getParentObject());
+        }
+        // fau.        
 
         $added_users = 0;
         foreach ($waiting_list_ids as $user_id) {
@@ -1385,6 +1411,14 @@ class ilMembershipGUI
             }
 
             $waiting_list->removeFromList((int) $user_id);
+
+            // fau: fairSub#93 - remove user from waiting lists of grouped objects
+            if (is_array($grouping_ref_ids)) {
+                foreach ($grouping_ref_ids as $ref_id) {
+                    ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
+                }
+            }
+            // fau.            
             ++$added_users;
         }
 
@@ -1401,6 +1435,12 @@ class ilMembershipGUI
      */
     public function confirmRefuseFromList(): void
     {
+        // fau: fairSub#94 - allow a single user being refused from the waiting list
+        if (!empty($_GET['member_id'])) {
+            $_POST["waiting"] = array($_GET['member_id']);
+        }
+        // fau.
+
         $waiting_list_ids = $this->initWaitingListIdsFromPost();
         if (!count($waiting_list_ids)) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_checkbox"), true);

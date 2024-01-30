@@ -294,7 +294,8 @@ abstract class Registration extends AbstractRegistration
         /////
         // 6. Send notifications
         ////
-        switch ($this->getRegistrationAction()) {
+        // fau: fairSub - TODO - this doesn't work yet with V8        
+      /*  switch ($this->getRegistrationAction()) {
             case Registration::notifyAdded:
                 $this->participants->sendNotification($this->getNotificationTypeAddedAdmins(), $this->user->getId());
                 $this->participants->sendNotification($this->getNotificationTypeAddedMember(), $this->user->getId());
@@ -314,7 +315,7 @@ abstract class Registration extends AbstractRegistration
                 // no e-mail to subscriber needed because the place on the list is not relevant
                 $this->participants->sendExternalNotifications($this->object, $this->user);
                 break;
-        }
+        }*/
     }
 
     /**

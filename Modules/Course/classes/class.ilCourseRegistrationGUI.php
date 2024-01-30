@@ -17,10 +17,7 @@ declare(strict_types=0);
  *
  *********************************************************************/
 
-// fau: fairSub#61 - use helper class
-use FAU\Ilias\Helper\WaitingListConstantsHelper;
-// fau. 
-
+use FAU\Ilias\Registration;
 /**
  * GUI class for course registrations
  * @author       Stefan Meyer <smeyer.ilias@gmx.de>

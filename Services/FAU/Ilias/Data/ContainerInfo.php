@@ -4,6 +4,7 @@ namespace FAU\Ilias\Data;
 
 use ilWaitingList;
 use ilParticipants;
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 
 /**
  * Basic info for courses or groups
@@ -198,7 +199,7 @@ class ContainerInfo
      */
     public function isOnWaitingList() : bool
     {
-        return $this->waiting_status != ilWaitingList::REQUEST_NOT_ON_LIST;
+        return $this->waiting_status != WaitingListConstantsHelper::REQUEST_NOT_ON_LIST;
     }
 
 
