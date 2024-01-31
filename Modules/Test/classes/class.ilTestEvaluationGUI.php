@@ -1908,7 +1908,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             $isActivePass = true;
             $must_renumber = false;
         }
-        // fau: deletePass - treat special case of phantom pass without sequence created by race condition
+        // fau: deleteTestPass - treat special case of phantom pass without sequence created by race condition
         elseif (is_null($row['pass'])) {
             $isActivePass = false;
             $must_renumber = false;
@@ -1919,7 +1919,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         }
 
         if (!$this->object->isDynamicTest() && $isActivePass) {
-            // fau: deletePass -  treat special case of phantom pass - allow to delete the active pass
+            // fau: deleteTestPass -  treat special case of phantom pass - allow to delete the active pass
 //			$this->ctrl->redirect($this, 'outUserResultsOverview');
 // fau.
         }
