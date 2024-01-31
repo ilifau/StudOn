@@ -280,7 +280,7 @@ class ilSpecificPatches
 
 
     /**
-     * Send an email to all active users
+     * fau: massMail - send an email to all active users
      * @param string[] $params
      * @return false|void
      */
