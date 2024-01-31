@@ -455,29 +455,6 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
         }
     }
 
-    // fau: jumpMedia - new function removeJavaScript
-    /**
-     * Remove a javascript file that should not be included in the header.
-     */
-    public function removeJavaScript($a_js_file)
-    {
-        $keep = [];
-        foreach($this->js_files as $file) {
-            if ($file != $a_js_file) {
-                $keep[] = $file;
-            }
-        }
-        $this->js_files = $keep;
-
-        if (isset( $this->js_files_vp[$a_js_file])) {
-            unset($this->js_files_vp[$a_js_file]);
-        }
-        if (isset( $this->js_files_batch[$a_js_file])) {
-            unset($this->js_files_batch[$a_js_file]);
-        }
-    }
-    // fau.
-
     /**
      * Add on load code
      */
@@ -628,19 +605,7 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
             $this->css_files[$a_css_file . $media] = array("file" => $a_css_file, "media" => $media);
         }
     }
-
-    // fau: jumpMedia - new function removeCss()
-    /**
-     * Remove a css file that should not be included in the header.
-     */
-    public function removeCss($a_css_file, $media = "screen") {
-        if (array_key_exists($a_css_file . $media, $this->css_files)) {
-            unset($this->css_files[$a_css_file . $media]);
-        }
-    }
-    // fau.
-
-
+    
     // REMOVAL CANDIDATE
     // Usage locations:
     //    - ilDclRecordEditGUI
