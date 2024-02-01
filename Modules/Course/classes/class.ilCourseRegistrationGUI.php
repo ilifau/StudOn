@@ -87,6 +87,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
         if ($this->container->getSubscriptionUnlimitedStatus()) {
             // fau: fairSub#32	- add info about fair time for unlimited subscription
+            $suffix = "";
             if ($this->container->inSubscriptionFairTime()) {
                 $suffix = " | " . $this->lng->txt('sub_fair_date') . ': ' . $this->container->getSubscriptionFairDisplay(false);
             }
@@ -392,7 +393,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
         switch ($this->registration->getRegistrationAction()) {
             case Registration::notifyAdded:
-                if (!$_SESSION["pending_goto"]) {
+                if (!isset($_SESSION["pending_goto"]) || !$_SESSION["pending_goto"]) {
                     $this->tpl->setOnScreenMessage('success', $this->lng->txt("crs_subscription_successful"), true);
                     $this->ctrl->returnToParent($this);
                 } else {
