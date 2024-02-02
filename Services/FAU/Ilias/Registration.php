@@ -441,11 +441,12 @@ abstract class Registration extends AbstractRegistration
 
             // get the user that remain on the waiting list
             $waiting_users = $this->waitingList->getUserIds();
-
+// fau: fairSub - TODO - enable mail notifications            
+if(0){
             // prepare notifications
             // the waiting list object is injected to allow the inclusion of the waiting list position
             $mail = $this->getMembershipMailNotification();
-            $mail->setRefId($this->object->ref_id);
+            $mail->setRefId($this->object->getRefId());
             $mail->setWaitingList($this->waitingList);
 
             // send notifications to added users
@@ -474,6 +475,7 @@ abstract class Registration extends AbstractRegistration
                 $mail->send();
             }
         }
+    }
         // remember the fill date
         // this prevents further calls from the cron job
         $this->object->saveSubscriptionLastFill(time());
