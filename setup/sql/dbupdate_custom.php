@@ -822,7 +822,7 @@
 ?>
 <#46>
 <?php
-    // fau: fairSub - add sub_fair in database scheme of courses
+    // fau: fairSub#3 - add sub_fair in database scheme of courses
     if (!$ilDB->tableColumnExists('crs_settings', 'sub_fair')) {
         $ilDB->addTableColumn(
             'crs_settings',
@@ -834,7 +834,7 @@
 ?>
 <#47>
     <?php
-    // fau: fairSub - add sub_last_fill in database scheme of courses
+    // fau: fairSub#4 - add sub_last_fill in database scheme of courses
     if (!$ilDB->tableColumnExists('crs_settings', 'sub_last_fill')) {
         $ilDB->addTableColumn(
             'crs_settings',
@@ -877,7 +877,7 @@
 ?>
 <#50>
 <?php
-    // fau: fairSub - add sub_fair in database scheme of groups
+    // fau: fairSub#5 - add sub_fair in database scheme of groups
     if (!$ilDB->tableColumnExists('grp_settings', 'sub_fair')) {
         $ilDB->addTableColumn(
             'grp_settings',
@@ -889,7 +889,7 @@
 ?>
 <#51>
 <?php
-    // fau: fairSub - add sub_last_fill in database scheme of groups
+    // fau: fairSub#6 - add sub_last_fill in database scheme of groups
     if (!$ilDB->tableColumnExists('grp_settings', 'sub_last_fill')) {
         $ilDB->addTableColumn(
             'grp_settings',
@@ -901,7 +901,7 @@
 ?>
 <#52>
 <?php
-    // fau: fairSub - add sub_auto_fill in database scheme of courses
+    // fau: fairSub#7 - add sub_auto_fill in database scheme of courses
     if (!$ilDB->tableColumnExists('crs_settings', 'sub_auto_fill')) {
         $ilDB->addTableColumn(
             'crs_settings',
@@ -913,7 +913,7 @@
 ?>
 <#53>
     <?php
-    // fau: fairSub - add sub_auto_fill in database scheme of groups
+    // fau: fairSub#8 - add sub_auto_fill in database scheme of groups
     if (!$ilDB->tableColumnExists('grp_settings', 'sub_auto_fill')) {
         $ilDB->addTableColumn(
             'grp_settings',

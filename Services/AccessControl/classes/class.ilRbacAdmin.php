@@ -16,7 +16,7 @@
  *
  *********************************************************************/
 declare(strict_types=1);
-
+use FAU\Ilias\Helper\RbacAdminHelper;
 /**
  * Class ilRbacAdmin
  *  Core functions for role based access control.
@@ -29,6 +29,8 @@ declare(strict_types=1);
  */
 class ilRbacAdmin
 {
+    use RbacAdminHelper;
+    
     protected ilDBInterface $db;
     protected ilRbacReview $rbacreview;
     protected ilLogger $logger;

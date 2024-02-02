@@ -7,7 +7,7 @@ namespace FAU\Ilias\Helper;
  */
 class WaitingListConstantsHelper 
 {
-   // fau: fairSub - class constants for confirmation status
+   // fau: fairSub#50 - class constants for confirmation status
    const REQUEST_NOT_ON_LIST = -1;
    const REQUEST_NOT_TO_CONFIRM = 0;
    const REQUEST_TO_CONFIRM = 1;

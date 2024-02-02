@@ -17,6 +17,9 @@ declare(strict_types=0);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+// fau: fairSub#71 use WaitingListConstantsHelper
+ use FAU\Ilias\Helper\WaitingListConstantsHelper;
+// fau.
 
 /**
  * Course waiting list

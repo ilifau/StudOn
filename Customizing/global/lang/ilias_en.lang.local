@@ -359,7 +359,7 @@ crs#:#crs_choose_one_event#:#Please choose a date!
 crs#:#crs_error_preconditions#:#You could not have been accepted!
 crs#:#crs_event_registration_not_possible#:#The login to the date '%s' is not possible!
 crs#:#crs_event_subscription_after_confirmation#:#You can register to the dates only after acceptance of your application for admission.
-crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub - changed link text
+crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub#2 - changed link text
 crs#:#crs_mail_subscribe_to_events#:#For this course the registration to the dates (sessions) is provided. Please go to the course content, to register for the sessions!
 crs#:#crs_max_members_mode#:#Procedure:
 crs#:#crs_mem_set_passed#:#set passed

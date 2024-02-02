@@ -18,6 +18,7 @@ use FAU\Ilias\Helper\WaitingListHelper;
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 
 /**
  * Base class for course and group waiting lists
@@ -95,6 +96,7 @@ abstract class ilWaitingList
         return $this->obj_id;
     }
 
+    
     public function addToList(int $a_usr_id): bool
     {
         if ($this->isOnList($a_usr_id)) {
@@ -118,6 +120,11 @@ abstract class ilWaitingList
             "WHERE usr_id = " . $this->db->quote($a_usr_id, 'integer') . " " .
             "AND obj_id = " . $this->db->quote($this->getObjId(), 'integer') . " ";
         $res = $this->db->manipulate($query);
+
+        // fau: fairSub#73 - recalculate after updating time
+        $this->users[$a_usr_id]['time'] = (int) $a_subtime;
+        $this->recalculate();
+        // fau.
     }
 
     public function removeFromList(int $a_usr_id): bool
@@ -126,7 +133,11 @@ abstract class ilWaitingList
             " WHERE obj_id = " . $this->db->quote($this->getObjId(), 'integer') . " " .
             " AND usr_id = " . $this->db->quote($a_usr_id, 'integer') . " ";
         $affected = $this->db->manipulate($query);
-        $this->read();
+
+        // fau: fairSub#74 - avoid multiple reading
+        unset($this->users[$a_usr_id]);
+        $this->recalculate();
+        // fau.
         return $affected > 0;
     }
 
@@ -163,20 +174,25 @@ abstract class ilWaitingList
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
+
+        // fau: fairSub#75 - fill also to_confirm info at preload
         foreach ($a_usr_ids as $usr_id) {
             foreach ($a_obj_ids as $obj_id) {
                 self::$is_on_list[$usr_id][$obj_id] = false;
+                self::$to_confirm[$usr_id][$obj_id] = WaitingListConstantsHelper::REQUEST_NOT_ON_LIST;
             }
         }
-        $query = "SELECT usr_id, obj_id " .
+        $query = "SELECT usr_id, obj_id, to_confirm " .
             "FROM crs_waiting_list " .
             "WHERE " .
             $ilDB->in("obj_id", $a_obj_ids, false, "integer") . " AND " .
             $ilDB->in("usr_id", $a_usr_ids, false, "integer");
         $res = $ilDB->query($query);
         while ($rec = $ilDB->fetchAssoc($res)) {
-            self::$is_on_list[(int) $rec["usr_id"]][(int) $rec["obj_id"]] = true;
+            self::$is_on_list[$rec["usr_id"]][$rec["obj_id"]] = true;
+            self::$to_confirm[$rec["usr_id"]][$rec["obj_id"]] = $rec['to_confirm'];
         }
+        // fau.
     }
 
     public function getCountUsers(): int
@@ -219,19 +235,29 @@ abstract class ilWaitingList
 
     private function read(): void
     {
+        global $DIC;
+
+        $ilDB = $DIC['ilDB'];
+                
         $this->users = [];
+
+        // fau: fairSub#76 - get subject and to_confirm
+        // fau: fairSub#77 - recalculate after reading, sorting is done there
+        // fau: campoSub - read the module id
+
         $query = "SELECT * FROM crs_waiting_list " .
-            "WHERE obj_id = " . $this->db->quote($this->getObjId(), 'integer') . " ORDER BY sub_time";
+            "WHERE obj_id = " . $ilDB->quote($this->getObjId(), 'integer');
 
         $res = $this->db->query($query);
-        $counter = 0;
-        while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
-            ++$counter;
-            $this->users[(int) $row->usr_id]['position'] = $counter;
-            $this->users[(int) $row->usr_id]['time'] = (int) $row->sub_time;
-            $this->users[(int) $row->usr_id]['usr_id'] = (int) $row->usr_id;
 
-            $this->user_ids[] = (int) $row->usr_id;
+        while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+            $this->users[$row->usr_id]['time'] = $row->sub_time;
+            $this->users[$row->usr_id]['usr_id'] = $row->usr_id;
+            $this->users[$row->usr_id]['subject'] = $row->subject;
+            $this->users[$row->usr_id]['to_confirm'] = $row->to_confirm;
+            $this->users[$row->usr_id]['module_id'] = $row->module_id;
         }
+        $this->recalculate();
+        // fau.
     }
 }

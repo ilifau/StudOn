@@ -82,7 +82,10 @@ class ilFAUAppEventListener implements ilAppEventListener
                         break;
 
                     case 'deleteParticipant':
-                        self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
+                        if(isset($a_parameter['role_id']))
+                            self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
+                        else
+                            self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) null);
                         break;
                 }
                 break;
