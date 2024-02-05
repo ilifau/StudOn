@@ -411,19 +411,31 @@ class Service extends SubService
     /**
      * Get the text for a term (current language)
      */
-    public function getTermText(?Term $term, bool $short = false) : string
+    public function getTermText(?Term $term, bool $short = false, ?string $lang_code = null) : string
     {
         if (!isset($term)) {
+            if (isset($lang_code)) {
+                return $this->lng->txtlng('fau', 'studydata_unknown_semester', $lang_code);
+            }
             return $this->lng->txt('studydata_unknown_semester');
         }
         elseif ($term->getTypeId() == Term::TYPE_ID_SUMMER) {
+            if (isset($lang_code)) {
+                return sprintf($this->lng->txtlng('fau', $short ? 'studydata_semester_summer_short' : 'studydata_semester_summer', $lang_code), $term->getYear());
+            }
             return sprintf($this->lng->txt($short ? 'studydata_semester_summer_short' : 'studydata_semester_summer'), $term->getYear());
         }
         elseif ($term->getTypeId() == Term::TYPE_ID_WINTER) {
             $next = substr((string) $term->getYear(), 2,2);
+            if (isset($lang_code)) {
+                return sprintf($this->lng->txtlng('fau', $short ? 'studydata_semester_winter_short' : 'studydata_semester_winter', $lang_code), $term->getYear(), $next + 1);
+            }
             return sprintf($this->lng->txt($short ? 'studydata_semester_winter_short' : 'studydata_semester_winter'), $term->getYear(), $next + 1);
         }
         else {
+            if (isset($lang_code)) {
+                return $this->lng->txtlng('fau', 'studydata_ref_semester_invalid', $lang_code);
+            }
             return $this->lng->txt('studydata_ref_semester_invalid');
         }
     }
@@ -510,7 +522,7 @@ class Service extends SubService
                 $course_id = (int) $parts[2];
 
                 if (!empty($course = $this->repo()->getCourse($course_id))) {
-                    $ref_id = (int) $this->dic->fau()->ilias()->objects()->getIliasRefIdForCourse($course);
+                    $ref_id = (int) $this->dic->fau()->ilias()->objects()->getIliasRefIdForCourse($course, true);
                     if (ilObject::_lookupType($ref_id, true) == 'grp'
                         && !$this->dic->access()->checkAccess('read', '', $ref_id,'grp')) {
                         $ref_id = (int) $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);

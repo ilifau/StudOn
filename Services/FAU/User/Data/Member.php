@@ -9,8 +9,8 @@ use FAU\Sync\SyncWithIlias;
  * Member status of an ILIAS user in an ilias course or group concerning campo
  *
  * This record exists only if the ilias object (course or group) and the ilias user exist
- * It is created and updated in the synchronisation of ilias courses and groups
- * It is created when a new user is created in ilias which has related campo data
+ * It is created and updated for responsibles in the synchronisation of ilias courses and groups
+ * It is created when a new user is created in ilias which has a responsibility for a course
  *
  * Compared with the course or group participants this table reflects the updates from campo
  * Person assignments in campo should be saved here and the ilias course or group roles of their users should be updated
@@ -21,7 +21,12 @@ use FAU\Sync\SyncWithIlias;
  * Course responsibles and instructors should become course admins or course tutors and group admins
  *
  * Members:
- * Members get their record once they selected a module for the course
+ * Members get their record when they are added to a course or group that is connected to a campo course
+ * 
+ * If the connection of a course or group is transferred to new term:
+ *  - the users of the members role in ilias are moved to a 'former member' role
+ *  - their course_id in this record is kept to keep the info about their former membership
+ * 
  *
  * @see SyncWithIlias::updateIliasCourse()
  * @see SyncWithIlias::updateIliasGroup()
@@ -45,6 +50,7 @@ class Member extends RecordData
         'user_id' => 'integer',
     ];
     protected const otherTypes = [
+        'course_id' => 'integer',
         'module_id' => 'integer',
         'event_responsible' => 'integer',
         'course_responsible' => 'integer',
@@ -54,6 +60,7 @@ class Member extends RecordData
 
     protected int $obj_id;
     protected int $user_id;
+    protected ?int $course_id = null;
     protected ?int $module_id = null;
     protected int $event_responsible = 0;
     protected int $course_responsible = 0;
@@ -63,6 +70,7 @@ class Member extends RecordData
     public function __construct(
         int $obj_id,
         int $user_id,
+        ?int $course_id = null,
         ?int $module_id = null,
         bool $event_responsible = false,
         bool $course_responsible = false,
@@ -72,6 +80,7 @@ class Member extends RecordData
     {
         $this->obj_id = $obj_id;
         $this->user_id = $user_id;
+        $this->course_id = $course_id;
         $this->module_id = $module_id;
 
         $this->event_responsible = (int) $event_responsible;
@@ -99,6 +108,17 @@ class Member extends RecordData
     public function getUserId() : int
     {
         return $this->user_id;
+    }
+
+    /**
+     * Get the campo course_id of the membership
+     * This is set for ILIAS courses and groups that are directly connected to a campo course
+     * It is null for ILIAS courses that are parents of parallel groups 
+     * It can be related to a previous course_id of a former memberships
+     */
+    public function getCourseId() : ?int
+    {
+        return $this->course_id;
     }
 
     /**
@@ -142,6 +162,17 @@ class Member extends RecordData
     }
 
     /**
+     * @param int|null $course_id
+     * @return Member
+     */
+    public function withCourseId(?int $course_id) : Member
+    {
+        $clone = clone $this;
+        $clone->course_id = $course_id;
+        return $clone;
+    }
+
+    /**
      * @param int|null $module_id
      * @return Member
      */
@@ -151,6 +182,8 @@ class Member extends RecordData
         $clone->module_id = $module_id;
         return $clone;
     }
+
+
 
     /**
      * @param bool $event_responsible

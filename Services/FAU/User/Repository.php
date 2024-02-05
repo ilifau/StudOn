@@ -140,8 +140,8 @@ class Repository extends RecordRepo
     public function moveMembers(int $from_obj_id, int $to_obj_id)
     {
         // use REPLACE and DELETE instead of UPDATE to avoid duplicate primary key errors
-        $query = "REPLACE INTO fau_user_members(obj_id, user_id, module_id, course_responsible, instructor, individual_instructor)
-        SELECT %s, user_id, module_id, course_responsible, instructor, individual_instructor
+        $query = "REPLACE INTO fau_user_members(obj_id, user_id, course_id, module_id, event_responsible, course_responsible, instructor, individual_instructor)
+        SELECT %s, user_id, course_id, module_id, event_responsible, course_responsible, instructor, individual_instructor
         FROM fau_user_members
         WHERE obj_id = %s";
         $this->db->manipulateF($query, ['integer', 'integer'], [$to_obj_id, $from_obj_id]);
