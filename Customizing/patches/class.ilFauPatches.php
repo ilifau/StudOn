@@ -33,7 +33,7 @@ class ilFauPatches
         $service->synchronize();
     }
 
-    public function syncWithIlias($params = ['orgunit_id' => null])
+    public function syncWithIlias($params = ['orgunit_ids' => null, 'term_ids' => null])
     {
         $service = $this->dic->fau()->sync()->ilias();
         $service->synchronize($params['orgunit_ids'], $params['term_ids']);

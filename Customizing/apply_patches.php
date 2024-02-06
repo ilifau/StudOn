@@ -22,7 +22,7 @@ $p->login();
 
 
 // Create or Update ILI courses
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_ids' => [2429], 'term_ids' => ['20231', '20232']]);
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
 // Two test courses at ILI
