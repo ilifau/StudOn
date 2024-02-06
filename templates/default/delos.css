@@ -10332,6 +10332,9 @@ footer {
   float: left;
   margin-right: 5px;
 }
+.il-maincontrols-footer .il-footer-permanent-url #current_perma_link {
+  width: 20em;
+}
 .il-maincontrols-footer .il-footer-text {
   float: left;
   margin-right: 60px;

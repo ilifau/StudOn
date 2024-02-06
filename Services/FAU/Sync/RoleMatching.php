@@ -137,6 +137,7 @@ class RoleMatching
             $new_member = new Member(
                 $obj_id,
                 $user_id,
+                $course_id,
                 $cur_member->getModuleId(),
                 in_array($user_id, $event_resps),
                 in_array($user_id, $course_resps),

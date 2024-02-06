@@ -79,4 +79,33 @@ class ilPermissionPatches7
             ['write', 'edit_learning_progress']
         ]);
     }
+
+    /**
+     * 2024-01-22 (not yet executed)
+     * copy permissions from test object, set the 'maintain' permissions like the write permissions
+     */
+    public function initLongEssayAssessment() 
+    {
+        $pu = new ilPermissionUtils(true);
+
+        $pu->copyDefaultPermission('tst','visible',			    'xlas','visible');
+        $pu->copyDefaultPermission('tst','read',				    'xlas','read');
+        $pu->copyDefaultPermission('tst','copy',				    'xlas','copy');
+        $pu->copyDefaultPermission('tst','write',				    'xlas','write');
+        $pu->copyDefaultPermission('tst','delete',				'xlas','delete');
+        $pu->copyDefaultPermission('tst','write',		            'xlas','maintain_task');
+        $pu->copyDefaultPermission('tst','write',		            'xlas','maintain_writers');
+        $pu->copyDefaultPermission('tst','write',	                'xlas','maintain_correctors');
+        $pu->copyDefaultPermission('tst','edit_permission',		'xlas','edit_permission');
+
+        $pu->copyDefaultPermissions(
+            array('cat','crs','grp','fold'), array(
+            array('create_tst', 'create_xlas'),
+        ));
+
+        $pu->copyPermissions(
+            array('cat','crs','grp','fold'), array(
+            array('create_tst', 'create_xlas'),
+        ));
+    }
 }

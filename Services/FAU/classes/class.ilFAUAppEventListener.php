@@ -134,15 +134,19 @@ class ilFAUAppEventListener implements ilAppEventListener
         // delete the reference in a campo course
         // new object will be created in the next sync
         // Important: don't use cache - record may already be changed by \FAU\Ilias\Transfer::moveCampoConnection
-        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($obj_id, false) as $course) {
+        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjIdOrIliasObjIdTrans($obj_id, false) as $course) {
             if ($course->isDeleted()) {
                 // course entry no longer needed - staging entry is already deleted
                 $this->dic->fau()->study()->repo()->delete($course);
             }
-
-            $this->dic->fau()->study()->repo()->save(
-                $course->withIliasObjId(null)->withIliasProblem(null)->asChanged(false)
-            );
+            else {
+                $this->dic->fau()->study()->repo()->save(
+                    $course
+                        ->withIliasObjId(null)
+                        ->withIliasObjIdTrans(null)
+                        ->withIliasProblem(null)->asChanged(false)
+                );
+            }
         }
 
         // delete the membership status

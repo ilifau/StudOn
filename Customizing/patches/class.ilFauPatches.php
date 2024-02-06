@@ -36,7 +36,7 @@ class ilFauPatches
     public function syncWithIlias($params = ['orgunit_id' => null])
     {
         $service = $this->dic->fau()->sync()->ilias();
-        $service->synchronize($params['orgunit_id']);
+        $service->synchronize($params['orgunit_ids'], $params['term_ids']);
     }
 
     public function syncToCampo()

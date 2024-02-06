@@ -148,6 +148,7 @@ class SyncWithCampo extends SyncBase
                 $old = $existing[$course->key()];
                 $course = $course
                     ->withIliasObjId($old->getIliasObjId())
+                    ->withIliasObjIdTrans($old->getIliasObjIdTrans())
                     ->withIliasProblem($old->getIliasProblem())
                     ->withIliasDirtySince($old->getIliasDirtySince())
                     ->withTitleDirty($old->isTitleDirty())
