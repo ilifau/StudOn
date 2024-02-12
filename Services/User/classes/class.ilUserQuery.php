@@ -23,6 +23,8 @@
  */
 class ilUserQuery
 {
+    use FAU\Ilias\Helper\UserQueryHelper;
+
     public const DEFAULT_ORDER_FIELD = 'login';
 
     private string $order_field = self::DEFAULT_ORDER_FIELD;
