@@ -15,6 +15,7 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+use FAU\Ilias\Helper\UserQueryHelper;
 
 /**
  * User query class. Put any complex that queries for a set of users into
@@ -23,7 +24,7 @@
  */
 class ilUserQuery
 {
-    use FAU\Ilias\Helper\UserQueryHelper;
+    use UserQueryHelper;
 
     public const DEFAULT_ORDER_FIELD = 'login';
 
