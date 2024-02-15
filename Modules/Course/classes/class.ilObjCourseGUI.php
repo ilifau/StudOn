@@ -1202,14 +1202,14 @@ class ilObjCourseGUI extends ilContainerGUI
         // $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
         // fau: objectSub - add option for reference to subscription object
-        require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
         $opt = new ilRadioOption($this->lng->txt('sub_separate_object'), CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
         $opt->setInfo($this->lng->txt('sub_separate_object_info'));
         $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
         $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
         $rep_sel->setClickableTypes(array('xcos'));
         $rep_sel->setRequired(true);
-        $rep_sel->setParent($form);
+       // $rep_sel->setParent($form);        
+        
         $opt->addSubItem($rep_sel);
         if ($ref_id = $this->object->getSubscriptionRefId()) {
             $rep_sel->setValue($ref_id);
