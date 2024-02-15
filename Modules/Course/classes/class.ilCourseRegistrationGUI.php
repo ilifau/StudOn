@@ -85,6 +85,11 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     {
         $now = new ilDateTime(time(), IL_CAL_UNIX, 'UTC');
 
+        // fau: objectSub - no registration period for subscription by object
+        if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
+            return true;
+        }
+        // fau.
         if ($this->container->getSubscriptionUnlimitedStatus()) {
             // fau: fairSub#32	- add info about fair time for unlimited subscription
             $suffix = "";
@@ -153,6 +158,12 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
     protected function fillMaxMembers(): void
     {
+        // fau: objectSub - no max members for subscription by object
+        if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
+            return true;
+        }
+        // fau.
+
         if (!$this->container->isSubscriptionMembershipLimited()) {
             return;
         }
@@ -242,9 +253,14 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $this->form->addItem($max);
     }
 
-    protected function fillRegistrationType(): void
-    {
-        if ($this->container->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+    protected function fillRegistrationType(): void    {
+       
+            // fau: objectSub - fill registration by separate object
+            if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
+                return $this->fillRegistrationTypeObject($this->container->getSubscriptionRefId());
+            }
+            // fau. 
+            if ($this->container->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             $reg = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
             #$reg->setHtml($this->lng->txt('crs_info_reg_deactivated'));
             $reg->setAlert($this->lng->txt('crs_info_reg_deactivated'));

@@ -53,6 +53,9 @@ class ilCourseConstants
     public const IL_CRS_SUBSCRIPTION_CONFIRMATION = 2;
     public const IL_CRS_SUBSCRIPTION_DIRECT = 3;
     public const IL_CRS_SUBSCRIPTION_PASSWORD = 4;
+    // fau: objectSub - add constant for subscription via object
+    public const IL_CRS_SUBSCRIPTION_OBJECT = 11;
+    // fau.
     public const IL_CRS_ARCHIVE_DOWNLOAD = 3;
     public const IL_CRS_ARCHIVE_NONE = 0;
 }

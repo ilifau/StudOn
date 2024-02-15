@@ -44,6 +44,12 @@ use FAU\Ilias\Helper\WaitingListHelper;
  * @ilCtrl_Calls ilObjCourseGUI: ilCourseMembershipGUI, ilPropertyFormGUI, ilContainerSkillGUI, ilCalendarPresentationGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilMemberExportSettingsGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilLTIProviderObjectSettingGUI, ilObjectTranslationGUI, ilBookingGatewayGUI, ilRepositoryTrashGUI
+ * fau: studyCond - added ilStudyCondGUI to call structure
+ * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
+ * fau.
+ * fau: objectSub - added ilPropertyFormGUI to call structure
+ * @ilCtrl_Calls ilObjCourseGUI: ilPropertyFormGUI
+ * fau.
  * @extends      ilContainerGUI
  */
 class ilObjCourseGUI extends ilContainerGUI
@@ -362,6 +368,12 @@ class ilObjCourseGUI extends ilContainerGUI
                 break;
 
             default:
+                // fau: objectSub - add info about subscription in separate object
+                if ($this->object->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
+                    $txt = $this->lng->txt('sub_separate_object');
+                    break;
+                }
+                // fau.
                 switch ($this->object->getSubscriptionType()) {
                     case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
                         $txt = $this->lng->txt("crs_info_reg_confirmation");
@@ -724,6 +736,28 @@ class ilObjCourseGUI extends ilContainerGUI
             );
         }
     }
+
+    // fau: objectSub - update the ref id for subscriptions
+    /**
+     * Update the chosen ref id for subscriptions
+     */
+    public function updateSubscriptionRefIdObject()
+    {
+        $form = $this->initEditForm();
+        $input = $form->getItemByPostVar('subscription_object');
+        $input->readFromSession();
+        if ($input->getValue()) {
+            $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_OBJECT);
+            $this->object->setSubscriptionRefId((int) $input->getValue());
+        } else {
+            $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_CONFIRMATION);
+            $this->object->setSubscriptionRefId(null);
+        }
+        $this->object->update();
+        ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
 
     public function updateObject(): void
     {
@@ -1167,6 +1201,32 @@ class ilObjCourseGUI extends ilContainerGUI
         );
         // $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
+        // fau: objectSub - add option for reference to subscription object
+        require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
+        $opt = new ilRadioOption($this->lng->txt('sub_separate_object'), IL_CRS_SUBSCRIPTION_OBJECT);
+        $opt->setInfo($this->lng->txt('sub_separate_object_info'));
+        $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
+        $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
+        $rep_sel->setClickableTypes(array('xcos'));
+        $rep_sel->setRequired(true);
+        $rep_sel->setParent($form);
+        $opt->addSubItem($rep_sel);
+        if ($ref_id = $this->object->getSubscriptionRefId()) {
+            $rep_sel->setValue($ref_id);
+            require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+            $locator = new ilLocatorGUI();
+            $locator->setTextOnly(true);
+            $locator->addContextItems($ref_id);
+            $rep_loc = new ilNonEditableValueGUI();
+            $rep_loc->setValue($locator->getHTML());
+            $opt->addSubItem($rep_loc);
+        }
+        // fau: paraSub - add info for courses with parallel groups
+        if ($this->object->hasParallelGroups()) {
+            $opt->setInfo($this->lng->txt('fau_sub_combi_disabled'));
+        }
+        $reg_proc->addOption($opt);
+        // fau.        
         $opt = new ilRadioOption(
             $this->lng->txt('crs_subscription_options_direct'),
             (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT
@@ -2161,6 +2221,38 @@ class ilObjCourseGUI extends ilContainerGUI
                 $mem_gui = new ilCourseMembershipGUI($this, $this->object);
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
+            // fau: studyCond - add command class
+            case 'ilstudycondgui':
+                $cond_gui = new ilStudyCondGUI($this, 'edit');
+                $this->ctrl->setReturn($this, 'edit');
+                $this->ctrl->forwardCommand($cond_gui);
+                $this->setSubTabs('properties');
+                $this->tabs_gui->setTabActive('settings');
+                break;
+            // fau.
+
+            // fau: objectSub - object selection in properties form
+            case "ilpropertyformgui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('settings');
+                $this->ctrl->setReturn($this, "updateSubscriptionRefId");
+                $form = $this->initEditForm();
+                $this->ctrl->forwardCommand($form);
+                break;
+            // fau.
+
+            // fau: campoTransfer - forward command
+            case "faucoursetransfergui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('view_content');
+                $this->ctrl->setReturn($this, "view");
+                $transfer_gui = new fauCourseTransferGUI();
+                /** @var ilObjCourse $course */
+                $course = $this->object;
+                $transfer_gui->init($course);
+                $this->ctrl->forwardCommand($transfer_gui);
+                break;
+            // fau.
 
             case "ilinfoscreengui":
                 $this->infoScreen();    // forwards command

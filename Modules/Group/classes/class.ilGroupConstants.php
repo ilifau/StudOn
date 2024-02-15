@@ -28,4 +28,7 @@ class ilGroupConstants
     public const GRP_TYPE_CLOSED = 1;
     public const GRP_TYPE_OPEN = 2;
     public const GRP_TYPE_PUBLIC = 3;
+    // fau: objectSub - add constant for subscription via object
+    public const  GRP_REGISTRATION_OBJECT = 11;
+    // fau.
 }

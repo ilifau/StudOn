@@ -22,6 +22,9 @@ declare(strict_types=1);
         | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
         +-----------------------------------------------------------------------------+
 */
+// fau: paraSub - import of registration class
+use FAU\Ilias\Registration;
+// fau.
 
 /**
 * GUI class for group registrations
@@ -83,6 +86,12 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
      */
     protected function fillRegistrationPeriod(): void
     {
+        // fau: objectSub - no registration period for subscription by object
+        if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
+            return true;
+        }
+        // fau.
+
         $now = new ilDateTime(time(), IL_CAL_UNIX, 'UTC');
 
         if ($this->container->isRegistrationUnlimited()) {
@@ -139,6 +148,11 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
     protected function fillMaxMembers(): void
     {
         $alert = '';
+        // fau: objectSub - no max members for subscription by object
+        if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
+            return true;
+        }
+        // fau.
         if (!$this->container->isMembershipLimited()) {
             return;
         }
@@ -224,6 +238,12 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         if ($this->getWaitingList()->isOnList($this->user->getId())) {
             return;
         }
+
+        // fau: objectSub - fill registration by separate object
+        if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
+            return $this->fillRegistrationTypeObject($this->container->getRegistrationRefId());
+        }
+        // fau.        
 
         switch ($this->container->getRegistrationType()) {
             case ilGroupConstants::GRP_REGISTRATION_DEACTIVATED:

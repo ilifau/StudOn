@@ -277,8 +277,17 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
     {
         $this->subscription_limitation_type = $a_type;
     }
-
-    public function getSubscriptionUnlimitedStatus(): bool
+// fau: objectSub - getter / setter
+    public function getSubscriptionRefId()
+    {
+        return $this->subscription_ref_id;
+    }
+    public function setSubscriptionRefId($a_ref_id)
+    {
+        $this->subscription_ref_id = $a_ref_id;
+    }
+    // fau.
+    public function getSubscriptionUnlimitedStatus()
     {
         return $this->subscription_limitation_type == ilCourseConstants::IL_CRS_SUBSCRIPTION_UNLIMITED;
     }
@@ -1012,12 +1021,15 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             "contact_consultation = " . $this->db->quote($this->getContactConsultation(), 'text') . ", " .
             "activation_type = " . $this->db->quote(!$this->getOfflineStatus(), 'integer') . ", " .
             "sub_limitation_type = " . $this->db->quote($this->getSubscriptionLimitationType(), 'integer') . ", " .
+            // fau: objectSub - save sub_ref_id
+            "sub_ref_id = " . $this->db->quote($this->getSubscriptionRefId(), 'integer') . ", " .
+            // fau.
+            "sub_start = " . $this->db->quote($this->getSubscriptionStart(), 'integer') . ", " .            
             // fau: fairSub#14 - save sub_fair and sub_last_fill
             "sub_fair = " . $this->db->quote($this->getSubscriptionFair(), 'integer') . ", " .
             "sub_auto_fill = " . $this->db->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
             "sub_last_fill = " . $this->db->quote($this->getSubscriptionLastFill(), 'integer') . ", " .
             // fau.
-            "sub_start = " . $this->db->quote($this->getSubscriptionStart(), 'integer') . ", " .
             "sub_end = " . $this->db->quote($this->getSubscriptionEnd(), 'integer') . ", " .
             "sub_type = " . $this->db->quote($this->getSubscriptionType(), 'integer') . ", " .
             "sub_password = " . $this->db->quote($this->getSubscriptionPassword(), 'text') . ", " .
@@ -1102,6 +1114,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
         $new_obj->setSubscriptionPassword($this->getSubscriptionPassword());
         $new_obj->enableSubscriptionMembershipLimitation($this->isSubscriptionMembershipLimited());
         $new_obj->setSubscriptionMaxMembers($this->getSubscriptionMaxMembers());
+        // fau: objectSub - clone sub_ref_id
+        $new_obj->setSubscriptionRefId($this->getSubscriptionRefId());
+        // fau.        
         // fau: fairSub#15- clone sub_fair and reset sub_last_fill
         $new_obj->setSubscriptionFair($this->getSubscriptionFair());
         $new_obj->setSubscriptionAutoFill($this->getSubscriptionAutoFill());
@@ -1146,10 +1161,12 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
     public function __createDefaultSettings(): void
     {
         $this->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
-        // fau: fairSub#16 - add sub_fair, sub_auto_fill, sub_last_fill
+        // fau: objectSub - add sub_ref_id
+        // fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
+        // fau: defaultSub - init subscription type with "confirmation"
         $query = "INSERT INTO crs_settings (obj_id,syllabus,contact_name,contact_responsibility," .
             "contact_phone,contact_email,contact_consultation," .
-            "sub_limitation_type,sub_start,sub_end,sub_fair,sub_auto_fill,sub_last_fill,sub_type,sub_password,sub_mem_limit," .
+            "sub_limitation_type,sub_start,sub_end,sub_fair,sub_auto_fill,sub_last_fill,sub_type,sub_ref_id,sub_password,sub_mem_limit," .
             "sub_max_members,sub_notify,view_mode,timing_mode,abo," .
             "latitude,longitude,location_zoom,enable_course_map,waiting_list,show_members,show_members_export, " .
             "session_limit,session_prev,session_next, reg_ac_enabled, reg_ac, auto_notification, status_dt,mail_members_type) " .
@@ -1168,6 +1185,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             $this->db->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
             $this->db->quote($this->getSubscriptionLastFill(), 'integer') . ", " .            
             $this->db->quote(ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT, 'integer') . ", " .
+            $this->db->quote($this->getSubscriptionRefId(), 'integer') . ", " .
             $this->db->quote($this->getSubscriptionPassword(), 'text') . ", " .
             "0, " .
             $this->db->quote($this->getSubscriptionMaxMembers(), 'integer') . ", " .
@@ -1216,6 +1234,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             $this->setContactConsultation((string) $row->contact_consultation);
             $this->setOfflineStatus(!(bool) $row->activation_type); // see below
             $this->setSubscriptionLimitationType((int) $row->sub_limitation_type);
+            // fau: objectSub - read sub_ref_id
+            $this->setSubscriptionRefId($row->sub_ref_id);
+            // fau.            
             $this->setSubscriptionStart((int) $row->sub_start);
             // fau: fairSub#17 - read sub_fair and sub_last_fill
             $this->setSubscriptionFair($row->sub_fair);
