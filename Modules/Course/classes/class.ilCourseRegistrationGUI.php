@@ -18,6 +18,7 @@ declare(strict_types=0);
  *********************************************************************/
 
 use FAU\Ilias\Registration;
+use FAU\Ilias\Helper\CourseConstantsHelper;
 /**
  * GUI class for course registrations
  * @author       Stefan Meyer <smeyer.ilias@gmx.de>
@@ -86,8 +87,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $now = new ilDateTime(time(), IL_CAL_UNIX, 'UTC');
 
         // fau: objectSub - no registration period for subscription by object
-        if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
-            return true;
+        if ($this->container->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+            return;
         }
         // fau.
         if ($this->container->getSubscriptionUnlimitedStatus()) {
@@ -159,8 +160,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     protected function fillMaxMembers(): void
     {
         // fau: objectSub - no max members for subscription by object
-        if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
-            return true;
+        if ($this->container->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+            return;
         }
         // fau.
 
@@ -256,8 +257,9 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     protected function fillRegistrationType(): void    {
        
             // fau: objectSub - fill registration by separate object
-            if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
-                return $this->fillRegistrationTypeObject($this->container->getSubscriptionRefId());
+            if ($this->container->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+               // return $this->fillRegistrationTypeObject($this->container->getSubscriptionRefId());
+               return;
             }
             // fau. 
             if ($this->container->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {

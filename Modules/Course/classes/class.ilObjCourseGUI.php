@@ -369,7 +369,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
             default:
                 // fau: objectSub - add info about subscription in separate object
-                if ($this->object->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
+                if ($this->object->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
                     $txt = $this->lng->txt('sub_separate_object');
                     break;
                 }
@@ -747,7 +747,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $input = $form->getItemByPostVar('subscription_object');
         $input->readFromSession();
         if ($input->getValue()) {
-            $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_OBJECT);
+            $this->object->setSubscriptionType(CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
             $this->object->setSubscriptionRefId((int) $input->getValue());
         } else {
             $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_CONFIRMATION);
@@ -1203,7 +1203,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
         // fau: objectSub - add option for reference to subscription object
         require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
-        $opt = new ilRadioOption($this->lng->txt('sub_separate_object'), IL_CRS_SUBSCRIPTION_OBJECT);
+        $opt = new ilRadioOption($this->lng->txt('sub_separate_object'), CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
         $opt->setInfo($this->lng->txt('sub_separate_object_info'));
         $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
         $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));

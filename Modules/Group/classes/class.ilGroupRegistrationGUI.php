@@ -88,7 +88,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
     {
         // fau: objectSub - no registration period for subscription by object
         if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
-            return true;
+            return;
         }
         // fau.
 
@@ -150,7 +150,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         $alert = '';
         // fau: objectSub - no max members for subscription by object
         if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
-            return true;
+            return;
         }
         // fau.
         if (!$this->container->isMembershipLimited()) {
@@ -241,7 +241,8 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
         // fau: objectSub - fill registration by separate object
         if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
-            return $this->fillRegistrationTypeObject($this->container->getRegistrationRefId());
+           // return $this->fillRegistrationTypeObject($this->container->getRegistrationRefId());
+           return;
         }
         // fau.        
 
