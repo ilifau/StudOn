@@ -1448,6 +1448,7 @@ assessment#:#tst_form_dynamic_question_set_config#:#Continues Question Selection
 assessment#:#tst_gap_analysis#:#Gap Analysis###26 09 2014 new variable
 assessment#:#tst_general_properties#:#ویژگیهای همگانی
 assessment#:#tst_header_participant#:#Result:###24 10 2013 new variable
+assessment#:#tst_header_participant_no_answer#:#Question - not answered###14 02 2024 new variable
 assessment#:#tst_header_solution#:#Correct solution:###24 10 2013 new variable
 assessment#:#tst_heading_scoring#:#امتیازدهی
 assessment#:#tst_hide_side_list#:#Hide question list
@@ -5277,7 +5278,7 @@ common#:#private_notes#:#یادداشت های شخصی
 common#:#pro#:#Pro
 common#:#proceed#:#Proceed
 common#:#profile#:#نمایه
-common#:#profile_changed#:#ILIAS eLearning - Your profile has changed
+common#:#profile_changed#:#Your profile has changed
 common#:#profile_incomplete#:#Your profile is incomplete. Please fill in all required data.
 common#:#profile_of#:#Profile of
 common#:#properties#:#ویژگیها
@@ -5336,8 +5337,8 @@ common#:#reg_mail_body_salutation#:#سلام
 common#:#reg_mail_body_text1#:#Welcome to ILIAS eLearning!
 common#:#reg_mail_body_text2#:#To access ILIAS use the following data:
 common#:#reg_mail_body_text3#:#Further personal information:
-common#:#reg_mail_subject#:#ILIAS eLearning - Your access data
-common#:#reg_mail_subject_confirmation#:#ILIAS eLearning - Your Confirmation Link
+common#:#reg_mail_subject#:#Your access data
+common#:#reg_mail_subject_confirmation#:#Your Confirmation Link
 common#:#reg_passwd_via_mail#:#Your password will be sent to your e-mail address given below.
 common#:#register#:#Register
 common#:#register_notification#:#"%s" has applied for session "%s".###07 02 2020 new variable
@@ -8321,6 +8322,7 @@ dateplaner#:#cal_weekly#:#هفتگی
 dateplaner#:#cal_where#:#مکان
 dateplaner#:#cal_year_s#:#سال
 dateplaner#:#cal_yearly#:#سالانه
+dateplaner#:#consultation_hours_block_title#:#Consultation Hours###14 02 2024 new variable
 dateplaner#:#created#:#Created
 dateplaner#:#crs_cal_activation_end#:#Course End
 dateplaner#:#crs_cal_activation_start#:#Course Start

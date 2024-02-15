@@ -1460,7 +1460,8 @@ assessment#:#tst_finished#:#Beendet
 assessment#:#tst_form_dynamic_question_set_config#:#Fortlaufende Fragenauswahl
 assessment#:#tst_gap_analysis#:#Gap-Analyse
 assessment#:#tst_general_properties#:#Einstellungen des Tests
-assessment#:#tst_header_participant#:#Ihre Antwort:
+assessment#:#tst_header_participant#:#Frage und Ihre Antwort:
+assessment#:#tst_header_participant_no_answer#:#Frage - nicht beantwortet:
 assessment#:#tst_header_solution#:#Bestmögliche Lösung:
 assessment#:#tst_heading_scoring#:#Bewertung
 assessment#:#tst_hide_side_list#:#Fragenliste aus
@@ -5290,7 +5291,7 @@ common#:#private_notes#:#Private Notizen
 common#:#pro#:#Pro
 common#:#proceed#:#Fortfahren
 common#:#profile#:#Profil
-common#:#profile_changed#:#ILIAS eLearning - Ihre Profildaten wurden geändert
+common#:#profile_changed#:#Ihre Profildaten wurden geändert
 common#:#profile_incomplete#:#Ihr Profil ist nicht vollständig. Bitte geben Sie alle erforderlichen Daten an
 common#:#profile_of#:#Profil von
 common#:#properties#:#Eigenschaften
@@ -5349,8 +5350,8 @@ common#:#reg_mail_body_salutation#:#Hallo
 common#:#reg_mail_body_text1#:#Willkommen auf der eLearning-Plattform ILIAS!
 common#:#reg_mail_body_text2#:#Ihre Zugangsdaten:
 common#:#reg_mail_body_text3#:#Weitere persönliche Angaben:
-common#:#reg_mail_subject#:#ILIAS eLearning - Ihre Zugangsdaten
-common#:#reg_mail_subject_confirmation#:#ILIAS eLearning - Ihr Bestätigungslink
+common#:#reg_mail_subject#:#Ihre Zugangsdaten
+common#:#reg_mail_subject_confirmation#:#Ihr Bestätigungslink
 common#:#reg_passwd_via_mail#:#Das Passwort wird an die unten eingegebene E-Mail-Adresse geschickt.
 common#:#register#:#Registrieren
 common#:#register_notification#:#"%s" hat die Teilnahme an der Sitzung "%s" beantragt.
@@ -7383,7 +7384,7 @@ crs#:#crs_edit_timings#:#Zeitvorgaben bearbeiten
 crs#:#crs_enable_map#:#Karte zum Kurs aktivieren
 crs#:#crs_end#:#Ende
 crs#:#crs_export#:#Kursexport
-crs#:#crs_file#:#Datei
+crs#:#crs_file#:#Titel
 crs#:#crs_file_download#:#Dateien zum Herunterladen
 crs#:#crs_file_name#:#Dateiname
 crs#:#crs_file_size_info#:#Dateigröße
@@ -8334,6 +8335,7 @@ dateplaner#:#cal_weekly#:#Wöchentlich
 dateplaner#:#cal_where#:#Ort
 dateplaner#:#cal_year_s#:#Jahr(e)
 dateplaner#:#cal_yearly#:#Jährlich
+dateplaner#:#consultation_hours_block_title#:#Sprechstunden
 dateplaner#:#created#:#erstellt am
 dateplaner#:#crs_cal_activation_end#:#Kursende
 dateplaner#:#crs_cal_activation_start#:#Kursbeginn
@@ -9985,7 +9987,7 @@ iass#:#iass_filter_finalized#:#Nur bestandene
 iass#:#iass_filter_not_finalized#:#Nur nicht abgeschlossene
 iass#:#iass_filter_not_started#:#Nur nicht bewertete
 iass#:#iass_finalize#:#Abschließen
-iass#:#iass_finalize_info#:#Die Individuellen Bewertung wird abgeschlossen.
+iass#:#iass_finalize_info#:#Die Individuelle Bewertung wird abgeschlossen.
 iass#:#iass_finalize_user_qst#:#Soll die Bewertung des Teilnehmers wirklich final abgeschlossen werden? Änderungen an der Bewertung sind hinterher nicht mehr möglich.
 iass#:#iass_further_field_headline#:#Detaillierte Informationen
 iass#:#iass_graded_by#:#Bewertet von
@@ -12078,7 +12080,7 @@ orgu#:#deassign_user_successful#:#Benutzer wurde erfolgreich ausgetragen.
 orgu#:#edit_translations#:#Titel und Beschreibung
 orgu#:#employee#:#Mitarbeiter
 orgu#:#ext_id#:#Externe ID
-orgu#:#ext_id_updated#:#Die externe ID wurde erfolgreich bearbeitet.n, da die Daten anonymisiert gespeichert werden.
+orgu#:#ext_id_updated#:#Die externe ID wurde erfolgreich aktualisiert.
 orgu#:#form_title_org_default_permissions_update#:#Standardrechte
 orgu#:#il_orgu_employee#:#Mitarbeiter
 orgu#:#il_orgu_superior#:#Vorgesetzte
@@ -12727,7 +12729,7 @@ prtf#:#prtf_template_import_new_skills#:#Wenn aktiviert, werden diese Kompetenze
 prtf#:#prtf_unset_as_default#:#Nicht als Mein Profil verwenden
 prtf#:#prtf_unset_default_share_info#:#Die Änderungen wurden gespeichert. Bitte überprüfen Sie die aktuellen Freigaben für das Portfolio.
 prtf#:#prtf_use_page_layout#:#Seitenlayout benutzen
-prtf#:#prtt_title_info#:#Bitte beachten Sie, dass dieser Titel auch für die aus der Vorlage erstellten Porfolios verwendet wird.
+prtf#:#prtt_title_info#:#Bitte beachten Sie, dass dieser Titel auch für die aus der Vorlage erstellten Portfolios verwendet wird.
 prtt#:#prtt_activation_limited_visibility_info#:#Falls aktiv, ist die Portfoliovorlage auch außerhalb der Zugriffszeiten sichtbar.
 prtt#:#prtt_activation_online_info#:#Wählen Sie diese Einstellung, um die Portfoliovorlage für Benutzer verfügbar zumachen.
 prtt#:#prtt_add#:#Portfoliovorlage anlegen

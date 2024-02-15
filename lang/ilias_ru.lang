@@ -1448,6 +1448,7 @@ assessment#:#tst_form_dynamic_question_set_config#:#Продолжить выб�
 assessment#:#tst_gap_analysis#:#Gap Analysis###26 09 2014 new variable
 assessment#:#tst_general_properties#:#Основные свойства
 assessment#:#tst_header_participant#:#Result:
+assessment#:#tst_header_participant_no_answer#:#Question - not answered###14 02 2024 new variable
 assessment#:#tst_header_solution#:#Correct solution:
 assessment#:#tst_heading_scoring#:#Оценки
 assessment#:#tst_hide_side_list#:#Скрыть список вопросов
@@ -5336,8 +5337,8 @@ common#:#reg_mail_body_salutation#:#Привет
 common#:#reg_mail_body_text1#:#Добро пожаловать в ILIAS eLearning!
 common#:#reg_mail_body_text2#:#ILIAS использует доступ к следующим данным:
 common#:#reg_mail_body_text3#:#Дополнительная персональная информация:
-common#:#reg_mail_subject#:#ILIAS eLearning - Ваши данные доступа
-common#:#reg_mail_subject_confirmation#:#ILIAS eLearning - Your Confirmationlink
+common#:#reg_mail_subject#:#Ваши данные доступа
+common#:#reg_mail_subject_confirmation#:#Your Confirmationlink
 common#:#reg_passwd_via_mail#:#Ваш пароль будет послан по е-майл адресу приведенному ниже.
 common#:#register#:#Регистрация
 common#:#register_notification#:#"%s" has applied for session "%s".###07 02 2020 new variable
@@ -8321,6 +8322,7 @@ dateplaner#:#cal_weekly#:#Weekly
 dateplaner#:#cal_where#:#Location
 dateplaner#:#cal_year_s#:#Year(s)
 dateplaner#:#cal_yearly#:#Yearly
+dateplaner#:#consultation_hours_block_title#:#Consultation Hours###14 02 2024 new variable
 dateplaner#:#created#:#Создана
 dateplaner#:#crs_cal_activation_end#:#Course End
 dateplaner#:#crs_cal_activation_start#:#Course Start

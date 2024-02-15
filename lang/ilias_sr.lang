@@ -1448,6 +1448,7 @@ assessment#:#tst_form_dynamic_question_set_config#:#Continues Question Selection
 assessment#:#tst_gap_analysis#:#Gap Analysis###26 09 2014 new variable
 assessment#:#tst_general_properties#:#Osnovne osobine
 assessment#:#tst_header_participant#:#Result:###24 10 2013 new variable
+assessment#:#tst_header_participant_no_answer#:#Question - not answered###14 02 2024 new variable
 assessment#:#tst_header_solution#:#Correct solution:###24 10 2013 new variable
 assessment#:#tst_heading_scoring#:#Scoring ### 2006-8-11 --- Add new translation here.
 assessment#:#tst_hide_side_list#:#Hide question list###24 07 2009 new variable
@@ -5337,7 +5338,7 @@ common#:#reg_mail_body_text1#:#Dobro došli na ILIAS eUcenje!
 common#:#reg_mail_body_text2#:#Da biste pristupili ILIAS-u upotrebite sledece podatke:###10 Jul 2006 content changed
 common#:#reg_mail_body_text3#:#Sledeci licni podaci:
 common#:#reg_mail_subject#:#ILIAS eUcenje - Vadi podaci za pristup
-common#:#reg_mail_subject_confirmation#:#ILIAS eLearning - Your Confirmationlink###24 07 2009 new variable
+common#:#reg_mail_subject_confirmation#:#Your Confirmationlink###24 07 2009 new variable
 common#:#reg_passwd_via_mail#:#Vaša lozinka ce biti poslata na dole naznacenu adresu elektronske pošte.
 common#:#register#:#Registruj
 common#:#register_notification#:#"%s" has applied for session "%s".###07 02 2020 new variable
@@ -8321,6 +8322,7 @@ dateplaner#:#cal_weekly#:#Weekly###02 06 2008 new variable
 dateplaner#:#cal_where#:#Location###02 06 2008 new variable
 dateplaner#:#cal_year_s#:#Year(s)###02 06 2008 new variable
 dateplaner#:#cal_yearly#:#Yearly###02 06 2008 new variable
+dateplaner#:#consultation_hours_block_title#:#Consultation Hours###14 02 2024 new variable
 dateplaner#:#created#:#Kreirano
 dateplaner#:#crs_cal_activation_end#:#Course End###02 06 2008 new variable
 dateplaner#:#crs_cal_activation_start#:#Course Start###02 06 2008 new variable

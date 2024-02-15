@@ -1461,7 +1461,8 @@ assessment#:#tst_finished#:#Finished
 assessment#:#tst_form_dynamic_question_set_config#:#Continues Question Selection
 assessment#:#tst_gap_analysis#:#Gap Analysis
 assessment#:#tst_general_properties#:#General Settings
-assessment#:#tst_header_participant#:#Your Answer:
+assessment#:#tst_header_participant#:#Question and your answer:
+assessment#:#tst_header_participant_no_answer#:#Question - not answered
 assessment#:#tst_header_solution#:#Best Solution:
 assessment#:#tst_heading_scoring#:#Scoring
 assessment#:#tst_hide_side_list#:#Hide List of Questions
@@ -5291,7 +5292,7 @@ common#:#private_notes#:#Private Notes
 common#:#pro#:#Pro
 common#:#proceed#:#Proceed
 common#:#profile#:#Profile
-common#:#profile_changed#:#ILIAS eLearning - Your profile has changed
+common#:#profile_changed#:#Your profile has changed
 common#:#profile_incomplete#:#Your profile is incomplete. Please fill in all required data.
 common#:#profile_of#:#Profile of
 common#:#properties#:#Properties
@@ -5350,8 +5351,8 @@ common#:#reg_mail_body_salutation#:#Hello
 common#:#reg_mail_body_text1#:#Welcome to ILIAS eLearning!
 common#:#reg_mail_body_text2#:#To access ILIAS use the following data:
 common#:#reg_mail_body_text3#:#Further personal information:
-common#:#reg_mail_subject#:#ILIAS eLearning - Your access data
-common#:#reg_mail_subject_confirmation#:#ILIAS eLearning - Your Confirmation Link
+common#:#reg_mail_subject#:#Your access data
+common#:#reg_mail_subject_confirmation#:#Your Confirmation Link
 common#:#reg_passwd_via_mail#:#Your password will be sent to your e-mail address given below.
 common#:#register#:#Register
 common#:#register_notification#:#"%s" has applied for session "%s".
@@ -7384,7 +7385,7 @@ crs#:#crs_edit_timings#:#Edit Timings
 crs#:#crs_enable_map#:#Enable Course Map
 crs#:#crs_end#:#End
 crs#:#crs_export#:#Course export
-crs#:#crs_file#:#File
+crs#:#crs_file#:#Title
 crs#:#crs_file_download#:#Files for Download
 crs#:#crs_file_name#:#File Name
 crs#:#crs_file_size_info#:#Filesize
@@ -8335,6 +8336,7 @@ dateplaner#:#cal_weekly#:#Weekly
 dateplaner#:#cal_where#:#Location
 dateplaner#:#cal_year_s#:#Year(s)
 dateplaner#:#cal_yearly#:#Yearly
+dateplaner#:#consultation_hours_block_title#:#Consultation Hours
 dateplaner#:#created#:#Created
 dateplaner#:#crs_cal_activation_end#:#Course Availability ends
 dateplaner#:#crs_cal_activation_start#:#Course Availability starts
