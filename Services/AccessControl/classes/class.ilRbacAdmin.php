@@ -317,6 +317,22 @@ class ilRbacAdmin
 
         $mapping = ilLDAPRoleGroupMapping::_getInstance();
         $mapping->assign($a_role_id, $a_usr_id);
+
+        $ref_id = $GLOBALS['DIC']['rbacreview']->getObjectReferenceOfRole($a_role_id);
+        $obj_id = ilObject::_lookupObjId($ref_id);
+        $type = ilObject::_lookupType($obj_id);
+        
+        $GLOBALS['DIC']['ilAppEventHandler']->raise(
+            'Services/AccessControl',
+            'assignUser',
+            array(
+                'obj_id' => $obj_id,
+                'usr_id' => $a_usr_id,
+                'role_id' => $a_role_id,
+                'type' => $type
+            )
+        );
+
         return true;
     }
     // fau.
