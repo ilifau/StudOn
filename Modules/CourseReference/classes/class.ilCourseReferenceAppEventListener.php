@@ -106,6 +106,11 @@ class ilCourseReferenceAppEventListener implements ilAppEventListener
      */
     public static function handleEvent($a_component, $a_event, $a_parameter)
     {
+        log_line("handleEvent");
+        log_var($a_component, 'component');
+        log_var($a_event, 'event');
+        log_var($a_parameter, 'parameter');
+        
         ilLoggerFactory::getLogger('crs')->warning($a_component);
         switch ($a_component) {
 
