@@ -459,7 +459,7 @@ class Repository extends RecordRepo
             $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
         }
         else {
-            $query .= " AND ilias_obj_id IS NULL AND ilias_obj_id_trans IS NOT NULL";
+            $query .= " AND ilias_obj_id IS NULL AND ilias_obj_id_trans IS NULL";
         }
         return $this->queryRecords($query, Course::model(), false);
     }
