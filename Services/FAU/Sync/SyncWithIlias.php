@@ -550,7 +550,7 @@ class SyncWithIlias extends SyncBase
     /**
      * Update the ILIAS course for a campo event and/or course (parallel group)
      * The ilias course will always work as a container for the event
-     * A campo course is always provided to indicate the need for changes by dirty flags
+     * A campo course indicates the need for changes by dirty flags
      * The last parameter indicates that the ilias course is a campo course directly (not the parent of groups)
      */
     protected function updateIliasCourse(int $ref_id, Term $term, Event $event, Course $course, bool $is_parallel_group = true)

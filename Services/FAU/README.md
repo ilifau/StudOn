@@ -1,31 +1,37 @@
 # Service zur Integration von ILIAS an der FAU
 
-## ILIAS-Anpassungen, die den Service nutzen
+## ILIAS-Anpassungen, die den Service nutzen oder von Service benutzt werden
 
 - **fauService** - Einbindung des Service bei der ILIAS-Initialisierung
-- **userData** - Studiengangs- und Organisationsdaten von FAU-Benutzern (Ablösung von idmData und studyData)
-- **studyCond** - Verwaltung und Prüfung von "weichen" Beitrittsbedingungen für Kurse und Gruppen.
-- **studySearch** - Suche nach Lehrvernstaltungen
+
+- **campoCheck** Voraussetzungsprüfung bei der Anmeldung
+- **campoExport** Kursteilnehmer in Kategorien exportieren
+- **campoInfo** Anzeige von Informationen aus Campo
+- **campoLink** Verlinkung von Kursen aus Campo
+- **campoSub** Modulauswahl bei der Kursanmeldung
+  - **campoTransfer** Übertrag von Campo-Verbindungen, Aufspalten von Kursen
+- **cascadeMembers** – Neue / Entfernte Mitgliedschaften kaskadieren
+- **fairSub** – Chancengleiche Phase bei der Anmeldung („Happy Hour“)
+- **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
+- **heavySub** – Überbuchungen bei hohen Zugriffszahlen vermeiden
+- **limitMemberRoles** – keine anderen Rollen als Mitglieder zählen
+- **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
+- **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind
 - **samlAuth** - Single Sign-On über SAML (Authentifitierungsmodus ist Shibboleth")
 - **samlChange** - Umschreiben vorhandener Acocunt auf Shibboleth oder Lokale
-- **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind. Administratoren können löschen (die Verbindung zu Campo wird dann aufgehoben). Kurse dürfen verschoben werden, Gruppen nicht.
-- **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
-- **studySearch** Suchseite nach Lehrveranstaltungen
-- **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
-- **memberExport** memberExport – Erweiterter Teilnehmerdaten-Export
-- **campoExport** Kursteilnehmer in Kategorien exportieren
-- **campoLink** Verlinkung von Kursen aus Campo
-- **campoInfo** Anzeigen auf den Info-Seiten
-- **campoCheck** Voraussetzungsprüfung bei der Anmeldung
-- **campoSub** Modulauswahl bei der Kursanmeldung und Übertragen von Kursanmeldungen nach campo
-- **campoTransfer** Übertrag von Campo-Verbindungen, Aufspalten von Kursen
+- **showMemLimit** – Infos über begrenzte Teilnehmerzahl
+- **setPassedFlag** – Massenbearbeitung Bestanden-Status
+- **userData** - Studiengangs- und Organisationsdaten von FAU-Benutzern (Ablösung von idmData und studyData)
+- **studyCond** - Verwaltung und Prüfung von "weichen" Beitrittsbedingungen für Kurse und Gruppen.
+- **studySearch** - Suchseite für Lehrveranstaltungen aus Campo
+- **memberExport** - memberExport – Erweiterter Teilnehmerdaten-Export
+- **syncWithIdm** - StudOn-Accounts aus IdM aktualisieren
+- **syncWithOrg** - Organiasationseinheiten aus FAU.org aktualisieren
+- **syncWithCampo** - Daten und Kurse/Gruppen aus Campo aktualisieren 
+- **syncToCampo** - Daten nach Camo zurückschreiben
+- **userData** – Übernahme von Nutzerdaten aus IdM und Campo
 
-Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
-
-## Abgelöste Anpassungen
-
-- **idmData** 
-- **univisAdmin**
+Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutzung dieses Service umgeschrieben.
 
 ## Struktur
 

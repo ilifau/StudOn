@@ -2,7 +2,7 @@
 
 
 /**
- * new class for campo data update cron job.
+ * fau: syncWithCampo - new class for campo data update cron job.
  */
 class ilSyncWithCampoCron extends ilCronJob
 {

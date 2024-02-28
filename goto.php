@@ -53,7 +53,7 @@ if (substr($_GET['target'], 0, 6) == 'lcode_') {
 // fau.
 
 
-// fau: campoLink - treat course link from campo
+// fau: campoLink - treat course link from campo and orgunit links from idm
 if (substr($_GET['target'], 0, 6) == 'campo_') {
     global $DIC;
     $DIC->fau()->study()->redirectFromTarget($_GET['target']);

@@ -347,7 +347,7 @@ class Objects
 
     /**
      * Handle the update of an ILIAS object
-     * eventually transmit a change of the maximum members
+     * eventually save a change of the maximum members
      * @param int $obj_id
      */
     public function handleUpdate(int $obj_id)

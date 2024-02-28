@@ -1263,7 +1263,7 @@ class ilObjCourseGUI extends ilContainerGUI
             return $this->editObject($form);
         }
 
-        // fau: campoSub - save the campo settings from the form
+        // fau: syncToCampo - save the campo settings from the form
         $DIC->fau()->ilias()->getCourseSettingsGUI()->saveCampoSettingsFromForm($form, $this->object);
         // fau.
 
@@ -1873,7 +1873,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $ecs = new ilECSCourseSettings($this->object);
         $ecs->addSettingsToForm($form, 'crs');
 
-        // fau: campoSub - add the campo settings to the form
+        // fau: syncToCampo - add the campo settings to the form
         $DIC->fau()->ilias()->getCourseSettingsGUI()->addCampoSettingsToForm($form, $this->object);
         // fau.
 

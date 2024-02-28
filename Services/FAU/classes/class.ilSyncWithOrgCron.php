@@ -2,7 +2,7 @@
 
 
 /**
- * new class for fau.org data update cron job.
+ * fau: syncWithOrg - new class for fau.org data update cron job.
  */
 class ilSyncWithOrgCron extends ilCronJob
 {
