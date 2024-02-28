@@ -450,8 +450,9 @@ class ilWaitingListTableGUI extends ilTable2GUI
      */
     public function readUserData()
     {
-        // fau: fixWaitingListSegmentation - set external segmentation for waiting list table
-        $this->setExternalSegmentation(true);
+        // fau: fixWaitingListSegmentation - prevent external sorting and segmentation
+        $this->setExternalSegmentation(false);
+        $this->setExternalSorting(false);
         // fau.
         $this->determineOffsetAndOrder();
 
@@ -490,12 +491,13 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
         $l = $this->getLimit();
 
-        // fau: userData - add ref_if to filter the list of educations as parameter
+        // fau: fixWaitingListSegmentation - don't add sorting and segmentation to user query
+        // fau: userData - add ref_id to filter the list of educations as parameter
         $usr_data = ilUserQuery::getUserListData(
-            $this->getOrderField(),
-            $this->getOrderDirection(),
-            $this->getOffset(),
-            $this->getLimit(),
+            '',
+            '', 
+            0,
+            999999,
             '',
             '',
             null,
@@ -510,16 +512,15 @@ class ilWaitingListTableGUI extends ilTable2GUI
             null,
             $this->getRepositoryObject()->getRefId()
         );
-        // fau.
 
         if (0 === count($usr_data['set']) && $this->getOffset() > 0 && $this->getExternalSegmentation()) {
             $this->resetOffset();
 
             $usr_data = ilUserQuery::getUserListData(
-                $this->getOrderField(),
-                $this->getOrderDirection(),
-                $this->getOffset(),
-                $this->getLimit(),
+                '',
+                '',
+                0,
+                999999,
                 '',
                 '',
                 null,
@@ -529,9 +530,13 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 0,
                 null,
                 $usr_data_fields,
-                $this->wait_user_ids
+                $this->wait_user_ids,
+                '',
+                null,
+                $this->getRepositoryObject()->getRefId()
             );
         }
+        // fau.
 
         ilLoggerFactory::getLogger('mem')->dump($this->wait_user_ids);
         ilLoggerFactory::getLogger('mem')->dump($usr_data);
