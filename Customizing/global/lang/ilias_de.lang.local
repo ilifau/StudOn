@@ -125,7 +125,7 @@ common#:#caches_flushed#:#Die Caches wurden aktualisiert.
 common#:#campo_course_not_found#:#Für diese Lehrveranstaltung sind noch keine Daten aus campo vorhanden. Bitte warten Sie noch ein bis zwei Stunden auf die nächste Synchronisation.###fau: campoLink
 common#:#campo_course_not_created#:#Für diese Lehrveranstaltung ist noch kein StudOn-Kurs vorhanden. Die Kurse für das Sommersemewster werden ab dem 1. Dezember angelegt. Die Kurse für das Wintersemester werden ab dem 1. Juni angelegt.###fau: campoLink
 common#:#campo_orgunit_not_found#:#Die Organisationseinheit %s wurde nicht gefunden!###fau: campoLink
-common#:#campo_orgunit_not_connected#:#Die Organisationseinheit %s ist noch mit keiner StudOn-Kategorie verbinden. Bitte wenden Sie sich an studon@fau.de.###fau: campoLink
+common#:#campo_orgunit_not_connected#:#Die Organisationseinheit %s ist noch mit keiner StudOn-Kategorie verbunden. Bitte wenden Sie sich an studon@fau.de.###fau: campoLink
 common#:#cat_create_exco#:#Neuen externen Inhalt anlegen
 common#:#cat_create_perc#:#Neues Perception-Assessment anlegen
 common#:#cont_limit_starts#:#Beschränkte Wiedergaben
