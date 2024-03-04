@@ -46,6 +46,9 @@ class ilUserQuery
     private string $first_letter = '';
     private bool $has_access = false;
     private string $authentication_method = '';
+    // fau: userData - class variable for ref_id to filter educations
+    private $educations_ref_id = null;
+    // fau.
     protected array $udf_filter = array(); // Missing array type.
     /** @var string[] */
     private array $default_fields = array(
@@ -65,6 +68,24 @@ class ilUserQuery
     public function __construct()
     {
     }
+
+    // fau: userData - getter and setter for ref_id to filter educations
+    /**
+     * Set the ref_id to filter the list of educations
+     */
+    public function setEducationsRefId(?int $ref_id)
+    {
+        $this->educations_ref_id = $ref_id;
+    }
+
+    /**
+     * Get the ref_id to filter the list of educations
+     */
+    public function getEducationsRefId() : ?int
+    {
+        return $this->educations_ref_id;
+    }
+    // fau.    
 
     /**
      * Set udf filter
@@ -291,6 +312,18 @@ class ilUserQuery
                 continue;
             }
 
+            // fau: userData - don't query for studydata and educations directly, add them later
+            if ($field == 'studydata') {
+                $add_studydata = true;
+                continue;
+            }
+            if ($field == 'educations') {
+                $add_educations = true;
+                continue;
+            }
+            // fau.
+
+
             if (in_array($field, $all_multi_fields)) {
                 $multi_fields[] = $field;
             } elseif (strpos($field, ".") === false) {
@@ -469,6 +502,13 @@ class ilUserQuery
                 }
                 break;
 
+            // fau: userData - don't order by studydata or educations
+            case "studydata":
+            case "educations":
+                break;
+            // fau.
+
+
             default:
                 if ($this->order_dir !== "asc" && $this->order_dir !== "desc") {
                     $this->order_dir = "asc";
@@ -515,6 +555,14 @@ class ilUserQuery
         $result = array();
 
         while ($rec = $ilDB->fetchAssoc($set)) {
+            // fau: userData - optionally add the studydata and educations
+            if ($add_studydata) {
+                $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
+            }
+            if ($add_educations) {
+                $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id'], $this->getEducationsRefId());
+            }
+            // fau.            
             $result[] = $rec;
             if (count($multi_fields)) {
                 $usr_ids[] = (int) $rec["usr_id"];
@@ -538,7 +586,7 @@ class ilUserQuery
         return array("cnt" => $cnt, "set" => $result);
     }
 
-
+    // fau: userData add ref id to filter the display of educations as parameter
     /**
      * Get data for user administration list.
      * @deprecated
@@ -559,7 +607,8 @@ class ilUserQuery
         array $a_additional_fields = null,
         array $a_user_filter = null,
         string $a_first_letter = "",
-        string $a_authentication_filter = ""
+        string $a_authentication_filter = "",
+        $a_educations_ref_id = null
     ): array {
         $query = new ilUserQuery();
         $query->setOrderField($a_order_field);
@@ -578,6 +627,8 @@ class ilUserQuery
         $query->setUserFilter($a_user_filter ?? []);
         $query->setFirstLetterLastname($a_first_letter);
         $query->setAuthenticationFilter($a_authentication_filter);
+        $query->setEducationsRefId($a_educations_ref_id);
         return $query->query();
     }
+    // fau.
 }

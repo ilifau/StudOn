@@ -642,6 +642,18 @@ class ilAttendanceList
                             case 'org_units':
                                 $value = ilOrgUnitPathStorage::getTextRepresentationOfUsersOrgUnits((int) $user_id);
                                 break;
+                                
+                            // fau: userData - add educations and studydata to the attendance list
+                            case "studydata":
+                                global $DIC;
+                                $value = $DIC->fau()->user()->getStudiesAsText($user_id);
+                                break;
+
+                            case "educations":
+                                global $DIC;
+                                $value = $DIC->fau()->user()->getEducationsAsText((int) $user_id, $this->parent_obj->getRefId());
+                                break;
+                            // fau.                                
 
                             case "name":
                                 if (!($user_data[$id] ?? null)) {

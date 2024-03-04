@@ -200,6 +200,11 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->tpl->setVariable('VAL_NAME', $a_set['lastname'] . ', ' . $a_set['firstname']);
 
         foreach ($this->getSelectedColumns() as $field) {
+
+            // fau: userData - generate cell_id for tooltip
+            $cell_id =  rand(1000000,9999999);
+            // fau.
+
             switch ($field) {
                 case 'gender':
                     $a_set['gender'] = $a_set['gender'] ? $this->lng->txt('gender_' . $a_set['gender']) : '';
@@ -231,6 +236,67 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     $this->tpl->parseCurrentBlock();
                     break;
 
+                // fau: paraSub - fill module column
+                case 'module':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) $a_set['module']);
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: campoCheck - fill restrictions column
+                case 'restrictions_passed':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) fauHardRestrictionsGUI::getInstance()->getResultModalLink(
+                        $a_set['restrictions'], $a_set['module_id']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                    // fau.
+
+                // fau: paraSub - fill parallel groups column
+                case 'groups':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['groups']),
+                        $this->lng->txt('fau_selected_groups_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: paraSub - fill submission message
+                case 'subject':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['subject']),
+                        $this->lng->txt('fau_sub_message_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: userData - format table output of studydata and educations
+                case 'studydata':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+
+                case 'educations':
+                    //ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    //$this->tpl->setVariable('ID_CUST', $cell_id);
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['educations']),
+                        $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+                                    
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
@@ -301,6 +367,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
             $usr_data_fields[] = $field;
         }
 
+        // fau: userData - add ref_id to filter the list of educations as parameter
         $usr_data = ilUserQuery::getUserListData(
             $this->getOrderField(),
             $this->getOrderDirection(),
@@ -315,7 +382,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
             0,
             null,
             $usr_data_fields,
-            $this->wait_user_ids
+            $this->wait_user_ids,
+            '',
+            "",
+            $this->getRepositoryObject()->getRefId()
         );
         if (0 === count($usr_data['set']) && $this->getOffset() > 0 && $this->getExternalSegmentation()) {
             $this->resetOffset();
@@ -334,7 +404,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 0,
                 null,
                 $usr_data_fields,
-                $this->wait_user_ids
+                $this->wait_user_ids,
+                '',
+                "",
+                $this->getRepositoryObject()->getRefId()
             );
         }
         $usr_ids = [];

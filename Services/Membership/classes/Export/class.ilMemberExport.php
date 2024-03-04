@@ -377,6 +377,31 @@ class ilMemberExport
                         $this->addCol(ilObjUser::lookupOrgUnitsRepresentation($usr_id), $row, $col++);
                         break;
 
+
+                    // fau: userData - add studydata and educations
+                    case 'studydata':
+                        global $DIC;
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            $studydata = $DIC->fau()->user()->getStudiesAsText((int) $usr_id);
+                            $studydata = $DIC->fau()->tools()->convert()->quoteForExport($studydata);
+                            $this->addCol($studydata, $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;
+
+                    case 'educations':
+                        global $DIC;
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            $educations = $DIC->fau()->user()->getEducationsAsText((int) $usr_id, (int) $this->getRefId());
+                            $educations = $DIC->fau()->tools()->convert()->quoteForExport($educations);
+                            $this->addCol($educations, $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;
+                    // fau.
+
                     default:
                         // Check aggreement
                         if (
