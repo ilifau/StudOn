@@ -46,9 +46,6 @@ class ilUserQuery
     private string $first_letter = '';
     private bool $has_access = false;
     private string $authentication_method = '';
-    // fau: userData - class variable for ref_id to filter educations
-    private $educations_ref_id = null;
-    // fau.
     protected array $udf_filter = array(); // Missing array type.
     /** @var string[] */
     private array $default_fields = array(
@@ -68,24 +65,6 @@ class ilUserQuery
     public function __construct()
     {
     }
-
-    // fau: userData - getter and setter for ref_id to filter educations
-    /**
-     * Set the ref_id to filter the list of educations
-     */
-    public function setEducationsRefId(?int $ref_id)
-    {
-        $this->educations_ref_id = $ref_id;
-    }
-
-    /**
-     * Get the ref_id to filter the list of educations
-     */
-    public function getEducationsRefId() : ?int
-    {
-        return $this->educations_ref_id;
-    }
-    // fau.    
 
     /**
      * Set udf filter
@@ -585,50 +564,4 @@ class ilUserQuery
         }
         return array("cnt" => $cnt, "set" => $result);
     }
-
-    // fau: userData add ref id to filter the display of educations as parameter
-    /**
-     * Get data for user administration list.
-     * @deprecated
-     */
-    public static function getUserListData(
-        string $a_order_field,
-        string $a_order_dir,
-        int $a_offset,
-        int $a_limit,
-        string $a_string_filter = "",
-        string $a_activation_filter = "",
-        ?ilDateTime $a_last_login_filter = null,
-        bool $a_limited_access_filter = false,
-        bool $a_no_courses_filter = false,
-        int $a_course_group_filter = 0,
-        int $a_role_filter = 0,
-        array $a_user_folder_filter = null,
-        array $a_additional_fields = null,
-        array $a_user_filter = null,
-        string $a_first_letter = "",
-        string $a_authentication_filter = "",
-        $a_educations_ref_id = null
-    ): array {
-        $query = new ilUserQuery();
-        $query->setOrderField($a_order_field);
-        $query->setOrderDirection($a_order_dir);
-        $query->setOffset($a_offset);
-        $query->setLimit($a_limit);
-        $query->setTextFilter($a_string_filter);
-        $query->setActionFilter($a_activation_filter);
-        $query->setLastLogin($a_last_login_filter);
-        $query->setLimitedAccessFilter($a_limited_access_filter);
-        $query->setNoCourseFilter($a_no_courses_filter);
-        $query->setCourseGroupFilter($a_course_group_filter);
-        $query->setRoleFilter($a_role_filter);
-        $query->setUserFolder($a_user_folder_filter);
-        $query->setAdditionalFields($a_additional_fields ?? []);
-        $query->setUserFilter($a_user_filter ?? []);
-        $query->setFirstLetterLastname($a_first_letter);
-        $query->setAuthenticationFilter($a_authentication_filter);
-        $query->setEducationsRefId($a_educations_ref_id);
-        return $query->query();
-    }
-    // fau.
 }
