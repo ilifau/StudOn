@@ -556,10 +556,10 @@ class ilUserQuery
 
         while ($rec = $ilDB->fetchAssoc($set)) {
             // fau: userData - optionally add the studydata and educations
-            if ($add_studydata) {
+            if (isset($add_studydata) && $add_studydata) {
                 $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
             }
-            if ($add_educations) {
+            if (isset($add_educations) && $add_educations) {
                 $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id'], $this->getEducationsRefId());
             }
             // fau.            
