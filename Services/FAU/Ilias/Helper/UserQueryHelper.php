@@ -1,6 +1,7 @@
 <?php
 
 namespace FAU\Ilias\Helper;
+use ilUserQuery; 
 
 /**
  * trait for providing additional ilUserQuery methods
@@ -47,7 +48,7 @@ trait UserQueryHelper
         $a_course_group_filter = 0,
         $a_role_filter = 0,
         $a_user_folder_filter = null,
-        $a_additional_fields = '',
+        $a_additional_fields = array(),
         $a_user_filter = null,
         $a_first_letter = "",
         $a_authentication_filter = null,
