@@ -2,7 +2,7 @@
 
 
 /**
- * new class for fau.org data update cron job.
+ * fau: syncWithIdm - new class for idm data update cron job.
  */
 class ilSyncWithIdmCron extends ilCronJob
 {

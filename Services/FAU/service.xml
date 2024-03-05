@@ -1,20 +1,32 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <service xmlns="http://www.w3.org" version="$Id$" id="fau">
 	<crons>
+		<!-- fau: syncWithCampo - register cronjob. -->
 		<cron id="fau_sync_with_campo" class="ilSyncWithCampoCron" path="Services/FAU/classes/" />
+		<!-- fau: syncToCampo - register cronjob. -->
 		<cron id="fau_sync_to_campo" class="ilSyncToCampoCron" path="Services/FAU/classes/" />
+		<!-- fau: syncWithOrg - register cronjob. -->
 		<cron id="fau_sync_with_org" class="ilSyncWithOrgCron" path="Services/FAU/classes/" />
+		<!-- fau: syncWithIdm - register cronjob. -->
 		<cron id="fau_sync_with_idm" class="ilSyncWithIdmCron" path="Services/FAU/classes/" />
+		<!-- fau: fairSub - register cronjob. -->
 		<cron id="fau_fair_autofill" class="ilFairAutoFillCron" path="Services/FAU/classes/" />
 
 	</crons>
 	<baseclasses>
+		<!-- fau: studySearch - register baseclass -->
 		<baseclass name="fauStudySearchGUI" dir="Study/GUI" />
+		<!-- fau: studyModules - register baseclass -->
 		<baseclass name="fauStudyMyModulesGUI" dir="Study/GUI" />
+		<!-- fau: campoInfo - register baseclass -->
 		<baseclass name="fauStudyInfoGUI" dir="Study/GUI" />
+		<!-- fau: campoCheck - register baseclass -->
 		<baseclass name="fauHardRestrictionsGUI" dir="Cond/GUI" />
 	</baseclasses>
 	<events>
+		<!-- fau: syncWithCampo - register event listeners -->
+		<!-- fau: syncToCampo - register event listeners -->
+		<!-- fau: cascadeMembers - register event listeners -->
 		<event type="listen" id="Modules/Group" />
 		<event type="listen" id="Modules/Course" />
 		<event type="listen" id="Services/AccessControl" />

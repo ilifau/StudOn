@@ -5,7 +5,7 @@
 include_once "Services/Cron/classes/class.ilCronJob.php";
 
 /**
- * Cron job for auto-filling course/group after fair period
+ * fau: fairSub - cron job for auto-filling course/group after fair period.
  */
 class ilFairAutofillCron extends ilCronJob
 {

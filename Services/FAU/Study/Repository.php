@@ -383,12 +383,24 @@ class Repository extends RecordRepo
     }
 
     /**
-     * Get the courses with certain ilias_obj_ids
-     * @return Course[] indexed by course_id
+     * Get the courses with certain ilias_obj_id
+     * @return Course[] indexed by course_id, should normally only be one!
      */
     public function getCoursesByIliasObjId(int $id, bool $useCache = true) : array
     {
         $query = "SELECT * from fau_study_courses WHERE ilias_obj_id = ". $this->db->quote($id, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+    /**
+     * Get the courses with certain ilias_obj_id or ilias_obj_id_trans
+     * ilias_obj_id_trans is set for courses of former terms that should point to the ilias object
+     * @return Course[] indexed by course_id, could be more than one
+     */
+    public function getCoursesByIliasObjIdOrIliasObjIdTrans(int $id, bool $useCache = true) : array
+    {
+        $query = "SELECT * from fau_study_courses WHERE ilias_obj_id = ". $this->db->quote($id, 'integer')
+            ." OR ilias_obj_id_trans = " . $this->db->quote($id, 'integer');
         return $this->queryRecords($query, Course::model(), $useCache);
     }
 
@@ -447,7 +459,7 @@ class Repository extends RecordRepo
             $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
         }
         else {
-            $query .= " AND ilias_obj_id IS NULL";
+            $query .= " AND ilias_obj_id IS NULL AND ilias_obj_id_trans IS NULL";
         }
         return $this->queryRecords($query, Course::model(), false);
     }
@@ -468,7 +480,7 @@ class Repository extends RecordRepo
             $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
         }
         else {
-            $query .= " AND ilias_dirty_since IS NOT NULL";
+            $query .= " AND ilias_obj_id IS NOT NULL AND ilias_dirty_since IS NOT NULL";
         }
         return $this->queryRecords($query, Course::model(), false);
     }

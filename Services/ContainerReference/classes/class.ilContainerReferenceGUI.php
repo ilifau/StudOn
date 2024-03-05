@@ -190,6 +190,9 @@ class ilContainerReferenceGUI extends ilObjectGUI
         $ilSetting = $this->settings;
         
         $new_type = $_REQUEST["new_type"];
+        $this->ctrl->saveParameter($this, "crtptrefid");
+        // use forced callback after object creation
+        $this->ctrl->saveParameter($this, "crtcb");
         if (!$ilAccess->checkAccess("create_" . $this->getReferenceType(), '', $_GET["ref_id"], $new_type)) {
             $ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
         }
@@ -377,11 +380,6 @@ class ilContainerReferenceGUI extends ilObjectGUI
         $ok = true;
         $access = $DIC->access();
 
-        $this->object->setTitleType($form->getInput('title_type'));
-        if ($form->getInput('title_type') == ilContainerReference::TITLE_TYPE_CUSTOM) {
-            $this->object->setTitle($form->getInput('title'));
-        }
-
         // check access
         if (
             !$access->checkAccess('visible', '', (int) $form->getInput('target_id'))
@@ -402,6 +400,14 @@ class ilContainerReferenceGUI extends ilObjectGUI
         $this->object->setTargetId(
             \ilObject::_lookupObjId((int) $form->getInput('target_id'))
         );
+
+        // set title after target id, so that the title can be reused immediately
+        $this->object->setTitleType($form->getInput('title_type'));
+        if ($form->getInput('title_type') == ilContainerReference::TITLE_TYPE_CUSTOM) {
+            $this->object->setTitle($form->getInput('title'));
+        } elseif ($form->getInput('title_type') == ilContainerReference::TITLE_TYPE_REUSE) {
+            $this->object->setTitle(ilObject::_lookupTitle($this->object->getTargetId()));
+        }
 
         return $ok;
     }

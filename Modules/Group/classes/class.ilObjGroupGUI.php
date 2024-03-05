@@ -831,7 +831,7 @@ class ilObjGroupGUI extends ilContainerGUI
             }
             // fau.
 
-            // fau: campoSub - save the campo settings from the form
+            // fau: syncToCampo - save the campo settings from the form
             global $DIC;
             $DIC->fau()->ilias()->getCourseSettingsGUI()->saveCampoSettingsFromForm($form, $this->object);
             // fau.

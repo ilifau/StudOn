@@ -26,7 +26,7 @@ class SyncWithIdm extends SyncBase
      */
     public function synchronize() : void
     {
-        $this-$this->migrateToLocal();
+        $this->migrateToLocal();
         $this->migrateToSSO();
         $this->syncPersonData();
     }

@@ -1770,5 +1770,19 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->org()->custom_step_127();
 ?>
+<#128>
+<?php
+/**
+* fau: fauService - add 'ilias_obj_id_trans' to course
+*/
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_128();
+?>
+<#129>
+<?php
+/**
+ * fau: fauService - add 'course_id' to member
+ */
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_129();
+?>
 
 

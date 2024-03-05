@@ -333,11 +333,13 @@ class Service extends SubService
             // new membership
             $change = true;
             $member = new Member($obj_id, $user_id);
+            $member = $member->withCourseId($course_id);
             $member = $member->withModuleId($module_id == 0 ? null : $module_id);
         }
         elseif (isset($module_id) && $module_id != (int) $member->getModuleId()) {
             // module id should be changed or reset
             $change = true;
+            $member = $member->withCourseId($course_id);
             $member = $member->withModuleId($module_id == 0 ? null : $module_id);
         }
         else {

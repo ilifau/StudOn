@@ -885,7 +885,7 @@ class ilObjCategoryGUI extends ilContainerGUI
 
 
 
-        // fau: campoInfo - selection of orgunits
+        // fau: syncWithOrg - selection of orgunits
         if (ilCust::administrationIsVisible()) {
             global $DIC;
 
@@ -914,7 +914,7 @@ class ilObjCategoryGUI extends ilContainerGUI
         return $form;
     }
 
-    // fau: campoInfo - get the list of orgunits for autocomplete
+    // fau: syncWithOrg - get the list of orgunits for autocomplete
     /**
      * Get the list of orgunits for autocomplete
      */
@@ -956,7 +956,7 @@ class ilObjCategoryGUI extends ilContainerGUI
         } else {
             $form = $this->initEditForm();
 
-            // fau: campoInfo - handle orgunit assignments
+            // fau: syncWithOrg - handle orgunit assignments
             $success = $form->checkInput();
             if ($success && ilCust::administrationIsVisible()) {
                 global $DIC;

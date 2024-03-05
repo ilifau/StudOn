@@ -64,11 +64,17 @@ class Objects
     
     /**
      * Get the reference to the ilias course or group for a course
+     * @param bool $justForLinking   take also transferred objects into account for linking former courses
      */
-    public function getIliasRefIdForCourse(Course $course) : ?int
+    public function getIliasRefIdForCourse(Course $course, $justForLinking = false) : ?int
     {
-        if (!empty($course->getIliasObjId())) {
-            foreach (ilObject::_getAllReferences($course->getIliasObjId()) as $ref_id) {
+        $obj_id = $course->getIliasObjId();
+        if (empty($obj_id) && $justForLinking) {
+            $obj_id = $course->getIliasObjIdTrans();
+        }
+        
+        if (!empty($obj_id)) {
+            foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
                 if (!ilObject::_isInTrash($ref_id)) {
                     return $ref_id;
                 }
@@ -341,7 +347,7 @@ class Objects
 
     /**
      * Handle the update of an ILIAS object
-     * eventually transmit a change of the maximum members
+     * eventually save a change of the maximum members
      * @param int $obj_id
      */
     public function handleUpdate(int $obj_id)
