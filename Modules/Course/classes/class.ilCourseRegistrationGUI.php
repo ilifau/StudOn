@@ -258,7 +258,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
        
             // fau: objectSub - fill registration by separate object
             if ($this->container->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
-               // return $this->fillRegistrationTypeObject($this->container->getSubscriptionRefId());
+               $this->fillRegistrationTypeObject((int) $this->container->getSubscriptionRefId());
                return;
             }
             // fau. 

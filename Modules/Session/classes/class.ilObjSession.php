@@ -631,7 +631,7 @@ class ilObjSession extends ilObject
             $this->setDetails((string) $row->details);
             $this->setRegistrationType((int) $row->reg_type);
             // fau: objectSub - read sub_ref_id
-            $this->setRegistrationRefId($row->sub_ref_id);
+            $this->setRegistrationRefId((int) $row->sub_ref_id);
             // fau.            
             $this->enableRegistrationUserLimit((int) $row->reg_limited);
             $this->enableRegistrationWaitingList((bool) $row->reg_waiting_list);

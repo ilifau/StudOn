@@ -8,7 +8,7 @@ namespace FAU\Ilias\Helper;
 trait ObjSessionHelper 
 {
     // fau: objectSub - class variable
-    protected $reg_ref_id = null;
+    protected ?int $reg_ref_id = null;
     // fau.
 
     // fau: fairSub#81 - fake getSubscriptionFair()

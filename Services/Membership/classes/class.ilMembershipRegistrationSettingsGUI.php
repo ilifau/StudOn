@@ -71,13 +71,13 @@ abstract class ilMembershipRegistrationSettingsGUI
         global $lng;
         if (in_array(ilMembershipRegistrationSettings::TYPE_OBJECT, $this->getOptions())) {
             require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
-            $opt_obj = new ilRadioOption($lng->txt('sub_separate_object'), ilMembershipRegistrationSettings::TYPE_OBJECT);
+            $opt_obj = new ilRadioOption($lng->txt('sub_separate_object'), (string) ilMembershipRegistrationSettings::TYPE_OBJECT);
             $opt_obj->setInfo($lng->txt('sub_separate_object_info'));
             $rep_sel = new ilRepositorySelectorInputGUI($lng->txt('sub_subscription_object'), 'registration_ref_id');
             $rep_sel->setHeaderMessage($lng->txt('sub_separate_object_info'));
             $rep_sel->setClickableTypes(array('xcos'));
             $rep_sel->setRequired(true);
-            $rep_sel->setParent($form);
+            $rep_sel->setParentForm($form);
             $opt_obj->addSubItem($rep_sel);
             $reg_type->addOption($opt_obj);
 

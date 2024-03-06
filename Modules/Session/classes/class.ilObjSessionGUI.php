@@ -1157,7 +1157,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
             $this->object->setRegistrationRefId(null);
         }
         $this->object->update();
-        $this->tpl->setOnScreenMessage('succes', $this->lng->txt("msg_obj_modified"), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
         $this->ctrl->redirect($this, "edit");
     }
     // fau.
