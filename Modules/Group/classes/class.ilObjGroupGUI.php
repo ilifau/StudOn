@@ -902,6 +902,7 @@ class ilObjGroupGUI extends ilContainerGUI
      */
     public function updateRegistrationRefIdObject()
     {
+        global $DIC;
         $form = $this->initForm();
         $input = $form->getItemByPostVar('subscription_object');
         $input->readFromSession();
@@ -913,7 +914,7 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->object->setRegistrationRefId(null);
         }
         $this->object->update();
-        ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
+        $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
         $this->ctrl->redirect($this, "edit");
     }
     // fau.

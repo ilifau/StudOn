@@ -743,6 +743,8 @@ class ilObjCourseGUI extends ilContainerGUI
      */
     public function updateSubscriptionRefIdObject()
     {
+        global $DIC; 
+
         $form = $this->initEditForm();
         $input = $form->getItemByPostVar('subscription_object');
         $input->readFromSession();
@@ -750,11 +752,11 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->setSubscriptionType(CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
             $this->object->setSubscriptionRefId((int) $input->getValue());
         } else {
-            $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_CONFIRMATION);
+            $this->object->setSubscriptionType(ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION);
             $this->object->setSubscriptionRefId(null);
         }
         $this->object->update();
-        ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
+        $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
         $this->ctrl->redirect($this, "edit");
     }
     // fau.
@@ -1208,7 +1210,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
         $rep_sel->setClickableTypes(array('xcos'));
         $rep_sel->setRequired(true);
-       // $rep_sel->setParent($form);        
+        $rep_sel->setParentForm($form);        
         
         $opt->addSubItem($rep_sel);
         if ($ref_id = $this->object->getSubscriptionRefId()) {

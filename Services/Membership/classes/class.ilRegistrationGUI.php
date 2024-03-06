@@ -576,7 +576,7 @@ abstract class ilRegistrationGUI
             $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
             $this->participants->sendExternalNotifications($this->container, $this->user, true);
 
-            ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
+            $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt('sub_request_saved'), true);
             $ilCtrl->setParameterByClass(
                 "ilrepositorygui",
                 "ref_id",
