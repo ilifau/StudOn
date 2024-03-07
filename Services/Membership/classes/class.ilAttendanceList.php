@@ -646,7 +646,7 @@ class ilAttendanceList
                             // fau: userData - add educations and studydata to the attendance list
                             case "studydata":
                                 global $DIC;
-                                $value = $DIC->fau()->user()->getStudiesAsText($user_id);
+                                $value = $DIC->fau()->user()->getStudiesAsText((int) $user_id);
                                 break;
 
                             case "educations":
