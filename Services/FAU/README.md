@@ -9,7 +9,7 @@
 - **campoInfo** Anzeige von Informationen aus Campo
 - **campoLink** Verlinkung von Kursen aus Campo
 - **campoSub** Modulauswahl bei der Kursanmeldung
-  - **campoTransfer** Übertrag von Campo-Verbindungen, Aufspalten von Kursen
+- **campoTransfer** Übertrag von Campo-Verbindungen, Aufspalten von Kursen
 - **cascadeMembers** – Neue / Entfernte Mitgliedschaften kaskadieren
 - **fairSub** – Chancengleiche Phase bei der Anmeldung („Happy Hour“)
 - **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
@@ -67,13 +67,13 @@ namespace FAU\Sync;
 use FAU\User\Data\Education;
 ````
 
-Die Dateinamen das Klassen im FAU-Namespace entsprechen den Klassennamen ohne Präfix 'class'.
+Die Dateinamen der Klassen im FAU-Namespace entsprechen den Klassennamen ohne Präfix 'class'.
 Alle Klassen im Service werden beim ILIAS-Setup oder mit `composer dump-autoload -o` ins Autoload-Feature von PHP aufgenommen.
 
 
 ### Repository Pattern
 
-Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt nur über Repository-Klassen in den Services. Die Datenklassen haben keine eigenen Lese- und Schreiboperationen und sollten einfach und ohne Abhängigkeiten gehalten werden.
+Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt nur über Repository-Klassen in den Services. Die Datenklassen haben keine eigenen Lese- und Schreiboperationen und sollten einfach und ohne Abhängigkeiten bleiben.
 
 ````php
 // Example: move educations from one user account to another
@@ -92,7 +92,7 @@ foreach ($repo->getEducationsOfUser($old_user_id) as $oldEducation) {
 ````
 Die Services und Datenklassen verwenden typisierte Parameter und Rückgabewerte, auch für skalare Typen.
 
-Um das Lesen und Schreiben von Datenobjekten zu erleichtern, die sich auf Datensätze einzelner Tabellen beziehen, können die Datenklassen und Ihr Repository von den folgenden abstrakten Basisklassen abgleitet werden:
+Um das Lesen und Schreiben von Datenobjekten zu erleichtern, die sich auf Datensätze einzelner Tabellen beziehen, können die Datenklassen und ihr Repository von den folgenden abstrakten Basisklassen abgleitet werden:
 
 - [RecordData](RecordData.php) definiert Funktionen einer Datenklasse, um Werte-Arrays aus Datenbank-Abfragen zu laden oder für sie zu liefern.
 - [RecordRepo](RecordRepo.php) enthält generelle Lese, Schreib- und Löschfunktionen für Datenklassen, die RecordData implementieren.
