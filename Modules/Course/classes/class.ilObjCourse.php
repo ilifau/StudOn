@@ -284,7 +284,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
     }
     public function setSubscriptionRefId($a_ref_id)
     {
-        $this->subscription_ref_id = $a_ref_id;
+        $this->subscription_ref_id = (int) $a_ref_id;
     }
     // fau.
     public function getSubscriptionUnlimitedStatus()
