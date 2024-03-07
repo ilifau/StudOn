@@ -21,6 +21,8 @@ class ContainerInfo
     private string $type;
     private int $ref_id;
     private int $obj_id;
+    private \ilDateTime $reg_start;
+    private \ilDateTime $reg_end;
     private bool $has_mem_limit;
     private bool $has_waiting_list;
     private int $max_members;
@@ -45,6 +47,8 @@ class ContainerInfo
         string $type,
         int $ref_id,
         int $obj_id,
+        \ilDateTime $reg_start,
+        \ilDateTime $reg_end,
         bool $has_mem_limit,
         bool $has_waiting_list,
         int $max_members,
@@ -59,6 +63,8 @@ class ContainerInfo
         $this->type = $type;
         $this->ref_id = $ref_id;
         $this->obj_id = $obj_id;
+        $this->reg_start = $reg_start;
+        $this->reg_end = $reg_end;
         $this->has_mem_limit = $has_mem_limit;
         $this->max_members = $max_members;
         $this->has_waiting_list = $has_waiting_list;
@@ -74,6 +80,9 @@ class ContainerInfo
         }
     }
 
+    
+    
+    
     /**
      * Get the object type ('crs' or 'grp')
      */
@@ -120,6 +129,22 @@ class ContainerInfo
     public function getImportId() : ?string
     {
         return $this->import_id;
+    }
+
+    /**
+     * Get the registration start
+     */
+    public function getRegStart() : \ilDateTime
+    {
+        return $this->reg_start;
+    }
+
+    /**
+     * Get the registration end
+     */
+    public function getRegEnd() : \ilDateTime
+    {
+        return $this->reg_end;
     }
 
     /**
@@ -190,6 +215,14 @@ class ContainerInfo
     public function isAssigned() : bool
     {
         return $this->assigned;
+    }
+
+    /**
+     * Get the status on the waiting list
+     */
+    public function getWaitingStatus() : int
+    {
+        return $this->waiting_status;
     }
 
 
@@ -292,4 +325,5 @@ class ContainerInfo
         $clone->participants = $participants;
         return $clone;
     }
+    
 }

@@ -18,6 +18,10 @@ use ilObjGroup;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\Event;
 use FAU\Tools\Settings;
+use ilObjCourseAccess;
+use ilCourseParticipants;
+use ilGroupParticipant;
+use ilCourseParticipant;
 
 /**
  * Functions to handle with ILIAS objects
@@ -60,6 +64,33 @@ class Objects
             }
         }
         return null;
+    }
+
+    /**
+     * Get an overview list of courses and groups with pending registrations of the current user
+     * The list includes visible courses and groups which are favourites or have the user on the waiting list
+     * @return ContainerInfo[]
+     */
+    public function getRegistrationsOverviewItems(bool $by_end = false) : array
+    {
+        $infos = [];
+        foreach ($this->dic->fau()->ilias()->repo()->findRegistrationsOverviewRefIds($this->dic->user()->id) as $ref_id) {
+            $info = $this->getContainerInfo($ref_id);
+            if (!$this->dic->access()->checkAccess('visible', '', $info->getRefId())
+                || $info->isAssigned()    
+                || (!$info->isSubscriptionPossible() && !$info->isOnWaitingList())) {
+                continue;
+            }
+            if ($by_end) {
+                $key = $info->getRegEnd()->get(IL_CAL_DATETIME) . '@' . $info->getRefId();
+            }
+            else {
+                $key = $info->getRegStart()->get(IL_CAL_DATETIME) . '@' . $info->getRefId();
+            }
+            $infos[$key] = $info;
+        }
+        ksort($infos);
+        return $infos;
     }
     
     /**
@@ -155,60 +186,212 @@ class Objects
     }
 
     /**
-     * Get the basic info of a parallel group
+     * Extend the registration info generated for courses and groups
+     * This adds the number of members, subscribers, free places and user status
+     * Unified implementation for courses and groups as a basis for getContainerInfo()
+     *
+     * @see ilObjCourseAccess::lookupRegistrationInfo()
+     * @see ilObjGroupAccess::lookupRegistrationInfo()
+     * @see Objects::getContainerInfo()
      */
-    public function getParallelGroupInfo(int $ref_id, bool $with_participants = false, bool $with_waiting_list = false) : ContainerInfo
+    public function extendRegistrationInfo(array $info, int $obj_id, int $ref_id, string $type, bool $registration_possible) : array
+    {
+        $lng = $this->dic->language();
+        $access = $this->dic->access();
+        $user = $this->dic->user();
+        
+        switch ($type) {
+            case 'crs':
+                $partObj = ilCourseParticipant::_getInstanceByObjId($obj_id, $user->getId());
+                break;
+            case 'grp':
+                $partObj = ilGroupParticipant::_getInstanceByObjId($obj_id, $user->getId());
+                break;
+            default:
+                return $info;
+        }
+        
+        $max_members = $info['reg_info_max_members'] ?? 0;
+        $members = $partObj->getNumberOfMembers();
+        $waiting = ilWaitingList::lookupListSize($obj_id);
+        $free_places = max($max_members - $members, 0);
+        
+        // set the data fields needed for getContainerInfo
+        $info['reg_info_members'] = $members;
+        $info['reg_info_subscribers'] = $waiting;
+        $info['reg_info_free_places'] = $free_places;
+        $info['reg_info_is_assigned'] = $partObj->isAssigned();
+        
+        // decide if info about free places should be shown in properties
+        $has_mem_limit = $info['reg_info_mem_limit'] ?? false;
+        if ($has_mem_limit && $registration_possible) {
+            // show to all if registration is possible
+            $show_mem_limit = true;
+            $show_hidden_notice = false;
+            
+        } elseif ($has_mem_limit && $access->checkAccess('write', '', $ref_id)) {
+            // show only to admins if registration is not possible
+            $show_mem_limit = true;
+            $show_hidden_notice = true;
+            
+        } else {
+            $show_mem_limit = false;
+            $show_hidden_notice = false;
+        }
+
+        // add one property with the info about membership limitation (max, free, waiting)
+        if ($show_mem_limit) {
+            $limits = array();
+            if ($show_hidden_notice) {
+                $limits[] = $this->dic->language()->txt("mem_max_users_hidden");
+            }
+            $limits[] = $lng->txt("mem_max_users") . $max_members;
+            $limits[] = $lng->txt("mem_free_places") . ': ' . $free_places;
+            if ($waiting > 0) {
+                $limits[] = $lng->txt("subscribers_or_waiting_list") . ': ' . (string) ($waiting);
+            }
+            $info['reg_info_list_prop_limit']['property'] = '';
+            $info['reg_info_list_prop_limit']['value'] = implode(' &nbsp; ', $limits);
+        }
+
+        // add one property with own registration status
+        $info['reg_info_waiting_status'] = ilWaitingList::_getStatus($user->getId(), $obj_id);
+        switch ($info['reg_info_waiting_status'] ) {
+            case ilWaitingList::REQUEST_NOT_TO_CONFIRM:
+                $status = $lng->txt('on_waiting_list');
+                break;
+            case ilWaitingList::REQUEST_TO_CONFIRM:
+                $status = $lng->txt('sub_status_pending');
+                break;
+            case ilWaitingList::REQUEST_CONFIRMED:
+                $status = $lng->txt('sub_status_confirmed');
+                break;
+            default:
+                $status = '';
+        }
+        if ($status) {
+            $info['reg_info_list_prop_status']['property'] = $lng->txt('member_status');
+            $info['reg_info_list_prop_status']['value'] = $status;
+        }
+
+        return $info;
+    } 
+
+    /**
+     * Get the basic info of a registration container (course or group)
+     */
+    public function getContainerInfo(int $ref_id, bool $with_participants = false, bool $with_waiting_list = false) : ContainerInfo
     {
         $obj_id = ilObject::_lookupObjId($ref_id);
-        $info = ilObjGroupAccess::lookupRegistrationInfo($obj_id, $ref_id);
+        $type = ilObject::_lookupType($obj_id);
+        $title = ilObject::_lookupTitle($obj_id);
+        $description = ilObject::_lookupDescription($obj_id);
+        $import_id = ilObject::_lookupImportId($obj_id);
+        
+        switch ($type) {
+            case 'grp':
+                $info = ilObjGroupAccess::lookupRegistrationInfo($obj_id, $ref_id);
 
-        $groupInfo  = new ContainerInfo(
-            ilObject::_lookupTitle($obj_id),
-            ilObject::_lookupDescription($obj_id),
-            ilObject::_lookupImportId($obj_id),
-            'grp',
-            $ref_id,
-            $obj_id,
-            (bool) $info['reg_info_mem_limit'],
-            (bool) $info['reg_info_waiting_list'],
-            (int) $info['reg_info_max_members'],
-            (int) $info['reg_info_members'],
-            (int) $info['reg_info_subscribers'],
-            (int) $info['reg_info_waiting_status'],
-            (bool) $info['ref_info_is_assigned']
-        );
+                $cont_info  = new ContainerInfo(
+                    $title,
+                    $description,
+                    $import_id,
+                    $type,
+                    $ref_id,
+                    $obj_id,
+                    $info['reg_info_start'],
+                    $info['reg_info_end'],
+                    (bool) $info['reg_info_mem_limit'],
+                    (bool) $info['reg_info_waiting_list'],
+                    (int) $info['reg_info_max_members'],
+                    (int) $info['reg_info_members'],
+                    (int) $info['reg_info_subscribers'],
+                    (int) $info['reg_info_waiting_status'],
+                    (bool) $info['reg_info_is_assigned']
+                );
 
+                if ($with_participants) {
+                    $cont_info = $cont_info->withParticipants(ilGroupParticipants::getInstance($ref_id));
+                }
+                if ($with_waiting_list) {
+                    $cont_info = $cont_info->withWaitingList(new ilGroupWaitingList($obj_id));
+                }
+                break;
+                
+            case 'crs':
+                $info = ilObjCourseAccess::lookupRegistrationInfo($obj_id, $ref_id);
 
-        // add the registration info fpr parallel groups
+                $cont_info  = new ContainerInfo(
+                    $title,
+                    $description,
+                    $import_id,
+                    $type,
+                    $ref_id,
+                    $obj_id,
+                    $info['reg_info_start'],
+                    $info['reg_info_end'],
+                    (bool) $info['reg_info_mem_limit'],
+                    (bool) $info['reg_info_waiting_list'],
+                    (int) $info['reg_info_max_members'],
+                    (int) $info['reg_info_members'],
+                    (int) $info['reg_info_subscribers'],
+                    (int) $info['reg_info_waiting_status'],
+                    (bool) $info['reg_info_is_assigned']
+                );
+
+                if ($with_participants) {
+                    $cont_info = $cont_info->withParticipants(ilCourseParticipants::getInstance($ref_id));
+                }
+                if ($with_waiting_list) {
+                    $cont_info = $cont_info->withWaitingList(new ilCourseWaitingList($obj_id));
+                }
+                break;
+
+            default:
+                // provide a dummy info for other object types - should  not be needed
+                $info = [];
+                $cont_info  = new ContainerInfo(
+                    $title,
+                    $description,
+                    $import_id,
+                    $type,
+                    $ref_id,
+                    $obj_id,
+                    new \ilDateTime(),
+                    new \ilDateTime(),
+                    (bool) false,
+                    (bool) false,
+                    (int) 0,
+                    (int) 0,
+                    (int) 0,
+                    (int) ilWaitingList::REQUEST_NOT_ON_LIST,
+                    (bool) false
+                );
+        }
+
+        
+        // add the registration info for parallel groups
         // not added by ilObjGroupAccess::lookupRegistrationInfo because registration is disabled for parallel group
         $limits = [];
-        if ($groupInfo->hasMaxMembers()) {
-            $limits[] = $this->dic->language()->txt("mem_max_users") . $groupInfo->getMaxMembers();
-            $limits[] = $this->dic->language()->txt("mem_free_places") . ': ' . $groupInfo->getFreePlaces();
+        if ($cont_info->hasMaxMembers()) {
+            $limits[] = $this->dic->language()->txt("mem_max_users") . $cont_info->getMaxMembers();
+            $limits[] = $this->dic->language()->txt("mem_free_places") . ': ' . $cont_info->getFreePlaces();
         }
-        if ($groupInfo->hasMaxMembers() || $groupInfo->getSubscribers() > 0) {
-            $limits[] = $this->dic->language()->txt("subscribers_or_waiting_list") . ': ' . (string) ($groupInfo->getSubscribers());
+        if ($cont_info->hasMaxMembers() || $cont_info->getSubscribers() > 0) {
+            $limits[] = $this->dic->language()->txt("subscribers_or_waiting_list") . ': ' . (string) ($cont_info->getSubscribers());
         }
         if (!empty($limits)) {
-            $groupInfo = $groupInfo->withProperty(new ListProperty(null, implode(' &nbsp; ', $limits)));
+            $cont_info = $cont_info->withProperty(new ListProperty(null, implode(' &nbsp; ', $limits)));
         }
 
         // add other properties
         foreach (['reg_info_list_prop_status'] as $key) {
             if (isset($info[$key])) {
-                $groupInfo = $groupInfo->withProperty(new ListProperty($info[$key]['property'], $info[$key]['value']));
+                $cont_info = $cont_info->withProperty(new ListProperty($info[$key]['property'], $info[$key]['value']));
             }
         }
 
-        // optionally add the participants and waiting list
-        if ($with_participants) {
-            $groupInfo = $groupInfo->withParticipants(ilGroupParticipants::getInstance($ref_id));
-        }
-        if ($with_waiting_list) {
-            $groupInfo = $groupInfo->withWaitingList(new ilGroupWaitingList($obj_id));
-        }
-
-        return $groupInfo;
+        return $cont_info;
     }
 
     /**
@@ -223,7 +406,7 @@ class Objects
             $ref_id = (int) $this->findParentIliasCourse($ref_id);
         }
         foreach ( $this->findChildParallelGroups($ref_id) as $group_ref_id) {
-            $group = $this->getParallelGroupInfo($group_ref_id, $with_participants, $with_waiting_list);
+            $group = $this->getContainerInfo($group_ref_id, $with_participants, $with_waiting_list);
             $infos[$group->getTitle(). $group->getRefId()] = $group;
         }
         ksort($infos);
