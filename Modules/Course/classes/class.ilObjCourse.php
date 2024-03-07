@@ -277,7 +277,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
     {
         $this->subscription_limitation_type = $a_type;
     }
-// fau: objectSub - getter / setter
+    // fau: objectSub - getter / setter
     public function getSubscriptionRefId()
     {
         return $this->subscription_ref_id;
