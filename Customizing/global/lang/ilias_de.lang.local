@@ -658,11 +658,14 @@ fau#:#fau_org_studon_manager_missing#:#Die Rolle <b>StudOn-Manager/in</b> ist no
 fau#:#fau_parallel_groups#:#Parallelgruppen
 fau#:#fau_reg_overview#:#Übersicht zu Anmeldungen
 fau#:#fau_reg_overview_info#:#Auf dieser Seite sehen Sie anstehende oder laufenden Anmeldungen zu Kursen und Gruppen aus Ihren Favoriten oder bei denen Sie auf der Warteliste eingetragen sind.
-fau#:#reg_overview_today#:#Heute
-fau#:#reg_overview_this_week#:#Diese Woche
-fau#:#reg_overview_next_week#:#Kommende Woche
-fau#:#reg_overview_later#:#Später
-fau#:#reg_overview_other#:#Früher
+fau#:#fau_reg_overview_today#:#Heute
+fau#:#fau_reg_overview_this_week#:#Diese Woche
+fau#:#fau_reg_overview_next_week#:#Kommende Woche
+fau#:#fau_reg_overview_later#:#Später
+fau#:#fau_reg_overview_other#:#Andere
+fau#:#fau_reg_sort_label#:#Sortierung
+fau#:#fau_reg_sort_by_start#:#Nach Anmeldestart
+fau#:#fau_reg_sort_by_end#:#Nach Anmeldeende
 fau#:#fau_relation#:#FAU-Beziehung
 fau#:#fau_relation_orgunits#:#Verbundene Einrichtungen
 fau#:#fau_relation_unit_used#:#Die Einheit %s ist bereits mit der StudOn-Kategorie <a href="%s">%s</a> verbunden! Entfernen Sie erst diese Verbindung, bevor Sie die neue anlegen.

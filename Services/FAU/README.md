@@ -17,6 +17,7 @@
 - **limitMemberRoles** – keine anderen Rollen als Mitglieder zählen
 - **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
 - **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind
+- **regOverview** - Übersicht zu Anmeldungen
 - **samlAuth** - Single Sign-On über SAML (Authentifitierungsmodus ist Shibboleth")
 - **samlChange** - Umschreiben vorhandener Acocunt auf Shibboleth oder Lokale
 - **showMemLimit** – Infos über begrenzte Teilnehmerzahl

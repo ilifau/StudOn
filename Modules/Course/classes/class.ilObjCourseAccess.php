@@ -432,7 +432,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
         $lng = $DIC['lng'];
 
         // fau: fairSub - query for fair period
-        // fau: regOverview - query for waiting list
+        // fau: regOverview - query for waiting list, add info about enabled and unlimited registration (align with group)
         $query = 'SELECT sub_limitation_type, sub_start, sub_end, sub_mem_limit, sub_max_members, sub_fair, waiting_list FROM crs_settings ' .
             'WHERE obj_id = ' . $ilDB->quote($a_obj_id);
         $res = $ilDB->query($query);
@@ -442,11 +442,13 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
             $info['reg_info_start'] = new ilDateTime($row->sub_start, IL_CAL_UNIX);
             $info['reg_info_end'] = new ilDateTime($row->sub_end, IL_CAL_UNIX);
             $info['reg_info_type'] = $row->sub_limitation_type;
+            $info['reg_info_enabled'] = ($row->sub_limitation_type != ilCourseConstants::SUBSCRIPTION_DEACTIVATED);
+            // align with group: base reg_info_unlimited only on the time limit, not on a general subscription activation
+            $info['reg_info_unlimited'] = ($row->sub_limitation_type != ilCourseConstants::SUBSCRIPTION_LIMITED);
             $info['reg_info_max_members'] = $row->sub_max_members;
             $info['reg_info_mem_limit'] = $row->sub_mem_limit;
             $info['reg_info_sub_fair'] = $row->sub_fair;
             $info['reg_info_waiting_list'] = $row->waiting_list;
-            $info['reg_info_unlimited'] = ($row->sub_limitation_type == ilCourseConstants::SUBSCRIPTION_LIMITED);
         }
         // fau.
 
@@ -454,17 +456,12 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
         // Limited registration
         if ($info['reg_info_type'] == ilCourseConstants::SUBSCRIPTION_LIMITED) {
-            // fau: fairSub - add info about fair period
+            // fau: fairSub - add info about fair period if registration has time limit
             $fair_suffix = '';
             if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0) {
                 if ($info['reg_info_sub_fair'] < 0) {
                     $fair_suffix = " - <b>" . $lng->txt('sub_fair_inactive_short') . "</b>";
                 }
-//	            elseif (time() < $info['reg_info_sub_fair'])
-//				{
-//					$fair_suffix = " <br />".$lng->txt('sub_fair_date'). ': '
-//						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
-//				}
             }
 
             $dt = new ilDateTime(time(), IL_CAL_UNIX);
@@ -492,7 +489,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
         // fau: showMemLimit - extend the registration info
         // fau: regOverview - extend the registration info
-        return $DIC->fau()->ilias()->objects()->extendRegistrationInfo($info, $a_obj_id, $a_ref_id, 'crs', $registration_possible);
+        return $DIC->fau()->ilias()->objects()->extendRegistrationInfo($info, $a_obj_id, $a_ref_id, 'crs');
     }
 
     /**

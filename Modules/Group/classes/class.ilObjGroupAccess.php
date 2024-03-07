@@ -376,7 +376,7 @@ class ilObjGroupAccess extends ilObjectAccess
         // fau: paraSub - extend the registration info
         // fau: showMemLimit - extend the registration info
         // fau: regOverview - extend the registration info
-        return $DIC->fau()->ilias()->objects()->extendRegistrationInfo($info, $a_obj_id, $a_ref_id, 'crs', $registration_possible);
+        return $DIC->fau()->ilias()->objects()->extendRegistrationInfo($info, $a_obj_id, $a_ref_id, 'crs');
     }
 
     /**
