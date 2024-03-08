@@ -258,21 +258,27 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
                 $title = $event->getIliasTitle();
 
                 $info_gui = $this->dic->fau()->study()->info();
-                $description = $event->getIliasDescription();
-                $description .= ' &nbsp; ' . $info_gui->getLinksLine($import_id, $event->getIliasRefId());
-                $description .= $pathGUI->getPath(1, $event->getIliasRefId());
+                $description1 = $event->getIliasDescription();
+                $description2 = $info_gui->getLinksLine($import_id, $event->getIliasRefId());
+                $description3 = $pathGUI->getPath(1, $event->getIliasRefId());
+                $description4 = "";
                 if ($event->isNested()) {
-                    $description .= '<p>' . $this->lng->txt('fau_parallel_groups') .'</p>'
-                        . $info_gui->getParallelGroupsInfo($event->getIliasRefId(), false, false);
+                    $description3 = $info_gui->getParallelGroupsInfo($event->getIliasRefId(), false, false);
                 }
 
                 $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
-                $props = [];
+                $props = array(
+                    "Infos" => $description2,
+                    "Ordner" => $description3,
+                    "Parallelgruppen" => $description4 ? $description4 : "Keine"
+                );
                 foreach ($listGUI->getProperties() as $property) {
                     $props[$property['property']] = $property['value'];
                 }
-                $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
-                    ->withDescription($description)
+
+                
+                $item = $this->factory->item()->standard($this->factory->link()->standard($title, $link))
+                    ->withDescription("Beschreibung: " . $description1)
                     ->withLeadIcon($icon_crs)
                     ->withProperties($props)
                     ->withCheckbox(self::CHECKBOX_NAME, $event->isMoveable() ? $event->getIliasRefId() : null);
