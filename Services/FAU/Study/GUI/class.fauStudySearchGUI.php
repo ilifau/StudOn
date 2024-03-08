@@ -261,9 +261,9 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
                 $description1 = $event->getIliasDescription();
                 $description2 = $info_gui->getLinksLine($import_id, $event->getIliasRefId());
                 $description3 = $pathGUI->getPath(1, $event->getIliasRefId());
-                $description4 = "";
+                $description4 = null;
                 if ($event->isNested()) {
-                    $description3 = $info_gui->getParallelGroupsInfo($event->getIliasRefId(), false, false);
+                    $description4 = $info_gui->getParallelGroupsInfo($event->getIliasRefId(), false, false);
                 }
 
                 $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
