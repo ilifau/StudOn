@@ -22,6 +22,8 @@
 		<baseclass name="fauStudyInfoGUI" dir="Study/GUI" />
 		<!-- fau: campoCheck - register baseclass -->
 		<baseclass name="fauHardRestrictionsGUI" dir="Cond/GUI" />
+		<!-- fau: regOverview - register baseclass -->
+		<baseclass name="fauRegOverviewGUI" dir="Ilias/GUI" />
 	</baseclasses>
 	<events>
 		<!-- fau: syncWithCampo - register event listeners -->

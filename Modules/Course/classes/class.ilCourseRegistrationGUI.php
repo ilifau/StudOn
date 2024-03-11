@@ -514,7 +514,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             }
             $option = new ilCheckboxOption($info_gui->getGroupTitleWithDetailsLink($group), $group->getRefId());
             $option->setInfo($info_gui->getGroupInfo($group, false));
-            $option->setDisabled(!$group->isSubscriptionPossible());
+            $option->setDisabled(!$group->wouldSubscriptionBePossible());
             $cb->addOption($option);
         }
         $cb->setValue($selected);

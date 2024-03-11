@@ -6,9 +6,7 @@ use ilWaitingList;
 use ilParticipants;
 
 /**
- * Basic info for courses or groups
- * @todo: currently only for parallel groups in a course
- * @todo: add info about registration type and period and fair time
+ * Basic info for courses or groups with registration info
  */
 class ContainerInfo
 {
@@ -21,6 +19,10 @@ class ContainerInfo
     private string $type;
     private int $ref_id;
     private int $obj_id;
+    private bool $reg_enabled;
+    private bool $has_time_limit;
+    private \ilDateTime $reg_start;
+    private \ilDateTime $reg_end;
     private bool $has_mem_limit;
     private bool $has_waiting_list;
     private int $max_members;
@@ -45,6 +47,10 @@ class ContainerInfo
         string $type,
         int $ref_id,
         int $obj_id,
+        bool $reg_enabled,
+        bool $has_time_limit,
+        \ilDateTime $reg_start,
+        \ilDateTime $reg_end,
         bool $has_mem_limit,
         bool $has_waiting_list,
         int $max_members,
@@ -59,6 +65,10 @@ class ContainerInfo
         $this->type = $type;
         $this->ref_id = $ref_id;
         $this->obj_id = $obj_id;
+        $this->reg_enabled = $reg_enabled;
+        $this->has_time_limit = $has_time_limit;
+        $this->reg_start = $reg_start;
+        $this->reg_end = $reg_end;
         $this->has_mem_limit = $has_mem_limit;
         $this->max_members = $max_members;
         $this->has_waiting_list = $has_waiting_list;
@@ -74,6 +84,9 @@ class ContainerInfo
         }
     }
 
+    
+    
+    
     /**
      * Get the object type ('crs' or 'grp')
      */
@@ -120,6 +133,39 @@ class ContainerInfo
     public function getImportId() : ?string
     {
         return $this->import_id;
+    }
+
+
+    /**
+     * Get if registration is enabled
+     */
+    public function getRegEnabled() : bool
+    {
+        return $this->reg_enabled;
+    }
+
+    /**
+     * Get if registration has a time limit
+     */
+    public function hasTimeLimit() : bool
+    {
+        return $this->has_time_limit;
+    }
+
+    /**
+     * Get the registration start
+     */
+    public function getRegStart() : \ilDateTime
+    {
+        return $this->reg_start;
+    }
+
+    /**
+     * Get the registration end
+     */
+    public function getRegEnd() : \ilDateTime
+    {
+        return $this->reg_end;
     }
 
     /**
@@ -192,6 +238,14 @@ class ContainerInfo
         return $this->assigned;
     }
 
+    /**
+     * Get the status on the waiting list
+     */
+    public function getWaitingStatus() : int
+    {
+        return $this->waiting_status;
+    }
+
 
     /**
      * Get if the current user is on the waiting list
@@ -221,19 +275,19 @@ class ContainerInfo
     }
 
     /**
-     * Get if a direct join to the object would be possible when the subscription type is direct
+     * Get if a direct join WOULD be possible when the subscription is active and direct
      */
-    public function isDirectJoinPossible() : bool
+    public function wouldDirectJoinBePossible() : bool
     {
         return !$this->hasMaxMembers() || $this->getSubscribers() < $this->getFreePlaces();
     }
 
     /**
-     * Get if a subscription would be possible when the subscription is active
+     * Get if a subscription WOULD be possible when the subscription is active
      */
-    public function isSubscriptionPossible() : bool
+    public function wouldSubscriptionBePossible() : bool
     {
-        return $this->isDirectJoinPossible() || $this->hasWaitingList();
+        return $this->wouldDirectJoinBePossible() || $this->hasWaitingList();
     }
 
     /**
@@ -242,6 +296,19 @@ class ContainerInfo
     public function getProperties() : array
     {
         return $this->props;
+    }
+
+    /**
+     * Get a property by its key (may not exist)
+     */
+    public function getPropertyByKey(string $key) : ?ListProperty
+    {
+       foreach ($this->props as $property) {
+           if ($property->getKey() == $key) {
+               return $property;
+           }
+       }
+        return null;
     }
 
     /**
@@ -292,4 +359,5 @@ class ContainerInfo
         $clone->participants = $participants;
         return $clone;
     }
+
 }

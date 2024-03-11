@@ -79,6 +79,29 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the ref_ids of courses and groups which are candidates to be shown in the registration overview
+     * Thos are courses or groups from the favorites or where the user is on the waiting list
+     */
+    public function findRegistrationsOverviewRefIds(int $user_id) : array
+    {
+        $query = "
+            SELECT r.ref_id 
+            FROM crs_waiting_list w 
+            JOIN object_data o ON o.obj_id = w.obj_id AND o.`type` IN ('crs', 'grp')
+            JOIN object_reference r ON r.obj_id = w.obj_id AND r.deleted IS null
+            WHERE w.usr_id = " . $this->db->quote($user_id, 'integer') ."
+            UNION
+            SELECT r.ref_id
+            FROM desktop_item d
+            JOIN object_reference r ON r.ref_id = d.item_id AND r.deleted IS NULL
+            JOIN object_data o ON o.obj_id = r.obj_id AND o.`type` IN ('crs', 'grp')
+            WHERE d.user_id = " . $this->db->quote($user_id, 'integer');
+
+        return $this->getIntegerList($query, 'ref_id');
+    }
+    
+    
+    /**
      * Get the passed status of a user in a course
      * @param int $obj_id
      * @param int $user_id

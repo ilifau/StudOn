@@ -140,7 +140,7 @@ abstract class Registration extends AbstractRegistration
 
         foreach ($this->groups as $group) {
             if (in_array($group->getRefId(), $group_ref_ids)) {
-                if ($group->isSubscriptionPossible()) {
+                if ($group->wouldSubscriptionBePossible()) {
                     $waitingGroups[] = $group;
                 }
                 if ($this->isDirectJoinPossibleForGroup($group)) {
@@ -492,7 +492,7 @@ abstract class Registration extends AbstractRegistration
      */
     public function isDirectJoinPossibleForGroup(ContainerInfo $group) : bool
     {
-       return ($group->isDirectJoinPossible() && $this->isDirectJoinPossible()) ||
+       return ($group->wouldDirectJoinBePossible() && $this->isDirectJoinPossible()) ||
            (!$group->hasMaxMembers() && $this->subType != self::subConfirmation);
     }
 

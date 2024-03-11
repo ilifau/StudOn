@@ -319,7 +319,6 @@ class ilObjGroupAccess extends ilObjectAccess
             $info['reg_info_start'] = new ilDateTime($row->registration_start, IL_CAL_DATETIME);
             $info['reg_info_end'] = new ilDateTime($row->registration_end, IL_CAL_DATETIME);
             $info['reg_info_type'] = $row->registration_type;
-            $info['reg_info_max_members'] = $row->registration_max_members;
             $info['reg_info_mem_limit'] = $row->registration_mem_limit;
             $info['reg_info_unlimited'] = $row->registration_unlimited;
             
@@ -373,68 +372,11 @@ class ilObjGroupAccess extends ilObjectAccess
         }
         // fau.
 
-        // fau: fairSub - always query for the free places - info is also used on subscription page
-        // fau: paraSub - add member status and number of members
-        // fau: showMemLimit - get info about membership limitations and subscription status
-        $partObj = ilGroupParticipant::_getInstanceByObjId($a_obj_id, $ilUser->getId());
-
-        $max_members = $info['reg_info_max_members'];
-        $members = $partObj->getNumberOfMembers();
-        $waiting = ilGroupWaitingList::lookupListSize($a_obj_id);
-        $free_places = max($max_members - $members, 0);
-        $info['reg_info_members'] = $members;
-        $info['reg_info_subscribers'] = $waiting;
-        $info['reg_info_free_places'] = $free_places;
-        $info['ref_info_is_assigned'] = $partObj->isAssigned();
-
-        if ($info['reg_info_mem_limit'] && $registration_possible) {
-            $show_mem_limit = true;
-            $show_hidden_notice = false;
-        } elseif ($info['reg_info_mem_limit'] && $DIC->access()->checkAccess('write', '', $a_ref_id, 'crs', $a_obj_id)) {
-            $show_mem_limit = true;
-            $show_hidden_notice = true;
-        } else {
-            $show_mem_limit = false;
-            $show_hidden_notice = false;
-        }
-
-        if ($show_mem_limit) {
-            $limits = array();
-            if ($show_hidden_notice) {
-                $limits[] = $lng->txt("mem_max_users_hidden");
-            }
-            $limits[] = $lng->txt("mem_max_users") . $max_members;
-            $limits[] = $lng->txt("mem_free_places") . ': ' . $free_places;
-            if ($waiting > 0) {
-                $limits[] = $lng->txt("subscribers_or_waiting_list") . ': ' . (string) ($waiting);
-            }
-            $info['reg_info_list_prop_limit']['property'] = '';
-            $info['reg_info_list_prop_limit']['value'] = implode(' &nbsp; ', $limits);
-        }
-
-        // registration status
-        $info['reg_info_waiting_status'] = ilGroupWaitingList::_getStatus($ilUser->getId(), $a_obj_id);
-        switch ($info['reg_info_waiting_status'] ) {
-            case ilWaitingList::REQUEST_NOT_TO_CONFIRM:
-                $status = $lng->txt('on_waiting_list');
-                break;
-            case ilWaitingList::REQUEST_TO_CONFIRM:
-                $status = $lng->txt('sub_status_pending');
-                break;
-            case ilWaitingList::REQUEST_CONFIRMED:
-                $status = $lng->txt('sub_status_confirmed');
-                break;
-            default:
-                $status = '';
-
-        }
-        if ($status) {
-            $info['reg_info_list_prop_status']['property'] = $lng->txt('member_status');
-            $info['reg_info_list_prop_status']['value'] = $status;
-        }
-        // fau.
-
-        return $info;
+        // fau: fairSub - extend the registration info
+        // fau: paraSub - extend the registration info
+        // fau: showMemLimit - extend the registration info
+        // fau: regOverview - extend the registration info
+        return $DIC->fau()->ilias()->objects()->extendRegistrationInfo($info, $a_obj_id, $a_ref_id, 'crs');
     }
 
     /**
