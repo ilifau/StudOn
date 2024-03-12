@@ -36,18 +36,51 @@ class ilCourseWaitingList extends ilWaitingList
             return false;
         }
         
-        $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addToList');
+        $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addToWaitingList');
         $ilAppEventHandler->raise(
             "Modules/Course",
             'addToWaitingList',
             array(
                     'obj_id' => $this->getObjId(),
-                    'usr_id' => $a_usr_id
+                    'usr_id' => $a_usr_id,
+                    'subject' => $a_subject,
+                    'to_confirm' => $a_to_confirm,
+                    'sub_time' => $a_sub_time
                 )
             );
         return true;
     }
-// fau.
+    // fau.
+
+
+     // fau: regLog - override addWithChecks to raise a course event
+    public function addWithChecks($a_usr_id, $a_rol_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null, $a_module_id = null) 
+    {
+        global $DIC;
+
+        $ilAppEventHandler = $DIC['ilAppEventHandler'];
+        $ilLog = $DIC['ilLog'];
+
+        if (!parent::addWithChecks($a_usr_id, $a_rol_id, $a_subject , $a_to_confirm, $a_sub_time, $a_module_id)) {
+            return false;
+        }
+
+        $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addToLWaitingList');
+        $ilAppEventHandler->raise(
+            "Modules/Course",
+            'addToWaitingList',
+            array(
+                'obj_id' => $this->getObjId(),
+                'usr_id' => $a_usr_id,
+                'subject' => $a_subject,
+                'to_confirm' => $a_to_confirm,
+                'sub_time' => $a_sub_time,
+                'module_id' => $a_module_id
+            )
+        );
+        return true;
+    }
+    // fau.
 
     /**
      * Remove from waiting list and raise event

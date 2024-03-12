@@ -7,5 +7,11 @@
 		<cron id="mem_notification" class="ilMembershipCronNotifications" />
 		<cron id="mem_min_members" class="ilMembershipCronMinMembers" />
 	</crons>
+	<!-- fau: regLog - add event id updateWaitingList to service -->
+	<events>
+		<event type="raise" id="updateWaitingList" />
+	</events>
+	<!-- fau. -->
+
 	<logging />
 </service>
