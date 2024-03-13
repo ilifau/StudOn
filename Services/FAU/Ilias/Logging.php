@@ -70,12 +70,15 @@ class Logging
      */
     public function getRegLogAsCsv(int $obj_id) : string
     {
+        $relative = \ilDatePresentation::useRelativeDates();
+        \ilDatePresentation::setUseRelativeDates(false);
+        
         $rows = [];
         
         // header row
         $rows[] = [
           'id',
-          'timestamp',
+          'time',
           'action',
           'actor',
           'user',
@@ -89,7 +92,7 @@ class Logging
         foreach ($this->repository->getRegLogsByObjId($obj_id) as $entry)   {
             $rows[] = [
               $entry->getId(),
-              $entry->getTimestamp(),
+              $this->getTimestampEntry($entry->getTimestamp()),
               $entry->getAction(),
               $this->getUserEntry($entry->getActorId()),
               $this->getUserEntry($entry->getUserId()),
@@ -111,6 +114,8 @@ class Logging
             }
             $writer->addRow();
         }
+
+        \ilDatePresentation::setUseRelativeDates($relative);
         
         return $writer->getCSVString();
     }
@@ -158,5 +163,11 @@ class Logging
             return $module->getLabel();
         }
         return '';
+    }
+    
+    
+    protected function getTimestampEntry(int $timestamp) 
+    {
+        return \ilDatePresentation::formatDate(new \ilDateTime($timestamp, IL_CAL_UNIX), false, false, true);
     }
 }
