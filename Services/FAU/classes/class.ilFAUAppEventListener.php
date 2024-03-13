@@ -1,6 +1,7 @@
 <?php
 
 use ILIAS\DI\Container;
+use FAU\Ilias\Data\RegLog;
 
 /**
  * Class 
@@ -86,6 +87,25 @@ class ilFAUAppEventListener implements ilAppEventListener
                     case 'deleteParticipant':
                         self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
                         break;
+
+                    case 'addToWaitingList':
+                        self::getInstance()->handleAddToWaitingList((int) $a_parameter['usr_id'], (int) $a_parameter['obj_id'], 
+                            $a_parameter['sub_time'] ?? null, $a_parameter['to_confirm'] ?? 0, 
+                            $a_parameter['module_id'] ?? null, $a_parameter['subject'] ?? null);
+                        break;
+
+                    case 'removeFromWaitingList':
+                        self::getInstance()->handleRemoveFromWaitingList((int) $a_parameter['usr_id'], (int) $a_parameter['obj_id']);
+                        break;
+
+                }
+                break;
+                
+            case 'Services/Membership':
+                switch ($a_event) {
+                    case 'updateWaitingList':
+                        self::getInstance()->handleUpdateWaitingList((int) $a_parameter['usr_id'], (int) $a_parameter['obj_id']);
+                        break;
                 }
                 break;
 
@@ -132,6 +152,7 @@ class ilFAUAppEventListener implements ilAppEventListener
      * Handle the deletion of a course or a group (trash or final delete)
      * fau: syncWithCampo - remove the course connection and import id.
      * fau: syncToCampo - remove the campo specific members records.
+     * fau: regLog - remove the log records
      */
     protected function handleObjectDelete(int $obj_id)
     {
@@ -158,8 +179,12 @@ class ilFAUAppEventListener implements ilAppEventListener
             $this->dic->fau()->user()->repo()->delete($member);
         }
 
+        // delete logging entries
+        $this->dic->fau()->ilias()->repo()->deleteRegLogByObjId($obj_id);
+        
         // remove the references to course and event in the import id
         $this->dic->fau()->sync()->repo()->removeObjectFauImportId($obj_id);
+        
     }
 
     /**
@@ -173,6 +198,9 @@ class ilFAUAppEventListener implements ilAppEventListener
             $this->dic->fau()->user()->repo()->delete($member);
         }
 
+        // delete logging entries
+        $this->dic->fau()->ilias()->repo()->deleteRegLogByUserId($user_id);
+
         // delete the person record
         if (!empty($person = $this->dic->fau()->user()->repo()->getPersonOfUser($user_id))) {
             $this->dic->fau()->user()->repo()->delete($person);
@@ -180,15 +208,46 @@ class ilFAUAppEventListener implements ilAppEventListener
     }
 
     /**
+     * Handle the adding of a user to the waiting list
+     * fau: regLog - write log entry
+     */
+    protected function handleAddToWaitingList(int $user_id, int $obj_id, ?int $timestamp = null, int $to_confirm = 0, ?int $module_id = null, ?string $subject = null) 
+    {
+        $this->dic->fau()->ilias()->logging()->addRegLog(RegLog::ACTION_ADD_TO_WAITING_LIST, $user_id, $obj_id, $timestamp, $to_confirm, $module_id, $subject);   
+    }
+
+    /**
+     * Handle the removing of a user from the waiting list
+     * fau: regLog - write log entry
+     */
+    protected function handleRemoveFromWaitingList(int $user_id, int $obj_id)
+    {
+        $this->dic->fau()->ilias()->logging()->addRegLog(RegLog::ACTION_REMOVE_FROM_WAITING_LIST, $user_id, $obj_id);
+    }
+
+    /**
+     * Handle the update of a user on the waiting list
+     * fau: regLog - write log entry
+     */
+    protected function handleUpdateWaitingList(int $user_id, int $obj_id)
+    {
+        $this->dic->fau()->ilias()->logging()->addWaitingListUpdate($user_id, $obj_id);
+    }
+    
+    
+    /**
      * Handle the adding of a participant to a course or group (called for courses and groups)
      * fau: syncToCampo - save the campo specific members records.
      * fau: cascadeMembers - add participants to parents.
+     * fau: regLog - write log entry
      */
     protected function handleAddParticipant(int $obj_id, int $user_id, int $role_id)
     {
         if ($role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
             $this->dic->fau()->user()->saveMembership($obj_id, $user_id);
         }
+        $this->dic->fau()->ilias()->logging()->addRegLog(RegLog::ACTION_ADD_PARTICIPANT, $user_id, $obj_id);
+
         // fau: cascadeMembers - add as members to parent courses and groups
         $this->addParticipantToParents($obj_id, $user_id);
         // fau.
@@ -198,12 +257,14 @@ class ilFAUAppEventListener implements ilAppEventListener
      * Handle the deletion of a participant to a course or group (called for courses and groups)
      * fau: syncToCampo - remove the campo specific members records.
      * fau: cascadeMembers - remove participants from children.
+     * fau: regLog - write log entry
      */
     protected function handleDeleteParticipant(int $obj_id, int $user_id, int $role_id)
     {
         if ($role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
             $this->dic->fau()->user()->deleteMembership($obj_id, $user_id);
         }
+        $this->dic->fau()->ilias()->logging()->addRegLog(RegLog::ACTION_DELETE_PARTICIPANT, $user_id, $obj_id);
         // fau: cascadeMembers - add as members to parent courses and groups
         $this->removeParticipantFromChildren($obj_id, $user_id);
         // fau.
@@ -212,6 +273,7 @@ class ilFAUAppEventListener implements ilAppEventListener
     /**
      * Handle the adding of a user to a role
      * fau: syncToCampo - save the campo specific members records.
+     * fau: regLog - write log entry
      */
     protected function handleAddToRole(int $obj_id, int $user_id, int $role_id, string $type)
     {
@@ -220,12 +282,15 @@ class ilFAUAppEventListener implements ilAppEventListener
             if (in_array(substr($title, 0, 14), ['il_crs_member_', 'il_grp_member_'])) {
                 $this->dic->fau()->user()->saveMembership($obj_id, $user_id);
             }
+            $this->dic->fau()->ilias()->logging()->addRegLog(RegLog::ACTION_ASSIGN_USER, $user_id, $obj_id,
+            null, 0, null, $title);
         }
     }
 
     /**
      * Handle the removing of a user to a role
      * fau: syncToCampo - remove the campo specific members records.
+     * fau: regLog - write log entry
      */
     protected function handleRemoveFromRole(int $obj_id, int $user_id, int $role_id, string $type)
     {
@@ -234,6 +299,8 @@ class ilFAUAppEventListener implements ilAppEventListener
             if (in_array(substr($title, 0, 14), ['il_crs_member_', 'il_grp_member_'])) {
                 $this->dic->fau()->user()->deleteMembership($obj_id, $user_id);
             }
+            $this->dic->fau()->ilias()->logging()->addRegLog(RegLog::ACTION_DEASSIGN_USER, $user_id, $obj_id,
+                null, 0, null, $title);
         }
     }
 

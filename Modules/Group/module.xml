@@ -32,6 +32,9 @@
 		<event type="raise" id="addParticipant" />
 		<event type="raise" id="deleteParticipant" />
 		<event type="raise" id="addToWaitingList" />
+		<!-- fau: regLog - add event id removeFromWaitingList to groups -->
+		<event type="raise" id="removeFromWaitingList" />
+		<!-- fau. -->
 		<event type="raise" id="addSubscriber" />
 	</events>
 	<logging id="grp" />

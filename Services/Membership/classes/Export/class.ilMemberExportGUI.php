@@ -138,6 +138,13 @@ class ilMemberExportGUI
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
 
+        // fau: regLog - check admin permission for registration log export
+        if ($cmd == 'exportLog' && !ilCust::administrationIsVisible()) {
+            ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+            $this->ctrl->returnToParent($this);
+        }
+        // fau.
+
         switch ($next_class) {
             default:
                 if (!$cmd) {
@@ -341,6 +348,17 @@ class ilMemberExportGUI
             $this->ctrl->getLinkTarget($this, "initExcel")
         );
         
+        // fau: regLog - add button to export the registration log
+        if (ilCust::administrationIsVisible()) {
+            $ilToolbar->addSeparator();
+            
+            $ilToolbar->addButton(
+                $this->lng->txt('fau_reglog_export'),
+                $this->ctrl->getLinkTarget($this, "exportLog")
+            );
+        }
+        // fau.
+        
         $this->showFileList();
     }
     
@@ -393,6 +411,19 @@ class ilMemberExportGUI
 
         $this->ctrl->redirect($this, 'show');
     }
+    
+    // fau: regLog - export the log (not saved)
+    public function exportLog()
+    {
+        global $DIC;
+        
+        $content = $DIC->fau()->ilias()->logging()->getRegLogAsCsv((int) $this->obj_id);
+        ilUtil::deliverData($content, 
+            date('Y_m_d_H-i', time()) . '_registration_log_'. $this->obj_id . '.csv', 
+            'text/csv');
+    }
+    // fau.
+    
     
     /**
      * Deliver Data

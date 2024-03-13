@@ -6,6 +6,8 @@ use FAU\Ilias\Data\ContainerData;
 use FAU\RecordRepo;
 use FAU\Study\Data\ImportId;
 use FAU\Study\Data\Term;
+use FAU\Ilias\Data\RegLog;
+use FAU\RecordData;
 
 /**
  * Repository for accessing ilias data
@@ -271,4 +273,67 @@ class Repository extends RecordRepo
 
         return $containers;
     }
+
+    /**
+     * Get a registration log entry based on an entry of a waiting list
+     */
+    public function getRegLogEntryFromWaitingList(int $actor_id, int $user_id, int $obj_id): RegLog
+    {
+        $query = "SELECT * FROM crs_waiting_list"
+            . " WHERE usr_id = " . $this->db->quote($user_id, 'integer') 
+            . " AND obj_id = " . $this->db->quote($obj_id, 'integer');
+        
+        $res = $this->db->query($query);
+        if ($row = $this->db->fetchAssoc($res)) {
+            $entry = new RegLog(0, time(), RegLog::ACTION_UPDATE_WAITING_LIST, $actor_id, $user_id, $obj_id,
+                $row['to_confirm'] ?? 0, $row['module_id'] ?? null, $row['subject'] ?? null);
+            
+        }
+        else {
+            $entry = new RegLog(0, time(), RegLog::ACTION_UPDATE_WAITING_LIST, $actor_id, $user_id, $obj_id, 0);
+        }
+
+        return $entry;
+    }
+    
+    /**
+     * Get the registration log entries of an object
+     * @return RegLog[]
+     */
+    public function getRegLogsByObjId(int $obj_id) : array
+    {
+        $query = "SELECT * FROM fau_ilias_reglog WHERE obj_id = " . $this->db->quote($obj_id, 'integer')
+            . ' ORDER BY timestamp ASC';
+        
+        return $this->queryRecords($query, RegLog::model());
+    }
+    
+
+    /**
+     * Delete the registration log entries of a user
+     */
+    public function deleteRegLogByUserId(int $user_id) : void
+    {
+        $query = "DELETE FROM fau_ilias_reglog WHERE user_id = " . $this->db->quote($user_id, 'integer');
+        $this->db->manipulate($query);
+    }
+
+    /**
+     * Delete the registration log entries of an object
+     */
+    public function deleteRegLogByObjId(int $obj_id) : void
+    {
+        $query = "DELETE FROM fau_ilias_reglog WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+        $this->db->manipulate($query);
+    }
+
+    /**
+     * Save record data of an allowed type
+     * @param RegLog $record
+     */
+    public function save(RecordData $record)
+    {
+        $this->replaceRecord($record);
+    }
+
 }

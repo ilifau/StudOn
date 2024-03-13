@@ -663,6 +663,7 @@ fau#:#fau_reg_overview_other#:#Other
 fau#:#fau_reg_sort_label#:#Sort
 fau#:#fau_reg_sort_by_start#:#By Registration Start
 fau#:#fau_reg_sort_by_end#:#By Registration End
+fau#:#fau_reglog_export#:#Export Registration Log
 fau#:#fau_relation#:#FAU Relation
 fau#:#fau_relation_orgunits#:#Assigned Units
 fau#:#fau_relation_unit_used#:#The unit %s is already connected with <a href="%s">%s</a>! Remove this connection before creating a new one.
