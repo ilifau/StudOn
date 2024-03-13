@@ -691,9 +691,11 @@ fau#:#fau_search_ilias_course_not#:#No StudOn Course
 fau#:#fau_search_ilias_course_not_found#:#This event does not have a StudOn course.
 fau#:#fau_search_ilias_course_not_visible#:#The StudOn course for this event is not visible to you.
 fau#:#fau_search_no_events_found#:#No Events found.
+fau#:#fau_search_visit_event#:#Go to StudOn course
 fau#:#fau_search_numbers_of#:#%s to %s of %s
 fau#:#fau_search_title#:#Event Title
 fau#:#fau_search_title_info#:#Searching for a part of the title. Use * as placeholder within your search entry.
+fau#:#fau_search_additional_info#:#Additional Information
 fau#:#fau_selected_module#:#Selected Module/Area
 fau#:#fau_selected_groups#:#Selected Groups
 fau#:#fau_selected_groups_of#:#Selected Groups of
