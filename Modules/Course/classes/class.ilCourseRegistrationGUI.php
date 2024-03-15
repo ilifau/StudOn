@@ -70,7 +70,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             default:
                 $checkCmd = '';
         }        
-        if (!$this->access->checkAccess('join', $checkCmd,, $this->getRefId())) {
+        if (!$this->access->checkAccess('join', $checkCmd, $this->getRefId())) {
             $this->ctrl->setReturn($this->parent_gui, 'infoScreen');
             $this->ctrl->returnToParent($this);
             return;
@@ -87,13 +87,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         return;
     }
     
-    /**
-     * get form title
-     *
-     * @access protected
-     * @return string title
-     */
-    protected function getFormTitle()
+    protected function getFormTitle(): string
     {
         global $DIC;
 
