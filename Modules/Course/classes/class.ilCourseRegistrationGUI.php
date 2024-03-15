@@ -41,8 +41,36 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         if ($this->getWaitingList()->isOnList($this->user->getId())) {
             $this->tabs->activateTab('leave');
         }
+        
+        // fau: changeSub - do the permission check with a fitting command
+        // fau: joinAsGuest - do the permission check with a fitting command
+        $cmd = $this->ctrl->getCmd("show");
+        switch ($cmd) {
+            case 'joinAsGuest':
+            case 'joinAsGuestConfirmed':
+                // don't check permission
+                $this->$cmd();
+                return;
 
-        if (!$this->access->checkAccess('join', '', $this->getRefId())) {
+             // action buttons on registration screen
+            case 'updateWaitingList':
+            case 'leaveWaitingList':
+            case 'updateSubscriptionRequest':
+            case 'cancelSubscriptionRequest':
+                $checkCmd = 'leave';
+                break;
+
+            // called for updating scubscription requests
+            case 'leave':
+                $checkCmd = 'leave';
+                $cmd = 'show';
+                break;
+
+            // called for joining
+            default:
+                $checkCmd = '';
+        }        
+        if (!$this->access->checkAccess('join', $checkCmd,, $this->getRefId())) {
             $this->ctrl->setReturn($this->parent_gui, 'infoScreen');
             $this->ctrl->returnToParent($this);
             return;
@@ -55,11 +83,23 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 $this->$cmd();
                 break;
         }
+        // fau.
+        return;
     }
-
-    protected function getFormTitle(): string
+    
+    /**
+     * get form title
+     *
+     * @access protected
+     * @return string title
+     */
+    protected function getFormTitle()
     {
-        if ($this->getWaitingList()->isOnList($this->user->getId())) {
+        global $DIC;
+
+        $ilUser = $DIC['ilUser'];
+        
+        if ($this->getWaitingList()->isOnList($ilUser->getId())) {
             return $this->lng->txt('member_status');
         }
         return $this->lng->txt('crs_registration');

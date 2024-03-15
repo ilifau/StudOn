@@ -2155,22 +2155,23 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         // Join/Leave
-        if ($this->access->checkAccess('join', '', $this->ref_id) && !$this->object->getMemberObject()->isAssigned()) {
-            if (ilCourseWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
-                $this->tabs_gui->addTab(
-                    'leave',
-                    $this->lng->txt('membership_leave'),
-                    $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', 'show', '')
-                );
-            } else {
-                $this->tabs_gui->addTarget(
-                    "join",
-                    $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show"),
-                    'show',
-                    ""
-                );
-            }
+        // fau: changeSub - simlified checks for join / edit request tab
+        if ($this->access->checkAccess('join', '', $this->ref_id)) {
+            // no specific command: initial join
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('join'),
+                $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show")
+            );
+        } elseif ($this->access->checkAccess('join', 'leave', $this->ref_id)) {
+            // leave command: edit membership request
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('mem_edit_request'),
+                $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "leave")
+            );
         }
+        // fau.
         if ($this->access->checkAccess('leave', '', $this->object->getRefId()) && $this->object->getMemberObject()->isMember()) {
             $this->tabs_gui->addTarget(
                 "crs_unsubscribe",
@@ -2641,7 +2642,12 @@ class ilObjCourseGUI extends ilContainerGUI
                     || $cmd == 'subscribe') {
                     if ($this->rbac_system->checkAccess('join', $this->object->getRefId()) &&
                         !ilCourseParticipants::_isParticipant($this->object->getRefId(), $this->user->getId())) {
-                        $this->ctrl->redirectByClass("ilCourseRegistrationGUI");
+                        // fau: changeSub - provide the original command for registration gui
+                        // fau: joinAsGuest - provide the original command for registration gui
+                        //      this is needed to check the permissions correctly there
+                        //      but always show the registration screen for a join or view command
+                        $this->ctrl->redirectByClass("ilCourseRegistrationGUI", ($cmd == 'join' || $cmd == 'view') ? 'show' : $cmd);
+                        // fau.
                     } else {
                         $this->infoScreenObject();
                         break;

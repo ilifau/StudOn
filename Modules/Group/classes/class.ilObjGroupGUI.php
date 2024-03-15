@@ -1197,23 +1197,23 @@ class ilObjGroupGUI extends ilContainerGUI
         // parent tabs (all container: edit_permission, clipboard, trash
         parent::getTabs();
 
-        if ($this->access->checkAccess('join', '', $this->object->getRefId()) and
-            !$this->object->members_obj->isAssigned($this->user->getId())) {
-            if (ilGroupWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
-                $this->tabs_gui->addTab(
-                    'leave',
-                    $this->lng->txt('membership_leave'),
-                    $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', 'show', '')
-                );
-            } else {
-                $this->tabs_gui->addTarget(
-                    "join",
-                    $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show"),
-                    'show',
-                    ""
-                );
-            }
+        // fau: changeSub - simlified checks for join / edit request tab
+        if ($this->access->checkAccess('join', 'join', $this->object->getRefId())) {
+            // no specific command: initial join
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('join'),
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+            );
+        } elseif ($this->access->checkAccess('join', 'leave', $this->object->getRefId())) {
+            // leave command: edit membership request
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('mem_edit_request'),
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+            );
         }
+        // fau.
         if ($this->access->checkAccess('leave', '', $this->object->getRefId()) and
             $this->object->members_obj->isMember($this->user->getId())) {
             $this->tabs_gui->addTarget(
