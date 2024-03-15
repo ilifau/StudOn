@@ -79,7 +79,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $next_class = $this->ctrl->getNextClass($this);
         switch ($next_class) {
             default:
-                $cmd = $this->ctrl->getCmd("show");
+                // $cmd = $this->ctrl->getCmd("show");
                 $this->$cmd();
                 break;
         }
