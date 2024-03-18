@@ -17,7 +17,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
+use FAU\Ilias\Helper\WaitingListTableGUIHelper;
 /**
  * GUI class for course/group waiting list
  * @author  Stefan Meyer <smeyer.ilias@gmx.de>
@@ -25,6 +26,8 @@ declare(strict_types=1);
  */
 class ilWaitingListTableGUI extends ilTable2GUI
 {
+    use WaitingListTableGUIHelper;
+
     protected static ?array $all_columns = null;
     protected static bool $has_odf_definitions;
     protected array $wait = [];
@@ -58,22 +61,19 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj, 'participants'));
 
+        // fau: fairSub#98 - adjust waiting list columns
         $this->addColumn('', 'f', "1", true);
-        $this->addColumn($this->lng->txt('name'), 'lastname', '20%');
-
+        $this->addColumn($this->lng->txt('name'), 'lastname', '10%');
         $all_cols = $this->getSelectableColumns();
         foreach ($this->getSelectedColumns() as $col) {
             $this->addColumn($all_cols[$col]['txt'], $col);
         }
+        $this->addColumn($this->lng->txt('date'), 'sub_time', "15%");
+        $this->addColumn($this->lng->txt('status'), 'to_confirm', '10%');
 
-        $this->addColumn($this->lng->txt('application_date'), 'sub_time', "10%");
-        $this->addColumn('', 'mail', '10%');
-
-        $this->addMultiCommand('confirmAssignFromWaitingList', $this->lng->txt('assign'));
-        $this->addMultiCommand('confirmRefuseFromList', $this->lng->txt('refuse'));
-        $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('crs_mem_send_mail'));
-
+        $this->addColumn('', '', '10%');
         $this->setDefaultOrderField('sub_time');
+        // fau.
 
         // begin-patch clipboard
         $this->lng->loadLanguageModule('user');
@@ -93,6 +93,20 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->waiting_list = $waiting_list;
 
         self::$has_odf_definitions = (bool) ilCourseDefinedFieldDefinition::_hasFields($this->getRepositoryObject()->getId());
+
+        // fau: fairSub#99 - adjust waiting list commands
+        if ($DIC->fau()->ilias()->objects()->isRegistrationHandlerSupported($this->getRepositoryObject())) {
+            $this->addMultiCommand('confirmAcceptOnList', $this->lng->txt('sub_confirm_requests'));
+            $this->addMultiCommand('confirmAssignFromWaitingList', $this->lng->txt('sub_assign_waiting'));
+        }
+        else {
+            $this->addMultiCommand('confirmAssignFromWaitingList', $this->lng->txt('assign'));
+        }
+        $this->addMultiCommand('confirmRefuseFromList', $this->lng->txt('sub_remove_waiting'));
+        $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('crs_mem_send_mail'));
+
+        $this->addToDos();
+        // fau.        
     }
 
     protected function getWaitingList(): ilWaitingList
@@ -153,6 +167,12 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 'txt' => $this->lng->txt('login')
             ];
         }
+        // fau: fairSub#100 - add subject column
+        self::$all_columns['subject'] = [
+            'default' => 1,
+            'txt' => $this->lng->txt('message')
+        ];
+        // fau.        
         return self::$all_columns;
     }
 
@@ -173,9 +193,18 @@ class ilWaitingListTableGUI extends ilTable2GUI
         }
 
         $this->tpl->setVariable('VAL_ID', $a_set['usr_id']);
+        // fau: fairSub#101 - show waiting list position
+        if(isset($a_set['wait_pos']) )
+            $this->tpl->setVariable('VAL_POS', $a_set['wait_pos']);
+        // fau.        
         $this->tpl->setVariable('VAL_NAME', $a_set['lastname'] . ', ' . $a_set['firstname']);
 
         foreach ($this->getSelectedColumns() as $field) {
+
+            // fau: userData - generate cell_id for tooltip
+            $cell_id =  rand(1000000,9999999);
+            // fau.
+
             switch ($field) {
                 case 'gender':
                     $a_set['gender'] = $a_set['gender'] ? $this->lng->txt('gender_' . $a_set['gender']) : '';
@@ -207,6 +236,67 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     $this->tpl->parseCurrentBlock();
                     break;
 
+                // fau: paraSub - fill module column
+                case 'module':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) $a_set['module']);
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: campoCheck - fill restrictions column
+                case 'restrictions_passed':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) fauHardRestrictionsGUI::getInstance()->getResultModalLink(
+                        $a_set['restrictions'], $a_set['module_id']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                    // fau.
+
+                // fau: paraSub - fill parallel groups column
+                case 'groups':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['groups']),
+                        $this->lng->txt('fau_selected_groups_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: paraSub - fill submission message
+                case 'subject':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['subject']),
+                        $this->lng->txt('fau_sub_message_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: userData - format table output of studydata and educations
+                case 'studydata':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+
+                case 'educations':
+                    //ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    //$this->tpl->setVariable('ID_CUST', $cell_id);
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['educations']),
+                        $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+                                    
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
@@ -214,11 +304,33 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     break;
             }
         }
+        // fau: fairSub #102- show date of registrations in fair time
+        $time = ilDatePresentation::formatDate(new ilDateTime($a_set['sub_time'], IL_CAL_UNIX));
+        if ($a_set['sub_time'] == $this->getRepositoryObject()->getSubscriptionFair()) {
+            $time = '<em>' . sprintf($this->lng->txt('sub_fair_time_before'), $time) . '</em>';
+        }
+        $this->tpl->setVariable('VAL_SUBTIME', $time);
+        // fau.        
+
         $this->tpl->setVariable(
             'VAL_SUBTIME',
             ilDatePresentation::formatDate(new ilDateTime($a_set['sub_time'], IL_CAL_UNIX))
         );
         $this->showActionLinks($a_set);
+
+        // fau: fairSub#103 - add sinfo about needed confirmation to waiting list
+        switch ($a_set['to_confirm']) {
+            case WaitingListConstantsHelper::REQUEST_TO_CONFIRM:
+                $this->tpl->setVariable('VAL_STATUS', '<b>' . $this->lng->txt('sub_status_request') . '</b>');
+                break;
+            case WaitingListConstantsHelper::REQUEST_CONFIRMED:
+                $this->tpl->setVariable('VAL_STATUS', $this->lng->txt('sub_status_confirmed'));
+                break;
+            case WaitingListConstantsHelper::REQUEST_NOT_TO_CONFIRM:
+            default:
+                $this->tpl->setVariable('VAL_STATUS', $this->lng->txt('sub_status_normal'));
+        }
+        // fau.        
     }
 
     public function readUserData(): void
@@ -233,6 +345,13 @@ class ilWaitingListTableGUI extends ilTable2GUI
             $additional_fields["access_until"],
             $additional_fields['org_units']
         );
+        
+        // fau: fairSub#104 - don't query for subject by default
+        unset($additional_fields["module"]);
+        unset($additional_fields["restrictions_passed"]);
+        unset($additional_fields["groups"]);
+        unset($additional_fields["subject"]);
+        // fau.
 
         $udf_ids = $usr_data_fields = $odf_ids = array();
         foreach ($additional_fields as $field) {
@@ -248,6 +367,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
             $usr_data_fields[] = $field;
         }
 
+        // fau: userData - add ref_id to filter the list of educations as parameter
         $usr_data = ilUserQuery::getUserListData(
             $this->getOrderField(),
             $this->getOrderDirection(),
@@ -262,7 +382,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
             0,
             null,
             $usr_data_fields,
-            $this->wait_user_ids
+            $this->wait_user_ids,
+            '',
+            "",
+            $this->getRepositoryObject()->getRefId()
         );
         if (0 === count($usr_data['set']) && $this->getOffset() > 0 && $this->getExternalSegmentation()) {
             $this->resetOffset();
@@ -281,7 +404,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 0,
                 null,
                 $usr_data_fields,
-                $this->wait_user_ids
+                $this->wait_user_ids,
+                '',
+                "",
+                $this->getRepositoryObject()->getRefId()
             );
         }
         $usr_ids = [];
@@ -364,19 +490,71 @@ class ilWaitingListTableGUI extends ilTable2GUI
             }
         }
 
+        // fau: fairSub#105 - add further data to waiting list table
+        // fau: paraSub - add selection of parallel groups to waiting list table
+        // fau: campoSub - add selected module towaiting list table
+        // fau: campoCheck - add restriction info to waiting list table
+        global $DIC;
+        $group_ids = [];
+        if ($this->isColumnSelected('groups')) {
+            $groups = $DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->getRepositoryObject()->getRefId());
+            foreach ($groups as $group) {
+                $group_ids[] = $group->getObjId();
+            }
+        }
+
+        // Waiting list subscription
+        foreach ($this->wait as $usr_id => $wait_usr_data) {
+            if (isset($a_user_data[$usr_id])) {
+                $a_user_data[$usr_id]['sub_time'] = $wait_usr_data['time'];
+                $a_user_data[$usr_id]['subject'] = $wait_usr_data['subject'];
+                $a_user_data[$usr_id]['to_confirm'] = $wait_usr_data['to_confirm'];
+                $a_user_data[$usr_id]['module'] = '';
+                if (!empty($wait_usr_data['module_id'])) {
+                    $a_user_data[$usr_id]['module_id'] = (int) $wait_usr_data['module_id'];
+                    foreach($DIC->fau()->study()->repo()->getModules([(int) $wait_usr_data['module_id']]) as $module) {
+                        $a_user_data[$usr_id]['module'] =  $module->getLabel();
+                    }
+                }
+
+                if (!empty($group_ids)) {
+                    $titles = [];
+                    $subscribed = $DIC->fau()->ilias()->repo()->getSubscribedObjectIds($usr_id, $group_ids);
+                    foreach ($groups as $group) {
+                        if (in_array($group->getObjId(), $subscribed)) {
+                            $titles[] = $group->getTitle();
+                        }
+                    }
+                    $a_user_data[$usr_id]['groups'] =
+                        sprintf($this->lng->txt(count($titles) == 1 ? 'fau_selected_groups_1' : 'fau_selected_groups_x'), count($titles)) . ": \n" .
+                        implode(", \n", $titles);
+                }
+                else {
+                    $a_user_data[$usr_id]['groups'] = '';
+                }
+
+                if ($this->isColumnSelected('restrictions_passed')) {
+                    $hard = $DIC->fau()->cond()->hardChecked($this->getRepositoryObject()->getId(), $usr_id);
+                    $a_user_data[$usr_id]['restrictions'] = $hard;
+                    $a_user_data[$usr_id]['restrictions_passed'] = $hard->getCheckPassed();
+                }
+            }
+        }
+        // fau.
+
         $this->setMaxCount((int) ($usr_data['cnt'] ?? 0));
         $this->setData($a_user_data);
     }
 
     public function showActionLinks(array $a_set): void
     {
-        if (!self::$has_odf_definitions) {
+        // fau: fairSub#106 - add options to confirm a subscription
+        if (!self::$has_odf_definitions && $a_set['to_confirm'] != 1) {
             $this->ctrl->setParameterByClass(get_class($this->getParentObject()), 'member_id', $a_set['usr_id']);
             $link = $this->ctrl->getLinkTargetByClass(get_class($this->getParentObject()), 'sendMailToSelectedUsers');
             $this->tpl->setVariable('MAIL_LINK', $link);
             $this->tpl->setVariable('MAIL_TITLE', $this->lng->txt('crs_mem_send_mail'));
             $this->ctrl->setParameterByClass(get_class($this->getParentObject()), 'member_id', null);
-            return;
         }
 
         // show action menu

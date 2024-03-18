@@ -15,6 +15,7 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+use FAU\Ilias\Helper\UserQueryHelper;
 
 /**
  * User query class. Put any complex that queries for a set of users into
@@ -23,6 +24,8 @@
  */
 class ilUserQuery
 {
+    use UserQueryHelper;
+
     public const DEFAULT_ORDER_FIELD = 'login';
 
     private string $order_field = self::DEFAULT_ORDER_FIELD;
@@ -288,6 +291,18 @@ class ilUserQuery
                 continue;
             }
 
+            // fau: userData - don't query for studydata and educations directly, add them later
+            if ($field == 'studydata') {
+                $add_studydata = true;
+                continue;
+            }
+            if ($field == 'educations') {
+                $add_educations = true;
+                continue;
+            }
+            // fau.
+
+
             if (in_array($field, $all_multi_fields)) {
                 $multi_fields[] = $field;
             } elseif (strpos($field, ".") === false) {
@@ -466,6 +481,13 @@ class ilUserQuery
                 }
                 break;
 
+            // fau: userData - don't order by studydata or educations
+            case "studydata":
+            case "educations":
+                break;
+            // fau.
+
+
             default:
                 if ($this->order_dir !== "asc" && $this->order_dir !== "desc") {
                     $this->order_dir = "asc";
@@ -512,6 +534,14 @@ class ilUserQuery
         $result = array();
 
         while ($rec = $ilDB->fetchAssoc($set)) {
+            // fau: userData - optionally add the studydata and educations
+            if (isset($add_studydata) && $add_studydata) {
+                $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
+            }
+            if (isset($add_educations) && $add_educations) {
+                $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id'], $this->getEducationsRefId());
+            }
+            // fau.            
             $result[] = $rec;
             if (count($multi_fields)) {
                 $usr_ids[] = (int) $rec["usr_id"];
@@ -533,48 +563,5 @@ class ilUserQuery
             }
         }
         return array("cnt" => $cnt, "set" => $result);
-    }
-
-
-    /**
-     * Get data for user administration list.
-     * @deprecated
-     */
-    public static function getUserListData(
-        string $a_order_field,
-        string $a_order_dir,
-        int $a_offset,
-        int $a_limit,
-        string $a_string_filter = "",
-        string $a_activation_filter = "",
-        ?ilDateTime $a_last_login_filter = null,
-        bool $a_limited_access_filter = false,
-        bool $a_no_courses_filter = false,
-        int $a_course_group_filter = 0,
-        int $a_role_filter = 0,
-        array $a_user_folder_filter = null,
-        array $a_additional_fields = null,
-        array $a_user_filter = null,
-        string $a_first_letter = "",
-        string $a_authentication_filter = ""
-    ): array {
-        $query = new ilUserQuery();
-        $query->setOrderField($a_order_field);
-        $query->setOrderDirection($a_order_dir);
-        $query->setOffset($a_offset);
-        $query->setLimit($a_limit);
-        $query->setTextFilter($a_string_filter);
-        $query->setActionFilter($a_activation_filter);
-        $query->setLastLogin($a_last_login_filter);
-        $query->setLimitedAccessFilter($a_limited_access_filter);
-        $query->setNoCourseFilter($a_no_courses_filter);
-        $query->setCourseGroupFilter($a_course_group_filter);
-        $query->setRoleFilter($a_role_filter);
-        $query->setUserFolder($a_user_folder_filter);
-        $query->setAdditionalFields($a_additional_fields ?? []);
-        $query->setUserFilter($a_user_filter ?? []);
-        $query->setFirstLetterLastname($a_first_letter);
-        $query->setAuthenticationFilter($a_authentication_filter);
-        return $query->query();
     }
 }

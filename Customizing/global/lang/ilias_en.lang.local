@@ -359,7 +359,7 @@ crs#:#crs_choose_one_event#:#Please choose a date!
 crs#:#crs_error_preconditions#:#You could not have been accepted!
 crs#:#crs_event_registration_not_possible#:#The login to the date '%s' is not possible!
 crs#:#crs_event_subscription_after_confirmation#:#You can register to the dates only after acceptance of your application for admission.
-crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub - changed link text
+crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub#2 - changed link text
 crs#:#crs_mail_subscribe_to_events#:#For this course the registration to the dates (sessions) is provided. Please go to the course content, to register for the sessions!
 crs#:#crs_max_members_mode#:#Procedure:
 crs#:#crs_mem_set_passed#:#set passed
@@ -691,9 +691,11 @@ fau#:#fau_search_ilias_course_not#:#No StudOn Course
 fau#:#fau_search_ilias_course_not_found#:#This event does not have a StudOn course.
 fau#:#fau_search_ilias_course_not_visible#:#The StudOn course for this event is not visible to you.
 fau#:#fau_search_no_events_found#:#No Events found.
+fau#:#fau_search_visit_event#:#Go to StudOn course
 fau#:#fau_search_numbers_of#:#%s to %s of %s
 fau#:#fau_search_title#:#Event Title
 fau#:#fau_search_title_info#:#Searching for a part of the title. Use * as placeholder within your search entry.
+fau#:#fau_search_additional_info#:#Additional Information
 fau#:#fau_selected_module#:#Selected Module/Area
 fau#:#fau_selected_groups#:#Selected Groups
 fau#:#fau_selected_groups_of#:#Selected Groups of

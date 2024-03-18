@@ -37,6 +37,12 @@ use ILIAS\Refinery\Factory;
  * @ilCtrl_Calls ilObjGroupGUI: ilLTIProviderObjectSettingGUI
  * @ilCtrl_Calls ilObjGroupGUI: ilObjectMetaDataGUI, ilObjectTranslationGUI, ilPropertyFormGUI
  *
+ * fau: studyCond - added ilStudyCondGUI to call structure
+ * @ilCtrl_Calls ilObjGroupGUI: ilStudyCondGUI
+ * fau.
+ * fau: objectSub - added ilPropertyFormGUI to call structure
+ * @ilCtrl_Calls ilObjGroupGUI: ilPropertyFormGUI
+ * fau.
  *
  *
  * @extends ilObjectGUI
@@ -136,6 +142,25 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
 
+// fau: studyCond - add command class
+            case 'ilstudycondgui':
+                $cond_gui = new ilStudyCondGUI($this, 'edit');
+                $this->ctrl->setReturn($this, 'edit');
+                $this->ctrl->forwardCommand($cond_gui);
+                $this->setSubTabs('settings');
+                $this->tabs_gui->setTabActive('settings');
+                break;
+// fau.
+
+// fau: objectSub - object selection in properties form
+            case "ilpropertyformgui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('settings');
+                $this->ctrl->setReturn($this, "updateRegistrationRefId");
+                $form = $this->initForm();
+                $this->ctrl->forwardCommand($form);
+                break;
+// fau.
 
             case 'ilgroupregistrationgui':
                 $this->ctrl->setReturn($this, '');
@@ -871,6 +896,29 @@ class ilObjGroupGUI extends ilContainerGUI
         return $form;
     }
 
+    // fau: objectSub - update the ref id for subscriptions
+    /**
+     * Update the chosen ref id for subscriptions
+     */
+    public function updateRegistrationRefIdObject()
+    {
+        global $DIC;
+        $form = $this->initForm();
+        $input = $form->getItemByPostVar('subscription_object');
+        $input->readFromSession();
+        if ($input->getValue()) {
+            $this->object->setRegistrationType(GRP_REGISTRATION_OBJECT);
+            $this->object->setRegistrationRefId((int) $input->getValue());
+        } else {
+            $this->object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
+            $this->object->setRegistrationRefId(null);
+        }
+        $this->object->update();
+        $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
+
     public function updateInfoObject(): void
     {
         $this->checkPermission('manage_members');
@@ -1149,23 +1197,23 @@ class ilObjGroupGUI extends ilContainerGUI
         // parent tabs (all container: edit_permission, clipboard, trash
         parent::getTabs();
 
-        if ($this->access->checkAccess('join', '', $this->object->getRefId()) and
-            !$this->object->members_obj->isAssigned($this->user->getId())) {
-            if (ilGroupWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
-                $this->tabs_gui->addTab(
-                    'leave',
-                    $this->lng->txt('membership_leave'),
-                    $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', 'show', '')
-                );
-            } else {
-                $this->tabs_gui->addTarget(
-                    "join",
-                    $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show"),
-                    'show',
-                    ""
-                );
-            }
+        // fau: changeSub - simlified checks for join / edit request tab
+        if ($this->access->checkAccess('join', 'join', $this->object->getRefId())) {
+            // no specific command: initial join
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('join'),
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+            );
+        } elseif ($this->access->checkAccess('join', 'leave', $this->object->getRefId())) {
+            // leave command: edit membership request
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('mem_edit_request'),
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+            );
         }
+        // fau.
         if ($this->access->checkAccess('leave', '', $this->object->getRefId()) and
             $this->object->members_obj->isMember($this->user->getId())) {
             $this->tabs_gui->addTarget(
@@ -1240,7 +1288,16 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->lng->txt('group_registration_mode'),
                 $this->lng->txt('grp_reg_deac_info_screen')
             );
-        } else {
+        }
+        // fau: objectSub - add info about subscription in separate object
+        elseif ($this->object->getRegistrationType() == GRP_REGISTRATION_OBJECT) {
+            $info->addProperty(
+                $this->lng->txt('group_registration_mode'),
+                $this->lng->txt('sub_separate_object')
+            );
+        }
+        // fau.
+        else {
             switch ($this->object->getRegistrationType()) {
                 case ilGroupConstants::GRP_REGISTRATION_DIRECT:
                     $info->addProperty(
@@ -1484,6 +1541,28 @@ class ilObjGroupGUI extends ilContainerGUI
             $reg_type = new ilRadioGroupInputGUI($this->lng->txt('group_registration_mode'), 'registration_type');
             $reg_type->setValue((string) $this->object->getRegistrationType());
 
+            // fau: objectSub - add option for reference to subscription object
+            require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
+            $opt_obj = new ilRadioOption($this->lng->txt('sub_separate_object'), GRP_REGISTRATION_OBJECT);
+            $opt_obj->setInfo($this->lng->txt('sub_separate_object_info'));
+            $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
+            $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
+            $rep_sel->setClickableTypes(array('xcos'));
+            $rep_sel->setRequired(true);
+            $rep_sel->setParent($form);
+            $opt_obj->addSubItem($rep_sel);
+            if ($ref_id = $this->object->getRegistrationRefId()) {
+                $rep_sel->setValue($ref_id);
+                require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+                $locator = new ilLocatorGUI();
+                $locator->setTextOnly(true);
+                $locator->addContextItems($ref_id);
+                $rep_loc = new ilNonEditableValueGUI();
+                $rep_loc->setValue($locator->getHTML());
+                $opt_obj->addSubItem($rep_loc);
+            }
+            $reg_type->addOption($opt_obj);
+            // fau.            
             $opt_dir = new ilRadioOption(
                 $this->lng->txt('grp_reg_direct'),
                 (string) ilGroupConstants::GRP_REGISTRATION_DIRECT

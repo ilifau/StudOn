@@ -18,7 +18,7 @@ use ilObjGroup;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\Event;
 use FAU\Tools\Settings;
-
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 /**
  * Functions to handle with ILIAS objects
  */
@@ -168,7 +168,7 @@ class Objects
             (int) $info['reg_info_max_members'],
             array_key_exists('reg_info_members', $info) ? (int) $info['reg_info_members'] : 0,
             array_key_exists('reg_info_subscribers', $info) ? (int) $info['reg_info_subscribers'] : 0,
-            array_key_exists('reg_info_waiting_status', $info) ? (int) $info['reg_info_waiting_status'] : ilWaitingList::REQUEST_NOT_ON_LIST,
+            array_key_exists('reg_info_waiting_status', $info) ? (int) $info['reg_info_waiting_status'] : WaitingListConstantsHelper::REQUEST_NOT_ON_LIST,
             array_key_exists('ref_info_is_assigned', $info) ? (bool) $info['ref_info_is_assigned'] : false,
         );
 

@@ -357,7 +357,7 @@ crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
 crs#:#crs_error_preconditions#:#Sie konnten nicht aufgenommen werden!
 crs#:#crs_event_registration_not_possible#:#Die Anmeldung zum Termin '%s' ist nicht möglich!
 crs#:#crs_event_subscription_after_confirmation#:#Sie können sich zu den Terminen erst nach der Annahme Ihres Aufnahmeantrags anmelden.
-crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub - changed link text
+crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub#1 - changed link text
 crs#:#crs_mail_subscribe_to_events#:#Für diesen Kurs ist die Anmeldung zu Terminen (Sitzungen) vorgesehen. Bitte gehen Sie zum Kursinhalt, um sich zu den Terminen anzumelden!
 crs#:#crs_max_members_mode#:#Verfahren:
 crs#:#crs_mem_set_passed#:#Bestanden setzen
@@ -691,9 +691,11 @@ fau#:#fau_search_ilias_course_not#:#Kein StudOn-Kurs
 fau#:#fau_search_ilias_course_not_found#:#Für diese Veranstaltung ist noch kein StudOn-Kurs erstellt.
 fau#:#fau_search_ilias_course_not_visible#:#Der StudOn-Kurs dieser Veranstaltung ist für Sie nicht sichtbar.
 fau#:#fau_search_no_events_found#:#Keine Lehrveranstaltungen gefunden.
+fau#:#fau_search_visit_event#:#Zum StudOn Kurs
 fau#:#fau_search_numbers_of#:#%s bis %s von %s
 fau#:#fau_search_title#:#Titel der Lehrveranstaltung
 fau#:#fau_search_title_info#:#Gesucht wird ein Teil des Titels. Verwenden Sie * als Platzhalter innerhalb Ihres Succhbegriffs.
+fau#:#fau_search_additional_info#:#Zusatzinformationen
 fau#:#fau_selected_module#:#Gewähltes Modul
 fau#:#fau_selected_groups#:#Gewählte Gruppen
 fau#:#fau_selected_groups_of#:#Gewählte Gruppen von

@@ -18,6 +18,8 @@
 
 declare(strict_types=1);
 
+use FAU\Ilias\Helper\ParticipantsHelper;
+
 /**
  * Base class for course and group participants
  * @author  Stefan Meyer <smeyer.ilias@gmx.de>
@@ -29,6 +31,8 @@ declare(strict_types=1);
  */
 abstract class ilParticipants
 {
+    use ParticipantsHelper;
+
     public const IL_CRS_ADMIN = 1;
     public const IL_CRS_TUTOR = 3;
     public const IL_CRS_MEMBER = 2;
@@ -742,7 +746,10 @@ abstract class ilParticipants
             "deleteParticipant",
             [
                 'obj_id' => $this->obj_id,
-                'usr_id' => $a_usr_id
+                'usr_id' => $a_usr_id,
+                // fau: fairSub - add type info to 'deleteParticipant' event in order to trigger the autofill in courses and groups
+                'type' => $this->type
+                // fau.                
             ]
         );
     }

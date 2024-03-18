@@ -6,6 +6,8 @@ use FAU\Study\Search;
 use ILIAS\UI\Component\Item\Group;
 use ILIAS\UI\Component\ViewControl\Pagination;
 use FAU\Study\Data\ImportId;
+use ILIAS\Data\URI;
+use ILIAS\UI\Component\Table\Presentation;
 
 /**
  * Search for events from campo
@@ -227,7 +229,7 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
      * Get the list of events as an item group
      * This does the query
      */
-    protected function getList() : Group
+    protected function getList() : Presentation | Group
     {
         $listGUI = new ilObjCourseListGUI();
         $pathGUI = new ilPathGUI();
@@ -241,67 +243,135 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $this->allow_move = false;
         foreach ($this->search->getEventList() as $event) {
 
-            if (empty($event->getIliasRefId()) || !$event->isVisible()) {
-                $item = $this->factory->item()->standard((string) $event->getEventTitle())
-                    ->withDescription((string) $event->getEventShorttext())
-                    ->withLeadIcon($icon_missing)
-                    ->withProperties([
-                        $this->lng->txt('fau_search_ilias_course') => $this->lng->txt(empty($event->getIliasRefId()) ?
-                            'fau_search_ilias_course_not_found' : 'fau_search_ilias_course_not_visible')
-                    ])
-                    ->withCheckbox(self::CHECKBOX_NAME);
+            if (empty($event->getIliasRefId()) || !$event->isVisible()) 
+            {
+                $item['title'] = (string) $event->getEventTitle();
+                $item['link'] = "#";
+                $item['subtitle'] = (string) $event->getEventShorttext();
+                $item['content'] = array($this->lng->txt('fau_search_ilias_course') => $this->lng->txt(empty($event->getIliasRefId()) ?
+                'fau_search_ilias_course_not_found' : 'fau_search_ilias_course_not_visible'));
+                $item['leadicon'] = $icon_missing;
+                $item['ref_id'] = $event->getIliasRefId();
+                $item['moveable'] = false;
             }
-            else {
+            else 
+            {
                 $import_id = new ImportId($term->toString(), $event->getEventId(), $event->getSingleCourseId());
 
                 $link = ilLink::_getStaticLink($event->getIliasRefId(), 'crs');
                 $title = $event->getIliasTitle();
 
                 $info_gui = $this->dic->fau()->study()->info();
-                $description = $event->getIliasDescription();
-                $description .= ' &nbsp; ' . $info_gui->getLinksLine($import_id, $event->getIliasRefId());
-                $description .= $pathGUI->getPath(1, $event->getIliasRefId());
+                $subtitle = $event->getIliasDescription();
+                $subtitle .= $info_gui->getLinksLine($import_id, $event->getIliasRefId());
+                $subtitle .= $pathGUI->getPath(1, $event->getIliasRefId());
+                $parallelGroups = "";
                 if ($event->isNested()) {
-                    $description .= '<p>' . $this->lng->txt('fau_parallel_groups') .'</p>'
-                        . $info_gui->getParallelGroupsInfo($event->getIliasRefId(), false, false);
+                    $parallelGroups .= $info_gui->getParallelGroupsInfo($event->getIliasRefId(), false, false);
                 }
 
                 $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
-                $props = [];
+                $props = "";
                 foreach ($listGUI->getProperties() as $property) {
-                    $props[$property['property']] = $property['value'];
+                    if($property['property'] != "")
+                    {
+                        if($props == "") $props .='<ul>';
+                        $props .= '<li>'.$property['property'] .": " . $property['value'].'</li>';
+                    }
                 }
-                $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
-                    ->withDescription($description)
-                    ->withLeadIcon($icon_crs)
-                    ->withProperties($props)
-                    ->withCheckbox(self::CHECKBOX_NAME, $event->isMoveable() ? $event->getIliasRefId() : null);
+                if ($props != "") $props = $props . '</ul>';
 
+                $item['title'] = $title;
+                $item['link'] = $link;
+                $item['leadicon'] = $icon_crs;
+                $item['subtitle'] = $subtitle;
+                $item['content'] = array();
+                $item['ref_id'] = $event->getIliasRefId();
+                if($parallelGroups != "")
+                    $item['content'][$this->lng->txt('fau_parallel_groups')]= $parallelGroups;
+                if($props != "")
+                    $item['content'][$this->lng->txt('fau_search_additional_info')] = $props;
+
+                $item['moveable'] = false;
                 if ($event->isMoveable()) {
                     $this->allow_move = true;
+                    $item['moveable'] = true;
                 }
             }
             $items[] = $item;
         }
 
-        if (empty($items)) {
+        if (empty($items)) 
+        {
             return $this->factory->item()->group($this->lng->txt('fau_search_no_events_found'), $items);
         }
-        else {
+        else 
+        {
             $cond = $this->search->getCondition();
-            if ($cond->needsPaging()) {
+            if ($cond->needsPaging()) 
+            {
                 $found = sprintf($this->lng->txt('fau_search_numbers_of'),
                     $cond->getOffset() + 1,
                     min($cond->getOffset() + $cond->getLimit(), $cond->getFound()),
                     $cond->getFound()
                 );
             }
-            else {
+            else 
+            {
                 $found = $cond->getFound();
             }
-            return $this->factory->item()->group($this->lng->txt('fau_search_found_events') . ' ' . $found, $items);
-        }
 
+            //build table
+            $ptable = $this->factory->table()->presentation
+            (
+                $this->lng->txt('fau_search_found_events') . ' ' . $found, //title
+                array(),
+                function ($row, $record, $ui_factory, $environment) 
+                {   //mapping-closure
+                    $headline = $this->renderer->render
+                    (
+                        $this->factory->item()->standard
+                        (
+                            $this->factory->link()->standard($record['title'], $record['link'])
+                        )
+                        ->withLeadIcon($record['leadicon'])
+                        ->withCheckbox(self::CHECKBOX_NAME, $record['moveable'] ? $record['ref_id'] : null)
+                    );   
+                        
+                    $row = $row
+                    ->withHeadline($headline)
+                    ->withSubheadline($record['subtitle'])
+                    ->withContent(
+                        $ui_factory->listing()->descriptive(
+                                $record['content']
+                            )
+                        );
+                    if ($record['link'] != "#")
+                        return $row
+                            ->withHeadline($headline)
+                            ->withSubheadline($record['subtitle'])
+                            ->withContent(
+                                $ui_factory->listing()->descriptive(
+                                        $record['content']
+                                    )
+                                )
+                                ->withAction($this->factory->button()->standard($this->lng->txt('fau_search_visit_event'), $record['link']));
+                    else 
+                        return $row
+                            ->withHeadline($record['title'])
+                            ->withSubheadline($record['subtitle'])
+                            ->withContent(
+                                $ui_factory->listing()->descriptive(
+                                        $record['content']
+                                    )
+                                );
+                }
+            );
+
+            //apply data to table and render
+            return $ptable
+                ->withData($items);
+        }
     }
 
     /**
@@ -326,7 +396,7 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
      */
     protected function cut()
     {
-        $_GET['ref_id'] = 1;
+   //    $_GET['ref_id'] = 1;
         $container = new ilObjRootFolderGUI(array(), 1, true, false);
         $container->cutObject();
     }

@@ -9,7 +9,7 @@ use ilConfirmationGUI;
  */
 trait ObjCourseGUIHelper 
 {
-    // fau: fairSub - activation and deactivation of the fair period
+    // fau: fairSub#27 - activation and deactivation of the fair period
     public function activateSubFairObject()
     {
         if (!ilCust::deactivateFairTimeIsAllowed()) {
@@ -47,7 +47,6 @@ trait ObjCourseGUIHelper
             $this->ctrl->redirect($this, 'edit');
         }
 
-        include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
         $c_gui = new ilConfirmationGUI();
         $c_gui->setFormAction($this->ctrl->getFormAction($this, "edit"));
         $c_gui->setHeaderText($this->lng->txt('sub_fair_deactivate_question')

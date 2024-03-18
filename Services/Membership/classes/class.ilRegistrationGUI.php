@@ -17,6 +17,10 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+// fau: paraSub - import of registration class
+// fau: fairSub#53 - import of registration class
+use FAU\Ilias\Registration;
+// fau.
 
 /**
  * Base class for Course and Group registration
@@ -46,6 +50,11 @@ abstract class ilRegistrationGUI
     protected ilCtrl $ctrl;
     protected ilAccessHandler $access;
 
+    // fau: paraSub - property for registration object
+    // fau: fairSub#52 - property for registration object
+    protected Registration $registration;
+    // fau.
+
     public function __construct(ilObject $a_container)
     {
         global $DIC;
@@ -73,6 +82,10 @@ abstract class ilRegistrationGUI
         $this->initParticipants();
         $this->initWaitingList();
 
+        // fau: paraSub - init the registration object
+        // fau: fairSub#59 - init the registration object
+        $this->registration = $DIC->fau()->ilias()->getRegistration($this->container, $this->participants, $this->waiting_list);
+        // fau.        
         $this->privacy = ilPrivacySettings::getInstance();
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
@@ -125,7 +138,13 @@ abstract class ilRegistrationGUI
 
     protected function leaveWaitingList(): void
     {
-        $this->getWaitingList()->removeFromList($this->user->getId());
+        // fau: paraSub - call new function to remove a user from the waiting list
+        // fau: fairSub#60 - call new function to remove a user from the waiting list
+        $this->registration->removeUserSubscription($DIC->user()->getId());
+        // fau.
+        // fau: fairSub#54 - trigger filling a course
+        $this->registration->doAutoFill();
+        // fau.        
         $parent = $this->tree->getParentId($this->container->getRefId());
 
         $message = sprintf(
@@ -161,6 +180,34 @@ abstract class ilRegistrationGUI
      * show informations about registration procedure
      */
     abstract protected function fillRegistrationType(): void;
+    
+    // fau: objectSub - new function fillRegistrationTypeObject()
+    protected function fillRegistrationTypeObject($a_ref_id)
+    {
+        require_once('Services/Link/classes/class.ilLink.php');
+        $obj_id = ilObject::_lookupObjId($a_ref_id);
+        $link = ilLink::_getLink($a_ref_id);
+
+        require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+        $locator = new ilLocatorGUI();
+        $locator->addRepositoryItems($a_ref_id);
+
+        $tpl = new ilTemplate('tpl.sub_object_link.html', true, true, 'Services/Membership');
+        $tpl->setVariable('TXT_INFO', $this->lng->txt('sub_separate_object_reg_info'));
+        $tpl->setVariable('IMG_TYPE', ilObject::_getIcon($obj_id, 'small'));
+        $tpl->setVariable('URL_OBJECT', $link);
+        $tpl->setVariable('TITLE_OBJECT', ilObject::_lookupTitle($obj_id));
+        $tpl->setVariable('TXT_PATH', $locator->getTextVersion());
+
+        $input = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+        $input->setHtml($tpl->get());
+        $this->form->addItem($input);
+
+        // Disable registration
+        $this->enableRegistration(false);
+        return true;
+    }
+    // fau.    
 
     /**
      * Show membership limitations
@@ -438,7 +485,11 @@ abstract class ilRegistrationGUI
         if ($this->isRegistrationPossible()) {
             $this->fillRegistrationPeriod();
         }
-        if ($this->isRegistrationPossible() || $this->participants->isSubscriber($this->user->getId())) {
+        // fau: fairSub#55 - fill registration type if user is to confirm on waiting list
+        if ($this->isRegistrationPossible()
+            || $this->participants->isSubscriber($this->user->getId())
+            || $this->getWaitingList()->isToConfirm($this->user->getId())) {
+            // fau.
             $this->fillRegistrationType();
         }
         if ($this->isRegistrationPossible()) {
@@ -456,22 +507,24 @@ abstract class ilRegistrationGUI
      */
     protected function addCommandButtons(): void
     {
-        if (
-            $this->isRegistrationPossible() &&
-            $this->isWaitingListActive() &&
-            !$this->getWaitingList()->isOnList($this->user->getId())
-        ) {
-            $this->form->addCommandButton('join', $this->lng->txt('mem_add_to_wl'));
-            $this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
-        } elseif ($this->isRegistrationPossible() && !$this->getWaitingList()->isOnList($this->user->getId())) {
-            $this->form->addCommandButton('join', $this->lng->txt('join'));
+        // fau: fairSub#56 - use prepared join button text if existing
+        if ($this->isRegistrationPossible() && !$this->getWaitingList()->isOnList($this->user->getId())) {
+            $this->form->addCommandButton('join', $this->lng->txt('mem_register'));
             $this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
         }
+        // fau.
+
         if ($this->getWaitingList()->isOnList($this->user->getId())) {
-            $this->tpl->setOnScreenMessage('question', sprintf(
-                $this->lng->txt($this->container->getType() . '_cancel_waiting_list'),
-                $this->container->getTitle()
-            ));
+            // fau: fairSub#57 - allow to update the subscription_request
+            if ($this->getWaitingList()->isToConfirm($this->user->getId())) {
+                ilUtil::sendQuestion($this->lng->txt('mem_user_already_subscribed'));
+                $this->form->addCommandButton('updateWaitingList', $this->lng->txt('crs_update_subscr_request'));
+            }
+            // fau: paraSub - allow to change the group selection
+            elseif ($this->container->hasParallelGroups()) {
+                $this->form->addCommandButton('updateWaitingList', $this->lng->txt('mem_edit_request'));
+            }
+            // fau.
             $this->form->addCommandButton('leaveWaitingList', $this->lng->txt('leave_waiting_list'));
             $this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
         }
@@ -496,6 +549,47 @@ abstract class ilRegistrationGUI
         );
         $this->ctrl->redirectByClass("ilrepositorygui", "");
     }
+
+    // fau: fairSub#58 - new function 	updateWaitingList()
+    /**
+     * Update the subscription message when being on the waiting list
+     * @return void
+     */
+    protected function updateWaitingList()
+    {
+        global $tree, $ilCtrl;
+
+        // fau: courseUdf - save the user defined values when waiting list is updated
+        // fau: paraSub - save group selections
+        $this->initForm();
+        if ($this->form->checkInput()) {
+            include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
+            ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
+
+            // treat update like a join in courses with parallel groups
+            // this allows to directly join another group
+            if ($this->container->hasParallelGroups()) {
+                $this->add();
+                return;
+            }
+
+            $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
+            $this->participants->sendExternalNotifications($this->container, $this->user, true);
+
+            $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt('sub_request_saved'), true);
+            $ilCtrl->setParameterByClass(
+                "ilrepositorygui",
+                "ref_id",
+                $tree->getParentId($this->container->getRefId())
+            );
+            $ilCtrl->redirectByClass("ilrepositorygui", "");
+        }
+        {
+            $this->form->setValuesByPost();
+            $this->tpl->setContent($this->form->getHTML());
+        }
+    }
+    // fau.
 
     protected function cancelSubscriptionRequest(): void
     {

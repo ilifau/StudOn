@@ -9,7 +9,9 @@ use ilCourseWaitingList;
  */
 trait ObjCourseHelper 
 {
-    // fau: fairSub - getter / setter
+    private int $subscription_ref_id = 0;
+    
+    // fau: fairSub#13 - getter / setter
     public function getSubscriptionFair()
     {
         return (int) $this->subscription_fair;
@@ -60,7 +62,7 @@ trait ObjCourseHelper
         return $fairdate;
     }
 
-    // fau: fairSub - check if current time is in fair time span
+    // fau: fairSub#12 - check if current time is in fair time span
     public function inSubscriptionFairTime($a_time = null)
     {
         if (!isset($a_time)) {

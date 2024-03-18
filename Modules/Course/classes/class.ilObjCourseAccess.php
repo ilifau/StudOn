@@ -17,6 +17,7 @@ declare(strict_types=0);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 
 /**
  * Class ilObjCourseAccess
@@ -169,6 +170,12 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                     return false;
                 }
 
+                // fau: fairSub#28 - add waiting list check for join permission
+                if (ilCourseWaitingList::_isOnList($user_id, $obj_id)) {
+                    return false;
+                }
+                // fau.                
+
                 if ($participants->isAssigned($user_id)) {
                     return false;
                 }
@@ -190,8 +197,10 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
         $commands[] = array("permission" => "join", "cmd" => "join", "lang_var" => "join");
 
+        // fau: fairSub#29 - general command for editing requests
         // on waiting list
-        $commands[] = array('permission' => "join", "cmd" => "leave", "lang_var" => "leave_waiting_list");
+        $commands[] = array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
+        // fau.
 
         // regualar users
         $commands[] = array('permission' => "leave", "cmd" => "leave", "lang_var" => "crs_unsubscribe");
@@ -318,72 +327,138 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
         }
     }
 
-    public static function lookupRegistrationInfo(int $a_obj_id): array
+    // fau: showMemLimit - add ref_id as parameter for checking write access
+    public static function lookupRegistrationInfo($a_obj_id, $a_ref_id = 0)
+    // fau.
     {
         global $DIC;
 
-        $ilDB = $DIC->database();
-        $ilUser = $DIC->user();
-        $lng = $DIC->language();
+        $ilDB = $DIC['ilDB'];
+        $ilUser = $DIC['ilUser'];
+        $lng = $DIC['lng'];
 
-        $query = 'SELECT sub_limitation_type, sub_start, sub_end, sub_mem_limit, sub_max_members FROM crs_settings ' .
-            'WHERE obj_id = ' . $ilDB->quote($a_obj_id, ilDBConstants::T_INTEGER);
+        // fau: fairSub - query for fair period
+        $query = 'SELECT sub_limitation_type, sub_start, sub_end, sub_mem_limit, sub_max_members, sub_fair FROM crs_settings ' .
+            'WHERE obj_id = ' . $ilDB->quote($a_obj_id);
         $res = $ilDB->query($query);
-
+        
         $info = array();
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             $info['reg_info_start'] = new ilDateTime($row->sub_start, IL_CAL_UNIX);
             $info['reg_info_end'] = new ilDateTime($row->sub_end, IL_CAL_UNIX);
-            $info['reg_info_type'] = (int) $row->sub_limitation_type;
-            $info['reg_info_max_members'] = (int) $row->sub_max_members;
-            $info['reg_info_mem_limit'] = (int) $row->sub_mem_limit;
+            $info['reg_info_type'] = $row->sub_limitation_type;
+            $info['reg_info_max_members'] = $row->sub_max_members;
+            $info['reg_info_mem_limit'] = $row->sub_mem_limit;
+            $info['reg_info_sub_fair'] = $row->sub_fair;
         }
+        // fau.
 
         $registration_possible = true;
 
         // Limited registration
         if ($info['reg_info_type'] == ilCourseConstants::SUBSCRIPTION_LIMITED) {
+            // fau: fairSub - add info about fair period
+            $fair_suffix = '';
+            if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0) {
+                if ($info['reg_info_sub_fair'] < 0) {
+                    $fair_suffix = " - <b>" . $lng->txt('sub_fair_inactive_short') . "</b>";
+                }
+//	            elseif (time() < $info['reg_info_sub_fair'])
+//				{
+//					$fair_suffix = " <br />".$lng->txt('sub_fair_date'). ': '
+//						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
+//				}
+            }
+
             $dt = new ilDateTime(time(), IL_CAL_UNIX);
             if (ilDateTime::_before($dt, $info['reg_info_start'])) {
                 $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg_start');
-                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']);
+                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']) . $fair_suffix;
             } elseif (ilDateTime::_before($dt, $info['reg_info_end'])) {
                 $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg_end');
-                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']);
+                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']) . $fair_suffix;
             } else {
                 $registration_possible = false;
                 $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg_period');
                 $info['reg_info_list_prop']['value'] = $lng->txt('crs_list_reg_noreg');
             }
+            // fau.
         } elseif ($info['reg_info_type'] == ilCourseConstants::SUBSCRIPTION_UNLIMITED) {
             $registration_possible = true;
         } else {
             $registration_possible = false;
-            $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg');
-            $info['reg_info_list_prop']['value'] = $lng->txt('crs_list_reg_noreg');
+            // fau: showRegLimit - hide registration info if registration is not possible (exam platforms)
+            // $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg');
+            // $info['reg_info_list_prop']['value'] = $lng->txt('crs_list_reg_noreg');
+            // fau.
         }
 
-        if ($info['reg_info_mem_limit'] && $info['reg_info_max_members'] && $registration_possible) {
-            // Check for free places
-            $part = ilCourseParticipant::_getInstanceByObjId($a_obj_id, $ilUser->getId());
+        // fau: showMemLimit - get info about membership limitations and subscription status
+        global $ilAccess;
+        include_once './Modules/Course/classes/class.ilCourseParticipant.php';
+        include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
 
-            $info['reg_info_list_size'] = ilCourseWaitingList::lookupListSize($a_obj_id);
-            if ($info['reg_info_list_size']) {
-                $info['reg_info_free_places'] = 0;
-            } else {
-                $info['reg_info_free_places'] = max(0, $info['reg_info_max_members'] - $part->getNumberOfMembers());
+        $partObj = ilCourseParticipant::_getInstanceByObjId($a_obj_id, $ilUser->getId());
+
+        if ($info['reg_info_mem_limit'] && $registration_possible) {
+            $show_mem_limit = true;
+            $show_hidden_notice = false;
+        } elseif ($info['reg_info_mem_limit'] && $ilAccess->checkAccess('write', '', $a_ref_id, 'crs', $a_obj_id)) {
+            $show_mem_limit = true;
+            $show_hidden_notice = true;
+        } else {
+            $show_mem_limit = false;
+            $show_hidden_notice = false;
+        }
+
+        // this must always be calculeted because it is used for the info and registration page
+        $max_members = $info['reg_info_max_members'];
+        $members = (int) $partObj->getNumberOfMembers();
+        $free_places = max($max_members - $members, 0);
+        $info['reg_info_free_places'] = $free_places;
+
+        if ($show_mem_limit) {
+            $waiting = ilCourseWaitingList::lookupListSize($a_obj_id);
+
+            $limits = array();
+            $limits[] = $lng->txt("mem_max_users") . $max_members;
+            $limits[] = $lng->txt("mem_free_places") . ': ' . $free_places;
+            if ($waiting > 0) {
+                $limits[] = $lng->txt("subscribers_or_waiting_list") . ': ' . (string) ($waiting);
             }
 
-            if ($info['reg_info_free_places']) {
-                $info['reg_info_list_prop_limit']['property'] = $lng->txt('crs_list_reg_limit_places');
-                $info['reg_info_list_prop_limit']['value'] = $info['reg_info_free_places'];
-            } else {
+            if ($show_hidden_notice) {
+                $info['reg_info_list_prop_limit']['property'] = $lng->txt("mem_max_users_hidden");
+            }
+            else {
                 $info['reg_info_list_prop_limit']['property'] = '';
-                $info['reg_info_list_prop_limit']['value'] = $lng->txt('crs_list_reg_limit_full');
             }
+            $info['reg_info_list_prop_limit']['value'] = implode(' &nbsp; ', $limits);
         }
+
+        // registration status
+        switch (ilCourseWaitingList::_getStatus($ilUser->getId(), $a_obj_id)) {
+            case WaitingListConstantsHelper::REQUEST_NOT_TO_CONFIRM:
+                $status = $lng->txt('on_waiting_list');
+                break;
+            case WaitingListConstantsHelper::REQUEST_TO_CONFIRM:
+                $status = $lng->txt('sub_status_pending');
+                break;
+            case WaitingListConstantsHelper::REQUEST_CONFIRMED:
+                $status = $lng->txt('sub_status_confirmed');
+                break;
+            default:
+                $status = '';
+        }
+        if ($status) {
+            $info['reg_info_list_prop_status']['property'] = $lng->txt('member_status');
+            $info['reg_info_list_prop_status']['value'] = $status;
+        }
+        // fau.
+
         return $info;
     }
+
 
     public static function _isOffline(int $obj_id): bool
     {

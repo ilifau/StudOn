@@ -13,7 +13,7 @@ use ilObjCourseGrouping;
 use ilObjectFactory;
 use ilObject;
 use ilForumNotification;
-use FAU\Ilias\Helper\WaitingListHelper;
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 
 /**
  * Base class handling course or group registrations
@@ -294,7 +294,8 @@ abstract class Registration extends AbstractRegistration
         /////
         // 6. Send notifications
         ////
-        switch ($this->getRegistrationAction()) {
+        // fau: fairSub - TODO - this doesn't work yet with V8        
+      /*  switch ($this->getRegistrationAction()) {
             case Registration::notifyAdded:
                 $this->participants->sendNotification($this->getNotificationTypeAddedAdmins(), $this->user->getId());
                 $this->participants->sendNotification($this->getNotificationTypeAddedMember(), $this->user->getId());
@@ -314,7 +315,7 @@ abstract class Registration extends AbstractRegistration
                 // no e-mail to subscriber needed because the place on the list is not relevant
                 $this->participants->sendExternalNotifications($this->object, $this->user);
                 break;
-        }
+        }*/
     }
 
     /**
@@ -440,11 +441,12 @@ abstract class Registration extends AbstractRegistration
 
             // get the user that remain on the waiting list
             $waiting_users = $this->waitingList->getUserIds();
-
+// fau: fairSub - TODO - enable mail notifications            
+if(0){
             // prepare notifications
             // the waiting list object is injected to allow the inclusion of the waiting list position
             $mail = $this->getMembershipMailNotification();
-            $mail->setRefId($this->object->ref_id);
+            $mail->setRefId($this->object->getRefId());
             $mail->setWaitingList($this->waitingList);
 
             // send notifications to added users
@@ -473,6 +475,7 @@ abstract class Registration extends AbstractRegistration
                 $mail->send();
             }
         }
+    }
         // remember the fill date
         // this prevents further calls from the cron job
         $this->object->saveSubscriptionLastFill(time());
@@ -627,7 +630,7 @@ abstract class Registration extends AbstractRegistration
      */
     protected function getNewToConfirm() : int
     {
-        return ($this->subType == self::subConfirmation) ? ilWaitingList::REQUEST_TO_CONFIRM : ilWaitingList::REQUEST_NOT_TO_CONFIRM;
+        return ($this->subType == self::subConfirmation) ? WaitingListConstantsHelper::REQUEST_TO_CONFIRM : WaitingListConstantsHelper::REQUEST_NOT_TO_CONFIRM;
     }
 
     /**

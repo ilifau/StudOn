@@ -53,7 +53,7 @@ class ilFairAutoFillCron extends ilCronJob
         global $lng;
 
         $status = ilCronJobResult::STATUS_NO_ACTION;
-        $message = null;
+        $message = "";
 
         $filled = 0;
         $filled += $this->fillCourses();
