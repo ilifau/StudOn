@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 class ilGroupParticipants extends ilParticipants
 {
+    use FAU\Ilias\Helper\GroupParticipantsHelper;
+    
     protected const COMPONENT_NAME = 'Modules/Group';
 
     protected static array $instances = [];
@@ -207,17 +209,11 @@ class ilGroupParticipants extends ilParticipants
                 $mail->send();
                 break;
 
+            // fau: fairSub - deprecated case, fallback to specific function
             case ilGroupMembershipMailNotification::TYPE_WAITING_LIST_MEMBER:
-
-                $wl = new ilGroupWaitingList($this->obj_id);
-                $pos = $wl->getPosition($a_usr_id);
-
-                $mail->setType(ilGroupMembershipMailNotification::TYPE_WAITING_LIST_MEMBER);
-                $mail->setRefId($this->ref_id);
-                $mail->setRecipients(array($a_usr_id));
-                $mail->setAdditionalInformation(array('position' => $pos));
-                $mail->send();
+                $this->sendAddedToWaitingList($a_usr_id);
                 break;
+            // fau.
 
             case ilGroupMembershipMailNotification::TYPE_STATUS_CHANGED:
 
