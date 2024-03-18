@@ -31,7 +31,7 @@ trait MembershipGUIHelper
         }
 
         if (empty($requests)) {
-            ilUtil::sendFailure($this->lng->txt("sub_select_one_request"), true);
+            $DIC->ui()->mainTemplate()->setOnScreenMessage('failure', $this->lng->txt("sub_select_one_request"), true);
             $this->ctrl->redirect($this, 'participants');
         }
 
@@ -70,7 +70,7 @@ trait MembershipGUIHelper
         global $DIC;
 
         if (!count($_POST['waiting'])) {
-            ilUtil::sendFailure($this->lng->txt("sub_select_one_request"), true);
+            $DIC->ui()->mainTemplate()->setOnScreenMessage('failure', $this->lng->txt("sub_select_one_request"), true);
             $this->ctrl->redirect($this, 'participants');
             return false;
         }
@@ -125,7 +125,7 @@ trait MembershipGUIHelper
         if (!empty($added)) {
             $messages[] = sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added));
         }
-        ilUtil::sendSuccess(implode('<br />', $messages), true);
+        $DIC->ui()->mainTemplate()->setOnScreenMessage('success', implode('<br />', $messages), true);
         $this->ctrl->redirect($this, 'participants');
     }
     // fau.
@@ -159,10 +159,10 @@ trait MembershipGUIHelper
         $added = $DIC->fau()->ilias()->getRegistration($object)->doAutoFill(true);
 
         if (count($added)) {
-            ilUtil::sendSuccess(sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added)), true);
+            $DIC->ui()->mainTemplate()->setOnScreenMessage('success', sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added)), true);
             $this->ctrl->redirect($this, 'participants');
         } else {
-            ilUtil::sendFailure($this->lng->txt('sub_no_member_added'), true);
+            $DIC->ui()->mainTemplate()->setOnScreenMessage('failure', $this->lng->txt('sub_no_member_added'), true);
             $this->ctrl->redirect($this, 'participants');
         }
     }

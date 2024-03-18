@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +14,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Class for generation of member export files
@@ -378,6 +377,31 @@ class ilMemberExport
                         $this->addCol(ilObjUser::lookupOrgUnitsRepresentation($usr_id), $row, $col++);
                         break;
 
+
+                    // fau: userData - add studydata and educations
+                    case 'studydata':
+                        global $DIC;
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            $studydata = $DIC->fau()->user()->getStudiesAsText((int) $usr_id);
+                            $studydata = $DIC->fau()->tools()->convert()->quoteForExport($studydata);
+                            $this->addCol($studydata, $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;
+
+                    case 'educations':
+                        global $DIC;
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            $educations = $DIC->fau()->user()->getEducationsAsText((int) $usr_id, (int) $this->getRefId());
+                            $educations = $DIC->fau()->tools()->convert()->quoteForExport($educations);
+                            $this->addCol($educations, $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;
+                    // fau.
+
                     default:
                         // Check aggreement
                         if (
@@ -481,7 +505,10 @@ class ilMemberExport
         if (strpos($a_field, 'cdf_') !== 0) {
             return false;
         }
-        if (!$this->privacy->courseConfirmationRequired() or $this->agreement[$a_usr_id]['accepted']) {
+        if (
+            !$this->privacy->courseConfirmationRequired() ||
+            ($this->agreement[$a_usr_id]['accepted'] ?? false)
+        ) {
             $field_info = explode('_', $a_field);
             $field_id = $field_info[1] ?? 0;
             $value = '';

@@ -691,9 +691,11 @@ fau#:#fau_search_ilias_course_not#:#Kein StudOn-Kurs
 fau#:#fau_search_ilias_course_not_found#:#Für diese Veranstaltung ist noch kein StudOn-Kurs erstellt.
 fau#:#fau_search_ilias_course_not_visible#:#Der StudOn-Kurs dieser Veranstaltung ist für Sie nicht sichtbar.
 fau#:#fau_search_no_events_found#:#Keine Lehrveranstaltungen gefunden.
+fau#:#fau_search_visit_event#:#Zum StudOn Kurs
 fau#:#fau_search_numbers_of#:#%s bis %s von %s
 fau#:#fau_search_title#:#Titel der Lehrveranstaltung
 fau#:#fau_search_title_info#:#Gesucht wird ein Teil des Titels. Verwenden Sie * als Platzhalter innerhalb Ihres Succhbegriffs.
+fau#:#fau_search_additional_info#:#Zusatzinformationen
 fau#:#fau_selected_module#:#Gewähltes Modul
 fau#:#fau_selected_groups#:#Gewählte Gruppen
 fau#:#fau_selected_groups_of#:#Gewählte Gruppen von

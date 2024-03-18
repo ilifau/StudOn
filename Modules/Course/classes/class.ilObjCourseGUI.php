@@ -44,6 +44,12 @@ use FAU\Ilias\Helper\WaitingListHelper;
  * @ilCtrl_Calls ilObjCourseGUI: ilCourseMembershipGUI, ilPropertyFormGUI, ilContainerSkillGUI, ilCalendarPresentationGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilMemberExportSettingsGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilLTIProviderObjectSettingGUI, ilObjectTranslationGUI, ilBookingGatewayGUI, ilRepositoryTrashGUI
+ * fau: studyCond - added ilStudyCondGUI to call structure
+ * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
+ * fau.
+ * fau: objectSub - added ilPropertyFormGUI to call structure
+ * @ilCtrl_Calls ilObjCourseGUI: ilPropertyFormGUI
+ * fau.
  * @extends      ilContainerGUI
  */
 class ilObjCourseGUI extends ilContainerGUI
@@ -173,6 +179,12 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->ctrl->setCmdClass(get_class($course_content_obj));
             $this->ctrl->forwardCommand($course_content_obj);
         }
+    }
+
+    public function deleteObject(bool $error = false): void
+    {
+        $this->tabs_gui->activateTab('view_content');
+        parent::deleteObject($error);
     }
 
     public function renderContainer(): void
@@ -356,6 +368,12 @@ class ilObjCourseGUI extends ilContainerGUI
                 break;
 
             default:
+                // fau: objectSub - add info about subscription in separate object
+                if ($this->object->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+                    $txt = $this->lng->txt('sub_separate_object');
+                    break;
+                }
+                // fau.
                 switch ($this->object->getSubscriptionType()) {
                     case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
                         $txt = $this->lng->txt("crs_info_reg_confirmation");
@@ -719,6 +737,30 @@ class ilObjCourseGUI extends ilContainerGUI
         }
     }
 
+    // fau: objectSub - update the ref id for subscriptions
+    /**
+     * Update the chosen ref id for subscriptions
+     */
+    public function updateSubscriptionRefIdObject()
+    {
+        global $DIC; 
+
+        $form = $this->initEditForm();
+        $input = $form->getItemByPostVar('subscription_object');
+        $input->readFromSession();
+        if ($input->getValue()) {
+            $this->object->setSubscriptionType(CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
+            $this->object->setSubscriptionRefId((int) $input->getValue());
+        } else {
+            $this->object->setSubscriptionType(ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION);
+            $this->object->setSubscriptionRefId(null);
+        }
+        $this->object->update();
+        $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
+
     public function updateObject(): void
     {
         $obj_service = $this->getObjectService();
@@ -1007,6 +1049,26 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->editObject($form);
             return;
         }
+
+        // 29589
+        if (
+            $sub_type === ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED &&
+            (
+                !is_null($sub_period->getStart()) ||
+                !is_null($sub_period->getEnd())
+            )
+        ) {
+            $this->tpl->setOnScreenMessage(
+                'failure',
+                $this->lng->txt('crs_msg_no_self_registration_period_if_self_enrolment_disabled'),
+                true
+            );
+            $form->setValuesByPost();
+            $this->tpl->setOnScreenMessage('failure', $GLOBALS['DIC']->language()->txt('err_check_input'));
+            $this->editObject($form);
+            return;
+        }
+
         $this->afterUpdate();
     }
 
@@ -1141,6 +1203,32 @@ class ilObjCourseGUI extends ilContainerGUI
         );
         // $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
+        // fau: objectSub - add option for reference to subscription object
+        $opt = new ilRadioOption($this->lng->txt('sub_separate_object'), CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
+        $opt->setInfo($this->lng->txt('sub_separate_object_info'));
+        $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
+        $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
+        $rep_sel->setClickableTypes(array('xcos'));
+        $rep_sel->setRequired(true);
+        $rep_sel->setParentForm($form);        
+        
+        $opt->addSubItem($rep_sel);
+        if ($ref_id = $this->object->getSubscriptionRefId()) {
+            $rep_sel->setValue($ref_id);
+            require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+            $locator = new ilLocatorGUI();
+            $locator->setTextOnly(true);
+            $locator->addContextItems($ref_id);
+            $rep_loc = new ilNonEditableValueGUI();
+            $rep_loc->setValue($locator->getHTML());
+            $opt->addSubItem($rep_loc);
+        }
+        // fau: paraSub - add info for courses with parallel groups
+        if ($this->object->hasParallelGroups()) {
+            $opt->setInfo($this->lng->txt('fau_sub_combi_disabled'));
+        }
+        $reg_proc->addOption($opt);
+        // fau.        
         $opt = new ilRadioOption(
             $this->lng->txt('crs_subscription_options_direct'),
             (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT
@@ -2067,22 +2155,23 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         // Join/Leave
-        if ($this->access->checkAccess('join', '', $this->ref_id) && !$this->object->getMemberObject()->isAssigned()) {
-            if (ilCourseWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
-                $this->tabs_gui->addTab(
-                    'leave',
-                    $this->lng->txt('membership_leave'),
-                    $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', 'show', '')
-                );
-            } else {
-                $this->tabs_gui->addTarget(
-                    "join",
-                    $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show"),
-                    'show',
-                    ""
-                );
-            }
+        // fau: changeSub - simlified checks for join / edit request tab
+        if ($this->access->checkAccess('join', '', $this->ref_id)) {
+            // no specific command: initial join
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('join'),
+                $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show")
+            );
+        } elseif ($this->access->checkAccess('join', 'leave', $this->ref_id)) {
+            // leave command: edit membership request
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('mem_edit_request'),
+                $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "leave")
+            );
         }
+        // fau.
         if ($this->access->checkAccess('leave', '', $this->object->getRefId()) && $this->object->getMemberObject()->isMember()) {
             $this->tabs_gui->addTarget(
                 "crs_unsubscribe",
@@ -2135,6 +2224,38 @@ class ilObjCourseGUI extends ilContainerGUI
                 $mem_gui = new ilCourseMembershipGUI($this, $this->object);
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
+            // fau: studyCond - add command class
+            case 'ilstudycondgui':
+                $cond_gui = new ilStudyCondGUI($this, 'edit');
+                $this->ctrl->setReturn($this, 'edit');
+                $this->ctrl->forwardCommand($cond_gui);
+                $this->setSubTabs('properties');
+                $this->tabs_gui->setTabActive('settings');
+                break;
+            // fau.
+
+            // fau: objectSub - object selection in properties form
+            case "ilpropertyformgui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('settings');
+                $this->ctrl->setReturn($this, "updateSubscriptionRefId");
+                $form = $this->initEditForm();
+                $this->ctrl->forwardCommand($form);
+                break;
+            // fau.
+
+            // fau: campoTransfer - forward command
+            case "faucoursetransfergui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('view_content');
+                $this->ctrl->setReturn($this, "view");
+                $transfer_gui = new fauCourseTransferGUI();
+                /** @var ilObjCourse $course */
+                $course = $this->object;
+                $transfer_gui->init($course);
+                $this->ctrl->forwardCommand($transfer_gui);
+                break;
+            // fau.
 
             case "ilinfoscreengui":
                 $this->infoScreen();    // forwards command
@@ -2521,7 +2642,12 @@ class ilObjCourseGUI extends ilContainerGUI
                     || $cmd == 'subscribe') {
                     if ($this->rbac_system->checkAccess('join', $this->object->getRefId()) &&
                         !ilCourseParticipants::_isParticipant($this->object->getRefId(), $this->user->getId())) {
-                        $this->ctrl->redirectByClass("ilCourseRegistrationGUI");
+                        // fau: changeSub - provide the original command for registration gui
+                        // fau: joinAsGuest - provide the original command for registration gui
+                        //      this is needed to check the permissions correctly there
+                        //      but always show the registration screen for a join or view command
+                        $this->ctrl->redirectByClass("ilCourseRegistrationGUI", ($cmd == 'join' || $cmd == 'view') ? 'show' : $cmd);
+                        // fau.
                     } else {
                         $this->infoScreenObject();
                         break;

@@ -48,8 +48,8 @@ class ilStudyCondGUI
         $this->err = $DIC['ilErr'];
 
         $this->parent_gui = $a_parent_gui;
-        $this->parent_obj_id = $this->parent_gui->object->getId();
-        $this->parent_ref_id = $this->parent_gui->object->getRefId();
+        $this->parent_obj_id = $this->parent_gui->getObject()->getId();
+        $this->parent_ref_id = $this->parent_gui->getObject()->getRefId();
 
         $this->headline = $this->lng->txt("studycond_condition_headline");
         $this->info = $this->lng->txt("studycond_condition_combi_info");

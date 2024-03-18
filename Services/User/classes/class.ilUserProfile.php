@@ -278,6 +278,18 @@ class ilUserProfile
                         "size" => 40,
                         "method" => "getMatriculation",
                         "group" => "other"),
+        // fau: userData - add studydata and educations to profile fields
+        "studydata" => array(
+                        "input" => "studydata",
+                        "lists_hide" => false,
+                        "group" => "other"),
+
+        "educations" => array(
+                        "input" => "educations",
+                        "lists_hide" => false,
+                        "group" => "other"),
+        // fau.
+
         "language" => array(
                         "input" => "language",
                         "method" => "getLanguage",
@@ -539,6 +551,28 @@ class ilUserProfile
                 : $f;
 
             switch ($p["input"]) {
+            // fau: userData - add studydata and educations to standard fields
+                case "studydata":
+                    if (self::$mode != self::MODE_REGISTRATION) {
+                        $stu = new ilCustomInputGUI($lng->txt("studydata"), "studydata");
+                        if ($a_user) {
+                            $stu->setHTML(nl2br($DIC->fau()->user()->getStudiesAsText((int) $a_user->getId())));
+                        }
+                        $a_form->addItem($stu);
+                    }
+                    break;
+
+                case "educations":
+                    if (self::$mode != self::MODE_REGISTRATION) {
+                        $edu = new ilNonEditableValueGUI($lng->txt("fau_educations"), "educations", true);
+                        if ($a_user) {
+                            $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText((int) $a_user->getId())));
+                        }
+                        $a_form->addItem($edu);
+                    }
+                    break;
+            // fau.
+
                 case "login":
                     if ((int) $ilSetting->get('allow_change_loginname') || self::$mode == self::MODE_REGISTRATION) {
                         $val = new ilTextInputGUI($lng->txt('username'), 'username');

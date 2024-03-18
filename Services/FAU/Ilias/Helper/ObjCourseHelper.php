@@ -9,6 +9,8 @@ use ilCourseWaitingList;
  */
 trait ObjCourseHelper 
 {
+    private int $subscription_ref_id = 0;
+    
     // fau: fairSub#13 - getter / setter
     public function getSubscriptionFair()
     {

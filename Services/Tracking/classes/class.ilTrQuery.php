@@ -337,13 +337,16 @@ class ilTrQuery
             $a_limit
         );
 
+        // fau: userData - add ref_id as argument
         self::getUDFAndHandlePrivacy(
             $result,
             $udf,
             $check_agreement,
             $privacy_fields,
-            $a_filters
+            $a_filters,
+            $a_ref_id
         );
+        // fau.
 
         // as we cannot do this in the query, sort by custom field here
         // this will not work with pagination!
@@ -358,16 +361,27 @@ class ilTrQuery
         return $result;
     }
 
+    // fau: userData - add ref_id as parameter
     /**
      * Handle privacy and add udf data to (user) result data
+     *
+     * @param array $a_result
+     * @param array $a_udf
+     * @param int $a_check_agreement
+     * @param array $a_privacy_fields
+     * @param array $a_filters
+     * @param int|null $a_ref_id
      */
     protected static function getUDFAndHandlePrivacy(
         array &$a_result,
         ?array $a_udf = null,
         ?int $a_check_agreement = null,
         ?array $a_privacy_fields = null,
-        ?array $a_filters = null
-    ): array {
+        ?array $a_filters = null,
+        ?int $a_ref_id = null
+    ): array 
+        // fau.
+    {
         global $DIC;
 
         $ilDB = $DIC->database();
@@ -442,6 +456,13 @@ class ilTrQuery
                     $udf[$row["usr_id"]]
                 );
             }
+            
+            // fau: userData - get studydata  and educations if allowed
+            if (!$a_check_agreement or in_array($row["usr_id"], $agreements)) {
+                $a_result["set"][$idx]['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $row["usr_id"]);
+                $a_result["set"][$idx]['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $row["usr_id"], $a_ref_id);
+            }
+            // fau.
 
             // remove all private data - if active agreement and agreement not given by user
             if (sizeof($a_privacy_fields) && $a_check_agreement && !in_array(
@@ -1390,6 +1411,12 @@ class ilTrQuery
                 }
 
                 switch ($field) {
+                // fau: userData - don't get the studydata and educations directly from user table
+                        case "studydata":
+                        case "educations":
+                            break;
+                        // fau.
+
                     case 'org_units':
                         break;
 

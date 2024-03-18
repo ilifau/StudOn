@@ -18,6 +18,7 @@ declare(strict_types=0);
  *********************************************************************/
 
 use FAU\Ilias\Registration;
+use FAU\Ilias\Helper\CourseConstantsHelper;
 /**
  * GUI class for course registrations
  * @author       Stefan Meyer <smeyer.ilias@gmx.de>
@@ -40,8 +41,36 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         if ($this->getWaitingList()->isOnList($this->user->getId())) {
             $this->tabs->activateTab('leave');
         }
+        
+        // fau: changeSub - do the permission check with a fitting command
+        // fau: joinAsGuest - do the permission check with a fitting command
+        $cmd = $this->ctrl->getCmd("show");
+        switch ($cmd) {
+            case 'joinAsGuest':
+            case 'joinAsGuestConfirmed':
+                // don't check permission
+                $this->$cmd();
+                return;
 
-        if (!$this->access->checkAccess('join', '', $this->getRefId())) {
+             // action buttons on registration screen
+            case 'updateWaitingList':
+            case 'leaveWaitingList':
+            case 'updateSubscriptionRequest':
+            case 'cancelSubscriptionRequest':
+                $checkCmd = 'leave';
+                break;
+
+            // called for updating scubscription requests
+            case 'leave':
+                $checkCmd = 'leave';
+                $cmd = 'show';
+                break;
+
+            // called for joining
+            default:
+                $checkCmd = '';
+        }        
+        if (!$this->access->checkAccess('join', $checkCmd, $this->getRefId())) {
             $this->ctrl->setReturn($this->parent_gui, 'infoScreen');
             $this->ctrl->returnToParent($this);
             return;
@@ -50,15 +79,21 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $next_class = $this->ctrl->getNextClass($this);
         switch ($next_class) {
             default:
-                $cmd = $this->ctrl->getCmd("show");
+                // $cmd = $this->ctrl->getCmd("show");
                 $this->$cmd();
                 break;
         }
+        // fau.
+        return;
     }
-
+    
     protected function getFormTitle(): string
     {
-        if ($this->getWaitingList()->isOnList($this->user->getId())) {
+        global $DIC;
+
+        $ilUser = $DIC['ilUser'];
+        
+        if ($this->getWaitingList()->isOnList($ilUser->getId())) {
             return $this->lng->txt('member_status');
         }
         return $this->lng->txt('crs_registration');
@@ -85,6 +120,11 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     {
         $now = new ilDateTime(time(), IL_CAL_UNIX, 'UTC');
 
+        // fau: objectSub - no registration period for subscription by object
+        if ($this->container->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+            return;
+        }
+        // fau.
         if ($this->container->getSubscriptionUnlimitedStatus()) {
             // fau: fairSub#32	- add info about fair time for unlimited subscription
             $suffix = "";
@@ -153,6 +193,12 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
     protected function fillMaxMembers(): void
     {
+        // fau: objectSub - no max members for subscription by object
+        if ($this->container->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+            return;
+        }
+        // fau.
+
         if (!$this->container->isSubscriptionMembershipLimited()) {
             return;
         }
@@ -242,9 +288,15 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $this->form->addItem($max);
     }
 
-    protected function fillRegistrationType(): void
-    {
-        if ($this->container->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+    protected function fillRegistrationType(): void    {
+       
+            // fau: objectSub - fill registration by separate object
+            if ($this->container->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+               $this->fillRegistrationTypeObject((int) $this->container->getSubscriptionRefId());
+               return;
+            }
+            // fau. 
+            if ($this->container->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             $reg = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
             #$reg->setHtml($this->lng->txt('crs_info_reg_deactivated'));
             $reg->setAlert($this->lng->txt('crs_info_reg_deactivated'));

@@ -8,6 +8,7 @@ use ilGroupWaitingList;
 use ilMailNotification;
 use ilGroupMembershipMailNotification;
 use ilParticipants;
+use ilGroupConstants;
 
 /**
  * Extension of the registration with group specific functions
@@ -30,19 +31,19 @@ class GroupRegistration extends Registration
     protected function initSubType() : void
     {
         switch ($this->object->getRegistrationType()) {
-            case GRP_REGISTRATION_DIRECT:
+            case ilGroupConstants::GRP_REGISTRATION_DIRECT:
                 $this->subType = self::subDirect;
                 break;
-            case GRP_REGISTRATION_PASSWORD:
+            case ilGroupConstants::GRP_REGISTRATION_PASSWORD:
                 $this->subType = self::subPassword;
                 break;
-            case GRP_REGISTRATION_REQUEST:
+            case ilGroupConstants::GRP_REGISTRATION_REQUEST:
                 $this->subType = self::subConfirmation;
                 break;
-            case GRP_REGISTRATION_OBJECT:
+            case ilGroupConstants::GRP_REGISTRATION_OBJECT:
                 $this->subType = self::subObject;
                 break;
-            case GRP_REGISTRATION_DEACTIVATED:
+            case ilGroupConstants::GRP_REGISTRATION_DEACTIVATED:
             default:
                 $this->subType = self::subDeactivated;
                 break;

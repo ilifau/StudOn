@@ -180,6 +180,34 @@ abstract class ilRegistrationGUI
      * show informations about registration procedure
      */
     abstract protected function fillRegistrationType(): void;
+    
+    // fau: objectSub - new function fillRegistrationTypeObject()
+    protected function fillRegistrationTypeObject($a_ref_id)
+    {
+        require_once('Services/Link/classes/class.ilLink.php');
+        $obj_id = ilObject::_lookupObjId($a_ref_id);
+        $link = ilLink::_getLink($a_ref_id);
+
+        require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+        $locator = new ilLocatorGUI();
+        $locator->addRepositoryItems($a_ref_id);
+
+        $tpl = new ilTemplate('tpl.sub_object_link.html', true, true, 'Services/Membership');
+        $tpl->setVariable('TXT_INFO', $this->lng->txt('sub_separate_object_reg_info'));
+        $tpl->setVariable('IMG_TYPE', ilObject::_getIcon($obj_id, 'small'));
+        $tpl->setVariable('URL_OBJECT', $link);
+        $tpl->setVariable('TITLE_OBJECT', ilObject::_lookupTitle($obj_id));
+        $tpl->setVariable('TXT_PATH', $locator->getTextVersion());
+
+        $input = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+        $input->setHtml($tpl->get());
+        $this->form->addItem($input);
+
+        // Disable registration
+        $this->enableRegistration(false);
+        return true;
+    }
+    // fau.    
 
     /**
      * Show membership limitations
@@ -548,7 +576,7 @@ abstract class ilRegistrationGUI
             $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
             $this->participants->sendExternalNotifications($this->container, $this->user, true);
 
-            ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
+            $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt('sub_request_saved'), true);
             $ilCtrl->setParameterByClass(
                 "ilrepositorygui",
                 "ref_id",

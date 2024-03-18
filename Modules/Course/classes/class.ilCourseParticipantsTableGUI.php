@@ -161,7 +161,7 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
         foreach ($this->getSelectedColumns() as $field) {
             switch ($field) {
                 case 'gender':
-                    $a_set['gender'] = $a_set['gender'] ? $this->lng->txt('gender_' . $a_set['gender']) : '';
+                    $a_set['gender'] = ($a_set['gender'] ?? '') ? $this->lng->txt('gender_' . $a_set['gender']) : '';
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', $a_set[$field]);
                     $this->tpl->parseCurrentBlock();
@@ -228,7 +228,36 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
                     $this->tpl->parseCurrentBlock();
                     break;
 
-                default:
+                // fau: campoSub: show module column
+                case 'module':
+                    $this->addModuleCell($a_set);
+                    break;
+                // fau.
+
+                // fau: campoCheck: show restrictions column
+                case 'restrictions_passed':
+                    $this->addRestrictionsCell($a_set);
+                    break;
+                // fau.
+
+                // fau: userData - format table output of studydata and educations
+                case 'studydata':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+
+                case 'educations':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['educations']),
+                        $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+                    default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
                     $this->tpl->parseCurrentBlock();
@@ -364,6 +393,7 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
             $usr_data_fields[] = $field;
         }
 
+        // fau: userData - add ref_id as argument to filter the list of educations
         $usr_data = ilUserQuery::getUserListData(
             '',
             '',
@@ -378,8 +408,13 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
             0,
             null,
             $usr_data_fields,
-            $part
+            $part,
+            '',
+            "",
+            $this->getRepositoryObject()->getRefId()
         );
+        // fau.
+
         // filter by array
         $usr_ids = array();
         $local_roles = $this->getParentObject()->getLocalRoles();
