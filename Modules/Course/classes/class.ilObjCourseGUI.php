@@ -3100,7 +3100,9 @@ class ilObjCourseGUI extends ilContainerGUI
                     && $cmd != 'deliverCertificate'
                     && $cmd != 'performUnsubscribe'
                     && $cmd != 'removeFromDesk'
-                    && $cmd !== 'leave'
+                    // fau: changeSub - revert https://mantis.ilias.de/view.php?id=32243 as not working with changeSub; changeSub needs to be refactored later 
+                    // && $cmd !== 'leave'
+                    // fau. 
                     && !$ilAccess->checkAccess("read", '', $this->object->getRefId())
                     || $cmd == 'join'
                     || $cmd == 'subscribe') {
