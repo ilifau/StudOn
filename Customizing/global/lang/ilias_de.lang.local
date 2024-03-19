@@ -656,7 +656,7 @@ fau#:#fau_org_studon_manager_ignored#:#Die Vergabe der Rolle <b>StudOn-Manager/i
 fau#:#fau_org_studon_author_missing#:#Die Rolle <b>StudOn-Autor/in</b> ist nocht nicht eingerichtet. Bitte wenden sie sich an das <a href="mailto:studon@fau.de">StudOn-Team</a>.
 fau#:#fau_org_studon_manager_missing#:#Die Rolle <b>StudOn-Manager/in</b> ist nocht nicht eingerichtet. Bitte wenden Sie sich an das <a href="mailto:studon@fau.de">StudOn-Team</a>.
 fau#:#fau_parallel_groups#:#Parallelgruppen
-fau#:#fau_reg_overview#:#Übersicht zu Anmeldungen
+fau#:#fau_reg_overview#:#Übersicht zu meinen Anmeldungen
 fau#:#fau_reg_overview_info#:#Auf dieser Seite sehen Sie anstehende oder laufenden Anmeldungen zu Kursen und Gruppen aus Ihren Favoriten oder bei denen Sie auf der Warteliste eingetragen sind.
 fau#:#fau_reg_overview_today#:#Heute
 fau#:#fau_reg_overview_this_week#:#Diese Woche
@@ -1007,3 +1007,5 @@ crs#:#crs_selected_members_set_to_passed#:#Ausgewählte Mitglieder wurden auf Be
 crs#:#crs_bulk_set_passed_flag#:#Auf Bestanden setzen###fau: PassedFlagCG - Mitglieder auf bestanden setzen
 grp#:#grp_selected_members_set_to_passed#:#Ausgewählte Mitglieder wurden auf Bestanden gesetzt.###fau: PassedFlagCG - Mitglieder auf bestanden setzen
 grp#:#grp_bulk_set_passed_flag#:#Auf Bestanden setzen###fau: PassedFlagCG - Mitglieder auf bestanden setzen
+common#:#group_req_registration_msg#:#Sie müssen einen Aufnahmeantrag stellen. Im Feld Nachricht, haben Sie die Möglichkeit zu beschreiben, warum Sie beitreten möchten. Diese Nachricht ist <b>optional</b>. Sobald Ihr Antrag angenommen oder abgelehnt wurde, erhalten Sie eine Benachrichtigung.
+crs#:#crs_info_reg_confirmation#:#Sie müssen einen Aufnahmeantrag stellen. Im Feld Nachricht, haben Sie die Möglichkeit zu beschreiben, warum Sie beitreten möchten. Diese Nachricht ist <b>optional</b>. Sobald Ihr Antrag angenommen oder abgelehnt wurde, erhalten Sie eine Benachrichtigung.
