@@ -87,9 +87,14 @@ class ilGroupAppEventListener
     */
     public static function handleEvent(string $a_component, string $a_event, array $a_parameter): void
     {
-        // fau: fairSub - listen to group events to recognize deleteParticipant for an autofill
-        if ($a_component == 'Services/AccessControl' || $a_component == 'Modules/Group') {
+        if ($a_component == 'Services/AccessControl') {
             $listener = new self();
+            $listener->handleUserAssignments($a_event, $a_parameter);
+        }
+        // fau: fairSub - listen to group events to recognize deleteParticipant for an autofill
+        else if ($a_component == 'Modules/Group' && $a_event == 'deassignUser') {
+            $listener = new self();
+            // $a_parameter['type'] = 'grp';
             $listener->handleUserAssignments($a_event, $a_parameter);
         }
         // fau.

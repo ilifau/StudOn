@@ -9,6 +9,12 @@ use ilGroupWaitingList;
  */
 trait ObjGroupHelper 
 {
+    // fau: fairSub - new class variables
+    protected ?int $subscription_fair = null;
+    protected bool $subscription_auto_fill = true;
+    protected ?int $subscription_last_fill = null;
+    // fau.
+
     // fau: fairSub - getter / setter
     public function getSubscriptionFair()
     {

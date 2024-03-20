@@ -196,7 +196,9 @@ class ilObjGroupAccess extends ilObjectAccess
         ilGroupWaitingList::_preloadOnListInfo([$ilUser->getId()], $obj_ids);
     }
 
-    public static function lookupRegistrationInfo(int $a_obj_id): array
+    // fau: showMemLimit - add ref_id as parameter for checking write access
+    public static function lookupRegistrationInfo(int $a_obj_id, $a_ref_id = 0): array
+    // fau.
     {
         global $DIC;
 

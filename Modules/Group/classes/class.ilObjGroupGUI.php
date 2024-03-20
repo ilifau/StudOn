@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+use ilGroupConstants;
 
 /**
  * Class ilObjGroupGUI
@@ -995,10 +996,10 @@ class ilObjGroupGUI extends ilContainerGUI
         $input = $form->getItemByPostVar('subscription_object');
         $input->readFromSession();
         if ($input->getValue()) {
-            $this->object->setRegistrationType(GRP_REGISTRATION_OBJECT);
+            $this->object->setRegistrationType(ilGroupConstants::GRP_REGISTRATION_OBJECT);
             $this->object->setRegistrationRefId((int) $input->getValue());
         } else {
-            $this->object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
+            $this->object->setRegistrationType(ilGroupConstants::GRP_REGISTRATION_DEACTIVATED);
             $this->object->setRegistrationRefId(null);
         }
         $this->object->update();
@@ -1378,7 +1379,7 @@ class ilObjGroupGUI extends ilContainerGUI
             );
         }
         // fau: objectSub - add info about subscription in separate object
-        elseif ($this->object->getRegistrationType() == GRP_REGISTRATION_OBJECT) {
+        elseif ($this->object->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
             $info->addProperty(
                 $this->lng->txt('group_registration_mode'),
                 $this->lng->txt('sub_separate_object')
@@ -1437,7 +1438,7 @@ class ilObjGroupGUI extends ilContainerGUI
             // fau: fairSub - show fair period on info screen
             if ($this->object->isMembershipLimited()
                 && $this->object->getMaxMembers()
-                && $this->object->getRegistrationType() != GRP_REGISTRATION_OBJECT) {
+                && $this->object->getRegistrationType() != ilGroupConstants::GRP_REGISTRATION_OBJECT) {
                 $info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
                     $this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));
             }
@@ -1641,7 +1642,7 @@ class ilObjGroupGUI extends ilContainerGUI
 
             // fau: objectSub - add option for reference to subscription object
             require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
-            $opt_obj = new ilRadioOption($this->lng->txt('sub_separate_object'), GRP_REGISTRATION_OBJECT);
+            $opt_obj = new ilRadioOption($this->lng->txt('sub_separate_object'), (string) ilGroupConstants::GRP_REGISTRATION_OBJECT);
             $opt_obj->setInfo($this->lng->txt('sub_separate_object_info'));
             $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
             $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));

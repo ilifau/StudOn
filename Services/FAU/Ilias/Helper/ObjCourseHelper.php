@@ -10,6 +10,11 @@ use ilCourseWaitingList;
 trait ObjCourseHelper 
 {
     private int $subscription_ref_id = 0;
+    // fau: fairSub - new class variables
+    protected ?int $subscription_fair = null;
+    protected bool $subscription_auto_fill = true;
+    protected ?int $subscription_last_fill = null;
+    // fau.
     
     // fau: fairSub#13 - getter / setter
     public function getSubscriptionFair()

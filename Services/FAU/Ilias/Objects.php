@@ -22,6 +22,7 @@ use ilObjCourseAccess;
 use ilCourseParticipants;
 use ilGroupParticipant;
 use ilCourseParticipant;
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 
 /**
  * Functions to handle with ILIAS objects
@@ -261,13 +262,13 @@ class Objects
         // add one property with own registration status
         $info['reg_info_waiting_status'] = ilWaitingList::_getStatus($user->getId(), $obj_id);
         switch ($info['reg_info_waiting_status'] ) {
-            case ilWaitingList::REQUEST_NOT_TO_CONFIRM:
+            case WaitingListConstantsHelper::REQUEST_NOT_TO_CONFIRM:
                 $status = $lng->txt('on_waiting_list');
                 break;
-            case ilWaitingList::REQUEST_TO_CONFIRM:
+            case WaitingListConstantsHelper::REQUEST_TO_CONFIRM:
                 $status = $lng->txt('sub_status_pending');
                 break;
-            case ilWaitingList::REQUEST_CONFIRMED:
+            case WaitingListConstantsHelper::REQUEST_CONFIRMED:
                 $status = $lng->txt('sub_status_confirmed');
                 break;
             default:

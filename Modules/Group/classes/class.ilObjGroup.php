@@ -48,9 +48,6 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     public const ERR_MISSING_MIN_MAX_MEMBERS = 'grp_wrong_min_max_members';
     public const ERR_WRONG_MIN_MAX_MEMBERS = 'grp_max_and_min_members_invalid';
     public const ERR_WRONG_REGISTRATION_LIMITED = 'grp_err_registration_limited';
-    // fau: objectSub - add constant for subscription via object
-    public const GRP_REGISTRATION_OBJECT = 11;
-    // fau.
 
     public const MAIL_ALLOWED_ALL = 1;
     public const MAIL_ALLOWED_TUTORS = 2;
@@ -95,13 +92,6 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     private int $mail_members = self::MAIL_ALLOWED_ALL;
 
     public ?ilGroupParticipants $members_obj;
-
-    // fau: fairSub - new class variables
-    protected int $subscription_fair;
-    protected bool $subscription_auto_fill = true;
-    protected int $subscription_last_fill;
-    // fau.
-
 
     public $m_roleMemberId;
 
@@ -529,10 +519,6 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         // fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
         $query = "INSERT INTO grp_settings (obj_id,information,grp_type,registration_type,sub_ref_id,registration_enabled," .
             "registration_unlimited,registration_start,registration_end,sub_fair,sub_auto_fill,sub_last_fill,registration_password,registration_mem_limit," .
-        // fau: objectSub - add sub_ref_id
-        // fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
-        $query = "INSERT INTO grp_settings (obj_id,information,grp_type,registration_type,sub_ref_id,registration_enabled," .
-            "registration_unlimited,registration_start,registration_end,sub_fair,sub_auto_fill,sub_last_fill,registration_password,registration_mem_limit," .
             "registration_max_members,waiting_list,latitude,longitude,location_zoom,enablemap,reg_ac_enabled,reg_ac,view_mode,mail_members_type," .
             "leave_end,registration_min_members,auto_wait, grp_start, grp_end, auto_notification, session_limit, session_prev, session_next) " .
             "VALUES(" .
@@ -545,9 +531,6 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             $this->db->quote(($this->isRegistrationUnlimited() ? 1 : 0), 'integer') . ", " .
             $this->db->quote(($this->getRegistrationStart() && !$this->getRegistrationStart()->isNull()) ? $this->getRegistrationStart()->get(IL_CAL_DATETIME, '') : null, 'timestamp') . ", " .
             $this->db->quote(($this->getRegistrationEnd() && !$this->getRegistrationEnd()->isNull()) ? $this->getRegistrationEnd()->get(IL_CAL_DATETIME, '') : null, 'timestamp') . ", " .
-            $this->db->quote($this->getSubscriptionFair(), 'integer') . ", " .
-            $this->db->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
-            $this->db->quote($this->getSubscriptionLastFill(), 'integer') . ", " .
             $this->db->quote($this->getSubscriptionFair(), 'integer') . ", " .
             $this->db->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
             $this->db->quote($this->getSubscriptionLastFill(), 'integer') . ", " .
