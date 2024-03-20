@@ -3,6 +3,7 @@
 use FAU\BaseGUI;
 use FAU\Ilias\Transfer;
 use FAU\Study\Data\ImportId;
+use FAU\Study\Data\Term;
 
 /**
  * GUI for transferring a campo connection to another course
@@ -13,8 +14,15 @@ class fauCourseTransferGUI extends BaseGUI
     protected Transfer $transfer;
     protected ilObjCourse $object;
 
+    protected int $target_ref_id = 0;
+    protected int $target_obj_id = 0;
+
+    protected ImportId $current_import_id;
+    protected ImportId $target_import_id;
+
     /**
      * Init the transfer with a course object
+     * Init s posted target
      * This should be called before executeCommand();
      *
      * @param ilObjCourse $course
@@ -23,6 +31,15 @@ class fauCourseTransferGUI extends BaseGUI
     {
         $this->transfer = $this->dic->fau()->ilias()->transfer();
         $this->object = $course;
+        $this->current_import_id = ImportId::fromString($this->object->getImportId());
+        $this->target_import_id = new ImportId();
+
+        $post = $this->request->getParsedBody();
+        if (isset($post['target_ref_id'])) {
+            $this->target_ref_id = (int) $post['target_ref_id'];
+            $this->target_obj_id = (int) ilObject::_lookupObjId($this->target_ref_id);
+            $this->target_import_id = ImportId::fromString(ilObject::_lookupImportId($this->target_obj_id));
+        }
     }
 
     /**
@@ -59,6 +76,59 @@ class fauCourseTransferGUI extends BaseGUI
     {
         $this->ctrl->returnToParent($this);
     }
+
+    
+    /**
+     * Check the basic requirements for a target
+     */
+    protected function checkTargetBasic()
+    {
+        if (ilObject::_lookupType($this->target_ref_id, true) != 'crs') {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_course'), true);
+            $this->returnToParent();
+        }
+        if (!$this->access->checkAccess('write','', $this->target_ref_id, 'crs')) {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_write'), true);
+            $this->returnToParent();
+        }
+        if (!$this->access->checkAccess('manage_members','', $this->target_ref_id, 'crs')) {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_manage_members'), true);
+            $this->returnToParent();
+        }
+    }
+
+    
+    /**
+     * Check if the target is valid for a course transfer
+     */
+    protected function checkTargetTransfer()
+    {
+        $this->checkTargetBasic();
+
+        if ($this->target_ref_id == $this->object->getRefId()) {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_same_object'), true);
+            $this->returnToParent();
+        }
+        if ($this->target_import_id->isForCampo()) {
+
+            if ($this->target_import_id->getEventId() != $this->current_import_id->getEventId()) {
+                ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_already_connected_other'), true);
+                $this->returnToParent();
+            }
+            
+            if (empty($this->target_import_id->getCourseId()) != empty($this->current_import_id->getCourseId())) {
+                ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_nesting_differs'), true);
+                $this->returnToParent();
+            }
+            
+            $term = Term::fromString($this->target_import_id->getTermId());
+            if ($this->dic->fau()->study()->getTermEndTime($term) >= time()) {
+                ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_already_connected_term'), true);
+                $this->returnToParent();
+            }
+        }
+    }
+
 
     /**
      * Select a target course
@@ -97,6 +167,7 @@ class fauCourseTransferGUI extends BaseGUI
      */
     protected function showTransferOptions()
     {
+        $this->checkTargetTransfer();
         $form = $this->initTransferOptionsForm();
         $this->tpl->setContent($form->getHTML());
     }
@@ -106,20 +177,16 @@ class fauCourseTransferGUI extends BaseGUI
      */
     protected function initTransferOptionsForm() :  ilPropertyFormGUI
     {
-        $post = $this->request->getParsedBody();
-        $ref_id = (int) $post['target_ref_id'];
-        $this->checkTarget($ref_id);
-
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this));
         $form->setTitle($this->lng->txt('fau_transfer_course'));
 
         $target = new ilHiddenInputGUI('target_ref_id');
-        $target->setValue($ref_id);
+        $target->setValue($this->target_ref_id);
         $form->addItem($target);
 
         $selected = new ilNonEditableValueGUI($this->lng->txt('fau_transfer_selected_course'));
-        $selected->setValue(ilObject::_lookupTitle(ilObject::_lookupObjId($ref_id)));
+        $selected->setValue(ilObject::_lookupTitle($this->target_obj_id));
         $form->addItem($selected);
 
         $title = new ilCheckboxInputGUI($this->lng->txt('fau_transfer_update_title'), 'update_title');
@@ -128,6 +195,10 @@ class fauCourseTransferGUI extends BaseGUI
 
         $move = new ilCheckboxInputGUI($this->lng->txt('fau_transfer_move_members'), 'move_members');
         $move->setInfo($this->lng->txt('fau_transfer_move_members_info'));
+        if ($this->target_import_id->isForCampo()) {
+            $move->setChecked(true);
+            $move->setDisabled(true);
+        }
         $form->addItem($move);
 
         if ($this->access->checkAccess('delete','', $this->object->getRefId(), 'crs')) {
@@ -144,7 +215,7 @@ class fauCourseTransferGUI extends BaseGUI
 
             $options = [];
             $options[0] = $this->lng->txt('move');
-            foreach ($this->dic->fau()->ilias()->objects()->getChildGroupsList($ref_id) as $group_ref_id => $group_title) {
+            foreach ($this->dic->fau()->ilias()->objects()->getChildGroupsList($this->target_ref_id) as $group_ref_id => $group_title) {
                 $options[$group_ref_id] = $group_title;
             }
             foreach ($this->dic->fau()->ilias()->objects()->getParallelGroupsInfos($this->object->getRefId()) as $group) {
@@ -170,10 +241,7 @@ class fauCourseTransferGUI extends BaseGUI
      */
     protected function doTransfer()
     {
-        $post = $this->request->getParsedBody();
-        $ref_id = (int) $post['target_ref_id'];
-        $this->checkTarget($ref_id);
-
+        $this->checkTargetTransfer();
         $form = $this->initTransferOptionsForm();
         if (!$form->checkInput()) {
             $form->setValuesByPost();
@@ -182,7 +250,12 @@ class fauCourseTransferGUI extends BaseGUI
         }
 
         $update_title = (bool) $form->getInput('update_title');
+        if ($this->target_import_id->isForCampo()) {
+            $move_members = true;
+        }
+        else {
         $move_members = (bool) $form->getInput('move_members');
+        }
         if ($this->access->checkAccess('delete','', $this->object->getRefId(), 'crs')) {
             $delete_source = (bool) $form->getInput('delete_source');
         }
@@ -219,45 +292,14 @@ class fauCourseTransferGUI extends BaseGUI
 
         }
 
-        $target = new ilObjCourse($ref_id, true);
+        $target = new ilObjCourse($this->target_ref_id, true);
         $this->transfer->moveCampoConnection($this->object, $target, $update_title, $move_members, $delete_source, $assign_groups, $update_group_titles);
 
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('fau_transfer_success'), true);
-        $this->ctrl->redirectToURL(ilLink::_getLink($ref_id));
+        $this->ctrl->redirectToURL(ilLink::_getLink($this->target_ref_id));
     }
 
-    /**
-     * Check if the target is valid
-     * @param int $ref_id
-     */
-    protected function checkTarget(int $ref_id)
-    {
-        $obj_id = ilObject::_lookupObjId($ref_id);
-        $import_id = ImportId::fromString(ilObject::_lookupImportId($obj_id));
-
-        if ($ref_id == $this->object->getRefId()) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_same_object'), true);
-            $this->returnToParent();
-        }
-        if (ilObject::_lookupType($ref_id, true) != 'crs') {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_course'), true);
-            $this->returnToParent();
-        }
-        if (!$this->access->checkAccess('write','', $ref_id, 'crs')) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_write'), true);
-            $this->returnToParent();
-        }
-        if (!$this->access->checkAccess('manage_members','', $ref_id, 'crs')) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_manage_members'), true);
-            $this->returnToParent();
-        }
-        if ($import_id->isForCampo()) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_already_connected'), true);
-            $this->returnToParent();
-        }
-    }
-
-
+    
     /**
      * Show the options to split a course
      */
@@ -324,6 +366,9 @@ class fauCourseTransferGUI extends BaseGUI
         $this->tpl->setContent($form->getHTML());
     }
 
+    /**
+     * Show a course selection to solve conflicts of courses with identical import id
+     */
     protected function initSolveForm() : ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
@@ -336,8 +381,7 @@ class fauCourseTransferGUI extends BaseGUI
 
         $radio = new ilRadioGroupInputGUI($this->lng->txt('fau_solve_connect_course'), 'target_ref_id');
         $radio->setRequired(true);
-        $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
-        foreach ($this->dic->fau()->study()->repo()->getObjectIdsWithImportId($import_id) as $obj_id)
+        foreach ($this->dic->fau()->study()->repo()->getObjectIdsWithImportId($this->current_import_id) as $obj_id)
         {
             if (ilObject::_lookupType($obj_id) == 'crs') {
                 foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
@@ -373,30 +417,15 @@ class fauCourseTransferGUI extends BaseGUI
 
     }
 
+/**
+     * Solve conflicts of courses with an identical import id
+     */
     protected function doSolve()
     {
-        $post = $this->request->getParsedBody();
-        $ref_id = (int) $post['target_ref_id'];
-
-
-        if (ilObject::_lookupType($ref_id, true) != 'crs') {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_course'), true);
-            $this->returnToParent();
-        }
-        if (!$this->access->checkAccess('write','', $ref_id, 'crs')) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_write'), true);
-            $this->returnToParent();
-        }
-        if (!$this->access->checkAccess('manage_members','', $ref_id, 'crs')) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_manage_members'), true);
-            $this->returnToParent();
-        }
-
-        $target = new ilObjCourse($ref_id);
-        $import_id = ImportId::fromString($target->getImportId());
-
-        $this->dic->fau()->ilias()->transfer()->solveCourseConflicts($import_id, $target);
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt('fau_solve_success'), true);
-        $this->ctrl->redirectToURL(ilLink::_getLink($ref_id));
+        $this->checkTargetBasic();
+        
+        $this->dic->fau()->ilias()->transfer()->solveCourseConflicts($this->target_import_id, new ilObjCourse($this->target_ref_id));
+        ilUtil::sendSuccess($this->lng->txt('fau_solve_success'), true);
+        $this->ctrl->redirectToURL(ilLink::_getLink($this->target_ref_id));
     }
 }

@@ -331,6 +331,7 @@ common#:#sub_status_confirmed#:#Antrag angenommen
 common#:#sub_status_normal#:#Anmeldung
 common#:#sub_status_pending#:#Antrag gestellt
 common#:#sub_status_request#:#Aufnahmeantrag
+common#:#sub_status_not_registered#:#Nicht angemeldet
 common#:#sub_subscription_object#:#Anmeldeobjekt
 common#:#sub_time_not_in_activation_time#:#Der Beitrittszeitraum muss innerhalb der zeitlich begrenzten Verfügbarkeit liegen!
 common#:#sub_to_confirm_message#:#Sie müssen noch über Aufnahmeanträge auf der Warteliste entscheiden.
@@ -652,6 +653,16 @@ fau#:#fau_org_studon_manager_ignored#:#Die Vergabe der Rolle <b>StudOn-Manager/i
 fau#:#fau_org_studon_author_missing#:#Die Rolle <b>StudOn-Autor/in</b> ist nocht nicht eingerichtet. Bitte wenden sie sich an das <a href="mailto:studon@fau.de">StudOn-Team</a>.
 fau#:#fau_org_studon_manager_missing#:#Die Rolle <b>StudOn-Manager/in</b> ist nocht nicht eingerichtet. Bitte wenden Sie sich an das <a href="mailto:studon@fau.de">StudOn-Team</a>.
 fau#:#fau_parallel_groups#:#Parallelgruppen
+fau#:#fau_reg_overview#:#Übersicht zu Anmeldungen
+fau#:#fau_reg_overview_info#:#Auf dieser Seite sehen Sie anstehende oder laufenden Anmeldungen zu Kursen und Gruppen aus Ihren Favoriten oder bei denen Sie auf der Warteliste eingetragen sind.
+fau#:#fau_reg_overview_today#:#Heute
+fau#:#fau_reg_overview_this_week#:#Diese Woche
+fau#:#fau_reg_overview_next_week#:#Kommende Woche
+fau#:#fau_reg_overview_later#:#Später
+fau#:#fau_reg_overview_other#:#Andere
+fau#:#fau_reg_sort_label#:#Sortierung
+fau#:#fau_reg_sort_by_start#:#Nach Anmeldestart
+fau#:#fau_reg_sort_by_end#:#Nach Anmeldeende
 fau#:#fau_relation#:#FAU-Beziehung
 fau#:#fau_relation_orgunits#:#Verbundene Einrichtungen
 fau#:#fau_relation_unit_used#:#Die Einheit %s ist bereits mit der StudOn-Kategorie <a href="%s">%s</a> verbunden! Entfernen Sie erst diese Verbindung, bevor Sie die neue anlegen.

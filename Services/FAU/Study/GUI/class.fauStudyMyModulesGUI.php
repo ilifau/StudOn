@@ -105,7 +105,7 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
                             $hardRestrictions = $this->dic->fau()->cond()->hard();
                             $hardRestrictions->checkByImportId($import_id, $user_id);
                             
-                            $default_member = new \FAU\User\Data\Member($obj_id, $user_id);
+                            $default_member = new \FAU\User\Data\Member($obj_id, $user_id, $course_id);
                             if (empty($module_id)) {
                                 $member = $this->dic->fau()->user()->repo()->getMember($obj_id, $user_id, $default_member)->withModuleId(null);
                                 $this->dic->fau()->user()->repo()->save($member);

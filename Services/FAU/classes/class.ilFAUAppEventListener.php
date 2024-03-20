@@ -82,11 +82,8 @@ class ilFAUAppEventListener implements ilAppEventListener
                         break;
 
                     case 'deleteParticipant':
-                        if(isset($a_parameter['role_id']))
-                            self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
-                        else
-                            self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) null);
-                        break;
+                        self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
+                    break;
                 }
                 break;
 
@@ -122,6 +119,7 @@ class ilFAUAppEventListener implements ilAppEventListener
 
     /**
      * Handle the update of object settings
+     * fau: syncToCampo - call update of maximum members for campo course.
      */
     protected function handleObjectUpdate(int $obj_id)
     {
@@ -129,23 +127,28 @@ class ilFAUAppEventListener implements ilAppEventListener
     }
 
     /**
-     * Handle the deletion of a course or a group
-     * (trash or final delete)
+     * Handle the deletion of a course or a group (trash or final delete)
+     * fau: syncWithCampo - remove the course connection and import id.
+     * fau: syncToCampo - remove the campo specific members records.
      */
     protected function handleObjectDelete(int $obj_id)
     {
         // delete the reference in a campo course
         // new object will be created in the next sync
         // Important: don't use cache - record may already be changed by \FAU\Ilias\Transfer::moveCampoConnection
-        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($obj_id, false) as $course) {
+        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjIdOrIliasObjIdTrans($obj_id, false) as $course) {
             if ($course->isDeleted()) {
                 // course entry no longer needed - staging entry is already deleted
                 $this->dic->fau()->study()->repo()->delete($course);
             }
-
-            $this->dic->fau()->study()->repo()->save(
-                $course->withIliasObjId(null)->withIliasProblem(null)->asChanged(false)
-            );
+            else {
+                $this->dic->fau()->study()->repo()->save(
+                    $course
+                            ->withIliasObjId(null)
+                            ->withIliasObjIdTrans(null)
+                            ->withIliasProblem(null)->asChanged(false)
+                );
+            }
         }
 
         // delete the membership status
@@ -159,6 +162,7 @@ class ilFAUAppEventListener implements ilAppEventListener
 
     /**
      * Handle the deletion of a user account
+     * fau: syncToCampo - remove the campo specific members records.
      */
     protected function handleUserDelete(int $user_id)
     {
@@ -174,8 +178,9 @@ class ilFAUAppEventListener implements ilAppEventListener
     }
 
     /**
-     * Handle the adding of a participant to a course or group
-     * (called for courses and groups)
+     * Handle the adding of a participant to a course or group (called for courses and groups)
+     * fau: syncToCampo - save the campo specific members records.
+     * fau: cascadeMembers - add participants to parents.
      */
     protected function handleAddParticipant(int $obj_id, int $user_id, int $role_id)
     {
@@ -188,8 +193,9 @@ class ilFAUAppEventListener implements ilAppEventListener
     }
 
     /**
-     * Handle the deletion of a participant to a course or group
-     * (called for courses and groups)
+     * Handle the deletion of a participant to a course or group (called for courses and groups)
+     * fau: syncToCampo - remove the campo specific members records.
+     * fau: cascadeMembers - remove participants from children.
      */
     protected function handleDeleteParticipant(int $obj_id, int $user_id, int $role_id)
     {
@@ -203,6 +209,7 @@ class ilFAUAppEventListener implements ilAppEventListener
 
     /**
      * Handle the adding of a user to a role
+     * fau: syncToCampo - save the campo specific members records.
      */
     protected function handleAddToRole(int $obj_id, int $user_id, int $role_id, string $type)
     {
@@ -216,6 +223,7 @@ class ilFAUAppEventListener implements ilAppEventListener
 
     /**
      * Handle the removing of a user to a role
+     * fau: syncToCampo - remove the campo specific members records.
      */
     protected function handleRemoveFromRole(int $obj_id, int $user_id, int $role_id, string $type)
     {
@@ -253,9 +261,11 @@ class ilFAUAppEventListener implements ilAppEventListener
                             case 'crs':
                                 $participants = ilCourseParticipants::_getInstanceByObjId($path_obj_id);
                                 $participants->add($user_id, ilParticipants::IL_CRS_MEMBER);
+                                break;
                             case 'grp':
                                 $participants = ilGroupParticipants::_getInstanceByObjId($path_obj_id);
                                 $participants->add($user_id, ilParticipants::IL_GRP_MEMBER);
+                                break;
                         }
                     }
                 }

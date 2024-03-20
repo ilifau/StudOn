@@ -331,6 +331,7 @@ common#:#sub_status_confirmed#:#accepted request
 common#:#sub_status_normal#:#registration
 common#:#sub_status_pending#:#pending request
 common#:#sub_status_request#:#Membership Request
+common#:#sub_status_not_registered#:#Not Registered
 common#:#sub_subscription_object#:#Subscription Object
 common#:#sub_time_not_in_activation_time#:#The registration period must be within the availability period!
 common#:#sub_to_confirm_message#:#You have to decide on membership requests.
@@ -652,6 +653,16 @@ fau#:#fau_org_studon_manager_ignored#:#he assignment of the <b>StudOn Manager</b
 fau#:#fau_org_studon_author_missing#:#The <b>StudOn author</b> role has not yet been set up. Please contact the <a href="mailto:studon@fau.de">StudOn team</a>.
 fau#:#fau_org_studon_manager_missing#:#The <b>StudOn manager</b> role has not yet been set up. Please contact the <a href="mailto:studon@fau.de">StudOn team</a>.
 fau#:#fau_parallel_groups#:#Parallel groups
+fau#:#fau_reg_overview#:#Registrstion Overview
+fau#:#fau_reg_overview_info#:#On this page you can see upcoming or current registrations for courses and groups from your favourites or for which you are on the waiting list.
+fau#:#fau_reg_overview_today#:#Today
+fau#:#fau_reg_overview_this_week#:#This Week
+fau#:#fau_reg_overview_next_week#:#Next Week
+fau#:#fau_reg_overview_later#:#Later
+fau#:#fau_reg_overview_other#:#Other
+fau#:#fau_reg_sort_label#:#Sort
+fau#:#fau_reg_sort_by_start#:#By Registration Start
+fau#:#fau_reg_sort_by_end#:#By Registration End
 fau#:#fau_relation#:#FAU Relation
 fau#:#fau_relation_orgunits#:#Assigned Units
 fau#:#fau_relation_unit_used#:#The unit %s is already connected with <a href="%s">%s</a>! Remove this connection before creating a new one.

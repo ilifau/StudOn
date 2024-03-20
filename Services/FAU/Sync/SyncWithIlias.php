@@ -75,30 +75,40 @@ class SyncWithIlias extends SyncBase
 
     /**
      * Synchronize the campo courses for selected terms
-     * @param int|null $orgunit_id optional restriction to an orgunit and their subunits
+     * @param int[]|null $orgunit_ids optional selection of orgunits and their subunits
+* @param string[]|null $term_ids optional selection of term_ids 
      */
-    public function synchronize(?int $orgunit_id = null) : void
+    public function synchronize(?array $orgunit_ids = null, ?array $term_ids = null) : void
     {
         $create_unit_ids = null;
         $update_unit_ids = null;
 
-        if (!empty($orgunit_id)) {
-            $create_unit_ids =  $this->sync->trees()->getOrgUnitIdsWithDescendants([$orgunit_id]);
+        if (isset($orgunit_ids)) {
+            $create_unit_ids =  $this->sync->trees()->getOrgUnitIdsWithDescendants($orgunit_ids);
             $update_unit_ids = $create_unit_ids;
         }
         elseif (!empty($this->settings->getRestrictCreateOrgIds())) {
             $create_unit_ids = $this->sync->trees()->getOrgUnitIdsWithDescendants($this->settings->getRestrictCreateOrgIds());
         }
 
+        $terms = [];
+        if (is_array($term_ids)) {
+            foreach ($term_ids as $term_id) {
+                $terms[] = Term::fromString((string) $term_id);
+            }
+        } else {
+            $terms = $this->sync->getTermsToSync();
+        }
+
         if ($this->init()) {
-            foreach ($this->sync->getTermsToSync() as $term) {
+            foreach ($terms as $term) {
                 $this->info('SYNC term ' . $term->toString() . '...');
 
                 // restrict to the courses within the selected units, if given
                 $create_course_ids = null;
                 $update_course_ids = null;
                 // respect a restriction only if given by parameter or for the next semester
-                if (isset($create_unit_ids) && (isset($orgunit_id) || $term->toString() == $this->dic->fau()->study()->getNextTerm()->toString())) {
+                if (isset($create_unit_ids) && (isset($orgunit_ids) || $term->toString() == $this->dic->fau()->study()->getNextTerm()->toString())) {
                     $create_course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($create_unit_ids, $term, false);
                 }
                 if (isset($update_unit_ids)) {
@@ -132,6 +142,10 @@ class SyncWithIlias extends SyncBase
             // order of checks is important!
             if (!empty($course->getIliasObjId())) {
                 $this->info('Already created.');
+                continue;
+            }
+            elseif (!empty($course->getIliasObjIdTrans())) {
+                $this->info('Connection transferred to course of a new term.');
                 continue;
             }
             elseif ($course->isDeleted()) {
@@ -536,7 +550,7 @@ class SyncWithIlias extends SyncBase
     /**
      * Update the ILIAS course for a campo event and/or course (parallel group)
      * The ilias course will always work as a container for the event
-     * A campo course is always provided to indicate the need for changes by dirty flags
+     * A campo course indicates the need for changes by dirty flags
      * The last parameter indicates that the ilias course is a campo course directly (not the parent of groups)
      */
     protected function updateIliasCourse(int $ref_id, Term $term, Event $event, Course $course, bool $is_parallel_group = true)

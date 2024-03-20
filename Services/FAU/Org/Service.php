@@ -107,6 +107,9 @@ class Service extends SubService
      */
     public function redirectFromTarget(string $target)
     {
+        global $DIC;
+        $tpl = $DIC['tpl'];
+
         $parts = explode('_', $target);
 
         if ($parts[0] == 'orgunit') {
@@ -116,10 +119,10 @@ class Service extends SubService
                 if (!empty($ref_id = $unit->getIliasRefId())) {
                     $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
                 }
-                $this->tpl->setOnScreenMessage('failure', sprintf($this->lng->txt('campo_orgunit_not_connected'), $unit->getLongtext() . '(' . $unit->getFauorgNr() . ')'), true);
+                $tpl->setOnScreenMessage('failure', sprintf($this->lng->txt('campo_orgunit_not_connected'), $unit->getLongtext() . '(' . $unit->getFauorgNr() . ')'), true);
             }
             else {
-                $this->tpl->setOnScreenMessage('failure', sprintf($this->lng->txt('campo_orgunit_not_found'), $number), true);
+                $tpl->setOnScreenMessage('failure', sprintf($this->lng->txt('campo_orgunit_not_found'), $number), true);
             }
 
         }

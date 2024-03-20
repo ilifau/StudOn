@@ -81,7 +81,7 @@ class Search
             $result = $this->repo->searchEvents($condition);
             foreach ($result as $event) {
 
-                // check for events thet fit to the own courses of study
+                // check for events that fit to the own courses of study
                 if ($condition->getFitting()) {
                     $import_id = new ImportId($condition->getTermId(), $event->getEventId());
                     if (!$this->dic->fau()->cond()->hard()->checkByImportId($import_id, $this->dic->user()->getId())) {
@@ -138,16 +138,13 @@ class Search
 
         // do further lookups only for the page entries
         foreach ($list as $index => $event) {
-            if($event->getIliasObjId())
-            {
                 $list[$index] = $event
                     ->withIliasTitle(ilObject::_lookupTitle($event->getIliasObjId()))
                     ->withIliasDescription(ilObject::_lookupDescription($event->getIliasObjId()))
                     ->withVisible($this->dic->access()->checkAccess('visible', '', $event->getIliasRefId()))
                     ->withMoveable($this->dic->access()->checkAccess('delete', 'cut', $event->getIliasRefId()));
             }
-        }
-
+        
         return array_values($list);
     }
 
