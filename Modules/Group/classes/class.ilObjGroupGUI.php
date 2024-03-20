@@ -49,6 +49,8 @@ use ILIAS\Refinery\Factory;
  */
 class ilObjGroupGUI extends ilContainerGUI
 {
+    use FAU\Ilias\Helper\ObjGroupGUIHelper;
+    
     protected bool $show_tracking = false;
 
     private GlobalHttpState $http;
@@ -607,13 +609,21 @@ class ilObjGroupGUI extends ilContainerGUI
             }
 
             $old_autofill = $this->object->hasWaitingListAutoFill();
+            // fau: fairSub - remember old settings
+            $old_max_members = $this->object->getMaxMembers();
+            $old_subscription_fair = $this->object->getSubscriptionFair();
+            // fau.
 
-            $this->object->setTitle($form->getInput('title'));
-            $this->object->setDescription($form->getInput('desc'));
-            $this->object->setGroupType((int) $form->getInput('grp_type'));
-            $this->object->setRegistrationType((int) $form->getInput('registration_type'));
-            $this->object->setPassword($form->getInput('password'));
-            $this->object->enableUnlimitedRegistration(!$form->getInput('reg_limit_time'));
+            $this->object->setTitle(ilUtil::stripSlashes($form->getInput('title')));
+            $this->object->setDescription(ilUtil::stripSlashes($form->getInput('desc')));
+            $this->object->setGroupType(ilUtil::stripSlashes($form->getInput('grp_type')));
+            // fau: paraSub - don't set registration type for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $this->object->setRegistrationType(ilUtil::stripSlashes($form->getInput('registration_type')));
+            $this->object->setPassword(ilUtil::stripSlashes($form->getInput('password')));
+            $this->object->enableUnlimitedRegistration((bool) !$form->getInput('reg_limit_time'));
+}
+            // fau.
             $this->object->enableMembershipLimitation((bool) $form->getInput('registration_membership_limited'));
             $this->object->setMinMembers((int) $form->getInput('registration_min_members'));
             $this->object->setMaxMembers((int) $form->getInput('registration_max_members'));
@@ -651,30 +661,91 @@ class ilObjGroupGUI extends ilContainerGUI
             $cancel_end = $form->getItemByPostVar("cancel_end");
             $this->object->setCancellationEnd($cancel_end->getDate());
 
-            $waiting_list = 0;
-            if ($this->http->wrapper()->post()->has('waiting_list')) {
-                $waiting_list = $this->http->wrapper()->post()->retrieve(
-                    'waiting_list',
-                    $this->refinery->kindlyTo()->int()
-                );
+
+            // fau: fairSub - save the fair period and waiting list options
+            // fau: paraSub - don't set waiting list options in parallel groups
+            if (!$this->object->isParallelGroup()) {
+                // check a deactivation of the fair period done in db
+                if ($old_subscription_fair >= 0) {
+                    /** @var ilDateTime $sub_fair */
+                    $sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
+                    $this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
+                }
+
+                switch ((string) $_POST['waiting_list']) {
+                    case 'auto':
+                        $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
+                        $this->object->enableWaitingList(true);
+                        $this->object->setWaitingListAutoFill(true);
+                        break;
+
+                    case 'auto_manu':
+                        $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
+                        $this->object->enableWaitingList(true);
+                        $this->object->setWaitingListAutoFill(false);
+                        break;
+
+                    case 'manu':
+                        $this->object->setSubscriptionAutoFill(false);
+                        $this->object->enableWaitingList(true);
+                        $this->object->setWaitingListAutoFill(false);
+                        break;
+
+                    default:
+                        $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
+                        $this->object->enableWaitingList(false);
+                        $this->object->setWaitingListAutoFill(false);
+                        break;
+                }
             }
-            switch ($waiting_list) {
-                case 2:
-                    $this->object->enableWaitingList(true);
-                    $this->object->setWaitingListAutoFill(true);
-                    break;
+            // fau.
 
-                case 1:
-                    $this->object->enableWaitingList(true);
-                    $this->object->setWaitingListAutoFill(false);
-                    break;
-
-                default:
-                    $this->object->enableWaitingList(false);
-                    $this->object->setWaitingListAutoFill(false);
-                    break;
+            // fau: fairSub - validate group object
+            if (!$this->object->validate()) {
+                global $DIC;
+                $ilErr = $DIC['ilErr'];
+                ilUtil::sendFailure($ilErr->getMessage());
+                $form->setValuesByPost();
+                $this->editObject($form);
+                return true;
             }
+            // fau.
 
+            // fau: fairSub - check and correct the fair time
+            if ($this->object->getSubscriptionFair() >= 0
+                && $this->object->isMembershipLimited()
+                && $this->object->getMaxMembers() > 0) {
+                $fair_message = '';
+                if (!$this->object->isRegistrationUnlimited()) {
+                    $registration_start = $this->object->getRegistrationStart()->get(IL_CAL_UNIX);
+                    $registration_end = $this->object->getRegistrationEnd()->get(IL_CAL_UNIX);
+                    if ($this->object->getSubscriptionFair() < $registration_start + $this->object->getSubscriptionMinFairSeconds()) {
+                        $this->object->setSubscriptionFair($registration_start + $this->object->getSubscriptionMinFairSeconds());
+                        $fair_message = $this->lng->txt("sub_fair_to_sub_start_min");
+                    } elseif ($this->object->getSubscriptionFair() > $registration_end) {
+                        $this->object->setSubscriptionFair($registration_end);
+                        $fair_message = $this->lng->txt("sub_fair_to_sub_end");
+                    }
+                }
+
+                // handle a change of the fair time
+                if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair()) {
+                    require_once('Modules/Group/classes/class.ilGroupWaitingList.php');
+                    if (!ilGroupWaitingList::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
+                        ilUtil::sendFailure($this->lng->txt('sub_fair_not_changeable'));
+                        $this->editObject($form);
+                        return true;
+                    } else {
+                        ilGroupWaitingList::_changeFairTime($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair());
+                        $this->object->saveSubscriptionLastFill(null);
+                    }
+                }
+
+                if (!empty($fair_message)) {
+                    ilUtil::sendInfo($fair_message, true);
+                }
+            }
+            // fau.
             // title icon visibility
             $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTitleIconVisibility();
 
@@ -703,11 +774,28 @@ class ilObjGroupGUI extends ilContainerGUI
             // Save sorting
             $this->saveSortingSettings($form);
             // if autofill has been activated trigger process
+            // fau: fairSub - trigger autofill if max members are increased
             if (
-                !$old_autofill &&
+                (!$old_autofill || $old_max_members < (int) $this->object->getMaxMembers()) &&
                 $this->object->hasWaitingListAutoFill()) {
                 $this->object->handleAutoFill();
             }
+            // fau.
+
+            // fau: fairSub - trigger autofill of parent course if max members are increased in a parallel group
+            if ($this->object->isParallelGroup() && $old_max_members < (int) $this->object->getMaxMembers()) {
+                global $DIC;
+                $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->object->getRefId());
+                $course = new ilObjCourse((int) $course_ref_id);
+                $DIC->fau()->ilias()->getRegistration($course)->doAutoFill();
+            }
+            // fau.
+
+            // fau: syncToCampo - save the campo settings from the form
+            global $DIC;
+            $DIC->fau()->ilias()->getCourseSettingsGUI()->saveCampoSettingsFromForm($form, $this->object);
+            // fau.
+
 
             // BEGIN ChangeEvents: Record update Object.
             ilChangeEvent::_recordWriteEvent(
@@ -1345,6 +1433,16 @@ class ilObjGroupGUI extends ilContainerGUI
                                    ilDatePresentation::formatDate($this->object->getRegistrationStart())
                 );
             }
+
+            // fau: fairSub - show fair period on info screen
+            if ($this->object->isMembershipLimited()
+                && $this->object->getMaxMembers()
+                && $this->object->getRegistrationType() != GRP_REGISTRATION_OBJECT) {
+                $info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
+                    $this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));
+            }
+            // fau.
+
             if ($this->object->isMembershipLimited()) {
                 if ($this->object->getMinMembers()) {
                     $info->addProperty(
@@ -1654,26 +1752,58 @@ class ilObjGroupGUI extends ilContainerGUI
             $form->addItem($lim);
             */
 
-            $wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
-
-            $option = new ilRadioOption($this->lng->txt('none'), '0');
-            $wait->addOption($option);
-
-            $option = new ilRadioOption($this->lng->txt('grp_waiting_list_no_autofill'), '1');
-            $option->setInfo($this->lng->txt('grp_waiting_list_info'));
-            $wait->addOption($option);
-
-            $option = new ilRadioOption($this->lng->txt('grp_waiting_list_autofill'), '2');
-            $option->setInfo($this->lng->txt('grp_waiting_list_autofill_info'));
-            $wait->addOption($option);
-
-            if ($this->object->hasWaitingListAutoFill()) {
-                $wait->setValue('2');
-            } elseif ($this->object->isWaitingListEnabled()) {
-                $wait->setValue('1');
+            // fau: fairSub - add fair date and arrange and explain options for waiting list
+            if ($this->object->getSubscriptionFair() < 0) {
+                $fair_date = new ilNonEditableValueGUI($this->lng->txt('sub_fair_date'));
+                $fair_date_info = $this->lng->txt('sub_fair_inactive_message');
+                $fair_date_link = '<br />» <a href="' . $this->ctrl->getLinkTarget($this, 'activateSubFair') . '">' . $this->lng->txt('sub_fair_activate') . '</a>';
+                $wait_options = array(
+                    'auto' => 'sub_fair_inactive_autofill',
+                    'manu' => 'sub_fair_inactive_waiting',
+                    'no_list' => 'sub_fair_inactive_no_list'
+                );
+            } else {
+                $fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'), 'subscription_fair');
+                $fair_date->setShowTime(true);
+                $fair_date->setDate(new ilDateTime($this->object->getSubscriptionFair(), IL_CAL_UNIX));
+                $fair_date_info = $this->lng->txt('sub_fair_date_info');
+                $fair_date_link = '<br />» <a href="' . $this->ctrl->getLinkTarget($this, 'confirmDeactivateSubFair') . '">' . $this->lng->txt('sub_fair_deactivate') . '</a>';
+                $wait_options = array(
+                    'auto' => 'sub_fair_autofill',
+                    'auto_manu' => 'sub_fair_auto_manu',
+                    'manu' => 'sub_fair_waiting',
+                    'no_list' => 'sub_fair_no_list'
+                );
             }
 
-            $lim->addSubItem($wait);
+
+            $fair_date->setInfo($fair_date_info . (ilCust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
+
+            if (!$this->object->isParallelGroup()) {
+                $lim->addSubItem($fair_date);
+            }
+
+            $wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
+            foreach ($wait_options as $postvalue => $langvar) {
+                $option = new ilRadioOption($this->lng->txt($langvar), $postvalue);
+                $option->setInfo($this->lng->txt($langvar . '_info'));
+                $wait->addOption($option);
+            }
+
+            if ($this->object->hasWaitingListAutoFill()) {
+                $wait->setValue('auto');
+            } elseif ($this->object->getSubscriptionAutoFill() && $this->object->isWaitingListEnabled()) {
+                $wait->setValue('auto_manu');
+            } elseif ($this->object->isWaitingListEnabled()) {
+                $wait->setValue('manu');
+            } else {
+                $wait->setValue('no_list');
+            }
+
+            if (!$this->object->isParallelGroup()) {
+                $lim->addSubItem($wait);
+            }
+            // fau.
 
             $form->addItem($lim);
 

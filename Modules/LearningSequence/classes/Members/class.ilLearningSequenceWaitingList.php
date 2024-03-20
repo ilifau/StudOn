@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -20,14 +20,18 @@ declare(strict_types=1);
 
 class ilLearningSequenceWaitingList extends ilWaitingList
 {
-    public function addToList(int $a_usr_id): bool
+    // fau: fairSub - add subject, to_confirm and sub_time as parameter
+    public function addToList(int $usr_id, string $a_subject = '', int $a_to_confirm = WaitingListConstantsHelper::REQUEST_NOT_TO_CONFIRM, ?int $a_sub_time = null): bool
+    // fau.
     {
         global $DIC;
 
         $app_event_handler = $DIC->event();
         $log = $DIC->logger();
 
-        if (!parent::addToList($a_usr_id)) {
+        // fau: fairSub - add subject, to_confirm and sub_time as parameter
+        if (!parent::addToList($usr_id, $a_subject, $a_to_confirm, $a_sub_time)) {
+        // fau.
             return false;
         }
 
@@ -38,7 +42,7 @@ class ilLearningSequenceWaitingList extends ilWaitingList
             'addToWaitingList',
             array(
                 'obj_id' => $this->getObjId(),
-                'usr_id' => $a_usr_id
+                'usr_id' => $usr_id
             )
         );
 
