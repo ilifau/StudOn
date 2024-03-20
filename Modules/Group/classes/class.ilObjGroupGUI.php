@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
-use ilGroupConstants;
 
 /**
  * Class ilObjGroupGUI
