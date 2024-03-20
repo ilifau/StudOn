@@ -1449,6 +1449,7 @@ assessment#:#tst_form_dynamic_question_set_config#:#Continues Question Selection
 assessment#:#tst_gap_analysis#:#Gap Analysis###26 09 2014 new variable
 assessment#:#tst_general_properties#:#Γενικές ιδιότητες
 assessment#:#tst_header_participant#:#Result:###24 10 2013 new variable
+assessment#:#tst_header_participant_no_answer#:#Question - not answered###14 02 2024 new variable
 assessment#:#tst_header_solution#:#Correct solution:###24 10 2013 new variable
 assessment#:#tst_heading_scoring#:#Βαθμολογία
 assessment#:#tst_hide_side_list#:#Hide question list###24 07 2009 new variable
@@ -5278,7 +5279,7 @@ common#:#private_notes#:#Ιδιωτικές σημειώσεις
 common#:#pro#:#Προ
 common#:#proceed#:#Proceed
 common#:#profile#:#Προφίλ
-common#:#profile_changed#:#ILIAS eLearning - Το προφίλ σας έχει αλλάξει
+common#:#profile_changed#:#Το προφίλ σας έχει αλλάξει
 common#:#profile_incomplete#:#Το προφίλ σας είναι ελλειπές. Παρακαλώ συμπληρώστε όλα τ' απαραίτητα δεδομένα.
 common#:#profile_of#:#Προφίλ του
 common#:#properties#:#Ιδιότητες
@@ -5337,8 +5338,8 @@ common#:#reg_mail_body_salutation#:#Γεια
 common#:#reg_mail_body_text1#:#Καλως ήρθατε στο σύστημα τηλεκατάρτισης ILIAS!
 common#:#reg_mail_body_text2#:#Για να έχετε πρόσβαση στο ILIAS χρησιμοποιείστε τα ακόλουθα δεδομένα:
 common#:#reg_mail_body_text3#:#Περαιτέρω προσωπικές πληροφορίες:
-common#:#reg_mail_subject#:#ILIAS eLearning - Τα δεδομένα πρόσβασής σας
-common#:#reg_mail_subject_confirmation#:#ILIAS eLearning - Your Confirmationlink###24 07 2009 new variable
+common#:#reg_mail_subject#:#Τα δεδομένα πρόσβασής σας
+common#:#reg_mail_subject_confirmation#:#Your Confirmationlink###24 07 2009 new variable
 common#:#reg_passwd_via_mail#:#Ο κωδικός θα σας αποσταλεί στην email διεύθυνση σας που δίνεται παρακάτω.
 common#:#register#:#Εγγραφή
 common#:#register_notification#:#"%s" has applied for session "%s".###07 02 2020 new variable
@@ -8322,6 +8323,7 @@ dateplaner#:#cal_weekly#:#Weekly
 dateplaner#:#cal_where#:#Location
 dateplaner#:#cal_year_s#:#Year(s)
 dateplaner#:#cal_yearly#:#Yearly
+dateplaner#:#consultation_hours_block_title#:#Consultation Hours###14 02 2024 new variable
 dateplaner#:#created#:#Δημιουργήθηκε
 dateplaner#:#crs_cal_activation_end#:#Course End
 dateplaner#:#crs_cal_activation_start#:#Course Start

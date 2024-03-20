@@ -1448,6 +1448,7 @@ assessment#:#tst_form_dynamic_question_set_config#:#Continues Question Selection
 assessment#:#tst_gap_analysis#:#Gap Analysis###26 09 2014 new variable
 assessment#:#tst_general_properties#:#Obecné vlastnosti
 assessment#:#tst_header_participant#:#Result:###24 10 2013 new variable
+assessment#:#tst_header_participant_no_answer#:#Question - not answered###14 02 2024 new variable
 assessment#:#tst_header_solution#:#Correct solution:###24 10 2013 new variable
 assessment#:#tst_heading_scoring#:#Hodnocení
 assessment#:#tst_hide_side_list#:#Skrýt seznam otázek
@@ -5277,7 +5278,7 @@ common#:#private_notes#:#Osobní poznámky
 common#:#pro#:#Pro
 common#:#proceed#:#Postoupit
 common#:#profile#:#Profil
-common#:#profile_changed#:#ILIAS eLearning - Váš profil byl změněn
+common#:#profile_changed#:#Váš profil byl změněn
 common#:#profile_incomplete#:#Váš profil je nekompletní. Vyplňte prosím všechna požadovaná data.
 common#:#profile_of#:#Profil pro
 common#:#properties#:#Vlastnosti
@@ -5337,7 +5338,7 @@ common#:#reg_mail_body_text1#:#Vítejte v e-learningu ILIAS!
 common#:#reg_mail_body_text2#:#K přístupu do ILIAS použijte následující údaje:
 common#:#reg_mail_body_text3#:#Další osobní informace:
 common#:#reg_mail_subject#:#E-learning ILIAS - Vaše přístupové údaje
-common#:#reg_mail_subject_confirmation#:#ILIAS eLearning - Your Confirmationlink
+common#:#reg_mail_subject_confirmation#:#Your Confirmationlink
 common#:#reg_passwd_via_mail#:#Vaše heslo bude zasláno na Vaši e-mail adresu uvedenou níže.
 common#:#register#:#Zaregistrovat
 common#:#register_notification#:#"%s" has applied for session "%s".###07 02 2020 new variable
@@ -8321,6 +8322,7 @@ dateplaner#:#cal_weekly#:#Týdně
 dateplaner#:#cal_where#:#Místo
 dateplaner#:#cal_year_s#:#Rok(y)
 dateplaner#:#cal_yearly#:#Ročně
+dateplaner#:#consultation_hours_block_title#:#Consultation Hours###14 02 2024 new variable
 dateplaner#:#created#:#Vytvořeno
 dateplaner#:#crs_cal_activation_end#:#Konec kurzu
 dateplaner#:#crs_cal_activation_start#:#Začátek kurzu

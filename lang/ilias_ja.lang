@@ -1448,6 +1448,7 @@ assessment#:#tst_form_dynamic_question_set_config#:#問題選択の継続
 assessment#:#tst_gap_analysis#:#ギャップ分析
 assessment#:#tst_general_properties#:#全般プロパティ
 assessment#:#tst_header_participant#:#結果:
+assessment#:#tst_header_participant_no_answer#:#Question - not answered###14 02 2024 new variable
 assessment#:#tst_header_solution#:#正解:
 assessment#:#tst_heading_scoring#:#採点
 assessment#:#tst_hide_side_list#:#問題一覧を表示しない
@@ -5277,7 +5278,7 @@ common#:#private_notes#:#プライベートメモ
 common#:#pro#:#いいね
 common#:#proceed#:#続ける
 common#:#profile#:#プロファイル
-common#:#profile_changed#:#ILIAS eLearning - プロファイルが変更されました
+common#:#profile_changed#:#プロファイルが変更されました
 common#:#profile_incomplete#:#プロファイル作成が未完了です。必要事項を記入してください
 common#:#profile_of#:#プロファイル
 common#:#properties#:#プロパティ
@@ -5336,8 +5337,8 @@ common#:#reg_mail_body_salutation#:#こんにちは
 common#:#reg_mail_body_text1#:#学習管理システムILIASのご利用ありがとうございます。
 common#:#reg_mail_body_text2#:#LIASへアクセスするには次のURIを使用します:
 common#:#reg_mail_body_text3#:#詳細情報
-common#:#reg_mail_subject#:#ILIAS eLearning - アクセス情報
-common#:#reg_mail_subject_confirmation#:#ILIAS eLearning - リンク 確認用
+common#:#reg_mail_subject#:#アクセス情報
+common#:#reg_mail_subject_confirmation#:#リンク 確認用
 common#:#reg_passwd_via_mail#:#パスワードは以下のemailアドレスへ送信されます。
 common#:#register#:#登録
 common#:#register_notification#:#%s がセッション "%s"へ適用されました。
@@ -8321,6 +8322,7 @@ dateplaner#:#cal_weekly#:#毎週
 dateplaner#:#cal_where#:#ロケーション
 dateplaner#:#cal_year_s#:#年
 dateplaner#:#cal_yearly#:#年間
+dateplaner#:#consultation_hours_block_title#:#Consultation Hours###14 02 2024 new variable
 dateplaner#:#created#:#作成済
 dateplaner#:#crs_cal_activation_end#:#コースの終了
 dateplaner#:#crs_cal_activation_start#:#コースの開始

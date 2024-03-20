@@ -15,6 +15,8 @@
  *
  *********************************************************************/
 
+use ILIAS\Data\URI;
+
 /**
  * Class ilWACPath
  *
@@ -137,15 +139,14 @@ class ilWACPath
     protected $path_without_query = '';
 
 
-    /**
-     * ilWACPath constructor.
-     *
-     * @param string $path
-     */
-    public function __construct($path)
+    public function __construct(string $path, bool $normalize = true)
     {
-        assert(is_string($path));
+        if ($normalize) {
+            $path = $this->normalizePath($path);
+        }
+
         $this->setOriginalRequest($path);
+
         $re = '/' . self::REGEX . '/';
         preg_match($re, $path, $result);
 
@@ -155,39 +156,36 @@ class ilWACPath
             false
         );
 
-
         foreach ($result as $k => $v) {
             if (is_numeric($k)) {
                 unset($result[$k]);
             }
         }
 
-        $moduleId = strstr(is_null($result['module_identifier']) ? '' : $result['module_identifier'], "/", true);
+        $moduleId = strstr($result['module_identifier'] ?? '', "/", true);
         $moduleId = $moduleId === false ? '' : $moduleId;
 
-        $this->setPrefix(is_null($result['prefix']) ? '' : $result['prefix']);
-        $this->setClient(is_null($result['client']) ? '' : $result['client']);
-        $this->setAppendix(is_null($result['appendix']) ? '' : $result['appendix']);
+        $this->setPrefix($result['prefix'] ?? '');
+        $this->setClient($result['client'] ?? '');
+        $this->setAppendix($result['appendix'] ?? '');
         $this->setModuleIdentifier($moduleId);
-        $this->setModuleType(is_null($result['module_type']) ? '' : $result['module_type']);
+        $this->setModuleType($result['module_type'] ?? '');
 
         $modulePath = null;
 
         if ($this->getModuleIdentifier()) {
-            $modulePath = strstr(is_null($result['module_path']) ? '' : $result['module_path'], $this->getModuleIdentifier(), true);
+            $modulePath = strstr($result['module_path'] ?? '', $this->getModuleIdentifier(), true);
             $modulePath = '.' . ($modulePath === false ? '' : $modulePath);
         } else {
-            $modulePath = ('.' . (is_null($result['module_path']) ? '' : $result['module_path']));
+            $modulePath = ('.' . ($result['module_path'] ?? ''));
         }
 
-        $this->setModulePath("$modulePath");
-        $this->setInSecFolder($result['sec'] === 'sec/');
-        $this->setPathWithoutQuery('.'
-                                   . (is_null($result['path_without_query']) ? '' : $result['path_without_query']));
-        $this->setPath('.' . (is_null($result['path']) ? '' : $result['path']));
-        $this->setSecurePath('.'
-                             . (is_null($result['secure_path_id']) ? '' : $result['secure_path_id']));
-        $this->setSecurePathId(is_null($result['module_type']) ? '' : $result['module_type']);
+        $this->setModulePath((string) $modulePath);
+        $this->setInSecFolder(($result['sec'] ?? null) === 'sec/');
+        $this->setPathWithoutQuery('.' . ($result['path_without_query'] ?? ''));
+        $this->setPath('.' . ($result['path'] ?? ''));
+        $this->setSecurePath('.' . ($result['secure_path_id'] ?? ''));
+        $this->setSecurePathId($result['module_type'] ?? '');
         // Pathinfo
         $parts = parse_url($path);
         $this->setFileName(basename($parts['path']));
@@ -288,6 +286,33 @@ class ilWACPath
         self::$video_suffixes = $video_suffixes;
     }
 
+    protected function normalizePath(string $path) : string
+    {
+        $path = ltrim($path, '.');
+        // cut everything before "data/" (for installations using a subdirectory)
+        $path = strstr($path, '/' . self::DIR_DATA . '/');
+
+        $original_path = parse_url($path, PHP_URL_PATH);
+        $query = parse_url($path, PHP_URL_QUERY);
+
+        $real_data_dir = realpath("./" . self::DIR_DATA);
+        $realpath = realpath("." . $original_path);
+
+        if (strpos($realpath, $real_data_dir) !== 0) {
+            throw new ilWACException(ilWACException::ACCESS_DENIED, "Path is not in data directory");
+        }
+
+        $normalized_path = ltrim(
+            str_replace(
+                $real_data_dir,
+                '',
+                $realpath
+            ),
+            '/'
+        );
+
+        return "/" . self::DIR_DATA . '/' . $normalized_path . (!empty($query) ? '?' . $query : '');
+    }
 
     /**
      * @return string
