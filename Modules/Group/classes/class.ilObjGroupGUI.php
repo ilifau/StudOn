@@ -704,10 +704,10 @@ class ilObjGroupGUI extends ilContainerGUI
             if (!$this->object->validate()) {
                 global $DIC;
                 $ilErr = $DIC['ilErr'];
-                ilUtil::sendFailure($ilErr->getMessage());
+                $this->tpl->setOnScreenMessage('failure', $ilErr->getMessage());
                 $form->setValuesByPost();
                 $this->editObject($form);
-                return true;
+                return;
             }
             // fau.
 
@@ -732,9 +732,9 @@ class ilObjGroupGUI extends ilContainerGUI
                 if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair()) {
                     require_once('Modules/Group/classes/class.ilGroupWaitingList.php');
                     if (!ilGroupWaitingList::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
-                        ilUtil::sendFailure($this->lng->txt('sub_fair_not_changeable'));
+                        $this->tpl->setOnScreenMessage('failure', $this->lng->txt('sub_fair_not_changeable'));
                         $this->editObject($form);
-                        return true;
+                        return;
                     } else {
                         ilGroupWaitingList::_changeFairTime($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair());
                         $this->object->saveSubscriptionLastFill(null);
@@ -742,7 +742,7 @@ class ilObjGroupGUI extends ilContainerGUI
                 }
 
                 if (!empty($fair_message)) {
-                    ilUtil::sendInfo($fair_message, true);
+                    $this->tpl->setOnScreenMessage('info', $fair_message, true);
                 }
             }
             // fau.

@@ -66,9 +66,6 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     protected $reg_ref_id = null;
     // fau.
     private bool $reg_unlimited = true;
-    // fau: objectSub - class variable
-    protected ?int $reg_ref_id = null;
-    // fau.
     private ?ilDateTime $reg_start = null;
     private ?ilDateTime $reg_end = null;
     private string $reg_password = '';
