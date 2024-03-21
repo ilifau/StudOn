@@ -280,6 +280,14 @@ class Service extends SubService
         return $this->getStudiesText($this->repo()->getPersonOfUser($user_id));
      }
 
+/**
+     * Get ID of the selected module for a user and an object
+     */
+    public function getSelectedModuleId(int $obj_id, int $user_id) : ?int
+    {
+        $memberObj = $this->repo()->getMember($obj_id, $user_id, Member::model());
+        return $memberObj->getModuleId();
+    }
 
     /**
      * Find the Id of a studOn user by the IDM id
@@ -325,11 +333,13 @@ class Service extends SubService
             // new membership
             $change = true;
             $member = new Member($obj_id, $user_id);
+            $member = $member->withCourseId($course_id);
             $member = $member->withModuleId($module_id == 0 ? null : $module_id);
         }
         elseif (isset($module_id) && $module_id != (int) $member->getModuleId()) {
             // module id should be changed or reset
             $change = true;
+            $member = $member->withCourseId($course_id);
             $member = $member->withModuleId($module_id == 0 ? null : $module_id);
         }
         else {
