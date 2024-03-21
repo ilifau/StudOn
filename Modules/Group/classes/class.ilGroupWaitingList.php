@@ -34,14 +34,16 @@ declare(strict_types=1);
 
 class ilGroupWaitingList extends ilWaitingList
 {
-    public function addToList(int $a_usr_id): bool
+    // fau: fairSub - add subject, to_confirm and sub_time as parameter, avoid re-reading
+    public function addToList(int $a_usr_id, string $a_subject = '', int $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, ?int $a_sub_time = null): bool
+
     {
         global $DIC;
 
         $ilAppEventHandler = $DIC['ilAppEventHandler'];
         $ilLog = $DIC['ilLog'];
-
-        if (!parent::addToList($a_usr_id)) {
+        
+        if (!parent::addToList($a_usr_id, $a_subject, $a_to_confirm, $a_sub_time)) {
             return false;
         }
 
@@ -53,7 +55,8 @@ class ilGroupWaitingList extends ilWaitingList
                     'obj_id' => $this->getObjId(),
                     'usr_id' => $a_usr_id
                 )
-        );
+            );
         return true;
     }
+    // fau.
 }

@@ -133,32 +133,15 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, Member::model(), $useCache, true, 'user_id');
     }
 
-    /**
-     * Get the member records of ilias objects (courses or groups) which are assigned to a campo event for a term
-     * @return Member[]
-     */
-    public function getMembersOfEventInTerm(int $event_id, Term $term, ?int $user_id = null, bool $useCache = false) : array
-    {
-        $query = "SELECT m.* FROM fau_user_members m
-            JOIN fau_study_courses c on c.ilias_obj_id = m.obj_id
-            WHERE c.event_id = " . $this->db->quote($event_id, 'integer')
-            . " AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
-            . " AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
-
-        if (isset($user_id)) {
-            $query .= " AND m.user_id = " . $this->db->quote($user_id, 'integer');
-        }
-        return $this->queryRecords($query, Member::model(), $useCache);
-    }
-
+    
     /**
      * Move the stored memberships from one object to another
      */
     public function moveMembers(int $from_obj_id, int $to_obj_id)
     {
         // use REPLACE and DELETE instead of UPDATE to avoid duplicate primary key errors
-        $query = "REPLACE INTO fau_user_members(obj_id, user_id, module_id, course_responsible, instructor, individual_instructor)
-        SELECT %s, user_id, module_id, course_responsible, instructor, individual_instructor
+        $query = "REPLACE INTO fau_user_members(obj_id, user_id, course_id, module_id, event_responsible, course_responsible, instructor, individual_instructor)
+        SELECT %s, user_id, course_id, module_id, event_responsible, course_responsible, instructor, individual_instructor
         FROM fau_user_members
         WHERE obj_id = %s";
         $this->db->manipulateF($query, ['integer', 'integer'], [$to_obj_id, $from_obj_id]);

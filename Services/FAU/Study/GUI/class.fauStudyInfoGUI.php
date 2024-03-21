@@ -87,7 +87,7 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
             $links = [];
             $links[] = $this->getDetailsLink($import_id, $ref_id, $title = $this->lng->txt('fau_details_link'));
             if ($this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($import_id->getEventId())) {
-                $links[] = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($import_id->getEventId());
+                $links[] = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($import_id, $ref_id);
             }
             $links[] = $this->getCampoLink($import_id, $title = $this->lng->txt('fau_campo_link'));
 

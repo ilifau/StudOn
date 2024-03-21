@@ -43,6 +43,11 @@ class FAUUserSteps
         $this->addUserIdleExtAccount();
     }
 
+    public function custom_step_129()
+    {
+        $this->addMemberCourseId();
+    }
+
     protected function createUserAchievementsTable(bool $drop = false)
     {
         $this->db->createTable('fau_user_achievements', [
@@ -144,4 +149,14 @@ class FAUUserSteps
             $this->db->addIndex('usr_data', ['idle_ext_account'], 'idl');
         }
     }
+
+    protected function addMemberCourseId()
+    {
+        $this->db->addTableColumn('fau_user_members', 'course_id',
+            ['type' => 'integer', 'notnull' => false, 'default' => null]);
+        $this->db->addIndex('fau_user_members', ['course_id'], 'i2');
+        
+        $this->db->manipulate("UPDATE fau_user_members u JOIN fau_study_courses c ON u.obj_id = c.ilias_obj_id SET u.course_id = c.course_id");
+    }
+
 }

@@ -30,6 +30,8 @@ declare(strict_types=1);
 */
 class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 {
+    use \FAU\Ilias\Helper\ObjGroupHelper;
+
     public const CAL_REG_START = 1;
     public const CAL_REG_END = 2;
     public const CAL_START = 3;
@@ -67,7 +69,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     private bool $reg_membership_limitation = false;
     private int $reg_min_members = 0;
     private int $reg_max_members = 0;
-    private bool $waiting_list = false;
+    // fau: fairSub - change default setting for waiting list
+    protected bool $waiting_list = true;
+    // fau.
     private bool $auto_fill_from_waiting = false;
     private ?ilDate $leave_end = null;
     private bool $show_members = true;
@@ -88,7 +92,6 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     private int $mail_members = self::MAIL_ALLOWED_ALL;
 
     public ?ilGroupParticipants $members_obj;
-
 
     public $m_roleMemberId;
 
@@ -465,6 +468,14 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         if ($this->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_PASSWORD and !strlen($this->getPassword())) {
             $this->error->appendMessage($this->lng->txt(self::ERR_MISSING_PASSWORD));
         }
+            // fau: fairSub - validate subscription times
+            if ($this->isMembershipLimited() && $this->getMaxMembers() > 0
+            && !empty($this->getRegistrationStart()) && !$this->getRegistrationStart()->isNull()
+            && !empty($this->getRegistrationEnd()) && !$this->getRegistrationEnd()->isNull()
+            && $this->getRegistrationEnd()->get(IL_CAL_UNIX) < $this->getRegistrationStart()->get(IL_CAL_UNIX) + $this->getSubscriptionMinFairSeconds()) {
+            $this->error->appendMessage(sprintf($this->lng->txt("sub_fair_subscription_min_minutes"), ceil($this->getSubscriptionMinFairSeconds() / 60)));
+        }
+        // fau.
         if ($this->isMembershipLimited()) {
             if ($this->getMinMembers() <= 0 && $this->getMaxMembers() <= 0) {
                 $this->error->appendMessage($this->lng->txt(self::ERR_MISSING_MIN_MAX_MEMBERS));
@@ -476,11 +487,16 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
                 $this->error->appendMessage($this->lng->txt(self::ERR_WRONG_MIN_MAX_MEMBERS));
             }
         }
+        // fau: fairSub - fixed check for wrong registration period
+        $has_regstart = $this->getRegistrationStart() instanceof ilDateTime && !$this->getRegistrationStart()->isNull();
+        $has_regend = $this->getRegistrationEnd() instanceof ilDateTime && !$this->getRegistrationEnd()->isNull();
+
         if (
-            ($this->getRegistrationStart() && !$this->getRegistrationEnd()) ||
-            (!$this->getRegistrationStart() && $this->getRegistrationEnd()) ||
-            $this->getRegistrationEnd() <= $this->getRegistrationStart()
+            ($has_regstart && !$has_regend) ||
+            (!$has_regstart && $has_regend) ||
+            ($has_regstart && $has_regend && ilDateTime::_before($this->getRegistrationEnd(), $this->getRegistrationStart()))
         ) {
+            // fau.
             $this->error->appendMessage($this->lng->txt((self::ERR_WRONG_REGISTRATION_LIMITED)));
         }
         return strlen($this->error->getMessage()) == 0;
@@ -510,7 +526,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             $this->db->quote($this->getInformation(), 'text') . ", " .
             $this->db->quote((int) $this->getGroupType(), 'integer') . ", " .
             $this->db->quote($this->getRegistrationType(), 'integer') . ", " .
-            $this->db->quote($this->getRegistrationRefId(), 'integer') . ", " .
+            $this->db->quote($this->getRegistrationRefId(), 'integer') . ", " .            
             $this->db->quote(($this->isRegistrationEnabled() ? 1 : 0), 'integer') . ", " .
             $this->db->quote(($this->isRegistrationUnlimited() ? 1 : 0), 'integer') . ", " .
             $this->db->quote(($this->getRegistrationStart() && !$this->getRegistrationStart()->isNull()) ? $this->getRegistrationStart()->get(IL_CAL_DATETIME, '') : null, 'timestamp') . ", " .
@@ -1531,34 +1547,12 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         $part->sendNotification(ilGroupMembershipMailNotification::TYPE_NOTIFICATION_REGISTRATION, $a_user_id);
     }
 
-    public function handleAutoFill(): void
+    public function handleAutoFill()
     {
-        if ($this->isWaitingListEnabled() &&
-            $this->hasWaitingListAutoFill()) {
-            $max = $this->getMaxMembers();
-            $now = ilGroupParticipants::lookupNumberOfMembers($this->getRefId());
-            if ($max > $now) {
-                // see assignFromWaitingListObject()
-                $waiting_list = new ilGroupWaitingList($this->getId());
-
-                foreach ($waiting_list->getUserIds() as $user_id) {
-                    if (!$tmp_obj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
-                        continue;
-                    }
-                    if ($this->getMembersObject()->isAssigned($user_id)) {
-                        continue;
-                    }
-                    $this->getMembersObject()->add($user_id, ilParticipants::IL_GRP_MEMBER); // #18213
-                    $this->getMembersObject()->sendNotification(ilGroupMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER, $user_id, true);
-                    $waiting_list->removeFromList($user_id);
-
-                    $now++;
-                    if ($now >= $max) {
-                        break;
-                    }
-                }
-            }
-        }
+        // fau: fairSub - use extended function for auto fill
+        global $DIC;
+        $DIC->fau()->ilias()->getRegistration($this)->doAutoFill();
+        // fau.
     }
 
     public static function mayLeave(int $a_group_id, int $a_user_id = null, ?ilDate &$a_date = null): bool

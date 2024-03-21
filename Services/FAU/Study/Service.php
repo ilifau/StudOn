@@ -20,7 +20,6 @@ class Service extends SubService
     protected \ilLanguage $lng;
 
     protected Repository $repository;
-    protected Matching $matching;
     protected Search $search;
     protected Dates $dates;
     protected Persons $persons;
@@ -36,17 +35,6 @@ class Service extends SubService
             $this->repository = new Repository($this->dic->database(), $this->dic->logger()->fau());
         }
         return $this->repository;
-    }
-
-    /**
-     * Get the matching functions
-     */
-    public function matching() : Matching
-    {
-        if(!isset($this->matching)) {
-            $this->matching = new Matching($this->dic);
-        }
-        return $this->matching;
     }
 
     /**
@@ -113,21 +101,6 @@ class Service extends SubService
         return $link;
     }
 
-
-    /**
-     * Get the link to campo for an ilias course
-     */
-    public function getCampoLinkForObject(int $obj_id) : string
-    {
-        $importId = $this->repo()->getImportId($obj_id);
-        If (!empty($event_id = $importId->getEventId())) {
-            $term = Term::fromString($importId->getTermId());
-            $url = $this->getCampoUrl($event_id, $term);
-            $title = $this->lng->txt('fau_campo_link') . ($term->isValid() ? ' (' . $this->dic->fau()->study()->getTermText($term, true) .')' : '');
-            return '<a target="_blank" href="' . $url . '">' . $title . '</a>';
-        }
-        return '';
-    }
 
 
     /**
@@ -438,19 +411,31 @@ class Service extends SubService
     /**
      * Get the text for a term (current language)
      */
-    public function getTermText(?Term $term, bool $short = false) : string
+    public function getTermText(?Term $term, bool $short = false, ?string $lang_code = null) : string
     {
         if (!isset($term)) {
+        if (isset($lang_code)) {
+                return $this->lng->txtlng('fau', 'studydata_unknown_semester', $lang_code);
+            }
             return $this->lng->txt('studydata_unknown_semester');
         }
         elseif ($term->getTypeId() == Term::TYPE_ID_SUMMER) {
+        if (isset($lang_code)) {
+                return sprintf($this->lng->txtlng('fau', $short ? 'studydata_semester_summer_short' : 'studydata_semester_summer', $lang_code), $term->getYear());
+            }
             return sprintf($this->lng->txt($short ? 'studydata_semester_summer_short' : 'studydata_semester_summer'), $term->getYear());
         }
         elseif ($term->getTypeId() == Term::TYPE_ID_WINTER) {
             $next = substr((string) $term->getYear(), 2,2);
+        if (isset($lang_code)) {
+                return sprintf($this->lng->txtlng('fau', $short ? 'studydata_semester_winter_short' : 'studydata_semester_winter', $lang_code), $term->getYear(), $next + 1);
+            }
             return sprintf($this->lng->txt($short ? 'studydata_semester_winter_short' : 'studydata_semester_winter'), $term->getYear(), $next + 1);
         }
         else {
+        if (isset($lang_code)) {
+                return $this->lng->txtlng('fau', 'studydata_ref_semester_invalid', $lang_code);
+            }
             return $this->lng->txt('studydata_ref_semester_invalid');
         }
     }
@@ -528,6 +513,9 @@ class Service extends SubService
      */
     public function redirectFromTarget(string $target)
     {
+        global $DIC;
+        $tpl = $DIC['tpl'];
+
         $parts = explode('_', $target);
 
         if ($parts[0] == 'campo') {
@@ -537,7 +525,7 @@ class Service extends SubService
                 $course_id = (int) $parts[2];
 
                 if (!empty($course = $this->repo()->getCourse($course_id))) {
-                    $ref_id = (int) $this->dic->fau()->ilias()->objects()->getIliasRefIdForCourse($course);
+                    $ref_id = (int) $this->dic->fau()->ilias()->objects()->getIliasRefIdForCourse($course, true);
                     if (ilObject::_lookupType($ref_id, true) == 'grp'
                         && !$this->dic->access()->checkAccess('read', '', $ref_id,'grp')) {
                         $ref_id = (int) $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);
@@ -545,10 +533,10 @@ class Service extends SubService
                     if (!empty($ref_id)) {
                         $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
                     }
-                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('campo_course_not_created'), true);
+                    $tpl->setOnScreenMessage('failure', $this->lng->txt('campo_course_not_created'), true);
                 }
                 else {
-                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('campo_course_not_found'), true);
+                    $tpl->setOnScreenMessage('failure', $this->lng->txt('campo_course_not_found'), true);
                 }
             }
         }

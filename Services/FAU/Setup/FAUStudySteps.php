@@ -143,8 +143,14 @@ class FAUStudySteps
         $this->addCourseTargetGroupAll();
     }
 
-    public function custom_step_126() {
+    public function custom_step_126() 
+    {
         $this->replaceCourseNeedsPassedBySendPassed();
+    }
+
+    public function custom_step_128() 
+    {
+        $this->addCourseIliasObjIdTrans();
     }
 
     protected function createCoursesTable(bool $drop = false)
@@ -709,5 +715,12 @@ class FAUStudySteps
         $this->db->dropTableColumn('fau_study_courses', 'needs_passed');
         $this->db->addTableColumn('fau_study_courses', 'send_passed',
            ['type' => 'text', 'length' => 5, 'notnull' => true, 'default' => 'none']);
+    }
+
+    protected function addCourseIliasObjIdTrans()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'ilias_obj_id_trans',
+            ['type' => 'integer', 'notnull' => false, 'default' => null]);
+        $this->db->addIndex('fau_study_courses', ['ilias_obj_id_trans'], 'i6');
     }
 }

@@ -13,12 +13,19 @@ use ilObjRole;
 use ilFAUAppEventListener;
 use ilParticipants;
 use FAU\Study\Data\Term;
-use ilWaitingList;
 
 class Transfer
 {
-    const FORMER_COURSE_MEMBER = 'Vorheriges Kursmitglied';
-    const FORMER_GROUP_MEMBER = 'Vorheriges Gruppenmitglied';
+    /**
+     * Fixed prefix strings for former course and group members
+     * These are needed to get the members of former terms for sending to campo
+     * DON'T CHANGE!
+     * @see \FAU\Sync\Repository::getMembersOfCoursesInTermToSyncBack, \FAU\Sync\Repository::getPassedMembersOfCoursesToSyncBack 
+     */
+    const COURSE_MEMBER_DE = 'Kursmitglied';
+    const GROUP_MEMBER_DE = 'Gruppenmitglied';
+    const COURSE_MEMBER_EN = 'Course Member';
+    const GROUP_MEMBER_EN = 'Group Member';
 
     protected Container $dic;
 
@@ -44,44 +51,43 @@ class Transfer
         $listener_active = ilFAUAppEventListener::getInstance()->isActive();
         ilFAUAppEventListener::getInstance()->setActive(false);
 
-        $importId = ImportId::fromString($source->getImportId());
-        $target->setImportId($importId->toString());
+        if ($source->hasParallelGroups()) {
+            if (!empty($id = $this->dic->fau()->tools()->settings()->getCourseDidacticTemplateId())) {
+                $target->applyDidacticTemplate($id);
+            }
+            // handle the parallel groups of the source course
+            $assigned = [];
+            foreach ($this->dic->fau()->ilias()->objects()->findChildParallelGroups($source->getRefId(), false) as $ref_id) {
+                if (isset($assign_groups[$ref_id])) {
+                    $this->reassignParallelGroup($ref_id, $assign_groups[$ref_id], $update_group_titles, $move_old_members);
+$assigned[] = $assign_groups[$ref_id];
+                }
+                else {
+                    $this->moveObject($ref_id, $target->getRefId());
+                $assigned[] = $ref_id;
+            }
+        }
+        // handle the parallel groups of the target course that are not assigned to the new ones or moved from the source
+            foreach ($this->dic->fau()->ilias()->objects()->findChildParallelGroups($target->getRefId(), false) as $ref_id) {
+                if (!in_array($ref_id, $assigned)) {
+                    $this->releaseParallelGroup($ref_id, $move_old_members);
+                }
+            }
+        }
+        
+        if ($move_old_members) {
+            $this->changeMembersRole($target->getRefId(), $target->getImportId());
+        }
+        $this->moveCampoReferences($source, $target);
+        $this->moveCourseParticipants($source, $target);
+        $this->moveWaitingList($source->getId(), $target->getId());
+        
         if ($update_title) {
             $target->setTitle($source->getTitle());
             $target->setDescription(($source->getDescription()));
         }
         $target->update();
 
-        if ($move_old_members) {
-            $this->changeMembersRole($target->getRefId());
-        }
-        $this->moveCourseParticipants($source, $target);
-
-        if ($source->hasParallelGroups()) {
-            if (!empty($id = $this->dic->fau()->tools()->settings()->getCourseDidacticTemplateId())) {
-                $target->applyDidacticTemplate($id);
-            }
-            foreach ($this->dic->fau()->ilias()->objects()->findChildParallelGroups($source->getRefId()) as $ref_id) {
-                if (isset($assign_groups[$ref_id])) {
-                    $this->reassignParallelGroup($ref_id, $assign_groups[$ref_id], $update_group_titles, $move_old_members);
-                }
-                else {
-                    $this->moveObject($ref_id, $target->getRefId());
-                }
-            }
-        }
-        else {
-            foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($source->getId()) as $course) {
-                $course = $course->withIliasObjId($target->getId())->withIliasProblem(null);
-                $this->dic->fau()->study()->repo()->save($course);
-            }
-        }
-
-        $importId = ImportId::fromString($source->getImportId());
-        $target->setImportId($importId->toString());
-        $target->update();
-
-        $source->setImportId(null);
         $source->setOfflineStatus(true);
         $source->setDescription($this->dic->language()->txt('fau_transfer_source_desc'));
         $source->update();
@@ -89,7 +95,6 @@ class Transfer
         if ($delete_source) {
             $source->delete();
         }
-
 
         ilFAUAppEventListener::getInstance()->setActive($listener_active);
     }
@@ -119,6 +124,7 @@ class Transfer
 
             $target = $this->dic->fau()->ilias()->objects()->createIliasCourse($cat_ref_id, $term, $event, $course);
             $this->changeParallelGroupToCourse($parent, $source, $target);
+            $this->dic->fau()->sync()->roles()->updateRolesInIliasObject($target->getRefId(), null, $course->getCourseId(), $event->getEventId(), $term);
 
             $this->dic->fau()->study()->repo()->save($course->withIliasObjId($target->getId()));
             $source->setImportId(null);
@@ -142,7 +148,7 @@ class Transfer
     }
 
     /**
-     * Change an ilias course to a course with enclosed parallel grup
+     * Change an ilias course to a course with enclosed parallel group
      * @return int  ref_id of the created nested group
      */
     public function changeCampoCourseToNested(ilObjCourse $source) : int
@@ -211,9 +217,8 @@ class Transfer
                 foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
                     if (!ilObject::_isInTrash($ref_id)) {
                         $source = new ilObjCourse($ref_id);
-                        $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), ilParticipants::IL_CRS_MEMBER, ilParticipants::IL_CRS_MEMBER);
-                        $this->dic->fau()->ilias()->repo()->copyWaitingList($source->getId(), $target->getId());
-                        $this->dic->fau()->ilias()->repo()->clearWaitingList($source->getId());
+                        $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), IL_CRS_MEMBER, IL_CRS_MEMBER);
+                        $this->moveWaitingList($source->getId(), $target->getId());
                         $source->setImportId(null);
                         $source->setOfflineStatus(true);
                         $source->update();
@@ -253,13 +258,12 @@ class Transfer
         }
 
         $this->moveGroupToCourseParticipants($parent, $source, $target);
-        $this->dic->fau()->ilias()->repo()->copyWaitingList($source->getId(), $target->getId());
-        $this->dic->fau()->ilias()->repo()->clearWaitingList($source->getId());
+        $this->moveWaitingList($source->getId(), $target->getId());
     }
 
 
     /**
-     * Move the assignment of a parallel group
+     * Move the campo assignment of a parallel group
      */
     protected function reassignParallelGroup(int $old_ref_id, int $new_ref_id, bool $update_title, bool $move_old_members)
     {
@@ -273,26 +277,74 @@ class Transfer
             $target->setTitle($source->getTitle());
             $target->setDescription($source->getDescription());
         }
-        $target->setImportId($source->getImportId());
         $target->setRegistrationStart(null);
         $target->setRegistrationEnd(null);
         $target->enableUnlimitedRegistration(true);
         $target->update();
 
-        $source->setImportId(null);
         $source->setDescription($this->dic->language()->txt('fau_transfer_source_group_desc'));
         $source->update();
 
-        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($source->getId()) as $course) {
-            $course = $course->withIliasObjId($target->getId())->withIliasProblem(null);
+        if ($move_old_members) {
+            $this->changeMembersRole($target->getRefId(), $target->getImportId());
+        }
+        $this->moveCampoReferences($source, $target);
+        $this->moveGroupParticipants($source, $target);
+        $this->moveWaitingList($source->getId(), $target->getId());
+    }
+
+    /**
+     * Release the campo connection of a parallel group
+     */
+    protected function releaseParallelGroup(int $ref_id, bool $move_old_members) 
+    {
+        $target = new ilObjGroup($ref_id, true);
+        $target->setDescription($this->dic->language()->txt('fau_transfer_released_group_desc'));
+        $target->update();
+        
+        if ($move_old_members) {
+            $this->changeMembersRole($target->getRefId(),$target->getImportId());
+        }        
+        $this->moveCampoReferences(null, $target);
+    }
+
+    /**
+     * Change the campo references from a source ilias object to a target ilias object
+     * This treats the import_id in the objects and the ilias_obj_id in their campo courses
+     * 
+     * If the source object is null then remove the campo reference of the target object
+     * Keep a reference to the target object in ilias_object_trans of its former campo course
+     * 
+     * @param ilObjCourse|ilobjGroup|null $source     source object 
+     * @param ilObjCourse|ilobjGroup      $target     target object
+     * @return void
+     */
+    protected function moveCampoReferences(?ilObject $source, ilObject $target)
+    {
+        $target->setImportId($source ? $source->getImportId() : null);
+        $target->update();
+        
+        // set target as transferred object for its previous campo course (only one)
+        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($target->getId(), false) as $course) {
+            $course = $course->withIliasObjIdTrans($course->getIliasObjId())
+                             ->withIliasObjId(null)
+                             ->withIliasProblem(null);
             $this->dic->fau()->study()->repo()->save($course);
         }
 
-        if ($move_old_members) {
-            $this->changeMembersRole($target->getRefId());
-        }
+        
+        if (isset($source)) {
+            $source->setImportId(null);
+            $source->update();
 
-        $this->moveGroupParticipants($source, $target);
+            // set target as object for the source campo course (only one)
+            foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($source->getId(), false) as $course) {
+                $course = $course->withIliasObjId($target->getId())
+                                 ->withIliasObjIdTrans(null)
+                                 ->withIliasProblem(null);
+                $this->dic->fau()->study()->repo()->save($course);
+            }
+        }
     }
 
 
@@ -330,12 +382,14 @@ class Transfer
 
     /**
      * Move the course participants from one course to another
+     * (keeping course_id and module_id in fau_user_members)
      */
     protected function moveCourseParticipants(ilObjCourse $source, ilObjCourse $target)
     {
         // do first to keep the module selection
         $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
 
+// ilCourseParticipants
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
@@ -346,12 +400,14 @@ class Transfer
 
     /**
      * Move the group participants from one group to another
+     * (keeping course_id and module_id in fau_user_members)
      */
     protected function moveGroupParticipants(ilObjGroup $source, ilObjGroup $target)
     {
         // do first to keep the module selection
         $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
 
+        // ilGroupParticipants
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
@@ -378,7 +434,7 @@ class Transfer
     }
 
     /**
-     * Move the group participants from group to a course
+     * Add the participants to an ilias group
      */
     protected function addCourseParticipantsToGroup(ilObjCourse $source, ilObjGroup $target)
     {
@@ -403,7 +459,7 @@ class Transfer
 
 
     /**
-     * Move Participants from one object to another
+     * Move Participants from one object to another (except current user)
      */
     protected function moveParticipants(ilParticipants $source, ilParticipants $target, int $source_role, int $target_role)
     {
@@ -429,23 +485,72 @@ class Transfer
         }
     }
 
+    /**
+     * Move the waiting list from a source object to the target object
+     * @param int $source_obj_id
+     * @param int $target_obj_id
+     * @return void
+     */
+    protected function moveWaitingList(int $source_obj_id, int $target_obj_id)
+    {
+        $this->dic->fau()->ilias()->repo()->copyWaitingList($source_obj_id, $target_obj_id);
+        $this->dic->fau()->ilias()->repo()->clearWaitingList($source_obj_id);
+    }
 
 
     /**
-     * Move the members of a course to a "old member" role
-     * @param int    $ref_id
+     * Move the members of a course to an "old member" role
      */
-    protected function changeMembersRole(int $ref_id)
+    protected function changeMembersRole(int $ref_id, ?string $import_id)
     {
+        $obj_id = ilObject::_lookupObjId($ref_id);
+        $import_id = ImportId::fromString((string) $import_id);
+
+        // determine the course language for role title
+        $lang = 'de';
+        $course = $this->dic->fau()->study()->repo()->getCourse((int) $import_id->getCourseId());
+        if (isset($course)) {
+            if ( $course->getTeachingLanguage() == 'Englisch') {
+                $lang = 'en';
+            }
+        } else {
+            // ref id may be a parent course of parallel groups
+            foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjIdOrIliasObjIdTrans($obj_id) as $course) {
+                if ($course->getTermId() == $import_id->getTermId()) {
+                    if ( $course->getTeachingLanguage() == 'Englisch') {
+                        $lang = 'en';
+                    }
+                }
+                break;
+            }
+        }
+
+        // add a suffix for the semester to the role title  
+        $term = Term::fromString($import_id->getTermId());
+        if ($term->isValid()) {
+            // this indicates that the former members were members of a campo course
+            $campo_suffix = ' '. $this->dic->fau()->study()->getTermText($term, true, $lang);
+        }
+        
         $type = ilObject::_lookupType($ref_id, true);
         switch ($type) {
             case 'crs':
-                $former_role_title = self::FORMER_COURSE_MEMBER . ' (' . $ref_id . ')';
+                if (!empty($campo_suffix)) {
+                    // IMPORTANT: use the fixed prefix if members of former terms should be sent to campo
+                    $former_role_title = ($lang == 'de'? self::COURSE_MEMBER_DE : self::COURSE_MEMBER_EN) . ' ' . $campo_suffix;
+                } else {
+                    $former_role_title = $this->dic->language()->txtlng('fau', 'fau_transfer_former_course_member', $lang);
+                }
                 $member_role_title = 'il_crs_member';
                 break;
 
             case 'grp':
-                $former_role_title = self::FORMER_GROUP_MEMBER . ' (' . $ref_id . ')';
+                if (!empty($campo_suffix)) {
+                    // IMPORTANT: use the fixed prefix if members of former terms should be sent to campo
+                    $former_role_title = ($lang == 'de'? self::GROUP_MEMBER_DE : self::GROUP_MEMBER_EN) . ' ' . $campo_suffix;
+                } else {
+                    $former_role_title = $this->dic->language()->txtlng('fau', 'fau_transfer_former_group_member', $lang);
+                }
                 $member_role_title = 'il_grp_member';
                 break;
 

@@ -314,12 +314,22 @@ class Repository extends RecordRepo
     /**
      * @return StudOnMember[]
      */
-    public function getStudOnMembers(Term $term) : array
+    public function getStudOnMembersInTerm(Term $term) : array
     {
         $query = "SELECT * FROM studon_members WHERE term_year=" . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id=" . $this->db->quote($term->getTypeId(), 'integer');
         return $this->queryRecords($query, StudOnMember::model(), false, true);
     }
+
+    /**
+     * @return StudOnMember[]
+     */
+    public function getPassedStudOnMembers() : array
+    {
+        $query = "SELECT * FROM studon_members WHERE status = 'passed'";
+        return $this->queryRecords($query, StudOnMember::model(), false, true);
+    }
+
 
     /**
      * @return StudOnMember[]

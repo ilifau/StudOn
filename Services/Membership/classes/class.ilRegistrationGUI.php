@@ -140,6 +140,7 @@ abstract class ilRegistrationGUI
     {
         // fau: paraSub - call new function to remove a user from the waiting list
         // fau: fairSub#60 - call new function to remove a user from the waiting list
+        global $DIC;
         $this->registration->removeUserSubscription($DIC->user()->getId());
         // fau.
         // fau: fairSub#54 - trigger filling a course

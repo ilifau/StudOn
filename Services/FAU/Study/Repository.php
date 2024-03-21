@@ -383,12 +383,24 @@ class Repository extends RecordRepo
     }
 
     /**
-     * Get the courses with certain ilias_obj_ids
-     * @return Course[] indexed by course_id
+     * Get the courses with certain ilias_obj_id
+     * @return Course[] indexed by course_id, should normally only be one!
      */
     public function getCoursesByIliasObjId(int $id, bool $useCache = true) : array
     {
         $query = "SELECT * from fau_study_courses WHERE ilias_obj_id = ". $this->db->quote($id, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+    /**
+     * Get the courses with certain ilias_obj_id or ilias_obj_id_trans
+     * ilias_obj_id_trans is set for courses of former terms that should point to the ilias object
+     * @return Course[] indexed by course_id, could be more than one
+     */
+    public function getCoursesByIliasObjIdOrIliasObjIdTrans(int $id, bool $useCache = true) : array
+    {
+        $query = "SELECT * from fau_study_courses WHERE ilias_obj_id = ". $this->db->quote($id, 'integer')
+            ." OR ilias_obj_id_trans = " . $this->db->quote($id, 'integer');
         return $this->queryRecords($query, Course::model(), $useCache);
     }
 
@@ -447,7 +459,7 @@ class Repository extends RecordRepo
             $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
         }
         else {
-            $query .= " AND ilias_obj_id IS NULL";
+            $query .= " AND ilias_obj_id IS NULL AND ilias_obj_id_trans IS NULL";
         }
         return $this->queryRecords($query, Course::model(), false);
     }
@@ -468,7 +480,7 @@ class Repository extends RecordRepo
             $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
         }
         else {
-            $query .= " AND ilias_dirty_since IS NOT NULL";
+            $query .= " AND ilias_obj_id IS NOT NULL AND ilias_dirty_since IS NOT NULL";
         }
         return $this->queryRecords($query, Course::model(), false);
     }
@@ -572,7 +584,7 @@ class Repository extends RecordRepo
     }
 
     /**
-     * Get Courses of Study
+     * Get Courses of Study that fit to a module
      * @return CourseOfStudy[]
      */
     public function getCoursesOfStudyForModule(int $module_id) : array
@@ -587,16 +599,51 @@ class Repository extends RecordRepo
 
 
     /**
-     * Get Courses of Study
+     * Get the degrees that fit to courses of studies
+     * @param int[] $cos_ids        list of cos_ids that must be be given
+     * @param string[] $degrees     list of degrees that must be be given
      * @return int[]
      */
-    public function getCoursesOfStudyIdsForModule(int $module_id) : array
+    public function getFittingDegrees(array $cos_ids, array $degrees) : array
     {
         $query = "
-                SELECT DISTINCT cos_id 
-                FROM fau_study_module_cos
-                WHERE module_id =" . $this->db->quote($module_id, 'integer');
-        return $this->getIntegerList($query, 'cos_id');
+                SELECT DISTINCT degree FROM fau_study_cos c 
+                WHERE " . $this->db->in('cos_id', $cos_ids, false, 'integer') . "
+                AND " . $this->db->in('degree', $degrees, false, 'text');
+        
+        return $this->getStringList($query, 'degree');
+    }
+    
+    /**
+     * Get the IDs of courses of study that fit to a module
+     * They must be assigned to the module
+     * They must be in a direct list of cos_ids or have a degree in a list of given degrees
+     * 
+     * @param int        $module_id         module id to which the course of study must be assigned       
+     * @param array      $cos_ids           cos_ids that fit
+     * @param array|null $fitting_degrees   degrees that fit
+     * @return void
+     */
+    public function getFittingCosIds(int $module_id, array $cos_ids, array $degrees) : array
+    {
+        $query = "
+                SELECT DISTINCT c.cos_id FROM fau_study_cos c 
+                JOIN fau_study_module_cos mc ON mc.cos_id = c.cos_id
+                WHERE mc.module_id =" . $this->db->quote($module_id, 'integer');
+        
+        $cond = [];
+        if (!empty($cos_ids)) {
+            $cond[] = $this->db->in('c.cos_id', $cos_ids, false, 'integer');
+        }
+        if (!empty($degrees)) {
+            $cond[] = $this->db->in('c.degree', $degrees, false, 'text');
+        }
+        if (!empty($cond)) {
+            $query .= " AND (" . implode(' OR ', $cond) . ')';
+            return $this->getIntegerList($query, 'cos_id');
+}
+
+        return [];
     }
 
     /**

@@ -4,8 +4,12 @@ namespace FAU\Ilias\Data;
 
 class ListProperty
 {
+    const KEY_LIMITS = 'limits';
+    const KEY_STATUS = 'status';
+    
     private ?string $label = null;
     private ?string $value = null;
+    private ?string $key = null;
     
     private bool $newline = true;
     private bool $alert = false;
@@ -65,6 +69,25 @@ class ListProperty
             'link' => $this->link
         ];
     }
+
+    /**
+     * Add a key to the property
+     */
+    public function withKey(string $key) : ListProperty
+    {
+        $clone = clone $this;
+        $clone->key = $key;
+        return $clone;
+    }
+
+    /**
+     * get the key to the property
+     */
+    public function getKey() : ?string
+    {
+        return $this->key;
+    }
+
 
     /**
      * @param bool $newline

@@ -42,6 +42,7 @@ class Course extends RecordData
         'learning_target_all' => 'clob',
         'target_group_all' => 'clob',
         'ilias_obj_id' => 'integer',
+        'ilias_obj_id_trans' => 'integer',
         'ilias_dirty_since' => 'text',
         'ilias_problem' => 'text',
         'send_passed' => 'text',
@@ -78,6 +79,7 @@ class Course extends RecordData
     // not in constructor, added later, initialisation needed
     // obj_id is stored because ref_id may change when course is moved
     protected ?int $ilias_obj_id = null;
+    protected ?int $ilias_obj_id_trans = null;
     protected ?string $ilias_dirty_since = null;
     protected ?string $ilias_problem = null;
     protected ?string $send_passed = self::SEND_PASSED_NONE;
@@ -182,6 +184,16 @@ class Course extends RecordData
         return $this->term_type_id;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getTermId() : ?string {
+       if (isset($this->term_year) && isset($this->term_type_id)) {
+           return sprintf('%04d%01d', $this->term_year, $this->term_type_id);
+       }
+       return null;
+    }
+    
     /**
      * @return int|null
      */
@@ -328,11 +340,25 @@ class Course extends RecordData
 
 
     /**
+     * Get the obj_id of an ILIAS course or group to which this course is directly connected
+     * The import_id of that object is set to this campo course
+     * Participants of this campo course are the members of the object  
      * @return int|null
      */
     public function getIliasObjId() : ?int
     {
         return $this->ilias_obj_id;
+    }
+
+    /**
+     * Get the obj_id of an formerly connected ILIAS course or group whose connection is transferred to a new term
+     * The import id of that object is set to the campo course of the new term
+     * Participants of  this campo course have a 'former member' role in the object
+     * @return int|null
+     */
+    public function getIliasObjIdTrans() : ?int
+    {
+        return $this->ilias_obj_id_trans;
     }
 
 
@@ -364,6 +390,19 @@ class Course extends RecordData
         $clone->ilias_obj_id = $ilias_obj_id;
         return $clone;
     }
+
+
+    /**
+     * @param int|null $ilias_obj_id_trans
+     * @return Course
+     */
+    public function withIliasObjIdTrans(?int $ilias_obj_id_trans) : self
+    {
+        $clone = clone $this;
+        $clone->ilias_obj_id_trans = $ilias_obj_id_trans;
+        return $clone;
+    }
+
 
     /**
      * @param string|null $ilias_problem

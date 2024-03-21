@@ -1,29 +1,38 @@
 # Service zur Integration von ILIAS an der FAU
 
-## ILIAS-Anpassungen, die den Service nutzen
+## ILIAS-Anpassungen, die den Service nutzen oder von Service benutzt werden
 
 - **fauService** - Einbindung des Service bei der ILIAS-Initialisierung
-- **userData** - Studiengangs- und Organisationsdaten von FAU-Benutzern (Ablösung von idmData und studyData)
-- **studyCond** - Verwaltung und Prüfung von "weichen" Beitrittsbedingungen für Kurse und Gruppen.
-- **studySearch** - Suche nach Lehrvernstaltungen
+
+- **campoCheck** Voraussetzungsprüfung bei der Anmeldung
+- **campoExport** Kursteilnehmer in Kategorien exportieren
+- **campoInfo** Anzeige von Informationen aus Campo
+- **campoLink** Verlinkung von Kursen aus Campo
+- **campoSub** Modulauswahl bei der Kursanmeldung
+- **campoTransfer** Übertrag von Campo-Verbindungen, Aufspalten von Kursen
+- **cascadeMembers** – Neue / Entfernte Mitgliedschaften kaskadieren
+- **fairSub** – Chancengleiche Phase bei der Anmeldung („Happy Hour“)
+- **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
+- **heavySub** – Überbuchungen bei hohen Zugriffszahlen vermeiden
+- **limitMemberRoles** – keine anderen Rollen als Mitglieder zählen
+- **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
+- **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind
+- **regOverview** - Übersicht zu Anmeldungen
 - **samlAuth** - Single Sign-On über SAML (Authentifitierungsmodus ist Shibboleth")
 - **samlChange** - Umschreiben vorhandener Acocunt auf Shibboleth oder Lokale
-- **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind. Administratoren können löschen (die Verbindung zu Campo wird dann aufgehoben). Kurse dürfen verschoben werden, Gruppen nicht.
-- **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
-- **studySearch** Suchseite nach Lehrveranstaltungen
-- **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
-- **campoLink** Verlinkung von Kursen aus Campo
-- **campoInfo** Anzeigen auf den Info-Seiten
-- **campoCheck** Voraussetzungsprüfung bei der Anmeldung
-- **campoSub** Modulauswahl bei der Kursanmeldung und Übertragen von Kursanmeldungen nach campo
-- **campoTransfer** Übertrag von Campo-Verbindungen, Aufspalten von Kursen
+- **showMemLimit** – Infos über begrenzte Teilnehmerzahl
+- **setPassedFlag** – Massenbearbeitung Bestanden-Status
+- **userData** - Studiengangs- und Organisationsdaten von FAU-Benutzern (Ablösung von idmData und studyData)
+- **studyCond** - Verwaltung und Prüfung von "weichen" Beitrittsbedingungen für Kurse und Gruppen.
+- **studySearch** - Suchseite für Lehrveranstaltungen aus Campo
+- **memberExport** - memberExport – Erweiterter Teilnehmerdaten-Export
+- **syncWithIdm** - StudOn-Accounts aus IdM aktualisieren
+- **syncWithOrg** - Organiasationseinheiten aus FAU.org aktualisieren
+- **syncWithCampo** - Daten und Kurse/Gruppen aus Campo aktualisieren 
+- **syncToCampo** - Daten nach Camo zurückschreiben
+- **userData** – Übernahme von Nutzerdaten aus IdM und Campo
 
-Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
-
-## Abgelöste Anpassungen
-
-- **idmData** 
-- **univisAdmin**
+Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutzung dieses Service umgeschrieben.
 
 ## Struktur
 
@@ -59,13 +68,13 @@ namespace FAU\Sync;
 use FAU\User\Data\Education;
 ````
 
-Die Dateinamen das Klassen im FAU-Namespace entsprechen den Klassennamen ohne Präfix 'class'.
+Die Dateinamen der Klassen im FAU-Namespace entsprechen den Klassennamen ohne Präfix 'class'.
 Alle Klassen im Service werden beim ILIAS-Setup oder mit `composer dump-autoload -o` ins Autoload-Feature von PHP aufgenommen.
 
 
 ### Repository Pattern
 
-Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt nur über Repository-Klassen in den Services. Die Datenklassen haben keine eigenen Lese- und Schreiboperationen und sollten einfach und ohne Abhängigkeiten gehalten werden.
+Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt nur über Repository-Klassen in den Services. Die Datenklassen haben keine eigenen Lese- und Schreiboperationen und sollten einfach und ohne Abhängigkeiten bleiben.
 
 ````php
 // Example: move educations from one user account to another
@@ -84,7 +93,7 @@ foreach ($repo->getEducationsOfUser($old_user_id) as $oldEducation) {
 ````
 Die Services und Datenklassen verwenden typisierte Parameter und Rückgabewerte, auch für skalare Typen.
 
-Um das Lesen und Schreiben von Datenobjekten zu erleichtern, die sich auf Datensätze einzelner Tabellen beziehen, können die Datenklassen und Ihr Repository von den folgenden abstrakten Basisklassen abgleitet werden:
+Um das Lesen und Schreiben von Datenobjekten zu erleichtern, die sich auf Datensätze einzelner Tabellen beziehen, können die Datenklassen und ihr Repository von den folgenden abstrakten Basisklassen abgleitet werden:
 
 - [RecordData](RecordData.php) definiert Funktionen einer Datenklasse, um Werte-Arrays aus Datenbank-Abfragen zu laden oder für sie zu liefern.
 - [RecordRepo](RecordRepo.php) enthält generelle Lese, Schreib- und Löschfunktionen für Datenklassen, die RecordData implementieren.

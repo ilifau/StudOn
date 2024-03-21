@@ -26,6 +26,10 @@ class ilCourseDefinedFieldDefinition
     public const IL_CDF_SORT_NAME = 'field_name';
     public const IL_CDF_TYPE_TEXT = 1;
     public const IL_CDF_TYPE_SELECT = 2;
+    // fau: courseUdf - add type email and checkbox
+    public const IL_CDF_TYPE_EMAIL = 10;
+    public const IL_CDF_TYPE_CHECKBOX = 10;
+    // fau.
 
     protected ilDBInterface $db;
     protected ilLanguage $lng;
@@ -65,7 +69,7 @@ class ilCourseDefinedFieldDefinition
             $cdf->save();
         }
     }
-
+ 
     public static function _deleteByContainer(int $a_container_id): void
     {
         global $DIC;

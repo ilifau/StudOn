@@ -42,6 +42,27 @@ class ilCourseUserData
         }
     }
 
+    // fau: courseUdf - new function getFieldsWithData()
+    /**
+     *	Get the the field definitions with data for a user
+     */
+    public static function getFieldsWithData($a_obj_id, $a_usr_id)
+    {
+        include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
+
+        $ud = self::_getValuesByObjId($a_obj_id);
+        $data = array();
+        /** @var  ilCourseDefinedFieldDefinition $field_obj */
+        foreach (ilCourseDefinedFieldDefinition::_getFields($a_obj_id) as $field_obj) {
+            $data[] = array(
+                'field' => $field_obj,
+                'value' => $ud[$a_usr_id][$field_obj->getId()]
+            );
+        }
+        return $data;
+    }
+    // fau.
+
     public static function _getValuesByObjId(int $a_obj_id): array
     {
         global $DIC;

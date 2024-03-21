@@ -3,20 +3,19 @@
 namespace FAU\Ilias\Helper;
 use ilDatePresentation;
 use ilDateTime;
-use ilCourseWaitingList;
+use ilGroupWaitingList;
 /**
- * trait for providing additional ilObjCourse methods
+ * trait for providing additional ilObjGroup methods
  */
-trait ObjCourseHelper 
+trait ObjGroupHelper 
 {
-    private int $subscription_ref_id = 0;
     // fau: fairSub - new class variables
     protected ?int $subscription_fair = null;
     protected bool $subscription_auto_fill = true;
     protected ?int $subscription_last_fill = null;
     // fau.
-    
-    // fau: fairSub#13 - getter / setter
+
+    // fau: fairSub - getter / setter
     public function getSubscriptionFair()
     {
         return (int) $this->subscription_fair;
@@ -45,7 +44,7 @@ trait ObjCourseHelper
     {
         global $ilDB;
         $ilDB->update(
-            'crs_settings',
+            'grp_settings',
             array('sub_last_fill' => array('integer', $a_value)),
             array('obj_id' => array('integer', $this->getId()))
         );
@@ -60,38 +59,35 @@ trait ObjCourseHelper
 
     public function getSubscriptionFairDisplay($a_relative)
     {
+        require_once('Services/Calendar/classes/class.ilDatePresentation.php');
         $relative = ilDatePresentation::useRelativeDates();
         ilDatePresentation::setUseRelativeDates($a_relative);
         $fairdate = ilDatePresentation::formatDate(new ilDateTime($this->getSubscriptionFair(), IL_CAL_UNIX));
         ilDatePresentation::setUseRelativeDates($relative);
         return $fairdate;
     }
+    // fau.
 
-    // fau: fairSub#12 - check if current time is in fair time span
+    // fau: fairSub - check if current time is in fair time span
     public function inSubscriptionFairTime($a_time = null)
     {
         if (!isset($a_time)) {
             $a_time = time();
         }
 
-        if (!$this->isSubscriptionMembershipLimited() && !$this->hasParallelGroups()) {
+        if (!$this->isMembershipLimited()) {
             return false;
-        } elseif (empty($this->getSubscriptionMaxMembers()) && !$this->hasParallelGroups()) {
-            return false;
-        } elseif (!empty( $this->getSubscriptionStart()) && $a_time < (int) $this->getSubscriptionStart()) {
+        } elseif (empty($this->getMaxMembers())) {
             return false;
         } elseif ($a_time > $this->getSubscriptionFair()) {
+            return false;
+        } elseif (!empty($this->getRegistrationStart()) &&
+            !$this->getRegistrationStart()->isNull() &&
+            $a_time < $this->getRegistrationStart()->get(IL_CAL_UNIX)) {
             return false;
         } else {
             return true;
         }
     }
     // fau.
-    // fau: new function getWaitingList()
-    public function getWaitingList() : ilCourseWaitingList
-    {
-        $this->initWaitingList();
-        return $this->waiting_list_obj;
-    }
-    // fau.        
 }

@@ -141,7 +141,7 @@ abstract class Registration extends AbstractRegistration
 
         foreach ($this->groups as $group) {
             if (in_array($group->getRefId(), $group_ref_ids)) {
-                if ($group->isSubscriptionPossible()) {
+                if ($group->wouldSubscriptionBePossible()) {
                     $waitingGroups[] = $group;
                 }
                 if ($this->isDirectJoinPossibleForGroup($group)) {
@@ -294,8 +294,7 @@ abstract class Registration extends AbstractRegistration
         /////
         // 6. Send notifications
         ////
-        // fau: fairSub - TODO - this doesn't work yet with V8        
-      /*  switch ($this->getRegistrationAction()) {
+        switch ($this->getRegistrationAction()) {
             case Registration::notifyAdded:
                 $this->participants->sendNotification($this->getNotificationTypeAddedAdmins(), $this->user->getId());
                 $this->participants->sendNotification($this->getNotificationTypeAddedMember(), $this->user->getId());
@@ -315,7 +314,7 @@ abstract class Registration extends AbstractRegistration
                 // no e-mail to subscriber needed because the place on the list is not relevant
                 $this->participants->sendExternalNotifications($this->object, $this->user);
                 break;
-        }*/
+        }
     }
 
     /**
@@ -441,8 +440,7 @@ abstract class Registration extends AbstractRegistration
 
             // get the user that remain on the waiting list
             $waiting_users = $this->waitingList->getUserIds();
-// fau: fairSub - TODO - enable mail notifications            
-if(0){
+
             // prepare notifications
             // the waiting list object is injected to allow the inclusion of the waiting list position
             $mail = $this->getMembershipMailNotification();
@@ -475,7 +473,6 @@ if(0){
                 $mail->send();
             }
         }
-    }
         // remember the fill date
         // this prevents further calls from the cron job
         $this->object->saveSubscriptionLastFill(time());
@@ -496,7 +493,7 @@ if(0){
      */
     public function isDirectJoinPossibleForGroup(ContainerInfo $group) : bool
     {
-       return ($group->isDirectJoinPossible() && $this->isDirectJoinPossible()) ||
+       return ($group->wouldDirectJoinBePossible() && $this->isDirectJoinPossible()) ||
            (!$group->hasMaxMembers() && $this->subType != self::subConfirmation);
     }
 

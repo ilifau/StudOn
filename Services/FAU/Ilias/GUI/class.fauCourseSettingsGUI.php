@@ -44,4 +44,5 @@ class fauCourseSettingsGUI extends BaseGUI
             }
         }
     }
+
 }

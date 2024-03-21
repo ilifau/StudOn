@@ -86,11 +86,6 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
     private int $min_members = 0;
     private bool $auto_fill_from_waiting = false;
     private bool $member_export = false;
-    // fau: fairSub#10 - new class variables in ilObjCourse
-    protected $subscription_fair;
-    protected $subscription_auto_fill = true;
-    protected $subscription_last_fill;
-    // fau.    
     private int $timing_mode = ilCourseConstants::IL_CRS_VIEW_TIMING_ABSOLUTE;
     private bool $auto_notification = true;
     private ?string $target_group = null;
