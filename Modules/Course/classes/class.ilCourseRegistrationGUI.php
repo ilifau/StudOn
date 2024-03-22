@@ -34,8 +34,24 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     {
         parent::__construct($a_container);
         $this->parent_gui = $a_parent_gui;
+
+        // fau: studyCond - call adjustSubType
+        $this->adjustSubType();
+        // fau.        
     }
 
+    // fau: studyCond - adjust the subscription type based on soft conditions
+    // fau: campoCheck - adjust the subscription type based on soft conditions
+    protected function adjustSubType()
+    {
+        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+            $this->subscription_type = $this->container->getSubscriptionType();
+        } else {
+            $this->subscription_type = IL_CRS_SUBSCRIPTION_CONFIRMATION;
+            $this->registration->setSubType(Registration::subConfirmation);
+        }
+    }
+    // fau.    
     public function executeCommand()
     {
         if ($this->getWaitingList()->isOnList($this->user->getId())) {
@@ -311,21 +327,35 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             return;
         }
 
-        switch ($this->container->getSubscriptionType()) {
+        // fau: studyCond - check actual subscription type
+        switch ($this->subscription_type) {
+            // fau.
             case ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT:
 
 // fau: fairSub#39 - allow "request" info if waiting list is active
 // fau.
 
-                $txt = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
-                $txt->setValue($this->lng->txt('crs_info_reg_direct'));
+                // fau: studyCond - set direct subscription info for studycond
+                $txt = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+                if ($this->has_studycond) {
+                    $txt->setHtml(sprintf($this->lng->txt('crs_subscription_options_direct_studycond'), $this->describe_studycond));
+                } else {
+                    $txt->setHtml($this->lng->txt('crs_subscription_options_direct'));
+                }
+                // fau.
 
                 $this->form->addItem($txt);
                 break;
 
             case ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD:
-                $txt = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
-                $txt->setValue($this->lng->txt('crs_subscription_options_password'));
+                // fau: studyCond - set password subscription info for studycond
+                $txt = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+                if ($this->has_studycond) {
+                    $txt->setHtml(sprintf($this->lng->txt('crs_subscription_options_password_studycond'), $this->describe_studycond));
+                } else {
+                    $txt->setHtml($this->lng->txt('crs_subscription_options_password'));
+                }
+                // fau.
 
                 $pass = new ilTextInputGUI($this->lng->txt('passwd'), 'grp_passw');
                 $pass->setInputType('password');
@@ -340,12 +370,18 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
             case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
 
-// fau: fairSub#40 - allow "request" info if waiting list is active
-// fau.
-
-                $txt = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
-                $txt->setValue($this->lng->txt('crs_subscription_options_confirmation'));
-
+            // fau: fairSub#40 - allow "request" info if waiting list is active
+            // fau.
+            // fau: studyCond - set confirmation subscription info for studycond
+            $txt = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+            if ($this->has_studycond and $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_DIRECT) {
+                $txt->setHtml(sprintf($this->lng->txt('crs_subscription_options_direct_studycond'), $this->describe_studycond));
+            } elseif ($this->has_studycond and $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_PASSWORD) {
+                $txt->setHtml(sprintf($this->lng->txt('crs_subscription_options_password_studycond'), $this->describe_studycond));
+            } else {
+                $txt->setHtml($this->lng->txt('crs_subscription_options_confirmation'));
+            }
+            // fau.
                 $sub = new ilTextAreaInputGUI($this->lng->txt('crs_reg_subject'), 'subject');
                 $sub->setInfo($this->lng->txt('crs_info_reg_confirmation'));
                 $sub->setCols(40);
@@ -392,7 +428,10 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             $this->join_error = $this->lng->txt('mem_error_preconditions');
             return false;
         }
-        if ($this->container->getSubscriptionType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD) {
+
+        // fau: studyCond - check actual subscription type        
+        if ($this->subscription_type == ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD) {
+            // fau.
             $pass = $this->http->wrapper()->post()->retrieve(
                 'grp_passw',
                 $this->refinery->kindlyTo()->string()
@@ -406,10 +445,12 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 return false;
             }
         }
-        if (!$this->validateCustomFields()) {
-            $this->join_error = $this->lng->txt('fill_out_all_required_fields');
-            return false;
-        }
+        // fau: courseUdf - custom fields are validate with the form
+        // if (!$this->validateCustomFields()) {
+        //    $this->join_error = $this->lng->txt('fill_out_all_required_fields');
+        //    return false;
+        //}
+        // fau.
         if (!$this->validateAgreement()) {
             $this->join_error = $this->lng->txt('crs_agreement_required');
             return false;

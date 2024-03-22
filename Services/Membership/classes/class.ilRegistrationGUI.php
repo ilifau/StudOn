@@ -55,6 +55,15 @@ abstract class ilRegistrationGUI
     protected Registration $registration;
     // fau.
 
+    // fau: studyCond - class variables
+    protected $matches_studycond = true;
+    protected $describe_studycond = "";
+    // fau.
+
+    // fau: campoCheck - class vatiable
+    protected $matches_restrictions = true;
+    // fau.    
+
     public function __construct(ilObject $a_container)
     {
         global $DIC;
@@ -79,6 +88,16 @@ abstract class ilRegistrationGUI
         $this->obj_id = ilObject::_lookupObjId($this->ref_id);
         $this->type = ilObject::_lookupType($this->obj_id);
 
+        // fau: studyCond - define matches_studycond, describe_studycond
+        $this->has_studycond = $DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->obj_id);
+        if ($this->has_studycond) {
+            $this->matches_studycond = $DIC->fau()->cond()->soft()->check($this->obj_id, $DIC->user()->getId());
+            $this->describe_studycond = $DIC->fau()->cond()->soft()->getConditionsAsText($this->obj_id);
+        } else {
+            $this->matches_studycond = true;
+            $this->describe_studycond = "";
+        }
+        // fau.        
         $this->initParticipants();
         $this->initWaitingList();
 
@@ -91,6 +110,14 @@ abstract class ilRegistrationGUI
         $this->refinery = $DIC->refinery();
     }
 
+    // fau: studyCond - adjust the subscription type based on soft conditions
+    // fau: campoCheck - adjust the subscription type based on soft conditions
+    protected function adjustSubType()
+    {
+        // implement in child classes
+    }
+    // fau.
+    
     public function getContainer(): ilObject
     {
         return $this->container;
