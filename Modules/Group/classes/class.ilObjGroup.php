@@ -72,6 +72,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     private int $reg_max_members = 0;
     // fau: fairSub - change default setting for waiting list
     protected bool $waiting_list = true;
+    private ?ilGroupWaitingList $waiting_list_obj = null;
     // fau.
     private bool $auto_fill_from_waiting = false;
     private ?ilDate $leave_end = null;
@@ -1665,4 +1666,19 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         );
         return $this->items[(int) $a_admin_panel_enabled][(int) $a_include_side_block];
     }
+
+    // fau: new functions initWaitingList(), getWaitingList
+    public function initWaitingList()
+    {
+        $this->waiting_list_obj = new ilGroupWaitingList($this->getId());
+    }
+
+    public function getWaitingList() : ilGroupWaitingList
+    {
+        if (!$this->waiting_list_obj instanceof ilGroupWaitingList) {
+            $this->initWaitingList();
+        }
+        return $this->waiting_list_obj;
+    }
+    // fau.    
 } //END class.ilObjGroup

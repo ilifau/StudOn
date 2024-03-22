@@ -13,6 +13,7 @@ use ilObjRole;
 use ilFAUAppEventListener;
 use ilParticipants;
 use FAU\Study\Data\Term;
+use ilCourseConstants;
 
 class Transfer
 {
@@ -135,8 +136,8 @@ $assigned[] = $assign_groups[$ref_id];
         $parent->setImportId(null);
         $parent->setOfflineStatus(true);
         $parent->setDescription($this->dic->language()->txt('fau_transfer_source_desc'));
-        $parent->setSubscriptionType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
-        $parent->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
+        $parent->setSubscriptionType(ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED);
+        $parent->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED);
         $parent->update();
 
         if ($delete_parent) {

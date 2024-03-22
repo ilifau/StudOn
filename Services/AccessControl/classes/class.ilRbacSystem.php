@@ -182,6 +182,7 @@ class ilRbacSystem
         foreach ($operations as $operation) {
             // fau: studyCond - add check for studydata based access
             // a grant overrules the rbac access
+            global $DIC;
             if ($operation == "read" or $operation == "visible") {
                 if ($DIC->fau()->cond()->soft()->checkAccess($a_ref_id, $a_user_id)) {
                     continue;

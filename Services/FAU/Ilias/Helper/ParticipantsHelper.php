@@ -6,6 +6,7 @@ use ilMailMimeSenderUserById;
 use ilObjUser;
 use ilUtil;
 use ilMimeMail;
+use ilWaitingList;
 
 /**
  * trait for providing additional ilParticipants methods
@@ -121,5 +122,41 @@ trait ParticipantsHelper
             $mmail->Send();
         }
     }
-    // fau.    
+    // fau.
+    /**
+     * fau: heavySub - Notify the success of adding a user to a role with limited members
+     * fau: fairSub - Notify the success of adding a user to a role with limited members
+     *
+     * @access public
+     * @param 	int $a_usr_id	user id
+     * @param 	int $a_role		role IL_CRS_MEMBER | IL_GRP_MEMBER
+     */
+
+     public function addLimitedSuccess(int $a_usr_id, int $a_role)
+     {
+         global $DIC;
+ 
+         switch ($a_role) {
+             case self::IL_CRS_MEMBER:
+             case self::IL_GRP_MEMBER:
+                 $this->members[] = $a_usr_id;
+                 break;
+         }
+         $this->participants[] = $a_usr_id;
+ 
+         // Delete subscription request
+         $this->deleteSubscriber($a_usr_id);
+         ilWaitingList::deleteUserEntry($a_usr_id, $this->obj_id);
+ 
+         $DIC->event()->raise(
+             $this->getComponent(),
+             "addParticipant",
+             array(
+                 'obj_id' => $this->obj_id,
+                 'usr_id' => $a_usr_id,
+                 'role_id' => $a_role,
+                 'type' => 'crs')
+         );
+     }
+     // fau.            
 }

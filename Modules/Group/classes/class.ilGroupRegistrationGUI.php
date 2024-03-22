@@ -217,6 +217,8 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
             $waiting_list = $this->getWaitingList();
             if ($this->isWaitingListActive()) {
                 // fau.
+                global $DIC;
+                $ilUser = $DIC['ilUser'];
                 if ($waiting_list->isOnList($ilUser->getId())) {
                     $tpl->setVariable('TXT_WAIT', $this->lng->txt('mem_waiting_list_position'));
                     // fau: fairSub - show effective position and other sharing users
@@ -470,7 +472,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         // set agreement accepted
         $this->setAccepted(true);
 
-        $this->registration->doRegistration(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) (int) $_POST['selected_module']);
+        $this->registration->doRegistration(ilUtil::stripSlashes((string) $_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
 
         // get the link to the upper container
         $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id",
@@ -479,7 +481,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
         switch ($this->registration->getRegistrationAction()) {
             case Registration::notifyAdded:
-                if (!$_SESSION["pending_goto"]) {
+                if (!isset($_SESSION["pending_goto"]) || !$_SESSION["pending_goto"]) {
                     $this->tpl->setOnScreenMessage('success', $this->lng->txt("grp_registration_completed"), true);
                     $this->ctrl->returnToParent($this);
                 } else {

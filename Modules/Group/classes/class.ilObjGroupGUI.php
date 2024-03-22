@@ -53,7 +53,6 @@ class ilObjGroupGUI extends ilContainerGUI
     // fau: fairSub - use helper classes 
     use ObjGroupGUIHelper;
     // fau. 
-
     protected bool $show_tracking = false;
 
     private GlobalHttpState $http;
@@ -1857,6 +1856,7 @@ class ilObjGroupGUI extends ilContainerGUI
 
 
             // fau: studyCond - add studycond setting
+            global $DIC;
             $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/FAU/Cond/GUI");
             if ($a_mode == 'edit') {
                 $stpl->setCurrentBlock('condition');

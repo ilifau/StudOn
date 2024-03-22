@@ -74,10 +74,6 @@ class ilObjCourseGUI extends ilContainerGUI
     protected ilHelpGUI $help;
     protected ilNavigationHistory $navigation_history;
 
-    // fau: studyCond
-    private bool $update_for_memcond = true;
-    // fau.
-
     public function __construct($a_data, int $a_id, bool $a_call_by_reference = true, bool $a_prepare_output = true)
     {
         global $DIC;
@@ -424,7 +420,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $info->addProperty($this->lng->txt("crs_info_reg"), $subscription_text . $txt);
         // fau.
 
-        if ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+        if ($this->object->getSubscriptionLimitationType() != ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             if ($this->object->getSubscriptionUnlimitedStatus()) {
                 $info->addProperty(
                     $this->lng->txt("crs_reg_until"),
