@@ -1215,7 +1215,6 @@ class ilObjCourseGUI extends ilContainerGUI
         $opt->addSubItem($rep_sel);
         if ($ref_id = $this->object->getSubscriptionRefId()) {
             $rep_sel->setValue($ref_id);
-            require_once('Services/Locator/classes/class.ilLocatorGUI.php');
             $locator = new ilLocatorGUI();
             $locator->setTextOnly(true);
             $locator->addContextItems($ref_id);

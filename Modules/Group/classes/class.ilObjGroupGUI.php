@@ -20,7 +20,8 @@ declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
-
+use FAU\Ilias\Helper\ContainerHelper;
+use FAU\Ilias\Helper\ObjGroupGUIHelper;
 /**
  * Class ilObjGroupGUI
  *
@@ -49,8 +50,10 @@ use ILIAS\Refinery\Factory;
  */
 class ilObjGroupGUI extends ilContainerGUI
 {
-    use FAU\Ilias\Helper\ObjGroupGUIHelper;
-    
+    // fau: fairSub - use helper classes 
+    use ObjGroupGUIHelper;
+    // fau. 
+
     protected bool $show_tracking = false;
 
     private GlobalHttpState $http;
@@ -1640,18 +1643,16 @@ class ilObjGroupGUI extends ilContainerGUI
             $reg_type->setValue((string) $this->object->getRegistrationType());
 
             // fau: objectSub - add option for reference to subscription object
-            require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
             $opt_obj = new ilRadioOption($this->lng->txt('sub_separate_object'), (string) ilGroupConstants::GRP_REGISTRATION_OBJECT);
             $opt_obj->setInfo($this->lng->txt('sub_separate_object_info'));
             $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
             $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
             $rep_sel->setClickableTypes(array('xcos'));
             $rep_sel->setRequired(true);
-            $rep_sel->setParent($form);
+            $rep_sel->setParentForm($form);
             $opt_obj->addSubItem($rep_sel);
             if ($ref_id = $this->object->getRegistrationRefId()) {
                 $rep_sel->setValue($ref_id);
-                require_once('Services/Locator/classes/class.ilLocatorGUI.php');
                 $locator = new ilLocatorGUI();
                 $locator->setTextOnly(true);
                 $locator->addContextItems($ref_id);
@@ -1660,7 +1661,8 @@ class ilObjGroupGUI extends ilContainerGUI
                 $opt_obj->addSubItem($rep_loc);
             }
             $reg_type->addOption($opt_obj);
-            // fau.            
+            // fau.    
+
             $opt_dir = new ilRadioOption(
                 $this->lng->txt('grp_reg_direct'),
                 (string) ilGroupConstants::GRP_REGISTRATION_DIRECT

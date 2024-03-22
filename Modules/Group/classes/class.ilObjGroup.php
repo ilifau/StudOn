@@ -31,6 +31,7 @@ declare(strict_types=1);
 class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 {
     use \FAU\Ilias\Helper\ObjGroupHelper;
+    use FAU\Ilias\Helper\ContainerHelper;
 
     public const CAL_REG_START = 1;
     public const CAL_REG_END = 2;
