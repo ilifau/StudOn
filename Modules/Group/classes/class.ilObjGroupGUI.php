@@ -617,15 +617,15 @@ class ilObjGroupGUI extends ilContainerGUI
             $old_subscription_fair = $this->object->getSubscriptionFair();
             // fau.
 
-            $this->object->setTitle(ilUtil::stripSlashes($form->getInput('title')));
-            $this->object->setDescription(ilUtil::stripSlashes($form->getInput('desc')));
-            $this->object->setGroupType(ilUtil::stripSlashes($form->getInput('grp_type')));
+            $this->object->setTitle($form->getInput('title'));
+            $this->object->setDescription($form->getInput('desc'));
+            $this->object->setGroupType((int) $form->getInput('grp_type'));
             // fau: paraSub - don't set registration type for parallel groups
             if (!$this->object->isParallelGroup()) {
-                $this->object->setRegistrationType(ilUtil::stripSlashes($form->getInput('registration_type')));
-            $this->object->setPassword(ilUtil::stripSlashes($form->getInput('password')));
-            $this->object->enableUnlimitedRegistration((bool) !$form->getInput('reg_limit_time'));
-}
+                $this->object->setRegistrationType((int) $form->getInput('registration_type'));
+                $this->object->setPassword($form->getInput('password'));
+                $this->object->enableUnlimitedRegistration(!$form->getInput('reg_limit_time'));
+            }
             // fau.
             $this->object->enableMembershipLimitation((bool) $form->getInput('registration_membership_limited'));
             $this->object->setMinMembers((int) $form->getInput('registration_min_members'));
@@ -704,9 +704,10 @@ class ilObjGroupGUI extends ilContainerGUI
             // fau.
 
             // fau: fairSub - validate group object
+            global $DIC;
+            $ilErr = $DIC['ilErr'];
+            $this->error->setMessage('');
             if (!$this->object->validate()) {
-                global $DIC;
-                $ilErr = $DIC['ilErr'];
                 $this->tpl->setOnScreenMessage('failure', $ilErr->getMessage());
                 $form->setValuesByPost();
                 $this->editObject($form);
