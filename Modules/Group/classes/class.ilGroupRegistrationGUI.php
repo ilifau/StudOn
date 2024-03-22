@@ -37,10 +37,28 @@ use FAU\Ilias\Registration;
 */
 class ilGroupRegistrationGUI extends ilRegistrationGUI
 {
+    
     public function __construct(ilObject $a_container)
     {
         parent::__construct($a_container);
+
+        // fau: studyCond - call adjustSubType
+        $this->adjustSubType();
+        // fau.
     }
+
+    // fau: studyCond - adjust the subscription type based on soft conditions
+    // fau: campoCheck - adjust the subscription type based on soft conditions
+    protected function adjustSubType()
+    {
+        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getRegistrationType() == GRP_REGISTRATION_DEACTIVATED) {
+            $this->registration_type = $this->container->getRegistrationType();
+        } else {
+            $this->registration_type = GRP_REGISTRATION_REQUEST;
+            $this->registration->setSubType(Registration::subConfirmation);
+        }
+    }
+    // fau.    
 
     public function executeCommand(): void
     {
@@ -277,7 +295,9 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         }
         // fau.        
 
-        switch ($this->container->getRegistrationType()) {
+        // fau: studyCond - check actual registration type
+        switch ($this->registration_type) {
+            // fau.
             case ilGroupConstants::GRP_REGISTRATION_DEACTIVATED:
                 $reg = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
                 $reg->setValue($this->lng->txt('grp_reg_disabled'));
@@ -290,9 +310,14 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 break;
 
             case ilGroupConstants::GRP_REGISTRATION_PASSWORD:
-                $txt = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
-                $txt->setValue($this->lng->txt('grp_pass_request'));
-
+                // fau: studyCond - set password subscription info for studycond
+                $txt = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+                if ($this->has_studycond) {
+                    $txt->setHtml(sprintf($this->lng->txt('grp_pass_request_studycond'), $this->describe_studycond));
+                } else {
+                    $txt->setHtml($this->lng->txt('grp_pass_request'));
+                }
+                // fau.
 
                 $pass = new ilTextInputGUI($this->lng->txt('passwd'), 'grp_passw');
                 $pass->setInputType('password');
@@ -397,7 +422,9 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
             $this->join_error = $this->lng->txt('mem_error_preconditions');
             return false;
         }
-        if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_PASSWORD) {
+        // fau: studyCond - check actual registration type
+        if ($this->registration_type == ilGroupConstants::GRP_REGISTRATION_PASSWORD) {
+            // fau.
             $password = '';
             if ($this->http->wrapper()->post()->has('grp_passw')) {
                 $password = $this->http->wrapper()->post()->retrieve(

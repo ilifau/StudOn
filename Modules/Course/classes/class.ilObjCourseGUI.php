@@ -43,7 +43,8 @@ use FAU\Ilias\Helper\WaitingListHelper;
  * @ilCtrl_Calls ilObjCourseGUI: ilLOPageGUI, ilObjectMetaDataGUI, ilNewsTimelineGUI, ilContainerNewsSettingsGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilCourseMembershipGUI, ilPropertyFormGUI, ilContainerSkillGUI, ilCalendarPresentationGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilMemberExportSettingsGUI
- * @ilCtrl_Calls ilObjCourseGUI: ilLTIProviderObjectSettingGUI, ilObjectTranslationGUI, ilBookingGatewayGUI, ilRepositoryTrashGUI
+ * @ilCtrl_Calls ilObjCourseGUI: ilLTIProviderObjectSettingGUI, ilObjectTranslationGUI, ilBookingGatewayGUI, ilRepUtilGUI
+ *
  * fau: studyCond - added ilStudyCondGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
  * fau.
@@ -72,6 +73,10 @@ class ilObjCourseGUI extends ilContainerGUI
     protected Factory $refinery;
     protected ilHelpGUI $help;
     protected ilNavigationHistory $navigation_history;
+
+    // fau: studyCond
+    private bool $update_for_memcond = true;
+    // fau.
 
     public function __construct($a_data, int $a_id, bool $a_call_by_reference = true, bool $a_prepare_output = true)
     {
@@ -374,6 +379,33 @@ class ilObjCourseGUI extends ilContainerGUI
                     break;
                 }
                 // fau.
+                // fau: studyCond - generate text for suscription with condition
+                global $DIC;
+                if ($DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->object->getId())) {
+                    $ctext = $DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId());
+                    switch ($this->object->getSubscriptionType()) {
+                        case ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT:
+                            $subscription_text = sprintf($this->lng->txt('crs_subscription_options_direct_studycond'), $ctext);
+                            break;
+                        case ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD:
+                            $subscription_text = sprintf($this->lng->txt('crs_subscription_options_password_studycond'), $ctext);
+                            break;
+
+                    case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
+                            $subscription_text = "";
+                            break;
+                    }
+                    $ilUser = $DIC->user();
+                    if (!$DIC->fau()->cond()->soft()->check($this->object->getId(), $ilUser->getId())) {
+                        $subscription_type = $this->object->getSubscriptionType();
+                    } else {
+                        $subscription_type = ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION;
+                    }
+                } else {
+                    $subscription_text = "";
+                    $subscription_type = $this->object->getSubscriptionType();
+                }
+                // fau.                
                 switch ($this->object->getSubscriptionType()) {
                     case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
                         $txt = $this->lng->txt("crs_info_reg_confirmation");
@@ -388,8 +420,11 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         // subscription
-        $info->addProperty($this->lng->txt("crs_info_reg"), $txt);
-        if ($this->object->getSubscriptionLimitationType() != ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+        // fau: studyCond - add text for subscription with condition
+        $info->addProperty($this->lng->txt("crs_info_reg"), $subscription_text . $txt);
+        // fau.
+
+        if ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             if ($this->object->getSubscriptionUnlimitedStatus()) {
                 $info->addProperty(
                     $this->lng->txt("crs_reg_until"),
@@ -1034,7 +1069,12 @@ class ilObjCourseGUI extends ilContainerGUI
 
         ilChangeEvent::_recordWriteEvent($this->object->getId(), $this->user->getId(), 'update');
         ilChangeEvent::_catchupWriteEvents($this->object->getId(), $this->user->getId());
-
+        // fau: studyCond - eventually redirect to condition settings after update
+        if ($this->update_for_memcond) {
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
+            $this->ctrl->redirectByClass('ilstudycondgui');
+        }
+        // fau.
         // lp sync confirmation required
         if ($show_lp_sync_confirmation) {
             $this->confirmLPSync();
@@ -1092,7 +1132,16 @@ class ilObjCourseGUI extends ilContainerGUI
         return $subs;
     }
 
-    protected function confirmLPSync(): void
+    
+    // fau: studyCond - new function updateForMemcond
+    public function updateForMemcondObject()
+    {
+        $this->update_for_memcond = true;
+        $this->updateObject();
+    }
+    // fau.
+
+    protected function confirmLPSync()
     {
         $cgui = new ilConfirmationGUI();
         $cgui->setFormAction($this->ctrl->getFormAction($this, "setLPSync"));
@@ -1311,6 +1360,19 @@ class ilObjCourseGUI extends ilContainerGUI
             $cancel->setDate($cancel_end);
         }
         $form->addItem($cancel);
+
+        // fau: studyCond - add studycond setting
+        global $DIC;
+        $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/FAU/Cond/GUI");
+        $stpl->setCurrentBlock('condition');
+        $stpl->setVariable("CONDITION_TEXT", nl2br($DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId())));
+        $stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilstudycondgui', ''));
+        $stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
+        $stpl->parseCurrentBlock();
+        $stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info"));
+        $studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
+        $studycond->setHtml($stpl->get());
+        $form->addItem($studycond);        
 
         // Max members
         $lim = new ilCheckboxInputGUI(

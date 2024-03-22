@@ -844,7 +844,14 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->tpl->setContent($confirm->getHTML());
         } else {
             $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
-            $this->ctrl->redirect($this, 'edit');
+            // fau: studyCond - eventually redirect to condition settings after update
+            if ($this->update_for_memcond) {
+                $this->ctrl->redirectByClass('ilstudycondgui');
+            } else {
+                $this->ctrl->redirect($this, 'edit');
+            }
+            // fau.
+
         }
     }
 
@@ -866,6 +873,14 @@ class ilObjGroupGUI extends ilContainerGUI
 
         return $subs;
     }
+
+    // fau: studyCond - new function updateForMemcond
+    public function updateForMemcondObject()
+    {
+        $this->update_for_memcond = true;
+        $this->updateObject();
+    }
+    // fau.    
 
     /**
     * Edit Map Settings
@@ -1390,29 +1405,59 @@ class ilObjGroupGUI extends ilContainerGUI
         }
         // fau.
         else {
-            switch ($this->object->getRegistrationType()) {
+            // fau: studyCond - generate text for suscription with condition
+            global $DIC;
+            if ($DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->object->getId())) {
+                $ctext = $DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId());
+                switch ($this->object->getRegistrationType()) {
+                    case ilGroupConstants::GRP_REGISTRATION_DIRECT:
+                        $registration_text = sprintf($this->lng->txt('group_req_direct_studycond'), $ctext);
+                        break;
+                    case ilGroupConstants::GRP_REGISTRATION_PASSWORD:
+                        $registration_text = sprintf($this->lng->txt('grp_pass_request_studycond'), $ctext);
+                        break;
+
+                    default:
+                        $registration_text = "";
+                        break;
+                }
+                $ilUser = $DIC->user();
+                if (!$DIC->fau()->cond()->soft()->check($this->object->getId(), $ilUser->getId())) {
+                    $registration_type = $this->object->getRegistrationType();
+                } else {
+                    $registration_type = ilGroupConstants::GRP_REGISTRATION_REQUEST;
+                }
+            } else {
+                $registration_text = "";
+                $registration_type = $this->object->getRegistrationType();
+            }
+            // fau.
+
+            // fau: studyCond - use registration type and text from above
+            switch ($registration_type) {
                 case ilGroupConstants::GRP_REGISTRATION_DIRECT:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_direct_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_direct_info_screen')
                     );
                     break;
-
+                                                       
                 case ilGroupConstants::GRP_REGISTRATION_REQUEST:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_req_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_req_info_screen')
                     );
                     break;
-
+    
                 case ilGroupConstants::GRP_REGISTRATION_PASSWORD:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_passwd_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_passwd_info_screen')
                     );
                     break;
-
+                    
             }
+            // fau.
             /*
             $info->addProperty($this->lng->txt('group_registration_time'),
                 ilDatePresentation::formatPeriod(
@@ -1810,6 +1855,26 @@ class ilObjGroupGUI extends ilContainerGUI
 
             $form->addItem($lim);
 
+
+            // fau: studyCond - add studycond setting
+            $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/FAU/Cond/GUI");
+            if ($a_mode == 'edit') {
+                $stpl->setCurrentBlock('condition');
+                $stpl->setVariable("CONDITION_TEXT", nl2br($DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId())));
+                $stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilstudycondgui', ''));
+                $stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
+                $stpl->parseCurrentBlock();
+                $stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info"));
+            } else {
+                $stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info_create"));
+            }
+            $studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
+            $studycond->setHtml($stpl->get());
+
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($studycond);
+            }
+            // fau.
 
             // Group presentation
             $parent_membership_ref_id = 0;
