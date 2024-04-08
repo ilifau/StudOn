@@ -363,6 +363,9 @@ class ilObjCourseGUI extends ilContainerGUI
         $info->addAccessPeriodProperty();
 
         $txt = '';
+        // fau: studyCond - generate text for suscription with condition
+        $subscription_text = "";
+        // fau.
         switch ($this->object->getSubscriptionLimitationType()) {
             case ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED:
                 $txt = $this->lng->txt("crs_info_reg_deactivated");
