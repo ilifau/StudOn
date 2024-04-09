@@ -197,14 +197,13 @@ class ilObjGroupAccess extends ilObjectAccess
     }
 
     // fau: showMemLimit - add ref_id as parameter for checking write access
-    public static function lookupRegistrationInfo(int $a_obj_id, $a_ref_id = 0): array
+    public static function lookupRegistrationInfo(int $a_obj_id, int $a_ref_id = 0): array
     // fau.
     {
         global $DIC;
 
         $ilDB = $DIC->database();
         $lng = $DIC->language();
-
 
         // fau: fairSub - query for fair period
         // fau: paraSub - query for waiting list
