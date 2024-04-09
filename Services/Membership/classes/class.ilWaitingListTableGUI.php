@@ -167,6 +167,16 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 'txt' => $this->lng->txt('login')
             ];
         }
+        
+        // fau: paraSub - add groups column
+        global $DIC;
+        if ( $DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getRepositoryObject())) {
+            self::$all_columns['groups'] = [
+                'default' => 1,
+                'txt' => $this->lng->txt('fau_selected_groups')
+            ];
+        }
+        // fau.        
         // fau: fairSub#100 - add subject column
         self::$all_columns['subject'] = [
             'default' => 1,
