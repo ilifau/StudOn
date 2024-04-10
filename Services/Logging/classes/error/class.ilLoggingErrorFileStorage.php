@@ -14,7 +14,8 @@ class ilLoggingErrorFileStorage
     const KEY_SPACE = 25;
     const FILE_FORMAT = ".log";
 
-
+    /** @var list<string> */
+    private $exclusion_list = [];
 
     // fau: logErrorFile - add error code as parameter
     public function __construct($inspector, $file_path, $file_name, $err_code = 'unknown')
@@ -25,6 +26,16 @@ class ilLoggingErrorFileStorage
         $this->err_code = $err_code;
     }
     // fau.
+
+    /**
+     * @param list<string> $exclusion_list
+     */
+    public function withExclusionList(array $exclusion_list) : self
+    {
+        $clone = clone $this;
+        $clone->exclusion_list = $exclusion_list;
+        return $clone;
+    }
 
     protected function createDir($path)
     {
@@ -124,7 +135,8 @@ class ilLoggingErrorFileStorage
         $post = $_POST;
         $server = $_SERVER;
 
-        $post = $this->hidePassword($post);
+        $post = $this->hideSensitiveData($post);
+        $server = $this->hideSensitiveData($server);
         $server = $this->shortenPHPSessionId($server);
 
         return array( "GET Data" => $_GET
@@ -138,19 +150,22 @@ class ilLoggingErrorFileStorage
     }
 
     /**
-     * Replace passwort from post array with security message
-     *
-     * @param array $post
-     *
-     * @return array
+     * @param array<string, mixed> $super_global
+     * @return array<string, mixed>
      */
-    private function hidePassword(array $post)
+    private function hideSensitiveData(array $super_global) : array
     {
-        if (isset($post["password"])) {
-            $post["password"] = "REMOVED FOR SECURITY";
+        foreach ($this->exclusion_list as $parameter) {
+            if (isset($super_global[$parameter])) {
+                $super_global[$parameter] = 'REMOVED FOR SECURITY';
+            }
+
+            if (isset($super_global['post_vars'][$parameter])) {
+                $super_global['post_vars'][$parameter] = 'REMOVED FOR SECURITY';
+            }
         }
 
-        return $post;
+        return $super_global;
     }
 
     /**

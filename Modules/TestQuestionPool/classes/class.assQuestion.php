@@ -135,6 +135,11 @@ abstract class assQuestion
     protected $db;
 
     /**
+     * @var ILIAS\Refinery\Factory
+     */
+    protected $refinery;
+
+    /**
     * Contains the output type of a question
     *
     * @var integer
@@ -303,6 +308,7 @@ abstract class assQuestion
         $owner = -1,
         $question = ""
     ) {
+        /** @var ILIAS\DI\Container $DIC */
         global $DIC;
         $ilias = $DIC['ilias'];
         $lng = $DIC['lng'];
@@ -312,11 +318,13 @@ abstract class assQuestion
         }
         // fau.
         $ilDB = $DIC['ilDB'];
+        $refinery = $DIC['refinery'];
 
         $this->ilias = $ilias;
         $this->lng = $lng;
         $this->tpl = $tpl;
         $this->db = $ilDB;
+        $this->refinery = $refinery;
 
         $this->original_id = null;
         $this->title = $title;
@@ -858,6 +866,11 @@ abstract class assQuestion
         return $this->outputType;
     }
 
+    public function getDescriptionForHTMLOutput() : string
+    {
+        return $this->refinery->string()->stripTags()->transform($this->comment ?? '');
+    }
+
     /**
     * Returns true if the question type supports JavaScript output
     *
@@ -904,6 +917,11 @@ abstract class assQuestion
     public function getAuthor()
     {
         return $this->author;
+    }
+
+    public function getAuthorForHTMLOutput() : string
+    {
+        return $this->refinery->string()->stripTags()->transform($this->author);
     }
 
     /**

@@ -7,6 +7,8 @@ require_once 'Modules/Test/interfaces/interface.ilMarkSchemaAware.php';
 require_once 'Modules/Test/interfaces/interface.ilEctsGradesEnabled.php';
 require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssQuestionType.php';
 
+use ILIAS\Refinery\Factory as Refinery;
+
 /**
  * Class ilObjTest
  *
@@ -624,6 +626,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         global $DIC;
         $ilUser = $DIC['ilUser'];
         $lng = $DIC['lng'];
+        $this->refinery = $DIC['refinery'];
         $this->type = "tst";
 
         $lng->loadLanguageModule("assessment");
@@ -2046,6 +2049,8 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $ilUser = $DIC['ilUser'];
         $ilDB = $DIC['ilDB'];
 
+        $tags_trafo = $this->refinery->string()->stripTags();
+
         $this->questions = array();
         if ($this->isRandomTest()) {
             if (strcmp($active_id, "") == 0) {
@@ -3435,6 +3440,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $testSequenceFactory = new ilTestSequenceFactory(
             $DIC->database(),
             $DIC->language(),
+            $DIC['refinery'],
             $DIC['ilPluginAdmin'],
             $this
         );
@@ -4169,6 +4175,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $tree = $DIC['tree'];
         $ilDB = $DIC['ilDB'];
         $lng = $DIC['lng'];
+        $refinery = $DIC['refinery'];
         $ilPluginAdmin = $DIC['ilPluginAdmin'];
 
         $results = $this->getResultsForActiveId($active_id);
@@ -4182,7 +4189,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $testSession = $testSessionFactory->getSession($active_id);
 
         require_once 'Modules/Test/classes/class.ilTestSequenceFactory.php';
-        $testSequenceFactory = new ilTestSequenceFactory($ilDB, $lng, $ilPluginAdmin, $this);
+        $testSequenceFactory = new ilTestSequenceFactory($ilDB, $lng, $refinery, $ilPluginAdmin, $this);
         $testSequence = $testSequenceFactory->getSequenceByActiveIdAndPass($active_id, $pass);
 
         if ($this->isDynamicTest()) {
@@ -5052,7 +5059,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
                     $dynamicQuestionSetConfig->loadFromDb();
 
                     require_once 'Modules/Test/classes/class.ilTestSequenceFactory.php';
-                    $testSequenceFactory = new ilTestSequenceFactory($DIC->database(), $DIC->language(), $DIC['ilPluginAdmin'], $this);
+                    $testSequenceFactory = new ilTestSequenceFactory($DIC->database(), $DIC->language(), $DIC['refinery'], $DIC['ilPluginAdmin'], $this);
                     $testSequence = $testSequenceFactory->getSequenceByActiveIdAndPass($active_id, $testpass);
 
                     $testSequence->loadFromDb($dynamicQuestionSetConfig);
@@ -8378,6 +8385,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
             $tree = $DIC['tree'];
             $ilDB = $DIC['ilDB'];
             $lng = $DIC['lng'];
+            $refinery = $DIC['refinery'];
             $ilPluginAdmin = $DIC['ilPluginAdmin'];
 
             require_once 'Modules/Test/classes/class.ilTestSessionFactory.php';
@@ -8385,7 +8393,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
             $testSession = $testSessionFactory->getSession($active_id);
 
             require_once 'Modules/Test/classes/class.ilTestSequenceFactory.php';
-            $testSequenceFactory = new ilTestSequenceFactory($ilDB, $lng, $ilPluginAdmin, $this);
+            $testSequenceFactory = new ilTestSequenceFactory($ilDB, $lng, $refinery, $ilPluginAdmin, $this);
             $testSequence = $testSequenceFactory->getSequenceByTestSession($testSession);
 
             require_once 'Modules/Test/classes/class.ilObjTestDynamicQuestionSetConfig.php';
@@ -8641,6 +8649,8 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         global $DIC;
         $ilDB = $DIC['ilDB'];
 
+        $tags_trafo = $this->refinery->string()->stripTags();
+
         $query = "
 			SELECT		questions.*,
 						questtypes.type_tag,
@@ -8673,11 +8683,12 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $questions = array();
 
         while ($row = $ilDB->fetchAssoc($query_result)) {
-            $question = $row;
+            $row['title'] = $tags_trafo->transform($row['title']);
+            $row['description'] = $tags_trafo->transform($row['description'] !== '' && $row['description'] !== null ? $row['description'] : '&nbsp;');
+            $row['author'] = $tags_trafo->transform($row['author']);
+            $row['obligationPossible'] = self::isQuestionObligationPossible($row['question_id']);
 
-            $question['obligationPossible'] = self::isQuestionObligationPossible($row['question_id']);
-
-            $questions[] = $question;
+            $questions[] = $row;
         }
 
         return $questions;
@@ -12314,6 +12325,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $lng = $DIC['lng'];
+        $refinery = $DIC['refinery'];
         $ilPluginAdmin = $DIC['ilPluginAdmin'];
 
         /* @var ilObjTest $testOBJ */
@@ -12326,7 +12338,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $testSessionFactory = new ilTestSessionFactory($testOBJ);
 
         require_once 'Modules/Test/classes/class.ilTestSequenceFactory.php';
-        $testSequenceFactory = new ilTestSequenceFactory($ilDB, $lng, $ilPluginAdmin, $testOBJ);
+        $testSequenceFactory = new ilTestSequenceFactory($ilDB, $lng, $refinery, $ilPluginAdmin, $testOBJ);
 
         $testSession = $testSessionFactory->getSession($activeId);
         $testSequence = $testSequenceFactory->getSequenceByActiveIdAndPass($activeId, $testSession->getPass());
@@ -12348,6 +12360,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $lng = $DIC['lng'];
+        $refinery = $DIC['refinery'];
         $ilPluginAdmin = $DIC['ilPluginAdmin'];
 
         /* @var ilObjTest $testOBJ */
@@ -12363,7 +12376,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $testSessionFactory->reset();
 
         require_once 'Modules/Test/classes/class.ilTestSequenceFactory.php';
-        $testSequenceFactory = new ilTestSequenceFactory($ilDB, $lng, $ilPluginAdmin, $testOBJ);
+        $testSequenceFactory = new ilTestSequenceFactory($ilDB, $lng, $refinery, $ilPluginAdmin, $testOBJ);
 
         $testSession = $testSessionFactory->getSession($activeId);
         $testSequence = $testSequenceFactory->getSequenceByActiveIdAndPass($activeId, $testSession->getPass());

@@ -9,8 +9,8 @@
 *
 * @package ilias-core
 */
-define("ILIAS_VERSION", "7.28 2024-02-14");
-define("ILIAS_VERSION_NUMERIC", "7.28");			// since version ILIAS 6 this must be always x.y: x and y are numbers
+define("ILIAS_VERSION", "7.29 2024-03-19");
+define("ILIAS_VERSION_NUMERIC", "7.29");			// since version ILIAS 6 this must be always x.y: x and y are numbers
 
 // fau: versionSuffix - define a version with suffix for including css and js files
 // please increase a suffix number if a css or js file is locally changed!
