@@ -51,10 +51,10 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
     // fau: campoCheck - adjust the subscription type based on soft conditions
     protected function adjustSubType()
     {
-        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getRegistrationType() == GRP_REGISTRATION_DEACTIVATED) {
+        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_DEACTIVATED) {
             $this->registration_type = $this->container->getRegistrationType();
         } else {
-            $this->registration_type = GRP_REGISTRATION_REQUEST;
+            $this->registration_type = ilGroupConstants::GRP_REGISTRATION_REQUEST;
             $this->registration->setSubType(Registration::subConfirmation);
         }
     }
@@ -114,6 +114,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
         if ($this->container->isRegistrationUnlimited()) {
             // fau: fairSub	- add info about fair time for unlimited subscription
+            $suffix = '';
             if ($this->container->inSubscriptionFairTime()) {
                 $suffix = " | " . $this->lng->txt('sub_fair_date') . ': ' . $this->container->getSubscriptionFairDisplay(false);
             }
@@ -339,9 +340,9 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
                 // fau: studyCond - set confirmation subscription info for studycond
                 $txt = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
-                if ($this->has_studycond and $this->container->getRegistrationType() == GRP_REGISTRATION_DIRECT) {
+                if ($this->has_studycond and $this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_DIRECT) {
                     $txt->setHtml(sprintf($this->lng->txt('group_req_direct_studycond'), $this->describe_studycond));
-                } elseif ($this->has_studycond and $this->container->getRegistrationType() == GRP_REGISTRATION_PASSWORD) {
+                } elseif ($this->has_studycond and $this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_PASSWORD) {
                     $txt->setHtml(sprintf($this->lng->txt('grp_pass_request_studycond'), $this->describe_studycond));
                 } else {
                     $txt->setHtml($this->lng->txt('grp_reg_request'));
@@ -552,21 +553,8 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
      */
     protected function isWaitingListActive(): bool
     {
-        static $active = null;
-
-        if ($active !== null) {
-            return $active;
-        }
-        if (!$this->container->getMaxMembers()) {
-            return $active = false;
-        }
-        if (
-                !$this->container->isWaitingListEnabled() or
-                !$this->container->isMembershipLimited()) {
-            return $active = false;
-        }
-
-        $free = max(0, $this->container->getMaxMembers() - $this->participants->getCountMembers());
-        return $active = (!$free or $this->getWaitingList()->getCountUsers());
+        // fau: paraSub - use own function isWaitingListActive()
+        return $this->registration->isWaitingListActive();
+        // fau.
     }
 }

@@ -331,7 +331,7 @@ class Objects
                     'reg_info_max_members' => 0,
                     'reg_info_members' => 0,
                     'reg_info_subscribers' => 0,
-                    'reg_info_waiting_status' => ilWaitingList::REQUEST_NOT_ON_LIST,
+                    'reg_info_waiting_status' => WaitingListConstantsHelper::REQUEST_NOT_ON_LIST,
                     'reg_info_is_assigned' => 0
                 ];
 

@@ -406,7 +406,7 @@ case self::TYPE_ACCEPTED_STILL_WAITING:
     $waiting_list = $this->getWaitingList();
 
     foreach ($this->getRecipients() as $rcp) {
-        $this->initLanguage($rcp);
+        $this->initLanguage((int) $rcp);
         $this->initMail();
 
         $this->setSubject(sprintf($this->getLanguageText('sub_mail_request_grp'), $this->getObjectTitle(true)));

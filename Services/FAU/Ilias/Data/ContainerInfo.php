@@ -253,7 +253,7 @@ class ContainerInfo
      */
     public function isOnWaitingList() : bool
     {
-        return $this->waiting_status != ilWaitingList::REQUEST_NOT_ON_LIST;
+        return $this->waiting_status != WaitingListConstantsHelper::REQUEST_NOT_ON_LIST;
     }
 
 
@@ -339,6 +339,7 @@ class ContainerInfo
     {
         $clone = clone $this;
         $clone->waitingList = $waitingList;
+        $clone->has_waiting_list = true;
         return $clone;
     }
 

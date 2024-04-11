@@ -16,9 +16,13 @@ declare(strict_types=0);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-
+// fau: paraSub - import of registration class
 use FAU\Ilias\Registration;
+// fau.
+
 use FAU\Ilias\Helper\CourseConstantsHelper;
+use FAU\Ilias\Helper\CourseRegistrationGUIHelper;
+
 /**
  * GUI class for course registrations
  * @author       Stefan Meyer <smeyer.ilias@gmx.de>
@@ -28,6 +32,8 @@ use FAU\Ilias\Helper\CourseConstantsHelper;
  */
 class ilCourseRegistrationGUI extends ilRegistrationGUI
 {
+    use CourseRegistrationGUIHelper;
+
     private object $parent_gui;
 
     public function __construct(ilObject $a_container, object $a_parent_gui)
@@ -44,10 +50,10 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     // fau: campoCheck - adjust the subscription type based on soft conditions
     protected function adjustSubType()
     {
-        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getSubscriptionType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             $this->subscription_type = $this->container->getSubscriptionType();
         } else {
-            $this->subscription_type = IL_CRS_SUBSCRIPTION_CONFIRMATION;
+            $this->subscription_type = ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION;
             $this->registration->setSubType(Registration::subConfirmation);
         }
     }
@@ -374,9 +380,9 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             // fau.
             // fau: studyCond - set confirmation subscription info for studycond
             $txt = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
-            if ($this->has_studycond and $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_DIRECT) {
+            if ($this->has_studycond and $this->container->getSubscriptionType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT) {
                 $txt->setHtml(sprintf($this->lng->txt('crs_subscription_options_direct_studycond'), $this->describe_studycond));
-            } elseif ($this->has_studycond and $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_PASSWORD) {
+            } elseif ($this->has_studycond and $this->container->getSubscriptionType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD) {
                 $txt->setHtml(sprintf($this->lng->txt('crs_subscription_options_password_studycond'), $this->describe_studycond));
             } else {
                 $txt->setHtml($this->lng->txt('crs_subscription_options_confirmation'));
@@ -545,19 +551,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
     protected function isWaitingListActive(): bool
     {
-        static $active = null;
-
-        if ($active !== null) {
-            return $active;
-        }
-        if (!$this->container->enabledWaitingList() || !$this->container->isSubscriptionMembershipLimited()) {
-            return $active = false;
-        }
-        if (!$this->container->getSubscriptionMaxMembers()) {
-            return $active = false;
-        }
-
-        $free = max(0, $this->container->getSubscriptionMaxMembers() - $this->participants->getCountMembers());
-        return $active = (!$free || $this->getWaitingList()->getCountUsers());
+        // fau: paraSub - use own function isWaitingListActive()
+        return $this->registration->isWaitingListActive();
+        // fau.
     }
 }

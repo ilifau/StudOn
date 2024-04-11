@@ -650,6 +650,8 @@ class ilObjGroupGUI extends ilContainerGUI
                 $grp_period->getEnd()
             );
 
+            // fau: paraSub - don't set registration for parallel groups
+            if (!$this->object->isParallelGroup()) {
             $reg = $form->getItemByPostVar("reg");
             if ($reg->getStart() instanceof ilDateTime && $reg->getEnd() instanceof ilDateTime) {
                 $this->object->enableUnlimitedRegistration(false);
@@ -659,6 +661,8 @@ class ilObjGroupGUI extends ilContainerGUI
 
             $this->object->setRegistrationStart($reg->getStart());
             $this->object->setRegistrationEnd($reg->getEnd());
+            }
+            // fau.
 
             $cancel_end = $form->getItemByPostVar("cancel_end");
             $this->object->setCancellationEnd($cancel_end->getDate());
@@ -1681,6 +1685,13 @@ class ilObjGroupGUI extends ilContainerGUI
             // Group registration ############################################################
             $pres = new ilFormSectionHeaderGUI();
             $pres->setTitle($this->lng->txt('grp_setting_header_registration'));
+            // fau: paraSub - disable the reg type for parallel groups
+            if ($this->object->isParallelGroup()) {
+                // show info below form section header
+                $pres->setInfo($this->lng->txt('fau_sub_group_by_course_group_settings'));
+            }
+            // fau.
+
             $form->addItem($pres);
 
             // Registration type
@@ -1733,6 +1744,10 @@ class ilObjGroupGUI extends ilContainerGUI
             $opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'), (string) ilGroupConstants::GRP_REGISTRATION_DEACTIVATED, $this->lng->txt('grp_reg_disabled_info'));
             $reg_type->addOption($opt_deact);
 
+            // fau: paraSub - disable the reg type for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($reg_type);
+            }
             // Registration codes
             $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
             $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
@@ -1760,7 +1775,11 @@ class ilObjGroupGUI extends ilContainerGUI
             $dur->setShowTime(true);
             $dur->setStart($this->object->getRegistrationStart());
             $dur->setEnd($this->object->getRegistrationEnd());
-            $form->addItem($dur);
+            // fau: paraSub disable setting of time limit for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($dur);
+            }
+            // fau.
 
             // cancellation limit
             $cancel = new ilDateTimeInputGUI($this->lng->txt('grp_cancellation_end'), 'cancel_end');

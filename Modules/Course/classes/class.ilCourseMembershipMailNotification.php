@@ -53,6 +53,10 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     const TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM = 63;	//admins
     // fau.
 
+    // fau: paraSub - additional notification types
+    const TYPE_NOTIFICATION_ADMINS = 7;
+    const TYPE_NOTIFICATION_ADMINS_REGISTRATION_REQUEST = 9;
+    // fau.
 
     /**
      * @var array $permanent_enabled_notifications
@@ -478,7 +482,7 @@ class ilCourseMembershipMailNotification extends ilMailNotification
                 $waiting_list = $this->getWaitingList();
 
                 foreach ($this->getRecipients() as $rcp) {
-                    $this->initLanguage($rcp);
+                    $this->initLanguage((int) $rcp);
                     $this->initMail();
 
                 $this->setSubject(sprintf($this->getLanguageText('sub_mail_request_crs'), $this->getObjectTitle(true)));

@@ -3,6 +3,8 @@
 namespace FAU\Ilias\Helper;
 use ilConfirmationGUI;
 use ilObjUser;
+use ilUtil;
+
 /**
  * trait for providing additional ilMembershipGUI methods
  */
@@ -15,6 +17,7 @@ trait MembershipGUIHelper
     public function confirmAcceptOnList()
     {
         global $DIC;
+        $add_to_question = "";
 
         if (!empty($_GET['member_id'])) {
             $_POST["waiting"] = array($_GET['member_id']);

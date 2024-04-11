@@ -523,6 +523,12 @@ abstract class ilRegistrationGUI
         if ($this->isRegistrationPossible()) {
             $this->fillMaxMembers();
         }
+        // fau: paraSub - list the parallel groups for subscribing to the course
+        if ($this->isRegistrationPossible() && $this->container->hasParallelGroups()) {
+            $this->fillGroupSelection();
+        }
+        // fau.
+
         if ($this->isRegistrationPossible()) {
             $this->fillAgreement();
         }
@@ -591,7 +597,6 @@ abstract class ilRegistrationGUI
         // fau: paraSub - save group selections
         $this->initForm();
         if ($this->form->checkInput()) {
-            include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
             ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
 
             // treat update like a join in courses with parallel groups

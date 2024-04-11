@@ -67,6 +67,7 @@ class ilFAUAppEventListener implements ilAppEventListener
         switch ($a_component) {
 
             case 'Modules/Group':
+                if(!isset($a_parameter['role_id']))  $role_id = ilParticipants::IL_GRP_MEMBER;
             case 'Modules/Course':
                 switch ($a_event) {
                     case 'update':
@@ -82,7 +83,8 @@ class ilFAUAppEventListener implements ilAppEventListener
                         break;
 
                     case 'deleteParticipant':
-                        self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
+                        if(!isset($a_parameter['role_id']))  $role_id = ilParticipants::IL_CRS_MEMBER;
+                        self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $role_id);
                     break;
                 }
                 break;

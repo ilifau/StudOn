@@ -363,6 +363,9 @@ class ilObjCourseGUI extends ilContainerGUI
         $info->addAccessPeriodProperty();
 
         $txt = '';
+        // fau: studyCond - generate text for suscription with condition
+        $subscription_text = "";
+        // fau.
         switch ($this->object->getSubscriptionLimitationType()) {
             case ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED:
                 $txt = $this->lng->txt("crs_info_reg_deactivated");
@@ -1238,6 +1241,11 @@ class ilObjCourseGUI extends ilContainerGUI
 
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->lng->txt('crs_reg'));
+        // fau: paraSub - add info about parallel group subscription
+        if ($this->object->hasParallelGroups()) {
+            $section->setInfo($this->lng->txt('fau_sub_group_by_course_info'));
+        }
+        // fau.
         $form->addItem($section);
 
         $reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'), 'subscription_type');
@@ -1272,7 +1280,8 @@ class ilObjCourseGUI extends ilContainerGUI
             $opt->setInfo($this->lng->txt('fau_sub_combi_disabled'));
         }
         $reg_proc->addOption($opt);
-        // fau.        
+        // fau.   
+
         $opt = new ilRadioOption(
             $this->lng->txt('crs_subscription_options_direct'),
             (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT
@@ -1370,33 +1379,43 @@ class ilObjCourseGUI extends ilContainerGUI
         $studycond->setHtml($stpl->get());
         $form->addItem($studycond);        
 
-        // Max members
-        $lim = new ilCheckboxInputGUI(
-            $this->lng->txt('crs_subscription_max_members_short'),
-            'subscription_membership_limitation'
-        );
-        $lim->setInfo($this->lng->txt('crs_subscription_max_members_short_info'));
-        $lim->setValue((string) 1);
-        $lim->setChecked($this->object->isSubscriptionMembershipLimited());
+        // fau: paraSub - optionally hide the setting of min/max members
+        if ($this->object->hasParallelGroups()) {
+            $lim = new ilNonEditableValueGUI($this->lng->txt('crs_subscription_max_members_short') , 'subscription_membership_limitation', true);
+            $lim->setValue('<small>' . $this->lng->txt('fau_sub_group_by_course_limit_info') . '</small>');
 
-        $min = new ilTextInputGUI('', 'subscription_min');
-        $min->setSubmitFormOnEnter(true);
-        $min->setSize(4);
-        $min->setMaxLength(4);
-        $min->setValue($this->object->getSubscriptionMinMembers() ?: '');
-        $min->setTitle($this->lng->txt('crs_subscription_min_members'));
-        $min->setInfo($this->lng->txt('crs_subscription_min_members_info'));
-        $lim->addSubItem($min);
+            $min = new ilHiddenInputGUI('subscription_min');
+            $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
 
-        $max = new ilTextInputGUI('', 'subscription_max');
-        $max->setSubmitFormOnEnter(true);
-        $max->setSize(4);
-        $max->setMaxLength(4);
-        $max->setValue($this->object->getSubscriptionMaxMembers() ?: '');
-        $max->setTitle($this->lng->txt('crs_subscription_max_members'));
-        $max->setInfo($this->lng->txt('crs_reg_max_info'));
+            $max = new ilHiddenInputGUI('subscription_max');
+            $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
+        }
+        else {
+            $lim = new ilCheckboxInputGUI($this->lng->txt('crs_subscription_max_members_short'), 'subscription_membership_limitation');
+            $lim->setInfo($this->lng->txt('crs_subscription_max_members_short_info'));
+            $lim->setValue(1);
+            $lim->setChecked($this->object->isSubscriptionMembershipLimited());
 
-        $lim->addSubItem($max);
+            $min = new ilTextInputGUI('', 'subscription_min');
+            $min->setSubmitFormOnEnter(true);
+            $min->setSize(4);
+            $min->setMaxLength(4);
+            $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
+            $min->setTitle($this->lng->txt('crs_subscription_min_members'));
+            $min->setInfo($this->lng->txt('crs_subscription_min_members_info'));
+            $lim->addSubItem($min);
+
+            $max = new ilTextInputGUI('', 'subscription_max');
+            $max->setSubmitFormOnEnter(true);
+            $max->setSize(4);
+            $max->setMaxLength(4);
+            $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
+            $max->setTitle($this->lng->txt('crs_subscription_max_members'));
+            $max->setInfo($this->lng->txt('crs_reg_max_info'));
+
+            $lim->addSubItem($max);
+        }
+        // fau.
 
         // $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addFairSubSettingsToForm($lim, $this->object);
         // fau: fairSub#26 - add fair date and arrange and explain options for waiting list
@@ -2002,6 +2021,24 @@ class ilObjCourseGUI extends ilContainerGUI
             ilCourseMembershipMailNotification::TYPE_UNSUBSCRIBE_MEMBER,
             $this->user->getId()
         );
+
+        // fau: paraSub - unsubscribe also from the groups
+        // fau: campoSub - note the unsubscription
+        global $DIC;
+        if ($this->object->hasParallelGroups()) {
+            foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->object->getRefId()) as $group) {
+                if ($group->isAssigned()) {
+                    $part = new ilGroupParticipant($group->getObjId(), $DIC->user()->getId());
+                    $part->delete($DIC->user()->getId());
+                    $DIC->fau()->user()->deleteMembership($group->getObjId(), $DIC->user()->getId());
+                }
+            }
+        }
+        else {
+            $DIC->fau()->user()->deleteMembership($this->object->getId(), $DIC->user()->getId());
+        }
+        // fau.        
+        
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('crs_unsubscribed_from_crs'), true);
 
         $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $this->tree->getParentId($this->ref_id));

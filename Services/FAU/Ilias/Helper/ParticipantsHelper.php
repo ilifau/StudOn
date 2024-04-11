@@ -7,7 +7,7 @@ use ilObjUser;
 use ilUtil;
 use ilMimeMail;
 use ilWaitingList;
-
+use ilParticipants;
 /**
  * trait for providing additional ilParticipants methods
  */
@@ -137,8 +137,8 @@ trait ParticipantsHelper
          global $DIC;
  
          switch ($a_role) {
-             case self::IL_CRS_MEMBER:
-             case self::IL_GRP_MEMBER:
+             case ilParticipants::IL_CRS_MEMBER:
+             case ilParticipants::IL_GRP_MEMBER:
                  $this->members[] = $a_usr_id;
                  break;
          }
