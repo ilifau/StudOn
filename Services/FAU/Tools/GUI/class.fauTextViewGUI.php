@@ -74,7 +74,7 @@ class fauTextViewGUI extends BaseGUI
             $label = '» ' . $label;
         }
         elseif ($limit > 0) {
-            $label = '» ' . ilUtil::shortenText($clean, $limit, true);
+            $label = '» ' . ilStr::shortenTextExtended($clean, $limit, true);
         }
         else {
             $label = '» ' . $this->lng->txt('show');

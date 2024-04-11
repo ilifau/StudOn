@@ -31,7 +31,7 @@ class ilGroupParticipant extends ilParticipant
     /**
      * @todo get rid of these pseudo constants
      */
-    protected function __construct(int $a_obj_id, int $a_usr_id)
+    public function __construct(int $a_obj_id, int $a_usr_id)
     {
         $this->type = 'grp';
 

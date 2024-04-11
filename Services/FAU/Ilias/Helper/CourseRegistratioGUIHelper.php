@@ -1,6 +1,9 @@
 <?php
 
 namespace FAU\Ilias\Helper;
+use ilFormSectionHeaderGUI;
+use ilCheckboxGroupInputGUI;
+use ilCheckboxOption;
 
 /**
  * trait for providing additional ilCourseRegistrationGUI methods

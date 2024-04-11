@@ -78,8 +78,8 @@ class ilContainer extends ilObject
     protected bool $news_block_activated = false;
     protected bool $use_news = false;
     // fau: paraSub - properties for campo connection
-    protected bool $has_parallel_groups = null;
-    protected bool $is_parallel_group = null;
+    protected ?bool $has_parallel_groups = null;
+    protected ?bool $is_parallel_group = null;
     // fau.
     protected ilRecommendedContentManager $recommended_content_manager;
 

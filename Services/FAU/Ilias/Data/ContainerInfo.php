@@ -339,6 +339,7 @@ class ContainerInfo
     {
         $clone = clone $this;
         $clone->waitingList = $waitingList;
+        $clone->has_waiting_list = true;
         return $clone;
     }
 

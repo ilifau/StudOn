@@ -60,17 +60,17 @@ class CourseRegistration extends Registration
 
     public function getNotificationTypeAddedAdmins() : int
     {
-        return $this->participants->NOTIFY_ADMINS;
+        return ilCourseMembershipMailNotification::TYPE_NOTIFICATION_ADMINS;
     }
 
     public function getNotificationTypeAddedMember() : int
     {
-        return $this->participants->NOTIFY_REGISTERED;
+        return ilCourseMembershipMailNotification::TYPE_SUBSCRIBE_MEMBER;
     }
 
     public function getNotificationTypeRefusedMember() : int
     {
-        return $this->participants->NOTIFY_DISMISS_SUBSCRIBER;
+        return ilCourseMembershipMailNotification::TYPE_REFUSED_SUBSCRIPTION_MEMBER;
     }
 
     public function getMembershipMailNotification() : ilMailNotification

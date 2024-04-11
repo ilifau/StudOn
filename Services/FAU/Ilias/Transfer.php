@@ -218,7 +218,7 @@ $assigned[] = $assign_groups[$ref_id];
                 foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
                     if (!ilObject::_isInTrash($ref_id)) {
                         $source = new ilObjCourse($ref_id);
-                        $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), IL_CRS_MEMBER, IL_CRS_MEMBER);
+                        $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), ilParticipants::IL_CRS_MEMBER, ilParticipants::IL_CRS_MEMBER);
                         $this->moveWaitingList($source->getId(), $target->getId());
                         $source->setImportId(null);
                         $source->setOfflineStatus(true);

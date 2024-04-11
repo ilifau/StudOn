@@ -1387,7 +1387,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $min = new ilHiddenInputGUI('subscription_min');
             $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
 
-            $max = new ilHiddenInputGUI('subscription_min');
+            $max = new ilHiddenInputGUI('subscription_max');
             $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
         }
         else {
@@ -2024,6 +2024,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
         // fau: paraSub - unsubscribe also from the groups
         // fau: campoSub - note the unsubscription
+        global $DIC;
         if ($this->object->hasParallelGroups()) {
             foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->object->getRefId()) as $group) {
                 if ($group->isAssigned()) {

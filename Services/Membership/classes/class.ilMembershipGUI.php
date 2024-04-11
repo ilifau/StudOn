@@ -1382,7 +1382,7 @@ class ilMembershipGUI
 
             $c_gui->addItem(
                 'waiting[]',
-                $name['user_id'],
+                (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']' . $notice,
                 $possible? ilUtil::getImagePath('icon_usr.svg') : ilUtil::getImagePath('outlined/icon_usr.svg')
             );
@@ -1449,7 +1449,7 @@ class ilMembershipGUI
                 foreach ($groups as $group) {
                     // take the first found group, note the module there
                     $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
-                    $DIC->fau()->user()->saveMembership($group->getObjId(), (int) $user_id, $group->getWaitingList()->getModuleId((int) $user_id));
+                    $DIC->fau()->user()->saveMembership($group->getObjId(), (int) $user_id, (int) $group->getWaitingList()->getModuleId((int) $user_id));
                     break;
                 }
                 // removes the user from the group lists
@@ -1457,12 +1457,12 @@ class ilMembershipGUI
             }
             else {
                 // note the module for the object directly
-                $DIC->fau()->user()->saveMembership($object->getId(), (int) $user_id, $object->getWaitingList()->getModuleId((int) $user_id));
+                $DIC->fau()->user()->saveMembership($object->getId(), (int) $user_id, (int) $object->getWaitingList()->getModuleId((int) $user_id));
             }
 
             // add to the parent course of a parallel group
             if (!empty($courseParticipants)) {
-                $courseParticipants->add($user_id, IL_CRS_MEMBER);
+                $courseParticipants->add($user_id, ilParticipants::IL_CRS_MEMBER);
             }
             // fau.            
 
