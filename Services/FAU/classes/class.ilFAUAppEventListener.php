@@ -213,7 +213,7 @@ class ilFAUAppEventListener implements ilAppEventListener
      */
     protected function handleAddToWaitingList(int $user_id, int $obj_id, ?int $timestamp = null, int $to_confirm = 0, ?int $module_id = null, ?string $subject = null) 
     {
-        $this->dic->fau()->ilias()->logging()->addRegLog(RegLog::ACTION_ADD_TO_WAITING_LIST, $user_id, $obj_id, $timestamp, $to_confirm, $module_id, $subject);   
+        $this->dic->fau()->ilias()->logging()->addRegLog(RegLog::ACTION_ADD_TO_WAITING_LIST, $user_id, $obj_id, null, $to_confirm, $module_id, $subject);   
     }
 
     /**
