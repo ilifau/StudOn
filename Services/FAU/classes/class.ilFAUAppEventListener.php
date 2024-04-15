@@ -87,6 +87,25 @@ class ilFAUAppEventListener implements ilAppEventListener
                     case 'deleteParticipant':
                         self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
                         break;
+
+                    case 'addToWaitingList':
+                        self::getInstance()->handleAddToWaitingList((int) $a_parameter['usr_id'], (int) $a_parameter['obj_id'], 
+                            $a_parameter['sub_time'] ?? null, $a_parameter['to_confirm'] ?? 0, 
+                            $a_parameter['module_id'] ?? null, $a_parameter['subject'] ?? null);
+                        break;
+
+                    case 'removeFromWaitingList':
+                        self::getInstance()->handleRemoveFromWaitingList((int) $a_parameter['usr_id'], (int) $a_parameter['obj_id']);
+                        break;
+
+                }
+                break;
+                
+            case 'Services/Membership':
+                switch ($a_event) {
+                    case 'updateWaitingList':
+                        self::getInstance()->handleUpdateWaitingList((int) $a_parameter['usr_id'], (int) $a_parameter['obj_id']);
+                        break;
                 }
                 break;
 
