@@ -19,6 +19,7 @@ class Service extends SubService
     protected Objects $objects;
     protected Groupings $groupings;
     protected Transfer  $transfer;
+    protected Logging $logging;
 
     /**
      * Get the tools repository
@@ -29,6 +30,18 @@ class Service extends SubService
             $this->repository = new Repository($this->dic->database(), $this->dic->logger()->fau());
         }
         return $this->repository;
+    }
+
+
+    /**
+     * Get the functions to log events
+     */
+    public function logging() : Logging
+    {
+        if(!isset($this->logging)) {
+            $this->logging = new Logging($this->dic);
+        }
+        return $this->logging;
     }
 
     /**

@@ -249,7 +249,7 @@ abstract class Registration extends AbstractRegistration
 
             // add to waiting list and avoid race condition
             $added = $this->waitingList->addWithChecks($this->user->getId(), $this->getMemberRoleId(),
-                $subject, $to_confirm, $sub_time);
+                $subject, $to_confirm, $sub_time, $module_id);
 
             // may have been directly added as member in a parallel request
             if ($this->dic->rbac()->review()->isAssigned($this->user->getId(), $this->getMemberRoleId())) {
@@ -257,13 +257,10 @@ abstract class Registration extends AbstractRegistration
             } // may have been directly added to the waiting list in a parallel request
             elseif (ilWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
 
-                // was already on list, so update the subject
+                // was already on list, so update the subject and module_id
                 if (!$added) {
-                    $this->waitingList->updateSubject($this->user->getId(), $subject);
+                    $this->waitingList->updateRequest($this->user->getId(), $subject, $module_id);
                 }
-
-                // always store the module_id in the waiting list of the course
-                $this->waitingList->updateModuleId($this->user->getId(), $module_id);
 
                 // can be to confirm, not to confirm or already confirmed
                 $to_confirm = $this->waitingList->getStatus($this->user->getId());
@@ -325,8 +322,7 @@ abstract class Registration extends AbstractRegistration
         $group_ref_ids = array_map('intval', $group_ref_ids);
 
         // update from main object
-        $this->waitingList->updateSubject($this->user->getId(), $subject);
-        $this->waitingList->updateModuleId($this->user->getId(), $module_id);
+        $this->waitingList->updateRequest($this->user->getId(), $subject, $module_id);
 
         // can be to confirm, not to confirm or already confirmed
         $to_confirm = $this->waitingList->getStatus($this->user->getId());
@@ -345,12 +341,14 @@ abstract class Registration extends AbstractRegistration
             $groupList = $group->getWaitingList();
 
             if (!$group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
-                $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER), $subject, $to_confirm, $sub_time);
-                $groupList->updateModuleId($this->user->getId(), $module_id);
+                $added = $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER), $subject, $to_confirm, $sub_time, $module_id);
+                if (!$added) {
+                    // was on list - just update
+                    $groupList->updateRequest($this->user->getId(), $subject, $module_id);
+                }
             }
             elseif ($group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
-                $groupList->updateSubject($this->user->getId(), $subject);
-                $groupList->updateModuleId($this->user->getId(), $module_id);
+                $groupList->updateRequest($this->user->getId(), $subject, $module_id);
             }
             elseif ($group->isOnWaitingList() && !in_array($group->getRefId(), $group_ref_ids)) {
                 $groupList->removeFromList($this->user->getId());
