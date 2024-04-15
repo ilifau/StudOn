@@ -36,7 +36,7 @@ class ilCourseWaitingList extends ilWaitingList
             return false;
         }
         
-        $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addToList');
+        $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addToWaitingList');
         $ilAppEventHandler->raise(
             "Modules/Course",
             'addToWaitingList',
