@@ -242,16 +242,19 @@ abstract class ilWaitingList
      * adds a user to the waiting list with check for membership
      *
      * @access public
-     * @param 	int 	$a_usr_id
-     * @param 	int		$a_rol_id
-     * @param 	string	$a_subject
-     * @param	int 	$a_to_confirm
-     * @param	int		$a_sub_time
+     * @param 	int 	        $a_usr_id
+     * @param 	int		        $a_rol_id
+     * @param 	string	        $a_subject
+     * @param	int 	        $a_to_confirm
+     * @param	int|null		$a_sub_time
+     * @param	int|null		$a_module_id
      * @return bool
      */
-    public function addWithChecks($a_usr_id, $a_rol_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null)
+    public function addWithChecks($a_usr_id, $a_rol_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null, $a_module_id = null)
     {
-        global $ilDB;
+        global $DIC;
+        
+        $ilDB = $DIC->database();
 
         if ($this->isOnList($a_usr_id)) {
             return false;
@@ -260,17 +263,17 @@ abstract class ilWaitingList
         $a_sub_time = empty($a_sub_time) ? time() : $a_sub_time;
 
         // insert user only on the waiting list if not in member role and not on list
-        $query = "INSERT INTO crs_waiting_list (obj_id, usr_id, sub_time, subject, to_confirm) "
-                . " SELECT %s obj_id, %s usr_id, %s sub_time, %s subject, %s to_confirm FROM DUAL "
+        $query = "INSERT INTO crs_waiting_list (obj_id, usr_id, sub_time, subject, to_confirm, module_id) "
+                . " SELECT %s obj_id, %s usr_id, %s sub_time, %s subject, %s to_confirm, %s module_id FROM DUAL "
                 . " WHERE NOT EXISTS (SELECT 1 FROM rbac_ua WHERE usr_id = %s AND rol_id = %s) "
                 . " AND NOT EXISTS (SELECT 1 FROM crs_waiting_list WHERE obj_id = %s AND usr_id = %s)";
 
         $res = $ilDB->manipulateF(
             $query,
-            array(	'integer', 'integer', 'integer', 'text', 'integer',
+            array(	'integer', 'integer', 'integer', 'text', 'integer',  'integer',
                                 'integer', 'integer',
                                 'integer', 'integer'),
-            array(	$this->getObjId(), $a_usr_id, $a_sub_time, $a_subject, $a_to_confirm,
+            array(	$this->getObjId(), $a_usr_id, $a_sub_time, $a_subject, $a_to_confirm, $a_module_id,
                                 $a_usr_id, $a_rol_id,
                                 $this->getObjId(), $a_usr_id)
         );
@@ -282,6 +285,7 @@ abstract class ilWaitingList
             $this->users[$a_usr_id]['usr_id'] = $a_usr_id;
             $this->users[$a_usr_id]['subject'] = $a_subject;
             $this->users[$a_usr_id]['to_confirm'] = $a_to_confirm;
+            $this->users[$a_usr_id]['module_id'] = $a_module_id;
             $this->recalculate();
             return true;
         }
