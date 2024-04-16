@@ -384,11 +384,11 @@ class ilErrorHandling extends PEAR
             $session_id = substr(session_id(), 0, 5);
             // fau: logErrorFile - put errors of the same session in the same file (use session_id as file name)
             $err_num = substr(md5($exception->getTraceAsString()), 0, 5);
-            $file_name = $session_id . "_" . $err_num;
+            $file_name = $session_id;
 
             $logger = ilLoggingErrorSettings::getInstance();
             if (!empty($logger->folder())) {
-                $lwriter = new ilLoggingErrorFileStorage($inspector, $logger->folder(), $file_name);
+                $lwriter = new ilLoggingErrorFileStorage($inspector, $logger->folder(), $file_name, $err_num);
                 $lwriter = $lwriter->withExclusionList(self::SENSTIVE_PARAMETER_NAMES);
                 $lwriter->write();
             }
