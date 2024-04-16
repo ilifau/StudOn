@@ -60,7 +60,7 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
     */
     public function getItems()
     {
-        global $ilDB, $lng, $ilPluginAdmin;
+        global $ilDB, $lng, $ilPluginAdmin,;
 
         include_once('./Modules/LearningModule/classes/class.ilLMPageObject.php');
 
@@ -91,7 +91,7 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
 
         // get more question information
         include_once('./Modules/TestQuestionPool/classes/class.ilAssQuestionList.php');
-        $qlist = new ilAssQuestionList($ilDB, $lng, $ilPluginAdmin, 0);
+        $qlist = new ilAssQuestionList($ilDB, $lng, $DIC['refinery'], $ilPluginAdmin);
         $qlist->addFieldFilter('question_id', $question_ids);
         $qlist->load();
         $qdata = $qlist->getQuestionDataArray();
