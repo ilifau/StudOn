@@ -398,16 +398,16 @@ class ilErrorHandling extends PEAR
             // fau: logErrorFile - adjust mail hint
             if ($lng !== null) {
                 $lng->loadLanguageModule('logging');
-                $message = sprintf($lng->txt("log_error_message"), $file_name);
+                $message = sprintf($lng->txt("log_error_message"), $file_name.'_'.$err_num);
 
                 if ($logger->mail()) {
-                    $message .= '<br /><br />' . sprintf($lng->txt("log_error_message_send_mail"), $logger->mail(), $file_name, $logger->mail());
+                    $message .= '<br /><br />' . sprintf($lng->txt("log_error_message_send_mail"), $logger->mail(), $file_name.'_'.$err_num, $logger->mail());
                 }
             } else {
-                $message = 'Sorry, an error occured. A logfile has been created which can be identified via the code "' . $file_name . '"';
+                $message = 'Sorry, an error occured. A logfile has been created which can be identified via the code "' . $file_name.'_'.$err_num . '"';
 
                 if ($logger->mail()) {
-                    $message .= '<br /><br />' . sprintf('Please ty fist to repeat your action. Sometimes it helps to log out and log in again. If the error occurs again, please send the code to <a href="mailto:%s?subject=code: %s">%s</a>. Please describe in your e-mail, what you intended to do.', $logger->mail(), $file_name, $logger->mail());
+                    $message .= '<br /><br />' . sprintf('Please ty fist to repeat your action. Sometimes it helps to log out and log in again. If the error occurs again, please send the code to <a href="mailto:%s?subject=code: %s">%s</a>. Please describe in your e-mail, what you intended to do.', $logger->mail(), $file_name.'_'.$err_num, $logger->mail());
                 }
             }
             // fau.
