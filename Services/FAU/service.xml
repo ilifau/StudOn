@@ -29,8 +29,10 @@
 		<!-- fau: syncWithCampo - register event listeners -->
 		<!-- fau: syncToCampo - register event listeners -->
 		<!-- fau: cascadeMembers - register event listeners -->
+		<!-- fau: regLog - register event listeners -->
 		<event type="listen" id="Modules/Group" />
 		<event type="listen" id="Modules/Course" />
+		<event type="listen" id="Services/Membership" />
 		<event type="listen" id="Services/AccessControl" />
 		<event type="listen" id="Services/Object" />
 		<event type="listen" id="Services/User" />

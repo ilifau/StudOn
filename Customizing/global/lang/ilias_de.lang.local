@@ -666,6 +666,7 @@ fau#:#fau_reg_overview_other#:#Andere
 fau#:#fau_reg_sort_label#:#Sortierung
 fau#:#fau_reg_sort_by_start#:#Nach Anmeldestart
 fau#:#fau_reg_sort_by_end#:#Nach Anmeldeende
+fau#:#fau_reglog_export#:#Anmeldeprotokoll exportieren
 fau#:#fau_relation#:#FAU-Beziehung
 fau#:#fau_relation_orgunits#:#Verbundene Einrichtungen
 fau#:#fau_relation_unit_used#:#Die Einheit %s ist bereits mit der StudOn-Kategorie <a href="%s">%s</a> verbunden! Entfernen Sie erst diese Verbindung, bevor Sie die neue anlegen.
