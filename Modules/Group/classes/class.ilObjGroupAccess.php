@@ -2,7 +2,21 @@
 
 declare(strict_types=1);
 
-/* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 
 /**
@@ -60,7 +74,6 @@ class ilObjGroupAccess extends ilObjectAccess
                 break;
 
             case 'leave':
-
                 // Regular member
                 if ($permission == 'leave') {
                     $limit = null;
@@ -76,6 +89,9 @@ class ilObjGroupAccess extends ilObjectAccess
                         return false;
                     }
                 }
+                break;
+
+            case 'leaveWaitList':
                 // Waiting list
                 if ($permission == 'join') {
                     // fau: changeSub - use $user_id parameter to query waiting list
@@ -107,7 +123,7 @@ class ilObjGroupAccess extends ilObjectAccess
 
         // on waiting list
         // fau: fairSub - general command for editing requests
-        $commands[] = array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
+        $commands[] = array('permission' => "join", "cmd" => "leaveWaitList", "lang_var" => "mem_edit_request");
         // fau.
         // regualar users
         $commands[] = array('permission' => "leave", "cmd" => "leave", "lang_var" => "grp_btn_unsubscribe");
