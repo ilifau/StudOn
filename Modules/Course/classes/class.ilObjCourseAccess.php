@@ -97,7 +97,6 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                 break;
 
             case 'leave':
-
                 // Regular member
                 if ($permission == 'leave') {
                     $limit = null;
@@ -116,6 +115,9 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                         return false;
                     }
                 }
+                break;
+
+            case 'leaveWaitList':
                 // Waiting list
                 if ($permission == 'join') {
                     if (!ilCourseWaitingList::_isOnList($user_id, $obj_id)) {
@@ -199,7 +201,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
         // fau: fairSub#29 - general command for editing requests
         // on waiting list
-        $commands[] = array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
+        $commands[] = array('permission' => "join", "cmd" => "leaveWaitList", "lang_var" => "mem_edit_request");
         // fau.
 
         // regualar users
@@ -284,9 +286,9 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                     $a_visible_flag = $item['visible'];
                     return false;
                 }
-            // fallthrough
+                // fallthrough
 
-            // no break
+                // no break
             default:
                 return true;
         }
@@ -321,7 +323,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                 if (time() > $reg_start && time() < $reg_end) {
                     return true;
                 }
-            // no break
+                // no break
             default:
                 return false;
         }

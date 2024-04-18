@@ -798,6 +798,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 if ($error !== true) {
                     $this->tpl->setOnScreenMessage('failure', $this->error->getMessage());
                 }
+                $form->setValuesByPost();
                 $this->editInfoObject($form);
                 return;
             }
@@ -2783,7 +2784,8 @@ class ilObjCourseGUI extends ilContainerGUI
                     // fau. 
                     && !$this->access->checkAccess("read", '', $this->object->getRefId())
                     || $cmd == 'join'
-                    || $cmd == 'subscribe') {
+                    || $cmd == 'subscribe'
+                    || $cmd === 'leaveWaitList') {
                     if ($this->rbac_system->checkAccess('join', $this->object->getRefId()) &&
                         !ilCourseParticipants::_isParticipant($this->object->getRefId(), $this->user->getId())) {
                         // fau: changeSub - provide the original command for registration gui
