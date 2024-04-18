@@ -66,6 +66,8 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
     {
         global $DIC;
         $filter_data = $DIC->uiService()->filter()->getData($this->getFilter());
+        if (!isset($filter_data['term_id']))
+            $filter_data['term_id'] = null;
         $DIC->fau()->tools()->preferences()->setTermIdForMyMemberships($filter_data['term_id']);
         $this->ctrl->redirect($this, 'show');
     }

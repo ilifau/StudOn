@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// fau: filterMyMem - use Filter\Standard
+use ILIAS\UI\Implementation\Component\Input\Container\Filter\Standard;
+// fau.
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -96,6 +100,8 @@ class ilMembershipOverviewGUI implements ilCtrlBaseClassInterface
     {
         global $DIC;
         $filter_data = $DIC->uiService()->filter()->getData($this->getFilter());
+        if (!isset($filter_data['term_id']))
+            $filter_data['term_id'] = null;
         $DIC->fau()->tools()->preferences()->setTermIdForMyMemberships($filter_data['term_id']);
         $this->ctrl->redirect($this, 'show');
     }
