@@ -104,7 +104,7 @@ class ilObjGroupListGUI extends ilObjectListGUI
 
         // fau: showMemLimit - adapted info about registration, membership limit and status        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id);
         $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id, $this->ref_id);
-        if ($info['reg_info_list_prop']) {
+        if (isset($info['reg_info_list_prop'])) {
             $props[] = array(
                 'alert' => false,
                 'newline' => true,
@@ -112,7 +112,7 @@ class ilObjGroupListGUI extends ilObjectListGUI
                 'value' => $info['reg_info_list_prop']['value']
             );
         }
-        if ($info['reg_info_list_prop_limit']) {
+        if (isset($info['reg_info_list_prop_limit'])) {
             $props[] = array(
                 'alert' => false,
                 'newline' => true,
@@ -121,7 +121,7 @@ class ilObjGroupListGUI extends ilObjectListGUI
                 'value' => $info['reg_info_list_prop_limit']['value']
             );
         }
-        if ($info['reg_info_list_prop_status']) {
+        if (isset($info['reg_info_list_prop_status'])) {
             $props[] = array(
                 'alert' => true,
                 'newline' => true,

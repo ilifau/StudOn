@@ -133,7 +133,7 @@ class ilObjCourseListGUI extends ilObjectListGUI
             );
         }
 
-        if ($info['reg_info_list_prop_status']) {
+        if (isset($info['reg_info_list_prop_status'])) {
             $props[] = array(
                 'alert' => true,
                 'newline' => true,
