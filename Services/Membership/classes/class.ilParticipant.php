@@ -310,7 +310,7 @@ abstract class ilParticipant
 
                     // fau: limitMemberRoles - don't count others roles as members
                     // $this->member_roles[] = $role_id;
-                    if ($this->$rbacReview->isAssigned($this->getUserId(), $role_id)) {
+                    if ($this->rbacReview->isAssigned($this->getUserId(), $role_id)) {
                         $this->participants = true;
                         // $this->members = true;
                     }
