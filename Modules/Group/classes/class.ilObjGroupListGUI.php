@@ -101,9 +101,10 @@ class ilObjGroupListGUI extends ilObjectListGUI
     public function getProperties(): array
     {
         $props = parent::getProperties();
-        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id);
-        //var_dump($info);
-        if (isset($info['reg_info_list_prop'])) {
+
+        // fau: showMemLimit - adapted info about registration, membership limit and status        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id);
+        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id, $this->ref_id);
+        if ($info['reg_info_list_prop']) {
             $props[] = array(
                 'alert' => false,
                 'newline' => true,
@@ -111,26 +112,25 @@ class ilObjGroupListGUI extends ilObjectListGUI
                 'value' => $info['reg_info_list_prop']['value']
             );
         }
-        if (isset($info['reg_info_list_prop_limit'])) {
+        if ($info['reg_info_list_prop_limit']) {
             $props[] = array(
                 'alert' => false,
-                'newline' => false,
+                'newline' => true,
                 'property' => $info['reg_info_list_prop_limit']['property'],
-                'propertyNameVisible' => strlen($info['reg_info_list_prop_limit']['property']) ? true : false,
+                'propertyNameVisible' => (bool) strlen($info['reg_info_list_prop_limit']['property']) ? true : false,
                 'value' => $info['reg_info_list_prop_limit']['value']
             );
         }
-
-
-
-        // waiting list
-        if (ilGroupWaitingList::_isOnList($this->user->getId(), $this->obj_id)) {
+        if ($info['reg_info_list_prop_status']) {
             $props[] = array(
-                "alert" => true,
-                "property" => $this->lng->txt('member_status'),
-                "value" => $this->lng->txt('on_waiting_list')
+                'alert' => true,
+                'newline' => true,
+                'property' => $info['reg_info_list_prop_status']['property'],
+                'propertyNameVisible' => (bool) strlen($info['reg_info_list_prop_status']['property']) ? true : false,
+                'value' => $info['reg_info_list_prop_status']['value']
             );
         }
+        // fau.
 
         // course period
         $info = ilObjGroupAccess::lookupPeriodInfo($this->obj_id);

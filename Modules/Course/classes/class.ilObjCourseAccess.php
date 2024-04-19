@@ -330,7 +330,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
     }
 
     // fau: showMemLimit - add ref_id as parameter for checking write access
-    public static function lookupRegistrationInfo($a_obj_id, $a_ref_id = 0)
+    public static function lookupRegistrationInfo(int $a_obj_id, int $a_ref_id = 0): array
     // fau.
     {
         global $DIC;
