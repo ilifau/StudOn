@@ -22,6 +22,11 @@ class ilLMTracker
     protected $lng;
 
     /**
+     * @var ILIAS\Refinery\Services
+     */
+    protected $refinery;    
+
+    /**
      * @var ilPluginAdmin
      */
     protected $plugin_admin;
@@ -84,6 +89,7 @@ class ilLMTracker
         $this->plugin_admin = $DIC["ilPluginAdmin"];
         $this->user = $DIC->user();
         $this->user_id = $a_user_id;
+        $this->refinery = $DIC['refinery'];
 
         if ($a_by_obj_id) {
             $this->lm_ref_id = 0;
@@ -831,6 +837,7 @@ class ilLMTracker
     {
         $ilDB = $this->db;
         $lng = $this->lng;
+        $refinery = $this->refinery;
         $ilPluginAdmin = $this->plugin_admin;
         $ilUser = $this->user;
 
@@ -847,7 +854,7 @@ class ilLMTracker
             $page_for_question[$quest["question_id"]] = $quest["page_id"];
         }
         // get question information
-        $qlist = new ilAssQuestionList($ilDB, $lng, $ilPluginAdmin);
+        $qlist = new ilAssQuestionList($ilDB, $lng, $refinery, $ilPluginAdmin);
         $qlist->setParentObjId(0);
         $qlist->setJoinObjectData(false);
         $qlist->addFieldFilter("question_id", $this->all_questions);
