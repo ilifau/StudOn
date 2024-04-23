@@ -300,7 +300,7 @@ class ilGroupMembershipGUI extends ilMembershipGUI
             $this->ctrl->redirect($this, 'participants');
         }
         foreach ($participants as $participant) {
-            if ($this->getMembersObject()->isAssigned($participant)) {
+            if ($this->getMembersObject()->isAssigned((int) $participant)) {
                 $this->getParentObject()->setLPStatusManually($participant, in_array($participant, $visible_members));
             }
         }

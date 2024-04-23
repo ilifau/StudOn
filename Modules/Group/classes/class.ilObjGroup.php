@@ -1155,7 +1155,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
      */
     public function setLPStatusManually($a_member_id, $a_passed)
     {
-        $marks = new ilLPMarks($this->getId(), $a_member_id);
+        $marks = new ilLPMarks($this->getId(), (int) $a_member_id);
 
         // write only if completed has changed
         if ($marks->getCompleted() != $a_passed) {
@@ -1166,7 +1166,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 
             // write the status directly
             // ilLPStatusWrapper::_updateStatus() wound not work if LP is deactivated for the object
-            ilLPStatus::writeStatus($this->getId(), $a_member_id, $status);
+            ilLPStatus::writeStatus($this->getId(),(int) $a_member_id, $status);
         }
     }
     // fau.    
