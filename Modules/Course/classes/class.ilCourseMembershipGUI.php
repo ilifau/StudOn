@@ -456,4 +456,34 @@ class ilCourseMembershipGUI extends ilMembershipGUI
         }
         return [];
     }
+
+    // fau: setPassedFlag - new function bulkSetPassedFlag()
+    protected function bulkSetPassedFlag()
+    {
+        global $DIC;
+        
+        $participants = (array) $_POST['participants'];
+        $visible_members = (array) $_POST['visible_member_ids'];
+        
+        if (!$DIC->access()->checkAccess("grade", "", $this->getParentObject()->getRefId())) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_permission"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        if (!is_array($participants) or !count($participants)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_checkbox"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        foreach ($participants as $participant) {
+            if ($this->getMembersObject()->isAssigned($participant)) {
+                $this->getMembersObject()->updatePassed($participant, in_array($participant, $visible_members), true);
+                $this->updateLPFromStatus($participant, in_array($participant, $visible_members));
+            }
+        }
+
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('crs_selected_members_set_to_passed'), true);
+        $this->ctrl->redirect($this, "participants");
+
+        return true;
+    }
+    // fau.
 }

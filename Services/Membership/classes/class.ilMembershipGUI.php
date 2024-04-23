@@ -1536,6 +1536,7 @@ class ilMembershipGUI
 
         // fau: paraSub - extend confirmation header
         global $DIC;
+        $add_to_question = "";
         if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
             $add_to_question = '<br><small>' . $this->lng->txt('fau_sub_refuse_all_groups') . '</small>';
         }
