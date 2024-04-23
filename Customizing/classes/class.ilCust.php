@@ -200,7 +200,7 @@ class ilCust
             {
                 $allowed = true;
             }
-            elseif ($DIC->rbac()->review()->isAssigned($DIC->user()->getId(), ilCust::get('fair_admin_role_id')))
+            elseif ($DIC->rbac()->review()->isAssigned($DIC->user()->getId(), (int) ilCust::get('fair_admin_role_id')))
             {
                 $allowed = true;
             }
