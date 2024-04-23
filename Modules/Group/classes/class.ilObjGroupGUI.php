@@ -1062,7 +1062,9 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->show_tracking = $olp->isActive();
         }
 
-        if ($this->show_tracking) {
+        // fau: setPassedFlag - always query the LP status - is needed for the new 'passed' column
+        if (true) {
+        // fau.
             $completed = ilLPStatusWrapper::_lookupCompletedForObject($this->object->getId());
             $in_progress = ilLPStatusWrapper::_lookupInProgressForObject($this->object->getId());
             $failed = ilLPStatusWrapper::_lookupFailedForObject($this->object->getId());
@@ -1097,7 +1099,9 @@ class ilObjGroupGUI extends ilContainerGUI
                 $tmp_data[$field] = $value;
             }
 
-            if ($this->show_tracking) {
+            // fau: setPassedFlag - always provide the LP status - is needed for the new 'passed' column
+            if (true) {
+                // fau.
                 $tmp_data['progress'] = '';
                 if (in_array($usr_id, $completed)) {
                     $tmp_data['progress'] = ilLPStatus::LP_STATUS_COMPLETED;
