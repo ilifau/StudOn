@@ -178,10 +178,62 @@ class ilMemberExportGUI
             $form->addItem($chours);
         }
 
-        $grp_membr = new ilCheckboxInputGUI($this->lng->txt('crs_members_groups'), 'export_members[]');
-        $grp_membr->setValue('group_memberships');
-        $grp_membr->setChecked($this->exportSettings->enabled('group_memberships'));
-        $form->addItem($grp_membr);
+        // fau: memberExport - add further options for member export
+        // fau: campoSub - add module as option to member export
+        // fau: campoCheck - add restrictions as option to member export
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt('further_informations'));
+        $form->addItem($header);
+
+        if ($this->type == 'crs') {
+            $members_title = $this->lng->txt('course');
+        }
+        elseif ($this->type = 'grp') {
+            $members_title = $this->lng->txt('group');
+        }
+        else {
+            $members_title = $this->lng->txt('members');
+        }
+        $members = new ilCheckboxGroupInputGUI($members_title, 'export_members');
+        global $DIC;
+        if ($DIC->fau()->study()->isObjectForCampo($this->obj_id)) {
+            $members->addOption(new ilCheckboxOption($this->lng->txt('fau_selected_module'), 'module'));
+        }
+        if ($DIC->fau()->cond()->hard()->hasObjectRestrictions($this->obj_id)) {
+            $members->addOption(new ilCheckboxOption($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions'));
+        }
+        $members->addOption(new ilCheckboxOption($this->lng->txt('events'), 'events'));
+        $members->addOption(new ilCheckboxOption($this->lng->txt('groups'), 'groups'));
+        $values = array();
+        foreach (array('events', 'groups', 'restrictions') as $type) {
+            if ($this->exportSettings->enabled($type)) {
+                $values[] = $type;
+            }
+        }
+        $members->setValue($values);
+        $form->addItem($members);
+
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt('learning_progress'));
+        $header->setInfo($this->lng->txt('export_lp_info'));
+        $form->addItem($header);
+
+        if (count($this->lp_objects)) {
+            foreach ($this->lp_objects as $type => $modes) {
+                $object = new ilCheckboxGroupInputGUI($this->lng->txt('objs_' . $type), 'export_members');
+                $values = array();
+                foreach ($modes as $mode) {
+                    $object->addOption(new ilCheckboxOption($this->lng->txt('export_lp_' . $mode), $type . '_' . $mode));
+                    if ($this->exportSettings->enabled($type . '_' . $mode)) {
+                        $values[] = $type . '_' . $mode;
+                    }
+                }
+                $object->setValue($values);
+                $form->addItem($object);
+            }
+        }
+        // fau.
+
         return $form;
     }
 
