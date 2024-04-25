@@ -510,6 +510,13 @@ class ilObjCourseGUI extends ilContainerGUI
             );
         }
 
+        // fau: campoInfo - show info on course info page
+        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+        if ($importId->isForCampo()) {
+            $DIC->fau()->study()->info()->addInfoScreenSections($info, $importId, $this->ref_id);
+        }
+        // fau.
+
         // Confirmation
         $privacy = ilPrivacySettings::getInstance();
 

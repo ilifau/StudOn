@@ -63,6 +63,23 @@ class ilObjCourseListGUI extends ilObjectListGUI
         string $description = ""
     ): void {
         parent::initItem($ref_id, $obj_id, $type, $title, $description);
+        // fau: campoInfo - show info and links from campo
+        // use custom property to hide the display in the result list of campo search
+        global $DIC;
+        $info_gui = $DIC->fau()->study()->info();
+        $import_id = $DIC->fau()->study()->repo()->getImportId($this->obj_id);
+        if ($import_id->isForCampo()) {
+            if (!empty($line = $info_gui->getDatesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getResponsiblesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getLinksLine($import_id, $this->ref_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+        }
+        // fau.        
     }
 
     protected function getCertificatePreloader(): ilCertificateObjectsForUserPreloader
