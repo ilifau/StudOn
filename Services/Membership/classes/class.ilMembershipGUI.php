@@ -1448,7 +1448,7 @@ class ilMembershipGUI
                 }
                 foreach ($groups as $group) {
                     // take the first found group, note the module there
-                    $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
+                    $group->getParticipants()->add($user_id, ilParticipants::IL_GRP_MEMBER);
                     $DIC->fau()->user()->saveMembership($group->getObjId(), (int) $user_id, (int) $group->getWaitingList()->getModuleId((int) $user_id));
                     break;
                 }

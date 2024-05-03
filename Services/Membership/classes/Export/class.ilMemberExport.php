@@ -263,6 +263,43 @@ class ilMemberExport
                     break;
             }
         }
+        
+        // fau: campoSub - add module column
+        // fau: campoCheck - add restrictions column
+        if ($this->settings->enabled('module') || $this->settings->enabled('restrictions')) {
+            global $DIC;
+            $object = ilObjectFactory::getInstanceByRefId($this->getRefId());
+            $restriction_obj_ids = $DIC->fau()->ilias()->objects()->getParallelObjectIds($object);
+            $restriction_module_ids = $DIC->fau()->user()->repo()->getSelectedModuleIdsOfMembers($restriction_obj_ids);
+            $hardRestrictions = $DIC->fau()->cond()->hard();
+
+            if ($this->settings->enabled('module')) {
+                $this->addCol($this->lng->txt('fau_selected_module'), $row, $col++);
+            }
+            if ($this->settings->enabled('restrictions')) {
+                $this->addCol($this->lng->txt('fau_rest_hard_restrictions'), $row, $col++);
+            }
+        }
+        // fau.
+
+        // fau: memberExport - add events in header row
+        ilDatePresentation::setUseRelativeDates(false);
+        foreach ($this->events as $event_obj) {
+            $this->addCol($event_obj->getTitle() . ' (' . $event_obj->getFirstAppointment()->appointmentToString() . ')', $row, $col++);
+        }
+        // fau.
+
+        // fau: memberExport - add groups in header row
+        foreach ($this->groups as $group_obj) {
+            $this->addCol($group_obj->getTitle(), $row, $col++);
+        }
+        // fau.
+
+        // fau: memberExport - add learning progress titles in header row
+        foreach ($this->lp_keys as $key) {
+            $this->addCol($this->lp_data[$key]['title'], $row, $col++);
+        }
+        // fau.        
         $this->addRow();
         // Add user data
         foreach ($this->user_ids as $usr_id) {

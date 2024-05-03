@@ -127,6 +127,118 @@ abstract class ilWaitingList
         // fau.
     }
 
+    // fau: campoSub - new functions getModuleId, updateModuleId
+    // fau: regLog - raise an updateWaitingList event
+    /**
+     * Get the module id
+     * @param int $a_usr_id
+     * @return	int
+     */
+    public function getModuleId($a_usr_id)
+    {
+        return $this->users[$a_usr_id]['module_id'] ?? null;
+    }
+
+    /**
+     * Update the module id
+     * @param int $a_usr_id
+     * @param int|null $a_module_id
+     */
+    public function updateModuleId($a_usr_id, $a_module_id)
+    {
+        global $DIC;
+
+        $ilDB = $DIC['ilDB'];
+
+        $query = "UPDATE crs_waiting_list " .
+            "SET module_id = " . $ilDB->quote((int) $a_module_id, 'integer') . " " .
+            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
+            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
+        $ilDB->manipulate($query);
+
+        $this->users[$a_usr_id]['module_id'] = $a_module_id;
+        $this->raiseUpdateEvent($a_usr_id);
+    }
+    // fau.
+
+
+
+    // fau: fairSub - new function updateRequest(), acceptOnList()
+    // fau: regLog - raise an updateWaitingList event
+    /**
+     * update subject
+     * @param int $a_usr_id
+     * @param string|null $a_subject
+     * @param int|null $a_module_id
+     * @return true
+     */
+    public function updateRequest($a_usr_id, $a_subject = null, $a_module_id = null)
+    {
+        global $DIC;
+
+        $ilDB = $DIC['ilDB'];
+
+        $query = "UPDATE crs_waiting_list " .
+            "SET subject = " . $ilDB->quote($a_subject, 'text') . " " .
+            ", module_id = " . $ilDB->quote($a_module_id, 'integer') . " " .
+            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
+            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
+        $res = $ilDB->manipulate($query);
+
+        $this->users[$a_usr_id]['subject'] = $a_subject;
+        $this->raiseUpdateEvent($a_usr_id);
+        return true;
+    }
+
+
+    /**
+     * Accept a subscription request on the list
+     * @param int $a_usr_id
+     * @return bool
+     */
+    public function acceptOnList($a_usr_id)
+    {
+        global $DIC;
+
+        $ilDB = $DIC['ilDB'];
+
+        $query = "UPDATE crs_waiting_list " .
+            "SET to_confirm = " . $ilDB->quote(self::REQUEST_CONFIRMED, 'integer') . " " .
+            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
+            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer');
+        $res = $ilDB->manipulate($query);
+
+        $this->users[$a_usr_id]['to_confirm'] = self::REQUEST_CONFIRMED;
+        $this->recalculate();
+        $this->raiseUpdateEvent($a_usr_id);
+        return true;
+    }
+
+    // fau.
+
+    // fau: regLog - new function raiseUpdateEvent
+    /**
+     * Raise an updateWaitingList event for a user
+     */
+    protected function raiseUpdateEvent($a_usr_id) 
+    {
+        global $DIC;
+        
+        $ilAppEventHandler = $DIC['ilAppEventHandler'];
+        $ilLog = $DIC['ilLog'];
+        
+        $ilLog->write(__METHOD__ . ': Raise new event: Services/Membership updateWaitingList');
+        $ilAppEventHandler->raise(
+            "Services/Membership",
+            'updateWaitingList',
+            array(
+                'obj_id' => $this->getObjId(),
+                'usr_id' => $a_usr_id,
+            )
+        );
+    }
+    // fau.
+        
     public function removeFromList(int $a_usr_id): bool
     {
         $query = "DELETE FROM crs_waiting_list " .

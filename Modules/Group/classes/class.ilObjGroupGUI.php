@@ -1159,6 +1159,11 @@ class ilObjGroupGUI extends ilContainerGUI
     {
         $this->checkPermission('leave');
         $this->object->members_obj->delete($this->user->getId());
+
+        // fau: campoSub - note the unsubscription
+        global $DIC;
+        $DIC->fau()->user()->deleteMembership($this->object->getId(), $DIC->user()->getId());
+        // fau.        
         $this->object->members_obj->sendNotification(
             ilGroupMembershipMailNotification::TYPE_UNSUBSCRIBE_MEMBER,
             $this->user->getId()
@@ -2060,6 +2065,11 @@ class ilObjGroupGUI extends ilContainerGUI
             $not->setInfo($this->lng->txt('grp_auto_notification_info'));
             $not->setChecked($this->object->getAutoNotification());
             $form->addItem($not);
+
+            // fau: campoSub - add the campo settings to the form
+            $DIC->fau()->ilias()->getCourseSettingsGUI()->addCampoSettingsToForm($form, $this->object);
+            // fau.
+
         }
 
         switch ($a_mode) {

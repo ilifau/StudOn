@@ -638,8 +638,11 @@ abstract class ilParticipants
     {
         return $this->roles;
     }
- /**
-     * fau: fauService - get role id for role matching in sync
+    /**
+     * fau: heavySub - get the actual role id of a role type
+     * fau: campoSync - get role id for role matching
+     * fau: campoSub - get role id for assigning members
+     * ExamAdmin plugin: get local role for registration code creation
      *
      * needed to check membership and count of members
      * to avoid overbooking by heavy traffic
