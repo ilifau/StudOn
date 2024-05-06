@@ -181,8 +181,11 @@ abstract class ilParticipantTableGUI extends ilTable2GUI
      */
     protected function addModuleCell(array $a_set)
     {
+        if(!isset($a_set['module']))
+        $a_set['module'] = "";
+    
         $this->tpl->setCurrentBlock('custom_fields');
-        if ($this->participants->isMember($a_set['usr_id'])) {
+        if ($this->participants->isMember((int) $a_set['usr_id'])) {
             $this->tpl->setVariable('VAL_CUST', (string) $a_set['module']);
         }
         else {

@@ -31,6 +31,7 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
      * @var string|array
      */
     protected $value;
+    protected bool $hide_sub = false;
 
     // fau: campoSub
     protected $disabled_values = array();

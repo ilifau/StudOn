@@ -217,7 +217,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 
                 // fau: campoCheck: show restrictions column
                 case 'restrictions_passed':
-                    $this->addRestrictionsCell($a_set);
+                    //$this->addRestrictionsCell($a_set);
                     break;
                 // fau.
 
