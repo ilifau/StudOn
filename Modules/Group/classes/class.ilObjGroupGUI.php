@@ -301,12 +301,14 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($agreement);
                 break;
 
-            case 'ilexportgui':
+            // fau: campoExport - call container export gui    
+            case 'ilcontainerexportgui':
                 $this->tabs_gui->setTabActive('export');
-                $exp = new ilExportGUI($this);
+                $exp = new ilContainerExportGUI($this);
                 $exp->addFormat('xml');
                 $this->ctrl->forwardCommand($exp);
                 break;
+            // fau.    
 
             case "ilcommonactiondispatchergui":
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
@@ -1306,12 +1308,14 @@ class ilObjGroupGUI extends ilContainerGUI
 
 
         if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
+            // fau: campoExport - set specific export tab for container
             $this->tabs_gui->addTarget(
                 'export',
-                $this->ctrl->getLinkTargetByClass('ilexportgui', ''),
+                $this->ctrl->getLinkTargetByClass('ilcontainerexportgui', ''),
                 'export',
-                'ilexportgui'
+                'ilcontainerexportgui'
             );
+            // fau.
         }
 
         // parent tabs (all container: edit_permission, clipboard, trash
