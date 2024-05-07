@@ -13,26 +13,16 @@ use FAU\Ilias\AbstractExport;
 class ilContainerExportGUI extends ilExportGUI
 {
     protected Container $dic;
-    protected ilTree $tree;
-    protected ilCtrl $ctrl;
-    protected ilLanguage $lng;
-
-
-    /** @var ilContainer */
-    protected $obj;
-
-    /** @var ilGlobalTemplate */
-    protected $tpl;
     
     /**
      * @var int[]
      */
-    protected $export_ref_ids = [];
+    protected array $export_ref_ids = [];
 
     /**
      * Constructor
      */
-    public function __construct($a_parent_gui, $a_main_obj = null)
+    public function __construct(object $a_parent_gui, ?ilObject $a_main_obj = null)
     {
         global $DIC;
         $this->dic = $DIC;
@@ -46,7 +36,7 @@ class ilContainerExportGUI extends ilExportGUI
         $this->export_ref_ids = $this->dic->fau()->ilias()->objects()->getPathRefIdsWithCollectedExports($this->obj->getRefId());
     }
     
-    public function listExportFiles()
+    public function listExportFiles(): void
     {
         parent::listExportFiles();
         if ($this->canExportUserData()) {
