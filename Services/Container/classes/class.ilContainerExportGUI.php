@@ -147,7 +147,7 @@ class ilContainerExportGUI extends ilExportGUI
         $file = $export->exportCoursesUsers(AbstractExport::TYPE_EXCEL, $filter_obj_id);
 
         if (is_file($file)) {
-            ilUtil::deliverFile($file, basename($file), '', false, true);
+            ilFileDelivery::deliverFileLegacy($file, basename($file), '', false, true);
         }
         else {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_export_course_members_failed'), true);

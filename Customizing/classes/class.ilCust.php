@@ -157,7 +157,7 @@ class ilCust
 		
 		if (!isset($allowed))
 		{
-			$privacy = ilPrivacySettings::_getInstance();
+			$privacy = ilPrivacySettings::getInstance();
 			$allowed = $DIC->rbac()->system()->checkAccess('export_member_data', $privacy->getPrivacySettingsRefId());
 		}
 		
