@@ -129,9 +129,9 @@ class AbstractExport
      */
     public function buildExportFile(string $name, string $type = self::TYPE_EXCEL) : string
     {
-        $name = \ilUtil::getASCIIFilename($name);
-        $directory = \ilUtil::ilTempnam();
-        \ilUtil::makeDirParents($directory);
+        $name = \ilFileUtils::getASCIIFilename($name);
+        $directory = \ilFileUtils::ilTempnam();
+        \ilFileUtils::makeDirParents($directory);
 
         switch ($type)
         {
