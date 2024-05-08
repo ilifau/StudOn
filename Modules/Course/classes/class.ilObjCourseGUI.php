@@ -175,6 +175,34 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->getViewMode() == ilContainer::VIEW_OBJECTIVE
         ) {
             parent::renderObject();
+
+            // fau: campoTransfer - add button in toolbar
+            global $DIC;
+            $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+            if ($import_id->isForCampo() && $this->checkPermissionBool('write')) {
+                $button = ilLinkButton::getInstance();
+                $button->setCaption('fau_transfer_course');
+                $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'selectTargetCourse'));
+                $this->toolbar->addSeparator();
+                $this->toolbar->addButtonInstance($button);
+
+                if ($this->object->hasParallelGroups()) {
+                    $button = ilLinkButton::getInstance();
+                    $button->setCaption('fau_split_course');
+                    $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'showSplitOptions'));
+                    $this->toolbar->addButtonInstance($button);
+                }
+
+                if (!empty($import_id->getCourseId()) && count($DIC->fau()->study()->repo()->getObjectIdsWithImportId($import_id)) > 1)
+                {
+                    $button = ilLinkButton::getInstance();
+                    $button->setPrimary(true);
+                    $button->setCaption('fau_solve_campo_conflict');
+                    $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'showSolveOptions'));
+                    $this->toolbar->addButtonInstance($button);
+                }
+            }
+            // fau.            
         } else {
             $course_content_obj = new ilCourseContentGUI($this);
             $this->ctrl->setCmdClass(get_class($course_content_obj));
