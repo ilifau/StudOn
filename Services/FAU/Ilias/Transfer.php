@@ -128,12 +128,12 @@ $assigned[] = $assign_groups[$ref_id];
             $this->dic->fau()->sync()->roles()->updateRolesInIliasObject($target->getRefId(), null, $course->getCourseId(), $event->getEventId(), $term);
 
             $this->dic->fau()->study()->repo()->save($course->withIliasObjId($target->getId()));
-            $source->setImportId(null);
+            $source->setImportId("");
             $parent->setDescription($this->dic->language()->txt('fau_transfer_source_desc'));
             $source->update();
         }
 
-        $parent->setImportId(null);
+        $parent->setImportId("");
         $parent->setOfflineStatus(true);
         $parent->setDescription($this->dic->language()->txt('fau_transfer_source_desc'));
         $parent->setSubscriptionType(ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED);
@@ -220,7 +220,7 @@ $assigned[] = $assign_groups[$ref_id];
                         $source = new ilObjCourse($ref_id);
                         $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), ilParticipants::IL_CRS_MEMBER, ilParticipants::IL_CRS_MEMBER);
                         $this->moveWaitingList($source->getId(), $target->getId());
-                        $source->setImportId(null);
+                        $source->setImportId("");
                         $source->setOfflineStatus(true);
                         $source->update();
                     }
@@ -335,7 +335,7 @@ $assigned[] = $assign_groups[$ref_id];
 
         
         if (isset($source)) {
-            $source->setImportId(null);
+            $source->setImportId("");
             $source->update();
 
             // set target as object for the source campo course (only one)

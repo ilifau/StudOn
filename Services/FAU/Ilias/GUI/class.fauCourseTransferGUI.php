@@ -84,15 +84,15 @@ class fauCourseTransferGUI extends BaseGUI
     protected function checkTargetBasic()
     {
         if (ilObject::_lookupType($this->target_ref_id, true) != 'crs') {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_course'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_course'), true);
             $this->returnToParent();
         }
         if (!$this->access->checkAccess('write','', $this->target_ref_id, 'crs')) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_write'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_write'), true);
             $this->returnToParent();
         }
         if (!$this->access->checkAccess('manage_members','', $this->target_ref_id, 'crs')) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_manage_members'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_no_manage_members'), true);
             $this->returnToParent();
         }
     }
@@ -106,24 +106,24 @@ class fauCourseTransferGUI extends BaseGUI
         $this->checkTargetBasic();
 
         if ($this->target_ref_id == $this->object->getRefId()) {
-            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_same_object'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_same_object'), true);
             $this->returnToParent();
         }
         if ($this->target_import_id->isForCampo()) {
 
             if ($this->target_import_id->getEventId() != $this->current_import_id->getEventId()) {
-                ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_already_connected_other'), true);
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_already_connected_other'), true);
                 $this->returnToParent();
             }
             
             if (empty($this->target_import_id->getCourseId()) != empty($this->current_import_id->getCourseId())) {
-                ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_nesting_differs'), true);
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_nesting_differs'), true);
                 $this->returnToParent();
             }
             
             $term = Term::fromString($this->target_import_id->getTermId());
             if ($this->dic->fau()->study()->getTermEndTime($term) >= time()) {
-                ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_already_connected_term'), true);
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('fau_transfer_failed_already_connected_term'), true);
                 $this->returnToParent();
             }
         }
@@ -146,7 +146,7 @@ class fauCourseTransferGUI extends BaseGUI
 
         $explorer_gui = new fauRepositorySelectionExplorerGUI($this, 'selectTargetCourse');
         $explorer_gui->setSelectMode('target_ref_id', false);
-        $explorer_gui->setTypeWhiteList(['root', 'cat']);
+        $explorer_gui->setTypeWhiteList(['root', 'cat', 'crs']);
         $explorer_gui->setSelectableTypes(['crs']);
         if ($explorer_gui->handleCommand()) {
             return;
@@ -425,7 +425,7 @@ class fauCourseTransferGUI extends BaseGUI
         $this->checkTargetBasic();
         
         $this->dic->fau()->ilias()->transfer()->solveCourseConflicts($this->target_import_id, new ilObjCourse($this->target_ref_id));
-        ilUtil::sendSuccess($this->lng->txt('fau_solve_success'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('fau_solve_success'), true);
         $this->ctrl->redirectToURL(ilLink::_getLink($this->target_ref_id));
     }
 }
