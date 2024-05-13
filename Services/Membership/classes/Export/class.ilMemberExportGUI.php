@@ -43,6 +43,22 @@ class ilMemberExportGUI
     protected ?ilExportFieldsInfo $fields_info = null;
     protected ?ilFileSystemAbstractionStorage $fss_export = null;
     protected ilUserFormSettings $exportSettings;
+    /**
+     * fau: memberExport - add learning progress settings
+     */
+    private $lp_objects = array(
+        'crs' => array('status', 'marks', 'comments'),
+        'sess' => array('status', 'marks', 'comments'),
+        'exc' => array('status', 'marks', 'comments'),
+        'tst' => array('status'),
+        'grp' => array('status'),
+        'fold' => array('status'),
+        'lm' => array('status'),
+        'htlm' => array('status'),
+        'sahs' => array('status'),
+        // 'wiki' => array('marks', 'status') funktioniert nicht
+    );
+    // fau.
 
     /**
      * Constructor
@@ -61,6 +77,10 @@ class ilMemberExportGUI
         $this->toolbar = $DIC->toolbar();
         $this->lng = $DIC->language();
         $this->lng->loadLanguageModule('ps');
+        // fau: memberExport - get language vars of course and tracking
+        $this->lng->loadLanguageModule('crs');
+        $this->lng->loadLanguageModule('trac');
+        // fau.        
         $this->ref_id = $a_ref_id;
         $this->obj_id = ilObject::_lookupObjId($this->ref_id);
         $this->type = ilObject::_lookupType($this->obj_id);
