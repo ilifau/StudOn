@@ -28,7 +28,7 @@ use FAU\Ilias\Helper\WaitingListConstantsHelper;
 abstract class ilWaitingList
 {
     use WaitingListHelper;
-
+    
     public static array $is_on_list = [];
     private int $obj_id = 0;
     private array $user_ids = [];
@@ -203,12 +203,12 @@ abstract class ilWaitingList
         $ilDB = $DIC['ilDB'];
 
         $query = "UPDATE crs_waiting_list " .
-            "SET to_confirm = " . $ilDB->quote(self::REQUEST_CONFIRMED, 'integer') . " " .
+            "SET to_confirm = " . $ilDB->quote(WaitingListConstantsHelper::REQUEST_CONFIRMED, 'integer') . " " .
             "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
             "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer');
         $res = $ilDB->manipulate($query);
 
-        $this->users[$a_usr_id]['to_confirm'] = self::REQUEST_CONFIRMED;
+        $this->users[$a_usr_id]['to_confirm'] = WaitingListConstantsHelper::REQUEST_CONFIRMED;
         $this->recalculate();
         $this->raiseUpdateEvent($a_usr_id);
         return true;
