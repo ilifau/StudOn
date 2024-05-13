@@ -277,6 +277,8 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
                 // fau: campoCheck - fill restrictions column
                 case 'restrictions_passed':
+                    if(!isset($a_set['module_id']))
+                        $a_set['module_id'] = null;
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', (string) fauHardRestrictionsGUI::getInstance()->getResultModalLink(
                         $a_set['restrictions'], $a_set['module_id']));
