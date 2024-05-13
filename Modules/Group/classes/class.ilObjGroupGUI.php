@@ -2200,6 +2200,11 @@ class ilObjGroupGUI extends ilContainerGUI
         if (!ilCourseUserData::_checkRequired($this->user->getId(), $this->object->getId())) {
             return false;
         }
+
+        // fau: memberExport - notify first access
+        ilMemberAgreement::_setFirstAccessTime($this->user->getId(), $this->object->getId());
+        // fau.
+
         return true;
     }
 
