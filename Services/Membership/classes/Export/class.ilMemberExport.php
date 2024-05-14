@@ -225,7 +225,7 @@ class ilMemberExport
         $field_info->sortExportFields();
         $fields[] = 'role';
         // Append agreement info
-        $privacy = ilPrivacySettings::_getInstance();
+        $privacy = ilPrivacySettings::getInstance();
         // fau: memberExport - add registration field if agreement is not needed
         if ($this->agreement_needed) {
             $fields[] = 'agreement';
