@@ -201,7 +201,7 @@ abstract class ilExcCriteria
 
         // use unserialize only if php > 7
         if ($a_def != "" && version_compare(PHP_VERSION, '7.0.0') >= 0) {
-            $a_def = @unserialize($a_def, false);
+            $a_def = @unserialize($a_def, ['allowed_classes' => false]);
             if (is_array($a_def)) {
                 $this->setDefinition($a_def);
             }
@@ -222,7 +222,7 @@ abstract class ilExcCriteria
         $this->setRequired($a_row["required"]);
         $this->setPosition($a_row["pos"]);
         $this->setDefinition($a_row["def"]
-                ? unserialize($a_row["def"])
+                ? unserialize($a_row["def"], ['allowed_classes' => false])
                 : null);
     }
     
