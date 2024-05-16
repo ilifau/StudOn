@@ -167,6 +167,27 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 'txt' => $this->lng->txt('login')
             ];
         }
+
+        // fau: campoCheck - add restrictions column
+        global $DIC;
+        if ($DIC->fau()->cond()->hard()->hasObjectRestrictions($this->getRepositoryObject()->getId())) {
+            self::$all_columns['restrictions_passed'] = [
+                'default' => 1,
+                'txt' => $this->lng->txt('fau_rest_hard_restrictions')
+            ];
+        }
+        // fau.
+
+
+        // fau: campoSub - add module as column
+        global $DIC;
+        if ($DIC->fau()->study()->isObjectForCampo($this->getRepositoryObject()->getId())) {
+            self::$all_columns['module'] = [
+                'default' => 1,
+                'txt' => $this->lng->txt('fau_selected_module')
+            ];
+        }
+        // fau.
         
         // fau: paraSub - add groups column
         global $DIC;
@@ -256,6 +277,8 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
                 // fau: campoCheck - fill restrictions column
                 case 'restrictions_passed':
+                    if(!isset($a_set['module_id']))
+                        $a_set['module_id'] = null;
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', (string) fauHardRestrictionsGUI::getInstance()->getResultModalLink(
                         $a_set['restrictions'], $a_set['module_id']));
@@ -356,6 +379,9 @@ class ilWaitingListTableGUI extends ilTable2GUI
             $additional_fields['org_units']
         );
         
+        // fau: campoSub - don't query for module by default
+        // fau: campoCheck - don't query for restrictions by default
+        // fau: paraSub - don't query for restrictions by default
         // fau: fairSub#104 - don't query for subject by default
         unset($additional_fields["module"]);
         unset($additional_fields["restrictions_passed"]);

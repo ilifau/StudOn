@@ -10,6 +10,7 @@ use FAU\Study\Service;
 use FAU\Ilias\Data\ContainerInfo;
 use ILIAS\UI\Component\Button\Button;
 use ILIAS\UI\Component\Modal\Modal;
+use FAU\Ilias\Helper\UtilHelper;
 
 /**
  * GUI for the display of course related data
@@ -17,6 +18,7 @@ use ILIAS\UI\Component\Modal\Modal;
  */
 class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
 {
+    use UtilHelper;
     protected Service $service;
     protected Repository $repo;
 
@@ -485,7 +487,7 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $text = ilUtil::secureString($text);
 
         foreach ($additional_tags as $tag) {
-            $text = ilUtil::unmaskTag($text, $tag);
+            $text = UtilHelper::unmaskTag($text, $tag);
         }
 
         return $text;

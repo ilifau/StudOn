@@ -175,6 +175,34 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->getViewMode() == ilContainer::VIEW_OBJECTIVE
         ) {
             parent::renderObject();
+
+            // fau: campoTransfer - add button in toolbar
+            global $DIC;
+            $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+            if ($import_id->isForCampo() && $this->checkPermissionBool('write')) {
+                $button = ilLinkButton::getInstance();
+                $button->setCaption('fau_transfer_course');
+                $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'selectTargetCourse'));
+                $this->toolbar->addSeparator();
+                $this->toolbar->addButtonInstance($button);
+
+                if ($this->object->hasParallelGroups()) {
+                    $button = ilLinkButton::getInstance();
+                    $button->setCaption('fau_split_course');
+                    $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'showSplitOptions'));
+                    $this->toolbar->addButtonInstance($button);
+                }
+
+                if (!empty($import_id->getCourseId()) && count($DIC->fau()->study()->repo()->getObjectIdsWithImportId($import_id)) > 1)
+                {
+                    $button = ilLinkButton::getInstance();
+                    $button->setPrimary(true);
+                    $button->setCaption('fau_solve_campo_conflict');
+                    $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'showSolveOptions'));
+                    $this->toolbar->addButtonInstance($button);
+                }
+            }
+            // fau.            
         } else {
             $course_content_obj = new ilCourseContentGUI($this);
             $this->ctrl->setCmdClass(get_class($course_content_obj));
@@ -509,6 +537,14 @@ class ilObjCourseGUI extends ilContainerGUI
                 )
             );
         }
+
+        // fau: campoInfo - show info on course info page
+        global $DIC;
+        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+        if ($importId->isForCampo()) {
+            $DIC->fau()->study()->info()->addInfoScreenSections($info, $importId, $this->ref_id);
+        }
+        // fau.
 
         // Confirmation
         $privacy = ilPrivacySettings::getInstance();
@@ -2280,12 +2316,14 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
+            // fau: campoExport - set specific export tab for container
             $this->tabs_gui->addTarget(
                 'export',
-                $this->ctrl->getLinkTargetByClass('ilexportgui', ''),
+                $this->ctrl->getLinkTargetByClass('ilcontainerexportgui', ''),
                 'export',
-                'ilexportgui'
+                'ilcontainerexportgui'
             );
+            // fau.
         }
 
         if ($this->access->checkAccess('edit_permission', '', $this->ref_id)) {
@@ -2583,12 +2621,14 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($settings_gui);
                 break;
 
-            case 'ilexportgui':
+            // fau: campoExport - call container export gui    
+            case 'ilcontainerexportgui':
                 $this->tabs_gui->setTabActive('export');
-                $exp = new ilExportGUI($this);
+                $exp = new ilContainerExportGUI($this);
                 $exp->addFormat('xml');
                 $this->ctrl->forwardCommand($exp);
                 break;
+            // fau.
 
             case "ilcommonactiondispatchergui":
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
@@ -2856,6 +2896,11 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->logger->warning('Missing required fields');
             return false;
         }
+
+        // fau: memberExport - notify first access
+        ilMemberAgreement::_setFirstAccessTime($this->user->getId(), $this->object->getId());
+        // fau.
+
         return true;
     }
 

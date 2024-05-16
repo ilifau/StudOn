@@ -67,6 +67,33 @@ class ilObjGroupListGUI extends ilObjectListGUI
         $this->commands = ilObjGroupAccess::_getCommands();
     }
 
+    // fau: campoInfo - show info and links from campo
+    // use custom property to hide the display in the result list of campo search    
+    /**
+     * @inheritdoc
+     */  
+    public function initItem(int $a_ref_id, int $a_obj_id, string $type, string $a_title = "", string $a_description = "") : void
+    {
+        parent::initItem($a_ref_id, $a_obj_id, $type, $a_title, $a_description);
+        global $DIC;
+        $info_gui = $DIC->fau()->study()->info();
+        $import_id = $DIC->fau()->study()->repo()->getImportId($this->obj_id)->withEventId(null);
+        if ($import_id->isForCampo()) {
+            if (!empty($line = $info_gui->getDatesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getResponsiblesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getDetailsLink($import_id, $this->ref_id, $this->lng->txt('fau_details_link')))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+        }
+
+        // fau.
+    }
+    
+
     /**
      * @inheritDoc
     */

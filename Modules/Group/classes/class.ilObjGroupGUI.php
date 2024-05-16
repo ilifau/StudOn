@@ -301,12 +301,14 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($agreement);
                 break;
 
-            case 'ilexportgui':
+            // fau: campoExport - call container export gui    
+            case 'ilcontainerexportgui':
                 $this->tabs_gui->setTabActive('export');
-                $exp = new ilExportGUI($this);
+                $exp = new ilContainerExportGUI($this);
                 $exp->addFormat('xml');
                 $this->ctrl->forwardCommand($exp);
                 break;
+            // fau.    
 
             case "ilcommonactiondispatchergui":
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
@@ -1159,6 +1161,11 @@ class ilObjGroupGUI extends ilContainerGUI
     {
         $this->checkPermission('leave');
         $this->object->members_obj->delete($this->user->getId());
+
+        // fau: campoSub - note the unsubscription
+        global $DIC;
+        $DIC->fau()->user()->deleteMembership($this->object->getId(), $DIC->user()->getId());
+        // fau.        
         $this->object->members_obj->sendNotification(
             ilGroupMembershipMailNotification::TYPE_UNSUBSCRIBE_MEMBER,
             $this->user->getId()
@@ -1301,12 +1308,14 @@ class ilObjGroupGUI extends ilContainerGUI
 
 
         if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
+            // fau: campoExport - set specific export tab for container
             $this->tabs_gui->addTarget(
                 'export',
-                $this->ctrl->getLinkTargetByClass('ilexportgui', ''),
+                $this->ctrl->getLinkTargetByClass('ilcontainerexportgui', ''),
                 'export',
-                'ilexportgui'
+                'ilcontainerexportgui'
             );
+            // fau.
         }
 
         // parent tabs (all container: edit_permission, clipboard, trash
@@ -1536,6 +1545,12 @@ class ilObjGroupGUI extends ilContainerGUI
                 )
             );
         }
+
+        // fau: campoInfo - show info on group info page
+        // set event id null to prevent event info being shown
+        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId())->withEventId(null);
+        $DIC->fau()->study()->info()->addInfoScreenSections($info, $importId, $this->ref_id);
+        // fau.
 
         // Confirmation
         $privacy = ilPrivacySettings::getInstance();
@@ -2054,6 +2069,11 @@ class ilObjGroupGUI extends ilContainerGUI
             $not->setInfo($this->lng->txt('grp_auto_notification_info'));
             $not->setChecked($this->object->getAutoNotification());
             $form->addItem($not);
+
+            // fau: campoSub - add the campo settings to the form
+            $DIC->fau()->ilias()->getCourseSettingsGUI()->addCampoSettingsToForm($form, $this->object);
+            // fau.
+
         }
 
         switch ($a_mode) {
@@ -2180,6 +2200,11 @@ class ilObjGroupGUI extends ilContainerGUI
         if (!ilCourseUserData::_checkRequired($this->user->getId(), $this->object->getId())) {
             return false;
         }
+
+        // fau: memberExport - notify first access
+        ilMemberAgreement::_setFirstAccessTime($this->user->getId(), $this->object->getId());
+        // fau.
+
         return true;
     }
 
