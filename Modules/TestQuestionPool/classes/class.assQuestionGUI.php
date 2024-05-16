@@ -235,6 +235,13 @@ abstract class assQuestionGUI
 
             default:
                 $cmd = $this->ctrl->getCmd('editQuestion');
+
+                if (in_array($cmd, ['save', 'saveReturn','saveFQ', 'saveReturnFQ', 'editQuestion'])) {
+                    $this->addSaveOnEnterOnLoadCode();
+                    $this->$cmd();
+                    return;
+                }
+
                 if (method_exists($this, $cmd)) {
                     $this->$cmd();
                     return;
@@ -1305,7 +1312,7 @@ abstract class assQuestionGUI
 
     protected function populateTaxonomyFormSection(ilPropertyFormGUI $form)
     {
-        if (count($this->getTaxonomyIds())) {
+        if ($this->getTaxonomyIds() !== []) {
             // this is needed by ilTaxSelectInputGUI in some cases
             require_once 'Services/UIComponent/Overlay/classes/class.ilOverlayGUI.php';
             ilOverlayGUI::initJavaScript();
@@ -2355,5 +2362,28 @@ abstract class assQuestionGUI
      */
     public function saveCorrectionsFormProperties(ilPropertyFormGUI $form)
     {
+    }
+
+    protected function addSaveOnEnterOnLoadCode() : void
+    {
+        $this->tpl->addOnloadCode("
+            let form = document.querySelector('#ilContentContainer form');
+            let button = form.querySelector('input[name=\"cmd[save]\"]');
+            if (button === null) {
+                button = form.querySelector('input[name=\"cmd[saveFQ]\"]');
+            };
+            if (form && button) {
+                form.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter'
+                        && e.target.type !== 'textarea'
+                        && e.target.type !== 'submit'
+                        && e.target.type !== 'file'
+                    ) {
+                        e.preventDefault();
+                        form.requestSubmit(button);
+                    }
+                })
+            }
+        ");
     }
 }
