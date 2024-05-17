@@ -744,6 +744,7 @@ class ilContainer extends ilObject
             ilLoggerFactory::getLogger('obj')->info('Copy content only...');
             ilLoggerFactory::getLogger('obj')->debug('Added mapping, source ID: ' . $clone_source . ', target ID: ' . $ref_id);
             $wizard_options->read();
+            $wizard_options->dropFirstNode();
             $wizard_options->appendMapping($clone_source, $ref_id);
         }
         
