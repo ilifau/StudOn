@@ -79,7 +79,11 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             case 'leaveWaitingList':
             case 'updateSubscriptionRequest':
             case 'cancelSubscriptionRequest':
-                $checkCmd = 'leave';
+                $checkCmd = 'leaveWaitList';
+                break;
+            case 'leaveWaitList':
+                $checkCmd = 'leaveWaitList';
+                $cmd = 'updateWaitingList';
                 break;
 
             // called for updating scubscription requests

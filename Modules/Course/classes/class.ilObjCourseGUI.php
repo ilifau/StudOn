@@ -2344,12 +2344,12 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->lng->txt('join'),
                 $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show")
             );
-        } elseif ($this->access->checkAccess('join', 'leave', $this->ref_id)) {
+        } elseif ($this->access->checkAccess('join', 'leaveWaitList', $this->ref_id)) {
             // leave command: edit membership request
             $this->tabs_gui->addTab(
                 'join',
                 $this->lng->txt('mem_edit_request'),
-                $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "leave")
+                $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "leaveWaitList")
             );
         }
         // fau.
@@ -2819,9 +2819,7 @@ class ilObjCourseGUI extends ilContainerGUI
                     && $cmd != 'deliverCertificate'
                     && $cmd != 'performUnsubscribe'
                     && $cmd != 'removeFromDesk'
-                    // fau: changeSub - revert https://mantis.ilias.de/view.php?id=32243 as not working with changeSub; changeSub needs to be refactored later 
-                    // && $cmd !== 'leave'
-                    // fau. 
+                    && $cmd !== 'leave'
                     && !$this->access->checkAccess("read", '', $this->object->getRefId())
                     || $cmd == 'join'
                     || $cmd == 'subscribe'
