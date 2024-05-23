@@ -6293,6 +6293,7 @@ content#:#cont_dir_file#:#Directory/File
 content#:#cont_dir_renamed#:#Directory has been renamed.
 content#:#cont_disable_def_feedback#:#Disable Default Question Feedback
 content#:#cont_disable_def_feedback_info#:#If disabled, answered questions will not show any feedback for the learner. You need to provide custom feedbacks for your questions.
+content#:#cont_double_click_to_delete#:#Double-click on content elements to select them for (de-)activation or deletion.
 content#:#cont_download#:#Download
 content#:#cont_download_no_download#:#Download will not be available to users, since the download feature is not activated.
 content#:#cont_download_no_menu#:#Download will not be available to users since the learning module menu is not activated.
@@ -6456,7 +6457,7 @@ content#:#cont_free_pages#:#Free Pages
 content#:#cont_full_is_in_dir#:#Deletion not possible. Full screen file is in directory.
 content#:#cont_fullscreen#:#Full Screen
 content#:#cont_general_properties#:#General Properties
-content#:#cont_get_link#:#get link
+content#:#cont_get_link#:#→ Select Target Object
 content#:#cont_glo_assign#:#Assign Glossary
 content#:#cont_glo_create#:#Create Glossary
 content#:#cont_glo_detach#:#Detach Glossary
@@ -9494,8 +9495,8 @@ form#:#form_hierarchy_drag_drop_help#:#Drag and drop icons on placeholders to mo
 form#:#form_hours#:#Hours
 form#:#form_image_file_input#:#Image File Input
 form#:#form_invalid_uri#:#Invalid URI format.
-form#:#form_link_external#:#World Wide Web
-form#:#form_link_internal#:#Inside ILIAS
+form#:#form_link_external#:#External Link
+form#:#form_link_internal#:#InTernal Link
 form#:#form_location_radius#:#Radius
 form#:#form_location_radius_km#:#km
 form#:#form_max_value#:#Maximum Value

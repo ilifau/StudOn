@@ -24,7 +24,7 @@ class ilLMTracker
     /**
      * @var ILIAS\Refinery\Services
      */
-    protected $refinery;    
+    protected $refinery;
 
     /**
      * @var ilPluginAdmin
@@ -264,7 +264,7 @@ class ilLMTracker
             if (!$this->lm_tree->isInTree($pg_id)) {
                 return;
             }
-            
+
             $time_diff = $read_diff = 0;
 
             // spent_seconds or read_count ?
