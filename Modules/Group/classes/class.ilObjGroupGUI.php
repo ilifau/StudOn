@@ -435,7 +435,9 @@ class ilObjGroupGUI extends ilContainerGUI
                     if (!$this->rbacsystem->checkAccess('join', $this->object->getRefId())) {
                         $this->ctrl->redirect($this, "infoScreen");
                     } else {	// no read -> show registration
-                        $this->ctrl->redirectByClass("ilGroupRegistrationGUI", "show"); 
+                        // fau: changeSub - provide the original command for registration gui
+                        $this->ctrl->redirectByClass("ilGroupRegistrationGUI", ($cmd == 'join' || $cmd == 'view') ? 'show' : $cmd);
+                        // fau.
                     }
                 }
                 if (!$cmd) {

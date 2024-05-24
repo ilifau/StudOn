@@ -317,10 +317,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
     protected function fillRegistrationType(): void
     {
-        if ($this->getWaitingList()->isOnList($this->user->getId())) {
-            return;
-        }
-
         // fau: objectSub - fill registration by separate object
         if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
            // return $this->fillRegistrationTypeObject($this->container->getRegistrationRefId());
@@ -398,7 +394,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 if ($this->getWaitingList()->isToConfirm($this->user->getId())) {
                     $sub->setValue($this->getWaitingList()->getSubject($this->user->getId()));
                     $sub->setInfo('');
-                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('mem_user_already_subscribed'));
                     //$this->enableRegistration(false);
                 }
                 // fau.
