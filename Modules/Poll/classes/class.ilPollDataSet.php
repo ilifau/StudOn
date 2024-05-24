@@ -181,6 +181,24 @@ class ilPollDataSet extends ilDataSet
      */
     public function importRecord($a_entity, $a_types, $a_rec, $a_mapping, $a_schema_version)
     {
+        $a_rec = $this->stripTags(
+            $a_rec,
+            [
+                'Id',
+                'MaxAnswers',
+                'ResultSort',
+                'NonAnon',
+                'ShowResultsAs',
+                'ShowComments',
+                'ViewResults',
+                'Period',
+                'PeriodBegin',
+                'PeriodEnd',
+                'PollId',
+                'pos',
+            ]
+        );
+
         switch ($a_entity) {
             case "poll":
                 include_once("./Modules/Poll/classes/class.ilObjPoll.php");
@@ -193,8 +211,9 @@ class ilPollDataSet extends ilDataSet
                     $newObj->create();
                 }
                     
-                $newObj->setTitle($a_rec["Title"]);
-                $newObj->setDescription($a_rec["Description"]);
+                /** @var ilObjPoll $newObj */
+                $newObj->setTitle((string) ($a_rec["Title"] ?? ''));
+                $newObj->setDescription((string) ($a_rec["Description"]));
                 if ((int) $a_rec["MaxAnswers"]) {
                     $newObj->setMaxNumberOfAnswers($a_rec["MaxAnswers"]);
                 }
