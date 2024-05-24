@@ -62,22 +62,52 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
     public function executeCommand(): void
     {
-        $next_class = $this->ctrl->getNextClass($this);
-
-        if (!$this->access->checkAccess('join', '', $this->getRefId())) {
-            $this->ctrl->redirectByClass(ilObjGroupGUI::class, 'infoScreen');
-        }
 
         if ($this->getWaitingList()->isOnList($this->user->getId())) {
             $this->tabs->activateTab('leave');
         }
 
+        // fau: changeSub - do the permission check with a fitting command
+        // fau: joinAsGuest - do the permission check with a fitting command
+        $cmd = $this->ctrl->getCmd("show");
+        switch ($cmd) {
+             // action buttons on registration screen
+            case 'updateWaitingList':
+            case 'leaveWaitingList':
+            case 'updateSubscriptionRequest':
+            case 'cancelSubscriptionRequest':
+                $checkCmd = 'leaveWaitList';
+                break;
+            case 'leaveWaitList':
+                $checkCmd = 'leaveWaitList';
+                $cmd = 'show';
+                $this->tabs->activateTab('join');
+                break;
+
+            // called for updating scubscription requests
+            case 'leave':
+                $checkCmd = 'leave';
+                $cmd = 'show';
+                break;
+
+            // called for joining
+            default:
+                $checkCmd = '';
+        }        
+        if (!$this->access->checkAccess('join', $checkCmd, $this->getRefId())) {
+            $this->ctrl->redirectByClass(ilObjGroupGUI::class, 'infoScreen');
+            return;
+        }
+
+        $next_class = $this->ctrl->getNextClass($this);
         switch ($next_class) {
             default:
-                $cmd = $this->ctrl->getCmd("show");
+                // $cmd = $this->ctrl->getCmd("show");
                 $this->$cmd();
                 break;
         }
+        // fau.
+        return;
     }
 
 

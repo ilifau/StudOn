@@ -670,7 +670,7 @@ abstract class ilRegistrationGUI
                 return;
             }
 
-            $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
+            $this->registration->doUpdate(ilUtil::stripSlashes((string) $_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
             $this->participants->sendExternalNotifications($this->container, $this->user, true);
 
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('sub_request_saved'), true);

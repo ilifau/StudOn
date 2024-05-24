@@ -435,7 +435,7 @@ class ilObjGroupGUI extends ilContainerGUI
                     if (!$this->rbacsystem->checkAccess('join', $this->object->getRefId())) {
                         $this->ctrl->redirect($this, "infoScreen");
                     } else {	// no read -> show registration
-                        $this->ctrl->redirectByClass("ilGroupRegistrationGUI", "show");
+                        $this->ctrl->redirectByClass("ilGroupRegistrationGUI", "show"); 
                     }
                 }
                 if (!$cmd) {
@@ -1329,12 +1329,12 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->lng->txt('join'),
                 $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
             );
-        } elseif ($this->access->checkAccess('join', 'leave', $this->object->getRefId())) {
+        } elseif ($this->access->checkAccess('join', 'leaveWaitList', $this->object->getRefId())) {
             // leave command: edit membership request
             $this->tabs_gui->addTab(
                 'join',
                 $this->lng->txt('mem_edit_request'),
-                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "leaveWaitList")
             );
         }
         // fau.
