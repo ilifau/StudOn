@@ -435,7 +435,9 @@ class ilObjGroupGUI extends ilContainerGUI
                     if (!$this->rbacsystem->checkAccess('join', $this->object->getRefId())) {
                         $this->ctrl->redirect($this, "infoScreen");
                     } else {	// no read -> show registration
-                        $this->ctrl->redirectByClass("ilGroupRegistrationGUI", "show");
+                        // fau: changeSub - provide the original command for registration gui
+                        $this->ctrl->redirectByClass("ilGroupRegistrationGUI", ($cmd == 'join' || $cmd == 'view') ? 'show' : $cmd);
+                        // fau.
                     }
                 }
                 if (!$cmd) {
@@ -1329,12 +1331,12 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->lng->txt('join'),
                 $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
             );
-        } elseif ($this->access->checkAccess('join', 'leave', $this->object->getRefId())) {
+        } elseif ($this->access->checkAccess('join', 'leaveWaitList', $this->object->getRefId())) {
             // leave command: edit membership request
             $this->tabs_gui->addTab(
                 'join',
                 $this->lng->txt('mem_edit_request'),
-                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "leaveWaitList")
             );
         }
         // fau.
@@ -1764,16 +1766,15 @@ class ilObjGroupGUI extends ilContainerGUI
             $opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'), (string) ilGroupConstants::GRP_REGISTRATION_DEACTIVATED, $this->lng->txt('grp_reg_disabled_info'));
             $reg_type->addOption($opt_deact);
 
-            // fau: paraSub - disable the reg type for parallel groups
-            if (!$this->object->isParallelGroup()) {
-                $form->addItem($reg_type);
-            }
             // Registration codes
             $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
             $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
             $reg_code->setValue('1');
             $reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
-            $form->addItem($reg_type);
+            // fau: paraSub - disable the reg type for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($reg_type);
+            }
 
             // Registration codes
             if (!$this->object->getRegistrationAccessCode()) {

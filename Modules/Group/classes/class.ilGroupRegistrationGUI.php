@@ -62,22 +62,52 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
     public function executeCommand(): void
     {
-        $next_class = $this->ctrl->getNextClass($this);
-
-        if (!$this->access->checkAccess('join', '', $this->getRefId())) {
-            $this->ctrl->redirectByClass(ilObjGroupGUI::class, 'infoScreen');
-        }
 
         if ($this->getWaitingList()->isOnList($this->user->getId())) {
             $this->tabs->activateTab('leave');
         }
 
+        // fau: changeSub - do the permission check with a fitting command
+        // fau: joinAsGuest - do the permission check with a fitting command
+        $cmd = $this->ctrl->getCmd("show");
+        switch ($cmd) {
+             // action buttons on registration screen
+            case 'updateWaitingList':
+            case 'leaveWaitingList':
+            case 'updateSubscriptionRequest':
+            case 'cancelSubscriptionRequest':
+                $checkCmd = 'leaveWaitList';
+                break;
+            case 'leaveWaitList':
+                $checkCmd = 'leaveWaitList';
+                $cmd = 'show';
+                $this->tabs->activateTab('join');
+                break;
+
+            // called for updating scubscription requests
+            case 'leave':
+                $checkCmd = 'leave';
+                $cmd = 'show';
+                break;
+
+            // called for joining
+            default:
+                $checkCmd = '';
+        }        
+        if (!$this->access->checkAccess('join', $checkCmd, $this->getRefId())) {
+            $this->ctrl->redirectByClass(ilObjGroupGUI::class, 'infoScreen');
+            return;
+        }
+
+        $next_class = $this->ctrl->getNextClass($this);
         switch ($next_class) {
             default:
-                $cmd = $this->ctrl->getCmd("show");
+                // $cmd = $this->ctrl->getCmd("show");
                 $this->$cmd();
                 break;
         }
+        // fau.
+        return;
     }
 
 
@@ -287,10 +317,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
     protected function fillRegistrationType(): void
     {
-        if ($this->getWaitingList()->isOnList($this->user->getId())) {
-            return;
-        }
-
         // fau: objectSub - fill registration by separate object
         if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
            // return $this->fillRegistrationTypeObject($this->container->getRegistrationRefId());
@@ -368,7 +394,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 if ($this->getWaitingList()->isToConfirm($this->user->getId())) {
                     $sub->setValue($this->getWaitingList()->getSubject($this->user->getId()));
                     $sub->setInfo('');
-                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('mem_user_already_subscribed'));
                     //$this->enableRegistration(false);
                 }
                 // fau.
