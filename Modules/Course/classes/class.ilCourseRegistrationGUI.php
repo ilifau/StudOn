@@ -83,7 +83,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 break;
             case 'leaveWaitList':
                 $checkCmd = 'leaveWaitList';
-                $cmd = 'updateWaitingList';
+                $cmd = 'show';
+                $this->tabs->activateTab('join');
                 break;
 
             // called for updating scubscription requests
