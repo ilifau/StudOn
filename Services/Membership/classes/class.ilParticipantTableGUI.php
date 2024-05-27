@@ -193,6 +193,26 @@ abstract class ilParticipantTableGUI extends ilTable2GUI
         }
         $this->tpl->parseCurrentBlock();
     }
+
+    /**
+     * Add a cell in the table row if the restrictions' column is selected
+     */
+    protected function addRestrictionsCell(array $a_set)
+    {
+        if(!isset($a_set['module_id']))
+            $a_set['module_id'] = null;
+        else $a_set['module_id'] = (int) $a_set['module_id'];
+        
+        $this->tpl->setCurrentBlock('custom_fields');
+        if ($this->participants->isMember((int) $a_set['usr_id'])) {
+            $this->tpl->setVariable('VAL_CUST',
+                fauHardRestrictionsGUI::getInstance()->getResultModalLink($a_set['restrictions'], $a_set['module_id']));
+        }
+        else {
+            $this->tpl->setVariable('VAL_CUST', '');
+        }
+        $this->tpl->parseCurrentBlock();
+    }
     // fau.
 
     protected function getRepositoryObject(): ilObject
