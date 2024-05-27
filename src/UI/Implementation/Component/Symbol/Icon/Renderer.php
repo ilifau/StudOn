@@ -47,7 +47,7 @@ class Renderer extends AbstractComponentRenderer
             $imagepath = $this->convertSpecialCharacters($component->getIconPath());
         }
 
-        $ab = $this->convertSpecialCharacters($component->getAbbreviation());
+        $ab = $this->convertSpecialCharacters($component->getAbbreviation() ?? '');
         if ($ab) {
             $tpl->setVariable("ABBREVIATION", $ab);
 
