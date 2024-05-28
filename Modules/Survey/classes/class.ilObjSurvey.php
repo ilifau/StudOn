@@ -4063,7 +4063,7 @@ class ilObjSurvey extends ilObject
             $item[] = $row["survey_key"];
             
             if ($row["externaldata"]) {
-                $ext = unserialize($row["externaldata"]);
+                $ext = unserialize($row["externaldata"], ['allowed_classes' => false]);
                 $item[] = $ext["email"];
                 $item[] = $ext["lastname"];
                 $item[] = $ext["firstname"];
@@ -4144,7 +4144,7 @@ class ilObjSurvey extends ilObject
                 );
                 
                 if ($row["externaldata"]) {
-                    $ext = unserialize($row["externaldata"]);
+                    $ext = unserialize($row["externaldata"], ['allowed_classes' => false]);
                     $item['email'] = $ext['email'];
                     $item['last_name'] = $ext['lastname'];
                     $item['first_name'] = $ext['firstname'];
@@ -4315,7 +4315,7 @@ class ilObjSurvey extends ilObject
                 continue;
             }
             
-            $externaldata = unserialize($row['externaldata']);
+            $externaldata = unserialize($row['externaldata'], ['allowed_classes' => false]);
             if (!$externaldata['email']) {
                 continue;
             }

@@ -33,10 +33,10 @@ class Renderer extends AbstractComponentRenderer
             $tpl->parseCurrentBlock();
         }
 
-        $tpl->setVariable("NAME", $component->getName());
+        $tpl->setVariable("NAME", $this->convertSpecialCharacters($component->getName()));
         $tpl->setVariable("SIZE", $component->getSize());
 
-        $tpl->setVariable("ALT", $component->getLabel());
+        $tpl->setVariable("ALT", $this->convertSpecialCharacters($component->getLabel()));
 
         if ($component instanceof Component\Symbol\Icon\Standard) {
             $imagepath = $this->getStandardIconPath($component);
@@ -44,10 +44,10 @@ class Renderer extends AbstractComponentRenderer
                 $tpl->touchBlock('outlined');
             }
         } else {
-            $imagepath = $component->getIconPath();
+            $imagepath = $this->convertSpecialCharacters($component->getIconPath());
         }
 
-        $ab = $component->getAbbreviation();
+        $ab = $this->convertSpecialCharacters($component->getAbbreviation() ?? '');
         if ($ab) {
             $tpl->setVariable("ABBREVIATION", $ab);
 

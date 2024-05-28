@@ -14,7 +14,7 @@ class Renderer extends AbstractComponentRenderer
         $this->checkComponent($component);
         $tpl = null;
 
-        $alternetive_text = $component->getAlternativeText();
+        $alternetive_text = $this->convertSpecialCharacters($component->getAlternativeText());
         if ($alternetive_text == "") {
             $alternetive_text = $this->txt("user_avatar");
         }
@@ -32,7 +32,7 @@ class Renderer extends AbstractComponentRenderer
             $tpl = $this->getTemplate('tpl.avatar_picture.html', true, true);
             $tpl->setVariable('ARIA_LABEL', $alternetive_text);
             $tpl->setVariable('MODE', 'picture');
-            $tpl->setVariable('CUSTOMIMAGE', $component->getPicturePath());
+            $tpl->setVariable('CUSTOMIMAGE', $this->convertSpecialCharacters($component->getPicturePath()));
         }
 
         $str = $tpl->get();
