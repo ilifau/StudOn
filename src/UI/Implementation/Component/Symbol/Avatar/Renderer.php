@@ -14,7 +14,7 @@ class Renderer extends AbstractComponentRenderer
         $this->checkComponent($component);
         $tpl = null;
 
-        $alternetive_text = $this->convertSpecialCharacters($component->getAlternativeText();
+        $alternetive_text = $this->convertSpecialCharacters($component->getAlternativeText());
         if ($alternetive_text == "") {
             $alternetive_text = $this->txt("user_avatar");
         }
