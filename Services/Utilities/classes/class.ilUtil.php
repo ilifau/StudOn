@@ -2292,8 +2292,11 @@ class ilUtil
         }
 
         // create directory with file permissions of parent directory
-        umask(0000);
-        return @mkdir($a_dir, fileperms($path));
+        $old_mask = umask(0000);
+        $result = @mkdir($a_dir, fileperms($path));
+        umask($old_mask);
+
+        return $result;
     }
 
 
@@ -2339,7 +2342,7 @@ class ilUtil
             }
         }
 
-        umask(0000);
+        $old_mask = umask(0000);
         foreach ($dirs as $dirindex => $dir) {
             // starting with the longest existing path
             if ($dirindex >= $found_index) {
@@ -2362,6 +2365,8 @@ class ilUtil
                 }
             }
         }
+        umask($old_mask);
+
         return true;
     }
 

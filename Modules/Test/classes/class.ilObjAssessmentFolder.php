@@ -133,7 +133,7 @@ class ilObjAssessmentFolder extends ilObject
         if (strlen(trim($types)) == 0) {
             $result = array();
         } else {
-            $result = unserialize($types);
+            $result = unserialize($types, ['allowed_classes' => false]);
         }
         return $result;
     }

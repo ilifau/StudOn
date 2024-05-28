@@ -2584,7 +2584,7 @@ abstract class assQuestion
         if ($result->numRows()) {
             include_once("./Services/RTE/classes/class.ilRTE.php");
             while ($row = $ilDB->fetchAssoc($result)) {
-                $value = (is_array(unserialize($row["value"]))) ? unserialize($row["value"]) : ilRTE::_replaceMediaObjectImageSrc($row["value"], 1);
+                $value = (is_array(unserialize($row["value"], ['allowed_classes' => false]))) ? unserialize($row["value"], ['allowed_classes' => false]) : ilRTE::_replaceMediaObjectImageSrc($row["value"], 1);
                 $this->suggested_solutions[$row["subquestion_index"]] = array(
                     "type" => $row["type"],
                     "value" => $value,
