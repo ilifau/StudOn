@@ -179,13 +179,13 @@ break;
         
         if ($participants instanceof ilCourseParticipants) {
             $current_role = 
-                $participants->isAdmin($user_id) ? IL_CRS_ADMIN 
-                : ($participants->isTutor($user_id) ? IL_CRS_TUTOR 
+                $participants->isAdmin($user_id) ? ilParticipants::IL_CRS_ADMIN 
+                : ($participants->isTutor($user_id) ? ilParticipants::IL_CRS_TUTOR 
                     : null);                                            // other roles are not determined by campo
         }
         else {
             $current_role =
-                $participants->isAdmin($user_id) ? IL_GRP_ADMIN 
+                $participants->isAdmin($user_id) ? ilParticipants::IL_GRP_ADMIN 
                     : null;                                             // other roles are not determined by campo
 
         }
