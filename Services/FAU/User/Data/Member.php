@@ -4,6 +4,7 @@ namespace FAU\User\Data;
 
 use FAU\RecordData;
 use FAU\Sync\SyncWithIlias;
+use ilParticipants;
 
 /**
  * Member status of an ILIAS user in an ilias course or group concerning campo
@@ -297,16 +298,16 @@ class Member extends RecordData
         switch ($context) {
             case self::CONTEXT_SINGLE_COURSE:
                 if ($this->hasAnyRole()) {
-                    return IL_CRS_ADMIN;
+                    return ilParticipants::IL_CRS_ADMIN;
                 }
                 break;
 
             case self::CONTEXT_PARENT_COURSE:
                 if ($this->isEventResponsible()) {
-                    return IL_CRS_ADMIN;
+                    return ilParticipants::IL_CRS_ADMIN;
                 }
                 elseif ($this->hasAnyRole()) {
-                    return IL_CRS_TUTOR;
+                    return ilParticipants::IL_CRS_TUTOR;
                 } 
                 break;
                                  
@@ -314,7 +315,7 @@ class Member extends RecordData
                 if ($this->isCourseResponsible()
                 || $this->isInstructor()
                 || $this->isIndividualInstructor()) {
-                    return IL_GRP_ADMIN;
+                    return ilParticipants::IL_GRP_ADMIN;
                 }
         }
         return null;
