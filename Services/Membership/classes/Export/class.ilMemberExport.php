@@ -836,8 +836,9 @@ class ilMemberExport
                 $this->user_course_data[$user_id]['role'] = $this->getType() === 'crs' ? ilParticipants::IL_CRS_MEMBER : ilParticipants::IL_GRP_MEMBER;
             } else {
                 // fau: memberExport - use the parameter as default status
-                $this->user_course_data[$user_id]['role'] = $a_status;
+                // $this->user_course_data[$user_id]['role'] = $a_status;
                 // fau.
+                $this->user_course_data[$user_id]['role'] = 'subscriber';
             }
         }
     }
