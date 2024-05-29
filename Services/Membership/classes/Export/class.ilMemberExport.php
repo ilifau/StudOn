@@ -430,7 +430,7 @@ class ilMemberExport
 
                     // fau: memberExport - add registration column if agreement is not needed
                     case 'registration':
-                        if ($this->agreement[$usr_id]['acceptance_time']) {
+                        if (isset($this->agreement[$usr_id]) && $this->agreement[$usr_id]['acceptance_time']) {
                             ilDatePresentation::setUseRelativeDates(false);
                             $this->addCol(ilDatePresentation::formatDate(new ilDateTime($this->agreement[$usr_id]['acceptance_time'], IL_CAL_UNIX)), $row, $col++);
                         } else {
@@ -441,7 +441,7 @@ class ilMemberExport
 
                     // fau: memberExport - add subscription message column
                     case 'submessage':
-                        $this->addCol($this->user_course_data[$usr_id]['submessage'], $row, $col++);
+                        $this->addCol(isset($this->user_course_data[$usr_id]['submessage']) ? $this->user_course_data[$usr_id]['submessage'] : "", $row, $col++);
                         break;
                     // fau.
 
@@ -563,7 +563,7 @@ class ilMemberExport
                         $module_id = $this->user_course_data[$usr_id]['module_id'] ?? null;
                     }
                     $this->addCol('['. $hardRestrictions->getCheckInfo() . '] '
-                        . $hardRestrictions->getCheckDetails(false, $module_id), $row, $col++);
+                        . $hardRestrictions->getCheckDetails(false, (int) $module_id), $row, $col++);
                 }
                 else {
                     $this->addCol('', $row, $col++);
@@ -612,7 +612,7 @@ class ilMemberExport
             foreach ($this->lp_keys as $key) {
                 switch ($this->lp_data[$key]['lp_type']) {
                     case 'marks':
-                        $this->addCol($this->lp_data[$key]['marks'][$usr_id]['mark'], $row, $col++);
+                        $this->addCol(isset($this->lp_data[$key]['marks'][$usr_id]['mark']) ? $this->lp_data[$key]['marks'][$usr_id]['mark'] : "", $row, $col++);
                         break;
 
                     case 'status':
@@ -629,7 +629,7 @@ class ilMemberExport
                         break;
 
                     case 'comments':
-                        $this->addCol($this->lp_data[$key]['comments'][$usr_id]['u_comment'], $row, $col++);
+                        $this->addCol(isset($this->lp_data[$key]['comments'][$usr_id]['u_comment']) ? isset($this->lp_data[$key]['comments'][$usr_id]['u_comment']) : "", $row, $col++);
                         break;
 
                     default:
@@ -700,7 +700,7 @@ class ilMemberExport
         global $ilAccess, $tree;
 
         $events = array();
-        foreach ($tree->getSubtree($tree->getNodeData($this->ref_id), false, 'sess') as $event_id) {
+        foreach ($tree->getSubtree($tree->getNodeData($this->ref_id), false, ['sess']) as $event_id) {
             $tmp_event = ilObjectFactory::getInstanceByRefId($event_id, false);
             if (!is_object($tmp_event) or !$ilAccess->checkAccess('write', '', $event_id)) {
                 continue;
@@ -721,7 +721,7 @@ class ilMemberExport
         global $ilAccess, $tree;
 
         $groups = array();
-        foreach ($tree->getSubtree($tree->getNodeData($this->ref_id), false, 'grp') as $group_id) {
+        foreach ($tree->getSubtree($tree->getNodeData($this->ref_id), false, ['grp']) as $group_id) {
             $tmp_group = ilObjectFactory::getInstanceByRefId($group_id, false);
             if (!is_object($tmp_group) or !$ilAccess->checkAccess('write', '', $group_id)) {
                 continue;
@@ -759,7 +759,7 @@ class ilMemberExport
                 continue;
             }
 
-            if (!$ilAccess->checkAccess('edit_learning_progress', '', $data['ref_id'], $data['type'], $data['obj_id'])) {
+            if (!$ilAccess->checkAccess('edit_learning_progress', '', (int) $data['ref_id'], $data['type'], (int) $data['obj_id'])) {
                 continue;
             }
 
@@ -799,9 +799,9 @@ class ilMemberExport
                 $this->lp_data[$key]['lp_type'] = 'status';
                 $this->lp_data[$key]['title'] = $data['title'];
                 $this->lp_data[$key]['type'] = $data['type'];
-                $this->lp_data[$key][ilLPStatus::LP_STATUS_IN_PROGRESS] = ilLPStatusWrapper::_getInProgress($data['obj_id']);
-                $this->lp_data[$key][ilLPStatus::LP_STATUS_COMPLETED] = ilLPStatusWrapper::_getCompleted($data['obj_id']);
-                $this->lp_data[$key][ilLPStatus::LP_STATUS_FAILED] = ilLPStatusWrapper::_getFailed($data['obj_id']);
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_IN_PROGRESS] = ilLPStatusWrapper::_getInProgress((int) $data['obj_id']);
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_COMPLETED] = ilLPStatusWrapper::_getCompleted((int) $data['obj_id']);
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_FAILED] = ilLPStatusWrapper::_getFailed((int) $data['obj_id']);
             }
 
             if ($this->settings->enabled($data['type'] . '_comments')) {
