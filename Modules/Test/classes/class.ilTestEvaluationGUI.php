@@ -104,52 +104,6 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         return $ret;
     }
 
-    public function &getHeaderNames(): array
-    {
-        $headernames = array();
-        if ($this->object->getAnonymity()) {
-            array_push($headernames, $this->lng->txt("counter"));
-        } else {
-            array_push($headernames, $this->lng->txt("name"));
-            array_push($headernames, $this->lng->txt("login"));
-        }
-        $additionalFields = $this->object->getEvaluationAdditionalFields();
-        if (count($additionalFields)) {
-            foreach ($additionalFields as $fieldname) {
-                array_push($headernames, $this->lng->txt($fieldname));
-            }
-        }
-        array_push($headernames, $this->lng->txt("tst_reached_points"));
-        array_push($headernames, $this->lng->txt("tst_mark"));
-        if ($this->object->getECTSOutput()) {
-            array_push($headernames, $this->lng->txt("ects_grade"));
-        }
-        array_push($headernames, $this->lng->txt("tst_answered_questions"));
-        array_push($headernames, $this->lng->txt("working_time"));
-        array_push($headernames, $this->lng->txt("detailed_evaluation"));
-        return $headernames;
-    }
-
-    public function &getHeaderVars(): array
-    {
-        $headervars = array();
-        if ($this->object->getAnonymity()) {
-            array_push($headervars, "counter");
-        } else {
-            array_push($headervars, "name");
-            array_push($headervars, "login");
-        }
-        array_push($headervars, "resultspoints");
-        array_push($headervars, "resultsmarks");
-        if ($this->object->getECTSOutput()) {
-            array_push($headervars, "ects_grade");
-        }
-        array_push($headervars, "qworkedthrough");
-        array_push($headervars, "timeofwork");
-        array_push($headervars, "");
-        return $headervars;
-    }
-
     /**
      * @deprecated command is not used any longer
      */
@@ -1024,6 +978,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $template->setVariable("PASS_DETAILS", $this->ctrl->getHTML($overviewTableGUI));
 
         $data = $this->object->getCompleteEvaluationData();
+        $data->getParticipant($active_id)->setPassScoring($pass);
         $result = $data->getParticipant($active_id)->getReached() . " " . strtolower($this->lng->txt("of")) . " " . $data->getParticipant($active_id)->getMaxpoints() . " (" . sprintf("%2.2f", $data->getParticipant($active_id)->getReachedPointsInPercent()) . " %" . ")";
         $template->setCurrentBlock('total_score');
         $template->setVariable("TOTAL_RESULT_TEXT", $this->lng->txt('tst_stat_result_resultspoints'));
@@ -1336,7 +1291,9 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $tpl->setVariable("PASS_DETAILS", $this->ctrl->getHTML($overviewTableGUI));
 
         $data = $this->object->getCompleteEvaluationData();
-        $percent = $data->getParticipant($active_id)->getPass($pass)->getReachedPoints() / $data->getParticipant($active_id)->getPass($pass)->getMaxPoints() * 100;
+        $reached = $data->getParticipant($active_id)->getPass($pass)->getReachedPoints();
+        $max = $data->getParticipant($active_id)->getPass($pass)->getMaxPoints();
+        $percent = $max ? $reached / $max * 100.0 : 0;
         $result = $data->getParticipant($active_id)->getPass($pass)->getReachedPoints() . " " . strtolower($this->lng->txt("of")) . " " . $data->getParticipant($active_id)->getPass($pass)->getMaxPoints() . " (" . sprintf("%2.2f", $percent) . " %" . ")";
         $tpl->setCurrentBlock('total_score');
         $tpl->setVariable("TOTAL_RESULT_TEXT", $this->lng->txt('tst_stat_result_resultspoints'));
@@ -2125,6 +2082,14 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             $this->redirectBackToParticipantsScreen();
         }
 
+        $testSession = new ilTestSession();
+        $testSession->loadFromDb($activeId);
+
+        if ($testSession->isSubmitted()) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('tst_already_submitted'), true);
+            $this->redirectBackToParticipantsScreen();
+        }
+
         if (($this->object->isEndingTimeEnabled() || $this->object->getEnableProcessingTime())
             && !$this->object->endingTimeReached()
             && !$this->object->isMaxProcessingTimeReached(
@@ -2163,21 +2128,27 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $participantData->setParticipantAccessFilter($accessFilter);
         $participantData->load($this->object->getTestId());
 
-        if (in_array($activeId, $participantData->getActiveIds())) {
-            $testSession = new ilTestSession();
-            $testSession->loadFromDb($activeId);
-
-            assQuestion::_updateTestPassResults(
-                $activeId,
-                $testSession->getPass(),
-                $this->object->areObligationsEnabled(),
-                null,
-                $this->object->getId()
-            );
-
-            $this->finishTestPass($activeId, $this->object->getId());
+        if (!in_array($activeId, $participantData->getActiveIds())) {
+            $this->redirectBackToParticipantsScreen();
         }
 
+        $testSession = new ilTestSession();
+        $testSession->loadFromDb($activeId);
+
+        if ($testSession->isSubmitted()) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('tst_already_submitted'), true);
+            $this->redirectBackToParticipantsScreen();
+        }
+
+        assQuestion::_updateTestPassResults(
+            $activeId,
+            $testSession->getPass(),
+            $this->object->areObligationsEnabled(),
+            null,
+            $this->object->getId()
+        );
+
+        $this->finishTestPass($activeId, $this->object->getId());
 
         $this->redirectBackToParticipantsScreen();
     }

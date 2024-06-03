@@ -93,6 +93,8 @@ class ilCtrl implements ilCtrlInterface
      */
     private ilComponentFactory $component_factory;
 
+    private ilCtrlQueryParserInterface $query_parser;
+
     /**
      * Holds a history of calls made with the current ilCtrl instance.
      * @var array<int, string[]>
@@ -128,7 +130,8 @@ class ilCtrl implements ilCtrlInterface
         RequestWrapper $post_parameters,
         RequestWrapper $get_parameters,
         Refinery $refinery,
-        ilComponentFactory $component_factory
+        ilComponentFactory $component_factory,
+        ilCtrlQueryParserInterface $query_parser
     ) {
         $this->structure = $structure;
         $this->token_repository = $token_repository;
@@ -140,6 +143,7 @@ class ilCtrl implements ilCtrlInterface
         $this->path_factory = $path_factory;
         $this->context = $context;
         $this->component_factory = $component_factory;
+        $this->query_parser = $query_parser;
     }
 
     public function __clone()
@@ -1157,30 +1161,29 @@ class ilCtrl implements ilCtrlInterface
         // (temporarily) use the null coalescing operator.
         $value = $this->refinery->kindlyTo()->string()->transform($value ?? '');
 
-        // only append value if its not an empty string. note that empty()
-        // cannot be used here since e.g. '0' would be empty.
-        if ('' !== $value) {
-            // declare ampersand escaped or not, according to
-            // the given argument.
-            $ampersand = ($is_escaped) ? '&amp;' : '&';
-
-            // check if the given url already contains the given
-            // parameter name.
-            if (preg_match("/($ampersand|\?)$parameter_name(=|$)/", $url)) {
-                // replace the value appended to the given parameter
-                // name by the provided one.
-                $url = preg_replace("/(?<=($parameter_name=))([^&]*|$)/", (string) $value, $url);
-            } else {
-                // append the parameter key => value pair and prepend
-                // a question mark or ampersand, determined by whether
-                // it's the first query param or not.
-                $url .= (strpos($url, '?') !== false) ?
-                    $ampersand . $parameter_name . '=' . $value :
-                    '?' . $parameter_name . '=' . $value;
-            }
+        if ('' === $value) {
+            return $url;
         }
 
-        return $url;
+        /** @var array{path: string|null, query: string[]|null} $parsed_url */
+        $parsed_url = parse_url(str_replace('&amp;', '&', $url));
+
+        $query_parameters = $this->query_parser->parseQueriesOfURL($parsed_url['query'] ?? '');
+
+        // update the given parameter or add it to the list.
+        $query_parameters[$parameter_name] = $value;
+
+        $new_url = $parsed_url['path'] ?? $this->context->getTargetScript();
+        // we currently only escape ampersands (don't blame me).
+        $ampersand = ($is_escaped) ? '&amp;' : '&';
+
+        foreach ($query_parameters as $parameter => $parameter_value) {
+            $new_url .= (strpos($new_url, '?') !== false) ?
+                $ampersand . "$parameter=$parameter_value" :
+                "?$parameter=$parameter_value";
+        }
+
+        return $new_url;
     }
 
     /**

@@ -285,7 +285,7 @@ class SurveyMatrixQuestion extends SurveyQuestion
             );
             if ($result->numRows() > 0) {
                 while ($data = $ilDB->fetchAssoc($result)) {
-                    $this->columns->addCategory($data["title"], (int) $data["other"], (int) $data["neutral"], null, ($data['scale']) ?: ($data['sequence'] + 1));
+                    $this->columns->addCategory((string) $data["title"], (int) $data["other"], (int) $data["neutral"], null, ($data['scale']) ?: ($data['sequence'] + 1));
                 }
             }
 
@@ -295,7 +295,7 @@ class SurveyMatrixQuestion extends SurveyQuestion
                 array($question_id)
             );
             while ($row = $ilDB->fetchAssoc($result)) {
-                $this->addRow($row["title"], $row['other'], (string) ($row['label'] ?? ""));
+                $this->addRow((string) $row["title"], (string) $row['other'], (string) ($row['label'] ?? ""));
             }
         }
         parent::loadFromDb($question_id);

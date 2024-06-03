@@ -363,7 +363,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
         $registration_possible = true;
 
         // Limited registration
-        if ($info['reg_info_type'] == ilCourseConstants::SUBSCRIPTION_LIMITED) {
+        if (($info['reg_info_type'] ?? 0) == ilCourseConstants::SUBSCRIPTION_LIMITED) {
             // fau: fairSub - add info about fair period
             $fair_suffix = '';
             if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0) {
@@ -390,7 +390,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                 $info['reg_info_list_prop']['value'] = $lng->txt('crs_list_reg_noreg');
             }
             // fau.
-        } elseif ($info['reg_info_type'] == ilCourseConstants::SUBSCRIPTION_UNLIMITED) {
+        } elseif (($info['reg_info_type'] ?? 0) == ilCourseConstants::SUBSCRIPTION_UNLIMITED) {
             $registration_possible = true;
         } else {
             $registration_possible = false;

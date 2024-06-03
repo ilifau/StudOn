@@ -358,7 +358,12 @@ class ilInitialisation
                 )
             );
             $fileUploadImpl->register(new InsecureFilenameSanitizerPreProcessor());
-            $fileUploadImpl->register(new SVGBlacklistPreProcessor());
+            $fileUploadImpl->register(new SVGBlacklistPreProcessor(
+                $c->language()->txt("upload_svg_rejection_message"),
+                $c->language()->txt("upload_svg_rejection_message_script"),
+                $c->language()->txt("upload_svg_rejection_message_base64"),
+                $c->language()->txt("upload_svg_rejection_message_elements")
+            ));
 
             return $fileUploadImpl;
         };
@@ -1001,7 +1006,6 @@ class ilInitialisation
                 $DIC->refinery()->always('')
             ])
         );
-
         $script = "login.php?" . $target . "client_id=" . $client_id;
         $script .= $session_expired ? "&session_expired=1" : "";
 
@@ -1121,6 +1125,18 @@ class ilInitialisation
     {
         self::$already_initialized = false;
         self::initILIAS();
+    }
+
+    public static function reInitUser(): void
+    {
+        if (ilContext::initClient() && ilContext::hasUser()) {
+            self::initSession();
+            self::initUser();
+
+            if (ilContext::supportsPersistentSessions()) {
+                self::resumeUserSession();
+            }
+        }
     }
 
     /**
@@ -1395,7 +1411,6 @@ class ilInitialisation
             if ($GLOBALS['DIC']['ilAuthSession']->isExpired()) {
                 ilSession::_destroy($_COOKIE[session_name()], ilSession::SESSION_CLOSE_EXPIRE);
             }
-
             ilLoggerFactory::getLogger('init')->debug('Current session is invalid: ' . $GLOBALS['DIC']['ilAuthSession']->getId());
             $current_script = substr(strrchr($_SERVER["PHP_SELF"], "/"), 1);
             if (self::blockedAuthentication($current_script)) {
@@ -1723,6 +1738,13 @@ class ilInitialisation
             $requestBaseClass == strtolower(ilImprintGUI::class)
         ) {
             ilLoggerFactory::getLogger('auth')->debug('Blocked authentication for baseClass: ' . ($_GET['baseClass'] ?? ""));
+            return true;
+        }
+
+        if (
+            (strtolower($requestCmdClass ?? "") === strtolower(ilAccessibilityControlConceptGUI::class))
+        ) {
+            ilLoggerFactory::getLogger('auth')->debug('Blocked authentication for cmdClass: ' . $requestCmdClass);
             return true;
         }
 

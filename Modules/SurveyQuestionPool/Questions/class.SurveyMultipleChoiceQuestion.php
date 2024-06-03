@@ -95,7 +95,7 @@ class SurveyMultipleChoiceQuestion extends SurveyQuestion
             );
             if ($result->numRows() > 0) {
                 while ($data = $ilDB->fetchAssoc($result)) {
-                    $this->categories->addCategory($data["title"], $data["other"], $data["neutral"], null, ($data['scale']) ?: ($data['sequence'] + 1));
+                    $this->categories->addCategory((string) $data["title"], (int) $data["other"], (int) $data["neutral"], null, ($data['scale']) ?: ($data['sequence'] + 1));
                 }
             }
         }
@@ -320,7 +320,7 @@ class SurveyMultipleChoiceQuestion extends SurveyQuestion
             return "";
         }
 
-        if ($this->use_min_answers && $this->nr_min_answers > 0 && $this->nr_max_answers > 0 && $this->nr_min_answers == $this->nr_max_answers && count($entered_value) !== $this->nr_max_answers) {
+        if ($this->use_min_answers && $this->nr_min_answers > 0 && $this->nr_max_answers > 0 && $this->nr_min_answers == $this->nr_max_answers && count($entered_value) !== (int) $this->nr_max_answers) {
             return sprintf($this->lng->txt("err_no_exact_answers"), $this->nr_min_answers);
         }
         if ($this->use_min_answers && $this->nr_min_answers > 0 && count($entered_value) < $this->nr_min_answers) {

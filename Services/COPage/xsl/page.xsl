@@ -140,7 +140,7 @@
 				<div class="ilc_page_fn_Footnote">
 				<a>
 				<xsl:attribute name="name">fn<xsl:number count="Footnote" level="any"/></xsl:attribute>
-				<span class="ilc_text_inline_Strong">[<xsl:number count="Footnote" level="any"/>] </span>
+				<span>[<xsl:number count="Footnote" level="any"/>] </span>
 				</a>
 				<xsl:comment>ParStart</xsl:comment>
 				<xsl:apply-templates />
@@ -2192,7 +2192,7 @@
 			</div>
 			<!-- mob caption -->
 			<xsl:choose>			<!-- derive -->
-				<xsl:when test="count(../MediaAliasItem[@Purpose=$curPurpose]/Caption[1]) != 0">
+				<xsl:when test="count(../MediaAliasItem[@Purpose=$curPurpose]/Caption[1]) != 0 and ../MediaAliasItem[@Purpose=$curPurpose]/Caption[1] != ''">
 					<figcaption><xsl:attribute name="style"><xsl:value-of select="$captiondisplay"/></xsl:attribute><div>
 						<xsl:attribute name="class"><xsl:value-of select="$captionclass"/></xsl:attribute>
 					<xsl:call-template name="FullscreenLink">
@@ -2797,10 +2797,14 @@
 
 		<!-- mp3 (mediaelement.js) -->
 		<xsl:when test = "$type='audio/mpeg' and (substring-before($data,'.mp3') != '' or substring-before($data,'.MP3') != '')">
-			<audio class="ilPageAudio" height="40" preload="metadata">
+			<audio class="ilPageAudio" preload="metadata">
 				<xsl:attribute name="src"><xsl:value-of select="$data"/></xsl:attribute>
 				<xsl:if test="$width != ''">
 					<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>
+					<xsl:attribute name="height">40</xsl:attribute>
+				</xsl:if>
+				<xsl:if test="$width = '' and $height = ''">
+					<xsl:attribute name="style">max-width: 100%; width: 100%; max-height: 100%;</xsl:attribute>
 				</xsl:if>
 				<xsl:if test="$mode != 'edit' and
 					(../MediaAliasItem[@Purpose = $curPurpose]/Parameter[@Name = 'autostart']/@Value = 'true' or
@@ -3315,7 +3319,7 @@
 			</xsl:if>
 		</xsl:if>
 		<xsl:if test="$mode = 'edit'">
-			<xsl:attribute name="style">min-height: 60px; height: auto !important; height: 60px; position:static; display: block;</xsl:attribute>
+			<xsl:attribute name="style">min-height: 60px; height: auto !important; height: 60px; position:static; display: block; margin:0;</xsl:attribute>
 		</xsl:if>
 		<xsl:call-template name="EditReturnAnchors"/>
 		<!-- command selectbox -->
@@ -3631,7 +3635,7 @@
 					</xsl:choose>
 				</xsl:variable>
 				<script type="text/javascript">
-					if (typeof variable === 'undefined') {
+					if (typeof ilAccordionsInits === 'undefined') {
 						var ilAccordionsInits = [];
 					}
 					ilAccordionsInits.push({
@@ -3652,7 +3656,7 @@
 			</xsl:if>
 			<xsl:if test="@Type = 'Carousel' and $mode != 'print' and $compare_mode = 'n'">
 				<script type="text/javascript">
-					if (typeof variable === 'undefined') {
+					if (typeof ilAccordionsInits === 'undefined') {
 						var ilAccordionsInits = [];
 					}
 					ilAccordionsInits.push({
@@ -4363,6 +4367,9 @@
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:if>
+</xsl:template>
+
+<xsl:template match="script">
 </xsl:template>
 
 </xsl:stylesheet>

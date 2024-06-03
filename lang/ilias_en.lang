@@ -592,7 +592,6 @@ assessment#:#backtocallingtest#:#Back to the test
 assessment#:#baseunit#:#Base Unit
 assessment#:#button_request_next_question_hint#:#Request Next Hint
 assessment#:#button_request_question_hint#:#Request Hint
-assessment#:#button_show_requested_question_hints#:#Show Requested Hints
 assessment#:#by#:#by
 assessment#:#cancel_test#:#Suspend the Test
 assessment#:#cannot_edit_marks#:#The test has already been completed by some participants. You can only change the marks if an ’Access to Test Results’ date has been set and that date is in the future i.e. it has not yet been reached.
@@ -1150,7 +1149,7 @@ assessment#:#rating_value#:#Rate Value
 assessment#:#rectangle#:#Rectangle
 assessment#:#rectangle_click_br_corner#:#Please click on the bottom right corner of the desired area.
 assessment#:#rectangle_click_tl_corner#:#Please click on the top left corner of the desired area.
-assessment#:#redirectAfterSave#:#The maximum working time has been reached and your last question has been saved automatically. In a few seconds you will be redirected...
+assessment#:#redirectAfterSave#:#The maximum working time has been reached. In a few seconds you will be redirected...
 assessment#:#redirect_after_finishing_rule#:#Redirect
 assessment#:#redirect_after_finishing_tst#:#Redirect
 assessment#:#redirect_after_finishing_tst_desc#:#After completing the test, each participant is automatically redirected to a specific webpage of your choosing. This will only happen if participants do not have direct access to their test results. When entering the address of an external webpage, use the complete URL (including ‘https://’). When redirecting to an Object in ILIAS, use the permalink that can be found in the footer of the Object in question.
@@ -1219,6 +1218,7 @@ assessment#:#show_detailed_results#:#Show User’s Detailed Results (Marked Pass
 assessment#:#show_examview_html#:#On screen
 assessment#:#show_examview_pdf#:#PDF Download
 assessment#:#show_pass_overview#:#Show Marked Pass Overview
+assessment#:#show_requested_question_hints#:#Show Requested Hints
 assessment#:#show_user_answers#:#Show User’s Marked Answers
 assessment#:#showinfo#:#Show all Test Properties
 assessment#:#showinfo_desc#:#Users will be presented with a complete list of test properties in the ‘Info’ tab, i.e. information on scoring and reporting.
@@ -1405,7 +1405,7 @@ assessment#:#tst_edit_competence_assign#:#Edit Assignment Properties
 assessment#:#tst_edit_scoring#:#Edit Scoring
 assessment#:#tst_ending_time#:#End
 assessment#:#tst_ending_time_before_starting_time#:#Please enter a date for the end of the test that is after the start date.
-assessment#:#tst_ending_time_desc#:#Time from which participants can no longer submit answers. <b>Important</b>: Do <b>not</b> use this option for e-exams/distance exams. Instead, use the function 'Limit Duration of Test' (see below). Only then will the test be ended on the server side and each participant's last entry automatically saved as an authorised answer.
+assessment#:#tst_ending_time_desc#:#Time from which participants can no longer submit answers. <b>Important</b>: Do <b>not</b> use this option for e-exams/distance exams. Instead, use the function 'Limit Duration of Test' (see below). Only then will the test be ended on the server side and each participant's last entry on Essay-Questions automatically saved as auto-save-content.
 assessment#:#tst_enter_questionpool#:#Please enter a question pool name where the new question will be stored
 assessment#:#tst_eval_question_points#:#Question Results for Pass %s
 assessment#:#tst_eval_results_by_pass#:#List of Answers for Pass %s
@@ -2184,6 +2184,7 @@ badge#:#badge_backpack_no_groups#:#The Mozilla Backpack is empty or non-public.
 badge#:#badge_badge#:#Badge
 badge#:#badge_course_lp#:#Course LP
 badge#:#badge_course_lp_invalid#:#The following objects have a LP mode which is not supported: %s.
+badge#:#badge_create_image_processing_failed#:#The badge could not be created, an error occurred while processing the image.
 badge#:#badge_criteria#:#Criteria
 badge#:#badge_crs_merit#:#Merit
 badge#:#badge_deletion_confirmation#:#Are you sure you want to delete the following badges and all their respective assignments?
@@ -2232,6 +2233,8 @@ badge#:#badge_template_types#:#Valid Types
 badge#:#badge_template_types_all#:#All
 badge#:#badge_template_types_specific#:#Specific
 badge#:#badge_types#:#Types
+badge#:#badge_update_image_processing_failed#:#The badge could not be updated, an error occurred while processing the image.
+badge#:#badge_uploaded_image_file_not_found#:#No uploaded image for the badge could be found.
 badge#:#badge_user_profile#:#User Profil
 badge#:#badge_valid#:#Valid until
 bgtask#:#bgtask_blocked#:#Concurrent download
@@ -4363,7 +4366,7 @@ common#:#info_remark_interrupted#:#Role is interrupted at this position. The rol
 common#:#info_remove_sure#:#Are you sure that you want to remove the following item(s)?
 common#:#info_short#:#Info
 common#:#info_status_info#:#Permissions of User
-common#:#info_view_of_user#:#User
+common#:#info_view_of_user#:#User Menu
 common#:#inform_user_mail#:#Send mail to inform user about changes
 common#:#inline_file_extensions#:#Web-enabled files
 common#:#inline_file_extensions_info#:#Files with these extensions are displayed in the browser window.<br/>For example: <b>gif jpg mp3 pdf png</b><br/> All other files are offered for downloading.
@@ -4620,7 +4623,7 @@ common#:#mm_learning_history#:#Learning History
 common#:#mm_learning_progress#:#Learning Progress
 common#:#mm_mail#:#Mail
 common#:#mm_news#:#News
-common#:#mm_notes#:#Notes
+common#:#mm_notes#:#Private Notes
 common#:#mm_organisation#:#Organisation
 common#:#mm_personal_and_shared_r#:#Personal and Shared Resources
 common#:#mm_personal_workspace#:#Personal Workspace
@@ -5788,6 +5791,10 @@ common#:#upload_files#:#Upload files
 common#:#upload_files_title#:#Upload files
 common#:#upload_pending#:#Pending
 common#:#upload_settings#:#Upload Settings
+common#:#upload_svg_rejection_message#:#An uploaded SVG file contains possibily malicious code and cannot be processed.
+common#:#upload_svg_rejection_message_base64#:#The file contains base64 encoded content.
+common#:#upload_svg_rejection_message_elements#:#The file contains elements or attributes which are not allowed or known.
+common#:#upload_svg_rejection_message_script#:#The file contains script-Elements.
 common#:#uploaded_and_checked#:#The file has been uploaded and checked, you can now start to import it.
 common#:#uploading#:#Uploading...
 common#:#uri#:#URI
@@ -5869,7 +5876,7 @@ common#:#usrimport_action_replaced#:#Replaced action %1$s by %2$s.
 common#:#usrimport_cant_delete#:#Can't perform ‘Delete’ action. No such user in database.
 common#:#usrimport_cant_insert#:#Can't perform ‘Insert’ action. User is already in database.
 common#:#usrimport_cant_update#:#Can't perform ‘Update’ action. No such user in database.
-common#:#usrimport_conflict_handling_info#:#When ‘Ignore on conflict’ is selected, ILIAS ignores an action, if it can not be performed (e. g. an ‘Insert’ action is not done, if there already is a user with the same login in the database.) When ‘Update on conflict’ is selected, ILIAS updates the database if an action can not be performed. (e. g. an ‘Insert’ action is replaced by an ‘Update’ action and the other way around, if a user with the same login exists in the database).
+common#:#usrimport_conflict_handling_info#:#When ‘Insert/Update action will be followed strictly’ is selected, ILIAS ignores an action, if it can not be performed (e. g. an ‘Insert’ action is not done, if there already is a user with the same login in the database.) When ‘Insert/Update action will be detected automatically’ is selected, ILIAS may update the database if an action can not be performed otherwise. (e. g. an ‘Insert’ action is replaced by an ‘Update’ action and the other way around, if a user with the same login exists in the database).
 common#:#usrimport_form_not_evaluabe#:#The form data couldn't be read.
 common#:#usrimport_global_role_for_action_required#:#At least one global role must be specified for "%1$s" action.
 common#:#usrimport_ignore_role#:#Ignore role
@@ -6210,6 +6217,7 @@ content#:#cont_char_style_code#:#Code
 content#:#cont_char_style_com#:#Comment
 content#:#cont_char_style_quot#:#Quotation
 content#:#cont_characteristic#:#Style Class
+content#:#cont_characteristic_table#:#Style Class
 content#:#cont_check_values#:#Check Values sent from SCO
 content#:#cont_check_values_info#:#The Test Tool will check whether the values sent from the SCOs adhere to the SCORM standard. <br /> The SCORM Standard is very demanding concerning the saving of values. Not all learning modules meet the requirements of the standard. This Options allows checking if the module adheres to the Standard or not. Do not check this option if you just want to check if ILIAS can run this module or not.
 content#:#cont_choose_characteristic#:#Choose Characteristic
@@ -6308,6 +6316,7 @@ content#:#cont_dir_file#:#Directory/File
 content#:#cont_dir_renamed#:#Directory has been renamed.
 content#:#cont_disable_def_feedback#:#Disable Default Question Feedback
 content#:#cont_disable_def_feedback_info#:#The standard feedback for a question is not displayed after answering a question.
+content#:#cont_double_click_to_delete#:#Double-click on content elements to select them for (de-)activation or deletion.
 content#:#cont_download#:#Download
 content#:#cont_download_no_download#:#Download will not be available to users, since the download feature is not activated.
 content#:#cont_download_no_menu#:#Download will not be available to users since the learning module menu is not activated.
@@ -6472,7 +6481,7 @@ content#:#cont_free_pages#:#Free Pages
 content#:#cont_full_is_in_dir#:#Deletion not possible. Full screen file is in directory.
 content#:#cont_fullscreen#:#Full Screen
 content#:#cont_general_properties#:#General Properties
-content#:#cont_get_link#:#get link
+content#:#cont_get_link#:#→ Select Target Object
 content#:#cont_glo_assign#:#Assign Glossary
 content#:#cont_glo_create#:#Create Glossary
 content#:#cont_glo_detach#:#Detach Glossary
@@ -6597,9 +6606,9 @@ content#:#cont_license_info#:#Enables the license feature
 content#:#cont_light#:#Light
 content#:#cont_link#:#Link
 content#:#cont_link_area#:#Link Area
-content#:#cont_link_ext#:#Link (external)
+content#:#cont_link_ext#:#External Link
 content#:#cont_link_glo_in_lm#:#Should all glossary terms be linked in the learning module now?
-content#:#cont_link_int#:#Link (internal)
+content#:#cont_link_int#:#Internal Link
 content#:#cont_link_no#:#No Link
 content#:#cont_link_select#:#Internal Link
 content#:#cont_link_to_external#:#Link to External Website
@@ -6738,9 +6747,6 @@ content#:#cont_numbered_list#:#Numbered List
 content#:#cont_obj_removed#:#Objects removed.
 content#:#cont_objectives#:#Store Learning Objectives Data
 content#:#cont_objectives_info#:#If you ensured that this learning module runs properly, this option improves performance.
-content#:#cont_offline_mode_allow#:#Enable Offline Mode
-content#:#cont_offline_mode_allow_info#:#Users can use the learning module without connecting to the Internet in the SCORM Offline Player. They download the learning module using the &#x25bc;-menu. The learning module is presented with an add-on to the Firefox browser. The tracking data are transferred when the user clicks on ‘finish offline mode’.
-content#:#cont_offline_mode_disable_not_allowed_info#:#Since the learning module is currently used in offline mode, the offline mode can not be disabled.
 content#:#cont_online#:#Online
 content#:#cont_online_help_ids#:#Screen-IDs
 content#:#cont_online_info#:#Set the SCORM learning module online to make it visible and available for users. If not, only users with 'Edit'-permission will have access to it.
@@ -7268,6 +7274,7 @@ copg#:#copg_est_reading_time#:#Estimated Reading Time
 copg#:#copg_history_cleanup_cron#:#Page Editor History Cleanup
 copg#:#copg_history_cleanup_cron_info#:#Removes older entries from the page history.
 copg#:#copg_more_character_formats#:#More Styles for Characters
+copg#:#copg_obj_types#:#Object Types
 copg#:#copg_page_element_not_found#:#Page element not found.
 copg#:#copg_page_type_stys#:#Layout Page
 copg#:#copg_par_format_selection#:#Paragraph Format Selection
@@ -7407,6 +7414,7 @@ crs#:#crs_course_period_not_valid#:#The period is not valid.
 crs#:#crs_course_status_of_users#:#Passing the Course
 crs#:#crs_create_date#:#Create date
 crs#:#crs_custom_user_fields#:#Course Relevant User Data
+crs#:#crs_custom_user_fields_infobox#:#Create additional data fields for course members to fill in when joining. You can show this information as an additional column in the "Members" tab.
 crs#:#crs_dates#:#Dates
 crs#:#crs_deactivate_notification#:#Deactivate Notification
 crs#:#crs_delete_objectve_sure#:#Are you sure, you want to delete the selected objectives?
@@ -7514,7 +7522,7 @@ crs#:#crs_loc_qst_resume_tst_itest#:#You have already started an initial test to
 crs#:#crs_loc_qst_resume_tst_qtest#:#You have already started a qualifying test to another learning objective. Either you finish the started test or you stop it and start this one. But running two qualifying tests at the same time is not supported.
 crs#:#crs_loc_qtest_info#:#Final Test
 crs#:#crs_loc_qtst_for_objective#:#Qualifying Test "%1$s"
-crs#:#crs_loc_rand_assign_qpl#:#Assignment form Question Pool
+crs#:#crs_loc_rand_assign_qpl#:#Assignment from Question Pool
 crs#:#crs_loc_rand_qpl#:#Available Question Pools
 crs#:#crs_loc_settings_err_qstart#:#The option "Final Test as Start Object" has been deactivated, since it can only be chosen for courses without initial test.
 crs#:#crs_loc_settings_it_start_object#:#Initial Test is Start Object
@@ -8834,6 +8842,8 @@ ecs#:#ecs_cms_tree_synchronized#:#The tree has been synchronized.
 ecs#:#ecs_communities#:#Participants
 ecs#:#ecs_confirm_delete_tree#:#Do you really want to delete all assignments for this campus management tree?
 ecs#:#ecs_connection_settings#:#Connection Settings
+ecs#:#ecs_consent_modal_title#:#Consent for data transfer
+ecs#:#ecs_consent_reset_confirm_title#:#Reset user consent for this participant
 ecs#:#ecs_cron_task_scheduler#:#ECS Task Scheduler
 ecs#:#ecs_cron_task_scheduler_info#:#ECS tasks will be executed according to the schedule settings. Only possible, if ECS server is configured in administration at 'Extending ILIAS » ECS'.
 ecs#:#ecs_crs_alloc#:#Course Allocation
@@ -8862,9 +8872,16 @@ ecs#:#ecs_err_missing_value#:#Please check your input: Attribute values.
 ecs#:#ecs_error_extract_serial#:#Cannot read serial number of certificate. Please check the client certificate path.
 ecs#:#ecs_event_appointment#:#Event Date
 ecs#:#ecs_export#:#Course Releases
+ecs#:#ecs_export_auth_type#:#Authentication method for users with external user attribute
+ecs#:#ecs_export_auth_type_ilias#:#User authentication via LDAP
+ecs#:#ecs_export_auth_type_info#:#Please choose the authentication method for users to authenticate via ECS, for whom an external user attribute was transferred via ECS.
+ecs#:#ecs_export_auth_type_none#:#Do not allow users with external user attribute
+ecs#:#ecs_export_auth_type_shib#:#User authentication via Shibboleth
 ecs#:#ecs_export_created_body_a#:#A new course has been released
 ecs#:#ecs_export_disabled#:#Do not release this Course
 ecs#:#ecs_export_enabled#:#Release this Course
+ecs#:#ecs_export_local_account#:#Local ILIAS accounts
+ecs#:#ecs_export_local_account_info#:#If enabled, will allow the creation of local accounts via ECS. ECS users without external user attribute will receive a local user account on your installation.
 ecs#:#ecs_export_obj_settings#:#Course Release Settings
 ecs#:#ecs_export_types#:#Exportable Object Types
 ecs#:#ecs_field_begin#:#Begin
@@ -8887,6 +8904,10 @@ ecs#:#ecs_file_export#:#File Releases
 ecs#:#ecs_file_export_disabled#:#Do not release this File
 ecs#:#ecs_file_export_enabled#:#Release this File
 ecs#:#ecs_file_export_obj_settings#:#File Release Settings
+ecs#:#ecs_firstname#:#First name
+ecs#:#ecs_form_consent#:#Consent
+ecs#:#ecs_form_consent_option_title#:#I hereby consent to the transfer of the following data to the above-mentioned target system:
+ecs#:#ecs_form_target_platform#:#Target system
 ecs#:#ecs_general_info#:#General Information
 ecs#:#ecs_glo_export#:#Glossary Releases
 ecs#:#ecs_glo_export_disabled#:#Do not release this Glossary
@@ -8899,20 +8920,27 @@ ecs#:#ecs_grp_export_enabled#:#Release this Group
 ecs#:#ecs_grp_export_obj_settings#:#Group Release Settings
 ecs#:#ecs_ignore_field#:#Disable export/update of this field
 ecs#:#ecs_import#:#Imported Objects
+ecs#:#ecs_import_auth_mode#:#Allow accounts of authentication method %s for transmission via ECS
+ecs#:#ecs_import_auth_type_default#:#Allow accounts authentication method "Default" for transmission via ECS
 ecs#:#ecs_import_cms#:#Campus Management
 ecs#:#ecs_import_id#:#Import ID
 ecs#:#ecs_import_id_info#:#Please enter the ID of the category, where new Course Links will be created
 ecs#:#ecs_import_types#:#Importable Object Types
+ecs#:#ecs_import_user_credentials_by_auth_mode#:#Configuration of authentication methods for transmission via ECS
+ecs#:#ecs_import_user_credentials_by_auth_mode_info#:#Enable this option to allow accounts of authentication method "Default" to access participant's resources via ECS.
 ecs#:#ecs_imported_content#:#Imported E-Content
 ecs#:#ecs_imported_from#:#Imported From
+ecs#:#ecs_institution#:#Institution
 ecs#:#ecs_invalid_import_type_cms#:#The import type ‘Campus Management’ can be chosen only once.
 ecs#:#ecs_key_password#:#Key Password
+ecs#:#ecs_lastname#:#Last name
 ecs#:#ecs_lm_export#:#Learning Module Releases
 ecs#:#ecs_lm_export_disabled#:#Do not release this Learning Module
 ecs#:#ecs_lm_export_enabled#:#Release this Learning Module
 ecs#:#ecs_lm_export_obj_settings#:#Learning Module Release Settings
 ecs#:#ecs_local_information#:#Further Information
 ecs#:#ecs_local_settings#:#Local Settings
+ecs#:#ecs_login#:#Username or External user account
 ecs#:#ecs_mapping_crs#:#Mapping for Courses
 ecs#:#ecs_mapping_exp_tbl#:#Mapping ILIAS Custom Metadata to ECS-Data
 ecs#:#ecs_mapping_rcrs#:#Mapping for ECS Courses
@@ -8938,6 +8966,8 @@ ecs#:#ecs_node_mapping_status_3#:#Unmapped
 ecs#:#ecs_not_configured#:#Not configured
 ecs#:#ecs_not_published#:#No approvals selected.
 ecs#:#ecs_notifications#:#Notifications
+ecs#:#ecs_outgoing_user_credentials#:#User attribute
+ecs#:#ecs_outgoing_user_credentials_info#:#Please specify which user attribute should be used for transmission. Possible values [Login], [EXTERNAL_ACCOUNT]. You can modify the specified attribute by prepending or appending any strings. Example: [LOGIN]@example.com
 ecs#:#ecs_part_settings#:#Settings for Participant:
 ecs#:#ecs_participants#:#Participants
 ecs#:#ecs_participants_infos#:#Further Information
@@ -9492,6 +9522,7 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#Show Print View
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#A new export file has been created.
+exp#:#export_files_deleted#:#The selected export files have been deleted.
 export#:#export_create#:#Create
 export#:#export_create_new_file#:#Create New Export File
 export#:#export_existing#:#Reuse
@@ -9554,8 +9585,8 @@ form#:#form_hierarchy_drag_drop_help#:#Drag and drop icons on placeholders to mo
 form#:#form_hours#:#Hours
 form#:#form_image_file_input#:#Image File Input
 form#:#form_invalid_uri#:#Invalid URI format.
-form#:#form_link_external#:#World Wide Web
-form#:#form_link_internal#:#Inside ILIAS
+form#:#form_link_external#:#External Link
+form#:#form_link_internal#:#Internal Link
 form#:#form_location_radius#:#Radius
 form#:#form_location_radius_km#:#km
 form#:#form_max_value#:#Maximum Value
@@ -9873,6 +9904,7 @@ grp#:#grp_create_new_grp_in#:#Create new group in '%1'.
 grp#:#grp_create_or_use_existing#:#Do you want to add the user to an existing group or create a new group?
 grp#:#grp_created_and_user_been_added#:#Die Gruppe wurde erstellt und der Benutzer hinzugefügt.
 grp#:#grp_custom_user_fields#:#Group Relevant User Data
+grp#:#grp_custom_user_fields_infobox#:#Create additional data fields for group members to fill in when they join. You can show this information as an additional column in the "Members" tab.
 grp#:#grp_deactivate_notification#:#Deactivate Notification
 grp#:#grp_edit_members#:#Edit Participants
 grp#:#grp_enable_map#:#Enable Group Map
@@ -10560,10 +10592,19 @@ lti#:#field_provider_xml#:#XML-File
 lti#:#field_provider_xml_info#:#Supported are XML-Files for Tool Consumer and for Common Cartridge according to https://www.imsglobal.org/specs/lti/xml.
 lti#:#form_import_provider#:#Import Global Provider
 lti#:#gbl_roles_to_users#:#Global Role assigned to LTI Users
-lti#:#global_provider_subtab#:#Global Providers for all Users
-lti#:#grade_activityProgress_completed#:#completed
-lti#:#grade_activityProgress_passed#:#passed
-lti#:#grade_all_verbs#:#all status information
+lti#:#global_provider_subtab#:#Global Providers/Tools for all Users
+lti#:#grade_activity_progress_all#:#All Information on Activity Progress
+lti#:#grade_activity_progress_completed#:#Completed
+lti#:#grade_activity_progress_initialized#:#Initialized
+lti#:#grade_activity_progress_inprogress#:#In Progress
+lti#:#grade_activity_progress_started#:#Started
+lti#:#grade_activity_progress_submitted#:#Submitted
+lti#:#grade_grading_progress_all#:#All Information on Grading Progress
+lti#:#grade_grading_progress_failed#:#The Grading could not complete (Failed)
+lti#:#grade_grading_progress_fullygraded#:#The Grading Process is completed
+lti#:#grade_grading_progress_notready#:#No Grading Process is occurring (NotReady)
+lti#:#grade_grading_progress_pending#:#Final Grade is pending
+lti#:#grade_grading_progress_pendingmanual#:#Final Grade is pending; requires Human Intervention
 lti#:#highscore_achieved_ts#:#Date
 lti#:#highscore_achieved_ts_description#:#A column containing the date will be included in the ranking.
 lti#:#highscore_all_tables#:#Participant's Own Rank and Top Ranking
@@ -10774,13 +10815,13 @@ lti#:#tab_info#:#Info
 lti#:#tab_scoring#:#Ranking
 lti#:#tab_settings#:#Settings
 lti#:#tab_statements#:#Learning Experiences
-lti#:#tbl_grade_activityProgress#:#Status Selection
-lti#:#tbl_grade_activityProgress_select#:#Status
+lti#:#tbl_grade_activity_progress#:#Activity Progress
 lti#:#tbl_grade_actor#:#User
 lti#:#tbl_grade_date#:#Date
-lti#:#tbl_grade_object#:#Object
+lti#:#tbl_grade_grading_progress#:#Grading Progress
 lti#:#tbl_grade_period#:#Period
 lti#:#tbl_grade_score#:#Score
+lti#:#tbl_grade_stored#:#Transmitted to ILIAS
 lti#:#tbl_lti_prov_all_categories#:#All Categories
 lti#:#tbl_lti_prov_availability#:#Availability
 lti#:#tbl_lti_prov_category#:#Category
@@ -11130,6 +11171,7 @@ mcst#:#mcst_automatic_detection#:#Automatic Detection
 mcst#:#mcst_autoplay#:#Autoplay
 mcst#:#mcst_autoplay_active#:#Autoplay (Default on)
 mcst#:#mcst_autoplay_inactive#:#Autoplay (Default off)
+mcst#:#mcst_autoplay_info#:#Starts automatically the next video when reaching the end of the previous one. This feature is not supported by youtube videos.
 mcst#:#mcst_clear_purpose_title#:#Delete
 mcst#:#mcst_converted_file#:#File has been converted.
 mcst#:#mcst_copy#:#Copy Mediacast
@@ -11146,7 +11188,7 @@ mcst#:#mcst_download_videoportable#:#Download Video Portable
 mcst#:#mcst_downloadable#:#Download Links
 mcst#:#mcst_downloadable_info#:#If this option is enabled, links for downloading mediacast items are provided.
 mcst#:#mcst_duration#:#Play Time
-mcst#:#mcst_duration_info#:#If no value is entered, ILIAS tries do determine the play time automatically.
+mcst#:#mcst_duration_info#:#If this value is 00:00:00, ILIAS could not determine the play time automatically. In this case, please enter the correct value manually.
 mcst#:#mcst_edit_item#:#Edit Mediacast Item
 mcst#:#mcst_edit_settings#:#MediaCast Settings
 mcst#:#mcst_extract_preview_image#:#Extract Preview Image
@@ -11371,7 +11413,14 @@ meta#:#md_used#:#Current Number of Usages
 meta#:#meta_accessibility_restrictions#:#Accessibility Restrictions
 meta#:#meta_active#:#Active
 meta#:#meta_add#:#Add
+meta#:#meta_advmd_select_delete_option#:#Delete This Entry
+meta#:#meta_advmd_select_first_position_identifier#:#First
+meta#:#meta_advmd_select_new_option#:#Add New Entry
+meta#:#meta_advmd_select_option_position#:#Position
+meta#:#meta_advmd_select_option_value#:#Value
 meta#:#meta_advmd_select_options#:#Entries
+meta#:#meta_advmd_select_options_edit#:#Edit Entries
+meta#:#meta_advmd_select_position_identifier#:#After %s
 meta#:#meta_annotation#:#Annotation
 meta#:#meta_atomic#:#Atomic
 meta#:#meta_author#:#Author
@@ -12046,6 +12095,7 @@ mme#:#type_separator#:#Separator
 mme#:#type_separator_info#:#The title of this item will be displayed in a grey banner. If you do not enter any title, a simple line will be shown.
 mme#:#type_top_link_item#:#Link
 mme#:#type_top_parent_item#:#Container
+mme#:#unable_to_render#:#Unable to show '%s' in '%s'.
 mob#:#mob_choose_from_pool#:#Choose from Media Pool
 mob#:#mob_external_url#:#External URL
 mob#:#mob_file#:#File
@@ -12513,7 +12563,7 @@ pdfgen#:#header_type#:#Header
 pdfgen#:#html#:#Html
 pdfgen#:#image_scale#:#Image scale
 pdfgen#:#javascript_delay#:#Javascript delay
-pdfgen#:#javascript_delay_info#:#If JavaScript is used to render page content, add a delay to make sure the content appears in the PDF. The standard delay of 200ms should suffice in most cases.
+pdfgen#:#javascript_delay_info#:#If JavaScript is used to render page content, add a delay to make sure the content appears in the PDF. The standard delay of 500ms should suffice in most cases.
 pdfgen#:#low_quality#:#Low quality
 pdfgen#:#low_quality_info#:#Generates lower quality pdf/ps. Useful to shrink the result document space
 pdfgen#:#margin#:#Margin 345
@@ -12695,6 +12745,7 @@ prg#:#prg_autoassignment#:#(auto)
 prg#:#prg_belongs_to#:#Belongs to
 prg#:#prg_can_not_manage_in_repo#:#You're not allowed to manage this Study Programme, because of user assignments.
 prg#:#prg_cancel#:#Cancel
+prg#:#prg_cancel_acknowledge_completed_courses#:#Don't acknowledge any Courses
 prg#:#prg_cancel_tree_order#:#Dismiss tree order
 prg#:#prg_change_deadline#:#Change deadline
 prg#:#prg_change_expire_date#:#Change expire date
@@ -15656,7 +15707,7 @@ survey#:#mail_import_example3#:#kennethbirt@domain.tld;Kenneth;Birt
 survey#:#mail_sent_short#:#Sent
 survey#:#mail_survey_codes#:#Mail access codes or messages
 survey#:#mailaddresses#:#Recipient addresses
-survey#:#mailaddresses_info#:#Enter a comma separated list of recipients who will receive a notification on finished surveys.
+survey#:#mailaddresses_info#:#Enter a comma separated list of tutor account names who will receive a notification on finished surveys.
 survey#:#mailnotification#:#Seperate E-Mail for Each Finished Survey
 survey#:#mailparticipantdata#:#Additional participant data
 survey#:#mailparticipantdata_info#:#This information will be precede the automatically included results section of the notification mail.
@@ -16643,6 +16694,22 @@ ui#:#datetime_required#:#Time/Date required
 ui#:#duration_default_label_end#:#end
 ui#:#duration_default_label_start#:#start
 ui#:#duration_end_must_not_be_earlier_than_start#:#Start must not be later than end.
+ui#:#label_fieldselection#:#Field Selection
+ui#:#label_fieldselection_refresh#:#Apply
+ui#:#label_pagination_limit#:#Pagination Number of Rows
+ui#:#label_pagination_offset#:#Pagination Offset
+ui#:#label_sortation#:#Sortation
+ui#:#order_option_alphabetical_ascending#:#A to Z
+ui#:#order_option_alphabetical_descending#:#Z to A
+ui#:#order_option_chronological_ascending#:#Earliest first
+ui#:#order_option_chronological_descending#:#Most Recent first
+ui#:#order_option_first#:#first
+ui#:#order_option_generic_ascending#:#ascending
+ui#:#order_option_generic_descending#:#descending
+ui#:#order_option_numerical_ascending#:#0 to 9
+ui#:#order_option_numerical_descending#:#9 to 0
+ui#:#presentation_table_collapse#:#collapse all
+ui#:#presentation_table_expand#:#expand all
 ui#:#ui_chars_max#:#Maximum:
 ui#:#ui_chars_min#:#Minimum:
 ui#:#ui_chars_remaining#:#Characters remaining:

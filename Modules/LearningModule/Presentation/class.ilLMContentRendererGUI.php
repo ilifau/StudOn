@@ -252,7 +252,7 @@ class ilLMContentRendererGUI
                     $lm_pg_obj->getId(),
                     $this->lm->getPageHeader(),
                     $this->lm->isActiveNumbering(),
-                    $this->lm_set->get("time_scheduled_page_activation"),
+                    (bool) $this->lm_set->get("time_scheduled_page_activation"),
                     false,
                     0,
                     $this->lang
@@ -311,6 +311,24 @@ class ilLMContentRendererGUI
             $page_gui->setOutputMode(ilPageObjectGUI::OFFLINE);
         }
         return $page_gui;
+    }
+
+    public function handleCodeParagraph(
+        int $page_id,
+        int $paragraph_id,
+        string $title,
+        string $text
+    ): void {
+        $directory = $this->parent_gui->getOfflineDirectory() . "/codefiles/" . $page_id . "/" . $paragraph_id;
+        ilFileUtils::makeDirParents($directory);
+        $file = $directory . "/" . $title;
+        if (!($fp = fopen($file, "w+"))) {
+            die("<b>Error</b>: Could not open \"" . $file . "\" for writing" .
+                " in <b>" . __FILE__ . "</b> on line <b>" . __LINE__ . "</b><br />");
+        }
+        chmod($file, 0770);
+        fwrite($fp, $text);
+        fclose($fp);
     }
 
     protected function renderFocusMessage(): string

@@ -560,7 +560,10 @@ class ilObjectListGUI
     }
     public function setTitle(string $title): void
     {
-        $this->title = $title;
+        $this->title = strip_tags(
+            $title,
+            ilObjectGUI::ALLOWED_TAGS_IN_TITLE_AND_DESCRIPTION
+        );
     }
 
     /**
@@ -573,7 +576,10 @@ class ilObjectListGUI
 
     public function setDescription(string $description): void
     {
-        $this->description = $description;
+        $this->description = strip_tags(
+            $description,
+            ilObjectGUI::ALLOWED_TAGS_IN_TITLE_AND_DESCRIPTION
+        );
     }
 
     /**
@@ -1353,6 +1359,7 @@ class ilObjectListGUI
                 ];
                 $nl = false;
             }
+
             $cnt_tags = self::$cnt_tags[$note_obj_id] ?? 0;
             if ($this->tags_enabled && ($cnt_tags > 0 || isset(self::$tags[$note_obj_id]))) {
                 $tags_set = new ilSetting("tags");
@@ -2516,7 +2523,7 @@ class ilObjectListGUI
             }
         }
 
-        $this->title = ilObject::_lookupTitle($this->obj_id);
+        $this->setTitle(ilObject::_lookupTitle($this->obj_id));
         $htpl->setVariable(
             "ACTION_DROP_DOWN",
             $this->insertCommands(false, false, "", true)
@@ -2907,7 +2914,7 @@ class ilObjectListGUI
         $content = $this->tpl->get();
         $file_upload_dropzone = new ilObjFileUploadDropzone($this->ref_id, $content);
         if ($this->context === self::CONTEXT_REPOSITORY
-            && $this->requested_cmd === "view"
+            && ($this->requested_cmd === "view" || $this->requested_cmd === "" || $this->requested_cmd === "render")
             && $file_upload_dropzone->isUploadAllowed($this->type)
         ) {
             return $file_upload_dropzone->getDropzoneHtml();

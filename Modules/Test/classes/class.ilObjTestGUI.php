@@ -195,7 +195,7 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
             $this->ctrl->setParameter($this, 'prev_qid', $this->testrequest->raw('prev_qid'));
         }
 
-        if (!$this->getCreationMode() && $this->testQuestionSetConfigFactory->getQuestionSetConfig()->areDepenciesBroken()) {
+        if (!$this->getCreationMode() && isset($this->testQuestionSetConfigFactory) && $this->testQuestionSetConfigFactory->getQuestionSetConfig()->areDepenciesBroken()) {
             if (!$this->testQuestionSetConfigFactory->getQuestionSetConfig()->isValidRequestOnBrokenQuestionSetDepencies($next_class, $cmd)) {
                 $this->ctrl->redirectByClass('ilObjTestGUI', 'infoScreen');
             }
@@ -2195,6 +2195,8 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
 
         $table_gui->setData($this->object->getTestQuestions());
 
+        $this->tpl->setPermanentLink($this->object->getType(), $this->object->getRefId(), '_qst');
+
         $this->tpl->setCurrentBlock("adm_content");
         $this->tpl->setVariable("ACTION_QUESTION_FORM", $this->ctrl->getFormAction($this));
         $this->tpl->setVariable('QUESTIONBROWSER', $table_gui->getHTML());
@@ -2367,6 +2369,7 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
         foreach ($this->object->questions as $question) {
             $template->setCurrentBlock("question");
             $question_gui = $this->object->createQuestionGUI("", $question);
+            $question_gui->setPresentationContext(assQuestionGUI::PRESENTATION_CONTEXT_TEST);
 
             if ($isPdfDeliveryRequest) {
                 $question_gui->setRenderPurpose(assQuestionGUI::RENDER_PURPOSE_PRINT_PDF);
@@ -2379,7 +2382,7 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
 
             $template->setVariable("TXT_QUESTION_ID", $this->lng->txt('question_id_short'));
             $template->setVariable("QUESTION_ID", $question_gui->object->getId());
-            $result_output = $question_gui->getSolutionOutput(0, null, false, true, false, $this->object->getShowSolutionFeedback());
+            $result_output = $question_gui->getSolutionOutput(0, null, false, true, false, false);
             $template->setVariable("SOLUTION_OUTPUT", $result_output);
             $template->parseCurrentBlock("question");
             $counter++;
@@ -2735,8 +2738,20 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
 
         $info->addSection($this->lng->txt("tst_general_properties"));
         if ($this->object->getShowInfo()) {
-            $info->addProperty($this->lng->txt("author"), $this->object->getAuthor());
-            $info->addProperty($this->lng->txt("title"), $this->object->getTitle());
+            $info->addProperty(
+                $this->lng->txt("author"),
+                strip_tags(
+                    $this->object->getAuthor(),
+                    ilObjectGUI::ALLOWED_TAGS_IN_TITLE_AND_DESCRIPTION
+                )
+            );
+            $info->addProperty(
+                $this->lng->txt("title"),
+                strip_tags(
+                    $this->object->getTitle(),
+                    ilObjectGUI::ALLOWED_TAGS_IN_TITLE_AND_DESCRIPTION
+                )
+            );
         }
         if (!$this->object->getOfflineStatus() &&
             $this->object->isComplete($this->testQuestionSetConfigFactory->getQuestionSetConfig()) &&
@@ -2947,13 +2962,40 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
     * @param integer $a_target The reference id of the test
     * @access	public
     */
-    public static function _goto($a_target)
+    public static function _goto($a_target, array $target_parts)
     {
         global $DIC;
         $main_tpl = $DIC->ui()->mainTemplate();
         $ilAccess = $DIC['ilAccess'];
         $ilErr = $DIC['ilErr'];
         $lng = $DIC['lng'];
+
+        if (isset($target_parts[2]) && $target_parts[2] === 'qst' &&
+            $ilAccess->checkAccess('write', '', (int) $a_target)) {
+            /** @var ilObjTest $tst */
+            $tst = ilObjectFactory::getInstanceByRefId((int) $a_target);
+            if ($tst->isFixedTest()) {
+                $DIC->ctrl()->setParameterByClass(__CLASS__, 'ref_id', $a_target);
+                $DIC->ctrl()->redirectByClass(
+                    __CLASS__,
+                    'questions'
+                );
+                $DIC->ctrl()->redirectByClass('ilObjTestGUI', 'questions');
+            } elseif ($tst->isRandomTest()) {
+                $DIC->ctrl()->setParameterByClass(ilTestRandomQuestionSetConfigGUI::class, 'ref_id', $a_target);
+                $DIC->ctrl()->redirectByClass([
+                    __CLASS__,
+                    ilTestRandomQuestionSetConfigGUI::class
+                ]);
+            } elseif ($tst->isDynamicTest()) {
+                $target = $DIC->ctrl()->getLinkTargetByClass('ilObjTestDynamicQuestionSetConfigGUI');
+                $DIC->ctrl()->setParameterByClass(ilObjTestDynamicQuestionSetConfigGUI::class, 'ref_id', $a_target);
+                $DIC->ctrl()->redirectByClass([
+                    __CLASS__,
+                    ilObjTestDynamicQuestionSetConfigGUI::class
+                ]);
+            }
+        }
 
         if ($ilAccess->checkAccess("read", "", $a_target) || $ilAccess->checkAccess("visible", "", $a_target)) {
             $DIC->ctrl()->setParameterByClass('ilObjTestGUI', 'ref_id', $a_target);

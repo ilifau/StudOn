@@ -135,17 +135,17 @@ class ilSoapAdministration
         return $this->message_code;
     }
 
-    protected function initAuth(string $sid): void
+    protected function initAuth(string $sid, bool $mutate_super_global_cookies = false): void
     {
         global $DIC;
 
         [$sid, $client] = $this->explodeSid($sid);
 
-        if (isset($DIC)) {
-            ilUtil::setCookie(session_name(), $sid);
-        } else {
+        if ($mutate_super_global_cookies || !isset($DIC)) {
             $_COOKIE['ilClientId'] = $client;
             $_COOKIE[session_name()] = $sid;
+        } else {
+            ilUtil::setCookie(session_name(), $sid);
         }
     }
 
@@ -155,6 +155,17 @@ class ilSoapAdministration
             try {
                 require_once("Services/Init/classes/class.ilInitialisation.php");
                 ilInitialisation::reinitILIAS();
+            } catch (Exception $e) {
+            }
+        }
+    }
+
+    public function reInitUser(): void
+    {
+        if (ilContext::getType() === ilContext::CONTEXT_SOAP) {
+            try {
+                require_once("Services/Init/classes/class.ilInitialisation.php");
+                ilInitialisation::reInitUser();
             } catch (Exception $e) {
             }
         }
@@ -245,11 +256,10 @@ class ilSoapAdministration
 
     public function getInstallationInfoXML(): string
     {
-        include_once "Services/Context/classes/class.ilContext.php";
-        ilContext::init(ilContext::CONTEXT_SOAP_WITHOUT_CLIENT);
-
-        require_once("Services/Init/classes/class.ilInitialisation.php");
-        ilInitialisation::initILIAS();
+        $this->initIlias();
+        if (!defined("ILIAS_WEB_DIR")) {
+            define('ILIAS_WEB_DIR', dirname(__DIR__, 3) . "/data/");
+        }
 
         $clientdirs = glob(ILIAS_WEB_DIR . "/*", GLOB_ONLYDIR);
         require_once("webservice/soap/classes/class.ilSoapInstallationInfoXMLWriter.php");
@@ -269,13 +279,12 @@ class ilSoapAdministration
      */
     public function getClientInfoXML(string $clientid)
     {
-        include_once "Services/Context/classes/class.ilContext.php";
-        ilContext::init(ilContext::CONTEXT_SOAP_WITHOUT_CLIENT);
-
-        require_once("Services/Init/classes/class.ilInitialisation.php");
-        ilInitialisation::initILIAS();
-
+        $this->initIlias();
+        if (!defined("ILIAS_WEB_DIR")) {
+            define('ILIAS_WEB_DIR', dirname(__DIR__, 3) . "/data/");
+        }
         $clientdir = ILIAS_WEB_DIR . "/" . $clientid;
+
         require_once("webservice/soap/classes/class.ilSoapInstallationInfoXMLWriter.php");
         $writer = new ilSoapInstallationInfoXMLWriter();
         $writer->start();

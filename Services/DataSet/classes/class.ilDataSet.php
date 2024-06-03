@@ -283,7 +283,11 @@ abstract class ilDataSet
                     ilFileUtils::makeDirParents($this->absolute_export_dir . "/dsDir_" . $this->dircnt);
                     $sdir = realpath($c);
                     $tdir = realpath($this->absolute_export_dir . "/dsDir_" . $this->dircnt);
-                    ilFileUtils::rCopy($sdir, $tdir);
+                    try {
+                        ilFileUtils::rCopy($sdir, $tdir);
+                    } catch (\ILIAS\Filesystem\Exception\FileNotFoundException $e) {
+                        $this->ds_log->error($e->getMessage());
+                    }
                     $c = $this->relative_export_dir . "/dsDir_" . $this->dircnt;
                     $this->dircnt++;
                 }
@@ -495,5 +499,18 @@ abstract class ilDataSet
         ilImportMapping $a_mapping,
         string $a_schema_version
     ): void {
+    }
+
+    protected function stripTags(array $rec, array $omit_keys = []): array
+    {
+        $ret_rec = [];
+        foreach ($rec as $k => $v) {
+            if (in_array($k, $omit_keys, true)) {
+                $ret_rec[$k] = $v;
+            } else {
+                $ret_rec[$k] = ilUtil::stripSlashes($v);
+            }
+        }
+        return $ret_rec;
     }
 }

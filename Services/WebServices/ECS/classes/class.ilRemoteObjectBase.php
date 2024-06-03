@@ -379,7 +379,9 @@ abstract class ilRemoteObjectBase extends ilObject2
         $this->setMID($a_owner); // obsolete?
         $this->setOrganization($organisation);
         $this->setTitle($a_ecs_content->title);
-        $this->setDescription($a_ecs_content->abstract);
+        if (!is_null($a_ecs_content->abstract)) {
+            $this->setDescription($a_ecs_content->abstract);
+        }
         $this->setRemoteLink($a_ecs_content->url);
 
         $this->logger->info('updateCustomFromECSContent');
@@ -456,7 +458,7 @@ abstract class ilRemoteObjectBase extends ilObject2
                     $raw_value = $timePlace;
                 }
 
-                if ($adv_md_def->importFromECS($type, $raw_value, $id)) {
+                if ($adv_md_def->importFromECS((string) $type, (string) $raw_value, $id)) {
                     $do_save = true;
                 }
             }

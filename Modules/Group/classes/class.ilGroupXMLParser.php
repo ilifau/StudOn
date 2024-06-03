@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,13 +16,13 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Group Import Parser
  *
  * @author Stefan Meyer <meyer@leifos.com>
  * @version $Id: class.ilGroupXMLParser.php 15678 2008-01-06 20:40:55Z akill $
- *
- * @extends ilSaxParser
  */
 class ilGroupXMLParser extends ilMDSaxParser implements ilSaxSubsetParser
 {
@@ -159,6 +157,8 @@ class ilGroupXMLParser extends ilMDSaxParser implements ilSaxSubsetParser
     {
         global $DIC;
 
+        $a_attribs = $this->trimAndStripAttribs($a_attribs);
+
         $ilErr = $DIC['ilErr'];
 
         if ($this->lom_parsing_active) {
@@ -276,6 +276,8 @@ class ilGroupXMLParser extends ilMDSaxParser implements ilSaxSubsetParser
 
     public function handlerEndTag($a_xml_parser, string $a_name): void
     {
+        $this->cdata = $this->trimAndStrip((string) $this->cdata);
+
         if ($this->lom_parsing_active) {
             parent::handlerEndTag($a_xml_parser, $a_name);
         }
@@ -585,7 +587,7 @@ class ilGroupXMLParser extends ilMDSaxParser implements ilSaxSubsetParser
                 if ($id_data = $this->parseId($user)) {
                     if ($id_data['local'] or $id_data['imported']) {
                         $this->participants->add($id_data['usr_id'], ilParticipants::IL_GRP_ADMIN);
-                        if (in_array($user, (array) $this->group_data['notifications'])) {
+                        if (isset($this->group_data['notifications']) && in_array($user, (array) $this->group_data['notifications'])) {
                             $this->participants->updateNotification($id_data['usr_id'], true);
                         }
                     }
@@ -644,11 +646,11 @@ class ilGroupXMLParser extends ilMDSaxParser implements ilSaxSubsetParser
                          'local' => false,
                          'usr_id' => $id);
         }
-        if (($fields[1] == $this->settings->get('inst_id', "0")) and ($user = ilObjUser::_lookupName($fields[3]))) {
+        if (($fields[1] == $this->settings->get('inst_id', "0")) and ($user = ilObjUser::_lookupName((int) $fields[3]))) {
             if (strlen($user['login'])) {
                 return array('imported' => false,
                              'local' => true,
-                             'usr_id' => $fields[3]);
+                             'usr_id' => (int) $fields[3]);
             }
         }
         $this->log->warning('Parsing id failed: ' . $a_id);
