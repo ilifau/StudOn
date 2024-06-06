@@ -37,18 +37,14 @@ abstract class ilMailSearchObjectGUI
     protected ilObjectDataCache $cache;
     protected ilFormatMail $umail;
     protected bool $mailing_allowed;
-    /**
-     * @var ilWorkspaceAccessHandler|ilPortfolioAccessHandler|null
-     */
-    protected $wsp_access_handler = null;
-    protected ?int $wsp_node_id = null;
+    protected \ILIAS\UI\Factory $ui_factory;
+    protected \ILIAS\UI\Renderer $ui_renderer;
 
     /**
      * @param ilWorkspaceAccessHandler|ilPortfolioAccessHandler|null $wsp_access_handler
-     * @param int|null                      $wsp_node_id
      * @throws ilCtrlException
      */
-    public function __construct($wsp_access_handler = null, ?int $wsp_node_id = null)
+    public function __construct(protected $wsp_access_handler = null, protected ?int $wsp_node_id = null)
     {
         global $DIC;
 
@@ -63,9 +59,8 @@ abstract class ilMailSearchObjectGUI
         $this->cache = $DIC['ilObjDataCache'];
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
-
-        $this->wsp_access_handler = $wsp_access_handler;
-        $this->wsp_node_id = $wsp_node_id;
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
 
         $this->ctrl->saveParameter($this, 'mobj_id');
         $this->ctrl->saveParameter($this, 'ref');
@@ -74,6 +69,8 @@ abstract class ilMailSearchObjectGUI
         $this->mailing_allowed = $this->rbacsystem->checkAccess('internal_mail', $mail->getMailObjectReferenceId());
 
         $this->umail = new ilFormatMail($this->user->getId());
+        
+        $this->lng->loadLanguageModule('mail');
     }
 
     private function isDefaultRequestContext(): bool
@@ -97,7 +94,7 @@ abstract class ilMailSearchObjectGUI
     private function isLocalRoleTitle(string $title): bool
     {
         foreach ($this->getLocalDefaultRolePrefixes() as $local_role_prefix) {
-            if (strpos($title, $local_role_prefix) === 0) {
+            if (str_starts_with($title, $local_role_prefix)) {
                 return true;
             }
         }
@@ -131,13 +128,7 @@ abstract class ilMailSearchObjectGUI
      */
     protected function addPermission(array $a_obj_ids): void
     {
-        $existing = $this->wsp_access_handler->getPermissions($this->wsp_node_id);
-        $added = false;
-        foreach ($a_obj_ids as $object_id) {
-            if (!in_array($object_id, $existing, true)) {
-                $added = $this->wsp_access_handler->addPermission($this->wsp_node_id, $object_id);
-            }
-        }
+        $added = $this->wsp_access_handler->addMissingPermissionForObjects($this->wsp_node_id, $a_obj_ids);
 
         if ($added) {
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('wsp_share_success'), true);
@@ -171,7 +162,7 @@ abstract class ilMailSearchObjectGUI
             if ($obj_ids !== []) {
                 $this->addPermission($obj_ids);
             } else {
-                $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_select_course'));
+                $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_select_' . $this->getObjectType()));
                 $this->showMyObjects();
             }
         } elseif ($view === $this->getObjectType() . '_members') {
@@ -227,7 +218,7 @@ abstract class ilMailSearchObjectGUI
             if ($obj_ids !== []) {
                 $this->mailObjects();
             } else {
-                $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_select_course'));
+                $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_select_' . $this->getObjectType()));
                 $this->showMyObjects();
             }
         } elseif ($view === $this->getObjectType() . '_members') {
@@ -382,7 +373,7 @@ abstract class ilMailSearchObjectGUI
         if ($this->http->wrapper()->query()->has('search_' . $this->getObjectType())) {
             $obj_ids = $this->refinery->kindlyTo()->listOf(
                 $this->refinery->kindlyTo()->int()
-            )->transform(explode(',', $this->http->wrapper()->query()->retrieve(
+            )->transform(explode(',', (string) $this->http->wrapper()->query()->retrieve(
                 'search_' . $this->getObjectType(),
                 $this->refinery->kindlyTo()->string()
             )));
@@ -396,12 +387,12 @@ abstract class ilMailSearchObjectGUI
         } elseif (ilSession::get('search_' . $this->getObjectType())) {
             $obj_ids = $this->refinery->kindlyTo()->listOf(
                 $this->refinery->kindlyTo()->int()
-            )->transform(explode(',', ilSession::get('search_' . $this->getObjectType())));
+            )->transform(explode(',', (string) ilSession::get('search_' . $this->getObjectType())));
             ilSession::set('search_' . $this->getObjectType(), '');
         }
 
         if ($obj_ids === []) {
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_select_course'));
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_select_' . $this->getObjectType()));
             $this->showMyObjects();
             return;
         }
@@ -409,7 +400,12 @@ abstract class ilMailSearchObjectGUI
         foreach ($obj_ids as $obj_id) {
             /** @var ilObjGroup|ilObjCourse $object */
             $object = ilObjectFactory::getInstanceByObjId($obj_id);
-            if (!$object->getShowMembers()) {
+
+            $ref_ids = array_keys(ilObject::_getAllReferences($object->getId()));
+            $ref_id = $ref_ids[0];
+            $object->setRefId($ref_id);
+
+            if (!$this->doesExposeMembers($object)) {
                 $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_crs_list_members_not_available_for_at_least_one_crs'));
                 $this->showMyObjects();
                 return;
@@ -478,7 +474,7 @@ abstract class ilMailSearchObjectGUI
         }
         $table->setData($tableData);
 
-        if (count($tableData)) {
+        if ($tableData !== []) {
             $searchTpl->setVariable('TXT_MARKED_ENTRIES', $this->lng->txt('marked_entries'));
         }
 
@@ -527,8 +523,8 @@ abstract class ilMailSearchObjectGUI
                     ilMailGlobalServices::getMailObjectRefId()
                 );
 
-                if ($has_untrashed_references && ($can_send_mails || $this->doesExposeMembers($object))) {
-                    $member_list_enabled = $object->getShowMembers();
+                $exposes_members = $this->doesExposeMembers($object);;
+                if ($has_untrashed_references && ($can_send_mails || $exposes_members)) {
                     $participants = ilParticipants::getInstanceByObjId($object->getId());
                     $usr_ids = $participants->getParticipants();
 
@@ -540,10 +536,8 @@ abstract class ilMailSearchObjectGUI
                     }
                     $usr_ids = array_values($usr_ids);
 
-                    $hiddenMembers = false;
-                    if (!$member_list_enabled) {
+                    if (!$exposes_members) {
                         ++$num_courses_hidden_members;
-                        $hiddenMembers = true;
                     }
 
                     $path_arr = $this->tree->getPathFull($object->getRefId(), $this->tree->getRootId());
@@ -555,43 +549,54 @@ abstract class ilMailSearchObjectGUI
                         $path .= $data['title'];
                     }
 
-                    $current_selection_list = new ilAdvancedSelectionListGUI();
-                    $current_selection_list->setListTitle($this->lng->txt('actions'));
-                    $current_selection_list->setId('act_' . $counter);
-
                     $this->ctrl->setParameter($this, 'search_' . $this->getObjectType(), $object->getId());
                     $this->ctrl->setParameter($this, 'view', 'myobjects');
+                    $buttons = [];
 
                     if ($this->isDefaultRequestContext()) {
                         if ($this->mailing_allowed && $can_send_mails) {
-                            $current_selection_list->addItem(
-                                $this->lng->txt('mail_members'),
-                                '',
-                                $this->ctrl->getLinkTarget($this, 'mail')
-                            );
+                            $buttons[] = $this->ui_factory
+                                ->button()
+                                ->shy(
+                                    $this->lng->txt('mail_members'),
+                                    $this->ctrl->getLinkTarget($this, 'mail')
+                                );
                         }
                     } else {
-                        $current_selection_list->addItem(
-                            $this->lng->txt('wsp_share_with_members'),
-                            '',
-                            $this->ctrl->getLinkTarget($this, 'share')
-                        );
+                        $buttons[] = $this->ui_factory
+                            ->button()
+                            ->shy(
+                                $this->lng->txt('wsp_share_with_members'),
+                                $this->ctrl->getLinkTarget($this, 'share')
+                            );
                     }
-                    $current_selection_list->addItem(
-                        $this->lng->txt('mail_list_members'),
-                        '',
-                        $this->ctrl->getLinkTarget($this, 'showMembers')
-                    );
+
+                    if ($exposes_members) {
+                        $buttons[] = $this->ui_factory
+                            ->button()
+                            ->shy(
+                                $this->lng->txt('mail_list_members'),
+                                $this->ctrl->getLinkTarget($this, 'showMembers')
+                            );
+                    }
 
                     $this->ctrl->clearParameters($this);
+
+                    $drop_down = null;
+                    if ($buttons !== []) {
+                        $drop_down = $this->ui_factory
+                            ->dropdown()
+                            ->standard($buttons)
+                            ->withLabel($this->lng->txt('actions'));
+                    }
 
                     $rowData = [
                         'OBJECT_ID' => $object->getId(),
                         'OBJECT_NAME' => $object->getTitle(),
                         'OBJECT_NO_MEMBERS' => count($usr_ids),
                         'OBJECT_PATH' => $path,
-                        'COMMAND_SELECTION_LIST' => $current_selection_list->getHTML(),
-                        'hidden_members' => $hiddenMembers,
+                        'COMMAND_SELECTION_LIST' => $drop_down ? $this->ui_renderer->render($drop_down) : '',
+                        'hidden_members' => !$exposes_members,
                     ];
                     $counter++;
                     $tableData[] = $rowData;

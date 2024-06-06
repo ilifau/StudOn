@@ -21,10 +21,12 @@ namespace ILIAS\ResourceStorage\Revision;
 use ILIAS\ResourceStorage\Consumer\StreamAccess\Token;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Information\Information;
+use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
+use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamResolver;
 
 /**
  * Class FileRevision
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 interface Revision
 {
@@ -48,11 +50,22 @@ interface Revision
 
     public function getTitle(): string;
 
+<<<<<<< HEAD
     public function withToken(Token $token): Revision;
 
     public function maybeGetToken(): ?Token;
+=======
+    public function withStreamResolver(?StreamResolver $stream_resolver = null): Revision;
+
+    public function maybeStreamResolver(): ?StreamResolver;
+>>>>>>> v9.1
 
     public function setStorageID(string $storage_id): void;
 
     public function getStorageID(): string;
+<<<<<<< HEAD
+=======
+
+    public function getStatus(): RevisionStatus;
+>>>>>>> v9.1
 }

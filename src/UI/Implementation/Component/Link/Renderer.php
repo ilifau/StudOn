@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,9 +21,15 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\Link;
 
 use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
+use ILIAS\UI\Implementation\Render\TooltipRenderer;
 use ILIAS\UI\Implementation\Render\Template;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
@@ -54,9 +63,42 @@ class Renderer extends AbstractComponentRenderer
         if ($component->getOpenInNewViewport()) {
             $tpl->touchBlock("open_in_new_viewport");
         }
+        if (null !== $component->getContentLanguage()) {
+            $tpl->setVariable("CONTENT_LANGUAGE", $component->getContentLanguage());
+        }
+        if (null !== $component->getLanguageOfReferencedResource()) {
+            $tpl->setVariable("HREF_LANGUAGE", $component->getLanguageOfReferencedResource());
+        }
+
+        $rel_strings = [];
+        foreach ($component->getRelationshipsToReferencedResource() as $rel) {
+            $rel_strings[] = $rel->value;
+        }
+        if (!empty($rel_strings)) {
+            $tpl->setVariable("RELS", implode(' ', $rel_strings));
+        }
+
         $tpl->setVariable("LABEL", $label);
         $tpl->setVariable("HREF", $action);
         return $tpl;
+    }
+
+    protected function maybeRenderWithTooltip(Component\Link\Link $component, Template $tpl): string
+    {
+        $tooltip_embedding = $this->getTooltipRenderer()->maybeGetTooltipEmbedding(...$component->getHelpTopics());
+        if (! $tooltip_embedding) {
+            $id = $this->bindJavaScript($component);
+            $tpl->setVariable("ID", $id);
+            return $tpl->get();
+        }
+        $component = $component->withAdditionalOnLoadCode($tooltip_embedding[1]);
+        $tooltip_id = $this->createId();
+        $tpl->setCurrentBlock("with_aria_describedby");
+        $tpl->setVariable("ARIA_DESCRIBED_BY", $tooltip_id);
+        $tpl->parseCurrentBlock();
+        $id = $this->bindJavaScript($component);
+        $tpl->setVariable("ID", $id);
+        return $tooltip_embedding[0]($tooltip_id, $tpl->get());
     }
 
     protected function renderStandard(
@@ -64,7 +106,7 @@ class Renderer extends AbstractComponentRenderer
     ): string {
         $tpl_name = "tpl.standard.html";
         $tpl = $this->setStandardVars($tpl_name, $component);
-        return $tpl->get();
+        return $this->maybeRenderWithTooltip($component, $tpl);
     }
 
     protected function renderBulky(
@@ -75,8 +117,6 @@ class Renderer extends AbstractComponentRenderer
         $tpl = $this->setStandardVars($tpl_name, $component);
         $renderer = $default_renderer->withAdditionalContext($component);
         $tpl->setVariable("SYMBOL", $renderer->render($component->getSymbol()));
-        $id = $this->bindJavaScript($component);
-        $tpl->setVariable("ID", $id);
 
         $aria_role = $component->getAriaRole();
         if ($aria_role != null) {
@@ -84,8 +124,7 @@ class Renderer extends AbstractComponentRenderer
             $tpl->setVariable("ARIA_ROLE", $aria_role);
             $tpl->parseCurrentBlock();
         }
-
-        return $tpl->get();
+        return $this->maybeRenderWithTooltip($component, $tpl);
     }
 
     /**

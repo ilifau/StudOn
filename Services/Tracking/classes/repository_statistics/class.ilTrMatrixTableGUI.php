@@ -529,7 +529,7 @@ class ilTrMatrixTableGUI extends ilLPTableBaseGUI
                             $this->tpl->setVariable(
                                 'WARNING_IMG',
                                 ilUtil::getImagePath(
-                                    'time_warn.svg'
+                                    'media/time_warn.svg'
                                 )
                             );
                             $this->tpl->setVariable(
@@ -719,7 +719,6 @@ class ilTrMatrixTableGUI extends ilLPTableBaseGUI
                     $val = $this->parseValue($c, $a_set[$c] ?? '', "user");
                     $a_excel->setCell($a_row, $cnt, $val);
                     break;
-
             }
             $cnt++;
         }
@@ -803,7 +802,6 @@ class ilTrMatrixTableGUI extends ilLPTableBaseGUI
                     $val = $this->parseValue($c, $a_set[$c] ?? '', "user");
                     $a_csv->addColumn($val);
                     break;
-
             }
         }
 

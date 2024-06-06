@@ -194,7 +194,6 @@ class ilLearningModuleDataSet extends ilDataSet
                         "StyleId" => "integer",
                         "EstimatedReadingTime" => "integer"
                     );
-
             }
         }
 
@@ -278,12 +277,12 @@ class ilLearningModuleDataSet extends ilDataSet
                         case "5.4.0":
                         case "8.0":
                             $q = "SELECT id, title, description," .
-                                    " default_layout, page_header, toc_active, lm_menu_active, toc_mode, print_view_active, numbering," .
-                                    " hist_user_comments, public_access_mode, no_glo_appendix, header_page, footer_page, layout_per_page, rating, " .
-                                    " hide_head_foot_print, disable_def_feedback, rating_pages, store_tries, restrict_forw_nav, progr_icons, stylesheet style_id" .
-                                    " FROM content_object JOIN object_data ON (content_object.id = object_data.obj_id)" .
-                                    " WHERE " . $ilDB->in("id", $a_ids, false, "integer");
-
+                                " default_layout, page_header, toc_active, lm_menu_active, toc_mode, print_view_active, numbering," .
+                                " hist_user_comments, public_access_mode, no_glo_appendix, header_page, footer_page, layout_per_page, rating, " .
+                                " hide_head_foot_print, disable_def_feedback, rating_pages, store_tries, restrict_forw_nav, progr_icons, stylesheet style_id" .
+                                " FROM content_object JOIN object_data ON (content_object.id = object_data.obj_id)" .
+                                " WHERE " . $ilDB->in("id", $a_ids, false, "integer");
+                            break;
                     }
 
                     $set = $ilDB->query($q);

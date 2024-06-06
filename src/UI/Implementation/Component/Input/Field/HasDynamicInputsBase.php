@@ -66,7 +66,11 @@ abstract class HasDynamicInputsBase extends FormInput implements HasDynamicInput
      * Returns the instance of Field which should be used to generate
      * dynamic inputs on clientside.
      */
+<<<<<<< HEAD
     public function getTemplateForDynamicInputs(): LegacyInputInterface
+=======
+    public function getTemplateForDynamicInputs(): FormInputInterface
+>>>>>>> v9.1
     {
         return $this->dynamic_input_template;
     }

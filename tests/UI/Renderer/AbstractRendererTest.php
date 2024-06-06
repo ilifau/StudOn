@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -17,9 +20,15 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+<<<<<<< HEAD
 
 namespace ILIAS\UI\Implementation\Component\Symbol\Glyph {
+=======
+>>>>>>> v9.1
 
+declare(strict_types=1);
+
+namespace ILIAS\UI\Implementation\Component\Symbol\Glyph {
     require_once("libs/composer/vendor/autoload.php");
 
     use ILIAS\UI\Component\Component;
@@ -57,7 +66,6 @@ namespace ILIAS\UI\Implementation\Component\Symbol\Glyph {
 }
 
 namespace ILIAS\UI\Implementation\Component\Counter {
-
     use ILIAS\UI\Component\Component;
     use ILIAS\UI\Renderer;
     use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
@@ -82,7 +90,6 @@ namespace ILIAS\UI\Implementation\Component\Counter {
 }
 
 namespace {
-
     /**
      * This file is part of ILIAS, a powerful learning management system
      * published by ILIAS open source e-Learning e.V.
@@ -187,6 +194,7 @@ namespace {
          * @var ImagePathResolver|mixed|MockObject
          */
         protected $image_path_resolver;
+        protected ILIAS\UI\HelpTextRetriever $help_text_retriever;
 
         public function setUp(): void
         {
@@ -197,9 +205,14 @@ namespace {
             $this->js_binding = new LoggingJavaScriptBinding();
             $this->image_path_resolver = $this->getMockBuilder(ILIAS\UI\Implementation\Render\ImagePathResolver::class)
                                               ->getMock();
+            $this->help_text_retriever = $this->createMock(ILIAS\UI\HelpTextRetriever::class);
         }
 
+<<<<<<< HEAD
         public function test_getTemplate_successfull(): void
+=======
+        public function testGetTemplateSuccessfull(): void
+>>>>>>> v9.1
         {
             $r = new GlyphNonAbstractRenderer(
                 $this->ui_factory,
@@ -208,7 +221,13 @@ namespace {
                 $this->js_binding,
                 $this->getRefinery(),
                 $this->image_path_resolver,
+<<<<<<< HEAD
                 $this->getDataFactory()
+=======
+                $this->getDataFactory(),
+                $this->help_text_retriever,
+                $this->getUploadLimitResolver()
+>>>>>>> v9.1
             );
             $r->_getTemplate("tpl.glyph.html", true, false);
 
@@ -219,7 +238,11 @@ namespace {
             $this->assertEquals($expected, $this->tpl_factory->files);
         }
 
+<<<<<<< HEAD
         public function test_getTemplate_unsuccessfull(): void
+=======
+        public function testGetTemplateUnsuccessfull(): void
+>>>>>>> v9.1
         {
             $r = new CounterNonAbstractRenderer(
                 $this->ui_factory,
@@ -228,7 +251,13 @@ namespace {
                 $this->js_binding,
                 $this->getRefinery(),
                 $this->image_path_resolver,
+<<<<<<< HEAD
                 $this->getDataFactory()
+=======
+                $this->getDataFactory(),
+                $this->help_text_retriever,
+                $this->getUploadLimitResolver()
+>>>>>>> v9.1
             );
 
             $this->expectException(TypeError::class);
@@ -240,7 +269,11 @@ namespace {
             $this->assertEquals($expected, $this->tpl_factory->files);
         }
 
+<<<<<<< HEAD
         public function test_bindJavaScript_successfull(): void
+=======
+        public function testBindJavaScriptSuccessfull(): void
+>>>>>>> v9.1
         {
             $r = new GlyphNonAbstractRendererWithJS(
                 $this->ui_factory,
@@ -249,7 +282,13 @@ namespace {
                 $this->js_binding,
                 $this->getRefinery(),
                 $this->image_path_resolver,
+<<<<<<< HEAD
                 $this->getDataFactory()
+=======
+                $this->getDataFactory(),
+                $this->help_text_retriever,
+                $this->getUploadLimitResolver()
+>>>>>>> v9.1
             );
 
             $g = new Glyph(C\Symbol\Glyph\Glyph::SETTINGS, "aria_label");
@@ -266,7 +305,11 @@ namespace {
             $this->assertEquals(array("ID: id_1"), $this->js_binding->on_load_code);
         }
 
+<<<<<<< HEAD
         public function test_bindJavaScript_no_string(): void
+=======
+        public function testBindJavaScriptNoString(): void
+>>>>>>> v9.1
         {
             $r = new GlyphNonAbstractRendererWithJS(
                 $this->ui_factory,
@@ -275,7 +318,13 @@ namespace {
                 $this->js_binding,
                 $this->getRefinery(),
                 $this->image_path_resolver,
+<<<<<<< HEAD
                 $this->getDataFactory()
+=======
+                $this->getDataFactory(),
+                $this->help_text_retriever,
+                $this->getUploadLimitResolver()
+>>>>>>> v9.1
             );
 
             $g = new Glyph(C\Symbol\Glyph\Glyph::SETTINGS, "aria_label");

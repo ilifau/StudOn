@@ -27,10 +27,11 @@ namespace ILIAS\Data;
  * @author  Nicolas Schäfli <ns@studer-raimann.ch>
  * @author Fabian Schmid <fabian@sr.solutions>
  */
-final class DataSize
+final class DataSize implements \Stringable
 {
     private const SIZE_FACTOR = 1000;
     private const PRECISION = 2;
+<<<<<<< HEAD
     public const Byte = 1;
     // binary
     public const KiB = 1024;
@@ -47,6 +48,23 @@ final class DataSize
     // gigabyte
     public const TB = 1_000_000_000_000;
     // terabyte
+=======
+
+    public const Byte = 1;
+
+    // binary
+    public const KiB = 1024;
+    public const MiB = 1_048_576; // pow(1024, 2)
+    public const GiB = 1_073_741_824;
+    public const TiB = 1_099_511_627_776;
+
+    // decimal
+    public const KB = 1000; // kilobyte
+    public const MB = 1_000_000; // megabyte
+    public const GB = 1_000_000_000; // gigabyte
+    public const TB = 1_000_000_000_000; // terabyte
+
+>>>>>>> v9.1
     /**
      * @var array<string, int>
      */
@@ -87,6 +105,25 @@ final class DataSize
         $this->suffix = $this->mapUnitToSuffix($unit);
         $this->size = (float) $size / (float) $unit; // the div operation can return int and float
         $this->unit = $unit;
+<<<<<<< HEAD
+=======
+    }
+
+    private function mapUnitToSuffix(int $unit): string
+    {
+        return match ($unit) {
+            self::Byte => 'B',
+            self::KiB => 'KiB',
+            self::MiB => 'MiB',
+            self::GiB => 'GiB',
+            self::TiB => 'TiB',
+            self::KB => 'KB',
+            self::MB => 'MB',
+            self::GB => 'GB',
+            self::TB => 'TB',
+            default => throw new \InvalidArgumentException('The given data size unit is not valid, please check the provided class constants of the DataSize class.')
+        };
+>>>>>>> v9.1
     }
     private function mapUnitToSuffix(int $unit): string
     {
@@ -144,6 +181,7 @@ final class DataSize
     public function __toString(): string
     {
         $size = $this->inBytes();
+<<<<<<< HEAD
         // can be switched to match in ILIAS 9
         switch (true) {
             case $size > self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR:
@@ -162,6 +200,15 @@ final class DataSize
                 $unit = DataSize::Byte;
                 break;
         }
+=======
+        $unit = match (true) {
+            $size > self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR => DataSize::TB,
+            $size > self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR => DataSize::GB,
+            $size > self::SIZE_FACTOR * self::SIZE_FACTOR => DataSize::MB,
+            $size > self::SIZE_FACTOR => DataSize::KB,
+            default => DataSize::Byte,
+        };
+>>>>>>> v9.1
 
         $size = round($size / (float) $unit, self::PRECISION);
 

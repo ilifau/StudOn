@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,7 +19,7 @@
  ********************************************************************
  */
 
-use ILIAS\Skill\Tree;
+use ILIAS\Skill\Node;
 
 /**
  * Skill category GUI class
@@ -34,7 +36,7 @@ class ilSkillCategoryGUI extends ilSkillTreeNodeGUI
     protected ilLanguage $lng;
     protected ilHelpGUI $help;
 
-    public function __construct(Tree\SkillTreeNodeManager $node_manager, int $a_node_id = 0)
+    public function __construct(Node\SkillTreeNodeManager $node_manager, int $a_node_id = 0)
     {
         global $DIC;
 
@@ -221,7 +223,7 @@ class ilSkillCategoryGUI extends ilSkillTreeNodeGUI
         $it->setTitle($this->form->getInput("title"));
         $it->setDescription($this->form->getInput("description"));
         $it->setSelfEvaluation((bool) $this->form->getInput("self_eval"));
-        $it->setStatus($this->form->getInput("status"));
+        $it->setStatus((int) $this->form->getInput("status"));
         $it->create();
         $this->skill_tree_node_manager->putIntoTree($it, $this->requested_node_id, ilTree::POS_LAST_NODE);
     }
@@ -248,7 +250,7 @@ class ilSkillCategoryGUI extends ilSkillTreeNodeGUI
         $this->node_object->setTitle($this->form->getInput("title"));
         $this->node_object->setDescription($this->form->getInput("description"));
         $this->node_object->setSelfEvaluation((bool) $this->form->getInput("self_eval"));
-        $this->node_object->setStatus($this->form->getInput("status"));
+        $this->node_object->setStatus((int) $this->form->getInput("status"));
         $this->node_object->update();
     }
 

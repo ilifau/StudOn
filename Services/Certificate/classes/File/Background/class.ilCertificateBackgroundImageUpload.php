@@ -18,7 +18,6 @@
 
 declare(strict_types=1);
 
-use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\FileUpload;
 use ILIAS\Filesystem\Filesystem;
 use ILIAS\FileUpload\Exception\IllegalStateException;
@@ -34,37 +33,24 @@ class ilCertificateBackgroundImageUpload
     private const BACKGROUND_IMAGE_NAME = 'background.jpg';
     private const BACKGROUND_THUMBNAIL_IMAGE_NAME = 'background.jpg.thumb.jpg';
     private const BACKGROUND_TEMPORARY_FILENAME = 'background_upload_tmp';
-    private FileUpload $fileUpload;
-    private string $certificatePath;
-    private ilLanguage $language;
-    private string $rootDirectory;
-    private Filesystem $fileSystem;
-    private ilCertificateUtilHelper $utilHelper;
-    private ilCertificateFileUtilsHelper $fileUtilsHelper;
-    private string $clientId;
-    private LegacyPathHelperHelper $legacyPathHelper;
-    private ilLogger $logger;
-    private Filesystem $tmp_file_system;
+    private readonly Filesystem $fileSystem;
+    private readonly ilCertificateUtilHelper $utilHelper;
+    private readonly ilCertificateFileUtilsHelper $fileUtilsHelper;
+    private readonly LegacyPathHelperHelper $legacyPathHelper;
+    private readonly Filesystem $tmp_file_system;
 
     public function __construct(
-        FileUpload $fileUpload,
-        string $certificatePath,
-        ilLanguage $language,
-        ilLogger $logger,
+        private readonly FileUpload $fileUpload,
+        private readonly string $certificatePath,
+        private readonly ilLanguage $language,
+        private readonly string $rootDirectory = CLIENT_WEB_DIR,
+        private readonly string $clientId = CLIENT_ID,
         ?Filesystem $fileSystem = null,
         ?ilCertificateUtilHelper $utilHelper = null,
         ?ilCertificateFileUtilsHelper $certificateFileUtilsHelper = null,
         ?LegacyPathHelperHelper $legacyPathHelper = null,
-        string $rootDirectory = CLIENT_WEB_DIR,
-        string $clientID = CLIENT_ID,
         ?Filesystem $tmp_file_system = null
     ) {
-        $this->fileUpload = $fileUpload;
-        $this->certificatePath = $certificatePath;
-        $this->language = $language;
-        $this->logger = $logger;
-        $this->rootDirectory = $rootDirectory;
-
         if (null === $fileSystem) {
             global $DIC;
             $fileSystem = $DIC->filesystem()->web();
@@ -86,8 +72,6 @@ class ilCertificateBackgroundImageUpload
         }
         $this->legacyPathHelper = $legacyPathHelper;
 
-        $this->clientId = $clientID;
-
         if (null === $tmp_file_system) {
             global $DIC;
             $tmp_file_system = $DIC->filesystem()->temp();
@@ -100,7 +84,6 @@ class ilCertificateBackgroundImageUpload
      * certificate if needed. Removes an existing certificate image if necessary
      * @param string     $imageTempFilename Name of the temporary uploaded image file
      * @param int        $version           - Version of the current certifcate template
-     * @param array|null $pending_file
      * @return string An errorcode if the image upload fails, 0 otherwise
      * @throws IllegalStateException
      * @throws FileNotFoundException
@@ -122,8 +105,7 @@ class ilCertificateBackgroundImageUpload
 
         $this->utilHelper->convertImage(
             $backgroundImageTempFilePath,
-            $this->rootDirectory . $backgroundImagePath,
-            'JPEG'
+            $this->rootDirectory . $backgroundImagePath
         );
 
         $backgroundImageThumbnailPath = $this->createBackgroundImageThumbPath();
@@ -131,7 +113,6 @@ class ilCertificateBackgroundImageUpload
         $this->utilHelper->convertImage(
             $backgroundImageTempFilePath,
             $backgroundImageThumbnailPath,
-            'JPEG',
             "100"
         );
 
@@ -158,8 +139,6 @@ class ilCertificateBackgroundImageUpload
     }
 
     /**
-     * @param string $temporaryFilename
-     * @param array|null $pending_file
      * @throws FileNotFoundException
      * @throws IOException
      * @throws IllegalStateException
@@ -172,13 +151,10 @@ class ilCertificateBackgroundImageUpload
             $this->fileUpload->process();
         }
 
-        if (false === $this->fileUpload->hasUploads()) {
+        if (!$this->fileUpload->hasUploads()) {
             throw new ilException($this->language->txt('upload_error_file_not_found'));
         }
 
-        /**
-         * @var UploadResult $uploadResult
-         */
         $uploadResults = $this->fileUpload->getResults();
         if (isset($uploadResults[$temporaryFilename])) {
             $uploadResult = $uploadResults[$temporaryFilename];
@@ -224,26 +200,18 @@ class ilCertificateBackgroundImageUpload
 
     private function getTargetFilesystem(string $target): int
     {
-        switch (true) {
-            case strpos($target, $this->rootDirectory . '/' . $this->clientId) === 0:
-            case strpos($target, './' . $this->rootDirectory . '/' . $this->clientId) === 0:
-            case strpos($target, $this->rootDirectory) === 0:
-                $targetFilesystem = Location::WEB;
-                break;
-            case strpos($target, CLIENT_DATA_DIR . "/temp") === 0:
-                $targetFilesystem = Location::TEMPORARY;
-                break;
-            case strpos($target, CLIENT_DATA_DIR) === 0:
-                $targetFilesystem = Location::STORAGE;
-                break;
-            case strpos($target, ILIAS_ABSOLUTE_PATH . '/Customizing') === 0:
-                $targetFilesystem = Location::CUSTOMIZING;
-                break;
-            default:
-                throw new InvalidArgumentException("Can not move files to \"$target\" because path can not be mapped to web, storage or customizing location.");
-        }
-
-        return $targetFilesystem;
+        return match (true) {
+            str_starts_with($target, $this->rootDirectory . '/' . $this->clientId), str_starts_with(
+                $target,
+                './' . $this->rootDirectory . '/' . $this->clientId
+            ), str_starts_with($target, $this->rootDirectory) => Location::WEB,
+            str_starts_with($target, CLIENT_DATA_DIR . "/temp") => Location::TEMPORARY,
+            str_starts_with($target, CLIENT_DATA_DIR) => Location::STORAGE,
+            str_starts_with($target, ILIAS_ABSOLUTE_PATH . '/Customizing') => Location::CUSTOMIZING,
+            default => throw new InvalidArgumentException(
+                "Can not move files to \"$target\" because path can not be mapped to web, storage or customizing location."
+            ),
+        };
     }
 
     private function getTargetDir(string $target): string

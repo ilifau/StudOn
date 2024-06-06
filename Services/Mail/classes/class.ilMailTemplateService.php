@@ -18,18 +18,15 @@
 
 declare(strict_types=1);
 
-/**
- * Class ilMailTemplateService
- * @author  Michael Jansen <mjansen@databay.de>
- * @ingroup ServicesMail
- */
-class ilMailTemplateService
-{
-    protected ilMailTemplateRepository $repository;
+use ILIAS\Mail\Templates\TemplateSubjectSyntaxException;
+use ILIAS\Mail\Templates\TemplateMessageSyntaxException;
 
-    public function __construct(ilMailTemplateRepository $repository)
-    {
-        $this->repository = $repository;
+class ilMailTemplateService implements ilMailTemplateServiceInterface
+{
+    public function __construct(
+        protected ilMailTemplateRepository $repository,
+        protected ilMustacheFactory $mustacheFactory
+    ) {
     }
 
     public function createNewTemplate(
@@ -39,6 +36,18 @@ class ilMailTemplateService
         string $message,
         string $language
     ): ilMailTemplate {
+        try {
+            $this->mustacheFactory->getBasicEngine()->render($subject, []);
+        } catch (Exception) {
+            throw new TemplateSubjectSyntaxException('Invalid mail template for subject');
+        }
+
+        try {
+            $this->mustacheFactory->getBasicEngine()->render($message, []);
+        } catch (Exception) {
+            throw new TemplateMessageSyntaxException('Invalid mail template for message');
+        }
+
         $template = new ilMailTemplate();
         $template->setContext($contextId);
         $template->setTitle($title);
@@ -59,6 +68,18 @@ class ilMailTemplateService
         string $message,
         string $language
     ): void {
+        try {
+            $this->mustacheFactory->getBasicEngine()->render($subject, []);
+        } catch (Exception) {
+            throw new TemplateSubjectSyntaxException('Invalid mail template for subject');
+        }
+
+        try {
+            $this->mustacheFactory->getBasicEngine()->render($message, []);
+        } catch (Exception) {
+            throw new TemplateMessageSyntaxException('Invalid mail template for message');
+        }
+
         $template = $this->repository->findById($templateId);
 
         $template->setContext($contextId);
@@ -75,26 +96,16 @@ class ilMailTemplateService
         return $this->repository->findById($templateId);
     }
 
-    /**
-     * @param string $contextId
-     * @return ilMailTemplate[]
-     */
     public function loadTemplatesForContextId(string $contextId): array
     {
         return $this->repository->findByContextId($contextId);
     }
 
-    /**
-     * @param int[] $templateIds
-     */
     public function deleteTemplatesByIds(array $templateIds): void
     {
         $this->repository->deleteByIds($templateIds);
     }
 
-    /**
-     * @return array[]
-     */
     public function listAllTemplatesAsArray(): array
     {
         $templates = $this->repository->getAll();

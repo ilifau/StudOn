@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +14,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
@@ -317,7 +316,7 @@ class ilMembershipGUI
                 if (
                     !$is_admin &&
                     (
-                        $this->getParentObject()->getShowMembers() === 0 ||
+                        !$this->getParentObject()->getShowMembers() ||
                         !$is_participant
                     )
                 ) {
@@ -725,7 +724,7 @@ class ilMembershipGUI
                 'participants[]',
                 (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
-                ilUtil::getImagePath('icon_usr.svg')
+                ilUtil::getImagePath('standard/icon_usr.svg')
             );
         }
         $this->tpl->setContent($confirm->getHTML());
@@ -1186,7 +1185,7 @@ class ilMembershipGUI
                 'subscribers[]',
                 (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
-                ilUtil::getImagePath('icon_usr.svg')
+                ilUtil::getImagePath('standard/icon_usr.svg')
             );
         }
         $this->tpl->setContent($c_gui->getHTML());
@@ -1217,7 +1216,7 @@ class ilMembershipGUI
                 'subscribers[]',
                 (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
-                ilUtil::getImagePath('icon_usr.svg')
+                ilUtil::getImagePath('standard/icon_usr.svg')
             );
         }
 
@@ -1372,7 +1371,6 @@ class ilMembershipGUI
 
         foreach ($waiting_list_ids as $waiting) {
             $name = ilObjUser::_lookupName($waiting);
-
             $possible = true;
             $notice = "";
             if ($object->hasParallelGroups() && empty($registration->getFillableGroups((int) $waiting))) {
@@ -1393,7 +1391,7 @@ class ilMembershipGUI
                 'waiting[]',
                 (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
-                ilUtil::getImagePath('icon_usr.svg')
+                ilUtil::getImagePath('standard/icon_usr.svg')
             );
         
 
@@ -1553,7 +1551,7 @@ class ilMembershipGUI
                 'waiting[]',
                 (string) $name['user_id'],
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
-                ilUtil::getImagePath('icon_usr.svg')
+                ilUtil::getImagePath('standard/icon_usr.svg')
             );
         }
         $this->tpl->setContent($c_gui->getHTML());

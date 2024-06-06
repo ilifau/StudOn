@@ -23,16 +23,22 @@ namespace ILIAS\UI\Implementation\Component\Modal;
 use ILIAS\UI\Component\Modal as M;
 use ILIAS\UI\Component\Image\Image;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
+<<<<<<< HEAD
 use ILIAS\UI\Implementation\Component\Input\FormInputNameSource;
 use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
+=======
+use ILIAS\UI\Component\Modal\InterruptiveItem\Factory as ItemFactory;
+use ILIAS\UI\Implementation\Component\Input\FormInputNameSource;
+use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
+use ILIAS\UI\Component\Card\Card;
+>>>>>>> v9.1
 
 /**
  * Implementation of factory for modals
- *
- * @author Stefan Wanzenried <sw@studer-raimann.ch>
  */
 class Factory implements M\Factory
 {
+<<<<<<< HEAD
     protected SignalGeneratorInterface $signal_generator;
     protected FieldFactory $field_factory;
 
@@ -40,6 +46,13 @@ class Factory implements M\Factory
     {
         $this->signal_generator = $signal_generator;
         $this->field_factory = $field_factory;
+=======
+    public function __construct(
+        protected SignalGeneratorInterface $signal_generator,
+        protected ItemFactory $item_factory,
+        protected FieldFactory $field_factory,
+    ) {
+>>>>>>> v9.1
     }
 
     /**
@@ -53,6 +66,7 @@ class Factory implements M\Factory
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function interruptiveItem(
         string $id,
         string $title,
@@ -76,11 +90,35 @@ class Factory implements M\Factory
             $inputs,
             $post_url
         );
+=======
+    public function interruptiveItem(): M\InterruptiveItem\Factory
+    {
+        return $this->item_factory;
+>>>>>>> v9.1
     }
 
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
+=======
+    public function roundtrip(string $title, $content, array $inputs = [], string $post_url = null): M\RoundTrip
+    {
+        return new RoundTrip(
+            $this->signal_generator,
+            $this->field_factory,
+            new FormInputNameSource(),
+            $title,
+            $content,
+            $inputs,
+            $post_url
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+>>>>>>> v9.1
     public function lightbox($pages): M\Lightbox
     {
         return new Lightbox($pages, $this->signal_generator);
@@ -100,5 +138,10 @@ class Factory implements M\Factory
     public function lightboxTextPage(string $text, string $title): M\LightboxTextPage
     {
         return new LightboxTextPage($text, $title);
+    }
+
+    public function lightboxCardPage(Card $card): M\LightboxCardPage
+    {
+        return new LightboxCardPage($card);
     }
 }

@@ -19,6 +19,9 @@
 use ILIAS\FileDelivery\Delivery;
 use ILIAS\HTTP\Cookies\CookieFactory;
 use ILIAS\HTTP\Services;
+use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
+use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamInfoFactory;
+use ILIAS\ResourceStorage\Consumer\StreamAccess\TokenFactory;
 
 /**
  * Class ilWebAccessCheckerDelivery
@@ -73,23 +76,13 @@ class ilWebAccessCheckerDelivery
                 $this->deny();
             }
         } catch (ilWACException $e) {
-            switch ($e->getCode()) {
-                case ilWACException::NOT_FOUND:
-                    $this->handleNotFoundError($e);
-                    break;
-                case ilWACException::ACCESS_DENIED:
-                case ilWACException::ACCESS_DENIED_NO_PUB:
-                case ilWACException::ACCESS_DENIED_NO_LOGIN:
-                    $this->handleAccessErrors($e);
-                    break;
-                case ilWACException::ACCESS_WITHOUT_CHECK:
-                case ilWACException::INITIALISATION_FAILED:
-                case ilWACException::NO_CHECKING_INSTANCE:
-                default:
-                    $this->handleErrors($e);
-                    break;
-            }
-
+            match ($e->getCode()) {
+                ilWACException::NOT_FOUND => $this->handleNotFoundError($e),
+                ilWACException::ACCESS_DENIED,
+                ilWACException::ACCESS_DENIED_NO_PUB,
+                ilWACException::ACCESS_DENIED_NO_LOGIN => $this->handleAccessErrors($e),
+                default => $this->handleErrors($e),
+            };
         }
     }
 
@@ -131,7 +124,6 @@ class ilWebAccessCheckerDelivery
 
     protected function handleAccessErrors(ilWACException $e): void
     {
-
         //1.5.2017 Http code needs to be 200 because mod_xsendfile ignores the response with an 401 code. (possible leak of web path via xsendfile header)
         $response = $this->http
             ->response()
@@ -139,12 +131,11 @@ class ilWebAccessCheckerDelivery
 
         $this->http->saveResponse($response);
 
-        if ($this->wac->getPathObject()->isImage()) {
-            $this->deliverDummyImage();
-        }
         if ($this->wac->getPathObject()->isVideo()) {
             $this->deliverDummyVideo();
         }
+
+        $this->deliverDummyImage();
 
         $this->wac->initILIAS();
     }
@@ -177,10 +168,30 @@ class ilWebAccessCheckerDelivery
             throw new ilWACException(ilWACException::ACCESS_WITHOUT_CHECK);
         }
 
-        $ilFileDelivery = new Delivery($this->wac->getPathObject()->getCleanURLdecodedPath(), $this->http);
+        $path = $this->wac->getPathObject();
+        // This is currently the place where WAC handles things from the ResourceStorageService.
+        if ($path->getModuleType() === 'rs') {
+            // initialize constants
+            if (!defined('CLIENT_DATA_DIR')) {
+                $ini = new ilIniFile("./ilias.ini.php");
+                $ini->read();
+                $data_dir = rtrim($ini->readVariable("clients", "datadir"), '/');
+                $client_data_dir = $data_dir . "/" . $path->getClient();
+            } else {
+                $client_data_dir = CLIENT_DATA_DIR;
+            }
+
+            $token_factory = new TokenFactory($client_data_dir);
+            $token = $token_factory->check($path->getFileName());
+            $path_to_file = $token->resolveStream(); // FileStream
+        } else {
+            $path_to_file = $path->getCleanURLdecodedPath();
+        }
+
+        $ilFileDelivery = new Delivery($path_to_file, $this->http);
         $ilFileDelivery->setCache(true);
         $ilFileDelivery->setDisposition($this->wac->getDisposition());
-        if ($this->wac->getPathObject()->isStreamable()) { // fixed 0016468
+        if ($path->isStreamable()) { // fixed 0016468
             $ilFileDelivery->stream();
         } else {
             $ilFileDelivery->deliver();

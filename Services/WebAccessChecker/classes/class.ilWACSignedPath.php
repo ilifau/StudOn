@@ -41,7 +41,7 @@ class ilWACSignedPath
     protected ?ilWACPath $path_object = null;
     protected ?ilWACToken $token_instance = null;
     protected int $type = PathType::FILE;
-    protected static int $token_max_lifetime_in_seconds = 3;
+    protected static int $token_max_lifetime_in_seconds = 5;
     protected static int $cookie_max_lifetime_in_seconds = 300;
     protected bool $checked = false;
     private GlobalHttpState $httpService;
@@ -168,8 +168,8 @@ class ilWACSignedPath
                 $cookie->getName(),
                 $cookie->getValue(),
                 $cookie->getExpires(),
-                $cookie->getPath(),
-                $cookie->getDomain(),
+                $cookie->getPath() ?? '/',
+                $cookie->getDomain() ?? $_SERVER['REQUEST_URI'],
                 $cookie->getSecure(),
                 $cookie->getHttpOnly()
             );

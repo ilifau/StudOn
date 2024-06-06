@@ -22,7 +22,6 @@ namespace ILIAS\Services\Badge;
 
 use ilBadge;
 use ilException;
-use Throwable;
 
 class BadgeException extends ilException
 {

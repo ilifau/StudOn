@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  ********************************************************************
  */
+
+declare(strict_types=1);
 
 /**
 *
@@ -59,7 +59,6 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
 
     protected int $container_ref_id = 0;
     protected int $container_obj_id = 0;
-    protected array $files = [];
     protected ?ilPropertyFormGUI $form = null;
     protected ilAdvancedMDRecordGUI $record_gui;
     protected ?ilEventRecurrence $rec = null;
@@ -225,12 +224,10 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
                 break;
 
             case "ilexportgui":
-//				$this->prepareOutput();
                 $this->tabs_gui->setTabActive("export");
                 $exp_gui = new ilExportGUI($this);
                 $exp_gui->addFormat("xml");
                 $ret = $this->ctrl->forwardCommand($exp_gui);
-//				$this->tpl->show();
                 break;
 
             case "ilcommonactiondispatchergui":
@@ -288,10 +285,15 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
                 $cmd .= "Object";
                 $this->$cmd();
 
-            break;
+                break;
         }
 
         $this->addHeaderAction();
+    }
+
+    protected function renderObject(): void
+    {
+        $this->infoScreenObject();
     }
 
     protected function membersObject(): void
@@ -309,9 +311,9 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         return $object;
     }
 
-    public function prepareOutput(bool $show_subobjects = true): bool
+    public function prepareOutput(bool $show_sub_objects = true): bool
     {
-        parent::prepareOutput($show_subobjects);
+        parent::prepareOutput($show_sub_objects);
 
         if (!$this->getCreationMode()) {
             $title = strlen($this->object->getTitle()) ? (': ' . $this->object->getTitle()) : '';
@@ -635,19 +637,17 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
                 $this->tpl->setOnScreenMessage('info', $this->lng->txt('sess_reg_max_users_exceeded'));
             }
             return true;
-        } else {
-            if (is_null(ilSession::get("sess_hide_info"))) {
-                $this->tpl->setOnScreenMessage('info', $this->lng->txt('sess_join_info'));
-                $btn_attend = $this->ui->factory()->button()->primary(
-                    $this->lng->txt("join_session"),
-                    $this->ctrl->getLinkTargetByClass(array("ilRepositoryGUI", "ilObjSessionGUI"), "register")
-                );
-                $ilToolbar->addComponent($btn_attend);
-                if (!$event_part->isExcused($ilUser->getId()) && !is_null($btn_excused)) {
-                    $ilToolbar->addComponent($btn_excused);
-                }
-                return true;
+        } elseif (is_null(ilSession::get("sess_hide_info"))) {
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt('sess_join_info'));
+            $btn_attend = $this->ui->factory()->button()->primary(
+                $this->lng->txt("join_session"),
+                $this->ctrl->getLinkTargetByClass(array("ilRepositoryGUI", "ilObjSessionGUI"), "register")
+            );
+            $ilToolbar->addComponent($btn_attend);
+            if (!$event_part->isExcused($ilUser->getId()) && !is_null($btn_excused)) {
+                $ilToolbar->addComponent($btn_excused);
             }
+            return true;
         }
         return false;
     }
@@ -778,15 +778,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         );
     }
 
-    public function sendFileObject(): bool
-    {
-        $file = new ilSessionFile($this->requested_file_id);
-
-        ilFileDelivery::deliverFileLegacy($file->getAbsolutePath(), $file->getFileName(), $file->getFileType());
-        return true;
-    }
-
-    protected function initCreateForm($a_new_type): ilPropertyFormGUI
+    protected function initCreateForm($new_type): ilPropertyFormGUI
     {
         if (!is_object($this->object)) {
             $this->object = new ilObjSession();
@@ -974,7 +966,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
             $new_obj->getFirstAppointment()->setStartingTime($date->get(IL_CAL_UNIX));
             $new_obj->getFirstAppointment()->setEndingTime($date->get(IL_CAL_UNIX) + $period_diff);
             $new_obj->getFirstAppointment()->update();
-            $new_obj->update(true);
+            $new_obj->update();
 
             // #14547 - active is default
             if (!$a_activate_lp) {
@@ -998,27 +990,6 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         $this->initForm('edit');
         $this->tpl->addBlockFile('ADM_CONTENT', 'adm_content', 'tpl.sess_edit.html', 'Modules/Session');
         $this->tpl->setVariable('EVENT_EDIT_TABLE', $this->form->getHTML());
-
-        if (!count($this->object->getFiles())) {
-            return;
-        }
-        $rows = [];
-        foreach ($this->object->getFiles() as $file) {
-            $table_data['id'] = $file->getFileId();
-            $table_data['filename'] = $file->getFileName();
-            $table_data['filetype'] = $file->getFileType();
-            $table_data['filesize'] = $file->getFileSize();
-
-            $rows[] = $table_data;
-        }
-
-        $table_gui = new ilSessionFileTableGUI($this, "edit");
-        $table_gui->setTitle($this->lng->txt("event_files"));
-        $table_gui->setData($rows);
-        $table_gui->addCommandButton("cancel", $this->lng->txt("cancel"));
-        $table_gui->addMultiCommand("confirmDeleteFiles", $this->lng->txt("delete"));
-        $table_gui->setSelectAllCheckbox("file_id");
-        $this->tpl->setVariable('EVENT_FILE_TABLE', $table_gui->getHTML());
     }
 
     public function updateObject(): void
@@ -1443,7 +1414,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         $tbl = new ilTableGUI();
         $tbl->setTitle(
             $this->lng->txt("event_overview"),
-            'icon_usr.svg',
+            'standard/icon_usr.svg',
             $this->lng->txt('obj_usr')
         );
         $this->ctrl->setParameter($this, 'offset', $this->requested_offset);
@@ -1497,8 +1468,8 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
 
                 {
                     $this->tpl->setVariable("IMAGE_PARTICIPATED", $event_part->hasParticipated($user_id) ?
-                                            ilUtil::getImagePath('icon_ok.svg') :
-                                            ilUtil::getImagePath('icon_not_ok.svg'));
+                                            ilUtil::getImagePath('standard/icon_ok.svg') :
+                                            ilUtil::getImagePath('standard/icon_not_ok.svg'));
 
                     $this->tpl->setVariable("PARTICIPATED", $event_part->hasParticipated($user_id) ?
                                         $this->lng->txt('event_participated') :

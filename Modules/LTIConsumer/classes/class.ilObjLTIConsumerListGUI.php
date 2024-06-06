@@ -75,14 +75,14 @@ class ilObjLTIConsumerListGUI extends ilObjectListGUI
                 // "view" added, see #19922
                 $this->tpl->setVariable('EXP_HREF', $this->ctrl->getLinkTarget($this->container_obj, 'view', $this->getUniqueItemId(true)));
                 $this->ctrl->clearParameters($this->container_obj);
-                $this->tpl->setVariable('EXP_IMG', ilUtil::getImagePath('tree_exp.svg'));
+                $this->tpl->setVariable('EXP_IMG', ilUtil::getImagePath('nav/tree_exp.svg'));
                 $this->tpl->setVariable('EXP_ALT', $this->lng->txt('collapse'));
             } else {
                 $this->ctrl->setParameter($this->container_obj, 'expand', $this->obj_id);
                 // "view" added, see #19922
                 $this->tpl->setVariable('EXP_HREF', $this->ctrl->getLinkTarget($this->container_obj, 'view', $this->getUniqueItemId(true)));
                 $this->ctrl->clearParameters($this->container_obj);
-                $this->tpl->setVariable('EXP_IMG', ilUtil::getImagePath('tree_col.svg'));
+                $this->tpl->setVariable('EXP_IMG', ilUtil::getImagePath('nav/tree_col.svg'));
                 $this->tpl->setVariable('EXP_ALT', $this->lng->txt('expand'));
             }
 
@@ -191,6 +191,7 @@ class ilObjLTIConsumerListGUI extends ilObjectListGUI
         $commands = explode('::', $cmd);
 
         if (count($commands) == 2) {
+            $DIC->ctrl()->setParameterByClass("ilrepositorygui", "ref_id", $this->ref_id);
             $cmd_link = $DIC->ctrl()->getLinkTargetByClass(
                 [
                     'ilRepositoryGUI',
@@ -202,7 +203,6 @@ class ilObjLTIConsumerListGUI extends ilObjectListGUI
         } else {
             $cmd_link = $DIC->ctrl()->getLinkTargetByClass(['ilRepositoryGUI', 'ilObjLTIConsumerGUI'], $commands[0]);
         }
-
         return $cmd_link;
     }
 }

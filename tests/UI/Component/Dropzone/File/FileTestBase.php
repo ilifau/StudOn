@@ -26,6 +26,10 @@ require_once(__DIR__ . "/../../../Base.php");
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\UI\Implementation as I;
 use ILIAS\UI\Component as C;
+<<<<<<< HEAD
+=======
+use ILIAS\Data\Factory;
+>>>>>>> v9.1
 
 /**
  * @author  Thibeau Fuhrer <thibeau@sr.solutions>
@@ -34,6 +38,7 @@ abstract class FileTestBase extends \ILIAS_UI_TestBase
 {
     protected C\Dropzone\File\Factory $factory;
     protected I\Component\Input\Field\File $input;
+<<<<<<< HEAD
     protected string $input_html = 'test_file_input';
 
     public function setUp(): void
@@ -53,5 +58,49 @@ abstract class FileTestBase extends \ILIAS_UI_TestBase
         );
 
         parent::setUp();
+=======
+    private C\Button\Factory $button_factory;
+
+    public function setUp(): void
+    {
+        $this->button_factory = new I\Component\Button\Factory();
+
+        $signal_generator = new I\Component\SignalGenerator();
+        $field_factory = new I\Component\Input\Field\Factory(
+            $this->createMock(I\Component\Input\UploadLimitResolver::class),
+            $signal_generator,
+            $this->getDataFactory(),
+            $this->getRefinery(),
+            $this->getLanguage()
+        );
+
+        $this->factory = new I\Component\Dropzone\File\Factory(
+            $signal_generator,
+            $field_factory,
+        );
+
+        $this->input = $field_factory->file($this->createMock(C\Input\Field\UploadHandler::class), '');
+
+        parent::setUp();
+    }
+
+    /**
+     * Returns the factory with an actual implementation of the button factory.
+     * This is needed for the modal-buttons.
+     */
+    public function getUIFactory(): \NoUIFactory
+    {
+        return new class ($this->button_factory) extends \NoUIFactory {
+            public function __construct(
+                protected C\Button\Factory $button_factory,
+            ) {
+            }
+
+            public function button(): C\Button\Factory
+            {
+                return $this->button_factory;
+            }
+        };
+>>>>>>> v9.1
     }
 }

@@ -136,7 +136,7 @@ class Textarea extends FormInput implements C\Input\Field\Textarea
      */
     public function getUpdateOnLoadCode(): Closure
     {
-        return fn ($id) => "$('#$id').on('input', function(event) {
+        return fn($id) => "$('#$id').on('input', function(event) {
 				il.UI.input.onFieldUpdate(event, '$id', $('#$id').val());
 			});
 			il.UI.input.onFieldUpdate(event, '$id', $('#$id').val());";

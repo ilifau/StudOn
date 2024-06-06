@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,11 +19,13 @@
  ********************************************************************
  */
 
+use ILIAS\Skill\Usage;
+
 /**
  * Basic Skill
  * @author Alex Killing <alex.killing@gmx.de>
  */
-class ilBasicSkill extends ilSkillTreeNode implements ilSkillUsageInfo
+class ilBasicSkill extends ilSkillTreeNode implements Usage\SkillUsageInfo
 {
     protected ilObjUser $user;
     protected ilSkillLevelRepository $bsc_skl_lvl_db_rep;
@@ -82,18 +86,6 @@ class ilBasicSkill extends ilSkillTreeNode implements ilSkillUsageInfo
     public function create(): void
     {
         parent::create();
-    }
-
-    /**
-     * Delete skill
-     */
-    public function delete(): void
-    {
-        $skill_id = $this->getId();
-        $this->bsc_skl_lvl_db_rep->deleteLevelsOfSkill($skill_id);
-        $this->bsc_skl_usr_lvl_db_rep->deleteUserLevelsOfSkill($skill_id);
-
-        parent::delete();
     }
 
     /**
@@ -544,7 +536,7 @@ class ilBasicSkill extends ilSkillTreeNode implements ilSkillUsageInfo
         int $a_object_id,
         int $a_user_id = 0,
         int $a_self_eval = 0
-    ): ?int {
+    ): int {
         if ($a_user_id == 0) {
             $a_user_id = $this->user->getId();
         }
@@ -564,7 +556,7 @@ class ilBasicSkill extends ilSkillTreeNode implements ilSkillUsageInfo
         int $a_object_id,
         int $a_user_id = 0,
         int $a_self_eval = 0
-    ): ?string {
+    ): string {
         if ($a_user_id == 0) {
             $a_user_id = $this->user->getId();
         }
@@ -595,11 +587,18 @@ class ilBasicSkill extends ilSkillTreeNode implements ilSkillUsageInfo
         return "Skill";
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getUsageInfo(array $a_cskill_ids): array
     {
-        return ilSkillUsage::getUsageInfoGeneric(
+        global $DIC;
+
+        $usage_manager = $DIC->skills()->internal()->manager()->getUsageManager();
+
+        return $usage_manager->getUsageInfoGeneric(
             $a_cskill_ids,
-            ilSkillUsage::USER_ASSIGNED,
+            Usage\SkillUsageManager::USER_ASSIGNED,
             "skl_user_skill_level",
             "user_id"
         );

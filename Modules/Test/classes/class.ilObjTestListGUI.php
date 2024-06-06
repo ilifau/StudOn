@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Class ilObjTestListGUI
  *
@@ -26,21 +28,11 @@
  * @extends ilObjectListGUI
  * @ingroup ModulesTest
  */
-include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
+require_once './Modules/Test/classes/inc.AssessmentConstants.php';
 
 class ilObjTestListGUI extends ilObjectListGUI
 {
-    protected $command_link_params = array();
-
-    /**
-    * constructor
-    *
-    */
-    public function __construct($a_context = self::CONTEXT_REPOSITORY)
-    {
-        parent::__construct($a_context);
-        $this->info_screen_enabled = true;
-    }
+    protected $command_link_params = [];
 
     /**
     * initialisation
@@ -53,6 +45,7 @@ class ilObjTestListGUI extends ilObjectListGUI
         $this->copy_enabled = true;
         $this->subscribe_enabled = true;
         $this->link_enabled = true;
+        $this->info_screen_enabled = true;
         $this->type = "tst";
         $this->gui_class_name = "ilobjtestgui";
 
@@ -60,7 +53,23 @@ class ilObjTestListGUI extends ilObjectListGUI
         $this->commands = ilObjTestAccess::_getCommands();
     }
 
+    public function initItem(
+        int $ref_id,
+        int $obj_id,
+        string $type,
+        string $title = '',
+        string $description = ''
+    ): void {
+        try {
+            if (ilTestDIC::dic()['main_settings_repository']->getForObjFi($obj_id)
+                ->getAdditionalSettings()->getHideInfoTab()) {
+                $this->enableInfoScreen(false);
+            }
+        } catch (Exception $e) {
 
+        }
+        parent::initItem($ref_id, $obj_id, $type, $title, $description);
+    }
 
     /**
     * Get command target frame
@@ -98,40 +107,29 @@ class ilObjTestListGUI extends ilObjectListGUI
     */
     public function getProperties(): array
     {
-        global $DIC;
-        $lng = $DIC['lng'];
-        $ilUser = $DIC['ilUser'];
-
         $props = parent::getProperties();
 
         // we cannot use ilObjTestAccess::_isOffline() because of text messages
-        $onlineaccess = ilObjTestAccess::_lookupOnlineTestAccess($this->obj_id, $ilUser->getId());
+        $onlineaccess = ilObjTestAccess::_lookupOnlineTestAccess($this->obj_id, $this->user->getId());
         if ($onlineaccess !== true) {
-            $props[] = array("alert" => true, "property" => $lng->txt("status"),
-                "value" => $onlineaccess);
+            $props[] = ["alert" => true, "property" => $this->lng->txt("status"),
+                "value" => $onlineaccess];
         }
 
         return $props;
     }
 
-
-    /**
-    * Get command link url.
-    */
     public function getCommandLink(string $cmd): string
     {
-        global $DIC;
-        $ilCtrl = $DIC['ilCtrl'];
-
         $cmd = explode('::', $cmd);
 
         if (count($cmd) == 2) {
-            $cmd_link = $ilCtrl->getLinkTargetByClass(array('ilRepositoryGUI', 'ilObjTestGUI', $cmd[0]), $cmd[1]);
+            $cmd_link = $this->ctrl->getLinkTargetByClass(['ilRepositoryGUI', 'ilObjTestGUI', $cmd[0]], $cmd[1]);
         } else {
-            $cmd_link = $ilCtrl->getLinkTargetByClass('ilObjTestGUI', $cmd[0]);
+            $cmd_link = $this->ctrl->getLinkTargetByClass('ilObjTestGUI', $cmd[0]);
         }
 
-        $params = array_merge(array('ref_id' => $this->ref_id), $this->command_link_params);
+        $params = array_merge(['ref_id' => $this->ref_id], $this->command_link_params);
 
         foreach ($params as $param => $value) {
             $cmd_link = ilUtil::appendUrlParameterString($cmd_link, "$param=$value", true);
@@ -143,23 +141,18 @@ class ilObjTestListGUI extends ilObjectListGUI
     public function getCommands(): array
     {
         $commands = parent::getCommands();
-
-        $commands = $this->handleUserResultsCommand($commands);
-
-        return $commands;
+        $this->insertCommand($this->getCommandLink('testScreen'), $this->lng->txt('tst_start_test'));
+        return $this->handleUserResultsCommand($commands);
     }
 
     private function handleUserResultsCommand($commands)
     {
-        global $DIC;
-        $ilUser = $DIC['ilUser'];
-
         if (!ilLOSettings::isObjectiveTest($this->ref_id)) {
-            $commands = $this->removeUserResultsCommand($commands);
-        } else {
-            if (!ilObjTestAccess::visibleUserResultExists($this->obj_id, $ilUser->getId())) {
-                $commands = $this->removeUserResultsCommand($commands);
-            }
+            return $this->removeUserResultsCommand($commands);
+        }
+
+        if (!ilObjTestAccess::visibleUserResultExists($this->obj_id, $this->user->getId())) {
+            return $this->removeUserResultsCommand($commands);
         }
 
         return $commands;

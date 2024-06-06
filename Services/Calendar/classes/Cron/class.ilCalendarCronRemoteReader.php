@@ -18,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\Cron\Schedule\CronJobScheduleType as CronJobScheduleType;
+
 class ilCalendarCronRemoteReader extends ilCronJob
 {
     private const DEFAULT_SYNC_HOURS = 1;
@@ -79,9 +81,9 @@ class ilCalendarCronRemoteReader extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_IN_HOURS;
+        return \ILIAS\Cron\Schedule\CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -104,8 +106,8 @@ class ilCalendarCronRemoteReader extends ilCronJob
             $reader->setUser($remoteCalendar->getRemoteUser());
             $reader->setPass($remoteCalendar->getRemotePass());
             try {
-                $reader->read();
-                $reader->import($remoteCalendar);
+            $reader->read();
+            $reader->import($remoteCalendar);
             } catch (Exception $e) {
                 $this->logger->warning('Remote Calendar: ' . $remoteCalendar->getCategoryID());
                 $this->logger->warning('Reading remote calendar failed with message: ' . $e->getMessage());
@@ -119,6 +121,4 @@ class ilCalendarCronRemoteReader extends ilCronJob
         $result->setStatus($status);
         return $result;
     }
-
-
 }

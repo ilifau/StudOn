@@ -30,6 +30,7 @@ class ilWorkspaceAccessGUI
     public const PERMISSION_REGISTERED = -1;
     public const PERMISSION_ALL_PASSWORD = -3;
     public const PERMISSION_ALL = -5;
+    protected \ILIAS\PersonalWorkspace\InternalGUIService $gui;
     protected bool $is_portfolio;
     protected ilTabsGUI $tabs;
     protected ilGlobalTemplateInterface $tpl;
@@ -77,6 +78,7 @@ class ilWorkspaceAccessGUI
             $DIC->http(),
             $DIC->refinery()
         );
+        $this->gui = $DIC->personalWorkspace()->internal()->gui();
     }
 
     // Set blocking message
@@ -238,10 +240,10 @@ class ilWorkspaceAccessGUI
 
         $ilToolbar->setFormAction($this->ctrl->getFormAction($this));
 
-        $button = ilSubmitButton::getInstance();
-        $button->setCaption("add");
-        $button->setCommand("addpermissionhandler");
-        $ilToolbar->addStickyItem($button);
+        $this->gui->button(
+            $this->lng->txt("add"),
+            "addpermissionhandler"
+        )->submit()->toToolbar(true);
 
         $table = new ilWorkspaceAccessTableGUI($this, "share", $this->node_id, $this->getAccessHandler());
         $tpl->setContent($table->getHTML() . $this->footer);
@@ -271,8 +273,8 @@ class ilWorkspaceAccessGUI
                 break;
 
             case "registered":
-                $this->getAccessHandler()->addPermission($this->node_id, self::PERMISSION_REGISTERED);
-                $this->tpl->setOnScreenMessage('success', $this->lng->txt("wsp_permission_registered_info"), true);
+                $this->getAccessHandler()->addMissingPermissionForObjects($this->node_id, [self::PERMISSION_REGISTERED]);
+                $this->tpl->setOnScreenMessage('success', $this->lng->txt("wsp_share_success"), true);
                 $this->ctrl->redirect($this, "share");
                 break;
 
@@ -281,7 +283,7 @@ class ilWorkspaceAccessGUI
                 break;
 
             case "all":
-                $this->getAccessHandler()->addPermission($this->node_id, self::PERMISSION_ALL);
+                $this->getAccessHandler()->addMissingPermissionForObjects($this->node_id, [self::PERMISSION_ALL]);
                 $this->tpl->setOnScreenMessage('success', $this->lng->txt("wsp_permission_all_info"), true);
                 $this->ctrl->redirect($this, "share");
         }

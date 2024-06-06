@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\ViewControl;
 
 use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
@@ -67,10 +75,9 @@ class Renderer extends AbstractComponentRenderer
             $activate_first_item = true;
         }
 
+        $tpl->setVariable("ARIA", $this->txt($component->getAriaLabel()));
+        $tpl->setVariable("ROLE", self::MODE_ROLE);
         foreach ($component->getLabelledActions() as $label => $action) {
-            $tpl->setVariable("ARIA", $this->txt($component->getAriaLabel()));
-            $tpl->setVariable("ROLE", self::MODE_ROLE);
-
             $tpl->setCurrentBlock("view_control");
 
             //At this point we don't have a specific text for the button aria label.
@@ -143,10 +150,10 @@ class Renderer extends AbstractComponentRenderer
             $internal_signal = $component->getSelectSignal();
             $signal = $triggeredSignals[0]->getSignal();
 
-            $component = $component->withAdditionalOnLoadCode(fn ($id) => "$(document).on('$internal_signal', function(event, signalData) {
-							il.UI.viewcontrol.sortation.onInternalSelect(event, signalData, '$signal', '$id');
-							return false;
-						})");
+            $component = $component->withAdditionalOnLoadCode(fn($id) => "$(document).on('$internal_signal', function(event, signalData) {
+                            il.UI.viewcontrol.sortation.onInternalSelect(event, signalData, '$signal', '$id');
+                            return false;
+                        })");
         }
 
         $this->renderId($component, $tpl, "id", "ID");
@@ -168,7 +175,7 @@ class Renderer extends AbstractComponentRenderer
         }
 
         $dd = $f->dropdown()->standard($items)
-            ->withLabel($init_label);
+            ->withAriaLabel($init_label);
 
         $tpl->setVariable('SORTATION_DROPDOWN', $default_renderer->render($dd));
         return $tpl->get();
@@ -178,26 +185,32 @@ class Renderer extends AbstractComponentRenderer
         Component\ViewControl\Pagination $component,
         RendererInterface $default_renderer
     ): string {
+<<<<<<< HEAD
         $tpl = $this->getTemplate("tpl.pagination.html", true, true);
+=======
+        $range = $this->getPaginationRange($component);
+>>>>>>> v9.1
 
-        /**
-         * @var $component Component\ViewControl\Pagination
-         */
+        if($component->getNumberOfPages() < 2) {
+            return '';
+        }
+
+        $tpl = $this->getTemplate("tpl.pagination.html", true, true);
         $component = $component->withResetSignals();
         $triggeredSignals = $component->getTriggeredSignals();
         if ($triggeredSignals) {
             $internal_signal = $component->getInternalSignal();
             $signal = $triggeredSignals[0]->getSignal();
-            $component = $component->withOnLoadCode(fn ($id) => "$(document).on('$internal_signal', function(event, signalData) {
-							il.UI.viewcontrol.pagination.onInternalSelect(event, signalData, '$signal', '$id');
-							return false;
-						})");
-
+            $component = $component->withOnLoadCode(
+                fn($id) => "$(document).on('$internal_signal', function(event, signalData) {
+                            il.UI.viewcontrol.pagination.onInternalSelect(event, signalData, '$signal', '$id');
+                            return false;
+                        })"
+            );
             $id = $this->bindJavaScript($component);
             $tpl->setVariable('ID', $id);
         }
 
-        $range = $this->getPaginationRange($component);
         $chunk_options = array();
         foreach ($range as $entry) {
             $shy = $this->getPaginationShyButton($entry, $component);
@@ -347,7 +360,7 @@ class Renderer extends AbstractComponentRenderer
     /**
      * Add quick-access to first/last pages in pagination.
      *
-     * @param int[]	$range
+     * @param int[] $range
      */
     protected function setPaginationFirstLast(
         Component\ViewControl\Pagination $component,

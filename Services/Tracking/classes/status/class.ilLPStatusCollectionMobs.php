@@ -165,8 +165,7 @@ class ilLPStatusCollectionMobs extends ilLPStatus
         int $a_obj_id,
         int $a_usr_id,
         ?object $a_obj = null
-    ): int
-    {
+    ): int {
         $per = 0;
 
         // an empty collection is always not attempted
@@ -185,7 +184,7 @@ class ilLPStatusCollectionMobs extends ilLPStatus
             }
 
             if (count($found) > 0 && count($items) > 0) {
-                $per = round(100 / count($items) * count($found));
+                $per = (int) round(100 / count($items) * count($found));
             }
         }
 

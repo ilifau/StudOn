@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -13,13 +14,10 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
-/**
- * Class ilDclMobRecordRepresentation
- * @author  Michael Herren <mh@studer-raimann.ch>
- * @version 1.0.0
- */
+ *********************************************************************/
+
+declare(strict_types=1);
+
 class ilDclMobRecordRepresentation extends ilDclFileuploadRecordRepresentation
 {
     /**
@@ -38,15 +36,15 @@ class ilDclMobRecordRepresentation extends ilDclFileuploadRecordRepresentation
         if (is_array($value) && $has_ilfilehash) {
             $ilfilehash = $this->http->wrapper()->post()->retrieve('ilfilehash', $this->refinery->kindlyTo()->string());
 
-            $this->ctrl->setParameterByClass("ildclrecordlistgui", "ilfilehash", $ilfilehash);
+            $this->ctrl->setParameterByClass(ilDclRecordListGUI::class, "ilfilehash", $ilfilehash);
             $this->ctrl->setParameterByClass(
-                "ildclrecordlistgui",
+                ilDclRecordListGUI::class,
                 "field_id",
                 $this->getRecordField()->getField()->getId()
             );
 
             return '<a href="' . $this->ctrl->getLinkTargetByClass(
-                "ildclrecordlistgui",
+                    ilDclRecordListGUI::class,
                 "sendFile"
             ) . '">' . $value['name'] . '</a>';
         }
@@ -60,7 +58,7 @@ class ilDclMobRecordRepresentation extends ilDclFileuploadRecordRepresentation
 
         $field = $this->getRecordField()->getField();
 
-        $is_linked_field = $field->getProperty(ilDclBaseFieldModel::PROP_LINK_DETAIL_PAGE_TEXT);
+        $is_linked_field = $field->getProperty(ilDclBaseFieldModel::PROP_LINK_DETAIL_PAGE);
         $has_view = false;
         if ($this->http->wrapper()->query()->has("tableview_id")) {
             $tableview_id = $this->http->wrapper()->query()->retrieve(
@@ -89,7 +87,7 @@ class ilDclMobRecordRepresentation extends ilDclFileuploadRecordRepresentation
             $components[] = $image;
         } else {
             $location = ilObjMediaObject::_getURL($mob->getId()) . "/" . $med->getLocation();
-            if (in_array($med->getSuffix(), ['mp3'])) {
+            if ($med->getSuffix() == 'mp3') {
                 $components[] = $this->factory->player()->audio($location);
             } else {
                 $components[] = $this->factory->player()->video($location);
@@ -120,8 +118,7 @@ class ilDclMobRecordRepresentation extends ilDclFileuploadRecordRepresentation
             $height = $field->getProperty(ilDclBaseFieldModel::PROP_HEIGHT)."px";
         }
         $content = $this->renderer->render($components);
-        $fixed_size_div = "<div style='width:$width; height:$height;'>$content</div>";
-        return $fixed_size_div;
+        return "<div style='width:$width; height:$height;'>$content</div>";
     }
 
     /**

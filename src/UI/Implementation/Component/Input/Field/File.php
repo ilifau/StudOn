@@ -47,7 +47,11 @@ class File extends HasDynamicInputsBase implements C\Input\Field\File
     protected array $accepted_mime_types = [];
     protected bool $has_metadata_inputs = false;
     protected int $max_file_amount = 1;
+<<<<<<< HEAD
     protected ?int $max_file_size = null;
+=======
+    protected int $max_file_size_in_bytes;
+>>>>>>> v9.1
 
     public function __construct(
         ilLanguage $language,
@@ -60,6 +64,7 @@ class File extends HasDynamicInputsBase implements C\Input\Field\File
         ?string $byline
     ) {
         $this->upload_limit_resolver = $upload_limit_resolver;
+        $this->max_file_size_in_bytes = $upload_limit_resolver->getBestPossibleUploadLimitInBytes($handler);
         $this->language = $language;
         $this->data_factory = $data_factory;
         $this->refinery = $refinery;
@@ -83,17 +88,29 @@ class File extends HasDynamicInputsBase implements C\Input\Field\File
 
     public function withMaxFileSize(int $size_in_bytes): FileUpload
     {
+<<<<<<< HEAD
         $size_in_bytes = $this->upload_limit_resolver->min($size_in_bytes);
 
         $clone = clone $this;
         $clone->max_file_size = $size_in_bytes;
+=======
+        $clone = clone $this;
+        $clone->max_file_size_in_bytes = $clone->upload_limit_resolver->getBestPossibleUploadLimitInBytes(
+            $clone->upload_handler,
+            $size_in_bytes
+        );
+>>>>>>> v9.1
 
         return $clone;
     }
 
     public function getMaxFileSize(): int
     {
+<<<<<<< HEAD
         return $this->max_file_size ?? $this->upload_limit_resolver->getUploadLimit();
+=======
+        return $this->max_file_size_in_bytes;
+>>>>>>> v9.1
     }
 
     public function withMaxFiles(int $max_file_amount): FileUpload

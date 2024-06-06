@@ -119,7 +119,6 @@ class ilCategoryImportParser extends ilContainerBaseXmlParser
             case "CategorySpec":
                 $this->cur_spec_lang = $a_attribs["Language"];
                 break;
-
         }
     }
 

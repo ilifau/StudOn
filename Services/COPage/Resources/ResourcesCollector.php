@@ -25,6 +25,7 @@ namespace ILIAS\COPage;
  */
 class ResourcesCollector
 {
+    protected $pc_definition;
     protected string $output_mode = "";
     protected array $js_files = [];
     protected array $css_files = [];
@@ -39,12 +40,22 @@ class ResourcesCollector
         string $output_mode,
         \ilPageObject $pg = null
     ) {
+        global $DIC;
+
         // workaround (note that pcquestion currently checks for page config, if self assessment is enabled
         if (is_null($pg)) {
             $pg = new \ilLMPage();
+        }
+        if($pg->getXMLContent() === "") {
             $pg->setXMLContent("<PageObject></PageObject>");
         }
         $this->output_mode = $output_mode;
+        $this->pc_definition = $DIC
+            ->copage()
+            ->internal()
+            ->domain()
+            ->pc()
+            ->definition();
         $this->init($pg);
     }
 
@@ -61,7 +72,8 @@ class ResourcesCollector
         $this->js_files[] = "./Services/COPage/js/ilCOPagePres.js";
 
         // for all page components...
-        $defs = \ilCOPagePCDef::getPCDefinitions();
+        $defs = $this->pc_definition->getPCDefinitions();
+        $pg->buildDom();
         foreach ($defs as $def) {
             $pc_class = $def["pc_class"];
             /** @var \ilPageContent $pc_obj */

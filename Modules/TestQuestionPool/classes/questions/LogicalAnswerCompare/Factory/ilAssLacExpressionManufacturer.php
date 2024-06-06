@@ -141,13 +141,6 @@ class ilAssLacExpressionManufacturer extends ilAssLacAbstractManufacturer
     }
 
     /**
-     * Private constructor to prevent creating of an object of ExpressionManufacturer
-     */
-    private function __construct()
-    {
-    }
-
-    /**
      * Private clone to prevent cloning an object of ExpressionManufacturer
      */
     private function __clone()

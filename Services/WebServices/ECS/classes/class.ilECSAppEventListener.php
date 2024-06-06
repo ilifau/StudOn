@@ -123,9 +123,6 @@ class ilECSAppEventListener implements ilAppEventListener
                             unset($user);
                         }
                         break;
-
-
-
                 }
                 break;
 
@@ -133,7 +130,6 @@ class ilECSAppEventListener implements ilAppEventListener
 
                 $this->logger->info(__METHOD__ . ': New event from course: ' . $a_event);
                 switch ($a_event) {
-
                     case 'addSubscriber':
                     case 'addToWaitingList':
                         if (ilObjUser::_lookupAuthMode($a_parameter['usr_id']) === 'ecs') {

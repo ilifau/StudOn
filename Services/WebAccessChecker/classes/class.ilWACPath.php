@@ -101,7 +101,7 @@ class ilWACPath
         );
 
 
-        foreach ($result as $k => $v) {
+        foreach (array_keys($result) as $k) {
             if (is_numeric($k)) {
                 unset($result[$k]);
             }
@@ -246,7 +246,7 @@ class ilWACPath
         $real_data_dir = realpath("./" . self::DIR_DATA);
         $realpath = realpath("." . $original_path);
 
-        if (strpos($realpath, $real_data_dir) !== 0) {
+        if (!str_starts_with($realpath, $real_data_dir)) {
             throw new ilWACException(ilWACException::NOT_FOUND, "Path is not in data directory");
         }
 
@@ -259,7 +259,7 @@ class ilWACPath
             '/'
         );
 
-        return "/" . self::DIR_DATA . '/' . $normalized_path . (!empty($query) ? '?' . $query : '');
+        return "/" . self::DIR_DATA . '/' . $normalized_path . (empty($query) ? '' : '?' . $query);
     }
 
     public function getPrefix(): string
@@ -324,7 +324,10 @@ class ilWACPath
 
     public function isStreamable(): bool
     {
-        return ($this->isAudio() || $this->isVideo());
+        if ($this->isAudio()) {
+            return true;
+        }
+        return $this->isVideo();
     }
 
     public function isAudio(): bool

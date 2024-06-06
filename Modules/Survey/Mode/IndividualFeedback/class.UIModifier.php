@@ -186,10 +186,11 @@ class UIModifier extends Mode\AbstractUIModifier
                 $rat->setValue($evaluation_manager->getCurrentRater());
                 $toolbar->addInputItem($rat, true);
 
-                $button = \ilSubmitButton::getInstance();
-                $button->setCaption("svy_select_rater");
-                $button->setCommand($ctrl->getCmd());
-                $toolbar->addButtonInstance($button);
+                $this->gui->button(
+                    $this->gui->lng()->txt("svy_select_rater"),
+                    $ctrl->getCmd()
+                )->submit()->toToolbar(false, $toolbar);
+
 
                 $toolbar->addSeparator();
             }
@@ -249,7 +250,6 @@ class UIModifier extends Mode\AbstractUIModifier
         $ret = "";
         if ($request->getShowTable()) {
             if (!$matrix) {
-
                 // rater
                 $a_tpl->setCurrentBlock("grid_col_header_bl");
                 $a_tpl->setVariable("COL_HEADER", $lng->txt("svy_rater"));
@@ -322,10 +322,8 @@ class UIModifier extends Mode\AbstractUIModifier
                 }
                 $ret = $a_tpl->get();
             } else {
-
                 /** @var $answer \ilSurveyEvaluationResultsAnswer */
                 foreach ($answers as $answer) {
-
                     /** @var $q \SurveyMatrixQuestion */
 
                     $cats = $q->getColumns();

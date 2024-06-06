@@ -30,12 +30,14 @@ class UserCertificateAPITest extends ilCertificateBaseTestCase
         $repository = $this->getMockBuilder(UserDataRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $logger = new \ILIAS\Services\Logging\NullLogger();
+        $database = $this->createMock(ilDBInterface::class);
 
         $userData = new \ILIAS\Certificate\API\Data\UserCertificateDto(
             5,
             'Some Title',
             100,
-            1234567890,
+            1_234_567_890,
             20,
             'Ilyas',
             'Homer',
@@ -48,7 +50,17 @@ class UserCertificateAPITest extends ilCertificateBaseTestCase
         $repository->method('getUserData')
                    ->willReturn([5 => $userData]);
 
-        $api = new \ILIAS\Certificate\API\UserCertificateAPI($repository);
+        $api = new \ILIAS\Certificate\API\UserCertificateAPI(
+            $repository,
+            $this->createMock(ilCertificateTemplateRepository::class),
+            new ilCertificateQueueRepository(
+                $database,
+                $logger
+            ),
+            new ilCertificateTypeClassMap(),
+            $logger,
+            $this->getMockBuilder(ilObjectDataCache::class)->disableOriginalConstructor()->getMock()
+        );
 
         $result = $api->getUserCertificateData(new \ILIAS\Certificate\API\Filter\UserDataFilter(), []);
 

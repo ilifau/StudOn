@@ -24,10 +24,20 @@ use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 /**
  * Interface ResourceStakeholder
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 interface ResourceStakeholder
 {
+<<<<<<< HEAD
+=======
+    /**
+     * Constructor must not have any parameters. The Stakeholder must be able to be instantiated without any parameters.
+     * Additionally, Stakeholder may get instantiated without dependencies available. Therefore, the Stakeholder must
+     * must check for dependencies and implement fallbacks.
+     */
+    public function __construct();
+
+>>>>>>> v9.1
     /**
      * @return string not longer than 64 characters
      */
@@ -40,6 +50,11 @@ interface ResourceStakeholder
      */
     public function getFullyQualifiedClassName(): string;
 
+<<<<<<< HEAD
+=======
+    public function canBeAccessedByCurrentUser(ResourceIdentification $identification): bool;
+
+>>>>>>> v9.1
     public function isResourceInUse(ResourceIdentification $identification): bool;
 
     /**
@@ -51,4 +66,9 @@ interface ResourceStakeholder
     public function getOwnerOfResource(ResourceIdentification $identification): int;
 
     public function getOwnerOfNewResources(): int;
+<<<<<<< HEAD
+=======
+
+    public function getLocationURIForResourceUsage(ResourceIdentification $identification): ?string;
+>>>>>>> v9.1
 }

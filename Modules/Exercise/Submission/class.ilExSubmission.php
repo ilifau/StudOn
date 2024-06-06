@@ -29,6 +29,7 @@ class ilExSubmission
     public const TYPE_OBJECT = "Object";	// Blogs in WSP/Portfolio
     public const TYPE_TEXT = "Text";
     public const TYPE_REPO_OBJECT = "RepoObject";	// Wikis
+    protected \ILIAS\Exercise\InternalDomainService $domain;
 
     protected ilObjUser $user;
     protected ilDBInterface $db;
@@ -81,6 +82,7 @@ class ilExSubmission
         if ($this->assignment->getPeerReview()) {
             $this->peer_review = new ilExPeerReview($this->assignment);
         }
+        $this->domain = $DIC->exercise()->internal()->domain();
     }
 
     public function getSubmissionType(): string
@@ -135,6 +137,9 @@ class ilExSubmission
         return array($this->user_id);
     }
 
+    /**
+     * used for the legacy storage path of feedbacks only
+     */
     public function getFeedbackId(): string
     {
         if ($this->team) {
@@ -296,6 +301,7 @@ class ilExSubmission
     /**
      * Save submitted file of user
      * @throws ilFileUtilsException
+     * @deprecated use addFileUpload instead
      */
     public function uploadFile(
         array $a_http_post_files,
@@ -352,6 +358,60 @@ class ilExSubmission
         return false;
     }
 
+    public function addFileUpload(
+        \ILIAS\FileUpload\DTO\UploadResult $result
+    ): bool {
+        $ilDB = $this->db;
+
+        if (!$this->canAddFile()) {
+            return false;
+        }
+
+        if ($this->ass_type->isSubmissionAssignedToTeam()) {
+            $team_id = $this->getTeam()->getId();
+            $user_id = 0;
+            if ($team_id == 0) {
+                return false;
+            }
+        } else {
+            $team_id = 0;
+            $user_id = $this->getUserId();
+        }
+        $storage_id = $this->getStorageId();
+
+        $deliver_result = $this->initStorage()->addFileUpload($result, $storage_id);
+
+        if ($deliver_result) {
+            $next_id = $ilDB->nextId("exc_returned");
+            $query = sprintf(
+                "INSERT INTO exc_returned " .
+                             "(returned_id, obj_id, user_id, filename, filetitle, mimetype, ts, ass_id, late, team_id) " .
+                             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                $ilDB->quote($next_id, "integer"),
+                $ilDB->quote($this->assignment->getExerciseId(), "integer"),
+                $ilDB->quote($user_id, "integer"),
+                $ilDB->quote($deliver_result["fullname"], "text"),
+                $ilDB->quote(ilFileUtils::getValidFilename($result->getName()), "text"),
+                $ilDB->quote($deliver_result["mimetype"], "text"),
+                $ilDB->quote(ilUtil::now(), "timestamp"),
+                $ilDB->quote($this->assignment->getId(), "integer"),
+                $ilDB->quote($this->isLate(), "integer"),
+                $ilDB->quote($team_id, "integer")
+            );
+            $ilDB->manipulate($query);
+
+            if ($this->team) {
+                $this->team->writeLog(
+                    ilExAssignmentTeam::TEAM_LOG_ADD_FILE,
+                    $result->getName()
+                );
+            }
+
+            return true;
+        }
+        return false;
+    }
+
     /**
      * processes error handling etc for uploaded archive
      * @param string $fileTmp path and filename to uploaded file
@@ -369,7 +429,7 @@ class ilExSubmission
 
         try {
             $filearray = [];
-            ilFileUtils::processZipFile($newDir, $fileTmp, false);
+            self::processZipFile($newDir, $fileTmp, false);
             ilFileUtils::recursive_dirscan($newDir, $filearray);
 
             // #18441 - check number of files in zip
@@ -435,7 +495,7 @@ class ilExSubmission
             }
 
             $row["timestamp"] = $row["ts"];
-            $row["filename"] = $path . "/" . $storage_id . "/" . basename($row["filename"]);
+            $row["filename"] = $path . "/" . $storage_id . "/" . basename($row["filename"] ?? "");
             $delivered[] = $row;
         }
 
@@ -473,7 +533,7 @@ class ilExSubmission
             }
 
             $row["timestamp"] = $row["ts"];
-            $row["filename"] = $path . "/" . $storage_id . "/" . basename($row["filename"]);
+            $row["filename"] = $path . "/" . $storage_id . "/" . basename($row["filename"] ?? "");
             $delivered[] = $row;
         }
 
@@ -516,7 +576,7 @@ class ilExSubmission
                 // blog/portfolio/text submissions
                 if ($a_only_valid &&
                     !$row["filename"] &&
-                    !(trim($row["atext"]))) {
+                    !(trim((string) $row["atext"]))) {
                     continue;
                 }
 
@@ -535,7 +595,7 @@ class ilExSubmission
 
 
                 $row["filename"] = $path .
-                    "/" . $storage_id . "/" . basename($row["filename"]);
+                    "/" . $storage_id . "/" . (($row["filename"]) ? basename($row["filename"]) : '');
 
                 // see 22301, 22719
                 if (is_file($row["filename"]) || (!$this->assignment->getAssignmentType()->usesFileUpload())) {
@@ -811,7 +871,7 @@ class ilExSubmission
                             $file["filetitle"]["login"] . ").zip";
                         break;
 
-                    // @todo: generalize
+                        // @todo: generalize
                     case ilExAssignment::TYPE_WIKI_TEAM:
                         $file["filetitle"] = ilObject::_lookupTitle($this->assignment->getExerciseId()) . " - " .
                             $this->assignment->getTitle() . " (Team " . $this->getTeam()->getId() . ").zip";
@@ -1023,6 +1083,7 @@ class ilExSubmission
 
         $lng = $DIC->language();
         $log = ilLoggerFactory::getLogger("exc");
+        $domain = $DIC->exercise()->internal()->domain();
 
         $storage = new ilFSStorageExercise($a_ass->getExerciseId(), $a_ass->getId());
         $storage->create();
@@ -1168,7 +1229,7 @@ class ilExSubmission
                         $log->debug("Unzipping: " . $targetfile);
                         $log->debug("Current directory is: " . getcwd());
 
-                        ilFileUtils::unzip($targetfile);
+                        $domain->resources()->zip()->unzipFile($targetfile);
                         unlink($targetfile);
                     }
                 }
@@ -1187,9 +1248,7 @@ class ilExSubmission
 
             //unzip the submissions zip file.(decided to unzip to allow the excel link the files more obvious when blog/portfolio)
             chdir($to_path);
-            //TODO Bug in ilUtil -> if flat unzip fails. We can get rid of creating Submissions directory
-            //ilUtil::unzip($path_final_zip_file,FALSE, TRUE);
-            ilFileUtils::unzip($path_final_zip_file);
+            $domain->resources()->zip()->unzipFile($path_final_zip_file);
             unlink($path_final_zip_file);
         }
 
@@ -1584,5 +1643,102 @@ class ilExSubmission
         }
 
         return $participants;
+    }
+
+    public static function processZipFile(
+        string $a_directory,
+        string $a_file,
+        bool $structure
+    ): void {
+        global $DIC;
+
+        $lng = $DIC->language();
+
+        $pathinfo = pathinfo($a_file);
+        $file = $pathinfo["basename"];
+
+        // see 22727
+        if (($pathinfo["extension"] ?? '') === '') {
+            $file .= ".zip";
+        }
+
+        // Copy zip-file to new directory, unzip and remove it
+        // TODO: check archive for broken file
+        //copy ($a_file, $a_directory . "/" . $file);
+        ilFileUtils::moveUploadedFile($a_file, $file, $a_directory . "/" . $file);
+        $DIC->legacyArchives()->unzip(
+            $a_directory . "/" . $file,
+            null,
+            false,
+            true,
+            false
+        );
+        unlink($a_directory . "/" . $file);
+        //echo "-".$a_directory . "/" . $file."-";
+        // Stores filename and paths into $filearray to check for viruses
+        // Checks if filenames can be read, else -> throw exception and leave
+        $filearray = [];
+        ilFileUtils::recursive_dirscan($a_directory, $filearray);
+
+        // if there are no files unziped (->broken file!)
+        if (empty($filearray)) {
+            throw new ilFileUtilsException(
+                $lng->txt("archive_broken"),
+                ilFileUtilsException::$BROKEN_FILE
+            );
+        }
+
+        // virus handling
+        foreach ($filearray["file"] as $key => $value) {
+            // remove "invisible" files
+            if (substr($value, 0, 1) == "." || stristr(
+                $filearray["path"][$key],
+                "/__MACOSX/"
+            )) {
+                unlink($filearray["path"][$key] . $value);
+                unset($filearray["path"][$key]);
+                unset($filearray["file"][$key]);
+                continue;
+            }
+
+            $vir = ilVirusScanner::virusHandling($filearray["path"][$key], $value);
+            if (!$vir[0]) {
+                // Unlink file and throw exception
+                unlink($filearray['path'][$key]);
+                throw new ilFileUtilsException(
+                    $lng->txt("file_is_infected") . "<br />" . $vir[1],
+                    ilFileUtilsException::$INFECTED_FILE
+                );
+            } elseif ($vir[1] != "") {
+                throw new ilFileUtilsException(
+                    $vir[1],
+                    ilFileUtilsException::$INFECTED_FILE
+                );
+            }
+        }
+
+        // If archive is to be used "flat"
+        $doublettes = '';
+        if (!$structure) {
+            foreach (array_count_values($filearray["file"]) as $key => $value) {
+                // Archive contains same filenames in different directories
+                if ($value != "1") {
+                    $doublettes .= " '" . ilFileUtils::utf8_encode($key) . "'";
+                }
+            }
+            if (strlen($doublettes) > 0) {
+                throw new ilFileUtilsException(
+                    $lng->txt("exc_upload_error") . "<br />" . $lng->txt(
+                        "zip_structure_error"
+                    ) . $doublettes,
+                    ilFileUtilsException::$DOUBLETTES_FOUND
+                );
+            }
+        } else {
+            $mac_dir = $a_directory . "/__MACOSX";
+            if (file_exists($mac_dir)) {
+                ilFileUtils::delDir($mac_dir);
+            }
+        }
     }
 }

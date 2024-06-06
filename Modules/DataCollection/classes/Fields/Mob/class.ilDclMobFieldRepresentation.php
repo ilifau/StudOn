@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -13,14 +14,10 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
-/**
- * Class ilDclFileuploadFieldRepresentaion
- * @author  Michael Herren <mh@studer-raimann.ch>
- * @version 1.0.0
- */
+declare(strict_types=1);
+
 class ilDclMobFieldRepresentation extends ilDclFileuploadFieldRepresentation
 {
     public function getInputField(ilPropertyFormGUI $form, ?int $record_id = null): ilFileInputGUI
@@ -73,7 +70,7 @@ class ilDclMobFieldRepresentation extends ilDclFileuploadFieldRepresentation
     {
         $opt = new ilRadioOption(
             $this->lng->txt('dcl_' . $this->getField()->getDatatype()->getTitle()),
-            $this->getField()->getDatatypeId()
+            (string)$this->getField()->getDatatypeId()
         );
         $opt->setInfo($this->lng->txt('dcl_' . $this->getField()->getDatatype()->getTitle() . '_desc'));
 
@@ -93,7 +90,7 @@ class ilDclMobFieldRepresentation extends ilDclFileuploadFieldRepresentation
 
         $prop_page_details = new ilDclCheckboxInputGUI(
             $this->lng->txt('dcl_link_detail_page'),
-            'prop_' . ilDclBaseFieldModel::PROP_LINK_DETAIL_PAGE_TEXT
+            'prop_' . ilDclBaseFieldModel::PROP_LINK_DETAIL_PAGE
         );
         $opt->addSubItem($prop_page_details);
 

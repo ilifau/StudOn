@@ -35,6 +35,7 @@ class ilObjLanguageFolderGUI extends ilObjectGUI
 {
     protected HTTPServices $http;
     protected Refinery $refinery;
+    protected \ILIAS\DI\UIServices $ui;
 
     /**
      * Constructor
@@ -44,10 +45,10 @@ class ilObjLanguageFolderGUI extends ilObjectGUI
         global $DIC;
         $this->type = "lngf";
         parent::__construct($a_data, $a_id, $a_call_by_reference, false);
-        //$_GET["sort_by"] = "language";
         $this->lng->loadLanguageModule("lng");
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
+        $this->ui = $DIC->ui();
     }
 
     /**
@@ -59,36 +60,51 @@ class ilObjLanguageFolderGUI extends ilObjectGUI
 
         if ($this->checkPermissionBool("write")) {
             // refresh
-            $refresh = ilLinkButton::getInstance();
-            $refresh->setUrl($this->ctrl->getLinkTarget($this, "confirmRefresh"));
-            $refresh->setCaption("refresh_languages");
-            $this->toolbar->addButtonInstance($refresh);
+            $refresh = $this->ui->factory()->button()->standard(
+                $this->lng->txt("refresh_languages"),
+                $this->ctrl->getLinkTarget($this, "confirmRefresh")
+            );
+            $this->toolbar->addComponent($refresh);
 
             // check languages
-            $check = ilLinkButton::getInstance();
-            $check->setUrl($this->ctrl->getLinkTarget($this, "checkLanguage"));
-            $check->setCaption("check_languages");
-            $this->toolbar->addButtonInstance($check);
+            $check = $this->ui->factory()->button()->standard(
+                $this->lng->txt("check_languages"),
+                $this->ctrl->getLinkTarget($this, "checkLanguage")
+            );
+            $this->toolbar->addComponent($check);
         }
 
         $ilClientIniFile = $DIC["ilClientIniFile"];
         if ($ilClientIniFile->variableExists("system", "LANGUAGE_LOG")) {
-            $download = ilLinkButton::getInstance();
-            $download->setUrl($this->ctrl->getLinkTarget($this, "listDeprecated"));
-            $download->setCaption("lng_download_deprecated");
-            $this->toolbar->addButtonInstance($download);
+            $download = $this->ui->factory()->button()->standard(
+                $this->lng->txt("lng_download_deprecated"),
+                $this->ctrl->getLinkTarget($this, "listDeprecated")
+            );
+            $this->toolbar->addComponent($download);
         }
 
         if ($this->checkPermissionBool("write")) {
-            if (!$this->settings->get("lang_detection")) {
-                // Toggle Button for auto language detection (toggle off)
-                $toggleButton = $DIC->ui()->factory()->button()->toggle("", $DIC->ctrl()->getLinkTarget($this, "enableLanguageDetection"), $DIC->ctrl()->getLinkTarget($this, "disableLanguageDetection"), false)
-                    ->withLabel($this->lng->txt("language_detection"))->withAriaLabel($this->lng->txt("lng_enable_language_detection"));
-            } else {
-                // Toggle Button for auto language detection (toggle on)
-                $toggleButton = $DIC->ui()->factory()->button()->toggle("", $DIC->ctrl()->getLinkTarget($this, "enableLanguageDetection"), $DIC->ctrl()->getLinkTarget($this, "disableLanguageDetection"), true)
-                    ->withLabel($this->lng->txt("language_detection"))->withAriaLabel($this->lng->txt("lng_disable_language_detection"));
-            }
+            $modal_on = $this->ui->factory()->modal()->interruptive(
+                'ON',
+                $this->lng->txt("lng_enable_language_detection"),
+                $this->ctrl->getFormActionByClass(self::class, "enableLanguageDetection")
+            )
+                                 ->withActionButtonLabel($this->lng->txt('ok'));
+            $modal_off = $this->ui->factory()->modal()->interruptive(
+                'OFF',
+                $this->lng->txt("lng_disable_language_detection"),
+                $this->ctrl->getFormActionByClass(self::class, "disableLanguageDetection")
+            )
+                                  ->withActionButtonLabel($this->lng->txt('ok'));
+            $toggleButton = $this->ui->factory()->button()->toggle(
+                $this->lng->txt("language_detection"),
+                $modal_on->getShowSignal(),
+                $modal_off->getShowSignal(),
+                (bool)($this->settings->get("lang_detection"))
+            )
+                                     ->withAriaLabel($this->lng->txt("lng_switch_language_detection"));
+            $this->toolbar->addComponent($modal_on);
+            $this->toolbar->addComponent($modal_off);
             $this->toolbar->addComponent($toggleButton);
         }
 
@@ -591,10 +607,11 @@ class ilObjLanguageFolderGUI extends ilObjectGUI
      */
     public function listDeprecatedObject(): void
     {
-        $button = ilLinkButton::getInstance();
-        $button->setCaption("download");
-        $button->setUrl($this->ctrl->getLinkTarget($this, "downloadDeprecated"));
-        $this->toolbar->addButtonInstance($button);
+        $button = $this->ui->factory()->button()->standard(
+            $this->lng->txt("download"),
+            $this->ctrl->getLinkTarget($this, "downloadDeprecated")
+        );
+        $this->toolbar->addComponent($button);
 
         include_once "./Services/Language/classes/class.ilLangDeprecated.php";
 

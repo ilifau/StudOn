@@ -18,6 +18,8 @@
 
 require_once './Modules/Test/classes/inc.AssessmentConstants.php';
 
+use ILIAS\TestQuestionPool\ManipulateThumbnailsInChoiceQuestionsTrait;
+
 /**
  * Class for single choice questions
  *
@@ -31,8 +33,10 @@ require_once './Modules/Test/classes/inc.AssessmentConstants.php';
  *
  * @ingroup		ModulesTestQuestionPool
  */
-class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjustable, ilObjAnswerScoringAdjustable, iQuestionCondition, ilAssSpecificFeedbackOptionLabelProvider
+class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjustable, ilObjAnswerScoringAdjustable, iQuestionCondition, ilAssSpecificFeedbackOptionLabelProvider, ilAssQuestionLMExportable, ilAssQuestionAutosaveable
 {
+    use ManipulateThumbnailsInChoiceQuestionsTrait;
+
     private bool $isSingleline = true;
 
     /**
@@ -86,7 +90,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     ) {
         parent::__construct($title, $comment, $author, $owner, $question);
         $this->output_type = $output_type;
-        $this->answers = array();
+        $this->answers = [];
         $this->shuffle = 1;
         $this->feedback_setting = 2;
     }
@@ -99,9 +103,13 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     */
     public function isComplete(): bool
     {
-        if (strlen($this->title) and ($this->author) and ($this->question) and (count($this->answers)) and ($this->getMaximumPoints() > 0)) {
+        if ($this->title !== ''
+            && $this->author !== null && $this->author !== ''
+            && $this->question !== null && $this->question !== ''
+            && $this->answers !== []
+            && $this->getMaximumPoints() > 0) {
             foreach ($this->answers as $answer) {
-                if ((strlen($answer->getAnswertext()) == 0) && (strlen($answer->getImage()) == 0)) {
+                if ($answer->getAnswertext() === '' && !$answer->hasImage()) {
                     return false;
                 }
             }
@@ -134,8 +142,8 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
             // get old thumbnail size
             $result = $ilDB->queryF(
                 "SELECT thumb_size FROM " . $this->getAdditionalTableName() . " WHERE question_fi = %s",
-                array("integer"),
-                array($this->getId())
+                ["integer"],
+                [$this->getId()]
             );
             if ($result->numRows() == 1) {
                 $data = $ilDB->fetchAssoc($result);
@@ -149,47 +157,6 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         $this->saveAnswerSpecificDataToDb();
 
         parent::saveToDb($original_id);
-    }
-
-    /*
-    * Rebuild the thumbnail images with a new thumbnail size
-    */
-    protected function rebuildThumbnails(): void
-    {
-        if ($this->isSingleline && ($this->getThumbSize())) {
-            foreach ($this->getAnswers() as $answer) {
-                if (strlen($answer->getImage())) {
-                    $this->generateThumbForFile($this->getImagePath(), $answer->getImage());
-                }
-            }
-        }
-    }
-
-    public function getThumbPrefix(): string
-    {
-        return "thumb.";
-    }
-
-    protected function generateThumbForFile($path, $file): void
-    {
-        $filename = $path . $file;
-        if (@file_exists($filename)) {
-            $thumbpath = $path . $this->getThumbPrefix() . $file;
-            $path_info = @pathinfo($filename);
-            $ext = "";
-            switch (strtoupper($path_info['extension'])) {
-                case 'PNG':
-                    $ext = 'PNG';
-                    break;
-                case 'GIF':
-                    $ext = 'GIF';
-                    break;
-                default:
-                    $ext = 'JPEG';
-                    break;
-            }
-            ilShellUtil::convertImage($filename, $thumbpath, $ext, (string)$this->getThumbSize());
-        }
     }
 
     /**
@@ -206,8 +173,8 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
 
         $result = $ilDB->queryF(
             "SELECT qpl_questions.*, " . $this->getAdditionalTableName() . ".* FROM qpl_questions LEFT JOIN " . $this->getAdditionalTableName() . " ON " . $this->getAdditionalTableName() . ".question_fi = qpl_questions.question_id WHERE qpl_questions.question_id = %s",
-            array("integer"),
-            array($question_id)
+            ["integer"],
+            [$question_id]
         );
         if ($result->numRows() == 1) {
             $data = $ilDB->fetchAssoc($result);
@@ -244,15 +211,15 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
 
         $result = $ilDB->queryF(
             "SELECT * FROM qpl_a_sc WHERE question_fi = %s ORDER BY aorder ASC",
-            array('integer'),
-            array($question_id)
+            ['integer'],
+            [$question_id]
         );
 
         if ($result->numRows() > 0) {
             while ($data = $ilDB->fetchAssoc($result)) {
                 $imagefilename = $this->getImagePath() . $data["imagefile"];
-                if (!@file_exists($imagefilename)) {
-                    $data["imagefile"] = "";
+                if (!file_exists($imagefilename)) {
+                    $data["imagefile"] = null;
                 }
 
                 $data["answertext"] = ilRTE::_replaceMediaObjectImageSrc($data["answertext"] ?? '', 1);
@@ -260,8 +227,8 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
                     $data["answertext"],
                     $data["points"],
                     $data["aorder"],
-                    1,
-                    $data["imagefile"],
+                    true,
+                    $data["imagefile"] ? $data["imagefile"] : null,
                     $data["answer_id"]
                 );
                 $this->answers[] = $image;
@@ -276,7 +243,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     *
     * @access public
     */
-    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", int $owner = -1, $testObjId = null): int
     {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
@@ -287,7 +254,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         $thisObjId = $this->getObjId();
 
         $clone = $this;
-        $original_id = assQuestion::_getOriginalId($this->id);
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->id = -1;
 
         if ((int) $testObjId > 0) {
@@ -335,7 +302,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         }
         // duplicate the question in database
         $clone = $this;
-        $original_id = assQuestion::_getOriginalId($this->id);
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->id = -1;
         $source_questionpool_id = $this->getObjId();
         $clone->setObjId($target_questionpool_id);
@@ -388,30 +355,6 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     }
 
     /**
-    * Gets the single choice output type which is either OUTPUT_ORDER (=0) or OUTPUT_RANDOM (=1).
-    *
-    * @return integer The output type of the assSingleChoice object
-    * @access public
-    * @see $output_type
-    */
-    public function getOutputType(): int
-    {
-        return $this->output_type;
-    }
-
-    /**
-    * Sets the output type of the assSingleChoice object
-    *
-    * @param integer $output_type A nonnegative integer value specifying the output type. It is OUTPUT_ORDER (=0) or OUTPUT_RANDOM (=1).
-    * @access public
-    * @see $response
-    */
-    public function setOutputType($output_type = OUTPUT_ORDER): void
-    {
-        $this->output_type = $output_type;
-    }
-
-    /**
     * Adds a possible answer for a single choice question. A ASS_AnswerBinaryStateImage object will be
     * created and assigned to the array $this->answers.
     *
@@ -428,14 +371,14 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         $answertext = "",
         $points = 0.0,
         $order = 0,
-        $answerimage = "",
+        $answerimage = null,
         $answer_id = -1
     ): void {
         $answertext = $this->getHtmlQuestionContentPurifier()->purify($answertext);
         if (array_key_exists($order, $this->answers)) {
             // insert answer
-            $answer = new ASS_AnswerBinaryStateImage($answertext, $points, $order, 1, $answerimage, $answer_id);
-            $newchoices = array();
+            $answer = new ASS_AnswerBinaryStateImage($answertext, $points, $order, true, $answerimage, $answer_id);
+            $newchoices = [];
             for ($i = 0; $i < $order; $i++) {
                 $newchoices[] = $this->answers[$i];
             }
@@ -451,7 +394,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
                 $answertext,
                 $points,
                 count($this->answers),
-                1,
+                true,
                 $answerimage,
                 $answer_id
             );
@@ -515,7 +458,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
             return;
         }
         $answer = $this->answers[$index];
-        if (strlen($answer->getImage())) {
+        if ($answer->hasImage()) {
             $this->deleteImage($answer->getImage());
         }
         unset($this->answers[$index]);
@@ -535,7 +478,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     */
     public function flushAnswers(): void
     {
-        $this->answers = array();
+        $this->answers = [];
     }
 
     /**
@@ -565,7 +508,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
      * @param boolean $returndetails (deprecated !!)
      * @return integer/array $points/$details (array $details is deprecated !!)
      */
-    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false)
+    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false): float
     {
         if ($returndetails) {
             throw new ilTestException('return details not implemented for ' . __METHOD__);
@@ -574,7 +517,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         global $DIC;
         $ilDB = $DIC['ilDB'];
 
-        $found_values = array();
+        $found_values = [];
         if (is_null($pass)) {
             $pass = $this->getSolutionMaxPass($active_id);
         }
@@ -593,7 +536,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
             }
         }
 
-        return $points;
+        return (float)$points;
     }
 
     public function calculateReachedPointsFromPreviewSession(ilAssQuestionPreviewSession $previewSession)
@@ -703,20 +646,20 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         // save additional data
         $ilDB->manipulateF(
             "DELETE FROM " . $this->getAdditionalTableName() . " WHERE question_fi = %s",
-            array( "integer" ),
-            array( $this->getId() )
+            [ "integer" ],
+            [ $this->getId() ]
         );
 
         $ilDB->manipulateF(
             "INSERT INTO " . $this->getAdditionalTableName(
             ) . " (question_fi, shuffle, allow_images, thumb_size) VALUES (%s, %s, %s, %s)",
-            array( "integer", "text", "text", "integer" ),
-            array(
+            [ "integer", "text", "text", "integer" ],
+            [
                                 $this->getId(),
                                 $this->getShuffle(),
                                 ($this->isSingleline) ? "0" : "1",
-                                (strlen($this->getThumbSize()) == 0) ? null : $this->getThumbSize()
-                            )
+                                $this->getThumbSize()
+                            ]
         );
     }
 
@@ -849,7 +792,6 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
                 ]
             );
         }
-        $this->rebuildThumbnails();
     }
 
     /**
@@ -895,30 +837,35 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     */
     public function setImageFile($image_filename, $image_tempfilename = ""): int
     {
-        $result = 0;
-        if (!empty($image_tempfilename)) {
-            $image_filename = str_replace(" ", "_", $image_filename);
-            $imagepath = $this->getImagePath();
-            if (!file_exists($imagepath)) {
-                ilFileUtils::makeDirParents($imagepath);
-            }
-            //if (!move_uploaded_file($image_tempfilename, $imagepath . $image_filename))
-            if (!ilFileUtils::moveUploadedFile($image_tempfilename, $image_filename, $imagepath . $image_filename)) {
-                $result = 2;
-            } else {
-                $mimetype = ilObjMediaObject::getMimeType($imagepath . $image_filename);
-                if (!preg_match("/^image/", $mimetype)) {
-                    unlink($imagepath . $image_filename);
-                    $result = 1;
-                } else {
-                    // create thumbnail file
-                    if ($this->isSingleline && ($this->getThumbSize())) {
-                        $this->generateThumbForFile($imagepath, $image_filename);
-                    }
-                }
-            }
+        if (empty($image_tempfilename)) {
+            return 0;
         }
-        return $result;
+
+        $cleaned_image_filename = str_replace(" ", "_", $image_filename);
+        $imagepath = $this->getImagePath();
+        if (!file_exists($imagepath)) {
+            ilFileUtils::makeDirParents($imagepath);
+        }
+
+        if (!ilFileUtils::moveUploadedFile($image_tempfilename, $cleaned_image_filename, $imagepath . $cleaned_image_filename)) {
+            return 2;
+        }
+
+        $mimetype = ilObjMediaObject::getMimeType($imagepath . $cleaned_image_filename);
+        if (!preg_match("/^image/", $mimetype)) {
+            unlink($imagepath . $cleaned_image_filename);
+            return 1;
+        }
+
+        if ($this->isSingleline && $this->getThumbSize()) {
+            $this->generateThumbForFile(
+                $cleaned_image_filename,
+                $this->getImagePath(),
+                $this->getThumbSize()
+            );
+        }
+
+        return 0;
     }
 
     /**
@@ -947,8 +894,8 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         }
 
         foreach ($this->answers as $answer) {
-            $filename = $answer->getImage();
-            if (strlen($filename)) {
+            if ($answer->hasImage()) {
+                $filename = $answer->getImage();
                 if (!file_exists($imagepath)) {
                     ilFileUtils::makeDirParents($imagepath);
                 }
@@ -976,8 +923,8 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         $imagepath_original = str_replace("/$this->id/images", "/$question_id/images", $imagepath);
         $imagepath_original = str_replace("/$this->obj_id/", "/$source_questionpool/", $imagepath_original);
         foreach ($this->answers as $answer) {
-            $filename = $answer->getImage();
-            if (strlen($filename)) {
+            if ($answer->hasImage()) {
+                $filename = $answer->getImage();
                 if (!file_exists($imagepath)) {
                     ilFileUtils::makeDirParents($imagepath);
                 }
@@ -1020,13 +967,13 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     {
         global $DIC;
         $ilLog = $DIC['ilLog'];
-        $question_id = $this->getOriginalId();
+        $question_id = $this->questioninfo->getOriginalId();
         $imagepath = $this->getImagePath();
         $imagepath_original = str_replace("/$this->id/images", "/$question_id/images", $imagepath);
         ilFileUtils::delDir($imagepath_original);
         foreach ($this->answers as $answer) {
-            $filename = $answer->getImage();
-            if (strlen($filename)) {
+            if ($answer->hasImage()) {
+                $filename = $answer->getImage();
                 if (@file_exists($imagepath . $filename)) {
                     if (!file_exists($imagepath)) {
                         ilFileUtils::makeDirParents($imagepath);
@@ -1072,27 +1019,32 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         return $this->answers;
     }
 
+    public function setAnswers(array $answers): void
+    {
+        $this->answers = $answers;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function setExportDetailsXLS(ilAssExcelFormatHelper $worksheet, int $startrow, int $active_id, int $pass): int
+    public function setExportDetailsXLSX(ilAssExcelFormatHelper $worksheet, int $startrow, int $col, int $active_id, int $pass): int
     {
-        parent::setExportDetailsXLS($worksheet, $startrow, $active_id, $pass);
+        parent::setExportDetailsXLSX($worksheet, $startrow, $col, $active_id, $pass);
 
         $solution = $this->getSolutionValues($active_id, $pass);
         $i = 1;
         foreach ($this->getAnswers() as $id => $answer) {
-            $worksheet->setCell($startrow + $i, 0, $answer->getAnswertext());
-            $worksheet->setBold($worksheet->getColumnCoord(0) . ($startrow + $i));
+            $worksheet->setCell($startrow + $i, $col, $answer->getAnswertext());
+            $worksheet->setBold($worksheet->getColumnCoord($col) . ($startrow + $i));
             if (
                 count($solution) > 0 &&
                 isset($solution[0]) &&
                 is_array($solution[0]) &&
                 strlen($solution[0]['value1']) > 0 && $id == $solution[0]['value1']
             ) {
-                $worksheet->setCell($startrow + $i, 2, 1);
+                $worksheet->setCell($startrow + $i, $col + 2, 1);
             } else {
-                $worksheet->setCell($startrow + $i, 2, 0);
+                $worksheet->setCell($startrow + $i, $col + 2, 0);
             }
             $i++;
         }
@@ -1116,7 +1068,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     */
     public function toJSON(): string
     {
-        $result = array();
+        $result = [];
         $result['id'] = $this->getId();
         $result['type'] = (string) $this->getQuestionType();
         $result['title'] = $this->getTitle();
@@ -1124,18 +1076,18 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         $result['nr_of_tries'] = $this->getNrOfTries();
         $result['shuffle'] = $this->getShuffle();
 
-        $result['feedback'] = array(
+        $result['feedback'] = [
             'onenotcorrect' => $this->formatSAQuestion($this->feedbackOBJ->getGenericFeedbackTestPresentation($this->getId(), false)),
             'allcorrect' => $this->formatSAQuestion($this->feedbackOBJ->getGenericFeedbackTestPresentation($this->getId(), true))
-        );
+        ];
 
-        $answers = array();
+        $answers = [];
         $has_image = false;
         foreach ($this->getAnswers() as $key => $answer_obj) {
             if ((string) $answer_obj->getImage()) {
                 $has_image = true;
             }
-            array_push($answers, array(
+            array_push($answers, [
                 "answertext" => $this->formatSAQuestion($answer_obj->getAnswertext()),
                 'html_id' => $this->getId() . '_' . $key,
                 "points" => (float) $answer_obj->getPoints(),
@@ -1144,7 +1096,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
                 "feedback" => $this->formatSAQuestion(
                     $this->feedbackOBJ->getSpecificAnswerFeedbackExportPresentation($this->getId(), 0, $key)
                 )
-            ));
+            ]);
         }
         $result['answers'] = $answers;
         if ($has_image) {
@@ -1163,7 +1115,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         $answer = $this->answers[$index];
         if (is_object($answer)) {
             $this->deleteImage($answer->getImage());
-            $answer->setImage('');
+            $answer->setImage(null);
         }
     }
 
@@ -1224,23 +1176,6 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     }
 
     /**
-     * returns boolean wether the question
-     * is answered during test pass or not
-     *
-     * (overwrites method in class assQuestion)
-     *
-     * @param integer $active_id
-     * @param integer $pass
-     * @return boolean $answered
-     */
-    public function isAnswered(int $active_id, int $pass): bool
-    {
-        $numExistingSolutionRecords = assQuestion::getNumExistingSolutionRecords($active_id, $pass, $this->getId());
-
-        return $numExistingSolutionRecords > 0;
-    }
-
-    /**
      * returns boolean wether it is possible to set
      * this question type as obligatory or not
      * considering the current question configuration
@@ -1274,11 +1209,11 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
      */
     public function getExpressionTypes(): array
     {
-        return array(
+        return [
             iQuestionCondition::PercentageResultExpression,
             iQuestionCondition::NumberOfResultExpression,
             iQuestionCondition::EmptyAnswerExpression,
-        );
+        ];
     }
 
     /**
@@ -1298,17 +1233,17 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
 
         $maxStep = $this->lookupMaxStep($active_id, $pass);
 
-        if ($maxStep !== null) {
+        if ($maxStep > 0) {
             $data = $ilDB->queryF(
                 "SELECT * FROM tst_solutions WHERE active_fi = %s AND pass = %s AND question_fi = %s AND step = %s",
-                array("integer", "integer", "integer","integer"),
-                array($active_id, $pass, $this->getId(), $maxStep)
+                ["integer", "integer", "integer","integer"],
+                [$active_id, $pass, $this->getId(), $maxStep]
             );
         } else {
             $data = $ilDB->queryF(
                 "SELECT * FROM tst_solutions WHERE active_fi = %s AND pass = %s AND question_fi = %s",
-                array("integer", "integer", "integer"),
-                array($active_id, $pass, $this->getId())
+                ["integer", "integer", "integer"],
+                [$active_id, $pass, $this->getId()]
             );
         }
 
@@ -1349,8 +1284,8 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     {
         parent::afterSyncWithOriginal($origQuestionId, $dupQuestionId, $origParentObjId, $dupParentObjId);
 
-        $origImagePath = $this->buildImagePath($origQuestionId, $origParentObjId);
-        $dupImagePath = $this->buildImagePath($dupQuestionId, $dupParentObjId);
+        $origImagePath = $this->questionFilesService->buildImagePath($origQuestionId, $origParentObjId);
+        $dupImagePath = $this->questionFilesService->buildImagePath($dupQuestionId, $dupParentObjId);
 
         ilFileUtils::delDir($origImagePath);
         if (is_dir($dupImagePath)) {

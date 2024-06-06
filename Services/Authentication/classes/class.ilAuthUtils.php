@@ -421,7 +421,7 @@ class ilAuthUtils
 
     /**
      * @param ilLanguage $lng
-     * @return array<int|string, string>
+     * @return array<int|string, array{"txt": string, "checked"?: bool, "hide_in_ui"?: bool}>
      */
     public static function _getMultipleAuthModeOptions(ilLanguage $lng): array
     {
@@ -581,13 +581,14 @@ class ilAuthUtils
 
         $ilSetting = $DIC->settings();
 
+        //TODO fix casting strings like 2_1 (auth_key for first ldap server) to int to get it to 2
         switch ((int) $a_authmode) {
             // always enabled
             case self::AUTH_LOCAL:
             case self::AUTH_APACHE:
                 return true;
 
-            // No local passwords for these auth modes
+                // No local passwords for these auth modes
             case self::AUTH_LDAP:
             case self::AUTH_ECS:
             case self::AUTH_SCRIPT:
@@ -605,7 +606,6 @@ class ilAuthUtils
                 return (bool) $ilSetting->get("soap_auth_allow_local", '0');
             case self::AUTH_CAS:
                 return (bool) $ilSetting->get("cas_allow_local", '0');
-
         }
         return false;
     }
@@ -692,7 +692,6 @@ class ilAuthUtils
                 }
 
                 return $lng->txt('auth_' . self::_getAuthModeName($a_auth_key));
-
         }
     }
 }

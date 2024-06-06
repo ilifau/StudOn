@@ -27,7 +27,8 @@ use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Implementation\Component\Signal;
 use ILIAS\UI\Component\Button\Button;
 use ILIAS\UI\Component\Dropdown\Dropdown;
-use ILIAS\UI\Component\Listing\Descriptive;
+use ILIAS\UI\Component\Layout\Alignment\Block;
+use ILIAS\UI\Component\Symbol\Symbol;
 
 class PresentationRow implements T\PresentationRow
 {
@@ -45,16 +46,21 @@ class PresentationRow implements T\PresentationRow
     private ?string $headline = null;
     private ?string $subheadline = null;
     private array $important_fields = [];
-    private Descriptive $content;
+    private Block $content;
     private ?string $further_fields_headline = null;
     private array $further_fields = [];
     private array $data;
+    private ?Symbol $symbol = null;
     protected SignalGeneratorInterface $signal_generator;
     protected string $table_id;
 
     public function __construct(
         SignalGeneratorInterface $signal_generator,
+<<<<<<< HEAD
         string $table_id
+=======
+        protected string $table_id
+>>>>>>> v9.1
     ) {
         $this->signal_generator = $signal_generator;
         $this->table_id = $table_id;
@@ -167,21 +173,28 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withContent(Descriptive $content): T\PresentationRow
+=======
+    public function withContent(Block $content): T\PresentationRow
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->content = $content;
         return $clone;
     }
 
+<<<<<<< HEAD
     /**
      * @inheritdoc
      */
     public function getContent(): Descriptive
+=======
+    public function getContent(): Block
+>>>>>>> v9.1
     {
         return $this->content;
     }
-
 
     /**
      * @inheritdoc
@@ -250,6 +263,21 @@ class PresentationRow implements T\PresentationRow
         return $this->action;
     }
 
+<<<<<<< HEAD
+=======
+    public function withLeadingSymbol(Symbol $symbol): self
+    {
+        $clone = clone $this;
+        $clone->symbol = $symbol;
+        return $clone;
+    }
+
+    public function getLeadingSymbol(): ?Symbol
+    {
+        return $this->symbol;
+    }
+
+>>>>>>> v9.1
     public function getTableId(): string
     {
         return $this->table_id;

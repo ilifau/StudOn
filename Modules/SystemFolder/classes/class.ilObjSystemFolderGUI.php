@@ -27,61 +27,23 @@ use ILIAS\Setup\CLI\StatusCommand;
  *
  * @author Stefan Meyer <meyer@leifos.com>
  *
- * @ilCtrl_Calls ilObjSystemFolderGUI: ilPermissionGUI, ilImprintGUI
+ * @ilCtrl_Calls ilObjSystemFolderGUI: ilPermissionGUI
  * @ilCtrl_Calls ilObjSystemFolderGUI: ilObjectOwnershipManagementGUI, ilCronManagerGUI
  */
 class ilObjSystemFolderGUI extends ilObjectGUI
 {
-    /**
-     * @var \ILIAS\Style\Content\Object\ObjectFacade
-     */
-    protected $content_style_domain;
-
-    /**
-     * @var ilTabsGUI
-     */
-    protected $tabs;
-
-    /**
-     * @var ilRbacSystem
-     */
-    protected $rbacsystem;
-
-    /**
-     * @var ilObjectDefinition
-     */
+    protected \ILIAS\Repository\InternalGUIService $gui;
+    protected ilPropertyFormGUI $form;
+    protected \ILIAS\Style\Content\Object\ObjectFacade $content_style_domain;
+    protected ilTabsGUI $tabs;
+    protected ilRbacSystem $rbacsystem;
     protected ilObjectDefinition $obj_definition;
-
-    /**
-     * @var ilErrorHandling
-     */
     protected ilErrorHandling $error;
-
-    /**
-     * @var ilDBInterface
-     */
-    protected $db;
-
-    /**
-     * @var ilStyleDefinition
-     */
-    protected $style_definition;
-
-    /**
-     * @var ilHelpGUI
-     */
-    protected $help;
-
-    /**
-     * @var ilIniFile
-     */
-    protected $client_ini;
-
-    /**
-     * @var ilBenchmark
-     */
-    protected $bench;
-
+    protected ilDBInterface $db;
+    protected ilStyleDefinition $style_definition;
+    protected ilHelpGUI $help;
+    protected ilIniFile $client_ini;
+    protected ilBenchmark $bench;
     public string $type;
     protected \ILIAS\HTTP\Wrapper\WrapperFactory $wrapper;
     protected \ILIAS\Refinery\Factory $refinery;
@@ -120,6 +82,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         $this->content_style_domain = $DIC->contentStyle()
                   ->domain()
                   ->styleForRefId($this->object->getRefId());
+        $this->gui = $DIC->repository()->internal()->gui();
     }
 
     public function executeCommand(): void
@@ -135,31 +98,6 @@ class ilObjSystemFolderGUI extends ilObjectGUI
                 $this->ctrl->forwardCommand($perm_gui);
                 break;
 
-            case 'ilimprintgui':
-                // page editor will set its own tabs
-                $ilTabs->clearTargets();
-                $ilTabs->setBackTarget(
-                    $this->lng->txt("back"),
-                    $this->ctrl->getLinkTarget($this, "")
-                );
-
-                $igui = new ilImprintGUI();
-
-                // needed for editor
-                $igui->setStyleId(
-                    $this->content_style_domain->getEffectiveStyleId()
-                );
-
-                if (!$this->checkPermissionBool("write")) {
-                    $igui->setEnableEditing(false);
-                }
-
-                $ret = $this->ctrl->forwardCommand($igui);
-                if ($ret != "") {
-                    $this->tpl->setContent($ret);
-                }
-                break;
-
             case "ilobjectownershipmanagementgui":
                 $this->setSystemCheckSubTabs("no_owner");
                 $gui = new ilObjectOwnershipManagementGUI(0);
@@ -173,7 +111,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
                 break;
 
             default:
-//var_dump($_POST);
+                //var_dump($_POST);
                 $cmd = $this->ctrl->getCmd("view");
 
                 $cmd .= "Object";
@@ -192,7 +130,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
     {
         $ilAccess = $this->access;
 
-        if ($ilAccess->checkAccess("write", "", $this->object->getRefId())) {
+        if ($ilAccess->checkAccess("read", "", $this->object->getRefId())) {
             $this->showBasicSettingsObject();
             return;
         }
@@ -399,11 +337,11 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         }
     }
 
-    private function saveCheckParamsObject()
+    private function saveCheckParamsObject(): void
     {
         $this->writeCheckParams();
         unset($_POST['mode']);
-        return $this->checkObject();
+        $this->checkObject();
     }
 
     private function writeCheckParams(): void
@@ -434,7 +372,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         }
     }
 
-    private function saveCheckCronObject()
+    private function saveCheckCronObject(): void
     {
         $ilSetting = $this->settings;
 
@@ -442,7 +380,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         $ilSetting->set('systemcheck_cron', $systemcheck_cron);
 
         unset($_POST['mode']);
-        return $this->checkObject();
+        $this->checkObject();
     }
 
     /**
@@ -708,7 +646,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
 
     public function viewScanLog(): void
     {
-        $validator = new IlValidator();
+        $validator = new ilValidator();
         $scan_log = $validator->readScanLog();
 
         if (is_array($scan_log)) {
@@ -737,42 +675,43 @@ class ilObjSystemFolderGUI extends ilObjectGUI
      */
     public function benchmarkObject(): void
     {
-        $rbacsystem = $this->rbacsystem;
-        $lng = $this->lng;
-        $ilCtrl = $this->ctrl;
-        $ilSetting = $this->settings;
-        $tpl = $this->tpl;
-        $ilErr = $this->error;
-
-        if (!$rbacsystem->checkAccess("visible,read", $this->object->getRefId())) {
-            $ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
+        if (!$this->rbacsystem->checkAccess("visible,read", $this->object->getRefId())) {
+            $this->error->raiseError($this->lng->txt("permission_denied"), $this->error->MESSAGE);
         }
+
+        $write_access = $this->rbacsystem->checkAccess("write", $this->object->getRefId());
 
         $this->benchmarkSubTabs("settings");
 
         $this->form = new ilPropertyFormGUI();
 
         // Activate DB Benchmark
-        $cb = new ilCheckboxInputGUI($lng->txt("adm_activate_db_benchmark"), ilBenchmark::ENABLE_DB_BENCH);
-        $cb->setChecked((bool) $ilSetting->get(ilBenchmark::ENABLE_DB_BENCH));
-        $cb->setInfo($lng->txt("adm_activate_db_benchmark_desc"));
+        $cb = new ilCheckboxInputGUI($this->lng->txt("adm_activate_db_benchmark"), ilBenchmark::ENABLE_DB_BENCH);
+        $cb->setChecked((bool) $this->settings->get(ilBenchmark::ENABLE_DB_BENCH));
+        $cb->setInfo($this->lng->txt("adm_activate_db_benchmark_desc"));
+        $cb->setDisabled(!$write_access);
         $this->form->addItem($cb);
 
         // DB Benchmark User
-        $ti = new ilTextInputGUI($lng->txt("adm_db_benchmark_user"), ilBenchmark::DB_BENCH_USER);
-        $user_id = ((int) $ilSetting->get(ilBenchmark::DB_BENCH_USER)) ?? null;
+        $ti = new ilTextInputGUI($this->lng->txt("adm_db_benchmark_user"), ilBenchmark::DB_BENCH_USER);
+        $user_id = ($this->settings->get(ilBenchmark::DB_BENCH_USER)) ?? null;
         if ($user_id !== null && ilObjUser::_lookupLogin((int) $user_id) !== '') {
             $ti->setValue(ilObjUser::_lookupLogin($user_id));
+        } else {
+            $ti->setValue('');
         }
-        $ti->setInfo($lng->txt("adm_db_benchmark_user_desc"));
+        $ti->setInfo($this->lng->txt("adm_db_benchmark_user_desc"));
+        $ti->setDisabled(!$write_access);
         $this->form->addItem($ti);
 
-        $this->form->addCommandButton("saveBenchSettings", $lng->txt("save"));
+        if ($write_access) {
+            $this->form->addCommandButton("saveBenchSettings", $this->lng->txt("save"));
+        }
 
-        $this->form->setTitle($lng->txt("adm_db_benchmark"));
-        $this->form->setFormAction($ilCtrl->getFormAction($this));
+        $this->form->setTitle($this->lng->txt("adm_db_benchmark"));
+        $this->form->setFormAction($this->ctrl->getFormAction($this));
 
-        $tpl->setContent($this->form->getHTML());
+        $this->tpl->setContent($this->form->getHTML());
     }
 
     /**
@@ -881,6 +820,12 @@ class ilObjSystemFolderGUI extends ilObjectGUI
      */
     public function saveBenchSettingsObject(): void
     {
+        $write_access = $this->rbacsystem->checkAccess("write", $this->object->getRefId());
+        if (!$write_access) {
+            $this->error->raiseError($this->lng->txt("permission_denied"), $this->error->MESSAGE);
+            return;
+        }
+
         if ($this->wrapper->post()->has(ilBenchmark::ENABLE_DB_BENCH)
             && $this->wrapper->post()->has(ilBenchmark::DB_BENCH_USER)) {
             $activate = $this->wrapper->post()->retrieve(ilBenchmark::ENABLE_DB_BENCH, $this->refinery->kindlyTo()->bool());
@@ -929,7 +874,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         $this->ctrl->setParameter($this, "ref_id", $this->object->getRefId());
 
         // general settings
-        if ($rbacsystem->checkAccess("write", $this->object->getRefId())) {
+        if ($rbacsystem->checkAccess("read", $this->object->getRefId())) {
             $this->tabs_gui->addTarget(
                 "general_settings",
                 $this->ctrl->getLinkTarget($this, "showBasicSettings"),
@@ -948,21 +893,18 @@ class ilObjSystemFolderGUI extends ilObjectGUI
             );
         }
 
-        if ($rbacsystem->checkAccess("write", $this->object->getRefId())) {
+        if ($rbacsystem->checkAccess('visible,read', $this->object->getRefId())) {
             $this->tabs_gui->addTarget(
-                "cron_jobs",
-                $this->ctrl->getLinkTargetByClass("ilCronManagerGUI", ""),
-                "",
+                'cron_jobs',
+                $this->ctrl->getLinkTargetByClass('ilCronManagerGUI', ''),
+                '',
                 get_class($this)
             );
 
-            //			$tabs_gui->addTarget("system_check",
-            //				$this->ctrl->getLinkTarget($this, "check"), array("check","viewScanLog","saveCheckParams","saveCheckCron"), get_class($this));
-
             $this->tabs_gui->addTarget(
-                "benchmarks",
-                $this->ctrl->getLinkTarget($this, "benchmark"),
-                "benchmark",
+                'benchmarks',
+                $this->ctrl->getLinkTarget($this, 'benchmark'),
+                'benchmark',
                 get_class($this)
             );
         }
@@ -1030,14 +972,14 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         $ilCtrl = $this->ctrl;
         $ilToolbar = $this->toolbar;
 
-        $button = ilLinkButton::getInstance();
-        $button->setCaption('vc_information');
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'showVcsInformation'));
-        $ilToolbar->addButtonInstance($button);
+        $this->gui->link(
+            $this->lng->txt("vc_information"),
+            $this->ctrl->getLinkTarget($this, 'showVcsInformation')
+        )->toToolbar();
 
         $this->initServerInfoForm();
         // TODO: remove sub tabs
-//        $this->tabs->setTabActive("server");
+        //        $this->tabs->setTabActive("server");
         $this->setServerInfoSubTabs("server_data");
 
         $btpl = new ilTemplate("tpl.server_data.html", true, true, "Modules/SystemFolder");
@@ -1203,7 +1145,6 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         $ilTabs->addSubTabTarget("basic_settings", $ilCtrl->getLinkTarget($this, "showBasicSettings"));
         $ilTabs->addSubTabTarget("header_title", $ilCtrl->getLinkTarget($this, "showHeaderTitle"));
         $ilTabs->addSubTabTarget("contact_data", $ilCtrl->getLinkTarget($this, "showContactInformation"));
-        $ilTabs->addSubTabTarget("adm_imprint", $ilCtrl->getLinkTargetByClass("ilimprintgui", "preview"));
 
         $ilTabs->setSubTabActive($a_activate);
         $ilTabs->setTabActive("general_settings");
@@ -1319,7 +1260,9 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         $ilErr = $this->error;
 
         if (!$rbacsystem->checkAccess("write", $this->object->getRefId())) {
-            $ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
+            $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
+            $this->ctrl->redirectByClass(self::class);
+            //$ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
         }
 
         $this->initBasicSettingsForm();
@@ -1363,9 +1306,10 @@ class ilObjSystemFolderGUI extends ilObjectGUI
     /**
     * Show header title
     */
-    public function showHeaderTitleObject($a_get_post_values = false,
-        bool $add_entry = false): void
-    {
+    public function showHeaderTitleObject(
+        $a_get_post_values = false,
+        bool $add_entry = false
+    ): void {
         $tpl = $this->tpl;
 
         $this->setGeneralSettingsSubTabs("header_title");
@@ -1407,7 +1351,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
     /**
     * Save header titles
     */
-    public function saveHeaderTitlesObject($delete = false)
+    public function saveHeaderTitlesObject(bool $delete = false)
     {
         global $DIC;
 
@@ -1417,7 +1361,8 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         $ilErr = $this->error;
 
         if (!$rbacsystem->checkAccess("write", $this->object->getRefId())) {
-            $ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
+            $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
+            $this->ctrl->redirectByClass(self::class, "showHeaderTitle");
         }
 
         //		var_dump($_POST);
@@ -1439,19 +1384,22 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         // default language set?
         if (!isset($post["default"]) && count($post["lang"]) > 0) {
             $this->tpl->setOnScreenMessage('failure', $lng->txt("msg_no_default_language"));
-            return $this->showHeaderTitleObject(true);
+            $this->showHeaderTitleObject(true);
+            return;
         }
 
         // all languages set?
         if (array_key_exists("", $post["lang"])) {
             $this->tpl->setOnScreenMessage('failure', $lng->txt("msg_no_language_selected"));
-            return $this->showHeaderTitleObject(true);
+            $this->showHeaderTitleObject(true);
+            return;
         }
 
         // no single language is selected more than once?
         if (count(array_unique($post["lang"])) < count($post["lang"])) {
             $this->tpl->setOnScreenMessage('failure', $lng->txt("msg_multi_language_selected"));
-            return $this->showHeaderTitleObject(true);
+            $this->showHeaderTitleObject(true);
+            return;
         }
 
         // save the stuff
@@ -1668,7 +1616,8 @@ class ilObjSystemFolderGUI extends ilObjectGUI
         $ilErr = $this->error;
 
         if (!$rbacsystem->checkAccess("write", $this->object->getRefId())) {
-            $ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
+            $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
+            $this->ctrl->redirectByClass(self::class, "showContactInformation");
         }
 
         $this->initContactInformationForm();
@@ -1780,7 +1729,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
             $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
             $ilCtrl->redirect($this, "showJavaServer");
 
-        // TODO check settings, ping server
+            // TODO check settings, ping server
         } else {
             $this->setGeneralSettingsSubTabs("java_server");
             $this->form->setValuesByPost();

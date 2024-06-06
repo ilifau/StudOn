@@ -16,16 +16,13 @@
  *
  *********************************************************************/
 
-require_once('./Services/COPage/classes/class.ilPageObjectGUI.php');
-require_once('./Modules/TestQuestionPool/classes/class.ilAssQuestionPage.php');
-
 /**
  * Question page GUI class
  *
  * @author Alex Killing <alex.killing@gmx.de>
  *
  * @ilCtrl_Calls ilAssQuestionPageGUI: ilPageEditorGUI, ilEditClipboardGUI, ilMDEditorGUI
- * @ilCtrl_Calls ilAssQuestionPageGUI: ilPublicUserProfileGUI, ilNoteGUI
+ * @ilCtrl_Calls ilAssQuestionPageGUI: ilPublicUserProfileGUI, ilCommentGUI
  * @ilCtrl_Calls ilAssQuestionPageGUI: ilPropertyFormGUI, ilInternalLinkGUI
  *
  * @ingroup ModulesTestQuestionPool

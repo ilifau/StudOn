@@ -18,6 +18,7 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
 namespace ILIAS\UI\Component\Input;
 
 use ILIAS\Refinery\Transformation;
@@ -47,6 +48,26 @@ use ILIAS\UI\Component\Input\Field\Input as LegacyFieldInput;
  */
 interface Input extends Component, LegacyFieldInput
 {
+=======
+<<<<<<<< HEAD:src/UI/Component/Input/Field/Input.php
+namespace ILIAS\UI\Component\Input\Field;
+========
+namespace ILIAS\UI\Component\Input;
+>>>>>>>> v9.1:src/UI/Component/Input/Input.php
+
+/**
+ * This is a legacy support of Component\Input\Field\Input 
+ * that has been moved to Component\Input\Container\Form\FormInput.
+ * 
+ * Please always hint to \ILIAS\UI\Component\Input\Container\Form\FormInput
+ * 
+ * @deprecated removed in 9
+ */
+interface Input extends FormInput
+{
+<<<<<<<< HEAD:src/UI/Component/Input/Field/Input.php
+========
+>>>>>>> v9.1
     /**
      * Get the value that is displayed in the input client side.
      *
@@ -87,4 +108,8 @@ interface Input extends Component, LegacyFieldInput
      * @return $this
      */
     public function withDedicatedName(string $dedicated_name): self;
+<<<<<<< HEAD
+=======
+>>>>>>>> v9.1:src/UI/Component/Input/Input.php
+>>>>>>> v9.1
 }

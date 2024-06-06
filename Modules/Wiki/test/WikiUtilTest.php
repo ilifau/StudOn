@@ -131,7 +131,7 @@ class WikiUtilTest extends TestCase
         }
     }
 
-    protected function processInternalLinksExtCollect(string $xml):array
+    protected function processInternalLinksExtCollect(string $xml): array
     {
         return ilWikiUtil::collectInternalLinks(
             $xml,
@@ -243,7 +243,7 @@ class WikiUtilTest extends TestCase
         );
     }
 
-    protected function processInternalLinksCollect(string $xml):array
+    protected function processInternalLinksCollect(string $xml): array
     {
         return ilWikiUtil::collectInternalLinks(
             $xml,
@@ -283,7 +283,7 @@ class WikiUtilTest extends TestCase
         );
     }
 
-    protected function processInternalLinksReplace(string $xml):string
+    protected function processInternalLinksReplace(string $xml): string
     {
         return ilWikiUtil::replaceInternalLinks(
             $xml,

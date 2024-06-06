@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,14 +21,20 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Component\Table;
 
 use ILIAS\UI\Component\Triggerable;
 use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Component\Component;
-use ILIAS\UI\Component\Listing\Descriptive;
 use ILIAS\UI\Component\Button\Button;
 use ILIAS\UI\Component\Dropdown\Dropdown;
+use ILIAS\UI\Component\Layout\Alignment\Block;
+use ILIAS\UI\Component\Symbol\Symbol;
 
 /**
  * This describes a Row used in Presentation Table.
@@ -37,12 +46,20 @@ interface PresentationRow extends Component, Triggerable
     /**
      * Get a row like this with the given headline.
      */
+<<<<<<< HEAD
     public function withHeadline(string $headline): PresentationRow;
+=======
+    public function withHeadline(string $headline): self;
+>>>>>>> v9.1
 
     /**
      * Get a row like this with the given subheadline.
      */
+<<<<<<< HEAD
     public function withSubheadline(string $subheadline): PresentationRow;
+=======
+    public function withSubheadline(string $subheadline): self;
+>>>>>>> v9.1
 
     /**
      * Get a row like this with the record-fields and labels
@@ -50,17 +67,29 @@ interface PresentationRow extends Component, Triggerable
      *
      * @param array<string,string> 	$fields
      */
+<<<<<<< HEAD
     public function withImportantFields(array $fields): PresentationRow;
+=======
+    public function withImportantFields(array $fields): self;
+>>>>>>> v9.1
 
     /**
-     * Get a row like this with a descriptive listing as content.
+     * Get a row like this with content.
      */
+<<<<<<< HEAD
     public function withContent(Descriptive $content): PresentationRow;
+=======
+    public function withContent(Block $content): self;
+>>>>>>> v9.1
 
     /**
      * Get a row like this with a headline for the field-list in the expanded row.
      */
+<<<<<<< HEAD
     public function withFurtherFieldsHeadline(string $headline): PresentationRow;
+=======
+    public function withFurtherFieldsHeadline(string $headline): self;
+>>>>>>> v9.1
 
     /**
      * Get a row like this with the record-fields and labels to be shown
@@ -68,14 +97,22 @@ interface PresentationRow extends Component, Triggerable
      *
      * @param array<string,string> 	$fields
      */
+<<<<<<< HEAD
     public function withFurtherFields(array $fields): PresentationRow;
+=======
+    public function withFurtherFields(array $fields): self;
+>>>>>>> v9.1
 
     /**
      * Get a row like this with a button or a dropdown for actions in the expanded row.
      *
      * @param Button|Dropdown $action
      */
+<<<<<<< HEAD
     public function withAction($action): PresentationRow;
+=======
+    public function withAction($action): self;
+>>>>>>> v9.1
 
     /**
      * Get the signal to expand the row.
@@ -91,4 +128,12 @@ interface PresentationRow extends Component, Triggerable
      * Get the signal to toggle (expand/collapse) the row.
      */
     public function getToggleSignal(): Signal;
+<<<<<<< HEAD
+=======
+
+    /**
+     * Add a Symbol to the row's title
+     */
+    public function withLeadingSymbol(Symbol $symbol): self;
+>>>>>>> v9.1
 }

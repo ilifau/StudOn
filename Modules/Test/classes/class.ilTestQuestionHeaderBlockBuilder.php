@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
@@ -300,6 +302,9 @@ class ilTestQuestionHeaderBlockBuilder implements ilQuestionHeaderBlockBuilder
     public function getPresentationTitle(): string
     {
         switch ($this->getHeaderMode()) {
+            case 3:     // only points => show no title here
+                return $this->buildQuestionPointsString();
+                break;
             case 2: 	// neither titles nor points => show position as title
                 return $this->buildQuestionPositionString();
                 break;
@@ -327,6 +332,9 @@ class ilTestQuestionHeaderBlockBuilder implements ilQuestionHeaderBlockBuilder
                 $text = $this->buildQuestionPositionString();
                 break;
 
+            case 3: // only points => show nothing here
+                $text = $this->buildQuestionPositionString();
+                break;
             case 2: //	neither titles nor points => position is separate title, show nothing here
                 $text = '';
                 break;
@@ -358,8 +366,8 @@ class ilTestQuestionHeaderBlockBuilder implements ilQuestionHeaderBlockBuilder
             $tpl->setVariable('HIDDEN_ANSWERED', 'hidden');
         }
 
-        $tpl->setVariable('SRC_ANSWERED', ilUtil::getImagePath('answered.svg'));
-        $tpl->setVariable('SRC_NOT_ANSWERED', ilUtil::getImagePath('answered_not.svg'));
+        $tpl->setVariable('SRC_ANSWERED', ilUtil::getImagePath('object/answered.svg'));
+        $tpl->setVariable('SRC_NOT_ANSWERED', ilUtil::getImagePath('object/answered_not.svg'));
         $tpl->setVariable('TXT_ANSWERED', $this->lng->txt('tst_answer_status_answered'));
         $tpl->setVariable('TXT_NOT_ANSWERED', $this->lng->txt('tst_answer_status_not_answered'));
         $tpl->setVariable('TXT_EDITING', $this->lng->txt('tst_answer_status_editing'));
@@ -391,9 +399,9 @@ class ilTestQuestionHeaderBlockBuilder implements ilQuestionHeaderBlockBuilder
 
                 $headerBlock .= " - " . $this->getQuestionTitle();
                 $headerBlock .= $this->buildQuestionPostponedString();
-// fau: testNav - put the points in parentheses here, not in building the string
+                // fau: testNav - put the points in parentheses here, not in building the string
                 $headerBlock .= ' (' . $this->buildQuestionPointsString() . ')';
-// fau.
+                // fau.
                 $headerBlock .= $this->buildQuestionObligatoryString();
         }
 

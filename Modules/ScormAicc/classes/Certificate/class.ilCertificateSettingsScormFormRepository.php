@@ -24,51 +24,37 @@ use ILIAS\Filesystem\Exception\IOException;
 
 class ilCertificateSettingsScormFormRepository implements ilCertificateFormRepository
 {
-    private ilObject $object;
-    private ilLanguage $language;
-    private ilCertificateSettingsFormRepository $settingsFormFactory;
-    private ilSetting $setting;
+    private readonly ilCertificateSettingsFormRepository $settingsFormFactory;
 
     public function __construct(
-        ilObject $object,
+        private readonly ilObject $object,
         string $certificatePath,
         bool $hasAdditionalElements,
-        ilLanguage $language,
+        private readonly ilLanguage $language,
         ilCtrlInterface $ctrl,
         ilAccess $access,
         ilToolbarGUI $toolbar,
         ilCertificatePlaceholderDescription $placeholderDescriptionObject,
         ?ilCertificateSettingsFormRepository $settingsFormRepository = null,
-        ?ilSetting $setting = null
+        private readonly ilSetting $setting = new ilSetting('scorm')
     ) {
-        $this->object = $object;
+        global $DIC;
 
-        $this->language = $language;
-
-        if (null === $settingsFormRepository) {
-            $settingsFormRepository = new ilCertificateSettingsFormRepository(
-                $object->getId(),
-                $certificatePath,
-                $hasAdditionalElements,
-                $language,
-                $ctrl,
-                $access,
-                $toolbar,
-                $placeholderDescriptionObject
-            );
-        }
-
-        $this->settingsFormFactory = $settingsFormRepository;
-
-        if (null === $setting) {
-            $setting = new ilSetting('scorm');
-        }
-        $this->setting = $setting;
+        $this->settingsFormFactory = $settingsFormRepository ?? new ilCertificateSettingsFormRepository(
+            $object->getId(),
+            $certificatePath,
+            $hasAdditionalElements,
+            $language,
+            $ctrl,
+            $access,
+            $toolbar,
+            $placeholderDescriptionObject,
+            $DIC->ui()->factory(),
+            $DIC->ui()->renderer()
+        );
     }
 
     /**
-     * @param ilCertificateGUI $certificateGUI
-     * @return ilPropertyFormGUI
      * @throws FileAlreadyExistsException
      * @throws FileNotFoundException
      * @throws IOException

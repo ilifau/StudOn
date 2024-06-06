@@ -28,37 +28,21 @@ use ILIAS\Filesystem\Exception\IOException;
  */
 class ilCertificateCloneAction
 {
-    private ilLogger $logger;
-    private ilCertificatePathFactory $pathFactory;
-    private ilCertificateTemplateRepository $templateRepository;
-    private ilDBInterface $database;
-    private Filesystem $fileSystem;
-    private ilCertificateObjectHelper $objectHelper;
-    private string $webDirectory;
-    private string $global_certificate_path;
-    private ilObjCertificateSettings $global_certificate_settings;
+    private readonly Filesystem $fileSystem;
+    private readonly ilCertificateObjectHelper $objectHelper;
+    private readonly string $global_certificate_path;
+    private readonly ilObjCertificateSettings $global_certificate_settings;
 
     public function __construct(
-        ilDBInterface $database,
-        ilCertificatePathFactory $pathFactory,
-        ilCertificateTemplateRepository $templateRepository,
+        private readonly ilDBInterface $database,
+        private readonly ilCertificatePathFactory $pathFactory,
+        private readonly ilCertificateTemplateRepository $templateRepository,
+        private readonly string $webDirectory = CLIENT_WEB_DIR,
         ?Filesystem $fileSystem = null,
-        ?ilLogger $logger = null,
         ?ilCertificateObjectHelper $objectHelper = null,
         ?ilObjCertificateSettings $global_certificate_settings = null,
-        string $webDirectory = CLIENT_WEB_DIR,
         string $global_certificate_path = null
     ) {
-        $this->database = $database;
-        $this->pathFactory = $pathFactory;
-        $this->templateRepository = $templateRepository;
-
-        if (null === $logger) {
-            global $DIC;
-            $logger = $DIC->logger()->cert();
-        }
-        $this->logger = $logger;
-
         if (null === $fileSystem) {
             global $DIC;
             $fileSystem = $DIC->filesystem()->web();
@@ -79,16 +63,9 @@ class ilCertificateCloneAction
             $global_certificate_path = $this->global_certificate_settings->getDefaultBackgroundImagePath(true);
         }
         $this->global_certificate_path = $global_certificate_path;
-
-
-        $this->webDirectory = $webDirectory;
     }
 
     /**
-     * @param ilObject $oldObject
-     * @param ilObject $newObject
-     * @param string   $iliasVersion
-     * @param string   $webDir
      * @throws FileAlreadyExistsException
      * @throws FileNotFoundException
      * @throws IOException
@@ -211,11 +188,7 @@ class ilCertificateCloneAction
     {
         $sql = 'SELECT 1 FROM il_certificate WHERE obj_id = ' . $this->database->quote($objectId, 'integer');
 
-        if ($row = $this->database->fetchAssoc($this->database->query($sql))) {
-            return true;
-        }
-
-        return false;
+        return (bool) $this->database->fetchAssoc($this->database->query($sql));
     }
 
     private function getBackgroundImageName(): string

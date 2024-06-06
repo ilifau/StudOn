@@ -1,20 +1,6 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- *********************************************************************/
+/* Copyright (c) 1998-2016 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 include_once("./Services/ContainerReference/classes/class.ilContainerReferenceAccess.php");
 
@@ -46,7 +32,7 @@ class ilObjGroupReferenceAccess extends ilContainerReferenceAccess
                 include_once './Modules/GroupReference/classes/class.ilObjGroupReference.php';
                 $target_ref_id = (int) ilObjGroupReference::_lookupTargetRefId($obj_id);
 
-                if (!$ilAccess->checkAccessOfUser($user_id, $permission, $cmd, $target_ref_id)) {
+                if (!$target_ref_id || !$ilAccess->checkAccessOfUser($user_id, $permission, $cmd, $target_ref_id)) {
                     return false;
                 }
                 break;

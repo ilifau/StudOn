@@ -74,7 +74,6 @@ class SurveyMultipleChoiceQuestionGUI extends SurveyQuestionGUI
         $answers->setRequired(false);
         $answers->setAllowMove(true);
         $answers->setShowWizard(false);
-        $answers->setShowSavePhrase(false);
         $answers->setUseOtherAnswer(true);
         $answers->setShowNeutralCategory(true);
         $answers->setNeutralCategoryTitle($this->lng->txt('svy_neutral_answer'));
@@ -101,7 +100,7 @@ class SurveyMultipleChoiceQuestionGUI extends SurveyQuestionGUI
             $cnt_answers = 0;
             $answers = $this->request->getAnswers();
             foreach ($answers['answer'] as $key => $value) {
-                if (strlen($value)) {
+                if (strlen($value ?? "")) {
                     $cnt_answers++;
                 }
             }
@@ -145,7 +144,7 @@ class SurveyMultipleChoiceQuestionGUI extends SurveyQuestionGUI
 
         $answers = $this->request->getAnswers();
         foreach ($answers['answer'] as $key => $value) {
-            if (strlen($value)) {
+            if (strlen($value ?? "")) {
                 $this->object->getCategories()->addCategory($value, $answers['other'][$key] ?? 0, 0, null, $answers['scale'][$key]);
             }
         }
@@ -301,9 +300,6 @@ class SurveyMultipleChoiceQuestionGUI extends SurveyQuestionGUI
         bool $compress_view = false
     ): string {
         $template = new ilTemplate("tpl.il_svy_out_mc.html", true, true, "Modules/SurveyQuestionPool");
-        $template->setCurrentBlock("material");
-        $template->setVariable("TEXT_MATERIAL", $this->getMaterialOutput());
-        $template->parseCurrentBlock();
         switch ($this->object->getOrientation()) {
             case 0:
                 // vertical orientation
@@ -311,14 +307,14 @@ class SurveyMultipleChoiceQuestionGUI extends SurveyQuestionGUI
                     $cat = $this->object->categories->getCategory($i);
                     if ($cat->other) {
                         $template->setCurrentBlock("other_row");
-                        if (strlen($cat->title)) {
+                        if (strlen($cat->title ?? "")) {
                             $template->setVariable("OTHER_LABEL", $cat->title);
                         }
                         $template->setVariable("VALUE_MC", ($cat->scale) ? ($cat->scale - 1) : $i);
                         $template->setVariable("QUESTION_ID", $this->object->getId());
                         if (is_array($working_data)) {
                             foreach ($working_data as $value) {
-                                if (strlen($value["value"])) {
+                                if (strlen($value["value"] ?? "")) {
                                     if ($value["value"] == $cat->scale - 1) {
                                         $template->setVariable("OTHER_VALUE", ' value="' . ilLegacyFormElementsUtil::prepareFormOutput(
                                             $value['textanswer']
@@ -340,7 +336,7 @@ class SurveyMultipleChoiceQuestionGUI extends SurveyQuestionGUI
                         $template->setVariable("QUESTION_ID", $this->object->getId());
                         if (is_array($working_data)) {
                             foreach ($working_data as $value) {
-                                if (strlen($value["value"])) {
+                                if (strlen($value["value"] ?? "")) {
                                     if ($value["value"] == $cat->scale - 1) {
                                         if (!($value['uncheck'] ?? false)) {
                                             $template->setVariable("CHECKED_MC", " checked=\"checked\"");
@@ -370,7 +366,7 @@ class SurveyMultipleChoiceQuestionGUI extends SurveyQuestionGUI
                     $template->setVariable("QUESTION_ID", $this->object->getId());
                     if (is_array($working_data)) {
                         foreach ($working_data as $value) {
-                            if (strlen($value["value"])) {
+                            if (strlen($value["value"] ?? "")) {
                                 if ($value["value"] == $cat->scale - 1) {
                                     if (!($value['uncheck'] ?? false)) {
                                         $template->setVariable("CHECKED_MC", " checked=\"checked\"");
@@ -386,12 +382,12 @@ class SurveyMultipleChoiceQuestionGUI extends SurveyQuestionGUI
                         $template->setCurrentBlock("text_other_col");
                         $template->setVariable("VALUE_MC", ($cat->scale) ? ($cat->scale - 1) : $i);
                         $template->setVariable("QUESTION_ID", $this->object->getId());
-                        if (strlen($cat->title)) {
+                        if (strlen($cat->title ?? "")) {
                             $template->setVariable("OTHER_LABEL", $cat->title);
                         }
                         if (is_array($working_data)) {
                             foreach ($working_data as $value) {
-                                if (strlen($value["value"])) {
+                                if (strlen($value["value"] ?? "")) {
                                     if ($value["value"] == $cat->scale - 1) {
                                         $template->setVariable("OTHER_VALUE", ' value="' . ilLegacyFormElementsUtil::prepareFormOutput(
                                             $value['textanswer']

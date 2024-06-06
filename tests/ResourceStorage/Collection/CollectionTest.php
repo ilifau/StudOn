@@ -18,6 +18,11 @@
 
 namespace ILIAS\ResourceStorage\Resource;
 
+<<<<<<< HEAD
+=======
+require_once(__DIR__ . '/../AbstractBaseResourceBuilderTest.php');
+
+>>>>>>> v9.1
 use ILIAS\ResourceStorage\AbstractBaseResourceBuilderTest;
 use ILIAS\ResourceStorage\Collection\CollectionBuilder;
 use ILIAS\ResourceStorage\Collection\Collections;
@@ -28,6 +33,10 @@ use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Preloader\RepositoryPreloader;
 use PHPUnit\Framework\MockObject\MockObject;
+<<<<<<< HEAD
+=======
+use ILIAS\ResourceStorage\Events\Subject;
+>>>>>>> v9.1
 
 /**
  * Class CollectionTest
@@ -58,6 +67,10 @@ class CollectionTest extends AbstractBaseResourceBuilderTest
 
         $this->collection_builder = new CollectionBuilder(
             $this->collection_repository,
+<<<<<<< HEAD
+=======
+            new Subject(),
+>>>>>>> v9.1
             $this->rcid_generator
         );
 
@@ -75,11 +88,19 @@ class CollectionTest extends AbstractBaseResourceBuilderTest
         $this->collections = new Collections(
             $this->resource_builder,
             $this->collection_builder,
+<<<<<<< HEAD
             $this->preloader
         );
     }
 
 
+=======
+            $this->preloader,
+            new Subject()
+        );
+    }
+
+>>>>>>> v9.1
     public function testCreateCollection(): void
     {
         $identifiation = $this->rcid_generator->getUniqueResourceCollectionIdentification();
@@ -215,6 +236,77 @@ class CollectionTest extends AbstractBaseResourceBuilderTest
         $this->assertEquals(0, $collection->count());
     }
 
+<<<<<<< HEAD
+=======
+    public function testDuplicates(): void
+    {
+        $rid = new ResourceIdentification('rid');
+        $same_rid = new ResourceIdentification('rid');
+
+        $collection = new ResourceCollection(
+            new ResourceCollectionIdentification(self::DUMMY_RCID),
+            ResourceCollection::NO_SPECIFIC_OWNER,
+            ''
+        );
+        $collection->add($rid);
+        $collection->add($same_rid);
+
+        $this->assertEquals(1, count($collection->getResourceIdentifications()));
+    }
+
+
+    public function testRidCache(): void
+    {
+        $resource_collection_identification = new ResourceCollectionIdentification(self::DUMMY_RCID);
+        $rid_one = new ResourceIdentification('rid_one');
+        $rid_two = new ResourceIdentification('rid_two');
+        $rid_three = new ResourceIdentification('rid_three');
+
+        $collections_service = new Collections(
+            $this->resource_builder,
+            $this->collection_builder,
+            $this->preloader,
+            new Subject()
+        );
+
+        $this->collection_repository
+            ->expects($this->once())
+            ->method('existing')
+            ->with($resource_collection_identification)
+            ->willReturn(
+                new ResourceCollection($resource_collection_identification, -1, 'title')
+            );
+
+        $collection = $collections_service->get(
+            $resource_collection_identification
+        );
+        $this->assertCount(0, $collection->getResourceIdentifications());
+
+        $collection->add($rid_one);
+        $collection->add($rid_two);
+        $collection->add($rid_three);
+
+        $this->assertCount(3, $collection->getResourceIdentifications());
+
+        $collections_service->store($collection);
+
+        $this->resource_repository->expects($this->exactly(3))
+                               ->method('has')
+                               ->withConsecutive(
+                                   [$rid_one],
+                                   [$rid_two],
+                                   [$rid_three]
+                               )
+                               ->willReturn(true);
+
+        $collection = $collections_service->get(
+            $resource_collection_identification
+        );
+
+        $this->assertCount(3, $collection->getResourceIdentifications());
+    }
+
+>>>>>>> v9.1
 
     protected function arrayAsGenerator(array $array): \Generator
     {

@@ -804,15 +804,15 @@ class ilAssOrderingElementList implements Iterator
     /**
      * @return ilAssOrderingElement|false
      */
-    public function next()
+    public function next(): void
     {
-        return next($this->elements);
+        next($this->elements);
     }
 
     /**
      * @return integer|bool
      */
-    public function key()
+    public function key(): ?int
     {
         return key($this->elements);
     }
@@ -825,12 +825,9 @@ class ilAssOrderingElementList implements Iterator
         return ($this->key() !== null);
     }
 
-    /**
-     * @return ilAssOrderingElement|false
-     */
-    public function rewind()
+    public function rewind(): void
     {
-        return reset($this->elements);
+        reset($this->elements);
     }
 
     /**

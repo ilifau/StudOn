@@ -31,7 +31,6 @@ class ilMailbox
     protected ilLanguage $lng;
     protected ilDBInterface $db;
     protected ilTree $mtree;
-    protected int $usrId;
     /** @var array{moveMails: string, markMailsRead: string, markMailsUnread: string, deleteMails: string} */
     protected array $actions = [
         'moveMails' => '',
@@ -50,18 +49,16 @@ class ilMailbox
     protected string $table_mail_obj_data;
     protected string $table_tree;
 
-    public function __construct(int $a_user_id)
+    public function __construct(protected int $usrId)
     {
         global $DIC;
 
-        if ($a_user_id < 1) {
+        if ($usrId < 1) {
             throw new InvalidArgumentException("Cannot create mailbox without user id");
         }
-
+        
         $this->lng = $DIC->language();
         $this->db = $DIC->database();
-
-        $this->usrId = $a_user_id;
         $this->table_mail_obj_data = 'mail_obj_data';
         $this->table_tree = 'mail_tree';
 
@@ -149,7 +146,6 @@ class ilMailbox
     }
 
     /**
-     * @param int $folderId
      * @return array{moveMails: string, markMailsRead: string, markMailsUnread: string, deleteMails: string}
      */
     public function getActions(int $folderId): array
@@ -310,7 +306,7 @@ class ilMailbox
     {
         $userFolders = [];
 
-        foreach ($this->defaultFolders as $key => $value) {
+        foreach (array_keys($this->defaultFolders) as $key) {
             $res = $this->db->queryF(
                 'SELECT obj_id, m_type FROM ' . $this->table_mail_obj_data . ' WHERE user_id = %s AND title = %s',
                 ['integer', 'text'],
@@ -382,6 +378,12 @@ class ilMailbox
             'DELETE FROM mail_tree WHERE tree = %s',
             ['integer'],
             [$this->usrId]
+        );
+
+        $this->db->manipulateF(
+            'DELETE FROM mail_auto_responder WHERE sender_id = %s OR receiver_id = %s',
+            ['integer', 'integer'],
+            [$this->usrId, $this->usrId]
         );
 
         // Delete the user's files from filesystem:

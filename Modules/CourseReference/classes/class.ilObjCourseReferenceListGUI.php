@@ -98,7 +98,7 @@ class ilObjCourseReferenceListGUI extends ilObjCourseListGUI
         $this->subscribe_enabled = true;
         $this->link_enabled = false;
         $this->info_screen_enabled = true;
-        $this->type = "crs";
+        $this->type = 'crsr';
         $this->gui_class_name = "ilobjcoursegui";
 
         $this->substitutions = ilAdvancedMDSubstitution::_getInstanceByObjectType($this->type);
@@ -119,13 +119,15 @@ class ilObjCourseReferenceListGUI extends ilObjCourseListGUI
         string $title = "",
         string $description = ""
     ): void {
-        global $ilBench,$ilAccess,$tree;
+        global $DIC;
+
+        $ilAccess = $DIC->access();
+        $tree = $DIC->repositoryTree();
 
         $this->reference_ref_id = $ref_id;
         $this->reference_obj_id = $obj_id;
 
 
-        include_once('./Services/ContainerReference/classes/class.ilContainerReference.php');
         $target_obj_id = ilContainerReference::_lookupTargetId($obj_id);
 
         $target_ref_ids = ilObject::_getAllReferences($target_obj_id);
@@ -134,16 +136,9 @@ class ilObjCourseReferenceListGUI extends ilObjCourseListGUI
         $target_description = ilObject::_lookupDescription($target_obj_id);
 
         $this->deleted = $tree->isDeleted($target_ref_id);
-
-        $ilBench->start("ilObjCourseListGUI", "1000_checkAllConditions");
-        $this->conditions_ok = ilConditionHandler::_checkAllConditionsOfTarget($target_ref_id, $target_obj_id);
-        $ilBench->stop("ilObjCourseListGUI", "1000_checkAllConditions");
-
-
         parent::initItem($target_ref_id, $target_obj_id, $type, $target_title, $target_description);
 
         // general commands array
-        include_once('./Modules/CourseReference/classes/class.ilObjCourseReferenceAccess.php');
         $this->commands = ilObjCourseReferenceAccess::_getCommands($this->reference_ref_id);
 
         if ($ilAccess->checkAccess('write', '', $this->reference_ref_id) or $this->deleted) {

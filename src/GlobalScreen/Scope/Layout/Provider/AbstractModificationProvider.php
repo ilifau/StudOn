@@ -35,6 +35,7 @@ use ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection;
 use ILIAS\GlobalScreen\Scope\Layout\Factory\TitleModification;
 use ILIAS\GlobalScreen\Scope\Layout\Factory\ShortTitleModification;
 use ILIAS\GlobalScreen\Scope\Layout\Factory\ViewTitleModification;
+use ILIAS\Data\Factory as DataFactory;
 
 /**
  * Class AbstractModificationProvider
@@ -42,10 +43,14 @@ use ILIAS\GlobalScreen\Scope\Layout\Factory\ViewTitleModification;
  */
 abstract class AbstractModificationProvider extends AbstractProvider implements ModificationProvider
 {
+<<<<<<< HEAD
     /**
      * @var ContextCollection
      */
+=======
+>>>>>>> v9.1
     protected ContextCollection $context_collection;
+    protected DataFactory $data;
     /**
      * @var ToolFactory
      */
@@ -59,6 +64,7 @@ abstract class AbstractModificationProvider extends AbstractProvider implements 
         parent::__construct($dic);
         $this->context_collection = $this->globalScreen()->tool()->context()->collection();
         $this->factory = $this->globalScreen()->layout()->factory();
+        $this->data = new DataFactory();
     }
 
     /**

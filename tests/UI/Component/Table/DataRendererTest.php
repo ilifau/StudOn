@@ -81,7 +81,13 @@ class DataRendererTest extends TableTestBase
             $this->getJavaScriptBinding(),
             $this->getRefinery(),
             new ilImagePathResolver(),
+<<<<<<< HEAD
             new \ILIAS\Data\Factory()
+=======
+            new \ILIAS\Data\Factory(),
+            new \ILIAS\UI\Help\TextRetriever\Echoing(),
+            $this->getUploadLimitResolver()
+>>>>>>> v9.1
         );
     }
 
@@ -123,11 +129,17 @@ class DataRendererTest extends TableTestBase
     public function getUIFactory(): NoUIFactory
     {
         $factory = new class ($this->getTableFactory()) extends NoUIFactory {
+<<<<<<< HEAD
             protected Component\Table\Factory $table_factory;
             public function __construct(
                 Component\Table\Factory $table_factory
             ) {
                 $this->table_factory = $table_factory;
+=======
+            public function __construct(
+                protected Component\Table\Factory $table_factory
+            ) {
+>>>>>>> v9.1
             }
             public function button(): Component\Button\Factory
             {

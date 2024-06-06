@@ -122,28 +122,28 @@ class ilSCORM2004TrackingItemsTableGUI extends ilTable2GUI
         switch ($this->report) {
             case "exportSelectedCore":
                 $cols = ilSCORM2004TrackingItems::exportSelectedCoreColumns($this->bySCO, $this->allowExportPrivacy);
-            break;
+                break;
             case "exportSelectedInteractions":
                 $cols = ilSCORM2004TrackingItems::exportSelectedInteractionsColumns();
-            break;
+                break;
             case "exportSelectedObjectives":
                 $cols = ilSCORM2004TrackingItems::exportSelectedObjectivesColumns();
-            break;
+                break;
             case "exportObjGlobalToSystem":
                 $cols = ilSCORM2004TrackingItems::exportObjGlobalToSystemColumns();
-            break;
+                break;
             case "tracInteractionItem":
                 $cols = ilSCORM2004TrackingItems::tracInteractionItemColumns($this->bySCO, $this->allowExportPrivacy);
-            break;
+                break;
             case "tracInteractionUser":
                 $cols = ilSCORM2004TrackingItems::tracInteractionUserColumns($this->bySCO, $this->allowExportPrivacy);
-            break;
+                break;
             case "tracInteractionUserAnswers":
                 $cols = ilSCORM2004TrackingItems::tracInteractionUserAnswersColumns((array) $this->userSelected, (array) $this->scosSelected, $this->bySCO, $this->allowExportPrivacy);
-            break;
+                break;
             case "exportSelectedSuccess":
                 $cols = ilSCORM2004TrackingItems::exportSelectedSuccessColumns();
-            break;
+                break;
         }
 
         return $cols;
@@ -163,28 +163,28 @@ class ilSCORM2004TrackingItemsTableGUI extends ilTable2GUI
         switch ($this->report) {
             case "exportSelectedCore":
                 $tr_data = $ilSCORM2004TrackingItems->exportSelectedCore((array) $this->userSelected, (array) $this->scosSelected, $this->bySCO, $this->allowExportPrivacy, $this->getObjId(), $this->lmTitle);
-            break;
+                break;
             case "exportSelectedInteractions":
                 $tr_data = $ilSCORM2004TrackingItems->exportSelectedInteractions((array) $this->userSelected, (array) $this->scosSelected, $this->bySCO, $this->allowExportPrivacy, $this->getObjId(), $this->lmTitle);
-            break;
+                break;
             case "exportSelectedObjectives":
                 $tr_data = $ilSCORM2004TrackingItems->exportSelectedObjectives((array) $this->userSelected, (array) $this->scosSelected, $this->bySCO, $this->allowExportPrivacy, $this->getObjId(), $this->lmTitle);
-            break;
+                break;
             case "exportObjGlobalToSystem":
                 $tr_data = $ilSCORM2004TrackingItems->exportObjGlobalToSystem((array) $this->userSelected, $this->allowExportPrivacy, $this->getObjId(), $this->lmTitle);
-            break;
+                break;
             case "tracInteractionItem":
                 $tr_data = $ilSCORM2004TrackingItems->tracInteractionItem((array) $this->userSelected, (array) $this->scosSelected, $this->bySCO, $this->allowExportPrivacy, $this->getObjId(), $this->lmTitle);
-            break;
+                break;
             case "tracInteractionUser":
                 $tr_data = $ilSCORM2004TrackingItems->tracInteractionUser((array) $this->userSelected, (array) $this->scosSelected, $this->bySCO, $this->allowExportPrivacy, $this->getObjId(), $this->lmTitle);
-            break;
+                break;
             case "tracInteractionUserAnswers":
                 $tr_data = $ilSCORM2004TrackingItems->tracInteractionUserAnswers((array) $this->userSelected, (array) $this->scosSelected, $this->bySCO, $this->allowExportPrivacy, $this->getObjId(), $this->lmTitle);
-            break;
+                break;
             case "exportSelectedSuccess":
                 $tr_data = $ilSCORM2004TrackingItems->exportSelectedSuccess((array) $this->userSelected, $this->allowExportPrivacy, $this->getObjId(), $this->lmTitle);
-            break;
+                break;
         }
         // $this->setMaxCount($tr_data["cnt"]);
         if (ilUtil::stripSlashes($this->getOrderField()) != "") {
@@ -199,10 +199,13 @@ class ilSCORM2004TrackingItemsTableGUI extends ilTable2GUI
     }
 
     /**
-     * @param string|float|int|null $value
+     * @param string                $id
+     * @param float|int|string|null $value
+     * @param string                $type
      * @return string|float|int|null
+     * @throws ilLPException
      */
-    protected function parseValue(string $id, $value, string $type)
+    protected function parseValue(string $id, float|int|string|null $value, string $type): float|int|string|null
     {
         if ($id === "status") {
             $icons = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_SCORM);
@@ -246,8 +249,8 @@ class ilSCORM2004TrackingItemsTableGUI extends ilTable2GUI
 
     protected function fillRowExcel(ilExcel $a_excel, int &$a_row, array $a_set): void
     {
-//        $lng = $this->lng;
-//        $lng->loadLanguageModule("trac");
+        //        $lng = $this->lng;
+        //        $lng->loadLanguageModule("trac");
         $cnt = 0;
         foreach ($this->getSelectedColumns() as $c) {
             if ($c !== 'status') {
@@ -272,8 +275,8 @@ class ilSCORM2004TrackingItemsTableGUI extends ilTable2GUI
 
     protected function fillRowCSV(ilCSVWriter $a_csv, array $a_set): void
     {
-//        $lng = $this->lng;
-//        $lng->loadLanguageModule("trac");
+        //        $lng = $this->lng;
+        //        $lng->loadLanguageModule("trac");
         foreach ($this->getSelectedColumns() as $c) {
             if ($c !== 'status') {
                 $val = $this->parseValue($c, $a_set[$c], "user");

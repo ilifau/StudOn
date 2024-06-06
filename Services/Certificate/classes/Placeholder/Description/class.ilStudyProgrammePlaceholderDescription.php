@@ -20,8 +20,8 @@ declare(strict_types=1);
 
 class ilStudyProgrammePlaceholderDescription implements ilCertificatePlaceholderDescription
 {
-    private ilDefaultPlaceholderDescription $defaultPlaceHolderDescriptionObject;
-    private ilLanguage $language;
+    private readonly ilDefaultPlaceholderDescription $defaultPlaceHolderDescriptionObject;
+    private readonly ilLanguage $language;
     private array $placeholder;
 
     public function __construct(
@@ -57,8 +57,6 @@ class ilStudyProgrammePlaceholderDescription implements ilCertificatePlaceholder
     /**
      * This methods MUST return an array containing an array with
      * the the description as array value.
-     * @param ilTemplate|null $template
-     * @return string - [PLACEHOLDER] => 'description'
      */
     public function createPlaceholderHtmlDescription(?ilTemplate $template = null): string
     {

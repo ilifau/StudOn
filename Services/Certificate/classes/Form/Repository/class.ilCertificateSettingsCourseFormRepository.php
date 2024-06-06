@@ -27,86 +27,43 @@ use ILIAS\Filesystem\Exception\IOException;
  */
 class ilCertificateSettingsCourseFormRepository implements ilCertificateFormRepository
 {
-    private ilLanguage $language;
-    private ilCertificateSettingsFormRepository $settingsFormFactory;
-    private ilObjCourse $object;
-    private ilObjectLP $learningProgressObject;
-    private ilCertificateObjUserTrackingHelper $trackingHelper;
-    private ilCertificateObjectHelper $objectHelper;
-    private ilCertificateObjectLPHelper $lpHelper;
-    private ilTree $tree;
-    private ilSetting $setting;
+    private readonly ilCertificateSettingsFormRepository $settingsFormFactory;
+    private readonly ilTree $tree;
 
     public function __construct(
-        ilObject $object,
+        private readonly ilObject $object,
         string $certificatePath,
         bool $hasAdditionalElements,
-        ilLanguage $language,
+        private readonly ilLanguage $language,
         ilCtrlInterface $ctrl,
         ilAccess $access,
         ilToolbarGUI $toolbar,
         ilCertificatePlaceholderDescription $placeholderDescriptionObject,
-        ?ilObjectLP $learningProgressObject = null,
         ?ilCertificateSettingsFormRepository $settingsFormFactory = null,
-        ?ilCertificateObjUserTrackingHelper $trackingHelper = null,
-        ?ilCertificateObjectHelper $objectHelper = null,
-        ?ilCertificateObjectLPHelper $lpHelper = null,
+        private readonly ilCertificateObjUserTrackingHelper $trackingHelper = new ilCertificateObjUserTrackingHelper(),
+        private readonly ilCertificateObjectHelper $objectHelper = new ilCertificateObjectHelper(),
+        private readonly ilCertificateObjectLPHelper $lpHelper = new ilCertificateObjectLPHelper(),
         ?ilTree $tree = null,
-        ?ilSetting $setting = null
+        private readonly ilSetting $setting = new ilSetting('crs')
     ) {
-        $this->object = $object;
+        global $DIC;
 
-        $this->language = $language;
-
-        if (null === $settingsFormFactory) {
-            $settingsFormFactory = new ilCertificateSettingsFormRepository(
-                $object->getId(),
-                $certificatePath,
-                $hasAdditionalElements,
-                $language,
-                $ctrl,
-                $access,
-                $toolbar,
-                $placeholderDescriptionObject
-            );
-        }
-        $this->settingsFormFactory = $settingsFormFactory;
-
-        if (null === $learningProgressObject) {
-            $learningProgressObject = ilObjectLP::getInstance($this->object->getId());
-        }
-        $this->learningProgressObject = $learningProgressObject;
-
-        if (null === $trackingHelper) {
-            $trackingHelper = new ilCertificateObjUserTrackingHelper();
-        }
-        $this->trackingHelper = $trackingHelper;
-
-        if (null === $objectHelper) {
-            $objectHelper = new ilCertificateObjectHelper();
-        }
-        $this->objectHelper = $objectHelper;
-
-        if (null === $lpHelper) {
-            $lpHelper = new ilCertificateObjectLPHelper();
-        }
-        $this->lpHelper = $lpHelper;
-
-        if (null === $tree) {
-            global $DIC;
-            $tree = $DIC['tree'];
-        }
-        $this->tree = $tree;
-
-        if (null === $setting) {
-            $setting = new ilSetting('crs');
-        }
-        $this->setting = $setting;
+        $this->settingsFormFactory = $settingsFormFactory ?? new ilCertificateSettingsFormRepository(
+            $object->getId(),
+            $certificatePath,
+            $hasAdditionalElements,
+            $language,
+            $ctrl,
+            $access,
+            $toolbar,
+            $placeholderDescriptionObject,
+            $DIC->ui()->factory(),
+            $DIC->ui()->renderer()
+        );
+        $this->tree = $tree ?? $DIC->repositoryTree();
     }
 
     /**
-     * @param ilCertificateGUI $certificateGUI
-     * @return ilPropertyFormGUI
      * @throws FileAlreadyExistsException
      * @throws FileNotFoundException
      * @throws IOException
@@ -135,7 +92,7 @@ class ilCertificateSettingsCourseFormRepository implements ilCertificateFormRepo
 
             $objectHelper = $this->objectHelper;
             $lpHelper = $this->lpHelper;
-            $subitems->setTitleModifier(function ($id) use ($objectHelper, $lpHelper) {
+            $subitems->setTitleModifier(function ($id) use ($objectHelper, $lpHelper): string {
                 if (null === $id) {
                     return '';
                 }
@@ -160,7 +117,6 @@ class ilCertificateSettingsCourseFormRepository implements ilCertificateFormRepo
     }
 
     /**
-     * @param array $formFields
      * @throws ilException
      */
     public function save(array $formFields): void
@@ -179,7 +135,7 @@ class ilCertificateSettingsCourseFormRepository implements ilCertificateFormRepo
             }
         }
 
-        if (count($titlesOfObjectsWithInvalidModes) > 0) {
+        if ($titlesOfObjectsWithInvalidModes !== []) {
             $message = sprintf(
                 $this->language->txt('certificate_learning_progress_must_be_active'),
                 implode(', ', $titlesOfObjectsWithInvalidModes)
@@ -193,6 +149,9 @@ class ilCertificateSettingsCourseFormRepository implements ilCertificateFormRepo
         );
     }
 
+    /**
+     * @return array{pageformat: string, pagewidth: mixed, pageheight: mixed, margin_body_top: mixed, margin_body_right: mixed, margin_body_bottom: mixed, margin_body_left: mixed, certificate_text: string, subitems: mixed}
+     */
     public function fetchFormFieldData(string $content): array
     {
         $formFields = $this->settingsFormFactory->fetchFormFieldData($content);
@@ -208,7 +167,6 @@ class ilCertificateSettingsCourseFormRepository implements ilCertificateFormRepo
     }
 
     /**
-     * @param int $a_parent_ref_id
      * @return string[]
      */
     private function getLPTypes(int $a_parent_ref_id): array

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Survey;
 
 use ILIAS\Survey\Mode\FeatureConfig;
@@ -27,14 +27,11 @@ use ILIAS\Repository\GlobalDICDomainServices;
 use ILIAS\Survey\Editing\EditManager;
 use ILIAS\Survey\Sequence\SequenceManager;
 
-/**
- * Survey internal domain service
- * @author Alexander Killing <killing@leifos.de>
- */
 class InternalDomainService
 {
     use GlobalDICDomainServices;
 
+    protected \ilAccessHandler $access;
     protected ModeFactory $mode_factory;
     protected InternalRepoService $repo_service;
     protected InternalDataService $data_service;
@@ -47,9 +44,7 @@ class InternalDomainService
         global $DIC;
 
         $this->initDomainServices($DIC);
-        $this->repo_tree = $DIC->repositoryTree();
         $this->access = $DIC->access();
-        $this->lng = $DIC->language();
 
         $this->repo_service = $repo_service;
         $this->data_service = $data_service;
@@ -138,5 +133,4 @@ class InternalDomainService
             $survey
         );
     }
-
 }

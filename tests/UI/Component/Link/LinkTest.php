@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,10 +21,17 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
 use ILIAS\UI\Implementation\Component as I;
+use ILIAS\Data\LanguageTag;
+use ILIAS\UI\Component\Link\Relationship;
 
 /**
  * Test on link implementation.
@@ -33,7 +43,11 @@ class LinkTest extends ILIAS_UI_TestBase
         return new I\Link\Factory();
     }
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
 
@@ -44,7 +58,11 @@ class LinkTest extends ILIAS_UI_TestBase
         );
     }
 
+<<<<<<< HEAD
     public function test_get_label(): void
+=======
+    public function testGetLabel(): void
+>>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
         $c = $f->standard("label", "http://www.ilias.de");
@@ -52,7 +70,11 @@ class LinkTest extends ILIAS_UI_TestBase
         $this->assertEquals("label", $c->getLabel());
     }
 
+<<<<<<< HEAD
     public function test_get_action(): void
+=======
+    public function testGetAction(): void
+>>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
         $c = $f->standard("label", "http://www.ilias.de");
@@ -60,7 +82,11 @@ class LinkTest extends ILIAS_UI_TestBase
         $this->assertEquals("http://www.ilias.de", $c->getAction());
     }
 
+<<<<<<< HEAD
     public function test_render_link(): void
+=======
+    public function testRenderLink(): void
+>>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
         $r = $this->getDefaultRenderer();
@@ -75,7 +101,11 @@ class LinkTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected_html, $html);
     }
 
+<<<<<<< HEAD
     public function test_render_with_new_viewport(): void
+=======
+    public function testRenderWithNewViewport(): void
+>>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
         $r = $this->getDefaultRenderer();
@@ -87,6 +117,77 @@ class LinkTest extends ILIAS_UI_TestBase
         $expected_html =
             '<a href="http://www.ilias.de" target="_blank" rel="noopener">label</a>';
 
+        $this->assertHTMLEquals($expected_html, $html);
+    }
+
+    public function testRenderWithLanguage(): void
+    {
+        $language = $this->getMockBuilder(LanguageTag::class)->getMock();
+        $language->method('__toString')->willReturn('en');
+        $reference = $this->getMockBuilder(LanguageTag::class)->getMock();
+        $reference->method('__toString')->willReturn('fr');
+
+        $f = $this->getLinkFactory();
+        $r = $this->getDefaultRenderer();
+
+        $c = $f->standard("label", "http://www.ilias.de")
+            ->withContentLanguage($language)
+            ->withLanguageOfReferencedContent($reference);
+
+        $html = $r->render($c);
+
+        $expected_html =
+            '<a lang="en" hreflang="fr" href="http://www.ilias.de">label</a>';
+
+        $this->assertHTMLEquals($expected_html, $html);
+    }
+
+    public function testRenderWithHelpTopic(): void
+    {
+        $f = $this->getLinkFactory();
+        $r = $this->getDefaultRenderer();
+        $c = $f->standard("label", "http://www.ilias.de")
+            ->withHelpTopics(new \ILIAS\UI\Help\Topic("a"));
+
+        $html = $r->render($c);
+
+        $expected_html = ''
+            . '<div class="c-tooltip__container">'
+            . '<a href="http://www.ilias.de" id="id_2" aria-describedby="id_1">label</a>'
+            . '<div id="id_1" role="tooltip" class="c-tooltip c-tooltip--hidden"><p>tooltip: a</p></div>'
+            . '</div>';
+
+        $this->assertHTMLEquals($expected_html, $html);
+    }
+
+    public function testRenderWithRelationships(): void
+    {
+        $f = $this->getLinkFactory();
+        $r = $this->getDefaultRenderer();
+        $c = $f->standard("label", "http://www.ilias.de")
+               ->withAdditionalRelationshipToReferencedResource(Relationship::LICENSE)
+               ->withAdditionalRelationshipToReferencedResource(Relationship::NOOPENER);
+
+        $expected_html =
+            '<a href="http://www.ilias.de" rel="license noopener">label</a>';
+
+        $html = $r->render($c);
+        $this->assertHTMLEquals($expected_html, $html);
+    }
+
+    public function testRenderWithDuplicateRelationship(): void
+    {
+        $f = $this->getLinkFactory();
+        $r = $this->getDefaultRenderer();
+        $c = $f->standard("label", "http://www.ilias.de")
+               ->withAdditionalRelationshipToReferencedResource(Relationship::LICENSE)
+               ->withAdditionalRelationshipToReferencedResource(Relationship::NOOPENER)
+               ->withAdditionalRelationshipToReferencedResource(Relationship::LICENSE);
+
+        $expected_html =
+            '<a href="http://www.ilias.de" rel="license noopener">label</a>';
+
+        $html = $r->render($c);
         $this->assertHTMLEquals($expected_html, $html);
     }
 }

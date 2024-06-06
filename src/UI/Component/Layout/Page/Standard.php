@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Component\Layout\Page;
 
 use ILIAS\UI\Component\Breadcrumbs\Breadcrumbs;
@@ -29,6 +37,7 @@ use ILIAS\UI\Component\MainControls\MetaBar;
 use ILIAS\UI\Component\MainControls\ModeInfo;
 use ILIAS\UI\Component\MainControls\Footer;
 use ILIAS\UI\Component\Toast\Container;
+use ILIAS\Data\Meta\Html;
 
 /**
  * This describes the Page.
@@ -97,8 +106,16 @@ interface Standard extends Page, JavaScriptBindable
 
     public function hasModeInfo(): bool;
 
+<<<<<<< HEAD
     public function withAdditionalMetaDatum(string $key, string $value): Standard;
 
+=======
+    public function withAdditionalMetaDatum(Html\Tag $tag): Standard;
+
+    /**
+     * @return Html\Tag[]
+     */
+>>>>>>> v9.1
     public function getMetaData(): array;
 
     /**

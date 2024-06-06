@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+<<<<<<< HEAD
 /*
  +-----------------------------------------------------------------------------+
  | ILIAS open source                                                           |
@@ -22,6 +23,24 @@ declare(strict_types=1);
  | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
  +-----------------------------------------------------------------------------+
 */
+=======
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+>>>>>>> v9.1
 
 /**
  * Soap utitliy functions
@@ -42,6 +61,7 @@ class ilSoapUtils extends ilSoapAdministration
     }
 
     /**
+<<<<<<< HEAD
      * @deprecated
      * @return bool|soap_fault|SoapFault|null
      */
@@ -119,6 +139,8 @@ class ilSoapUtils extends ilSoapAdministration
     }
 
     /**
+=======
+>>>>>>> v9.1
      * @return ilObjMediaObject|soap_fault|SoapFault|null
      */
     public function saveTempFileAsMediaObject(string $sid, string $name, string $tmp_name)
@@ -281,7 +303,6 @@ class ilSoapUtils extends ilSoapAdministration
                 ilLoggerFactory::getLogger('obj')->warning('No valid action type given for: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
                 $this->callNextNode($sid, $cp_options);
                 break;
-
         }
         return $new_ref_id;
     }

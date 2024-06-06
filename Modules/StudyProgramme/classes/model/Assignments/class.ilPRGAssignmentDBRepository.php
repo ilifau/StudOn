@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Assignments are relations of users to a PRG;
@@ -56,25 +56,24 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
 
     public const DATE_FORMAT_ENDOFDAY = 'Y-m-d 23:59:59';
 
-    protected ilDBInterface $db;
-    protected ilTree $tree;
-    protected ilStudyProgrammeSettingsRepository $settings_repo;
+    protected array $user_data_fields;
+
     /**
      * <id => ilPRGProgress>
      */
     protected array $progresses = [];
-    protected StudyProgrammeEvents $events;
 
     public function __construct(
-        ilDBInterface $db,
-        ilTree $tree,
-        ilStudyProgrammeSettingsRepository $settings_repo,
-        PRGEventsDelayed $events
+        protected ilDBInterface $db,
+        protected ilTree $tree,
+        protected ilStudyProgrammeSettingsRepository $settings_repo,
+        protected PRGEventsDelayed $events,
+        ilExportFieldsInfo $user_field_info
     ) {
-        $this->db = $db;
-        $this->tree = $tree;
-        $this->settings_repo = $settings_repo;
-        $this->events = $events;
+        $this->user_data_fields = array_merge(
+            array_keys($user_field_info->getSelectableFieldsInfo()),
+            ilPRGUserInformation::MANDATORY_FIELDS
+        );
     }
 
     public function getDashboardInstancesforUser(int $usr_id): array
@@ -106,12 +105,18 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         $this->insertAssignmentRowDB($row);
         $this->progresses = [];
 
-        //add user_colums : ilPRGUserInformation::COLNAMES
-        $query = 'SELECT ' . implode(' ,', ilPRGUserInformation::COLNAMES) . PHP_EOL
+        $user_fields = array_filter(
+            $this->user_data_fields,
+            fn($f) => !str_starts_with($f, 'udf_') && $f !== 'org_units'
+        );
+
+        $query = 'SELECT '
+            . implode(',', $user_fields)
+            . PHP_EOL
             . 'FROM usr_data WHERE usr_id = ' . $this->db->quote($usr_id, 'integer');
+
         $res = $this->db->query($query);
         $row = array_merge($row, $this->db->fetchAssoc($res));
-
 
         $ass = $this->assignmentByRow($row);
         return $ass;
@@ -171,7 +176,6 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         $this->db->manipulate($query);
     }
 
-
     public function get(int $id): ilPRGAssignment
     {
         $ass = $this->read([
@@ -186,6 +190,17 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         $assignments = array_filter(iterator_to_array(
             $this->read([
                 'ass.' . self::ASSIGNMENT_FIELD_USR_ID . ' = ' . $this->db->quote($usr_id, 'integer')
+            ])
+        ));
+        return $assignments;
+    }
+
+    public function getForUserOnNode(int $usr_id, int $root_prg_obj_id): array
+    {
+        $assignments = array_filter(iterator_to_array(
+            $this->read([
+                'ass.' . self::ASSIGNMENT_FIELD_USR_ID . ' = ' . $this->db->quote($usr_id, 'integer'),
+                self::ASSIGNMENT_FIELD_ROOT_PRG_ID . ' = ' . $this->db->quote($root_prg_obj_id, 'integer')
             ])
         ));
         return $assignments;
@@ -330,7 +345,6 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         return $assignments;
     }
 
-
     public function getRiskyToFail(
         array $programmes_and_due,
         bool $discard_formerly_notified = true
@@ -376,10 +390,13 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         return $assignments;
     }
 
-
-
     protected function query($filter): ilDBStatement
     {
+        $user_fields_without_udf = array_filter(
+            $this->user_data_fields,
+            static fn($field) => !str_starts_with($field, 'udf_') && $field !== 'org_units'
+        );
+
         $q = 'SELECT'
             . '  ass.' . self::ASSIGNMENT_FIELD_ID . ' AS ' . self::ASSIGNMENT_FIELD_ID
             . ', ass.' . self::ASSIGNMENT_FIELD_USR_ID . ' AS ' . self::ASSIGNMENT_FIELD_USR_ID
@@ -405,7 +422,7 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
             . ',' . self::PROGRESS_FIELD_MAIL_SENT_WILLEXPIRE
             . ',' . self::PROGRESS_FIELD_IS_INDIVIDUAL
 
-            . ', ' . implode(', ', ilPRGUserInformation::COLNAMES)
+            . ', ' . implode(', ', $user_fields_without_udf)
 
             . ' FROM ' . self::ASSIGNMENT_TABLE . ' ass '
             . ' JOIN ' . self::PROGRESS_TABLE . ' pgs '
@@ -454,7 +471,6 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         yield $ass;
     }
 
-
     protected function prebuildProgressesForAssingment(int $assignment_id): array
     {
         $q = 'SELECT * FROM ' . self::PROGRESS_TABLE
@@ -501,15 +517,14 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         return $ass;
     }
 
-
     protected function buildProgressTreeFor(int $node_obj_id): ilPRGProgress
     {
         $children = array_filter(
             $this->tree->getChilds($this->getRefIdFor($node_obj_id)),
-            fn ($c) => in_array($c['type'], ['prg', 'prgr']),
+            fn($c) => in_array($c['type'], ['prg', 'prgr']),
         );
         $children = array_map(
-            fn ($c) => $c['type'] === 'prg' ? (int) $c['obj_id'] : ilContainerReference::_lookupTargetId((int) $c['obj_id']),
+            fn($c) => $c['type'] === 'prg' ? (int) $c['obj_id'] : ilContainerReference::_lookupTargetId((int) $c['obj_id']),
             $children
         );
 
@@ -526,7 +541,6 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         $pgs->setSubnodes($pgss);
         return $pgs;
     }
-
 
     protected function getRefIdFor(int $obj_id): int
     {
@@ -584,7 +598,6 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         return $pgs;
     }
 
-
     /**
      * @deprecated; fix ilObjUser::lookupOrgUnitsRepresentation
      */
@@ -593,12 +606,12 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         $orgu_repo = OrgUnit\Positions\UserAssignment\ilOrgUnitUserAssignmentRepository::getInstance();
         $orgus = array_values($orgu_repo->findAllUserAssingmentsByUserIds([$usr_id]));
         if ($orgus) {
-            $orgu_ref_ids =  array_map(
-                fn ($orgu_assignment) => $orgu_assignment->getOrguId(),
+            $orgu_ref_ids = array_map(
+                fn($orgu_assignment) => $orgu_assignment->getOrguId(),
                 $orgus[0]
             );
             $orgus = array_map(
-                fn ($orgu_ref_id) => ilObject::_lookupTitle(ilObject::_lookupObjId($orgu_ref_id)),
+                fn($orgu_ref_id) => ilObject::_lookupTitle(ilObject::_lookupObjId($orgu_ref_id)),
                 $orgu_ref_ids
             );
         }
@@ -608,20 +621,26 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
     protected function buildUserInformation(array $row): ilPRGUserInformation
     {
         $udf_data = new ilUserDefinedData((int) $row[self::ASSIGNMENT_FIELD_USR_ID]);
-        $orgu_repr = ilObjUser::lookupOrgUnitsRepresentation((int) $row[self::ASSIGNMENT_FIELD_USR_ID]);
-
-        $orgu_repr = $this->interimOrguLookup((int) $row[self::ASSIGNMENT_FIELD_USR_ID]);
-
+        $user_data_values = [];
+        foreach ($this->user_data_fields as $field) {
+            switch($field) {
+                case 'active':
+                    $user_data_values[$field] = (bool)$row[$field];
+                    break;
+                case 'org_units':
+                    //$user_data_values[$field] = ilObjUser::lookupOrgUnitsRepresentation((int) $row[self::ASSIGNMENT_FIELD_USR_ID]);
+                    $user_data_values[$field] = $this->interimOrguLookup((int) $row[self::ASSIGNMENT_FIELD_USR_ID]);
+                    break;
+                case str_starts_with($field, 'udf_'):
+                    $udf_field_id = str_replace('udf_', 'f_', $field);
+                    $user_data_values[$field] = $udf_data->get($udf_field_id);
+                    break;
+                default:
+                    $user_data_values[$field] = $row[$field];
+            }
+        }
         return new ilPRGUserInformation(
-            $udf_data,
-            $orgu_repr,
-            (string) $row['firstname'],
-            (string) $row['lastname'],
-            (string) $row['login'],
-            (bool) $row['active'],
-            (string) $row['email'],
-            (string) $row['gender'],
-            (string) $row['title']
+            $user_data_values
         );
     }
 
@@ -722,10 +741,9 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
             . self::PROGRESS_FIELD_VQ_DATE . '=' . $validity . ','
             . self::PROGRESS_FIELD_INVALIDATED . '=' . $invalidated . ','
             . self::PROGRESS_FIELD_IS_INDIVIDUAL . '=' . $individual
-            ;
+        ;
         $this->db->manipulate($q);
     }
-
 
     public function storeExpiryInfoSentFor(ilPRGAssignment $ass): void
     {
@@ -783,5 +801,53 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
             self::PROGRESS_FIELD_MAIL_SENT_RISKYTOFAIL => ['null', null]
         ];
         $this->db->update(self::PROGRESS_TABLE, $values, $where);
+    }
+
+    public function getLatestAssignment(int $root_prg_obj_id, int $usr_id): ?ilPRGAssignment
+    {
+        $assignments = $this->getForUserOnNode($usr_id, $root_prg_obj_id);
+        if($assignments === []) {
+            return null;
+        }
+        usort(
+            $assignments,
+            fn(ilPRGAssignment $a, ilPRGAssignment $b)
+            => $a->getProgressTree()->getAssignmentDate() <=> $b->getProgressTree()->getAssignmentDate()
+        );
+        $assignments = array_reverse($assignments);
+        return current($assignments);
+    }
+
+    public function getLongestValidAssignment(int $root_prg_obj_id, int $usr_id): ?ilPRGAssignment
+    {
+        $assignments = $this->getForUserOnNode($usr_id, $root_prg_obj_id);
+        if($assignments === []) {
+            return null;
+        }
+
+        $now = new \DateTimeImmutable();
+        $valid = array_filter($assignments, fn($ass) => $ass->getProgressTree()->hasValidQualification($now));
+        if($valid === []) {
+            return null;
+        }
+
+        $unlimited = array_filter($valid, fn($ass) => $ass->getProgressTree()->getValidityOfQualification() === null);
+        if($unlimited !== []) {
+            usort(
+                $unlimited,
+                fn(ilPRGAssignment $a, ilPRGAssignment $b)
+                => $a->getProgressTree()->getAssignmentDate() <=> $b->getProgressTree()->getAssignmentDate()
+            );
+            $unlimited = array_reverse($unlimited);
+            return current($unlimited);
+        }
+
+        usort(
+            $valid,
+            fn(ilPRGAssignment $a, ilPRGAssignment $b)
+            => $a->getProgressTree()->getValidityOfQualification() <=> $b->getProgressTree()->getValidityOfQualification()
+        );
+        $valid = array_reverse($valid);
+        return current($valid);
     }
 }

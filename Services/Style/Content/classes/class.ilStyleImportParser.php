@@ -142,7 +142,6 @@ class ilStyleImportParser extends ilSaxParser
                 $this->cur_template_classes[$a_attribs["ClassType"]] =
                     $a_attribs["Class"];
                 break;
-
         }
         $this->cdata = "";
     }
@@ -172,7 +171,6 @@ class ilStyleImportParser extends ilSaxParser
                     $this->cur_template_classes
                 );
                 break;
-
         }
     }
 

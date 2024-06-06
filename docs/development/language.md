@@ -1,13 +1,21 @@
 ILIAS Language Handling
 =======================
-ILIAS offers multi-language support for the user interface of ILIAS.
+ILIAS offers multi-language support for the user interface of ILIAS. Language handling in ILIAS is realised by the [Language](../../Services/Language/README.md) service.
 
 # Guidelines
 1. All language entries are text strings and are stored in language files in the subdirectory `/lang`. Each language entry has the format:
 
         language_module_ID#:#variable_ID#:#text_content###comment
 
-The elements `language_module_ID`, `variable_ID`, and `text_content` are REQUIRED, while `comment` is OPTIONAL and can be used for additional information about an entry, e.g., "07 02 2020 new variable."
+    The elements `language_module_ID`, `variable_ID` and `text_content`  are REQUIRED, 
+    while `comment` is OPTIONAL and can be used for additional information about an 
+    entry, e.g. „`07 02 2020 new variable`“.
+    
+2. The `variable_ID` of a language entry MUST be unique within the whole language file. This avoids conflicts in the
+presentation of language entries because the `language_module_ID` is not taken into consideration when ILIAS inserts
+language entries into the output. The uniqueness of the spelling must be guaranteed regardless of upper and lower case.
+Having a language entry `common#:#login#:#…` and  `common#:#Login#:#…` would violate the rule.
+
 
 2. The `variable_ID` of a language entry MUST be unique within the whole language file. This avoids conflicts in the presentation of language entries because the `language_module_ID` is not taken into consideration when ILIAS inserts language entries into the output. The uniqueness of the spelling must be guaranteed regardless of upper and lower case. Having a language entry `common#:#login#:#...` and `common#:#Login#:#...` would violate the rule.
 
@@ -19,7 +27,28 @@ The elements `language_module_ID`, `variable_ID`, and `text_content` are REQUIRE
 
 5. To keep the language files maintainable and facilitate translation and creation of new language versions, the number of language entries should be as low as possible. Therefore, language entries that are no longer used in ILIAS due to refactorings or changes in the code MUST be removed from the English language file. Whenever possible, existing language entries SHOULD be reused and probably moved to the `common` module to avoid multiple entries with the same meaning.
 
+# Additional Information
+## Loading Language Entries
+Adding new entries into language files will not make them available in the user interface automatically. You need to 
+refresh the languages by executing the `Refresh Languages` action in the global ILIAS language administration
+(`Administration » Languages`).
+
+## Supported HTML Tags in Language Files
+Only a defined set of HTML tags are allowed to be used within the `text_content` of a language entry:
+
+* All tags allowed by `getSecureTags` from `ilUtil`: `a`, `b`, `bdo`, `code`, `div`, `em`, `gap`, `i`, `img`, `li`, `ol`, `p`, `pre`, `strike`, `strong`, `sub`, `sup`, `u` and `ul`
+* In addition: `span` and `br`
+
+All other HTML tags are unsupported and will be removed by `ilUtil::stripSlashes`.
+
+## Using the Global Language Object
+The global language object can be retrieved from the dependency injection container by using/calling `$DIC['lng']` or
+`$DIC->language()`. This is an instance of class `ilLanguage` and provides methods to access these strings in the 
+language of the user within the current authentication process. This is done by using the functions
+ `loadLanguageModule()` and `txt()`.
+=======
 6. The English language file is the master language file. New variables MUST be added at least to this file, since we synchronize the variables when preparing a new ILIAS release. If a variable exists in a file of another language but not in the English one, the entry will be removed from the file during synchronization.
+>>>>>>> c1c69e23630 (Update language.md fixed typos)
 
 ## Additional Information
 Adding new entries to language files will not make them available in the user interface automatically. You need to refresh the languages by executing the "Refresh Languages" action in the global ILIAS language administration (`Administration » Languages`).
@@ -42,11 +71,7 @@ first maintainer has to be notified about newly introduced languages and changes
 to the related language.
 
 # Maintaining Languages
-The different languages supported by ILIAS are maintained by volunteers. The ILIAS society is offering language 
-maintenance installations for every version. These are clients of the regular testing installations.
-
-* http://lang54.ilias.de is the language maintenance installation for 5.4
-* http://lang6.ilias.de is the language maintenance installation for 6, a.s.o.
+The different languages supported by ILIAS are maintained by volunteers. If you want to help us to improve an existing language or introduce and maintain a new one, please contact the ILIAS product manager: info@ilias.de.
 
 You find more information about language maintenance in the document 
 [Language Instructions](https://docu.ilias.de/goto_docu_lm_37.html).

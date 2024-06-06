@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,17 +21,23 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Component\Legacy;
 
 use ILIAS\UI\Component\JavaScriptBindable;
 use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Component\Layout\Alignment\Block;
 
 /**
  * Interface Legacy
  * @package ILIAS\UI\Component\Legacy
  */
-interface Legacy extends Component, JavaScriptBindable
+interface Legacy extends Component, JavaScriptBindable, Block
 {
     /**
      * Get content as string stored in this component.

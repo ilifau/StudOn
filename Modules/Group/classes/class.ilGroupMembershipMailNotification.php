@@ -208,7 +208,7 @@ class ilGroupMembershipMailNotification extends ilMailNotification
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('grp_mail_permanent_link'));
                     $this->appendBody("\n\n");
-                    $this->appendBody($this->createPermanentLink(array(), '_mem'));
+                    $this->appendBody($this->createPermanentLink(array(), 'mem'));
 
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('grp_notification_explanation_admin'));
@@ -258,7 +258,7 @@ class ilGroupMembershipMailNotification extends ilMailNotification
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('grp_mail_notification_unsub_bod2'));
                     $this->appendBody("\n\n");
-                    $this->appendBody($this->createPermanentLink(array(), '_mem'));
+                    $this->appendBody($this->createPermanentLink(array(), 'mem'));
 
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('grp_notification_explanation_admin'));
@@ -316,7 +316,7 @@ class ilGroupMembershipMailNotification extends ilMailNotification
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('grp_mail_notification_reg_req_bod2'));
                     $this->appendBody("\n");
-                    $this->appendBody($this->createPermanentLink(array(), '_mem'));
+                    $this->appendBody($this->createPermanentLink(array(), 'mem'));
 
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('grp_notification_explanation_admin'));

@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 
@@ -81,7 +89,11 @@ class DurationInputTest extends ILIAS_UI_TestBase
         };
     }
 
+<<<<<<< HEAD
     public function test_withFormat(): void
+=======
+    public function testWithFormat(): void
+>>>>>>> v9.1
     {
         $format = $this->data_factory->dateFormat()->germanShort();
         $duration = $this->factory->duration('label', 'byline')
@@ -93,7 +105,11 @@ class DurationInputTest extends ILIAS_UI_TestBase
         );
     }
 
+<<<<<<< HEAD
     public function test_withMinValue(): void
+=======
+    public function testWithMinValue(): void
+>>>>>>> v9.1
     {
         $dat = new DateTimeImmutable('2019-01-09');
         $duration = $this->factory->duration('label', 'byline')
@@ -105,7 +121,11 @@ class DurationInputTest extends ILIAS_UI_TestBase
         );
     }
 
+<<<<<<< HEAD
     public function test_withMaxValue(): void
+=======
+    public function testWithMaxValue(): void
+>>>>>>> v9.1
     {
         $dat = new DateTimeImmutable('2019-01-09');
         $duration = $this->factory->duration('label', 'byline')
@@ -117,21 +137,33 @@ class DurationInputTest extends ILIAS_UI_TestBase
         );
     }
 
+<<<<<<< HEAD
     public function test_withUseTime(): void
+=======
+    public function testWithUseTime(): void
+>>>>>>> v9.1
     {
         $datetime = $this->factory->duration('label', 'byline');
         $this->assertFalse($datetime->getUseTime());
         $this->assertTrue($datetime->withUseTime(true)->getUseTime());
     }
 
+<<<<<<< HEAD
     public function test_withTimeOnly(): void
+=======
+    public function testWithTimeOnly(): void
+>>>>>>> v9.1
     {
         $datetime = $this->factory->duration('label', 'byline');
         $this->assertFalse($datetime->getTimeOnly());
         $this->assertTrue($datetime->withTimeOnly(true)->getTimeOnly());
     }
 
+<<<<<<< HEAD
     public function test_withTimeZone(): void
+=======
+    public function testWithTimeZone(): void
+>>>>>>> v9.1
     {
         $datetime = $this->factory->duration('label', 'byline');
         $this->assertNull($datetime->getTimeZone());
@@ -142,7 +174,11 @@ class DurationInputTest extends ILIAS_UI_TestBase
         );
     }
 
+<<<<<<< HEAD
     public function test_withInvalidTimeZone(): void
+=======
+    public function testWithInvalidTimeZone(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $datetime = $this->factory->duration('label', 'byline');
@@ -156,7 +192,11 @@ class DurationInputTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(C\Input\Field\Duration::class, $datetime);
     }
 
+<<<<<<< HEAD
     public function test_render(): \ILIAS\UI\Component\Input\Field\Duration
+=======
+    public function testRender(): \ILIAS\UI\Component\Input\Field\Duration
+>>>>>>> v9.1
     {
         $datetime = $this->factory->duration('label', 'byline');
         $r = $this->getDefaultRenderer();
@@ -169,17 +209,25 @@ class DurationInputTest extends ILIAS_UI_TestBase
         <div class="form-group row">
            <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
            <div class="col-sm-8 col-md-9 col-lg-10">
-              <div class="il-input-duration" id="id_1">
+              <div class="il-input-duration" id="id_3">
                  <div class="form-group row">
-                    <label for="id_2" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label_start . '</label>
+                    <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label_start . '</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
+<<<<<<< HEAD
                        <div class="input-group date il-input-datetime" id="id_2"><input type="text" name="" placeholder="YYYY-MM-DD" class="form-control form-control-sm" /><span class="input-group-addon"><a tabindex="0" class="glyph" href="#" aria-label="calendar"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></a></span></div>
+=======
+                       <div class="input-group date il-input-datetime"><input id="id_1" type="date" class="form-control form-control-sm" /></div>
+>>>>>>> v9.1
                     </div>
                  </div>
                  <div class="form-group row">
-                    <label for="id_3" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label_end . '</label>
+                    <label for="id_2" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label_end . '</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
+<<<<<<< HEAD
                        <div class="input-group date il-input-datetime" id="id_3"><input type="text" name="" placeholder="YYYY-MM-DD" class="form-control form-control-sm" /><span class="input-group-addon"><a tabindex="0" class="glyph" href="#" aria-label="calendar"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></a></span></div>
+=======
+                       <div class="input-group date il-input-datetime"><input id="id_2" type="date" class="form-control form-control-sm" /></div>
+>>>>>>> v9.1
                     </div>
                  </div>
               </div>
@@ -193,9 +241,13 @@ class DurationInputTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @depends test_render
+     * @depends testRender
      */
+<<<<<<< HEAD
     public function testRenderwithDifferentLabels($datetime): void
+=======
+    public function testRenderWithDifferentLabels($datetime): void
+>>>>>>> v9.1
     {
         $other_start_label = 'other startlabel';
         $other_end_label = 'other endlabel';
@@ -208,17 +260,25 @@ class DurationInputTest extends ILIAS_UI_TestBase
             <div class="form-group row">
                <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
                <div class="col-sm-8 col-md-9 col-lg-10">
-                  <div class="il-input-duration" id="id_1">
+                  <div class="il-input-duration" id="id_3">
                      <div class="form-group row">
-                        <label for="id_2" class="control-label col-sm-4 col-md-3 col-lg-2">' . $other_start_label . '</label>
+                        <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">' . $other_start_label . '</label>
                         <div class="col-sm-8 col-md-9 col-lg-10">
+<<<<<<< HEAD
                            <div class="input-group date il-input-datetime" id="id_2"><input type="text" name="" placeholder="YYYY-MM-DD" class="form-control form-control-sm" /><span class="input-group-addon"><a tabindex="0" class="glyph" href="#" aria-label="calendar"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></a></span></div>
+=======
+                           <div class="input-group date il-input-datetime"><input id="id_1" type="date" class="form-control form-control-sm" /></div>
+>>>>>>> v9.1
                         </div>
                      </div>
                      <div class="form-group row">
-                        <label for="id_3" class="control-label col-sm-4 col-md-3 col-lg-2">' . $other_end_label . '</label>
+                        <label for="id_2" class="control-label col-sm-4 col-md-3 col-lg-2">' . $other_end_label . '</label>
                         <div class="col-sm-8 col-md-9 col-lg-10">
+<<<<<<< HEAD
                            <div class="input-group date il-input-datetime" id="id_3"><input type="text" name="" placeholder="YYYY-MM-DD" class="form-control form-control-sm" /><span class="input-group-addon"><a tabindex="0" class="glyph" href="#" aria-label="calendar"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></a></span></div>
+=======
+                           <div class="input-group date il-input-datetime"><input id="id_2" type="date" class="form-control form-control-sm" /></div>
+>>>>>>> v9.1
                         </div>
                      </div>
                   </div>

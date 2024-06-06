@@ -91,7 +91,8 @@ class ilLTIConsumerResultService
             // get the request as xml
             $xml = simplexml_load_file('php://input');
             $this->message_ref_id = (string) $xml->imsx_POXHeader->imsx_POXRequestHeaderInfo->imsx_messageIdentifier;
-            $request = current($xml->imsx_POXBody->children());
+            //            $request = current($xml->imsx_POXBody->children());
+            $request = $xml->imsx_POXBody->children()[0];
             $this->operation = str_replace('Request', '', $request->getName());
 
             $token = ilCmiXapiAuthToken::getInstanceByToken((string) $request->resultRecord->sourcedGUID->sourcedId);
@@ -184,7 +185,7 @@ class ilLTIConsumerResultService
             }
             $lp_percentage = (int) round(100 * $result);
 
-//            Mantis #37080
+            //            Mantis #37080
             ilLPStatus::writeStatus($this->result->obj_id, $this->result->usr_id, $lp_status, $lp_percentage, true);
 
             $code = "success";

@@ -16,7 +16,10 @@
  *
  *********************************************************************/
 
-include_once './Modules/Test/classes/inc.AssessmentConstants.php';
+use ILIAS\UI\Renderer as UIRenderer;
+use ILIAS\UI\Component\Symbol\Glyph\Factory as GlyphFactory;
+
+require_once './Modules/Test/classes/inc.AssessmentConstants.php';
 
 /**
  * @version		$Id$
@@ -28,20 +31,25 @@ include_once './Modules/Test/classes/inc.AssessmentConstants.php';
 class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustable
 {
     private $ilTabs;
+    private GlyphFactory $glyph_factory;
+    private UIRenderer $renderer;
 
     public function __construct($id = -1)
     {
         parent::__construct();
-        include_once './Modules/TestQuestionPool/classes/class.assLongMenu.php';
         $this->object = new assLongMenu();
         if ($id >= 0) {
             $this->object->loadFromDb($id);
         }
+        /** @var ILIAS\DI\Container $DIC */
         global $DIC;
         $ilTabs = $DIC['ilTabs'];
         $lng = $DIC['lng'];
         $this->ilTabs = $ilTabs;
         $this->lng = $lng;
+        $this->glyph_factory = $DIC['ui.factory']->symbol()->glyph();
+        $this->renderer = $DIC['ui.renderer'];
+
     }
 
     /**
@@ -95,17 +103,18 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
 
     public function writeQuestionSpecificPostData(ilPropertyFormGUI $form): void
     {
+        $min_auto_complete = (int) $form->getInput('min_auto_complete');
         $longmenu_text = $this->request->raw('longmenu_text') ?? '';
         $hidden_text_files = $this->request->raw('hidden_text_files') ?? '';
         $hidden_correct_answers = $this->request->raw('hidden_correct_answers') ?? [];
-        $long_menu_type = $this->request->raw('long_menu_type') ?? '';
+        $long_menu_type = $this->request->raw('long_menu_type') ?? [];
         $this->object->setLongMenuTextValue(ilUtil::stripSlashes($longmenu_text));
         $this->object->setAnswers($this->trimArrayRecursive($this->stripSlashesRecursive(json_decode($hidden_text_files))));
         $this->object->setCorrectAnswers($this->trimArrayRecursive($this->stripSlashesRecursive(json_decode($hidden_correct_answers))));
         $this->object->setAnswerType(ilArrayUtil::stripSlashesRecursive($long_menu_type));
         $this->object->setQuestion($this->request->raw('question'));
         $this->object->setLongMenuTextValue($this->request->raw('longmenu_text'));
-        $this->object->setMinAutoComplete($this->request->int('min_auto_complete'));
+        $this->object->setMinAutoComplete($min_auto_complete);
         $this->object->setIdenticalScoring($this->request->int('identical_scoring'));
 
         $this->saveTaxonomyAssignments();
@@ -126,13 +135,20 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
             return false;
         }
 
+        $correct_answers = $this->stripSlashesRecursive(json_decode($this->request->raw('hidden_correct_answers')));
+        foreach($correct_answers as $answer) {
+            if (!is_numeric(str_replace(',', '.', $answer[1]))) {
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('points_non_numeric_or_negative_msg'));
+                return false;
+            }
+        }
         return true;
     }
 
     private function stripSlashesRecursive(array $data): array
     {
         return array_map(
-            function ($v) {
+            function (string|array $v): string|array {
                 if (is_array($v)) {
                     return $this->stripSlashesRecursive($v);
                 }
@@ -145,7 +161,7 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
     private function trimArrayRecursive(array $data): array
     {
         return array_map(
-            function ($v) {
+            function (string|array $v): string|array {
                 if (is_array($v)) {
                     return $this->trimArrayRecursive($v);
                 }
@@ -196,7 +212,6 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         $long_menu_text->setCols(80);
         if (!$this->object->getSelfAssessmentEditingMode()) {
             if ($this->object->getAdditionalContentEditingMode() == assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_RTE) {
-                include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
                 $long_menu_text->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("assessment"));
                 $long_menu_text->addPlugin("latex");
                 $long_menu_text->addButton("latex");
@@ -205,7 +220,6 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
                 $long_menu_text->setUseRte(true);
             }
         } else {
-            require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
             $long_menu_text->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
             $long_menu_text->setUseTagsForRteOnly(false);
         }
@@ -226,12 +240,13 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         //$modal->setBackdrop(ilModalGUI::BACKDROP_OFF);
         $modal->setBody('');
 
-        $min_auto_complete = new ilNumberInputGUI($this->lng->txt("min_auto_complete"), 'min_auto_complete');
+        $min_auto_complete = new ilNumberInputGUI($this->lng->txt('min_auto_complete'), 'min_auto_complete');
 
         $auto_complete = $this->object->getMinAutoComplete();
-        if ($auto_complete == 0) {
+        if ($auto_complete === 0) {
             $auto_complete = assLongMenu::MIN_LENGTH_AUTOCOMPLETE;
         }
+        $min_auto_complete->setDecimals(0);
         $min_auto_complete->setValue($auto_complete);
         $min_auto_complete->setMinValue(1);
         $min_auto_complete->setMaxValue(99);
@@ -291,6 +306,12 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         $tpl->setVariable('MISSING_VALUE', $this->lng->txt('msg_input_is_required'));
         $tpl->setVariable('SAVE', $this->lng->txt('save'));
         $tpl->setVariable('CANCEL', $this->lng->txt('cancel'));
+        $tpl->setVariable('ADD_BUTTON', $this->renderer->render(
+            $this->glyph_factory->add()->withAction('#')
+        ));
+        $tpl->setVariable('REMOVE_BUTTON', $this->renderer->render(
+            $this->glyph_factory->remove()->withAction('#')
+        ));
         $tag_input = new ilTagInputGUI();
         $tag_input->setPostVar('taggable');
         $tag_input->setJsSelfInit(false);
@@ -372,7 +393,7 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
             );
 
             $solution_template->setVariable("ILC_FB_CSS_CLASS", $cssClass);
-            $solution_template->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
+            $solution_template->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
         }
 
         $solution_template->setVariable("SOLUTION_OUTPUT", $question_output);
@@ -460,7 +481,7 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
             ) . '</td> </tr>';
         }
         $feedback .= '</tbody></table>';
-        return $this->object->prepareTextareaOutput($feedback, true);
+        return ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true);
     }
 
 
@@ -525,7 +546,7 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         foreach ($text_array as $key => $value) {
             $answer_is_correct = false;
             $user_value = '';
-            $return_value .= $this->object->prepareTextareaOutput($value, true);
+            $return_value .= ilLegacyFormElementsUtil::prepareTextareaOutput($value, true);
             if ($key < sizeof($text_array) - 1) {
                 if (!array_key_exists($key, $correct_answers)) {
                     $this->tpl->setOnScreenMessage('failure', $this->lng->txt('longmenu_answeroptions_differ'));

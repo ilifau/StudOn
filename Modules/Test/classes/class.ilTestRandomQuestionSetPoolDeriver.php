@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * @author        Björn Heyser <bheyser@databay.de>
  * @version        $Id$
@@ -116,7 +118,7 @@ class ilTestRandomQuestionSetPoolDeriver
         $questions = array();
         $list = $questionList->getQuestions();
         foreach ($list as $questionId) {
-            $questions[] = assQuestion::_instantiateQuestion($questionId);
+            $questions[] = assQuestion::instantiateQuestion($questionId);
         }
 
         return $questions;
@@ -160,8 +162,6 @@ class ilTestRandomQuestionSetPoolDeriver
 
     protected function filterForQuestionRelatedTaxonomies($taxonomyIds, $relatedQuestionIds): array
     {
-        require_once 'Services/Taxonomy/classes/class.ilTaxNodeAssignment.php';
-
         $filteredTaxIds = array();
 
         foreach ($taxonomyIds as $taxonomyId) {
@@ -187,7 +187,6 @@ class ilTestRandomQuestionSetPoolDeriver
 
     protected function duplicateTaxonomies($poolQidByTestQidMap, ilObjQuestionPool $pool): ilQuestionPoolDuplicatedTaxonomiesKeysMap
     {
-        require_once 'Modules/TestQuestionPool/classes/class.ilQuestionPoolTaxonomiesDuplicator.php';
         $taxDuplicator = new ilQuestionPoolTaxonomiesDuplicator();
         $taxDuplicator->setSourceObjId($this->testOBJ->getId());
         $taxDuplicator->setSourceObjType($this->testOBJ->getType());

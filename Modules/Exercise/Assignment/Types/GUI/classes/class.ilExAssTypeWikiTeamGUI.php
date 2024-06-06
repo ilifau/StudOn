@@ -27,31 +27,13 @@ class ilExAssTypeWikiTeamGUI implements ilExAssignmentTypeGUIInterface
     use ilExAssignmentTypeGUIBase;
 
     public const MODE_OVERVIEW = "overview";
-
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-
-    /**
-     * @var ilTree
-     */
-    protected $tree;
-
-    /**
-     * @var ilAccessHandler
-     */
-    protected $access;
+    protected \ILIAS\Exercise\InternalGUIService $gui;
+    protected ilLanguage $lng;
+    protected ilCtrl $ctrl;
+    protected ilTree $tree;
+    protected ilAccessHandler $access;
     private \ilGlobalTemplateInterface $main_tpl;
 
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         global $DIC;
@@ -61,6 +43,9 @@ class ilExAssTypeWikiTeamGUI implements ilExAssignmentTypeGUIInterface
         $this->ctrl = $DIC->ctrl();
         $this->tree = $DIC->repositoryTree();
         $this->access = $DIC->access();
+        $this->gui = $DIC->exercise()
+            ->internal()
+            ->gui();
     }
 
     /**
@@ -91,7 +76,6 @@ class ilExAssTypeWikiTeamGUI implements ilExAssignmentTypeGUIInterface
         // template
         $rd_template = new ilRadioGroupInputGUI($lng->txt("exc_template"), "template");
         $rd_template->setRequired(true);
-        $rd_template->setValue("0");
         $radio_no_template = new ilRadioOption($lng->txt("exc_without_wiki_template"), "0", $lng->txt("exc_without_wiki_template_info"));
         $radio_with_template = new ilRadioOption($lng->txt("exc_with_wiki_template"), "1", $lng->txt("exc_with_wiki_template_info"));
 
@@ -142,6 +126,8 @@ class ilExAssTypeWikiTeamGUI implements ilExAssignmentTypeGUIInterface
         if ($ar->getTemplateRefId() > 0) {
             $values["template_ref_id"] = $ar->getTemplateRefId();
             $values["template"] = "1";
+        } else {
+            $values["template"] = "0";
         }
         $values["container_ref_id"] = $ar->getContainerRefId();
 
@@ -206,11 +192,10 @@ class ilExAssTypeWikiTeamGUI implements ilExAssignmentTypeGUIInterface
         }
         if ($a_submission->canSubmit()) {
             if (!$valid_wiki && $team_available) {
-                $button = ilLinkButton::getInstance();
-                $button->setCaption("exc_create_wiki");
-                $button->setUrl($ctrl->getLinkTarget($this, "createWiki"));
-
-                $files_str .= $button->render();
+                $files_str .= $this->gui->button(
+                    $lng->txt("exc_create_wiki"),
+                    $ctrl->getLinkTargetByClass([ilAssignmentPresentationGUI::class, ilExSubmissionGUI::class, self::class], "createWiki")
+                )->render();
             }
         }
         if ($files_str) {
@@ -218,14 +203,16 @@ class ilExAssTypeWikiTeamGUI implements ilExAssignmentTypeGUIInterface
         }
         if ($a_submission->hasSubmitted()) {
             $ctrl->setParameterByClass("ilExSubmissionFileGUI", "delivered", $selected_wiki["returned_id"]);
-            $dl_link = $ctrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionFileGUI"), "download");
+            $dl_link = $ctrl->getLinkTargetByClass([
+                ilAssignmentPresentationGUI::class,
+                ilExSubmissionGUI::class,
+                ilExSubmissionFileGUI::class], "download");
             $ctrl->setParameterByClass("ilExSubmissionFileGUI", "delivered", "");
 
-            $button = ilLinkButton::getInstance();
-            $button->setCaption("download");
-            $button->setUrl($dl_link);
-
-            $a_info->addProperty($lng->txt("exc_files_returned"), $button->render());
+            $a_info->addProperty($lng->txt("exc_files_returned"), $this->gui->button(
+                $lng->txt("download"),
+                $dl_link
+            )->render());
         }
     }
 
@@ -295,4 +282,99 @@ class ilExAssTypeWikiTeamGUI implements ilExAssignmentTypeGUIInterface
         $this->main_tpl->setOnScreenMessage('success', $lng->txt("wiki_exc_wiki_created"), true);
         $this->ctrl->returnToParent($this);
     }
+
+    public function buildSubmissionPropertiesAndActions(\ILIAS\Exercise\Assignment\PropertyAndActionBuilderUI $builder): void
+    {
+        global $DIC;
+
+        $f = $DIC->ui()->factory();
+        $lng = $this->lng;
+        $ctrl = $this->ctrl;
+
+
+        $files_str = "";
+        $valid_wiki = false;
+
+        $submission = $this->getSubmission();
+
+        $team_members = $submission->getTeam()->getMembers();
+        $team_available = (count($team_members));
+
+        $selected_wiki = $submission->getSelectedObject();
+        if ($selected_wiki) {
+            $wiki_ref_id = (int) $selected_wiki["filetitle"];
+
+            // #11746
+            if (\ilObject::_exists($wiki_ref_id, true, "wiki") && $this->tree->isInTree($wiki_ref_id)) {
+                $wiki = new \ilObjWiki($wiki_ref_id);
+                if ($wiki->getTitle()) {
+                    // #10116 / #12791
+                    $ctrl->setParameterByClass("ilobjwikigui", "ref_id", $wiki_ref_id);
+                    $wiki_link = ilLink::_getLink($wiki_ref_id);
+                    $files_str = '<a href="' . $wiki_link .
+                        '">' . $wiki->getTitle() . '</a>';
+                    $valid_wiki = true;
+                    $builder->addProperty(
+                        $builder::SEC_SUBMISSION,
+                        $lng->txt("exc_ass_team_wiki"),
+                        $wiki->getTitle()
+                    );
+                    if ($submission->canSubmit()) {
+                        $button = $f->button()->primary(
+                            $lng->txt("exc_edit_wiki"),
+                            $wiki_link
+                        );
+                        $builder->setMainAction(
+                            $builder::SEC_SUBMISSION,
+                            $button
+                        );
+                    } else {
+                        $link = $f->link()->standard(
+                            $lng->txt("exc_view_wiki"),
+                            $wiki_link
+                        );
+                        $builder->addAction(
+                            $builder::SEC_SUBMISSION,
+                            $link
+                        );
+                    }
+                }
+            }
+            // remove invalid resource if no upload yet (see download below)
+            elseif (substr($selected_wiki["filename"], -1) == "/") {
+                // #16887
+                $submission->deleteResourceObject();
+            }
+        }
+        if ($submission->canSubmit()) {
+            if (!$valid_wiki && $team_available) {
+                $button = $f->button()->primary(
+                    $lng->txt("exc_create_wiki"),
+                    $ctrl->getLinkTargetByClass([ilAssignmentPresentationGUI::class, ilExSubmissionGUI::class, self::class], "createWiki")
+                );
+                $builder->setMainAction(
+                    $builder::SEC_SUBMISSION,
+                    $button
+                );
+            }
+        }
+        if ($submission->hasSubmitted()) {
+            $ctrl->setParameterByClass("ilExSubmissionFileGUI", "delivered", $selected_wiki["returned_id"]);
+            $dl_link = $ctrl->getLinkTargetByClass([
+                ilAssignmentPresentationGUI::class,
+                ilExSubmissionGUI::class,
+                ilExSubmissionFileGUI::class], "download");
+            $ctrl->setParameterByClass("ilExSubmissionFileGUI", "delivered", "");
+
+            $link = $f->link()->standard(
+                $lng->txt("download"),
+                $dl_link
+            );
+            $builder->addAction(
+                $builder::SEC_SUBMISSION,
+                $link
+            );
+        }
+    }
+
 }

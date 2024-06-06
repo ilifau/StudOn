@@ -442,6 +442,7 @@ class ilObjLanguage extends ilObject
                 } elseif ($scope === "local") {
                     // get the modification date of the local file
                     // get the newer local changes for a local file
+                    $min_date = date("Y-m-d H:i:s", filemtime($lang_file));
                     // fau: keepAllLocalChanges - import local file without change date, find local changes without restriction
                     $local_changes = $this->getLocalChanges();
                     // fau.

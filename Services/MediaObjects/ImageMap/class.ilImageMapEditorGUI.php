@@ -26,6 +26,7 @@ use ILIAS\MediaObjects\ImageMap\ImageMapGUIRequest;
  */
 class ilImageMapEditorGUI
 {
+    protected \ILIAS\COPage\Xsl\XslManager $xsl;
     protected ilObjMediaObject $media_object;
     protected ImageMapGUIRequest $request;
     protected ImageMapManager $map;
@@ -56,6 +57,7 @@ class ilImageMapEditorGUI
             ->gui()
             ->imageMap()
             ->request();
+        $this->xsl = $DIC->copage()->internal()->domain()->xsl();
     }
 
     /**
@@ -259,7 +261,6 @@ class ilImageMapEditorGUI
     public function addArea(
         bool $a_handle = true
     ): string {
-
         // handle map parameters
         if ($a_handle) {
             $this->handleMapParameters();
@@ -281,7 +282,7 @@ class ilImageMapEditorGUI
                 }
                 break;
 
-            // Circle
+                // Circle
             case "Circle":
                 if ($cnt_coords <= 1) {
                     return $this->editMapArea(true, false, false);
@@ -296,8 +297,8 @@ class ilImageMapEditorGUI
                     return $this->editMapArea(false, true, true);
                 }
 
-            // Polygon
-            // no break
+                // Polygon
+                // no break
             case "Poly":
                 if ($cnt_coords < 1) {
                     return $this->editMapArea(true, false, false);
@@ -307,8 +308,8 @@ class ilImageMapEditorGUI
                     return $this->editMapArea(true, true, true);
                 }
 
-            // Whole picture
-            // no break
+                // Whole picture
+                // no break
             case "WholePicture":
                 return $this->editMapArea(false, false, true);
         }
@@ -354,7 +355,7 @@ class ilImageMapEditorGUI
                     }
                     break;
 
-                // circle
+                    // circle
                 case "Circle":
                     if ($cnt_coords == 0) {
                         $this->main_tpl->setOnScreenMessage('info', $lng->txt("cont_click_center"));
@@ -364,7 +365,7 @@ class ilImageMapEditorGUI
                     }
                     break;
 
-                // polygon
+                    // polygon
                 case "Poly":
                     if ($cnt_coords == 0) {
                         $this->main_tpl->setOnScreenMessage('info', $lng->txt("cont_click_starting_point"));
@@ -542,10 +543,7 @@ class ilImageMapEditorGUI
         $xml .= $this->media_object->getXML(IL_MODE_OUTPUT);
         $xml .= $this->getAdditionalPageXML();
         $xml .= "</dummy>";
-        $xsl = file_get_contents("./Services/COPage/xsl/page.xsl");
-        //echo htmlentities($xml); exit;
-        $args = array( '/_xml' => $xml, '/_xsl' => $xsl );
-        $xh = xslt_create();
+
         $wb_path = ilFileUtils::getWebspaceDir("output") . "/";
         $mode = "media";
         //echo htmlentities($ilCtrl->getLinkTarget($this, "showImageMap"));
@@ -560,11 +558,9 @@ class ilImageMapEditorGUI
             'link_params' => "ref_id=" . $this->request->getRefId() . "&rand=" . $random->int(1, 999999),
             'ref_id' => $this->request->getRefId(),
             'pg_frame' => "",
-            'enlarge_path' => ilUtil::getImagePath("enlarge.svg"),
+            'enlarge_path' => ilUtil::getImagePath("media/enlarge.svg"),
             'webspace_path' => $wb_path);
-        $output = xslt_process($xh, "arg:/_xml", "arg:/_xsl", null, $args, $params);
-        xslt_error($xh);
-        xslt_free($xh);
+        $output = $this->xsl->process($xml, $params);
 
         $output = $this->outputPostProcessing($output);
 
@@ -719,7 +715,7 @@ class ilImageMapEditorGUI
                 $area->update();
                 break;
 
-            // save edited shape
+                // save edited shape
             case "edit_shape":
                 $st_item = $this->media_object->getMediaItem("Standard");
                 $max = ilMapArea::_getMaxNr($st_item->getId());
@@ -733,7 +729,7 @@ class ilImageMapEditorGUI
                 $area->update();
                 break;
 
-            // save new area
+                // save new area
             default:
                 $area_type = $this->map->getAreaType();
                 $coords = $this->map->getCoords();
@@ -1030,7 +1026,7 @@ class ilImageMapEditorGUI
                 }
                 break;
 
-            // Circle
+                // Circle
             case "Circle":
                 if ($cnt_coords <= 1) {
                     return $this->editMapArea(true, false, false, "shape", $area_nr);
@@ -1044,8 +1040,8 @@ class ilImageMapEditorGUI
                     return $this->saveArea();
                 }
 
-            // Polygon
-            // no break
+                // Polygon
+                // no break
             case "Poly":
                 if ($cnt_coords < 1) {
                     return $this->editMapArea(true, false, false, "shape", $area_nr);
@@ -1055,8 +1051,8 @@ class ilImageMapEditorGUI
                     return $this->editMapArea(true, true, true, "shape", $area_nr);
                 }
 
-            // Whole Picture
-            // no break
+                // Whole Picture
+                // no break
             case "WholePicture":
                 return $this->saveArea();
         }

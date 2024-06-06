@@ -18,10 +18,9 @@ declare(strict_types=0);
  *********************************************************************/
 // fau: paraSub - import of registration class
 use FAU\Ilias\Registration;
-// fau.
-
 use FAU\Ilias\Helper\CourseConstantsHelper;
 use FAU\Ilias\Helper\CourseRegistrationGUIHelper;
+// fau.
 
 /**
  * GUI class for course registrations
@@ -113,7 +112,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         // fau.
         return;
     }
-    
+
     protected function getFormTitle(): string
     {
         global $DIC;

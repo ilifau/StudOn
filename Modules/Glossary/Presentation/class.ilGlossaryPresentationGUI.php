@@ -21,14 +21,19 @@ use ILIAS\Glossary\Presentation;
 /**
  * @author Alexander Killing <killing@leifos.de>
  * @ilCtrl_Calls ilGlossaryPresentationGUI: ilNoteGUI, ilInfoScreenGUI, ilPresentationListTableGUI, ilGlossaryDefPageGUI
+ * @ilCtrl_Calls ilGlossaryPresentationGUI: ilPresentationFullGUI, ilGlossaryFlashcardGUI, ilGlossaryFlashcardBoxGUI
  */
 class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
 {
+    protected \ILIAS\Glossary\Taxonomy\TaxonomyManager $tax_manager;
+    protected \ILIAS\COPage\Xsl\XslManager $xsl;
+    protected \ILIAS\GlobalScreen\Services $global_screen;
+    protected \ILIAS\Glossary\InternalGUIService $gui;
+    protected \ILIAS\Glossary\InternalDomainService $domain;
     protected array $mobs;
     protected bool $fill_on_load_code;
     protected string $offline_dir;
     protected ilPropertyFormGUI $form;
-    protected \ILIAS\Glossary\InternalService $service;
     protected bool $offline;
     protected string $export_format;
     protected ilCtrl $ctrl;
@@ -56,6 +61,8 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
     protected \ILIAS\Style\Content\Service $content_style_service;
     protected \ILIAS\Style\Content\GUIService $content_style_gui;
     protected \ILIAS\Style\Content\Object\ObjectFacade $content_style_domain;
+    protected \ILIAS\UI\Factory $ui_fac;
+    protected \ILIAS\UI\Renderer $ui_ren;
 
     public function __construct(
         string $export_format = "",
@@ -63,29 +70,36 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
     ) {
         global $DIC;
 
+        $service = $DIC->glossary()->internal();
+
+        $this->domain = $domain = $service->domain();
+        $this->gui = $gui = $service->gui();
+
+        $this->access = $DIC->access();
+        $this->user = $domain->user();
+        $this->lng = $DIC->language();
+
+        $this->toolbar = $gui->toolbar();
+        $this->help = $gui->help();
+        $this->nav_history = $DIC["ilNavigationHistory"];
+        $this->tpl = $gui->ui()->mainTemplate();
+        $this->ctrl = $gui->ctrl();
+        $this->tabs_gui = $gui->tabs();
+        $this->global_screen = $gui->globalScreen();
+
         $this->export_format = $export_format;
         $this->setOfflineDirectory($export_dir);
         $this->offline = ($export_format != "");
-        $this->access = $DIC->access();
-        $this->nav_history = $DIC["ilNavigationHistory"];
-        $this->toolbar = $DIC->toolbar();
-        $this->user = $DIC->user();
-        $this->help = $DIC["ilHelp"];
-        $lng = $DIC->language();
-        $tpl = $DIC->ui()->mainTemplate();
-        $ilCtrl = $DIC->ctrl();
-        $ilTabs = $DIC->tabs();
+        $this->ui_fac = $DIC->ui()->factory();
+        $this->ui_ren = $DIC->ui()->renderer();
+        $this->offline = ($export_format !== "");
 
-        $this->tabs_gui = $ilTabs;
-        $this->tpl = $tpl;
-        $this->lng = $lng;
-        $this->ctrl = $ilCtrl;
         $this->ctrl->saveParameter($this, array("ref_id", "letter", "tax_node"));
-        $this->service = $DIC->glossary()
-                       ->internal();
         $this->content_style_service =
             $DIC->contentStyle();
         $this->initByRequest();
+        $this->xsl = $DIC->copage()->internal()->domain()->xsl();
+        $this->tax_manager = $domain->taxonomy($this->glossary);
     }
 
     /**
@@ -97,15 +111,13 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
      */
     public function initByRequest(?array $query_params = null): void
     {
-        $service = $this->service;
-        $request = $service
-            ->gui()
+        $request = $this->gui
             ->presentation()
             ->request($query_params);
 
         $this->requested_ref_id = $request->getRefId();
         $this->term_id = $request->getTermId();
-        $this->glossary_gui = $service->gui()->presentation()->ObjGlossaryGUI($this->requested_ref_id);
+        $this->glossary_gui = $this->gui->presentation()->ObjGlossaryGUI($this->requested_ref_id);
         $this->glossary = $this->glossary_gui->getGlossary();
         $this->requested_def_page_id = $request->getDefinitionPageId();
         $this->requested_search_str = $request->getSearchString();
@@ -183,7 +195,11 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
         $lng->loadLanguageModule("content");
 
         $next_class = $this->ctrl->getNextClass($this);
-        $cmd = $this->ctrl->getCmd("listTerms");
+        if ($this->glossary->isActiveFlashcards()) {
+            $cmd = $this->ctrl->getCmd("showFlashcards");
+        } else {
+            $cmd = $this->ctrl->getCmd("listTerms");
+        }
 
         // check write permission
         if (!$ilAccess->checkAccess("read", "", $this->requested_ref_id) &&
@@ -206,6 +222,14 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
                 $ret = $this->outputInfoScreen();
                 break;
 
+            case "ilpresentationfullgui":
+                $this->setTabs();
+                $this->showTaxonomy();
+                $full_gui = $this->gui->presentation()
+                                ->PresentationFullGUI($this, $this->glossary, $this->offlineMode(), $this->tax_node);
+                $this->ctrl->forwardCommand($full_gui);
+                break;
+
             case "ilpresentationlisttablegui":
                 $prtab = $this->getPresentationTable();
                 $this->ctrl->forwardCommand($prtab);
@@ -215,6 +239,16 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
                 $page_gui = new ilGlossaryDefPageGUI($this->requested_def_page_id);
                 $this->basicPageGuiInit($page_gui);
                 $this->ctrl->forwardCommand($page_gui);
+                break;
+
+            case "ilglossaryflashcardgui":
+                $flash_gui = new ilGlossaryFlashcardGUI();
+                $this->ctrl->forwardCommand($flash_gui);
+                break;
+
+            case "ilglossaryflashcardboxgui":
+                $flash_box_gui = new ilGlossaryFlashcardBoxGUI();
+                $this->ctrl->forwardCommand($flash_box_gui);
                 break;
 
             default:
@@ -230,7 +264,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
         $title = $this->glossary->getTitle();
 
         $this->tpl->setTitle($title);
-        $this->tpl->setTitleIcon(ilUtil::getImagePath("icon_glo.svg"));
+        $this->tpl->setTitleIcon(ilUtil::getImagePath("standard/icon_glo.svg"));
 
         $this->setLocator();
     }
@@ -271,30 +305,36 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
             throw new ilPermissionException($lng->txt("permission_denied"));
         }
 
-        if (!$this->offlineMode()) {
-            $ilNavigationHistory->addItem(
-                $this->requested_ref_id,
-                $this->ctrl->getLinkTarget($this, "listTerms"),
-                "glo"
-            );
+        $ret = "";
+        if ($this->glossary->getPresentationMode() == "full_def") {
+            $this->listTermByGivenAsPanel();
+        } else {
+            if (!$this->offlineMode()) {
+                $ilNavigationHistory->addItem(
+                    $this->requested_ref_id,
+                    $this->ctrl->getLinkTarget($this, "listTerms"),
+                    "glo"
+                );
 
-            // alphabetical navigation
-            $ai = new ilAlphabetInputGUI($lng->txt("glo_quick_navigation"), "first");
+                // alphabetical navigation
+                $ai = new ilAlphabetInputGUI($lng->txt("glo_quick_navigation"), "first");
 
-            $ai->setFixDBUmlauts(true);
+                $ai->setFixDBUmlauts(true);
 
-            $first_letters = $this->glossary->getFirstLetters($this->tax_node);
-            if (!in_array($this->requested_letter, $first_letters)) {
-                $first_letters[] = ilUtil::stripSlashes($this->requested_letter);
+                $first_letters = $this->glossary->getFirstLetters($this->tax_node);
+                if (!in_array($this->requested_letter, $first_letters)) {
+                    $first_letters[] = ilUtil::stripSlashes($this->requested_letter);
+                }
+                $ai->setLetters($first_letters);
+
+                $ai->setParentCommand($this, "chooseLetter");
+                $ai->setHighlighted($this->requested_letter);
+                $ilToolbar->addInputItem($ai, true);
             }
-            $ai->setLetters($first_letters);
 
-            $ai->setParentCommand($this, "chooseLetter");
-            $ai->setHighlighted($this->requested_letter);
-            $ilToolbar->addInputItem($ai, true);
+            $ret = $this->listTermByGivenAsTable();
         }
 
-        $ret = $this->listTermByGiven();
         $ilCtrl->setParameter($this, "term_id", "");
 
         $ilTabs->activateTab("terms");
@@ -310,7 +350,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
     /**
      * list glossary terms
      */
-    public function listTermByGiven(): string
+    public function listTermByGivenAsTable(): string
     {
         $ilCtrl = $this->ctrl;
         $ilAccess = $this->access;
@@ -328,10 +368,6 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
         // load template for table
         //		$this->tpl->addBlockfile("ADM_CONTENT", "adm_content", "tpl.table.html");
 
-        if ($this->glossary->getPresentationMode() == "full_def") {
-            $this->setContentStyles();
-        }
-
         $table = $this->getPresentationTable();
 
         if (!$this->offlineMode()) {
@@ -341,6 +377,16 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
             return $this->tpl->printToString();
         }
         return "";
+    }
+
+    /**
+     * list glossary terms
+     */
+    public function listTermByGivenAsPanel(): void
+    {
+        $ilCtrl = $this->ctrl;
+
+        $ilCtrl->redirectByClass("ilPresentationFullGUI", "show");
     }
 
     protected function setContentStyles(): void
@@ -395,7 +441,9 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
         int $a_ref_id = 0,
         int $a_term_id = 0,
         bool $a_get_html = false,
-        string $a_page_mode = ilPageObjectGUI::PRESENTATION
+        bool $render_term = true,
+        string $a_page_mode = ilPageObjectGUI::PRESENTATION,
+        bool $render_page_container = true
     ): string {
         $ilUser = $this->user;
         $ilAccess = $this->access;
@@ -423,7 +471,11 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
             $this->showDefinitionTabs("term_content");
         }
 
-        $term = new ilGlossaryTerm($term_id);
+        try {
+            $term = new ilGlossaryTerm($term_id);
+        } catch (Exception $e) {
+            return "";
+        }
 
         if (!$a_get_html) {
             $tpl->loadStandardTemplate();
@@ -434,7 +486,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
                 $this->setLocator();
             }
 
-            $tpl->setTitleIcon(ilUtil::getImagePath("icon_glo.svg"));
+            $tpl->setTitleIcon(ilUtil::getImagePath("standard/icon_glo.svg"));
             $tpl->setTitle($this->lng->txt("cont_term") . ": " . $term->getTerm());
 
             // advmd block
@@ -448,63 +500,43 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
 
         $def_tpl = new ilTemplate("tpl.glossary_definition_list.html", true, true, "Modules/Glossary");
 
-        $defs = ilGlossaryDefinition::getDefinitionList($term_id);
-        $def_tpl->setVariable("TXT_TERM", $term->getTerm());
+        if ($render_page_container) {
+            $def_tpl->touchBlock("page_container_1");
+            $def_tpl->touchBlock("page_container_2");
+        }
+
+        if ($render_term) {
+            $def_tpl->setVariable("TXT_TERM", $term->getTerm());
+        }
         $this->mobs = array();
 
-        // toc
-        if (count($defs) > 1 && $a_page_mode == ilPageObjectGUI::PRESENTATION) {
-            $def_tpl->setCurrentBlock("toc");
-            for ($j = 1, $jMax = count($defs); $j <= $jMax; $j++) {
-                $def_tpl->setCurrentBlock("toc_item");
-                $def_tpl->setVariable("TOC_DEF_NR", $j);
-                $def_tpl->setVariable("TOC_DEF", $lng->txt("cont_definition"));
-                $def_tpl->parseCurrentBlock();
-            }
-            $def_tpl->setCurrentBlock("toc");
-            $def_tpl->parseCurrentBlock();
+        $page_gui = new ilGlossaryDefPageGUI($term_id);
+        $this->basicPageGuiInit($page_gui);
+        $page_gui->setGlossary($this->glossary);
+        $page_gui->setOutputMode($a_page_mode);
+        $page_gui->setStyleId($this->content_style_domain->getEffectiveStyleId());
+        $page = $page_gui->getPageObject();
+
+        // internal links
+        $page->buildDom();
+
+        if ($this->offlineMode()) {
+            $page_gui->setOutputMode("offline");
+            $page_gui->setOfflineDirectory($this->getOfflineDirectory());
+        }
+        $page_gui->setFullscreenLink($this->getLink($ref_id, "fullscreen", $term_id));
+
+        $page_gui->setTemplateOutput(false);
+        $page_gui->setRawPageContent(true);
+        if (!$this->offlineMode()) {
+            $output = $page_gui->showPage();
+        } else {
+            $output = $page_gui->presentation($page_gui->getOutputMode());
         }
 
-        for ($j = 0, $jMax = count($defs); $j < $jMax; $j++) {
-            $def = $defs[$j];
-            $page_gui = new ilGlossaryDefPageGUI($def["id"]);
-            $this->basicPageGuiInit($page_gui);
-            $page_gui->setGlossary($this->glossary);
-            $page_gui->setOutputMode($a_page_mode);
-            $page_gui->setStyleId($this->content_style_domain->getEffectiveStyleId());
-            $page = $page_gui->getPageObject();
-
-            // internal links
-            $page->buildDom();
-
-            if ($this->offlineMode()) {
-                $page_gui->setOutputMode("offline");
-                $page_gui->setOfflineDirectory($this->getOfflineDirectory());
-            }
-            $page_gui->setFullscreenLink($this->getLink($ref_id, "fullscreen", $term_id, $def["id"]));
-
-            $page_gui->setTemplateOutput(false);
-            $page_gui->setRawPageContent(true);
-            if (!$this->offlineMode()) {
-                $output = $page_gui->showPage();
-            } else {
-                $output = $page_gui->presentation($page_gui->getOutputMode());
-            }
-
-            if (count($defs) > 1) {
-                $def_tpl->setCurrentBlock("definition_header");
-                $def_tpl->setVariable(
-                    "TXT_DEFINITION",
-                    $this->lng->txt("cont_definition") . " " . ($j + 1)
-                );
-                $def_tpl->setVariable("DEF_NR", ($j + 1));
-                $def_tpl->parseCurrentBlock();
-            }
-
-            $def_tpl->setCurrentBlock("definition");
-            $def_tpl->setVariable("PAGE_CONTENT", $output);
-            $def_tpl->parseCurrentBlock();
-        }
+        $def_tpl->setCurrentBlock("definition");
+        $def_tpl->setVariable("PAGE_CONTENT", $output);
+        $def_tpl->parseCurrentBlock();
 
         // display possible backlinks
         $sources = ilInternalLink::_getSourcesOfTarget('git', $this->term_id, 0);
@@ -612,7 +644,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
                         $ilCtrl->getLinkTargetByClass(array("ilglossaryeditorgui",
                                                             "ilobjglossarygui",
                                                             "ilglossarytermgui"
-                        ), "listDefinitions")
+                        ), "editTerm")
                     );
                 }
                 //"ilias.php?baseClass=ilGlossaryEditorGUI&amp;ref_id=".$this->requested_ref_id."&amp;edit_term=".$this->term_id);
@@ -658,15 +690,11 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
         $xml .= $link_xml;
         $xml .= "</dummy>";
 
-        $xsl = file_get_contents("./Services/COPage/xsl/page.xsl");
-        $args = array( '/_xml' => $xml, '/_xsl' => $xsl );
-        $xh = xslt_create();
-
         if (!$this->offlineMode()) {
-            $enlarge_path = ilUtil::getImagePath("enlarge.svg", false, "output");
+            $enlarge_path = ilUtil::getImagePath("media/enlarge.svg", false, "output");
             $wb_path = ilFileUtils::getWebspaceDir("output") . "/";
         } else {
-            $enlarge_path = "images/enlarge.svg";
+            $enlarge_path = "images/media/enlarge.svg";
             $wb_path = "";
         }
 
@@ -681,8 +709,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
             'link_params' => "ref_id=" . $this->requested_ref_id,'fullscreen_link' => $fullscreen_link,
                         'enable_html_mob' => ilObjMediaObject::isTypeAllowed("html") ? "y" : "n",
             'ref_id' => $this->requested_ref_id, 'pg_frame' => "", 'webspace_path' => $wb_path);
-        $output = xslt_process($xh, "arg:/_xml", "arg:/_xsl", null, $args, $params);
-        xslt_free($xh);
+        $output = $this->xsl->process($xml, $params);
 
         // unmask user html
         $this->tpl->setVariable("MEDIA_CONTENT", $output);
@@ -715,7 +742,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
 
         // set title header
         $this->tpl->setTitle($this->glossary->getTitle());
-        $this->tpl->setTitleIcon(ilUtil::getImagePath("icon_glo.svg"));
+        $this->tpl->setTitleIcon(ilUtil::getImagePath("standard/icon_glo.svg"));
 
         // create table
         $tbl = new ilTableGUI();
@@ -850,7 +877,6 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
         int $a_ref_id,
         string $a_cmd = "",
         int $a_term_id = 0,
-        int $a_def_id = 0,
         string $a_frame = "",
         string $a_type = ""
     ): string {
@@ -865,7 +891,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
             //$link = $script."?ref_id=".$a_ref_id;
             switch ($a_cmd) {
                 case "fullscreen":
-                    $this->ctrl->setParameter($this, "def_id", $a_def_id);
+                    $this->ctrl->setParameter($this, "term_id", $a_term_id);
                     $link = $this->ctrl->getLinkTarget($this, "fullscreen");
                     break;
 
@@ -882,7 +908,6 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
             }
         } else {	// handle offline links
             switch ($a_cmd) {
-
                 case "fullscreen":
                     $link = "fullscreen.html";		// id is handled by xslt
                     break;
@@ -913,7 +938,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
             $this->setTabs();
             $ilTabs->activateTab("print_view");
         } else {
-            $tpl->setTitleIcon(ilUtil::getImagePath("icon_glo.svg"));
+            $tpl->setTitleIcon(ilUtil::getImagePath("standard/icon_glo.svg"));
             $term = new ilGlossaryTerm($this->term_id);
             $tpl->setTitle($this->lng->txt("cont_term") . ": " . $term->getTerm());
             $this->showDefinitionTabs("print_view");
@@ -979,7 +1004,6 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
 
         $nl = new ilNestedListInputGUI("", "obj_id");
         $op3->addSubItem($nl);
-        //var_dump($terms);
         foreach ($terms as $t) {
             $nl->addListNode($t["id"], $t["term"], 0, false, false);
         }
@@ -1044,7 +1068,7 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
 
         $page_content = "";
         foreach ($terms as $t_id) {
-            $page_content .= $this->listDefinitions($this->requested_ref_id, $t_id, true, ilPageObjectGUI::PRINTING);
+            $page_content .= $this->listDefinitions($this->requested_ref_id, $t_id, true, true, ilPageObjectGUI::PRINTING);
         }
         $tpl->setContent($page_content);
     }
@@ -1061,9 +1085,16 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
         if (!$this->offlineMode()) {
             if ($this->ctrl->getCmd() != "listDefinitions") {
                 if ($ilAccess->checkAccess("read", "", $this->requested_ref_id)) {
+                    if ($this->glossary->isActiveFlashcards()) {
+                        $this->tabs_gui->addTab(
+                            "flashcards",
+                            $lng->txt("glo_flashcards"),
+                            $ilCtrl->getLinkTarget($this, "showFlashcards")
+                        );
+                    }
                     $this->tabs_gui->addTab(
                         "terms",
-                        $lng->txt("cont_terms"),
+                        $lng->txt("content"),
                         $ilCtrl->getLinkTarget($this, "listTerms")
                     );
                 }
@@ -1170,51 +1201,45 @@ class ilGlossaryPresentationGUI implements ilCtrlBaseClassInterface
 
     public function showTaxonomy(): void
     {
-        global $DIC;
         $ctrl = $this->ctrl;
-        if (!$this->offlineMode() && $this->glossary->getShowTaxonomy()) {
-            $tax_ids = ilObjTaxonomy::getUsageOfObject($this->glossary->getId());
-            if (count($tax_ids) > 0) {
-                $tax_id = $tax_ids[0];
-                $DIC->globalScreen()->tool()->context()->current()
-                    ->addAdditionalData(
-                        ilTaxonomyGSToolProvider::SHOW_TAX_TREE,
-                        true
-                    );
-                $DIC->globalScreen()->tool()->context()->current()
-                    ->addAdditionalData(
-                        ilTaxonomyGSToolProvider::TAX_TREE_GUI_PATH,
-                        [self::class]
-                    );
-                $DIC->globalScreen()->tool()->context()->current()
-                    ->addAdditionalData(
-                        ilTaxonomyGSToolProvider::TAX_ID,
-                        $tax_id
-                    );
-                $DIC->globalScreen()->tool()->context()->current()
-                    ->addAdditionalData(
-                        ilTaxonomyGSToolProvider::TAX_TREE_CMD,
-                        "listTerms"
-                    );
-                $DIC->globalScreen()->tool()->context()->current()
-                    ->addAdditionalData(
-                        ilTaxonomyGSToolProvider::TAX_TREE_PARENT_CMD,
-                        "showTaxonomy"
-                    );
 
-                $tax_exp = new ilTaxonomyExplorerGUI(
-                    get_class($this),
-                    "showTaxonomy",
-                    $tax_id,
-                    "ilglossarypresentationgui",
-                    "listTerms"
-                );
-                /*
-                if (!$tax_exp->handleCommand()) {
-                    //$tpl->setLeftNavContent($tax_exp->getHTML());
-                    //$tpl->setLeftContent($tax_exp->getHTML()."&nbsp;");
-                }*/
-            }
+        if ($this->offlineMode() || !$this->tax_manager->showInPresentation()) {
+            return;
         }
+
+        $tax_id = $this->tax_manager->getTaxonomyId();
+
+        $tool_context = $this->global_screen->tool()->context()->current();
+
+        $tool_context->addAdditionalData(
+            ilTaxonomyGSToolProvider::SHOW_TAX_TREE,
+            true
+        );
+        $tool_context->addAdditionalData(
+            ilTaxonomyGSToolProvider::TAX_TREE_GUI_PATH,
+            [self::class]
+        );
+        $tool_context->addAdditionalData(
+            ilTaxonomyGSToolProvider::TAX_ID,
+            $tax_id
+        );
+        $tool_context->addAdditionalData(
+            ilTaxonomyGSToolProvider::TAX_TREE_CMD,
+            "listTerms"
+        );
+        $tool_context->addAdditionalData(
+            ilTaxonomyGSToolProvider::TAX_TREE_PARENT_CMD,
+            "showTaxonomy"
+        );
+    }
+
+    public function showFlashcards(): void
+    {
+        $ilTabs = $this->tabs_gui;
+
+        $this->setTabs();
+        $ilTabs->activateTab("flashcards");
+        $flashcards = new ilGlossaryFlashcardGUI();
+        $flashcards->listBoxes();
     }
 }

@@ -132,10 +132,10 @@ class SurveyMetricQuestion extends SurveyQuestion
             if ($result->numRows() > 0) {
                 if ($data = $ilDB->fetchAssoc($result)) {
                     $this->minimum = is_null($data["value1"]) ? null : (float) $data["value1"];
-                    if (($data["value2"] < 0) or (strcmp($data["value2"], "") == 0)) {
+                    if (($data["value2"] < 0) or (strcmp((string) $data["value2"], "") == 0)) {
                         $this->maximum = null;
                     } else {
-                        $this->maximum = is_null($data["value2"]) ? null : (float) $data["value2"];
+                        $this->maximum = is_null($data["value2"] ?? null) ? null : (float) $data["value2"];
                     }
                 }
             }
@@ -168,9 +168,6 @@ class SurveyMetricQuestion extends SurveyQuestion
                 array('integer', 'text'),
                 array($this->getId(), $this->getSubtype())
             );
-
-            // saving material uris in the database
-            $this->saveMaterial();
 
             // save categories
             $ilDB->manipulateF(
@@ -306,7 +303,7 @@ class SurveyMetricQuestion extends SurveyQuestion
     {
         $entered_value = $post_data[$this->getId() . "_metric_question"] ?? "";
         $data = array();
-        if (strlen($entered_value)) {
+        if (strlen($entered_value ?? "")) {
             $data[] = array("value" => $entered_value);
         }
         return $data;
@@ -323,21 +320,21 @@ class SurveyMetricQuestion extends SurveyQuestion
         // replace german notation with international notation
         $entered_value = str_replace(",", ".", $entered_value);
 
-        if ((!$this->getObligatory()) && (strlen($entered_value) == 0)) {
+        if ((!$this->getObligatory()) && (strlen($entered_value ?? "") == 0)) {
             return "";
         }
 
-        if (strlen($entered_value) == 0) {
+        if (strlen($entered_value ?? "") == 0) {
             return $this->lng->txt("survey_question_obligatory");
         }
 
-        if (strlen($this->getMinimum())) {
+        if (strlen($this->getMinimum() ?? "")) {
             if ($entered_value < $this->getMinimum()) {
                 return $this->lng->txt("metric_question_out_of_bounds");
             }
         }
 
-        if (strlen($this->getMaximum())) {
+        if (strlen($this->getMaximum() ?? "")) {
             if (($this->getMaximum() == 1) && ($this->getMaximum() < $this->getMinimum())) {
                 // old &infty; values as maximum
             } elseif ($entered_value > $this->getMaximum()) {

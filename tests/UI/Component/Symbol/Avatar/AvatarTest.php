@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once("libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 
@@ -44,7 +52,7 @@ class AvatarTest extends ILIAS_UI_TestBase
         $le = $f->letter('ru');
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Symbol\\Avatar\\Letter", $le);
 
-        $ci = $f->picture(self::ICON_PATH . 'no_photo_xsmall.jpg', 'ru');
+        $ci = $f->picture(self::ICON_PATH . 'placeholder/no_photo_xsmall.jpg', 'ru');
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Symbol\\Avatar\\Picture", $ci);
     }
 

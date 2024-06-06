@@ -37,6 +37,7 @@ abstract class ilContainerContentGUI
 
     public const VIEW_MODE_LIST = 0;
     public const VIEW_MODE_TILE = 1;
+    protected \ILIAS\Container\Content\ItemPresentationManager $item_presentation;
 
     protected ilGlobalTemplateInterface $tpl;
     protected ilCtrl $ctrl;
@@ -51,7 +52,6 @@ abstract class ilContainerContentGUI
     protected ilContainerRenderer $renderer;
     public ilContainerGUI $container_gui;
     public ilContainer $container_obj;
-    public bool $adminCommands = false;
     protected ilLogger $log;
     protected int $view_mode;
     protected array $embedded_block = [];
@@ -62,10 +62,15 @@ abstract class ilContainerContentGUI
     protected StandardGUIRequest $request;
     protected ItemManager $item_manager;
     protected BlockSessionRepository $block_repo;
+    protected int $block_limit = 0;
+    protected array $type_grps = [];
+    protected int $force_details;
+    protected ?ilContainerUserFilter $container_user_filter;
 
-    public function __construct(ilContainerGUI $container_gui_obj)
-    {
-        /** @var \ILIAS\DI\Container $DIC */
+    public function __construct(
+        ilContainerGUI $container_gui_obj,
+        \ILIAS\Container\Content\ItemPresentationManager $item_presentation
+    ) {
         global $DIC;
 
         $this->tpl = $DIC["tpl"];
@@ -114,6 +119,9 @@ abstract class ilContainerContentGUI
             ->repo()
             ->content()
             ->block();
+        $this->item_presentation = $item_presentation;
+
+        $this->block_limit = (int) ilContainer::_lookupContainerSetting($container_gui_obj->getObject()->getId(), "block_limit");
     }
 
     protected function getViewMode(): int
@@ -121,10 +129,6 @@ abstract class ilContainerContentGUI
         return $this->view_mode;
     }
 
-    protected function getDetailsLevel(int $a_item_id): int
-    {
-        return $this->details_level;
-    }
 
     public function getContainerObject(): ilContainer
     {
@@ -257,10 +261,31 @@ abstract class ilContainerContentGUI
     }
 
     /**
-     * Get content HTML for main column, this one must be
+     * Get content HTML for main column, this one may be
      * overwritten in derived classes.
      */
-    abstract public function getMainContent(): string;
+    public function getMainContent(): string
+    {
+        $ilAccess = $this->access;
+
+        $tpl = new ilTemplate(
+            "tpl.container_page.html",
+            true,
+            true,
+            "Services/Container"
+        );
+        // Show introduction, if repository is empty
+        if (!$this->item_presentation->hasItems() &&
+            $this->getContainerObject()->getRefId() == ROOT_FOLDER_ID &&
+            $ilAccess->checkAccess("write", "", $this->getContainerObject()->getRefId())) {
+            $html = $this->getIntroduction();
+        } else {	// show item list otherwise
+            $html = $this->renderItemList();
+        }
+        $tpl->setVariable("CONTAINER_PAGE_CONTENT", $html);
+
+        return $tpl->get();
+    }
 
     /**
      * Init container renderer
@@ -270,6 +295,7 @@ abstract class ilContainerContentGUI
         $sorting = ilContainerSorting::_getInstance($this->getContainerObject()->getId());
 
         $this->renderer = new ilContainerRenderer(
+            $this->item_presentation,
             ($this->getContainerGUI()->isActiveAdministrationPanel() && !$this->clipboard->hasEntries()),
             $this->getContainerGUI()->isMultiDownloadEnabled(),
             $this->getContainerGUI()->isActiveOrdering() && (get_class($this) !== "ilContainerObjectiveGUI") // no block sorting in objective view
@@ -322,28 +348,6 @@ abstract class ilContainerContentGUI
         }
 
         return $html;
-    }
-
-    protected function clearAdminCommandsDetermination(): void
-    {
-        $this->adminCommands = false;
-    }
-
-    protected function determineAdminCommands(
-        int $a_ref_id,
-        bool $a_admin_com_included_in_list = false
-    ): void {
-        $rbacsystem = $this->rbacsystem;
-
-        if (!$this->adminCommands) {
-            if (!$this->getContainerGUI()->isActiveAdministrationPanel()) {
-                if ($rbacsystem->checkAccess("delete", $a_ref_id)) {
-                    $this->adminCommands = true;
-                }
-            } else {
-                $this->adminCommands = $a_admin_com_included_in_list;
-            }
-        }
     }
 
     protected function getItemGUI(array $item_data): ilObjectListGUI
@@ -475,6 +479,12 @@ abstract class ilContainerContentGUI
         return $type === 'sess' && get_class($this) === ilContainerSessionsContentGUI::class;
     }
 
+    protected function getUniqueItemId(array $a_item_data): string
+    {
+        $item_list_gui = $this->getItemGUI($a_item_data);
+        return $item_list_gui->getUniqueItemId();
+    }
+
     /**
      * Render an item
      * @return \ILIAS\UI\Component\Card\RepositoryObject|string|null
@@ -501,7 +511,6 @@ abstract class ilContainerContentGUI
                 ? self::VIEW_MODE_TILE
                 : self::VIEW_MODE_LIST;
         }
-
         if ($view_mode === self::VIEW_MODE_TILE) {
             return $this->renderCard($a_item_data, $a_position, $a_force_icon, $a_pos_prefix);
         }
@@ -649,12 +658,6 @@ abstract class ilContainerContentGUI
             false,
             $asynch_url
         );
-        $this->determineAdminCommands(
-            $a_item_data["ref_id"],
-            $item_list_gui->adminCommandsIncluded()
-        );
-
-
         return $html;
     }
 
@@ -736,7 +739,7 @@ abstract class ilContainerContentGUI
             $this->getContainerGUI()->isActiveAdministrationPanel()
         );
 
-
+        $exhausted = false;
         $ref_ids = $this->request->getAlreadyRenderedRefIds();
 
         // iterate all types
@@ -752,11 +755,11 @@ abstract class ilContainerContentGUI
                 if (in_array($item_ref_id, $ref_ids)) {
                     continue;
                 }
-
                 if ($this->block_limit > 0 && $counter == $this->block_limit + 1) {
                     if ($counter == $this->block_limit + 1) {
                         // render more button
                         $this->renderer->addShowMoreButton($type);
+                        $exhausted = true;
                     }
                     continue;
                 }
@@ -764,6 +767,40 @@ abstract class ilContainerContentGUI
                 if (!$this->renderer->hasItem($item_ref_id)) {
                     $html = $this->renderItem($item_data, $position++);
                     if ($html != "") {
+
+                        $unique_id = $this->getUniqueItemId($item_data);
+                        // workaround for legacy adv selection lists asynch loading start...
+                        $js_tpl = new ilTemplate(
+                            "tpl.adv_selection_list_js_init.js",
+                            true,
+                            true,
+                            "Services/UIComponent/AdvancedSelectionList",
+                            "DEFAULT",
+                            false,
+                            true
+                        );
+                        $this->ctrl->setParameter($this->container_gui, "cmdrefid", $item_data['ref_id']);
+                        $asynch_url = $this->ctrl->getLinkTarget(
+                            $this->container_gui,
+                            "getAsynchItemList",
+                            "",
+                            true,
+                            false
+                        );
+                        $this->ctrl->setParameter($this->container_gui, "cmdrefid", "");
+                        $unique_id = 'act_' . $unique_id;
+                        $js_tpl->setVariable("ID", $unique_id);
+                        $js_tpl->setCurrentBlock("asynch_bl");
+                        $js_tpl->setVariable("ASYNCH_URL", $asynch_url);
+                        $js_tpl->setVariable("ASYNCH_ID", $unique_id);
+                        $js_tpl->setVariable("ASYNCH_TRIGGER_ID", $unique_id);
+                        $js_tpl->parseCurrentBlock();
+                        if (is_string($html)) {
+                            $html .= "<script>" . $js_tpl->get() . "</script>";
+                        }
+                        // ...end
+
+
                         $counter++;
                         $this->renderer->addItemToBlock($type, $item_data["type"], $item_ref_id, $html);
                     }
@@ -771,7 +808,7 @@ abstract class ilContainerContentGUI
             }
         }
 
-        return $this->renderer->renderSingleTypeBlock($type);
+        return $this->renderer->renderSingleTypeBlock($type, $exhausted);
     }
 
     /**
@@ -825,7 +862,6 @@ abstract class ilContainerContentGUI
     {
         $ilAccess = $this->access;
         $ilUser = $this->user;
-
         // #16493
         $perm_ok = ($ilAccess->checkAccess("visible", "", $a_itgr['ref_id']) &&
              $ilAccess->checkAccess("read", "", $a_itgr['ref_id']));
@@ -915,16 +951,6 @@ abstract class ilContainerContentGUI
                 // :TODO: show it multiple times?
                 $this->renderer->addItemToBlock($a_itgr["ref_id"], $item["type"], $item["child"], $html2, true);
             }
-        }
-    }
-
-    protected function handleSessionExpand(): void
-    {
-        $expand = $this->request->getExpand();
-        if ($expand > 0) {
-            $this->item_manager->setExpanded(abs($expand), self::DETAILS_ALL);
-        } elseif ($expand < 0) {
-            $this->item_manager->setExpanded(abs($expand), self::DETAILS_TITLE);
         }
     }
 }

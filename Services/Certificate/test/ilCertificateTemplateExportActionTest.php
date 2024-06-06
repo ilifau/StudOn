@@ -36,7 +36,7 @@ class ilCertificateTemplateExportActionTest extends ilCertificateBaseTestCase
                 '[]',
                 3,
                 'v5.4.0',
-                123456789,
+                123_456_789,
                 true,
                 '/some/where/background.jpg',
                 '/some/where/thumbnail.jpg',
@@ -44,23 +44,8 @@ class ilCertificateTemplateExportActionTest extends ilCertificateBaseTestCase
             ));
 
         $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
+            ->disableOriginalConstructor()
             ->getMock();
-
-        $filesystem
-            ->expects($this->once())
-            ->method('createDir');
-
-        $filesystem
-            ->expects($this->once())
-            ->method('put');
-
-        $filesystem
-            ->expects($this->once())
-            ->method('deleteDir');
-
-        $filesystem
-            ->expects($this->once())
-            ->method('put');
 
         $objectHelper = $this->getMockBuilder(ilCertificateObjectHelper::class)
             ->getMock();
@@ -69,15 +54,12 @@ class ilCertificateTemplateExportActionTest extends ilCertificateBaseTestCase
             ->willReturn('crs');
 
         $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
+            ->disableOriginalConstructor()
             ->getMock();
 
         $utilHelper
             ->expects($this->once())
-            ->method('zip');
-
-        $utilHelper
-            ->expects($this->once())
-            ->method('deliverFile');
+            ->method('zipAndDeliver');
 
         $action = new ilCertificateTemplateExportAction(
             100,

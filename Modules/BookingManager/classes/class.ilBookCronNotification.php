@@ -16,12 +16,15 @@
  *
  *********************************************************************/
 
+use ILIAS\Cron\Schedule\CronJobScheduleType;
+
 /**
  * Cron for booking manager notification
  * @author Alexander Killing <killing@leifos.de>
  */
 class ilBookCronNotification extends ilCronJob
 {
+    protected \ILIAS\BookingManager\InternalRepoService $repo;
     protected ilLanguage $lng;
     protected ilAccessHandler $access;
     protected ilLogger $book_log;
@@ -36,6 +39,9 @@ class ilBookCronNotification extends ilCronJob
         }
 
         $this->book_log = ilLoggerFactory::getLogger("book");
+        $this->repo = $DIC->bookingManager()
+            ->internal()
+            ->repo();
     }
 
     public function getId(): string
@@ -59,9 +65,9 @@ class ilBookCronNotification extends ilCronJob
         return $lng->txt("book_notification_info");
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_DAILY;
+        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -136,8 +142,7 @@ class ilBookCronNotification extends ilCronJob
 
 
             if ($to_ts > $from_ts) {
-                $f = new ilBookingReservationDBRepositoryFactory();
-                $repo = $f->getRepo();
+                $repo = $this->repo->reservation();
                 $res = $repo->getListByDate(true, null, [
                     "from" => $from_ts,
                     "to" => $to_ts
@@ -154,7 +159,6 @@ class ilBookCronNotification extends ilCronJob
 
             // group by user, type, pool
             foreach ($res as $r) {
-
                 // users
                 $log->debug("check notification of user id: " . $r["user_id"]);
                 if (in_array($r["user_id"], $user_ids)) {
@@ -214,10 +218,13 @@ class ilBookCronNotification extends ilCronJob
                         $txt .= "- " . $r["title"] . " (" . $r["counter"] . "), " . $r["user_name"] . ", " .
                             ilDatePresentation::formatDate(new ilDate($r["date"], IL_CAL_DATE)) . ", " .
                             $r["slot"] . "\n";
+                        if ($r["message"] != "") {
+                            $txt .= "  " . $lng->txt("book_message") .
+                                ": " . $r["message"];
+                        }
                     }
                 }
             }
-
             $ntf->setLangModules(array("book"));
             $ntf->setSubjectLangId("book_booking_reminders");
             $ntf->setIntroductionLangId("book_rem_intro");

@@ -252,7 +252,6 @@ class ilCalendarShared
                     $this->shared_roles[(int) $row->obj_id]['create_date'] = (string) $row->create_date;
                     $this->shared_roles[(int) $row->obj_id]['writable'] = (bool) $row->writable;
                     break;
-
             }
 
             $this->shared[(int) $row->obj_id]['obj_id'] = (int) $row->obj_id;

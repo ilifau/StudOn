@@ -50,12 +50,13 @@ class ilSearchAppEventListener implements ilAppEventListener
             $type = $a_parameter['obj_type'];
         }
 
-        if ($type != 'file' and
-            $type != 'htlm') {
-            return;
-        }
-
         switch ($a_component) {
+            case 'Services/Search':
+                if ($a_event === 'contentChanged') {
+                    ilSearchAppEventListener::storeElement(ilSearchCommandQueueElement::RESET, $a_parameter);
+                }
+                break;
+
             case 'Services/Help':
             case 'Services/Object':
 

@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Blog export definition
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
@@ -98,6 +100,13 @@ class ilBlogExporter extends ilXmlExporter
         string $a_entity
     ): array {
         return array(
+            "8.0" => array(
+                "namespace" => "https://www.ilias.de/Modules/Blog/8",
+                "xsd_file" => "ilias_blog_8.xsd",
+                "uses_dataset" => true,
+                "min" => "8.0",
+                "max" => ""
+            ),
             "5.3.0" => array(
                 "namespace" => "https://www.ilias.de/Modules/Blog/5_0",
                 "xsd_file" => "ilias_blog_5_0.xsd",

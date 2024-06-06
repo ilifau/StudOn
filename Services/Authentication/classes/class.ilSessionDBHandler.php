@@ -96,7 +96,7 @@ class ilSessionDBHandler implements SessionHandlerInterface
      * Removes sessions that weren't updated for more than gc_maxlifetime seconds
      * @param int $max_lifetime Sessions that have not updated for the last max_lifetime seconds will be removed.
      */
-    public function gc($max_lifetime)
+    public function gc(int $max_lifetime): int | false
     {
         return ilSession::_destroyExpiredSessions();
     }

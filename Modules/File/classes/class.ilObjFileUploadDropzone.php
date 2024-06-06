@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\UI\Component\Dropzone\File\File as FileDropzone;
 use ILIAS\UI\Component\Input\Field\UploadHandler;
 use ILIAS\DI\UIServices;
@@ -27,12 +27,16 @@ use ILIAS\DI\UIServices;
  */
 class ilObjFileUploadDropzone
 {
+    use ilObjFileCopyrightInput;
+    use ilObjFileTransformation;
+
     protected ilObjectDefinition $definition;
     protected ilCtrlInterface $ctrl;
     protected UploadHandler $upload_handler;
     protected ilLanguage $language;
     protected ilAccess $access;
     protected UIServices $ui;
+    protected \ILIAS\Refinery\Factory $refinery;
 
     protected int $target_ref_id;
     protected ?string $content;
@@ -43,13 +47,24 @@ class ilObjFileUploadDropzone
 
         $this->definition = $DIC['objDefinition'];
         $this->language = $DIC->language();
+        $this->language->loadLanguageModule('file');
         $this->access = $DIC->access();
         $this->ctrl = $DIC->ctrl();
         $this->ui = $DIC->ui();
+        $this->refinery = $DIC->refinery();
 
         $this->upload_handler = new ilObjFileUploadHandlerGUI();
         $this->target_ref_id = $target_ref_id;
         $this->content = $content;
+    }
+
+    private function isCopyrightSelectionActive(): bool
+    {
+        static $active;
+        if ($active === null) {
+            $active = ilMDSettings::_getInstance()->isCopyrightSelectionActive();
+        }
+        return $active;
     }
 
     public function getDropzone(): FileDropzone
@@ -78,6 +93,12 @@ class ilObjFileUploadDropzone
         // reset new_type again
         $this->ctrl->clearParameterByClass(ilObjFileGUI::class, 'new_type');
 
+        // add input for copyright selection if enabled in the metadata settings
+        $additional_input = null;
+        if ($this->isCopyrightSelectionActive()) {
+            $additional_input = $this->getCopyrightSelectionInput('set_license_for_all_files');
+        }
+
         /** @var $dropzone FileDropzone */
         $dropzone = $this->ui->factory()->dropzone()->file()->wrapper(
             $this->language->txt('upload_files'),
@@ -85,22 +106,27 @@ class ilObjFileUploadDropzone
             $this->ui->factory()->legacy($this->content ?? ''),
             $this->ui->factory()->input()->field()->file(
                 $this->upload_handler,
-                $this->language->txt('files'),
+                $this->language->txt('upload_files'),
                 null,
                 $this->ui->factory()->input()->field()->group([
-                    ilObjFileProcessorInterface::OPTION_FILENAME => $this->ui->factory()->input()->field()->text(
+                    ilObjFileGUI::PARAM_TITLE => $this->ui->factory()->input()->field()->text(
                         $this->language->txt('title')
+                    )->withAdditionalTransformation(
+                        $this->getEmptyStringToNullTransformation()
                     ),
-                    ilObjFileProcessorInterface::OPTION_DESCRIPTION => $this->ui->factory()->input()->field()->textarea(
+                    ilObjFileGUI::PARAM_DESCRIPTION => $this->ui->factory()->input()->field()->textarea(
                         $this->language->txt('description')
+                    )->withAdditionalTransformation(
+                        $this->getEmptyStringToNullTransformation()
                     ),
                 ])
+            )->withRequired(
+                true
             )->withMaxFiles(
                 ilObjFileGUI::UPLOAD_MAX_FILES
-            )->withMaxFileSize(
-                (int) ilFileUtils::getUploadSizeLimitBytes()
-            )
-        )->withSubmitCaption(
+            ),
+            $additional_input
+        )->withSubmitLabel(
             $this->language->txt('upload_files')
         );
 
@@ -119,5 +145,20 @@ class ilObjFileUploadDropzone
     public function getDropzoneHtml(): string
     {
         return $this->ui->renderer()->render($this->getDropzone());
+    }
+
+    protected function getUIFactory(): ILIAS\UI\Factory
+    {
+        return $this->ui->factory();
+    }
+
+    protected function getLanguage(): \ilLanguage
+    {
+        return $this->language;
+    }
+
+    protected function getRefinery(): \ILIAS\Refinery\Factory
+    {
+        return $this->refinery;
     }
 }

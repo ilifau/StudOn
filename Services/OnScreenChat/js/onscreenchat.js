@@ -42,7 +42,6 @@
 		resizeChatWindow: ['input', '[data-onscreenchat-message]'],
 		messageInput: ['keyup click', '[data-onscreenchat-message]'],
 		focusOut: ['focusout', '[data-onscreenchat-window]'],
-		emoticonClicked: ['click', '[data-onscreenchat-emoticon]'],
 		menuItemClicked: ['click', '[data-onscreenchat-menu-item]'],
 		menuItemRemovalRequest: [],
 		messageKeyUpEvent: ['keyup', '[data-onscreenchat-message]'],
@@ -74,15 +73,13 @@
 
 	$scope.il.OnScreenChat = {
 		config: {},
-		container: $('<div></div>').addClass('row').addClass('iosOnScreenChat'),
+		container: $('<div></div>').addClass('iosOnScreenChat'),
 		storage: undefined,
 		user: undefined,
 		historyBlocked: false,
 		inputHeight: undefined,
 		historyTimestamps: {},
 		printedMessages: {},
-		emoticons: {},
-		messageFormatter: {},
 		participantsImages: {},
 		participantsNames: {},
 		chatWindowWidth: 278,
@@ -106,8 +103,6 @@
 
 		init: function() {
 			getModule().storage   = new ConversationStorage();
-			getModule().emoticons = new Smileys(getModule().config.emoticons);
-			getModule().messageFormatter = new MessageFormatter(getModule().getEmoticons());
 
 			$.each(getModule().config.initialUserData, function(usrId, item) {
 				getModule().participantsNames[usrId] = item.public_name;
@@ -193,7 +188,6 @@
 				focusOut:                getModule().onFocusOut,
 				messageInput:            getModule().onMessageInput,
 				menuItemRemovalRequest:  getModule().onMenuItemRemovalRequest,
-				emoticonClicked:         getModule().onEmoticonClicked,
 				windowClicked:           getModule().onWindowClicked,
 				menuItemClicked:         getModule().onMenuItemClicked,
 			}).init();
@@ -201,7 +195,6 @@
 			$('body').append(
 				$('<div></div>')
 					.attr('id', 'onscreenchat-container')
-					.addClass('container')
 					.append(getModule().container)
 
 			);
@@ -255,54 +248,8 @@
 						$(this).trigger("scroll");
 					}).
 					scroll(getModule().onScroll);
-				conversationWindow
-					.find('[data-onscreenchat-emoticons]')
-					.append(getModule().getEmoticons().getTriggerHtml())
-					.find('.iosOnScreenChatEmoticonsPanel')
-					.parent()
-					.removeClass('ilNoDisplay');
 				getModule().container.append(conversationWindow);
 				getModule().addMessagesOnOpen(conversation);
-
-				conversationWindow.find('[data-toggle="tooltip"]').tooltip({
-					container: 'body',
-					viewport: { selector: 'body', padding: 10 }
-				});
-				conversationWindow.find('[data-toggle="participants-tooltip"]').tooltip({
-					container: 'body',
-					viewport: { selector: 'body', padding: 10 },
-					template: '<div class="tooltip ilOnScreenChatWindowHeaderTooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-				});
-
-				let emoticonPanel = conversationWindow.find('[data-onscreenchat-emoticons-panel]'),
-					messageField = conversationWindow.find('[data-onscreenchat-message]');
-
-				emoticonPanel.find('[data-onscreenchat-emoticons-flyout-trigger]').on('click', function(e) {
-					e.preventDefault();
-					e.stopPropagation();
-
-					emoticonPanel.data('emoticons').preload().then(function() {
-						messageField.popover({
-							html:      true,
-							trigger:   'manual',
-							placement: 'auto',
-							title:     il.Language.txt('chat_osc_emoticons'),
-							content:   function () {
-								return emoticonPanel.data('emoticons').getContent();
-							},
-							sanitizeFn: function (content) {
-								return content;
-							}
-						});
-
-						messageField.popover('show');
-					});
-				}).on('clickoutside', function(e) {
-					e.preventDefault();
-					e.stopPropagation();
-
-					messageField.popover('hide');
-				});
 
 				newDomElementsCreated = true;
 			}
@@ -802,17 +749,6 @@
 			}
 		},
 
-		onEmoticonClicked: function(e) {
-			var conversationWindow = $(this).closest('[data-onscreenchat-window]'),
-				messageField = conversationWindow.find('[data-onscreenchat-message]');
-
-			e.preventDefault();
-			e.stopPropagation();
-
-			insertAtCursor(messageField[0], $(this).find('img').data('emoticon'));
-			messageField.popover('hide');
-		},
-
 		onWindowClicked: function(e) {
 			if (
 				$(e.target).closest('[data-onscreenchat-header]').length === 0 &&
@@ -1091,7 +1027,7 @@
 			template = template.replace(/\[\[time_raw\]\]/g, messageObject.timestamp);
 			template = template.replace(/\[\[time\]\]/g, dateTimeFormatter.fromNowToTime(messageObject.timestamp));
 			template = template.replace(/\[\[time_only\]\]/g, dateTimeFormatter.format(messageObject.timestamp, 'LT'));
-			template = template.replace(/\[\[message]\]/g, getModule().getMessageFormatter().format(message));
+			template = template.replace(/\[\[message]\]/g, message);
 			template = template.replace(/\[\[avatar\]\]/g, getProfileImage(messageObject.userId));
 			template = template.replace(/\[\[userId\]\]/g, messageObject.userId);
 			template = template.replace(/\[\[position\]\]/g, position);
@@ -1210,11 +1146,6 @@
 			});
 
 			il.ExtLink.autolink(chatBody.find('[data-onscreenchat-body-msg]'));
-			chatBody.find('[data-toggle="tooltip"]').tooltip({
-				placement: 'left',
-				container: 'body',
-				viewport: { selector: 'body', padding: 10 }
-			});
 
 			if (prepend === false) {
 				getModule().scrollBottom(chatWindow);
@@ -1263,14 +1194,6 @@
 		addUser: function(conversationId, userId, name) {
 			$chat.addUser(conversationId, userId, name);
 		},
-
-		getMessageFormatter: function() {
-			return getModule().messageFormatter;
-		},
-
-		getEmoticons: function() {
-			return getModule().emoticons;
-		}
 	};
 
 	/**
@@ -1469,9 +1392,11 @@
 		let _participants = participants;
 
 		this.format = function () {
-			return $("<ul/>").append(_participants.map(function(elm) {
-				return $("<li/>").html("&raquo; "  + elm);
-			})).wrap("<div/>").parent().html();
+			let i = 1;
+
+			return _participants.map(function(elm) {
+				return (i++ + ". ") + elm
+			}).join(" / ");
 		};
 	};
 
@@ -1480,114 +1405,6 @@
 			return getModule().participantsImages[userId].src;
 		}
 		return "";
-	};
-
-	const MessageFormatter = function MessageFormatter(emoticons) {
-		let _emoticons = emoticons;
-
-		this.format = function (message) {
-			return _emoticons.replace(message);
-		};
-	};
-
-	/**
-	 * This class renders the smiley selection for ChatActions.
-	 * It also replaces all smileys in a chat messages.
-	 *
-	 * @params {array} _smileys
-	 * @constructor
-	 */
-	const Smileys = function Smileys(_smileys) {
-		let emoticonMap = {}, emoticonCollection = [];
-
-		if (typeof _smileys === "object" && Object.keys(_smileys).length > 0) {
-			for (let i in _smileys) {
-				let prop = _smileys[i];
-
-				if (!emoticonMap.hasOwnProperty(prop)) {
-					emoticonMap[prop] = $('<img alt="" title="" />')
-						.attr("data-emoticon", i)
-						.attr("data-src", prop);
-				}
-
-				emoticonMap[prop].attr({
-					alt:   [emoticonMap[prop].attr("alt").toString(), i].join(" "),
-					title: [emoticonMap[prop].attr("title").toString(), i].join(" ")
-				});
-			}
-			for (let i in emoticonMap) {
-				emoticonCollection.push(emoticonMap[i].wrap('<div><a data-onscreenchat-emoticon></a></div>').parent().parent().html());
-			}
-		}
-
-        /**
-         *
-         * @param {string} src
-         * @returns {Promise<unknown>}
-         */
-        const Img = function(src) {
-            return new Promise(function(resolve, reject) {
-                let img = new Image();
-                img.addEventListener("load", function(e) {
-                    resolve(src)
-                    img.addEventListener("error", function() {
-                        reject(new Error("Failed to load image's URL: " + src));
-                    });
-                });
-                img.src = src;
-            });
-        };
-
-		/**
-		 * Sets smileys into text
-		 *
-		 * @param {string} message
-		 * @returns {string}
-		 */
-		this.replace = function (message) {
-			if (typeof _smileys === "string") {
-				return message;
-			}
-
-			for (let i in _smileys) {
-				while (message.indexOf(i) !== -1) {
-					message = message.replace(i, '<img src="' + _smileys[i] + '" />');
-				}
-			}
-
-			return message;
-		};
-
-		/**
-		 * 
-		 * @returns {Promise<unknown[]>}
-		 */
-		this.preload = function () {
-			let promises = Object.keys(emoticonMap).map(function (key) {
-				return Img(emoticonMap[key].attr("data-src"));
-			});
-
-			return Promise.all(promises);
-		};
-
-		this.getContent = function () {
-			let renderCollection = [];
-
-			emoticonCollection.forEach(function(elm) {
-				renderCollection.push(elm.replace(/data-src/, "src"));
-			});
-
-			return renderCollection.join('');
-		};
-
-		this.getTriggerHtml = function() {
-			if (typeof _smileys !== "object" || Object.keys(_smileys).length === 0) {
-				return $("");
-			}
-
-			return $('<div class="iosOnScreenChatEmoticonsPanel" data-onscreenchat-emoticons-panel><a data-onscreenchat-emoticons-flyout-trigger></a></div>')
-				.data("emoticons", this);
-		};
 	};
 
 	const TypingBroadcasterFactory = (function () {

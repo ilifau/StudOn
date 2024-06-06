@@ -26,15 +26,26 @@ use ILIAS\ResourceStorage\Lock\LockingRepository;
 use ILIAS\ResourceStorage\Preloader\PreloadableRepository;
 use ILIAS\ResourceStorage\Resource\ResourceNotFoundException;
 use ILIAS\ResourceStorage\Resource\StorableResource;
+<<<<<<< HEAD
+=======
+use ILIAS\ResourceStorage\Resource\ResourceType;
+>>>>>>> v9.1
 
 /**
  * Interface ResourceRepository
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 interface ResourceRepository extends LockingRepository, PreloadableRepository
 {
+<<<<<<< HEAD
     public function blank(ResourceIdentification $identification): StorableResource;
+=======
+    public function blank(
+        ResourceIdentification $identification,
+        ResourceType $type = ResourceType::SINGLE_FILE
+    ): StorableResource;
+>>>>>>> v9.1
 
 
     /**

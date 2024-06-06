@@ -34,8 +34,6 @@ class ilChatroomAuthInputGUI extends ilSubEnabledFormPropertyGUI
         self::NAME_AUTH_PROP_1 => '',
         self::NAME_AUTH_PROP_2 => ''
     ];
-
-    protected \ILIAS\HTTP\Services $http;
     /** @var string[]  */
     protected array $ctrl_path = [];
     protected int $size = 10;
@@ -43,10 +41,9 @@ class ilChatroomAuthInputGUI extends ilSubEnabledFormPropertyGUI
     protected array $values = self::DEFAULT_SHAPE;
     protected bool $isReadOnly = false;
 
-    public function __construct(string $title, string $httpPostVariableName, \ILIAS\HTTP\Services $http)
+    public function __construct(string $title, string $httpPostVariableName, protected \ILIAS\HTTP\Services $http)
     {
         parent::__construct($title, $httpPostVariableName);
-        $this->http = $http;
     }
 
     public function setIsReadOnly(bool $isReadOnly): void
@@ -106,7 +103,7 @@ class ilChatroomAuthInputGUI extends ilSubEnabledFormPropertyGUI
     {
         $this->values = [
             self::NAME_AUTH_PROP_1 => $a_values[$this->getPostVar()][self::NAME_AUTH_PROP_1] ?? '',
-            self::NAME_AUTH_PROP_2 => $a_values[$this->getPostVar()][self::NAME_AUTH_PROP_2]?? ''
+            self::NAME_AUTH_PROP_2 => $a_values[$this->getPostVar()][self::NAME_AUTH_PROP_2] ?? ''
         ];
 
         foreach ($this->getSubItems() as $item) {

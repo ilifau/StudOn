@@ -115,6 +115,13 @@ class ilSession
         return 0;
     }
 
+
+    /**
+    * Write session data
+    *
+    * @param	string		session id
+    * @param	string		session data
+    */
     public static function _writeData(string $a_session_id, string $a_data): bool
     {
         global $DIC;
@@ -170,39 +177,7 @@ class ilSession
                 $fields['context'] = [ilDBConstants::T_TEXT, ilContext::getType()];
             }
 
-            $insert_fields = implode(', ', array_keys($fields));
-            $insert_values = implode(
-                ', ',
-                array_map(
-                    static fn (string $type, $value): string => $ilDB->quote($value, $type),
-                    array_column($fields, 0),
-                    array_column($fields, 1)
-                )
-            );
-
-            $update_fields = array_filter(
-                $fields,
-                static fn (string $field): bool => !in_array($field, ['session_id', 'user_id', 'createtime'], true),
-                ARRAY_FILTER_USE_KEY
-            );
-            $update_values = implode(
-                ', ',
-                array_map(
-                    static fn (string $field, string $type, $value): string => $field . ' = ' . $ilDB->quote(
-                        $value,
-                        $type
-                    ),
-                    array_keys($update_fields),
-                    array_column($update_fields, 0),
-                    array_column($update_fields, 1)
-                )
-            );
-
-            $ilDB->manipulate(
-                'INSERT INTO usr_session (' . $insert_fields . ') '
-                . 'VALUES (' . $insert_values . ') '
-                . 'ON DUPLICATE KEY UPDATE ' . $update_values
-            );
+            $ilDB->insert("usr_session", $fields);
 
             // check type against session control
             $type = (int) $fields['type'][1];
@@ -216,12 +191,14 @@ class ilSession
             }
         }
 
-        // finally delete deprecated sessions
-        $random = new ilRandom();
-        if ($random->int(0, 50) === 2) {
-            // get time _before_ destroying expired sessions
-            self::_destroyExpiredSessions();
-            ilSessionStatistics::aggretateRaw($now);
+        if (!$DIC->cron()->manager()->isJobActive('auth_destroy_expired_sessions')) {
+            // finally delete deprecated sessions
+            $random = new ilRandom();
+            if ($random->int(0, 50) === 2) {
+                // get time _before_ destroying expired sessions
+                self::_destroyExpiredSessions();
+                ilSessionStatistics::aggretateRaw($now);
+            }
         }
 
         return true;
@@ -328,12 +305,11 @@ class ilSession
 
         $ilDB = $DIC['ilDB'];
 
-        $q = "SELECT session_id,expires FROM usr_session WHERE expires < " .
-            $ilDB->quote(time(), "integer");
+        $q = 'SELECT session_id, expires FROM usr_session WHERE expires < ' . $ilDB->quote(time(), ilDBConstants::T_INTEGER);
         $res = $ilDB->query($q);
         $ids = [];
         while ($row = $ilDB->fetchAssoc($res)) {
-            $ids[$row["session_id"]] = $row["expires"];
+            $ids[$row['session_id']] = (int) $row['expires'];
         }
         if ($ids !== []) {
             self::_destroy($ids, self::SESSION_CLOSE_EXPIRE, true);

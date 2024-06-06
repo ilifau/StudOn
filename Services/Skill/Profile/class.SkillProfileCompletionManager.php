@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +20,9 @@
  */
 
 namespace ILIAS\Skill\Profile;
+
+use ILIAS\Container\Skills\ContainerSkill;
+use ILIAS\Skill\GapAnalysisSkill;
 
 /**
  * Manages skill profile completion
@@ -47,7 +52,7 @@ class SkillProfileCompletionManager
     }
 
     /**
-     * @param array{base_skill_id: int, tref_id: int, level_id: int} $skills
+     * @param GapAnalysisSkill[] $skills
      * @return array<int, array<int, int>>
      */
     public function getActualMaxLevels(
@@ -60,9 +65,9 @@ class SkillProfileCompletionManager
         // get actual levels for gap analysis
         $actual_levels = [];
         foreach ($skills as $sk) {
-            $bs = new \ilBasicSkill($sk["base_skill_id"]);
+            $bs = new \ilBasicSkill($sk->getBaseSkillId());
             if ($gap_mode == "max_per_type") {
-                $max = $bs->getMaxLevelPerType($sk["tref_id"], $gap_mode_type, $user_id);
+                $max = $bs->getMaxLevelPerType($sk->getTrefId(), $gap_mode_type, $user_id);
             } elseif ($gap_mode == "max_per_object") {
                 if ($this->obj_definition->isContainer(\ilObject::_lookupType($gap_mode_obj_id))) {
                     $sub_objects = $this->tree_service->getSubTree(
@@ -73,18 +78,18 @@ class SkillProfileCompletionManager
                     $max = 0;
                     foreach ($sub_objects as $ref_id) {
                         $obj_id = \ilContainerReference::_lookupObjectId($ref_id);
-                        $max_tmp = $bs->getMaxLevelPerObject($sk["tref_id"], $obj_id, $user_id);
+                        $max_tmp = $bs->getMaxLevelPerObject($sk->getTrefId(), $obj_id, $user_id);
                         if ($max_tmp > $max) {
                             $max = $max_tmp;
                         }
                     }
                 } else {
-                    $max = $bs->getMaxLevelPerObject($sk["tref_id"], $gap_mode_obj_id, $user_id);
+                    $max = $bs->getMaxLevelPerObject($sk->getTrefId(), $gap_mode_obj_id, $user_id);
                 }
             } else {
-                $max = $bs->getMaxLevel($sk["tref_id"], $user_id);
+                $max = $bs->getMaxLevel($sk->getTrefId(), $user_id);
             }
-            $actual_levels[$sk["base_skill_id"]][$sk["tref_id"]] = $max;
+            $actual_levels[$sk->getBaseSkillId()][$sk->getTrefId()] = $max;
         }
 
         return $actual_levels;
@@ -102,7 +107,7 @@ class SkillProfileCompletionManager
     }
 
     /**
-     * @param array{base_skill_id: int, tref_id: int, level_id: int} $skills
+     * @param GapAnalysisSkill[] $skills
      * @return array<int, array<int, float>>
      */
     public function getActualNextLevelFulfilments(
@@ -115,15 +120,15 @@ class SkillProfileCompletionManager
         // get actual next level fulfilments for gap analysis
         $fuls = [];
         foreach ($skills as $sk) {
-            $bs = new \ilBasicSkill($sk["base_skill_id"]);
+            $bs = new \ilBasicSkill($sk->getBaseSkillId());
             if ($gap_mode == "max_per_type") {
-                $perc = $bs->getNextLevelFulfilmentPerType($sk["tref_id"], $gap_mode_type, $user_id);
+                $perc = $bs->getNextLevelFulfilmentPerType($sk->getTrefId(), $gap_mode_type, $user_id);
             } elseif ($gap_mode == "max_per_object") {
-                $perc = $bs->getNextLevelFulfilmentPerObject($sk["tref_id"], $gap_mode_obj_id, $user_id);
+                $perc = $bs->getNextLevelFulfilmentPerObject($sk->getTrefId(), $gap_mode_obj_id, $user_id);
             } else {
-                $perc = $bs->getNextLevelFulfilment($sk["tref_id"], $user_id);
+                $perc = $bs->getNextLevelFulfilment($sk->getTrefId(), $user_id);
             }
-            $fuls[$sk["base_skill_id"]][$sk["tref_id"]] = $perc;
+            $fuls[$sk->getBaseSkillId()][$sk->getTrefId()] = $perc;
         }
 
         return $fuls;
@@ -134,22 +139,13 @@ class SkillProfileCompletionManager
      */
     public function getProfileProgress(int $user_id, int $profile_id): int
     {
-        $profile = $this->profile_manager->getById($profile_id);
-        $profile_levels = $profile->getSkillLevels();
-        $skills = [];
-        foreach ($profile_levels as $l) {
-            $skills[] = array(
-                "base_skill_id" => $l["base_skill_id"],
-                "tref_id" => $l["tref_id"],
-                "level_id" => $l["level_id"]
-            );
-        }
-        $actual_levels = $this->getActualMaxLevels($user_id, $skills);
+        $profile_levels = $this->profile_manager->getSkillLevels($profile_id);
+        $actual_levels = $this->getActualMaxLevels($user_id, $profile_levels);
 
         $profile_count = 0;
         $achieved_count = 0;
-        foreach ($profile_levels as $profile) {
-            if ($actual_levels[$profile["base_skill_id"]][$profile["tref_id"]] >= $profile["level_id"]) {
+        foreach ($profile_levels as $level) {
+            if ($actual_levels[$level->getBaseSkillId()][$level->getTrefId()] >= $level->getLevelId()) {
                 $achieved_count++;
             }
             $profile_count++;
@@ -182,10 +178,10 @@ class SkillProfileCompletionManager
         $user_profiles = $this->profile_manager->getProfilesOfUser($user_id);
         $profile_comps = [];
         foreach ($user_profiles as $p) {
-            if ($this->isProfileFulfilled($user_id, $p["id"])) {
-                $profile_comps[$p["id"]] = true;
+            if ($this->isProfileFulfilled($user_id, $p->getId())) {
+                $profile_comps[$p->getId()] = true;
             } else {
-                $profile_comps[$p["id"]] = false;
+                $profile_comps[$p->getId()] = false;
             }
         }
 
@@ -194,6 +190,7 @@ class SkillProfileCompletionManager
 
     /**
      * Get profile completion entries for given user-profile-combination
+     * @return SkillProfileCompletion[]
      */
     public function getEntries(int $user_id, int $profile_id): array
     {
@@ -201,8 +198,8 @@ class SkillProfileCompletionManager
     }
 
     /**
-     * Get all profile completion entries for a user
-     * @return array{profile_id: int, user_id: int, date: string, fulfilled: int}[]
+     * Get all fulfilled profile completion entries for a user
+     * @return SkillProfileCompletion[]
      */
     public function getFulfilledEntriesForUser(int $user_id): array
     {
@@ -211,6 +208,7 @@ class SkillProfileCompletionManager
 
     /**
      * Get all profile completion entries for a user
+     * @return SkillProfileCompletion[]
      */
     public function getAllEntriesForUser(int $user_id): array
     {
@@ -219,6 +217,7 @@ class SkillProfileCompletionManager
 
     /**
      * Get all completion entries for a single profile
+     * @return SkillProfileCompletion[]
      */
     public function getAllEntriesForProfile(int $profile_id): array
     {
@@ -228,7 +227,7 @@ class SkillProfileCompletionManager
     /**
      * Write profile completion entries (fulfilled or non-fulfilled) of user for all profiles
      */
-    public function writeCompletionEntryForAllProfiles(int $user_id): void
+    public function writeCompletionEntryForAllProfilesOfUser(int $user_id): void
     {
         $completions = $this->getAllProfileCompletionsForUser($user_id);
         foreach ($completions as $profile_id => $fulfilled) {
@@ -243,12 +242,34 @@ class SkillProfileCompletionManager
     /**
      * Write profile completion entry (fulfilled or non-fulfilled) of user for given profile
      */
-    public function writeCompletionEntryForSingleProfile(int $user_id, int $profile_id): void
+    public function writeCompletionEntryForSingleProfileOfUser(int $user_id, int $profile_id): void
     {
         if ($this->isProfileFulfilled($user_id, $profile_id)) {
             $this->profile_completion_repo->addFulfilmentEntry($user_id, $profile_id);
         } else {
             $this->profile_completion_repo->addNonFulfilmentEntry($user_id, $profile_id);
+        }
+    }
+
+    /**
+     * Write completion entries for a profile for all assigned users of the given profile
+     */
+    public function writeCompletionEntryForAllAssignedUsersOfProfile(int $profile_id): void
+    {
+        $users = $this->profile_manager->getAssignedUserIdsIncludingRoleAssignments($profile_id);
+        foreach ($users as $user_id) {
+            $this->writeCompletionEntryForSingleProfileOfUser($user_id, $profile_id);
+        }
+    }
+
+    /**
+     * Write completion entries for a profile for assigned users of a role
+     */
+    public function writeCompletionEntryForRole(int $role_id, int $profile_id): void
+    {
+        $r_users = $this->profile_manager->getAssignedUsersForRole($role_id);
+        foreach ($r_users as $user_id) {
+            $this->writeCompletionEntryForSingleProfileOfUser($user_id, $profile_id);
         }
     }
 

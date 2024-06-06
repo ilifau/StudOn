@@ -48,17 +48,14 @@ class ilScorm2004BaseTestCase extends TestCase
         parent::setUp();
     }
 
-    /**
-     * @param mixed  $value
-     */
-    protected function setGlobalVariable(string $name, $value): void
+    protected function setGlobalVariable(string $name, mixed $value): void
     {
         global $DIC;
 
         $GLOBALS[$name] = $value;
 
         unset($DIC[$name]);
-        $DIC[$name] = static fn (\ILIAS\DI\Container $c) => $value;
+        $DIC[$name] = static fn(\ILIAS\DI\Container $c) => $value;
     }
 
     protected function getGlobalTemplateMock(): MockObject

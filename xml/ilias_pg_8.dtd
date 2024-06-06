@@ -28,7 +28,7 @@
 <!-- enable/disable paragraph elements -->
 <!ATTLIST PageContent
 	PCID CDATA #IMPLIED
-	Enabled (True|False) #IMPLIED	
+	Enabled (True|False) #IMPLIED
 >
 
 <!-- BibItemIdentifier specify from which BibItem(s) the content comes -->
@@ -269,7 +269,7 @@
 	PCID CDATA #IMPLIED
 >
 
-<!-- Table Cell. The Hidden Attribute must be set to "Y", if a cell is hidden due to anothers (non-hidden) cell 
+<!-- Table Cell. The Hidden Attribute must be set to "Y", if a cell is hidden due to anothers (non-hidden) cell
 col or row span. -->
 <!ELEMENT TableData (PageContent*)>
 <!ATTLIST TableData
@@ -514,7 +514,7 @@ col or row span. -->
 
 <!ELEMENT ConsultationHours (ConsultationHoursGroup*)>
 <!ATTLIST ConsultationHours
-	Mode (auto | manual) #REQUIRED	
+	Mode (auto | manual) #REQUIRED
 	User CDATA #REQUIRED
 >
 

@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
@@ -25,11 +27,11 @@
 // hey: fixRandomTestBuildable - iterator interface for collection
 class ilTestRandomQuestionSetQuestionCollection implements
     Iterator
-// hey.
+    // hey.
 {
-    private $questions = array();
+    private $questions = [];
 
-    public function setQuestions($questions)
+    public function setQuestions(array $questions): void
     {
         $this->questions = $questions;
     }
@@ -44,25 +46,20 @@ class ilTestRandomQuestionSetQuestionCollection implements
         $this->questions[] = $question;
     }
 
-    /**
-     * @return ilTestRandomQuestionSetQuestion|false
-     */
-    public function current()
+    public function current(): ?ilTestRandomQuestionSetQuestion
     {
-        return current($this->questions);
+        $current = current($this->questions);
+        return $current !== false ? $current : null;
     }
 
-    /**
-     * @return ilTestRandomQuestionSetQuestion|false
-     */
-    public function next()
+    public function next(): void
     {
-        return next($this->questions);
+        next($this->questions);
     }
 
-    public function key(): string
+    public function key(): ?string
     {
-        return key($this->questions);
+        return (string) key($this->questions);
     }
 
     public function valid(): bool
@@ -70,12 +67,9 @@ class ilTestRandomQuestionSetQuestionCollection implements
         return key($this->questions) !== null;
     }
 
-    /**
-     * @return ilTestRandomQuestionSetQuestion|false
-     */
-    public function rewind()
+    public function rewind(): void
     {
-        return reset($this->questions);
+        reset($this->questions);
     }
     // hey.
 

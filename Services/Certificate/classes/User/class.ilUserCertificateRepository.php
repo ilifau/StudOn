@@ -23,9 +23,9 @@ declare(strict_types=1);
  */
 class ilUserCertificateRepository
 {
-    private ilDBInterface $database;
-    private ilLogger $logger;
-    private string $defaultTitle;
+    private readonly ilDBInterface $database;
+    private readonly ilLogger $logger;
+    private readonly string $defaultTitle;
 
     public function __construct(
         ?ilDBInterface $database = null,
@@ -52,8 +52,6 @@ class ilUserCertificateRepository
     }
 
     /**
-     * @param ilUserCertificate $userCertificate
-     * @return ilUserCertificate
      * @throws ilDatabaseException
      */
     public function save(ilUserCertificate $userCertificate): ilUserCertificate
@@ -99,7 +97,6 @@ class ilUserCertificateRepository
     }
 
     /**
-     * @param int $userId
      * @return ilUserCertificatePresentation[]
      */
     public function fetchActiveCertificates(int $userId): array
@@ -157,9 +154,6 @@ AND currently_active = 1';
     }
 
     /**
-     * @param int $userId
-     * @param int $startTimestamp
-     * @param int $endTimeStamp
      * @return ilUserCertificatePresentation[]
      */
     public function fetchActiveCertificatesInIntervalForPresentation(
@@ -222,9 +216,6 @@ AND acquired_timestamp <= ' . $this->database->quote($endTimeStamp, 'integer');
     }
 
     /**
-     * @param int $userId
-     * @param int $objectId
-     * @return ilUserCertificate
      * @throws ilException
      */
     public function fetchActiveCertificate(int $userId, int $objectId): ilUserCertificate
@@ -263,9 +254,6 @@ AND currently_active = 1';
     }
 
     /**
-     * @param int $userId
-     * @param int $objectId
-     * @return ilUserCertificatePresentation
      * @throws ilException
      */
     public function fetchActiveCertificateForPresentation(int $userId, int $objectId): ilUserCertificatePresentation
@@ -332,8 +320,6 @@ AND il_cert_user_cert.currently_active = 1';
     }
 
     /**
-     * @param int $userId
-     * @param string $type
      * @return ilUserCertificatePresentation[]
      */
     public function fetchActiveCertificatesByTypeForPresentation(int $userId, string $type): array
@@ -394,8 +380,6 @@ WHERE usr_id = ' . $this->database->quote($userId, 'integer') . '
     }
 
     /**
-     * @param int $id
-     * @return ilUserCertificate
      * @throws ilException
      */
     public function fetchCertificate(int $id): ilUserCertificate
@@ -418,7 +402,6 @@ WHERE usr_id = ' . $this->database->quote($userId, 'integer') . '
     }
 
     /**
-     * @param int   $userId
      * @param int[] $objectIds
      * @return int[]
      */
@@ -430,7 +413,7 @@ WHERE usr_id = ' . $this->database->quote($userId, 'integer') . '
             json_encode($objectIds, JSON_THROW_ON_ERROR)
         ));
 
-        if (0 === count($objectIds)) {
+        if ([] === $objectIds) {
             return [];
         }
 
@@ -459,7 +442,6 @@ WHERE usr_id = ' . $this->database->quote($userId, 'integer') . '
     }
 
     /**
-     * @param int $objectId
      * @return int[]
      */
     public function fetchUserIdsWithCertificateForObject(int $objectId): array
@@ -494,8 +476,6 @@ WHERE obj_id = ' . $this->database->quote($objectId, 'integer') . '
     }
 
     /**
-     * @param int $objId
-     * @param int $userId
      * @return ilUserCertificate[]
      */
     private function fetchCertificatesOfObject(int $objId, int $userId): array
@@ -608,7 +588,6 @@ AND  usr_id = ' . $this->database->quote($userId, 'integer');
 
     /**
      * @param array<string, mixed> $row
-     * @return ilUserCertificate
      */
     private function createUserCertificate(array $row): ilUserCertificate
     {
@@ -629,5 +608,18 @@ AND  usr_id = ' . $this->database->quote($userId, 'integer');
             (string) $row['thumbnail_image_path'],
             isset($row['id']) ? (int) $row['id'] : null
         );
+    }
+
+    public function deleteUserCertificatesForObject(int $userId, int $obj_id): void
+    {
+        $this->logger->debug(sprintf('START - Delete certificate for user("%s") in object (obj_id: %s)"', $userId, $obj_id));
+
+        $sql = 'DELETE FROM il_cert_user_cert ' . PHP_EOL
+            . ' WHERE usr_id = ' . $this->database->quote($userId, 'integer') . PHP_EOL
+            . ' AND obj_id = ' . $this->database->quote($obj_id, 'integer');
+
+        $this->database->manipulate($sql);
+
+        $this->logger->debug(sprintf('END - Successfully deleted certificate for user("%s") in object (obj_id: %s)"', $userId, $obj_id));
     }
 }

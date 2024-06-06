@@ -140,7 +140,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
 
@@ -151,7 +155,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_render(): void
+=======
+    public function testRender(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -180,7 +188,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_render_error(): void
+=======
+    public function testRenderError(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -209,7 +221,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_render_no_byline(): void
+=======
+    public function testRenderNoByline(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -234,7 +250,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_render_value(): void
+=======
+    public function testRenderValue(): void
+>>>>>>> v9.1
     {
         $test_file_id = "test_file_id_1";
         $test_file_name = "test file name 1";
@@ -292,7 +312,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_render_with_metadata(): void
+=======
+    public function testRenderWithMetadata(): void
+>>>>>>> v9.1
     {
         $factory = $this->buildFactory();
 
@@ -366,7 +390,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_render_with_metadata_value(): void
+=======
+    public function testRenderWithMetadataValue(): void
+>>>>>>> v9.1
     {
         $test_file_id = "test_file_id_1";
         $test_file_name = "test file name 1";
@@ -448,7 +476,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_render_required(): void
+=======
+    public function testRenderRequired(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -473,7 +505,11 @@ class FileInputTest extends ILIAS_UI_TestBase
     }
 
 
+<<<<<<< HEAD
     public function test_render_disabled(): void
+=======
+    public function testRenderDisabled(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";

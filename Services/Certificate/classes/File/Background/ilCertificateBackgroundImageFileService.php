@@ -25,24 +25,17 @@ use ILIAS\Filesystem\Filesystem;
  */
 class ilCertificateBackgroundImageFileService
 {
-    public const BACKGROUND_IMAGE_NAME = 'background.jpg';
-    public const BACKGROUND_TEMPORARY_UPLOAD_FILE_NAME = 'background_upload_tmp';
-    public const BACKGROUND_THUMBNAIL_FILE_ENDING = '.thumb.jpg';
-    public const PLACEHOLDER_CLIENT_WEB_DIRECTORY = '[CLIENT_WEB_DIR]';
-    public const VALID_BACKGROUND_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png'];
-
-    private Filesystem $fileSystem;
-    private string $certificatePath;
-    private string $webDirectory;
+    final public const BACKGROUND_IMAGE_NAME = 'background.jpg';
+    final public const BACKGROUND_TEMPORARY_UPLOAD_FILE_NAME = 'background_upload_tmp';
+    final public const BACKGROUND_THUMBNAIL_FILE_ENDING = '.thumb.jpg';
+    final public const PLACEHOLDER_CLIENT_WEB_DIRECTORY = '[CLIENT_WEB_DIR]';
+    final public const VALID_BACKGROUND_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png'];
 
     public function __construct(
-        string $certificatePath,
-        Filesystem $filesystem,
-        string $webDirectory = CLIENT_WEB_DIR
+        private readonly string $certificatePath,
+        private readonly Filesystem $fileSystem,
+        private readonly string $webDirectory = CLIENT_WEB_DIR
     ) {
-        $this->certificatePath = $certificatePath;
-        $this->fileSystem = $filesystem;
-        $this->webDirectory = $webDirectory;
     }
 
     public function hasBackgroundImage(ilCertificateTemplate $template): bool
@@ -52,25 +45,7 @@ class ilCertificateBackgroundImageFileService
             return false;
         }
 
-        if ($this->fileSystem->has($backgroundImagePath)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public function hasBackgroundImageThumbnail(ilCertificateTemplate $template): bool
-    {
-        $backgroundImagePath = $template->getThumbnailImagePath();
-        if ($backgroundImagePath === '') {
-            return false;
-        }
-
-        if ($this->fileSystem->has($backgroundImagePath)) {
-            return true;
-        }
-
-        return false;
+        return $this->fileSystem->has($backgroundImagePath);
     }
 
     public function getBackgroundImageThumbPath(): string

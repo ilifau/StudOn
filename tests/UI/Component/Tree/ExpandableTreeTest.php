@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once("libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "../../../Base.php");
 
@@ -104,7 +112,7 @@ class ExpandableTreeTest extends ILIAS_UI_TestBase
         $r = $this->getDefaultRenderer();
         $html = $r->render($this->tree);
 
-        $expected = '<ul id="id_1" class="il-tree" role="tree" aria-label="label">' . $this->getInnerTreePart() . '</ul>';
+        $expected = '<ul id="id_1" class="c-tree" role="tree" aria-label="label">' . $this->getInnerTreePart() . '</ul>';
 
         $this->assertEquals(
             $this->brutallyTrimHTML($expected),
@@ -127,26 +135,26 @@ class ExpandableTreeTest extends ILIAS_UI_TestBase
 
     protected function getInnerTreePart(): string
     {
-        return '<li id="" class="il-tree-node node-simple expandable" role="treeitem" aria-expanded="false">
-				<span class="node-line"><span class="node-label">1</span></span>
+        return '<li class="c-tree__node c-tree__node--simple expandable" role="treeitem" aria-expanded="false">
+				<span class="c-tree__node__line"><span class="c-tree__node__label">1</span></span>
 
 				<ul role="group">
-					<li id="" class="il-tree-node node-simple" role="treeitem">
-						<span class="node-line"><span class="node-label">1.1</span></span>
+					<li class="c-tree__node c-tree__node--simple" role="treeitem">
+						<span class="c-tree__node__line"><span class="c-tree__node__label">1.1</span></span>
 					</li>
-					<li id="" class="il-tree-node node-simple expandable" role="treeitem" aria-expanded="false">
-						<span class="node-line"><span class="node-label">1.2</span></span>
+					<li class="c-tree__node c-tree__node--simple expandable" role="treeitem" aria-expanded="false">
+						<span class="c-tree__node__line"><span class="c-tree__node__label">1.2</span></span>
 
 						<ul role="group">
-							<li id="" class="il-tree-node node-simple" role="treeitem">
-								<span class="node-line"><span class="node-label">1.2.1</span></span>
+							<li class="c-tree__node c-tree__node--simple" role="treeitem">
+								<span class="c-tree__node__line"><span class="c-tree__node__label">1.2.1</span></span>
 							</li>
 						</ul>
 					</li>
 				</ul>
 			</li>
-			<li id="" class="il-tree-node node-simple" role="treeitem">
-				<span class="node-line"><span class="node-label">2</span></span>
+			<li class="c-tree__node c-tree__node--simple" role="treeitem">
+				<span class="c-tree__node__line"><span class="c-tree__node__label">2</span></span>
 			</li>';
     }
 }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,8 +16,20 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\HTTP\Response\Sender\ResponseSendingException;
+use ILIAS\UI\Component\Modal\Modal;
+use ILIAS\UI\Component\Dropdown\Dropdown;
+use ILIAS\UI\Component\ViewControl;
+use ILIAS\UI\Component\Component;
+use ILIAS\UI\Component\Modal\RoundTrip;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Component\Panel\Listing\Standard as StandardListingPanel;
+use ILIAS\UI\Component\Panel\Standard as StandardPanel;
+use ILIAS\UI\Component\Panel\Secondary\Listing as SecondaryListingPanel;
+use ILIAS\UI\Component\Panel\Secondary\Legacy as SecondaryLegacyPanel;
 
 /**
  * This class represents a block method of a block.
@@ -33,13 +43,24 @@ abstract class ilBlockGUI
     public const PRES_SEC_LIST = 2;		// secondary list panel
     public const PRES_MAIN_LIST = 3;		// main standard list panel
     public const PRES_MAIN_TILE = 4;		// main standard list panel
-    private int $offset;
+    private int $offset = 0;
     private int $limit;
     private bool $enableedit;
     private string $subtitle;
     private int $refid;
     private string $rowtemplatename;
     private string $rowtemplatedir;
+    /** @var Modal[]  */
+    private array $modals = [];
+    /** @var <string, string> */
+    private array $sort_options = [];
+    /** @var <string, string> */
+    private array $presentations = [];
+    private string $activePresentation = '';
+    private string $activeSortOption = '';
+    private string $sort_target = '';
+    protected \ILIAS\UI\Renderer $renderer;
+    protected Factory $factory;
     protected object $gui_object;
     protected \ILIAS\Block\StandardGUIRequest $request;
     protected \ILIAS\Block\BlockManager $block_manager;
@@ -76,7 +97,8 @@ abstract class ilBlockGUI
     public function __construct()
     {
         global $DIC;
-
+        $this->factory = $DIC->ui()->factory();
+        $this->renderer = $DIC->ui()->renderer();
 
         $this->http = $DIC->http();
         $block_service = new ILIAS\Block\Service($DIC);
@@ -171,7 +193,13 @@ abstract class ilBlockGUI
 
     public function setOffset(int $a_offset): void
     {
-        $this->offset = $a_offset;
+        // see https://github.com/ILIAS-eLearning/ILIAS/pull/6551/files
+        $this->max_count = count($this->getData());
+        if ($this->checkOffset($a_offset)) {
+            $this->offset = $a_offset;
+        } else {
+            throw new ilException("ilBlockGUI::setOffset(): Offset out of range.");
+        }
     }
 
     public function getOffset(): int
@@ -179,11 +207,9 @@ abstract class ilBlockGUI
         return $this->offset;
     }
 
-    public function correctOffset(): void
+    public function checkOffset(int $offset): bool
     {
-        if (!($this->offset < $this->max_count)) {
-            $this->setOffset(0);
-        }
+        return $offset <= $this->max_count && $offset >= 0;
     }
 
     public function setLimit(int $a_limit): void
@@ -314,12 +340,13 @@ abstract class ilBlockGUI
         return $this->rowtemplatedir;
     }
 
-    public function addBlockCommand(string $a_href, string $a_text, string $a_onclick = ""): void
+    public function addBlockCommand(string $a_href, string $a_text, string $a_onclick = "", RoundTrip $modal = null): void
     {
         $this->block_commands[] = [
             "href" => $a_href,
             "text" => $a_text,
-            "onclick" => $a_onclick
+            "onclick" => $a_onclick,
+            "modal" => $modal
         ];
     }
 
@@ -341,9 +368,10 @@ abstract class ilBlockGUI
     {
         $this->initCommands();
 
-        if ($this->new_rendering) {
-            return $this->getHTMLNew();
-        }
+        // old rendering is obsolete
+        //if ($this->new_rendering) {
+        return $this->getHTMLNew();
+        //}
 
         $ilCtrl = $this->ctrl;
         $lng = $this->lng;
@@ -425,7 +453,7 @@ abstract class ilBlockGUI
         $this->fillFooter();
 
 
-        $this->fillHeaderCommands();
+        //$this->fillHeaderCommands();
         $this->fillHeaderTitleBlock();
 
         if ($this->getPresentation() === self::PRES_MAIN_LEG) {
@@ -437,48 +465,13 @@ abstract class ilBlockGUI
         if ($ilCtrl->isAsynch()) {
             // return without div wrapper
             echo $this->tpl->get();
-        //echo $this->tpl->getAsynch();
+            //echo $this->tpl->getAsynch();
         } else {
             // return incl. wrapping div with id
             return '<div id="' . "block_" . $this->getBlockType() . "_" . $this->block_id . '">' .
                 $this->tpl->get() . '</div>';
         }
         return "";
-    }
-
-    public function fillHeaderCommands(): void
-    {
-        // adv selection gui
-        $dropdown = new ilAdvancedSelectionListGUI();
-        $dropdown->setUseImages(true);
-        $dropdown->setStyle(ilAdvancedSelectionListGUI::STYLE_LINK_BUTTON);
-        $dropdown->setHeaderIcon(ilAdvancedSelectionListGUI::ICON_CONFIG);
-        $dropdown->setId("block_dd_" . $this->getBlockType() . "_" . $this->block_id);
-        foreach ($this->dropdown as $item) {
-            if ($item["href"] || $item["onclick"]) {
-                if (isset($item["checked"]) && $item["checked"]) {
-                    $item["image"] = ilUtil::getImagePath("icon_checked.svg");
-                }
-                $dropdown->addItem(
-                    $item["text"],
-                    "",
-                    $item["href"],
-                    $item["image"] ?? "",
-                    $item["text"],
-                    "",
-                    "",
-                    false,
-                    $item["onclick"]
-                );
-            }
-        }
-        $dropdown = $dropdown->getHTML();
-        $this->tpl->setCurrentBlock("header_dropdown");
-        $this->tpl->setVariable("ADV_DROPDOWN", $dropdown);
-        $this->tpl->parseCurrentBlock();
-
-        $this->tpl->setCurrentBlock("hitem");
-        $this->tpl->parseCurrentBlock();
     }
 
     public function fillHeaderTitleBlock(): void
@@ -553,7 +546,6 @@ abstract class ilBlockGUI
 
         $data = $this->getData();
         $this->max_count = count($data);
-        $this->correctOffset();
         $data = array_slice($data, $this->getOffset(), $this->getLimit());
 
         $this->preloadData($data);
@@ -648,22 +640,6 @@ abstract class ilBlockGUI
     }
 
     /**
-     * Get view controls
-     *
-     * @return array
-     */
-    protected function getViewControls(): array
-    {
-        if ($this->getPresentation() == self::PRES_SEC_LIST) {
-            $pg_view_control = $this->getPaginationViewControl();
-            if (!is_null($pg_view_control)) {
-                return [$pg_view_control];
-            }
-        }
-        return [];
-    }
-
-    /**
      * Get list item for data array
      *
      * @param array $data
@@ -710,7 +686,6 @@ abstract class ilBlockGUI
     {
         $data = $this->getData();
         $this->max_count = count($data);
-        $this->correctOffset();
         $data = array_slice($data, $this->getOffset(), $this->getLimit());
         $this->preloadData($data);
         return $data;
@@ -753,6 +728,10 @@ abstract class ilBlockGUI
 
         $ilCtrl = $this->ctrl;
 
+        if ($this->max_count <= $this->getLimit()) {
+            return null;
+        }
+
 
         //		$ilCtrl->setParameterByClass("ilcolumngui",
         //			$this->getNavParameter(), "::" . $prevoffset);
@@ -782,15 +761,11 @@ abstract class ilBlockGUI
         //$ilCtrl->setParameterByClass("ilcolumngui",
         //	$this->getNavParameter(), "");
 
-        if ($this->max_count <= $this->getLimit()) {
-            return null;
-        }
-
         return $factory->viewControl()->pagination()
             ->withTargetURL($href, $this->getNavParameter() . "page")
             ->withTotalEntries($this->max_count)
             ->withPageSize($this->getLimit())
-            ->withMaxPaginationButtons(5)
+            ->withMaxPaginationButtons(1)
             ->withCurrentPage($this->getOffset() / $this->getLimit());
     }
 
@@ -857,9 +832,6 @@ abstract class ilBlockGUI
 
     public function getHTMLNew(): string
     {
-        global $DIC;
-        $factory = $DIC->ui()->factory();
-        $renderer = $DIC->ui()->renderer();
         $access = $this->access;
         $panel = null;
 
@@ -875,22 +847,22 @@ abstract class ilBlockGUI
 
         switch ($this->getPresentation()) {
             case self::PRES_SEC_LEG:
-                $panel = $factory->panel()->secondary()->legacy(
+                $panel = $this->factory->panel()->secondary()->legacy(
                     $this->getTitle(),
-                    $factory->legacy($this->getLegacyContent())
+                    $this->factory->legacy($this->getLegacyContent())
                 );
                 break;
 
             case self::PRES_MAIN_LEG:
-                $panel = $factory->panel()->standard(
+                $panel = $this->factory->panel()->standard(
                     $this->getTitle(),
-                    $factory->legacy($this->getLegacyContent())
+                    $this->factory->legacy($this->getLegacyContent())
                 );
                 break;
 
             case self::PRES_SEC_LIST:
                 $this->handleNavigation();
-                $panel = $factory->panel()->secondary()->listing(
+                $panel = $this->factory->panel()->secondary()->listing(
                     $this->getTitle(),
                     $this->getListItemGroups()
                 );
@@ -899,67 +871,49 @@ abstract class ilBlockGUI
             case self::PRES_MAIN_TILE:
             case self::PRES_MAIN_LIST:
                 $this->handleNavigation();
-                $panel = $factory->panel()->listing()->standard(
+                $panel = $this->factory->panel()->listing()->standard(
                     $this->getTitle(),
                     $this->getListItemGroups()
                 );
                 break;
-
-        }
-
-        // actions
-        $actions = [];
-
-        foreach ($this->getBlockCommands() as $command) {
-            $href = ($command["onclick"] != "")
-                ? ""
-                : $command["href"];
-            $button = $factory->button()->shy($command["text"], $href);
-            if ($command["onclick"]) {
-                $button = $button->withOnLoadCode(function ($id) use ($command) {
-                    return
-                        "$(\"#$id\").click(function() { ilBlockJSHandler('" . "block_" . $this->getBlockType() . "_" . $this->block_id .
-                        "','" . $command["onclick"] . "');});";
-                });
-            }
-            $actions[] = $button;
         }
 
         // check for empty list panel
-        if (in_array($this->getPresentation(), [self::PRES_SEC_LIST, self::PRES_MAIN_LIST]) &&
-            (count($panel->getItemGroups()) == 0 || (count($panel->getItemGroups()) == 1 && count($panel->getItemGroups()[0]->getItems()) == 0))) {
-            if ($this->getPresentation() == self::PRES_SEC_LIST) {
-                $panel = $factory->panel()->secondary()->legacy(
+        if (in_array($this->getPresentation(), [self::PRES_SEC_LIST, self::PRES_MAIN_LIST], true) &&
+            ($panel->getItemGroups() === [] || (count($panel->getItemGroups()) === 1 && $panel->getItemGroups()[0]->getItems() === []))) {
+            if ($this->getPresentation() === self::PRES_SEC_LIST) {
+                $panel = $this->factory->panel()->secondary()->legacy(
                     $this->getTitle(),
-                    $factory->legacy($this->getNoItemFoundContent())
+                    $this->factory->legacy($this->getNoItemFoundContent())
                 );
             } else {
-                $panel = $factory->panel()->standard(
+                $panel = $this->factory->panel()->standard(
                     $this->getTitle(),
-                    $factory->legacy($this->getNoItemFoundContent())
+                    $this->factory->legacy($this->getNoItemFoundContent())
                 );
             }
         }
 
-
-        if (count($actions) > 0) {
-            $actions = $factory->dropdown()->standard($actions)
-                ->withAriaLabel(sprintf(
-                    $this->lng->txt('actions_for'),
-                    htmlspecialchars($this->getTitle())
-                ));
+        $actions = $this->getActionsForPanel();
+        if ($actions !== null) {
             $panel = $panel->withActions($actions);
         }
-
-        // view controls
-        if (count($this->getViewControls()) > 0) {
-            $panel = $panel->withViewControls($this->getViewControls());
+        $viewControls = $this->getViewControlsForPanel();
+        if ($viewControls !== [] &&
+            (
+                $panel instanceof StandardPanel ||
+                $panel instanceof SecondaryListingPanel ||
+                $panel instanceof SecondaryLegacyPanel ||
+                $panel instanceof StandardListingPanel
+            )
+        ) {
+            $panel = $panel->withViewControls($viewControls);
         }
 
         if ($ctrl->isAsynch()) {
-            $html = $renderer->renderAsync($panel);
+            $html = $this->renderer->renderAsync([$panel, ...$this->modals]);
         } else {
-            $html = $renderer->render($panel);
+            $html = $this->renderer->render([$panel, ...$this->modals]);
         }
 
 
@@ -967,11 +921,109 @@ abstract class ilBlockGUI
             $this->send($html);
         } else {
             // return incl. wrapping div with id
-            $html = '<div id="' . "block_" . $this->getBlockType() . "_" . $this->block_id . '">' .
+            $html = '<div id="' . 'block_' . $this->getBlockType() . '_' . $this->block_id . '">' .
                 $html . '</div>';
         }
 
         return $html;
+    }
+
+    protected function getActionsForPanel(): ?Dropdown
+    {
+        // actions
+        $actions = [];
+        $modals = [];
+
+        foreach ($this->getBlockCommands() as $command) {
+            $href = ($command['onclick'] !== '')
+                ? ''
+                : $command['href'];
+            $button = $this->factory->button()->shy($command['text'], $href);
+            if ($command['onclick']) {
+                $button = $button->withOnLoadCode(function ($id) use ($command) {
+                    return
+                        "$(\"#$id\").click(function() { ilBlockJSHandler('" . "block_" . $this->getBlockType() . "_" . $this->block_id .
+                        "','" . $command["onclick"] . "');});";
+                });
+            }
+
+            if (isset($command['modal']) && $command['modal'] instanceof Modal) {
+                $button = $button->withOnClick($command['modal']->getShowSignal());
+                $this->modals[] = $command['modal'];
+            }
+            $actions[] = $button;
+        }
+
+        if (count($actions) > 0) {
+            $actions = $this->factory->dropdown()->standard($actions)
+                               ->withAriaLabel(sprintf(
+                                   $this->lng->txt('actions_for'),
+                                   htmlspecialchars($this->getTitle())
+                               ));
+            return $actions;
+        }
+        return null;
+    }
+
+    /** @return ViewControl\Sortation[]|ViewControl\Pagination[] */
+    public function getViewControlsForPanel(): array
+    {
+        $viewControls = [];
+        if (count($this->presentations) > 1) {
+            $presentation = $this->factory->viewControl()->mode(
+                $this->presentations,
+                'label'
+            )->withActive($this->activePresentation);
+            $viewControls[] = $presentation;
+        }
+
+        if ($this->sort_options !== []) {
+            $sortation = $this->factory->viewControl()->sortation(
+                $this->sort_options
+            )->withTargetURL(
+                $this->sort_target,
+                'sorting'
+            )->withLabel(
+                $this->activeSortOption
+            );
+            $viewControls[] = $sortation;
+        }
+
+
+        if ($this->getPresentation() === self::PRES_SEC_LIST) {
+            $pg_view_control = $this->getPaginationViewControl();
+            if ($pg_view_control !== null) {
+                $viewControls[] = $pg_view_control;
+            }
+        }
+        return $viewControls;
+    }
+
+    public function sortObject(): string
+    {
+        return $this->getHTML();
+    }
+
+    public function addSortOption(string $option, string $label, bool $active): void
+    {
+        if ($active) {
+            $this->activeSortOption = $label;
+        } else {
+            $this->sort_options[$option] = $label;
+        }
+    }
+
+    public function setSortTarget(string $target): void
+    {
+        $this->sort_target = $target;
+    }
+
+    public function addPresentation(string $label, string $target, bool $active): void
+    {
+        $this->presentations[$label] = $target;
+        if ($active) {
+            $this->activePresentation = $label;
+        }
     }
 
     /**

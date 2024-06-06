@@ -90,7 +90,6 @@ class PageRenderer
 
         // questions
         foreach ($page as $data) {
-
             // question heading
             if ($data["heading"]) {
                 $stpl->setCurrentBlock("heading");

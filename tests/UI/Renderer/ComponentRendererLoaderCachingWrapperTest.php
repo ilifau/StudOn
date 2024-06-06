@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 use PHPUnit\Framework\TestCase;
 use ILIAS\UI\Implementation\Render\Loader;
 use ILIAS\UI\Component\Component;
@@ -28,7 +36,11 @@ use ILIAS\UI\Implementation\Render\ComponentRenderer;
 
 class ComponentRendererLoaderCachingWrapperTest extends TestCase
 {
+<<<<<<< HEAD
     public function test_forwards_from_underlying(): void
+=======
+    public function testForwardsFromUnderlying(): void
+>>>>>>> v9.1
     {
         $underlying = $this->getMockBuilder(Loader::class)
             ->onlyMethods(["getRendererFor", "getRendererFactoryFor"])
@@ -49,7 +61,11 @@ class ComponentRendererLoaderCachingWrapperTest extends TestCase
         $this->assertSame($renderer, $r);
     }
 
+<<<<<<< HEAD
     public function test_caches(): void
+=======
+    public function testCaches(): void
+>>>>>>> v9.1
     {
         $underlying = $this->getMockBuilder(\ILIAS\UI\Implementation\Render\Loader::class)
             ->onlyMethods(["getRendererFor", "getRendererFactoryFor"])
@@ -71,7 +87,11 @@ class ComponentRendererLoaderCachingWrapperTest extends TestCase
         $this->assertSame($renderer, $r2);
     }
 
+<<<<<<< HEAD
     public function test_caching_respects_contexts(): void
+=======
+    public function testCachingRespectsContexts(): void
+>>>>>>> v9.1
     {
         $underlying = $this->getMockBuilder(\ILIAS\UI\Implementation\Render\Loader::class)
             ->onlyMethods(["getRendererFor", "getRendererFactoryFor"])
@@ -99,7 +119,11 @@ class ComponentRendererLoaderCachingWrapperTest extends TestCase
         $this->assertSame($renderer1, $r4);
     }
 
+<<<<<<< HEAD
     public function test_passthrough_getRendererFactory(): void
+=======
+    public function testPassthroughGetRendererFactory(): void
+>>>>>>> v9.1
     {
         $underlying = $this->getMockBuilder(\ILIAS\UI\Implementation\Render\Loader::class)
             ->onlyMethods(["getRendererFor", "getRendererFactoryFor"])

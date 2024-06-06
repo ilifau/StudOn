@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\Symbol\Icon;
 
 use ILIAS\UI\Component as C;
@@ -103,6 +111,8 @@ class Standard extends Icon implements C\Symbol\Icon\Standard
         self::RTST,
         self::ECSS,
         self::TOS,
+        self::DPRO,
+        self::IMPR,
         self::BIBL,
         self::SYSC,
         self::CLD,
@@ -124,7 +134,6 @@ class Standard extends Icon implements C\Symbol\Icon\Standard
         self::CADM,
         self::GRPR,
         self::BDGA,
-        self::WFE,
         self::IASS,
         self::COPA,
         self::CPAD,
@@ -140,9 +149,21 @@ class Standard extends Icon implements C\Symbol\Icon\Standard
         self::CMIS,
         self::TASK,
         self::REP,
+        self::LSO,
+        self::LSOS,
+        self::ADN,
+        self::NOTA,
+        self::GCON,
+        self::CON,
+        self::FILS,
+        self::TALA
+    ];
+
+    private static array $standard_page_editor_icons = [
         self::PEAC,
         self::PEADL,
         self::PEADT,
+        self::PEAN,
         self::PECD,
         self::PECH,
         self::PECL,
@@ -166,6 +187,7 @@ class Standard extends Icon implements C\Symbol\Icon\Standard
         self::PESC,
         self::PETMP,
         self::PEUSR,
+<<<<<<< HEAD
         self::LSO,
         self::LSOS,
         self::ADN,
@@ -174,6 +196,8 @@ class Standard extends Icon implements C\Symbol\Icon\Standard
         self::CON,
         self::FILS,
         self::TALA
+=======
+>>>>>>> v9.1
     ];
 
     public function __construct(string $name, string $label, string $size, bool $is_disabled)
@@ -198,5 +222,14 @@ class Standard extends Icon implements C\Symbol\Icon\Standard
     public function getAllStandardHandles(): array
     {
         return self::$standard_icons;
+    }
+
+    /**
+     * get all defined constants
+     * @return string[]
+     */
+    public function getAllStandardPageEditorHandles(): array
+    {
+        return self::$standard_page_editor_icons;
     }
 }

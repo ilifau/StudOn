@@ -20,7 +20,15 @@ declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Consumer;
 
+<<<<<<< HEAD
 use ILIAS\ResourceStorage\Revision\Revision;
+=======
+use ILIAS\ResourceStorage\Flavour\Flavour;
+use ILIAS\ResourceStorage\Revision\Revision;
+use ILIAS\FileDelivery\Services;
+use ILIAS\FileDelivery\Delivery\Disposition;
+use ILIAS\Filesystem\Stream\FileStream;
+>>>>>>> v9.1
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -28,13 +36,27 @@ use ILIAS\ResourceStorage\Revision\Revision;
  */
 class InlineSrcBuilder implements SrcBuilder
 {
+<<<<<<< HEAD
     public function getRevisionURL(
         Revision $revision,
         bool $signed = true
+=======
+    public function __construct(
+        private Services $file_delivery
+    ) {
+
+    }
+
+    public function getRevisionURL(
+        Revision $revision,
+        bool $signed = true,
+        float $valid_for_at_least_minutes  = 60.0
+>>>>>>> v9.1
     ): string {
         if ($signed) {
             throw new \RuntimeException('InlineSrcBuilder does not support signed URLs');
         }
+<<<<<<< HEAD
         $token = $revision->maybeGetToken();
         if ($token !== null) {
             $stream = $token->resolveStream();
@@ -45,4 +67,43 @@ class InlineSrcBuilder implements SrcBuilder
         }
         return '';
     }
+=======
+        $sream_resolver = $revision->maybeStreamResolver();
+        if ($sream_resolver !== null) {
+            $stream = $sream_resolver->getStream();
+            if($sream_resolver->isInMemory()) {
+                return $this->buildDataURLFromStream($stream);
+            }
+
+            $this->file_delivery->buildTokenURL(
+                $stream,
+                $revision->getTitle(),
+                Disposition::INLINE,
+                6, // FSX TODO
+                1
+            );
+        }
+        return '';
+    }
+
+    public function getFlavourURLs(
+        Flavour $flavour,
+        bool $signed = true
+    ): \Generator {
+        if ($signed) {
+            throw new \RuntimeException('InlineSrcBuilder does not support signed URLs');
+        }
+        foreach ($flavour->getStreamResolvers() as $stream_resolver) {
+            $stream = $stream_resolver->getStream();
+            yield $this->buildDataURLFromStream($stream);
+        }
+    }
+
+    public function buildDataURLFromStream(FileStream $stream): string
+    {
+        $mime_type = mime_content_type($stream->getMetadata()['uri']) ?: 'application/octet-stream';
+        $base64 = base64_encode((string) $stream);
+        return "data:$mime_type;base64,$base64";
+    }
+>>>>>>> v9.1
 }

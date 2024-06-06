@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Class ilTestPassDetailsOverviewTableGUITest
@@ -52,7 +52,7 @@ class ilTestPassDetailsOverviewTableGUITest extends ilTestBaseTestCase
         $this->parentObj_mock->expects($this->any())->method('getObject')->willReturn($this->createMock(ilObjTest::class));
         $this->tableGui = new ilTestPassDetailsOverviewTableGUI(
             $ctrl_mock,
-            $this->parentObj_mock,
+            $this->createMock(ilTestServiceGUI::class),
             ""
         );
     }
@@ -69,12 +69,6 @@ class ilTestPassDetailsOverviewTableGUITest extends ilTestBaseTestCase
         $this->assertFalse($this->tableGui->isPdfGenerationRequest());
         $this->tableGui->setIsPdfGenerationRequest(true);
         $this->assertTrue($this->tableGui->isPdfGenerationRequest());
-    }
-
-    public function testSingleAnswerScreenCmd(): void
-    {
-        $this->tableGui->setSingleAnswerScreenCmd("testString");
-        $this->assertEquals("testString", $this->tableGui->getSingleAnswerScreenCmd());
     }
 
     public function testAnswerListAnchorEnabled(): void

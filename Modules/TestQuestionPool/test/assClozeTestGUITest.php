@@ -31,6 +31,8 @@ class assClozeTestGUITest extends assBaseTestCase
     {
         parent::setUp();
 
+        $this->setGlobalVariable('ilLog', $this->createMock(ilLogger::class));
+
         $ilCtrl_mock = $this->getMockBuilder(ilCtrl::class)
                             ->disableOriginalConstructor()
                             ->getMock();
@@ -52,23 +54,32 @@ class assClozeTestGUITest extends assBaseTestCase
 
         $this->setGlobalVariable('ilias', $ilias_mock);
         $this->setGlobalVariable('tpl', $this->getGlobalTemplateMock());
+        $this->addGlobal_uiFactory();
+        $this->addGlobal_uiRenderer();
     }
 
-    public function test_instantiateObject_shouldReturnInstance(): void
+    public function testInstantiateObjectShouldReturnInstance(): void
     {
         /**
          * @runInSeparateProcess
          * @preserveGlobalState enabled
          */
-        //$this->markTestIncomplete('Needs mock ilCtrl.');
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assClozeTestGUI.php';
-
-
 
         // Act
-        $instance = new assClozeTestGUI();
+        $this->setGlobalVariable(
+            'ui.factory',
+            $this->getMockBuilder(\ILIAS\UI\Factory::class)
+                ->disableOriginalConstructor()
+                ->getMock()
+        );
+        $this->setGlobalVariable(
+            'ui.renderer',
+            $this->getMockBuilder(\ILIAS\UI\Renderer::class)
+                ->disableOriginalConstructor()
+                ->getMock()
+        );
 
+        $instance = new assClozeTestGUI();
         $this->assertInstanceOf('assClozeTestGUI', $instance);
     }
 }

@@ -22,6 +22,11 @@ namespace ILIAS\Exercise\Assignment;
 
 use ILIAS\Exercise\InternalRepoService;
 use ILIAS\Exercise\InternalDomainService;
+use ILIAS\Exercise\InstructionFile\InstructionFileManager;
+use ILIAS\Exercise\SampleSolution\SampleSolutionManager;
+use ILIAS\Exercise\TutorFeedbackFile\TutorFeedbackFileManager;
+use ILIAS\Exercise\TutorFeedbackFile\TutorFeedbackZipManager;
+use ILIAS\Exercise\TutorFeedbackFile\TutorFeedbackFileObserver;
 
 /**
  * Assignments domain service
@@ -42,6 +47,17 @@ class DomainService
     ) {
         $this->domain_service = $domain_service;
         $this->repo_service = $repo_service;
+    }
+
+
+    public function assignments(int $ref_id, int $user_id): AssignmentManager
+    {
+        return new AssignmentManager(
+            $this->repo_service,
+            $this->domain_service,
+            $ref_id,
+            $user_id
+        );
     }
 
     /**
@@ -74,4 +90,66 @@ class DomainService
         }
         return self::$managers[Mandatory\MandatoryAssignmentsManager::class][$exercise->getId()];
     }
+
+    public function state(int $ass_id, int $user_id): \ilExcAssMemberState
+    {
+        return \ilExcAssMemberState::getInstanceByIds($ass_id, $user_id);
+    }
+
+    public function instructionFiles(int $ass_id): InstructionFileManager
+    {
+        $stakeholder = new \ilExcInstructionFilesStakeholder();
+        return new InstructionFileManager(
+            $ass_id,
+            $this->repo_service->instructionFiles(),
+            $stakeholder
+        );
+    }
+
+    public function sampleSolution(int $ass_id): SampleSolutionManager
+    {
+        $stakeholder = new \ilExcSampleSolutionStakeholder();
+        return new SampleSolutionManager(
+            $ass_id,
+            $this->repo_service->sampleSolution(),
+            $stakeholder,
+            $this->domain_service
+        );
+    }
+
+    public function tutorFeedbackFile(int $ass_id): TutorFeedbackFileManager
+    {
+        $stakeholder = new \ilExcTutorFeedbackFileStakeholder();
+        $team_stakeholder = new \ilExcTutorTeamFeedbackFileStakeholder();
+        $observer = new TutorFeedbackFileObserver($this->domain_service, $ass_id);
+        return new TutorFeedbackFileManager(
+            $ass_id,
+            $this->repo_service,
+            $this->domain_service,
+            $stakeholder,
+            $team_stakeholder,
+            $observer
+        );
+    }
+
+    public function tutorFeedbackZip(): TutorFeedbackZipManager
+    {
+        $stakeholder = new \ilExcTutorFeedbackZipStakeholder();
+        $user_stakeholder = new \ilExcTutorFeedbackFileStakeholder();
+        return new TutorFeedbackZipManager(
+            $this->repo_service,
+            $this->domain_service,
+            $stakeholder,
+            $user_stakeholder
+        );
+    }
+
+    /**
+     * @throws \ilExcUnknownAssignmentTypeException
+     */
+    public function getAssignment(int $ass_id): \ilExAssignment
+    {
+        return new \ilExAssignment($ass_id);
+    }
+
 }

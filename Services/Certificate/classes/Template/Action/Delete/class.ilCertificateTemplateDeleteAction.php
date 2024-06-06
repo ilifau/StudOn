@@ -18,28 +18,23 @@
 
 declare(strict_types=1);
 
+use ILIAS\Filesystem\Filesystem;
+
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateTemplateDeleteAction implements ilCertificateDeleteAction
 {
-    private ilCertificateTemplateRepository $templateRepository;
-    private string $rootDirectory;
-    private ilCertificateUtilHelper $utilHelper;
-    private ilCertificateObjectHelper $objectHelper;
-    private string $iliasVersion;
+    private readonly ilCertificateUtilHelper $utilHelper;
+    private readonly ilCertificateObjectHelper $objectHelper;
 
     public function __construct(
-        ilCertificateTemplateRepository $templateRepository,
-        string $rootDirectory = CLIENT_WEB_DIR,
+        private readonly ilCertificateTemplateRepository $templateRepository,
+        private readonly string $rootDirectory = CLIENT_WEB_DIR,
+        private readonly string $iliasVersion = ILIAS_VERSION_NUMERIC,
         ?ilCertificateUtilHelper $utilHelper = null,
-        ?ilCertificateObjectHelper $objectHelper = null,
-        string $iliasVersion = ILIAS_VERSION_NUMERIC
+        ?ilCertificateObjectHelper $objectHelper = null
     ) {
-        $this->templateRepository = $templateRepository;
-
-        $this->rootDirectory = $rootDirectory;
-
         if (null === $utilHelper) {
             $utilHelper = new ilCertificateUtilHelper();
         }
@@ -49,8 +44,6 @@ class ilCertificateTemplateDeleteAction implements ilCertificateDeleteAction
             $objectHelper = new ilCertificateObjectHelper();
         }
         $this->objectHelper = $objectHelper;
-
-        $this->iliasVersion = $iliasVersion;
     }
 
     public function delete(int $templateId, int $objectId): void

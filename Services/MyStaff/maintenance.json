@@ -6,7 +6,7 @@
   "coordinator": [
     ""
   ],
-  "tester": "",
+  "tester": "qualitus.morgunova(69410)",
   "testcase_writer": "",
   "path": "Services/MyStaff",
   "belong_to_component": "Staff",

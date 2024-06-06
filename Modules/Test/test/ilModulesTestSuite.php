@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\TestCase;
 
@@ -27,10 +29,6 @@ class ilModulesTestSuite extends TestSuite
     {
         if (!defined("ILIAS_HTTP_PATH")) {
             define("ILIAS_HTTP_PATH", "http://localhost");
-        }
-
-        if (!defined("DEBUG")) {
-            define("DEBUG", false);
         }
 
         if (!defined("ILIAS_LOG_ENABLED")) {

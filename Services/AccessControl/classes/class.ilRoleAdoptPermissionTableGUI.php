@@ -51,10 +51,10 @@ class ilRoleAdoptPermissionTableGUI extends ilTable2GUI
     protected function fillRow(array $a_set): void
     {
         $this->tpl->setVariable("PARAM", "adopt");
-        $this->tpl->setVariable("VAL_ID", $a_set["role_id"] ?? '');
-        $this->tpl->setVariable("VAL_TITLE", $a_set["role_name"] ?? '');
+        $this->tpl->setVariable("VAL_ID", $a_set["role_id"]);
+        $this->tpl->setVariable("VAL_TITLE", $a_set["role_name"]);
         if (is_string($a_set["role_desc"]) && $a_set["role_desc"] !== '') {
-            $this->tpl->setVariable("VAL_DESCRIPTION", $a_set["role_desc"] ?? '');
+            $this->tpl->setVariable("VAL_DESCRIPTION", $a_set["role_desc"]);
         }
         $this->tpl->setVariable("VAL_TYPE", $a_set["type"] ?? '');
     }

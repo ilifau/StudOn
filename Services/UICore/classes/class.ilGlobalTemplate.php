@@ -1,8 +1,22 @@
 <?php
 
-declare(strict_types=1);
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
-/* Copyright (c) 1998-2022 ILIAS open source, GPLv3, see LICENSE */
+declare(strict_types=1);
 
 use ILIAS\DI\Container;
 
@@ -121,155 +135,6 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
     public function hideFooter(): void
     {
         $this->show_footer = false;
-    }
-
-    /**
-     * @throws ilTemplateException
-     * @throws ilCtrlException
-     */
-    protected function fillFooter(): void
-    {
-        if (!$this->show_footer) {
-            return;
-        }
-
-        global $DIC;
-
-        $ilSetting = $DIC->settings();
-        $lng = $DIC->language();
-        $ilCtrl = $DIC->ctrl();
-        $ilDB = $DIC->database();
-
-        $ftpl = new ilTemplate("tpl.footer.html", true, true, "Services/UICore");
-
-        $php = "";
-        if (DEVMODE) {
-            $php = ", PHP " . PHP_VERSION;
-        }
-        $ftpl->setVariable("ILIAS_VERSION", ILIAS_VERSION . $php);
-
-        $link_items = [];
-
-        // imprint
-        $call_history = $ilCtrl->getCallHistory();
-        if (isset($call_history[0][ilCtrlInterface::PARAM_CMD_CLASS]) &&
-            $call_history[0][ilCtrlInterface::PARAM_CMD_CLASS] !== "ilImprintGUI" &&
-            ilImprint::isActive()
-        ) {
-            $link_items[ilLink::_getStaticLink(0, "impr")] = [$lng->txt("imprint"), true];
-        }
-
-        // system support contacts
-        if (($l = ilSystemSupportContactsGUI::getFooterLink()) !== "") {
-            $link_items[$l] = [ilSystemSupportContactsGUI::getFooterText(), false];
-        }
-
-        if (DEVMODE && function_exists("tidy_parse_string")) {
-            // I think $_SERVER in dev mode is ok.
-            $link_items[ilUtil::appendUrlParameterString(
-                $_SERVER["REQUEST_URI"],
-                "do_dev_validate=xhtml"
-            )] = ["Validate", true];
-            $link_items[ilUtil::appendUrlParameterString(
-                $_SERVER["REQUEST_URI"],
-                "do_dev_validate=accessibility"
-            )] = ["Accessibility", true];
-        }
-
-        // output translation link
-        if (ilObjLanguageAccess::_checkTranslate() && !ilObjLanguageAccess::_isPageTranslation()) {
-            $link_items[ilObjLanguageAccess::_getTranslationLink()] = [$lng->txt('translation'), true];
-        }
-
-        $cnt = 0;
-        foreach ($link_items as $url => $caption) {
-            $cnt++;
-            if ($caption[1]) {
-                $ftpl->touchBlock("blank");
-            }
-            if ($cnt < count($link_items)) {
-                $ftpl->touchBlock("item_separator");
-            }
-
-            $ftpl->setCurrentBlock("items");
-            $ftpl->setVariable("URL_ITEM", ilUtil::secureUrl($url));
-            $ftpl->setVariable("TXT_ITEM", $caption[0]);
-            $ftpl->parseCurrentBlock();
-        }
-
-        if (DEVMODE) {
-            // execution time
-            $t1 = explode(" ", $GLOBALS['ilGlobalStartTime']);
-            $t2 = explode(" ", microtime());
-            $diff = $t2[0] - $t1[0] + $t2[1] - $t1[1];
-
-            $mem_usage = [];
-            if (function_exists("memory_get_usage")) {
-                $mem_usage[] =
-                    "Memory Usage: " . memory_get_usage() . " Bytes";
-            }
-            if (function_exists("xdebug_peak_memory_usage")) {
-                $mem_usage[] =
-                    "XDebug Peak Memory Usage: " . xdebug_peak_memory_usage() . " Bytes";
-            }
-            $mem_usage[] = round($diff, 4) . " Seconds";
-
-            if (count($mem_usage)) {
-                $ftpl->setVariable("MEMORY_USAGE", "<br>" . implode(" | ", $mem_usage));
-            }
-
-            // controller history
-            if (is_object($ilCtrl) && $ftpl->blockExists("c_entry") &&
-                $ftpl->blockExists("call_history")) {
-                $hist = $ilCtrl->getCallHistory();
-                foreach ($hist as $entry) {
-                    $ftpl->setCurrentBlock("c_entry");
-                    $ftpl->setVariable("C_ENTRY", $entry["class"]);
-                    if (is_object($ilDB)) {
-                        $file = $ilCtrl->lookupClassPath($entry["class"]);
-                        $add = $entry["mode"] . " - " . $entry["cmd"];
-                        if ($file !== "") {
-                            $add .= " - " . $file;
-                        }
-                        $ftpl->setVariable("C_FILE", $add);
-                    }
-                    $ftpl->parseCurrentBlock();
-                }
-                $ftpl->setCurrentBlock("call_history");
-                $ftpl->parseCurrentBlock();
-            }
-
-            // included files
-            if (is_object($ilCtrl) && $ftpl->blockExists("i_entry") &&
-                $ftpl->blockExists("included_files")) {
-                $fs = get_included_files();
-                $ifiles = [];
-                $total = 0;
-                foreach ($fs as $f) {
-                    $ifiles[] = [
-                        "file" => $f,
-                        "size" => filesize($f),
-                    ];
-                    $total += filesize($f);
-                }
-                $ifiles = ilArrayUtil::sortArray($ifiles, "size", "desc", true);
-                foreach ($ifiles as $f) {
-                    $ftpl->setCurrentBlock("i_entry");
-                    $ftpl->setVariable(
-                        "I_ENTRY",
-                        $f["file"] . " (" . $f["size"] . " Bytes, " . round(100 / $total * $f["size"], 2) . "%)"
-                    );
-                    $ftpl->parseCurrentBlock();
-                }
-                $ftpl->setCurrentBlock("i_entry");
-                $ftpl->setVariable("I_ENTRY", "Total (" . $total . " Bytes, 100%)");
-                $ftpl->parseCurrentBlock();
-                $ftpl->setCurrentBlock("included_files");
-                $ftpl->parseCurrentBlock();
-            }
-        }
-
-        $this->setVariable("FOOTER", $ftpl->get());
     }
 
     protected function getMainMenu(): void
@@ -520,11 +385,6 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
     ): string {
         $this->fillMessage();
 
-        // display ILIAS footer
-        if ($part !== '') {
-            $this->fillFooter();
-        }
-
         // set standard parts (tabs and title icon)
         $this->fillBodyClass();
 
@@ -575,7 +435,6 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
                 $this->fillTabs();
                 $this->fillMainContent();
                 $this->fillMainMenu();
-                $this->fillLightbox();
                 $this->parseCurrentBlock();
             }
         }
@@ -1081,10 +940,6 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
             $this->fillMessage();
         }
 
-        if ($add_ilias_footer) {
-            $this->fillFooter();
-        }
-
         // set standard parts (tabs and title icon)
         if ($add_standard_elements) {
             if ($a_tabs && $this->blockExists("content")) {
@@ -1134,7 +989,6 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
                 if ($a_main_menu) {
                     $this->fillMainMenu();
                 }
-                $this->fillLightbox();
                 $this->parseCurrentBlock();
             }
         }
@@ -1194,7 +1048,7 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
 
             $this->setCurrentBlock("tree_mode");
             $this->setVariable("LINK_MODE", $this->tree_flat_link);
-            $this->setVariable("IMG_TREE", ilUtil::getImagePath("icon_sidebar_on.svg"));
+            $this->setVariable("IMG_TREE", ilUtil::getImagePath("standard/icon_sidebar_on.svg"));
             if ($ilSetting->get("tree_frame") === "right") {
                 $this->setVariable("RIGHT", "Right");
             }
@@ -1211,19 +1065,6 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
     {
         $this->tree_flat_link = $a_link;
         $this->tree_flat_mode = $a_mode;
-    }
-
-    /**
-     * Add lightbox html
-     */
-    public function addLightbox(string $a_html, string $a_id): void
-    {
-        $this->lightbox[$a_id] = $a_html;
-    }
-
-    protected function fillLightbox(): void
-    {
-        $this->setVariable("LIGHTBOX", implode('', $this->lightbox));
     }
 
     public function addAdminPanelToolbar(ilToolbarGUI $toolb, bool $a_bottom_panel = true, bool $a_arrow = false): void
@@ -1249,7 +1090,7 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
 
         // Add arrow if desired.
         if ($this->admin_panel_arrow) {
-            $toolb->setLeadingImage(ilUtil::getImagePath("arrow_upright.svg"), $lng->txt("actions"));
+            $toolb->setLeadingImage(ilUtil::getImagePath("nav/arrow_upright.svg"), $lng->txt("actions"));
         }
 
         $this->fillPageFormAction();
@@ -1265,7 +1106,7 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
 
             // Replace previously set arrow image.
             if ($this->admin_panel_arrow) {
-                $toolb->setLeadingImage(ilUtil::getImagePath("arrow_downright.svg"), $lng->txt("actions"));
+                $toolb->setLeadingImage(ilUtil::getImagePath("nav/arrow_downright.svg"), $lng->txt("actions"));
             }
 
             $this->setVariable("ADM_PANEL2", $toolb->getHTML());

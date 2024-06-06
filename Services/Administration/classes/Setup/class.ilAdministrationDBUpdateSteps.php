@@ -16,21 +16,43 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Administration\Setup;
 
-/**
- * @author Alexander Killing <killing@leifos.de>
- */
-class ilAdministrationDBUpdateSteps implements \ilDatabaseUpdateSteps
-{
-    protected \ilDBInterface $db;
+use ilDatabaseUpdateSteps;
+use ilDBInterface;
 
-    public function prepare(\ilDBInterface $db): void
+/**
+ * Class ilAdministrationDBUpdateSteps
+ * @author Marvin Beym <mbeym@databay.de>
+ */
+class ilAdministrationDBUpdateSteps implements ilDatabaseUpdateSteps
+{
+    protected ilDBInterface $db;
+
+    public function prepare(ilDBInterface $db): void
     {
         $this->db = $db;
     }
 
     public function step_1(): void
+    {
+        // note: release_8 has step_3 as step_1
+    }
+
+    public function step_2(): void
+    {
+        if ($this->db->sequenceExists("adm_settings_template")) {
+            $this->db->dropSequence("adm_settings_template");
+        }
+
+        if ($this->db->tableExists("adm_settings_template")) {
+            $this->db->dropTable("adm_settings_template");
+        }
+    }
+
+    public function step_3(): void
     {
         $this->db->addTableColumn(
             'settings',
@@ -44,5 +66,13 @@ class ilAdministrationDBUpdateSteps implements \ilDatabaseUpdateSteps
         $this->db->query("UPDATE settings SET value2 = SUBSTRING(value, 1, 4000)");
         $this->db->dropTableColumn('settings', 'value');
         $this->db->renameTableColumn('settings', 'value2', 'value');
+    }
+
+    /**
+     * Remove the global special charactor selector settings
+     */
+    public function step_4(): void
+    {
+        $this->db->manipulate("DELETE FROM settings WHERE keyword LIKE 'char_selector%'");
     }
 }

@@ -32,6 +32,7 @@ use Closure;
  */
 class Factory implements T\Factory
 {
+<<<<<<< HEAD
     protected SignalGeneratorInterface $signal_generator;
     protected ViewControlFactory $view_control_factory;
     protected ViewControlContainerFactory $view_control_container_factory;
@@ -59,6 +60,18 @@ class Factory implements T\Factory
         $this->action_factory = $action_factory;
         $this->data_row_builder = $data_row_builder;
         $this->storage = $storage;
+=======
+    public function __construct(
+        protected SignalGeneratorInterface $signal_generator,
+        protected ViewControlFactory $view_control_factory,
+        protected ViewControlContainerFactory $view_control_container_factory,
+        protected DataFactory $data_factory,
+        protected T\Column\Factory $column_factory,
+        protected T\Action\Factory $action_factory,
+        protected DataRowBuilder $data_row_builder,
+        protected \ArrayAccess $storage,
+    ) {
+>>>>>>> v9.1
     }
 
     /**

@@ -84,7 +84,7 @@ class ilBookingPrefBasedBookGatewayRepository
         return $rec["pref_booking_hash"] === $hash;
     }
 
-    public function hasRun($pool_id) : bool
+    public function hasRun($pool_id): bool
     {
         $db = $this->db;
         $set = $db->queryF(
@@ -101,7 +101,7 @@ class ilBookingPrefBasedBookGatewayRepository
         return false;
     }
 
-    public function resetRun($pool_id) : void
+    public function resetRun($pool_id): void
     {
         $db = $this->db;
         $db->update("booking_settings", array(

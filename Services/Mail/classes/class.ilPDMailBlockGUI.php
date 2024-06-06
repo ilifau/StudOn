@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Component\Item\Item;
@@ -30,14 +30,16 @@ use ILIAS\UI\Component\Item\Item;
 class ilPDMailBlockGUI extends ilBlockGUI
 {
     public static string $block_type = 'pdmail';
-    private GlobalHttpState $http;
-    private Refinery $refinery;
+
+    private readonly GlobalHttpState $http;
+    private readonly Refinery $refinery;
     private int $requestMailObjId = 0;
     protected ilRbacSystem $rbacsystem;
     protected ilSetting $setting;
     /** @var string[] */
     protected array $mails = [];
     protected int $inbox;
+    private bool $has_access = false;
 
     public function __construct()
     {
@@ -55,6 +57,13 @@ class ilPDMailBlockGUI extends ilBlockGUI
         $this->setLimit(5);
         $this->setTitle($this->lng->txt('mail'));
         $this->setPresentation(self::PRES_SEC_LIST);
+
+        $umail = new ilMail($this->user->getId());
+        if ($this->rbacsystem->checkAccess('internal_mail', $umail->getMailObjectReferenceId())) {
+            $this->has_access = true;
+            $this->getMails();
+            $this->setData($this->mails);
+        }
     }
 
     public function getBlockType(): string
@@ -90,14 +99,9 @@ class ilPDMailBlockGUI extends ilBlockGUI
 
     public function getHTML(): string
     {
-        $umail = new ilMail($this->user->getId());
-        if (!$this->rbacsystem->checkAccess('internal_mail', $umail->getMailObjectReferenceId())) {
+        if (!$this->has_access) {
             return '';
         }
-
-        $this->getMails();
-        $this->setData($this->mails);
-
         return parent::getHTML();
     }
 
@@ -113,14 +117,12 @@ class ilPDMailBlockGUI extends ilBlockGUI
                  'status' => 'unread',
             ]
         );
+        $this->max_count = count($this->mails);
     }
 
     public function fillDataSection(): void
     {
-        $this->getMails();
-        $this->setData($this->mails);
-
-        if (count($this->mails) > 0) {
+        if ($this->mails !== []) {
             $this->setRowTemplate("tpl.pd_mail_row.html", "Services/Mail");
             parent::fillDataSection();
         } else {
@@ -138,7 +140,7 @@ class ilPDMailBlockGUI extends ilBlockGUI
             $this->tpl->setVariable('PUBLIC_NAME_LONG', $user->getPublicName());
             $this->tpl->setVariable('IMG_SENDER', $user->getPersonalPicturePath('xxsmall'));
             $this->tpl->setVariable('ALT_SENDER', htmlspecialchars($user->getPublicName()));
-        } elseif (!$user) {
+        } elseif (!$user instanceof ilObjUser) {
             $this->tpl->setVariable(
                 'PUBLIC_NAME_LONG',
                 trim(($a_set['import_name'] ?? '') . ' (' . $this->lng->txt('user_deleted') . ')')
@@ -149,7 +151,7 @@ class ilPDMailBlockGUI extends ilBlockGUI
             $this->tpl->parseCurrentBlock();
         } else {
             $this->tpl->setVariable('PUBLIC_NAME_LONG', ilMail::_getIliasMailerName());
-            $this->tpl->setVariable('IMG_SENDER', ilUtil::getImagePath('HeaderIconAvatar.svg'));
+            $this->tpl->setVariable('IMG_SENDER', ilUtil::getImagePath('logo/HeaderIconAvatar.svg'));
             $this->tpl->setVariable('ALT_SENDER', htmlspecialchars(ilMail::_getIliasMailerName()));
         }
 
@@ -274,13 +276,13 @@ class ilPDMailBlockGUI extends ilBlockGUI
             $public_name_long = $user->getPublicName();
             $img_sender = $user->getPersonalPicturePath('xxsmall');
             $alt_sender = htmlspecialchars($user->getPublicName());
-        } elseif (!$user) {
+        } elseif (!$user instanceof ilObjUser) {
             $public_name_long = trim(($data['import_name'] ?? '') . ' (' . $this->lng->txt('user_deleted') . ')');
             $img_sender = "";
             $alt_sender = "";
         } else {
             $public_name_long = ilMail::_getIliasMailerName();
-            $img_sender = ilUtil::getImagePath('HeaderIconAvatar.svg');
+            $img_sender = ilUtil::getImagePath('logo/HeaderIconAvatar.svg');
             $alt_sender = htmlspecialchars(ilMail::_getIliasMailerName());
         }
 

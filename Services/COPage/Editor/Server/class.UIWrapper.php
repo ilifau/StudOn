@@ -18,12 +18,16 @@
 
 namespace ILIAS\COPage\Editor\Server;
 
+use ILIAS\Repository\Form\FormAdapterGUI;
+use ILIAS\COPage\PC\PCDefinition;
+
 /**
  *
  * @author Alexander Killing <killing@leifos.de>
  */
 class UIWrapper
 {
+    protected \ILIAS\COPage\PC\DomainService $pc_def;
     protected \ILIAS\DI\UIServices $ui;
     protected \ilLanguage $lng;
 
@@ -31,6 +35,9 @@ class UIWrapper
         \ILIAS\DI\UIServices $ui,
         \ilLanguage $lng
     ) {
+        global $DIC;
+
+        $this->pc_def = $DIC->copage()->internal()->domain()->pc();
         $this->ui = $ui;
         $this->lng = $lng;
         $this->lng->loadLanguageModule("copg");
@@ -42,11 +49,16 @@ class UIWrapper
         string $action,
         array $data = null,
         string $component = "",
+        bool $primary = false,
         string $aria_label = ""
-    ): \ILIAS\UI\Component\Button\Standard {
+    ): \ILIAS\UI\Component\Button\Button {
         $ui = $this->ui;
         $f = $ui->factory();
-        $b = $f->button()->standard($content, "");
+        if ($primary) {
+            $b = $f->button()->primary($content, "");
+        } else {
+            $b = $f->button()->standard($content, "");
+        }
         if ($data === null) {
             $data = [];
         }
@@ -67,11 +79,22 @@ class UIWrapper
         return $b;
     }
 
-    public function getRenderedInfoBox(string $text): string
+    public function getRenderedInfoBox(string $text, array $buttons = []): string
     {
         $ui = $this->ui;
         $f = $ui->factory();
         $m = $f->messageBox()->info($text);
+        if (count($buttons)) {
+            $m = $m->withButtons($buttons);
+        }
+        return $ui->renderer()->renderAsync($m);
+    }
+
+    public function getRenderedSuccessBox(string $text): string
+    {
+        $ui = $this->ui;
+        $f = $ui->factory();
+        $m = $f->messageBox()->success($text);
         return $ui->renderer()->renderAsync($m);
     }
 
@@ -91,10 +114,11 @@ class UIWrapper
         string $action,
         array $data = null,
         string $component = "",
+        bool $primary = false,
         string $aria_label = ""
     ): string {
         $ui = $this->ui;
-        $b = $this->getButton($content, $type, $action, $data, $component, $aria_label);
+        $b = $this->getButton($content, $type, $action, $data, $component, $primary, $aria_label);
         return $ui->renderer()->renderAsync($b);
     }
 
@@ -172,6 +196,36 @@ class UIWrapper
         return $html;
     }
 
+    public function getRenderedAdapterForm(
+        FormAdapterGUI $form,
+        array $buttons,
+        string $id = ""
+    ): string {
+        $button_html = "";
+        foreach ($buttons as $button) {
+            $button_html .= $this->getRenderedButton(
+                $button[2],
+                "form-button",
+                $button[1],
+                null,
+                $button[0]
+            );
+        }
+        $html = $form->render();
+        $tag = "button";
+        $html = preg_replace("#\\<" . $tag . "(.*)/" . $tag . ">#iUs", "", $html, 1);
+        $footer_pos = stripos($html, "il-standard-form-footer");
+
+        $html =
+            substr($html, 0, $footer_pos) .
+            preg_replace("#\\<" . $tag . "(.*)/" . $tag . ">#iUs", $button_html, substr($html, $footer_pos), 1);
+
+        if ($id !== "") {
+            $html = str_replace("<form ", "<form id='$id' ", $html);
+        }
+        return $html;
+    }
+
     /**
      * Send whole page as response
      * @param bool|array|string $updated
@@ -224,7 +278,7 @@ class UIWrapper
     protected function getOnloadCode(\ilPageObjectGUI $page_gui): string
     {
         $page = $page_gui->getPageObject();
-        $defs = \ilCOPagePCDef::getPCDefinitions();
+        $defs = $this->pc_def->definition()->getPCDefinitions();
         $all_onload_code = [];
         foreach ($defs as $def) {
             $pc_class = $def["pc_class"];
@@ -325,5 +379,33 @@ class UIWrapper
         $r = $ui->renderer();
         $i = $f->symbol()->icon()->standard($type, $type, 'medium');
         return $r->render($i);
+    }
+
+    public function getRenderedListingPanelTemplate(
+        string $title = "",
+        bool $leading_image = false
+    ): string {
+        $ui = $this->ui;
+        $f = $ui->factory();
+        $r = $ui->renderer();
+        $dd = $f->dropdown()->standard([
+            $f->link()->standard("#link-label#", "#")
+        ]);
+
+        $item = $f->item()->standard("#item-title#")->withActions($dd);
+        if ($leading_image) {
+            $item = $item->withLeadImage(
+                $f->image()->responsive("#img-src#", "#img-alt#")
+            );
+        }
+        $p = $f->panel()->listing()->standard(
+            $title,
+            [$f->item()->group(
+                "",
+                [$item]
+            )]
+        );
+
+        return $r->render($p);
     }
 }

@@ -38,10 +38,24 @@ class LinkItemRenderer extends AbstractMetaBarItemRenderer
         /**
          * @var $item LinkItem
          */
+<<<<<<< HEAD
         return $this->ui->factory()->link()->bulky(
+=======
+        $link = $this->ui->factory()->link()->bulky(
+>>>>>>> v9.1
             $this->buildIcon($item),
             $item->getTitle(),
             $this->getURI($item->getAction())
         );
+
+        if (null !== $item->getContentLanguage()) {
+            $link = $link->withContentLanguage($item->getContentLanguage());
+        }
+
+        if (null !== $item->getLanguageForTargetedResource()) {
+            $link = $link->withLanguageOfReferencedContent($item->getLanguageForTargetedResource());
+        }
+
+        return $link;
     }
 }

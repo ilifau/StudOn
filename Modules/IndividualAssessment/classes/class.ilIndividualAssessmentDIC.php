@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,8 +16,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\Data;
 use Pimple\Container;
+use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 
 trait ilIndividualAssessmentDIC
 {
@@ -73,6 +74,12 @@ trait ilIndividualAssessmentDIC
             );
         };
 
+        $container['irss.stakeholder'] = static fn($c): ResourceStakeholder =>
+            new ilIndividualAssessmentGradingStakeholder(
+                $object->getId(),
+                $dic['ilUser']->getId()
+            );
+
         $container['ilIndividualAssessmentMemberGUI'] = function ($c) use ($object, $dic) {
             return new ilIndividualAssessmentMemberGUI(
                 $dic['ilCtrl'],
@@ -82,6 +89,7 @@ trait ilIndividualAssessmentDIC
                 $dic['ui.factory']->input(),
                 $dic['ui.factory']->messageBox(),
                 $dic['ui.factory']->button(),
+                $dic['ui.factory']->link(),
                 $dic['refinery'],
                 $c['DataFactory'],
                 $dic['ui.renderer'],
@@ -92,7 +100,9 @@ trait ilIndividualAssessmentDIC
                 $dic['ilErr'],
                 $dic->refinery(),
                 $dic->http()->wrapper()->query(),
-                $c['helper.dateformat']
+                $c['helper.dateformat'],
+                $dic['resource_storage'],
+                $stakeholder = $c['irss.stakeholder']
             );
         };
 
@@ -111,6 +121,21 @@ trait ilIndividualAssessmentDIC
                 $c['DataFactory']
             );
         };
+
+        $container['iass.member.storage'] = static fn($c): ilIndividualAssessmentMembersStorageDB =>
+            new ilIndividualAssessmentMembersStorageDB(
+                $dic['ilDB'],
+                $dic['resource_storage'],
+                $stakeholder = $c['irss.stakeholder']
+            );
+        $container['iass.accesshandler'] = static fn($c): ilIndividualAssessmentAccessHandler =>
+            new ilIndividualAssessmentAccessHandler(
+                $object,
+                $dic['ilAccess'],
+                $dic['rbacadmin'],
+                $dic['rbacreview'],
+                $dic['ilUser']
+            );
 
         return $container;
     }

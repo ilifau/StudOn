@@ -328,50 +328,50 @@ class ResourceLink
         return $this->getDataConnector()->deleteResourceLink($this);
     }
 
-//    /**
-//     * Get tool consumer.
-//     *
-//     * @deprecated Use getPlatform() instead
-//     * @see Context::getPlatform()
-//     *
-//     * @return ToolConsumer Tool consumer object for this resource link.
-//     */
-//    public function getConsumer()
-//    {
-//        Util::logDebug('Method ceLTIc\LTI\ResourceLink::getConsumer() has been deprecated; please use ceLTIc\LTI\ResourceLink::getPlatform() instead.',
-//            true);
-//        return $this->getPlatform();
-//    }
+    //    /**
+    //     * Get tool consumer.
+    //     *
+    //     * @deprecated Use getPlatform() instead
+    //     * @see Context::getPlatform()
+    //     *
+    //     * @return ToolConsumer Tool consumer object for this resource link.
+    //     */
+    //    public function getConsumer()
+    //    {
+    //        Util::logDebug('Method ceLTIc\LTI\ResourceLink::getConsumer() has been deprecated; please use ceLTIc\LTI\ResourceLink::getPlatform() instead.',
+    //            true);
+    //        return $this->getPlatform();
+    //    }
 
-//    /**
-//     * Get tool consumer ID.
-//     *
-//     * @deprecated Use getPlatformId() instead
-//     * @see Context::getPlatformId()
-//     *
-//     * @return int|null Tool Consumer ID for this resource link.
-//     */
-//    public function getConsumerId()
-//    {
-//        Util::logDebug('Method ceLTIc\LTI\ResourceLink::getConsumerId() has been deprecated; please use ceLTIc\LTI\ResourceLink::getPlatformId() instead.',
-//            true);
-//        return $this->getPlatformId();
-//    }
+    //    /**
+    //     * Get tool consumer ID.
+    //     *
+    //     * @deprecated Use getPlatformId() instead
+    //     * @see Context::getPlatformId()
+    //     *
+    //     * @return int|null Tool Consumer ID for this resource link.
+    //     */
+    //    public function getConsumerId()
+    //    {
+    //        Util::logDebug('Method ceLTIc\LTI\ResourceLink::getConsumerId() has been deprecated; please use ceLTIc\LTI\ResourceLink::getPlatformId() instead.',
+    //            true);
+    //        return $this->getPlatformId();
+    //    }
 
-//    /**
-//     * Set tool consumer ID.
-//     *
-//     * @deprecated Use setPlatformId() instead
-//     * @see Context::setPlatformId()
-//     *
-//     * @param int $consumerId   Tool Consumer ID for this resource link.
-//     */
-//    public function setConsumerId($consumerId)
-//    {
-//        Util::logDebug('Method ceLTIc\LTI\ResourceLink::setConsumerId() has been deprecated; please use ceLTIc\LTI\ResourceLink::setPlatformId() instead.',
-//            true);
-//        $this->setPlatformId($consumerId);
-//    }
+    //    /**
+    //     * Set tool consumer ID.
+    //     *
+    //     * @deprecated Use setPlatformId() instead
+    //     * @see Context::setPlatformId()
+    //     *
+    //     * @param int $consumerId   Tool Consumer ID for this resource link.
+    //     */
+    //    public function setConsumerId($consumerId)
+    //    {
+    //        Util::logDebug('Method ceLTIc\LTI\ResourceLink::setConsumerId() has been deprecated; please use ceLTIc\LTI\ResourceLink::setPlatformId() instead.',
+    //            true);
+    //        $this->setPlatformId($consumerId);
+    //    }
 
     /**
      * Get platform.
@@ -384,7 +384,8 @@ class ResourceLink
             if (!is_null($this->context) || !is_null($this->contextId)) {
                 $this->platform = $this->getContext()->getPlatform();
             } else {
-                $this->platform = Platform::fromRecordId($this->platformId, $this->getDataConnector());
+                //UK changed from $this->platform = Platform::fromRecordId($this->platformId, $this->getDataConnector());
+                $this->platform = \ilLTIPlatform::fromRecordId($this->platformId, $this->getDataConnector());
             }
         }
 
@@ -882,20 +883,20 @@ EOF;
         return $ok;
     }
 
-//    /**
-//     * Perform a Memberships extension service request.
-//     * The userResult table is updated with any user objects with lis_result_sourcedid values.
-//     * @param bool    $withGroups True is group information is to be requested as well
-//     * @return mixed Array of UserResult objects or False if the request was not successful
-//     *@deprecated Use getMemberships() instead
-//     * @see ResourceLink::getMemberships()
-//     */
-//    public function doMembershipsService(bool $withGroups = false)
-//    {
-//        Util::logDebug('Method ceLTIc\LTI\ResourceLink::doMembershipsService() has been deprecated; please use ceLTIc\LTI\ResourceLink::getMemberships() instead.',
-//            true);
-//        return $this->getMemberships($withGroups);
-//    }
+    //    /**
+    //     * Perform a Memberships extension service request.
+    //     * The userResult table is updated with any user objects with lis_result_sourcedid values.
+    //     * @param bool    $withGroups True is group information is to be requested as well
+    //     * @return mixed Array of UserResult objects or False if the request was not successful
+    //     *@deprecated Use getMemberships() instead
+    //     * @see ResourceLink::getMemberships()
+    //     */
+    //    public function doMembershipsService(bool $withGroups = false)
+    //    {
+    //        Util::logDebug('Method ceLTIc\LTI\ResourceLink::doMembershipsService() has been deprecated; please use ceLTIc\LTI\ResourceLink::getMemberships() instead.',
+    //            true);
+    //        return $this->getMemberships($withGroups);
+    //    }
 
     /**
      * Perform a Setting service request.
@@ -1355,24 +1356,24 @@ EOF;
         return $status;
     }
 
-//    /**
-//     * Class constructor from consumer.
-//     *
-//     * @deprecated Use fromPlatform() instead
-//     * @see ResourceLink::fromPlatform()
-//     *
-//     * @param ToolConsumer $consumer            Consumer object
-//     * @param string $ltiResourceLinkId         Resource link ID value
-//     * @param string $tempId                    Temporary Resource link ID value (optional, default is null)
-//     *
-//     * @return ResourceLink
-//     */
-//    public static function fromConsumer($consumer, $ltiResourceLinkId, $tempId = null)
-//    {
-//        Util::logDebug('Method ceLTIc\LTI\ResourceLink::fromConsumer() has been deprecated; please use ceLTIc\LTI\ResourceLink::fromPlatform() instead.',
-//            true);
-//        return self::fromPlatform($consumer, $ltiResourceLinkId, $tempId);
-//    }
+    //    /**
+    //     * Class constructor from consumer.
+    //     *
+    //     * @deprecated Use fromPlatform() instead
+    //     * @see ResourceLink::fromPlatform()
+    //     *
+    //     * @param ToolConsumer $consumer            Consumer object
+    //     * @param string $ltiResourceLinkId         Resource link ID value
+    //     * @param string $tempId                    Temporary Resource link ID value (optional, default is null)
+    //     *
+    //     * @return ResourceLink
+    //     */
+    //    public static function fromConsumer($consumer, $ltiResourceLinkId, $tempId = null)
+    //    {
+    //        Util::logDebug('Method ceLTIc\LTI\ResourceLink::fromConsumer() has been deprecated; please use ceLTIc\LTI\ResourceLink::fromPlatform() instead.',
+    //            true);
+    //        return self::fromPlatform($consumer, $ltiResourceLinkId, $tempId);
+    //    }
 
     /**
      * Class constructor from platform.

@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,11 +21,20 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . '/CharacteristicValueTest.php');
 
 class CharacteristicValueTextTest extends CharacteristicValueTest
 {
+<<<<<<< HEAD
     public function test_getItems(): void
+=======
+    public function testGetItems(): void
+>>>>>>> v9.1
     {
         $f = $this->getCharacteristicValueFactory();
 
@@ -31,7 +43,11 @@ class CharacteristicValueTextTest extends CharacteristicValueTest
         $this->assertEquals($items, $textListing->getItems());
     }
 
+<<<<<<< HEAD
     public function test_validation(): void
+=======
+    public function testValidation(): void
+>>>>>>> v9.1
     {
         $f = $this->getCharacteristicValueFactory();
 
@@ -48,7 +64,11 @@ class CharacteristicValueTextTest extends CharacteristicValueTest
         }
     }
 
+<<<<<<< HEAD
     public function test_rendered(): void
+=======
+    public function testRendered(): void
+>>>>>>> v9.1
     {
         $f = $this->getCharacteristicValueFactory();
         $r = $this->getDefaultRenderer();

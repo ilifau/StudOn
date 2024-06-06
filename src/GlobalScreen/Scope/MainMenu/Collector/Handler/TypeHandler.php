@@ -1,6 +1,9 @@
 <?php
 
+<<<<<<< HEAD
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,11 +20,13 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Collector\Handler;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\isItem;
-use ILIAS\UI\Component\Input\Field\Input;
+use ILIAS\UI\Component\Input\Container\Form\FormInput;
 
 /**
  * Class TypeHandler
@@ -42,7 +47,7 @@ interface TypeHandler
 
     /**
      * @param IdentificationInterface $identification
-     * @return Input[]
+     * @return FormInput[]
      */
     public function getAdditionalFieldsForSubForm(IdentificationInterface $identification): array;
 

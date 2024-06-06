@@ -24,7 +24,7 @@ use ILIAS\Data\Result;
 use ILIAS\Data\Result\Ok;
 use ILIAS\Data\Result\Error;
 use ilDBConstants;
-use ilAccess;
+use ilAccessHandler;
 use ilDBInterface;
 use Closure;
 use ilObject;
@@ -32,7 +32,7 @@ use ilObject;
 class AccessFileUploadPreview implements SimpleAccess
 {
     private ilDBInterface $database;
-    private ilAccess $access;
+    private ilAccessHandler $access;
     private Incident $incident;
     /** @var Closure(int): list<int> */
     private Closure $references_of;
@@ -40,15 +40,12 @@ class AccessFileUploadPreview implements SimpleAccess
     private Closure $type_of;
 
     /**
-     * @param ilDBInterface $database
-     * @param ilAccess $access
-     * @param Incident $incident
      * @param Closure(int): list<int> $references_of
      * @param Closure(int, bool): string $type_of
      */
     public function __construct(
         ilDBInterface $database,
-        ilAccess $access,
+        ilAccessHandler $access,
         ?Incident $incident = null,
         $references_of = [ilObject::class, '_getAllReferences'],
         $type_of = [ilObject::class, '_lookupType']
@@ -77,9 +74,6 @@ class AccessFileUploadPreview implements SimpleAccess
         return new Ok($permitted);
     }
 
-    /**
-     * @param int $ref_id
-     */
     public function refIdPermitted(int $ref_id): bool
     {
         $ref_id = $ref_id;

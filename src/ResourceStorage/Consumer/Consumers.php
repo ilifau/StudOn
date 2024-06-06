@@ -21,13 +21,19 @@ declare(strict_types=1);
 namespace ILIAS\ResourceStorage\Consumer;
 
 use ILIAS\ResourceStorage\Collection\CollectionBuilder;
+<<<<<<< HEAD
+=======
+use ILIAS\ResourceStorage\Flavour\Flavour;
+>>>>>>> v9.1
 use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Resource\ResourceBuilder;
+use ILIAS\ResourceStorage\Resource\ResourceType;
+use ILIAS\ResourceStorage\Resource\StorableContainerResource;
 
 /**
  * Class Consumers
- * @author  Fabian Schmid <fs@studer-raimann.ch>
+ * @author  Fabian Schmid <fabian@sr.solutions.ch>
  * @package ILIAS\ResourceStorage\Consumer
  */
 class Consumers
@@ -98,5 +104,45 @@ class Consumers
             $resources,
             $zip_filename
         );
+<<<<<<< HEAD
+=======
+    }
+
+    public function flavourUrls(Flavour $flavour): FlavourURLs
+    {
+        return $this->consumer_factory->flavourUrl($flavour, $this->src_builder);
+    }
+
+    /**
+     * @description This consumer can be used to obtain a StorageContainerResource as a ZIP.
+     */
+    public function containerZIP(ResourceIdentification $identification): ContainerZIPAccessConsumer
+    {
+        $resource = $this->resource_builder->get($identification);
+        if ($resource->getType() !== ResourceType::CONTAINER || !$resource instanceof StorableContainerResource) {
+            throw new \InvalidArgumentException('Expected StorableContainerResource');
+        }
+
+        return $this->consumer_factory->containerZIP(
+            $resource
+        );
+    }
+
+    public function containerURI(
+        ResourceIdentification $identification,
+        string $start_file = 'index.html',
+        float $valid_for_at_least_minutes = 60.0
+    ): ContainerURIConsumer {
+        $resource = $this->resource_builder->get($identification);
+        if ($resource->getType() !== ResourceType::CONTAINER || !$resource instanceof StorableContainerResource) {
+            throw new \InvalidArgumentException('Expected StorableContainerResource');
+        }
+        return $this->consumer_factory->containerURI(
+            $resource,
+            $this->src_builder,
+            ltrim($start_file, '/'),
+            $valid_for_at_least_minutes
+        );
+>>>>>>> v9.1
     }
 }

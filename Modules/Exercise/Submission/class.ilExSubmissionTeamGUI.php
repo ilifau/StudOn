@@ -28,6 +28,8 @@ use ILIAS\Exercise\GUIRequest;
  */
 class ilExSubmissionTeamGUI
 {
+    protected \ILIAS\Exercise\InternalGUIService $gui;
+    protected \ILIAS\Exercise\InternalDomainService $domain;
     protected ilCtrl $ctrl;
     protected ilTabsGUI $tabs_gui;
     protected ilLanguage $lng;
@@ -70,6 +72,8 @@ class ilExSubmissionTeamGUI
 
         $this->request = $DIC->exercise()->internal()->gui()->request();
         $this->requested_team_ids = $this->request->getTeamIds();
+        $this->domain = $DIC->exercise()->internal()->domain();
+        $this->gui = $DIC->exercise()->internal()->gui();
     }
 
     /**
@@ -119,6 +123,7 @@ class ilExSubmissionTeamGUI
 
         $lng = $DIC->language();
         $ilCtrl = $DIC->ctrl();
+        $gui = $DIC->exercise()->internal()->gui();
 
         if (!$a_submission->getAssignment()->hasTeam()) {
             return;
@@ -139,20 +144,23 @@ class ilExSubmissionTeamGUI
                 #23685
                 // any team member upload?
                 if (!$a_submission->getLastSubmission()) {
-                    $button = ilLinkButton::getInstance();
-                    $button->setCaption("exc_delete_team");
-                    $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "confirmDeleteTeam"));
-                    $team .= " " . $button->render();
+                    $link = $gui->link(
+                        $lng->txt("exc_delete_team"),
+                        $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "confirmDeleteTeam")
+                    )->emphasised();
+                    $team .= " " . $link->render();
                 }
-                $button = ilLinkButton::getInstance();
-                $button->setCaption("exc_manage_team");
-                $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeam"));
+                $link = $gui->link(
+                    $lng->txt("exc_manage_team"),
+                    $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeam")
+                )->emphasised();
             } else {
-                $button = ilLinkButton::getInstance();
-                $button->setCaption("exc_team_log");
-                $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeamLog"));
+                $link = $gui->link(
+                    $lng->txt("exc_team_log"),
+                    $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeamLog")
+                )->emphasised();
             }
-            $team .= "<br><br>" . $button->render();
+            $team .= "<br><br>" . $link->render();
 
             $a_info->addProperty($lng->txt("exc_team_members"), $team);
         } else {
@@ -165,10 +173,11 @@ class ilExSubmissionTeamGUI
                 }
 
                 if (!$a_submission->getAssignment()->getTeamTutor()) {
-                    $button = ilLinkButton::getInstance();
-                    $button->setPrimary(true);
-                    $button->setCaption("exc_create_team");		// team creation
-                    $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "createTeam"));
+                    $button = $gui->button(
+                        $lng->txt("exc_create_team"),
+                        $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "createTeam")
+                    )->primary();
+
                     $team_info .= " " . $button->render();
 
                     $team_info .= '<div class="ilFormInfo">' . $lng->txt("exc_no_team_yet_info") . '</div>';
@@ -180,6 +189,98 @@ class ilExSubmissionTeamGUI
             }
 
             $a_info->addProperty($lng->txt("exc_team_members"), $team_info);
+        }
+    }
+
+    public function buildSubmissionPropertiesAndActions(\ILIAS\Exercise\Assignment\PropertyAndActionBuilderUI $builder): void
+    {
+        $submission = $this->submission;
+        $f = $this->gui->ui()->factory();
+        $ilCtrl = $this->ctrl;
+        $lng = $this->lng;
+
+        if (!$submission->getAssignment()->hasTeam()) {
+            return;
+        }
+
+        $state = $this->domain->assignment()->state($submission->getAssignment()->getId(), $submission->getUserId());
+
+        $team_members = $submission->getTeam()->getMembers();
+        if ($team_members !== []) {									// we have a team
+            $team = array();
+            foreach ($team_members as $member_id) {
+                //$team[] = ilObjUser::_lookupFullname($member_id);
+                $team[] = ilUserUtil::getNamePresentation($member_id, false, false, "", false);
+            }
+            $team = implode("; ", $team);
+
+            if (!$submission->getAssignment()->getTeamTutor()) {
+                #23685
+                // any team member upload?
+                if (!$submission->getLastSubmission()) {
+                    $button = $f->button()->standard(
+                        $this->lng->txt("exc_delete_team"),
+                        $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "confirmDeleteTeam")
+                    );
+                    $builder->addAction(
+                        $builder::SEC_TEAM,
+                        $button
+                    );
+                }
+                $button = $f->button()->standard(
+                    $this->lng->txt("exc_manage_team"),
+                    $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeam")
+                );
+                $builder->addAction(
+                    $builder::SEC_TEAM,
+                    $button
+                );
+            } else {
+                $button = $f->button()->standard(
+                    $this->lng->txt("exc_team_log"),
+                    $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeamLog")
+                );
+                $builder->addAction(
+                    $builder::SEC_TEAM,
+                    $button
+                );
+            }
+            $builder->addProperty(
+                $builder::SEC_TEAM,
+                $lng->txt("exc_team_members"),
+                $team
+            );
+        } else {
+            //if($a_submission->getAssignment()->beforeDeadline())		// this was "for all users"
+            if (!$state->hasSubmissionEnded()) {							// this is for current user/team -> no team creation, if no submission possible
+                if (!$submission->hasSubmitted()) {
+                    $team_info = $this->lng->txt("exc_no_team_yet_notice");
+                } else {
+                    $team_info = '<span class="warning">' . $this->lng->txt("exc_no_team_yet_notice") . '</span>';
+                }
+
+                if (!$submission->getAssignment()->getTeamTutor()) {
+                    $button = $f->button()->primary(
+                        $this->lng->txt("exc_create_team"),
+                        $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "createTeam")
+                    );
+                    $builder->setMainAction(
+                        $builder::SEC_TEAM,
+                        $button
+                    );
+                    $team_info .= '<div class="ilFormInfo">' . $lng->txt("exc_no_team_yet_info") . '</div>';
+                } else {
+                    $team_info .= '<div class="ilFormInfo">' . $lng->txt("exc_no_team_yet_info_tutor") . '</div>';
+                }
+            } else {
+                $team_info = '<span class="warning">' . $lng->txt("exc_create_team_times_up_warning") . '</span>';
+            }
+
+            $builder->addProperty(
+                $builder::SEC_TEAM,
+                $lng->txt("exc_team_members"),
+                $team_info
+            );
         }
     }
 

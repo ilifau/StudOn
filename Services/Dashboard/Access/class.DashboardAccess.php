@@ -16,17 +16,18 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Dashboard\Access;
 
-/**
- * Dashboard permission wrapper
- *
- * @author Alexander Killing <killing@leifos.de>
- */
+use ilDBConstants;
+use ilDBInterface;
+use ilRbacSystem;
+
 class DashboardAccess
 {
-    protected \ilRbacSystem $rbac_system;
-    protected \ilDBInterface $db;
+    protected ilRbacSystem $rbac_system;
+    protected ilDBInterface $db;
     protected static int $setting_ref_id = 0;
 
     public function __construct()
@@ -37,9 +38,6 @@ class DashboardAccess
         $this->rbac_system = $DIC->rbac()->system();
     }
 
-    /**
-     * Get dashboard settings ref id
-     */
     protected function getSettingsRefId(): int
     {
         if (self::$setting_ref_id == 0) {
@@ -49,17 +47,17 @@ class DashboardAccess
                 AND object_data.type = %s
                 AND object_reference.ref_id = tree.child
                 AND object_reference.obj_id = object_data.obj_id',
-                array('integer', 'text'),
-                array(SYSTEM_FOLDER_ID, 'dshs')
+                [ilDBConstants::T_INTEGER, ilDBConstants::T_TEXT],
+                [SYSTEM_FOLDER_ID, 'dshs']
             );
             $rec = $this->db->fetchAssoc($set);
-            self::$setting_ref_id = (int) $rec["ref_id"];
+            self::$setting_ref_id = (int) $rec['ref_id'];
         }
         return self::$setting_ref_id;
     }
 
     public function canChangePresentation(int $user_id): bool
     {
-        return $this->rbac_system->checkAccessOfUser($user_id, "change_presentation", $this->getSettingsRefId());
+        return $this->rbac_system->checkAccessOfUser($user_id, 'change_presentation', $this->getSettingsRefId());
     }
 }

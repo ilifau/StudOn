@@ -535,22 +535,22 @@ class ilPropertyFormGUI extends ilFormGUI
                 $this->tpl->parseCurrentBlock();
             }
 
-            if (is_object($ilSetting)) {
-                if ($ilSetting->get('char_selector_availability') > 0) {
-                    if (ilCharSelectorGUI::_isAllowed()) {
-                        $char_selector = ilCharSelectorGUI::_getCurrentGUI();
-                        if ($char_selector->getConfig()->getAvailability() == ilCharSelectorConfig::ENABLED) {
-                            $char_selector->addToPage();
-                            $this->tpl->touchBlock('char_selector');
-                        }
-                    }
-                }
-            }
-
+            // required top
             $this->tpl->setCurrentBlock("header");
+            if ($this->checkForRequiredField()) {
+                $this->tpl->setCurrentBlock("required_text_top");
+                $this->tpl->setVariable("TXT_REQUIRED_TOP", $lng->txt("required_field"));
+                $this->tpl->parseCurrentBlock();
+            }
             $this->tpl->setVariable("TXT_TITLE", $this->getTitle());
             //$this->tpl->setVariable("LABEL", $this->getTopAnchor());
             $this->tpl->setVariable("TXT_DESCRIPTION", $this->getDescription());
+            $this->tpl->parseCurrentBlock();
+        } elseif (!$this->required_text && $this->getMode() == "std") {
+            $this->tpl->setCurrentBlock("header");
+            // required top
+            $this->tpl->setCurrentBlock("required_text_top");
+            $this->tpl->setVariable("TXT_REQUIRED_TOP", $lng->txt("required_field"));
             $this->tpl->parseCurrentBlock();
         }
         $this->tpl->touchBlock("item");
@@ -749,7 +749,7 @@ class ilPropertyFormGUI extends ilFormGUI
                 $this->tpl->setCurrentBlock("alert");
                 $this->tpl->setVariable(
                     "IMG_ALERT",
-                    ilUtil::getImagePath("icon_alert.svg")
+                    ilUtil::getImagePath("standard/icon_alert.svg")
                 );
                 $this->tpl->setVariable(
                     "ALT_ALERT",
@@ -841,11 +841,11 @@ class ilPropertyFormGUI extends ilFormGUI
     protected function appendOnloadCode(string $html): string
     {
         if (count($this->onload_code) > 0) {
-            $html.= "<script>";
+            $html .= "<script>";
             foreach ($this->onload_code as $code) {
-                $html.= $code . "\n";
+                $html .= $code . "\n";
             }
-            $html.= "</script>";
+            $html .= "</script>";
         }
         return $html;
     }
@@ -1061,5 +1061,28 @@ class ilPropertyFormGUI extends ilFormGUI
                 }
             }
         }
+    }
+
+    protected function checkForRequiredField(): bool
+    {
+        foreach ($this->items as $item) {
+            if ($item instanceof ilFormSectionHeaderGUI) {
+                return false;
+            } elseif ($item->getType() != "hidden") {
+                if ($this->getMode() == "subform") {
+                    if (!$this->hideRequired($item->getType())) {
+                        if ($item->getRequired()) {
+                            return true;
+                        }
+                    }
+                } elseif (!$this->hideRequired($item->getType())) {
+                    if ($item->getRequired()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

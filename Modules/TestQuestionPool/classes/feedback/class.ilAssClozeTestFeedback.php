@@ -59,7 +59,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
      */
     protected function buildGapFeedbackLabel(int $gapIndex, assClozeGap $gap): string
     {
-        $answers = array();
+        $answers = [];
 
         foreach ($gap->getItems($this->randomGroup()->dontShuffle()) as $item) {
             $answers[] = '"' . $item->getAnswertext() . '"';
@@ -167,7 +167,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
     protected function completeFormPropsForFeedbackModeGapQuestion(ilRadioOption $fbModeOpt): void
     {
         foreach ($this->questionOBJ->getGaps() as $gapIndex => $gap) {
-            $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+            $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
                 $this->buildGapFeedbackLabel($gapIndex, $gap),
                 true
             );
@@ -207,7 +207,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
     protected function completeFbPropsForTextGap(ilRadioOption $fbModeOpt, assClozeGap $gap, int $gapIndex): void
     {
         foreach ($gap->getItems($this->randomGroup()->dontShuffle()) as $answerIndex => $item) {
-            $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+            $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
                 $this->buildTextGapGivenAnswerFeedbackLabel($gapIndex, $item),
                 true
             );
@@ -221,7 +221,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
             ));
         }
 
-        $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+        $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
             $this->buildTextGapWrongAnswerFeedbackLabel($gapIndex),
             true
         );
@@ -234,7 +234,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
             $this->questionOBJ->isAdditionalContentEditingModePageObject()
         ));
 
-        $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+        $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
             $this->buildTextGapEmptyFeedbackLabel($gapIndex),
             true
         );
@@ -251,7 +251,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
     protected function completeFbPropsForSelectGap(ilRadioOption $fbModeOpt, assClozeGap $gap, int $gapIndex): void
     {
         foreach ($gap->getItems($this->randomGroup()->dontShuffle()) as $optIndex => $item) {
-            $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+            $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
                 $this->buildSelectGapOptionFeedbackLabel($gapIndex, $item),
                 true
             );
@@ -265,7 +265,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
             ));
         }
 
-        $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+        $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
             $this->buildSelectGapEmptyFeedbackLabel($gapIndex),
             true
         );
@@ -286,7 +286,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
      */
     protected function completeFbPropsForNumericGap(ilRadioOption $fbModeOpt, assClozeGap $gap, int $gapIndex): void
     {
-        $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+        $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
             $this->buildNumericGapValueHitFeedbackLabel($gapIndex),
             true
         );
@@ -300,7 +300,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
         ));
 
         if ($gap->numericRangeExists()) {
-            $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+            $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
                 $this->buildNumericGapRangeHitFeedbackLabel($gapIndex),
                 true
             );
@@ -314,7 +314,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
             ));
         }
 
-        $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+        $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
             $this->buildNumericGapTooLowFeedbackLabel($gapIndex),
             true
         );
@@ -327,7 +327,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
             $this->questionOBJ->isAdditionalContentEditingModePageObject()
         ));
 
-        $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+        $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
             $this->buildNumericGapTooHighFeedbackLabel($gapIndex),
             true
         );
@@ -340,7 +340,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
             $this->questionOBJ->isAdditionalContentEditingModePageObject()
         ));
 
-        $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+        $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
             $this->buildNumericGapEmptyFeedbackLabel($gapIndex),
             true
         );
@@ -643,16 +643,16 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
     {
         $res = $this->db->queryF(
             "SELECT feedback_mode FROM {$this->questionOBJ->getAdditionalTableName()} WHERE question_fi = %s",
-            array('integer'),
-            array($sourceQuestionId)
+            ['integer'],
+            [$sourceQuestionId]
         );
 
         $row = $this->db->fetchAssoc($res);
 
         $this->db->update(
             $this->questionOBJ->getAdditionalTableName(),
-            array( 'feedback_mode' => array('text', $row['feedback_mode']) ),
-            array( 'question_fi' => array('integer', $targetQuestionId) )
+            [ 'feedback_mode' => ['text', $row['feedback_mode']] ],
+            [ 'question_fi' => ['integer', $targetQuestionId] ]
         );
     }
 
@@ -672,8 +672,8 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
 
         $this->db->update(
             $this->questionOBJ->getAdditionalTableName(),
-            array('feedback_mode' => array('text', $feedbackMode)),
-            array('question_fi' => array('integer', $questionId))
+            ['feedback_mode' => ['text', $feedbackMode]],
+            ['question_fi' => ['integer', $questionId]]
         );
     }
 
@@ -701,7 +701,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
                 $pageObjectId
             );
         } else {
-            $value = $this->questionOBJ->prepareTextareaOutput(
+            $value = ilLegacyFormElementsUtil::prepareTextareaOutput(
                 $this->getSpecificAnswerFeedbackContent($this->questionOBJ->getId(), $gapIndex, $answerIndex)
             );
         }
@@ -720,7 +720,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
                 $feedbackIds = $this->fetchFeedbackIdsForGapAnswersMode();
                 break;
 
-            default: $feedbackIds = array();
+            default: $feedbackIds = [];
         }
 
         $this->deleteSpecificAnswerFeedbacksByIds($feedbackIds);
@@ -731,11 +731,10 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
      */
     protected function fetchFeedbackIdsForGapQuestionMode(): array
     {
-        require_once 'Modules/TestQuestionPool/classes/feedback/class.ilAssSpecificFeedbackIdentifierList.php';
         $feedbackIdentifiers = new ilAssSpecificFeedbackIdentifierList();
         $feedbackIdentifiers->load($this->questionOBJ->getId());
 
-        $feedbackIds = array();
+        $feedbackIds = [];
 
         foreach ($feedbackIdentifiers as $identifier) {
             if ($identifier->getAnswerIndex() != self::SINGLE_GAP_FB_ANSWER_INDEX) {
@@ -753,11 +752,10 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
      */
     protected function fetchFeedbackIdsForGapAnswersMode(): array
     {
-        require_once 'Modules/TestQuestionPool/classes/feedback/class.ilAssSpecificFeedbackIdentifierList.php';
         $feedbackIdentifiers = new ilAssSpecificFeedbackIdentifierList();
         $feedbackIdentifiers->load($this->questionOBJ->getId());
 
-        $feedbackIds = array();
+        $feedbackIds = [];
 
         foreach ($feedbackIdentifiers as $identifier) {
             if ($identifier->getAnswerIndex() == self::SINGLE_GAP_FB_ANSWER_INDEX) {
@@ -807,25 +805,24 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
         $this->db->manipulate("DELETE FROM {$this->getSpecificFeedbackTableName()} WHERE {$IN_feedbackIds}");
     }
 
-    public function determineTestOutputGapFeedback(int $gapIndex, int $answerIndex): string
+    public function determineTestOutputGapFeedback(int $gap_index, int $answer_index): string
     {
-        if ($this->questionOBJ->getFeedbackMode() == self::FB_MODE_GAP_QUESTION) {
+        if ($this->questionOBJ->getFeedbackMode() === self::FB_MODE_GAP_QUESTION) {
             return $this->getSpecificAnswerFeedbackTestPresentation(
                 $this->questionOBJ->getId(),
-                $gapIndex,
+                $gap_index,
                 self::SINGLE_GAP_FB_ANSWER_INDEX
             );
         }
 
-        return $this->getSpecificAnswerFeedbackTestPresentation($this->questionOBJ->getId(), $gapIndex, $answerIndex);
+        return $this->getSpecificAnswerFeedbackTestPresentation($this->questionOBJ->getId(), $gap_index, $answer_index);
     }
 
     public function determineAnswerIndexForAnswerValue(assClozeGap $gap, string $answerValue): int
     {
         switch ($gap->getType()) {
             case CLOZE_TEXT:
-
-                if (!strlen($answerValue)) {
+                if ($answerValue === '') {
                     return self::FB_TEXT_GAP_EMPTY_INDEX;
                 }
 
@@ -842,8 +839,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
                 return self::FB_TEXT_GAP_NOMATCH_INDEX;
 
             case CLOZE_SELECT:
-
-                if (strlen($answerValue)) {
+                if ($answerValue !== '') {
                     return $answerValue;
                 }
 
@@ -851,8 +847,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
 
             default:
             case CLOZE_NUMERIC:
-
-                if (!strlen($answerValue)) {
+                if ($answerValue === '') {
                     return self::FB_NUMERIC_GAP_EMPTY_INDEX;
                 }
 
@@ -864,7 +859,6 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
                     return self::FB_NUMERIC_GAP_VALUE_HIT_INDEX;
                 }
 
-                require_once 'Services/Math/classes/class.EvalMath.php';
                 $math = new EvalMath();
 
                 $item = $gap->getItem(0);
@@ -883,7 +877,7 @@ class ilAssClozeTestFeedback extends ilAssMultiOptionQuestionFeedback
                 }
 
                 //  if ($solutionValue > $upperBound) {
-                    return self::FB_NUMERIC_GAP_TOO_HIGH_INDEX;
+                return self::FB_NUMERIC_GAP_TOO_HIGH_INDEX;
                 //}
         }
     }

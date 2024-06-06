@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Handles a list of questions
  *
@@ -48,25 +50,25 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
     /**
      * @var array
      */
-    private $taxFilters = array();
+    private $taxFilters = [];
 
     // fau: taxFilter/typeFilter - private variable
     // TODO-RND2017: rename to typesFilter (multiple types allowed)
     /**
      * @var array
      */
-    private $typeFilter = array();
+    private $typeFilter = [];
     // fau.
 
     /**
      * @var array
      */
-    private $lifecycleFilter = array();
+    private $lifecycleFilter = [];
 
     /**
      * @var array
      */
-    private $questions = array();
+    private $questions = [];
 
     public function __construct(ilDBInterface $db, ilComponentRepository $component_repository)
     {
@@ -166,8 +168,8 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
         $res = $this->db->queryF(
             $query,
-            array('integer', 'integer'),
-            array($this->getTestId(), $this->getPoolId())
+            ['integer', 'integer'],
+            [$this->getTestId(), $this->getPoolId()]
         );
 
         //echo sprintf($query, $this->getTestId(), $this->getPoolId());exit;
@@ -200,13 +202,10 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
     private function getTaxonomyFilterExpressions(): array
     {
-        $expressions = array();
-
-        require_once 'Services/Taxonomy/classes/class.ilTaxonomyTree.php';
-        require_once 'Services/Taxonomy/classes/class.ilTaxNodeAssignment.php';
+        $expressions = [];
 
         foreach ($this->getTaxonomyFilters() as $taxId => $taxNodes) {
-            $questionIds = array();
+            $questionIds = [];
 
             $forceBypass = true;
 
@@ -217,7 +216,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
                 $taxNodeAssignment = new ilTaxNodeAssignment('tst', $this->getTestObjId(), 'quest', $taxId);
 
-                $subNodes = $taxTree->getSubTreeIds($taxNode);
+                $subNodes = $taxTree->getSubTreeIds((int) $taxNode);
                 $subNodes[] = $taxNode;
 
                 $taxItems = $taxNodeAssignment->getAssignmentsOfNode($subNodes);
@@ -238,24 +237,24 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
     private function getLifecycleFilterExpressions(): array
     {
         if (count($this->lifecycleFilter)) {
-            return array(
+            return [
                 $this->db->in('lifecycle', $this->lifecycleFilter, false, 'text')
-            );
+            ];
         }
 
-        return array();
+        return [];
     }
 
     // fau: taxFilter/typeFilter - get the expressions for a type filter
     private function getTypeFilterExpressions(): array
     {
         if (count($this->typeFilter)) {
-            return array(
+            return [
                 $this->db->in('question_type_fi', $this->typeFilter, false, 'integer')
-            );
+            ];
         }
 
-        return array();
+        return [];
     }
     // fau;
 
@@ -291,8 +290,8 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
     public function resetQuestionList()
     {
-        $this->questions = array();
-        $this->taxFilters = array();
+        $this->questions = [];
+        $this->taxFilters = [];
 
         $this->testObjId = -1;
         $this->testId = -1;
@@ -306,24 +305,25 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
     // =================================================================================================================
 
-    public function rewind(): int
+    public function rewind(): void
     {
-        return reset($this->questions);
+        reset($this->questions);
     }
 
-    public function current(): int
+    public function current(): ?int
     {
-        return current($this->questions);
+        $current = current($this->questions);
+        return $current !== false ? $current : null;
     }
 
-    public function key(): int
+    public function key(): ?int
     {
         return key($this->questions);
     }
 
-    public function next(): int
+    public function next(): void
     {
-        return next($this->questions);
+        next($this->questions);
     }
 
     public function valid(): bool
@@ -333,14 +333,15 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
     public static function updateSourceQuestionPoolId($testId, $oldPoolId, $newPoolId)
     {
-        $db = $GLOBALS['DIC']['ilDB'];
+        global $DIC;
+        $db = $DIC['ilDB'];
 
         $query = "UPDATE tst_rnd_cpy SET qpl_fi = %s WHERE tst_fi = %s AND qpl_fi = %s";
 
         $db->manipulateF(
             $query,
-            array('integer', 'integer', 'integer'),
-            array($newPoolId, $testId, $oldPoolId)
+            ['integer', 'integer', 'integer'],
+            [$newPoolId, $testId, $oldPoolId]
         );
     }
 }

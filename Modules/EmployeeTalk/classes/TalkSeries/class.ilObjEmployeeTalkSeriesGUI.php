@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,12 +16,17 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\EmployeeTalk\UI\ControlFlowCommand;
 use ILIAS\Modules\EmployeeTalk\Talk\DAO\EmployeeTalk;
 use ILIAS\Modules\EmployeeTalk\Talk\EmployeeTalkPeriod;
-use ILIAS\EmployeeTalk\Service\EmployeeTalkEmailNotificationService;
-use ILIAS\EmployeeTalk\Service\VCalendarFactory;
-use ILIAS\EmployeeTalk\Service\EmployeeTalkEmailNotification;
+use ILIAS\EmployeeTalk\Metadata\MetadataHandlerInterface;
+use ILIAS\EmployeeTalk\Metadata\MetadataHandler;
+use ILIAS\EmployeeTalk\Notification\NotificationHandlerInterface;
+use ILIAS\EmployeeTalk\Notification\NotificationHandler;
+use ILIAS\EmployeeTalk\Notification\Calendar\VCalendarGenerator;
+use ILIAS\EmployeeTalk\Notification\NotificationType;
 
 /**
  * Class ilObjEmployeeTalkGUI
@@ -44,12 +47,17 @@ use ILIAS\EmployeeTalk\Service\EmployeeTalkEmailNotification;
 final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
 {
     private \ILIAS\DI\Container $container;
+    protected MetadataHandlerInterface $md_handler;
+    protected NotificationHandlerInterface $notif_handler;
     protected ilPropertyFormGUI $form;
     private int $userId = -1;
+    private string $link_to_parent;
 
     public function __construct()
     {
-        $this->container = $GLOBALS["DIC"];
+        global $DIC;
+
+        $this->container = $DIC;
 
         $refId = $this->container
             ->http()
@@ -65,12 +73,14 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
 
         $this->type = ilObjEmployeeTalkSeries::TYPE;
 
-        $this->setReturnLocation("save", strtolower(ilEmployeeTalkMyStaffListGUI::class));
         $wrapper = $this->container->http()->wrapper()->query();
 
         if ($wrapper->has('usr_id')) {
             $this->userId = $wrapper->retrieve('usr_id', $this->container->refinery()->kindlyTo()->int());
         }
+
+        $this->md_handler = new MetadataHandler();
+        $this->notif_handler = new NotificationHandler(new VCalendarGenerator($this->container->language()));
 
         $this->omitLocator();
     }
@@ -82,6 +92,19 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
             $this->ctrl->redirectByClass(ilDashboardGUI::class, "");
         }
+    }
+
+    public function setLinkToParentGUI(string $link): void
+    {
+        $this->link_to_parent = $link;
+    }
+
+    public function redirectToParentGUI(): void
+    {
+        if (isset($this->link_to_parent)) {
+            $this->ctrl->redirectToURL($this->link_to_parent);
+        }
+        $this->ctrl->redirectByClass(strtolower(ilEmployeeTalkMyStaffListGUI::class));
     }
 
     public function executeCommand(): void
@@ -130,50 +153,25 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
      */
     protected function setTitleAndDescription(): void
     {
+        $this->tabs_gui->clearTargets();
         $this->tpl->resetHeaderBlock();
     }
 
     /**
      * Talk Series does not use RBAC and therefore does not require the usual permission checks.
      * Talk series it self can no longer be edited after creation.
-     *
-     * @param string $a_perm
-     * @param string $a_cmd
-     * @param string $a_type
-     * @param null   $a_ref_id
-     * @return bool
      */
-    protected function checkPermissionBool(string $a_perm, string $a_cmd = "", string $a_type = "", ?int $a_ref_id = null): bool
+    protected function checkPermissionBool(string $perm, string $cmd = "", string $type = "", ?int $ref_id = null): bool
     {
-        if ($a_perm === 'create') {
+        if ($perm === 'create') {
             return true;
         }
         return false;
     }
 
-    public function confirmedDeleteObject(): void
+    public function cancelObject(): void
     {
-        if ($this->post_wrapper->has("mref_id")) {
-            $mref_id = $this->post_wrapper->retrieve(
-                "mref_id",
-                $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
-            );
-            $saved_post = array_unique(array_merge(ilSession::get('saved_post'), $mref_id));
-            ilSession::set('saved_post', $saved_post);
-        }
-
-        $ru = new ilRepositoryTrashGUI($this);
-        $ru->deleteObjects($this->requested_ref_id, ilSession::get("saved_post"));
-        ilSession::clear("saved_post");
-
-        $this->ctrl->redirectByClass(strtolower(ilEmployeeTalkMyStaffListGUI::class), ControlFlowCommand::DEFAULT, "", false);
-    }
-
-    public function cancelDeleteObject(): void
-    {
-        ilSession::clear("saved_post");
-
-        $this->ctrl->redirectByClass(strtolower(ilEmployeeTalkMyStaffListGUI::class), ControlFlowCommand::DEFAULT, "", false);
+        $this->redirectToParentGUI();
     }
 
     public function cancelObject(): void
@@ -186,12 +184,12 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
      *
      * @param ilObject $a_new_object
      */
-    protected function afterSave(ilObject $a_new_object): void
+    protected function afterSave(ilObject $new_object): void
     {
         /**
          * @var ilObjEmployeeTalkSeries $newObject
          */
-        $newObject = $a_new_object;
+        $newObject = $new_object;
 
         // Create clones of the first one
         $event = $this->loadRecurrenceSettings();
@@ -199,7 +197,7 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
         $this->createRecurringTalks($newObject, $event);
 
         $this->tpl->setOnScreenMessage('success', $this->lng->txt("object_added"), true);
-        $this->ctrl->redirectByClass(strtolower(ilEmployeeTalkMyStaffListGUI::class), ControlFlowCommand::DEFAULT, "", false);
+        $this->redirectToParentGUI();
     }
 
     public function saveObject(): void
@@ -333,61 +331,9 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
     {
     }
 
-    /**
-     * @param ilObjEmployeeTalk[] $talks
-     */
-    private function sendNotification(array $talks): void
+    private function sendNotification(ilObjEmployeeTalk ...$talks): void
     {
-        if (count($talks) === 0) {
-            return;
-        }
-
-        $firstTalk = $talks[0];
-        $talk_title = $firstTalk->getTitle();
-        $superior = new ilObjUser($firstTalk->getOwner());
-        $employee = new ilObjUser($firstTalk->getData()->getEmployee());
-        $superiorName = $superior->getFullname();
-
-        $dates = array_map(
-            fn (ilObjEmployeeTalk $t) => $t->getData()->getStartDate(),
-            $talks
-        );
-        usort($dates, function (ilDateTime $a, ilDateTime $b) {
-            $a = $a->getUnixTime();
-            $b = $b->getUnixTime();
-            if ($a === $b) {
-                return 0;
-            }
-            return $a < $b ? -1 : 1;
-        });
-
-        $add_time = $firstTalk->getData()->isAllDay() ? 0 : 1;
-        $format = ilCalendarUtil::getUserDateFormat($add_time, true);
-        $timezone = $employee->getTimeZone();
-        $dates = array_map(function (ilDateTime $d) use ($add_time, $format, $timezone) {
-            return $d->get(IL_CAL_FKT_DATE, $format, $timezone);
-        }, $dates);
-
-        $message = new EmployeeTalkEmailNotification(
-            $firstTalk->getRefId(),
-            $talk_title,
-            $firstTalk->getDescription(),
-            $firstTalk->getData()->getLocation(),
-            'notification_talks_subject',
-            'notification_talks_created',
-            $superiorName,
-            $dates
-        );
-
-        $vCalSender = new EmployeeTalkEmailNotificationService(
-            $message,
-            $talk_title,
-            $employee,
-            $superior,
-            VCalendarFactory::getInstanceFromTalks($firstTalk->getParent())
-        );
-
-        $vCalSender->send();
+        $this->notif_handler->send(NotificationType::INVITATION, ...$talks);
     }
 
     /**
@@ -537,32 +483,10 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
         $talk->setDescription($template->getTitle());
         $talk->update();
 
-        // assign talk series type to adv md records of the template
-        foreach (ilAdvancedMDRecord::_getSelectedRecordsByObject(
+        $this->md_handler->copyValues(
             $template->getType(),
             $template->getId(),
-            'etal',
-            false
-        ) as $rec) {
-            if (!$rec->isAssignedObjectType($talk->getType(), 'etal')) {
-                $rec->appendAssignedObjectType(
-                    $talk->getType(),
-                    'etal',
-                    true
-                );
-                $rec->update();
-            }
-        }
-
-        ilAdvancedMDRecord::saveObjRecSelection(
-            $talk->getId(),
-            'etal',
-            ilAdvancedMDRecord::getObjRecSelection($template->getId(), 'etal')
-        );
-
-        ilAdvancedMDValues::_cloneValues(
-            0,
-            $template->getId(),
+            $talk->getType(),
             $talk->getId(),
             ilObjEmployeeTalk::TYPE
         );
@@ -611,7 +535,7 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
         $talks[] = $talkSession;
 
         if (!$recurrence->getFrequenceType()) {
-            $this->sendNotification($talks);
+            $this->sendNotification(...$talks);
             return true;
         }
 
@@ -638,7 +562,7 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
             $talks[] = $cloneObject;
         }
 
-        $this->sendNotification($talks);
+        $this->sendNotification(...$talks);
 
         return true;
     }
@@ -679,11 +603,7 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
             ilObjTalkTemplate::lookupOfflineStatus(ilObjTalkTemplate::_lookupObjectId($refId)) ?? true
         ) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt('etal_create_invalid_template_ref'), true);
-            $this->ctrl->redirectByClass([
-                strtolower(ilDashboardGUI::class),
-                strtolower(ilMyStaffGUI::class),
-                strtolower(ilEmployeeTalkMyStaffListGUI::class)
-            ], ControlFlowCommand::INDEX);
+            $this->redirectToParentGUI();
         }
 
         return $refId;

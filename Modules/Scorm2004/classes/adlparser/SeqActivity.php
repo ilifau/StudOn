@@ -18,10 +18,10 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-   define("TIMING_ONCE", "once");
-   define("TIMING_EACHNEW", "onEachNewAttempt");
-   define("TER_EXITALL", "_EXITALL_");
-   define("TIMING_NEVER", "never");
+define("TIMING_ONCE", "once");
+define("TIMING_EACHNEW", "onEachNewAttempt");
+define("TER_EXITALL", "_EXITALL_");
+define("TIMING_NEVER", "never");
 
 class SeqActivity
 {
@@ -324,9 +324,9 @@ class SeqActivity
     {
         if ($iDur != null) {
             $this->mActivityAbDurControl = true;
-        //to be implemented
-              //convert duration
-             //$this->mActivityAbDur = new ADLDuration(ADLDuration.FORMAT_SCHEMA, iDur);
+            //to be implemented
+            //convert duration
+            //$this->mActivityAbDur = new ADLDuration(ADLDuration.FORMAT_SCHEMA, iDur);
         } else {
             $this->mActivityAbDurControl = false;
         }
@@ -336,7 +336,7 @@ class SeqActivity
     {
         if ($iDur != null) {
             $this->mAttemptExDurControl = true;
-        //to be implemented
+            //to be implemented
             // $this->mAttemptExDur = new ADLDuration(ADLDuration.FORMAT_SCHEMA, iDur);
         } else {
             $this->mAttemptExDurControl = false;
@@ -347,7 +347,7 @@ class SeqActivity
     {
         if ($iDur != null) {
             $this->mActivityAbDurControl = true;
-        //$this->mActivityAbDur = new ADLDuration(ADLDuration.FORMAT_SCHEMA, iDur);
+            //$this->mActivityAbDur = new ADLDuration(ADLDuration.FORMAT_SCHEMA, iDur);
         } else {
             $this->mActivityAbDurControl = false;
         }
@@ -357,7 +357,7 @@ class SeqActivity
     {
         if ($iDur != null) {
             $this->mmActivityExDurControl = true;
-        // $this->mmActivityExDur = new ADLDuration(ADLDuration.FORMAT_SCHEMA, iDur);
+            // $this->mmActivityExDur = new ADLDuration(ADLDuration.FORMAT_SCHEMA, iDur);
         } else {
             $this->mmActivityExDurControl = false;
         }
@@ -413,8 +413,7 @@ class SeqActivity
 
     public function setSelectionTiming(string $iTiming): void
     {
-
-     // Validate vocabulary
+        // Validate vocabulary
         if (!($this->iTiming == TIMING_NEVER ||
                $this->iTiming == TIMING_ONCE ||
                   $this->iTiming == TIMING_EACHNEW)) {

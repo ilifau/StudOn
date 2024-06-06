@@ -31,7 +31,7 @@ use ILIAS\Survey\InternalDomainService;
 class SettingsFormGUI
 {
     protected InternalGUIService $ui_service;
-    protected \ilObjectServiceInterface $object_service;
+    protected \ilObjectService $object_service;
     protected \ilObjSurvey $survey;
     protected UIModifier $modifier;
     protected InternalDomainService $domain_service;
@@ -42,7 +42,7 @@ class SettingsFormGUI
     public function __construct(
         InternalGUIService $ui_service,
         InternalDomainService $domain_service,
-        \ilObjectServiceInterface $object_service,
+        \ilObjectService $object_service,
         \ilObjSurvey $survey,
         UIModifier $modifier
     ) {
@@ -265,7 +265,7 @@ class SettingsFormGUI
         $online->setChecked(!$survey->getOfflineStatus());
         $form->addItem($online);
 
-        $dur = new \ilDateDurationInputGUI($lng->txt('rep_visibility_until'), "access_period");
+        $dur = new \ilDateDurationInputGUI($lng->txt('rep_time_based_availability'), "access_period");
         $dur->setShowTime(true);
         $date = $survey->getActivationStartDate();
         $dur->setStart($date
@@ -828,7 +828,6 @@ class SettingsFormGUI
         }
 
         if ($feature_config->supportsTutorNotification()) {
-
             // "one mail after all participants finished"
             if ($form->getInput("tut")) {
                 $tut_ids = $this->getTutorIdsFromForm($form);

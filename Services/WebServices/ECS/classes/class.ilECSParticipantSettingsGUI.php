@@ -181,7 +181,6 @@ class ilECSParticipantSettingsGUI
                     $this->getParticipant()->update();
                     $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'), true);
                     $this->ctrl->redirect($this, 'settings');
-
             }
         }
         $form->setValuesByPost();

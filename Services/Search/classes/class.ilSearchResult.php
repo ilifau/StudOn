@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -324,7 +323,6 @@ class ilSearchResult
      */
     public function filter(int $a_root_node, bool $check_and): bool
     {
-
         // get ref_ids and check access
         $counter = 0;
         $offset_counter = 0;

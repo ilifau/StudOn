@@ -61,19 +61,19 @@ class ilExerciseGSToolProvider extends AbstractDynamicToolProvider
                 ->withTitle($title)
                 ->withSymbol($icon)
                 ->withContentWrapper(
-                /**
-                 * @throws ilExcUnknownAssignmentTypeException
-                 * @throws ilDateTimeException
-                 */
-                function () use ($l, $additional_data) {
-                    $buttons = $additional_data->exists(self::EXC_ASS_BUTTONS)
-                        ? $additional_data->get(self::EXC_ASS_BUTTONS)
-                        : [];
-                    return $l($this->getAssignmentInfo(
-                        $additional_data->get(self::EXC_ASS_IDS),
-                        $buttons
-                    ));
-                }
+                    /**
+                     * @throws ilExcUnknownAssignmentTypeException
+                     * @throws ilDateTimeException
+                     */
+                    function () use ($l, $additional_data) {
+                        $buttons = $additional_data->exists(self::EXC_ASS_BUTTONS)
+                            ? $additional_data->get(self::EXC_ASS_BUTTONS)
+                            : [];
+                        return $l($this->getAssignmentInfo(
+                            $additional_data->get(self::EXC_ASS_IDS),
+                            $buttons
+                        ));
+                    }
                 );
         }
 
@@ -97,6 +97,7 @@ class ilExerciseGSToolProvider extends AbstractDynamicToolProvider
         $user = $DIC->user();
         $ui = $DIC->ui();
         $access = $DIC->access();
+        $link_service = $DIC->exercise()->internal()->gui()->permanentLink();
 
         $html = "";
 
@@ -116,7 +117,7 @@ class ilExerciseGSToolProvider extends AbstractDynamicToolProvider
             $title = ilObject::_lookupTitle($exc_id) . ": " . $assignment->getTitle();
             if ($readable_ref_id > 0) {
                 $title = $ui->renderer()->render(
-                    $ui->factory()->link()->standard($title, ilLink::_getLink($readable_ref_id))
+                    $ui->factory()->link()->standard($title, $link_service->getPermanentLink($readable_ref_id, $ass_id))
                 );
             }
 

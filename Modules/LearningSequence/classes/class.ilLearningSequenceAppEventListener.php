@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,10 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Notifications\Model\ilNotificationConfig;
 
 /**
  * EventListener for LSO
@@ -76,6 +78,22 @@ class ilLearningSequenceAppEventListener
             self::$lp_event_handler = new ilLSLPEventHandler(self::getIlTree(), self::getIlLPStatusWrapper());
         }
         self::$lp_event_handler->updateLPForChildEvent($parameter);
+
+        if ($parameter['status'] === ilLPStatus::LP_STATUS_COMPLETED_NUM
+            && $parameter['old_status'] !== $parameter['status']
+            && ilObject::_lookupType($parameter['obj_id']) === 'lso'
+        ) {
+            $lng = self::getIlLanguage();
+            $lso_title = ilObject::_lookupTitle($parameter['obj_id']);
+            $notification = new ilNotificationConfig(ilLSCompletionNotificationProvider::NOTIFICATION_TYPE);
+            $notification->setValidForSeconds(ilNotificationConfig::TTL_LONG);
+            $notification->setVisibleForSeconds(ilNotificationConfig::DEFAULT_TTS);
+            $notification->setTitleVar($lng->txt('lso_toast_completed_title'));
+            $notification->setShortDescriptionVar($lng->txt('lso_toast_completed_desc'));
+            $notification->setLongDescriptionVar($lng->txt('lso_toast_completed_desc'));
+            $notification->setIconPath('templates/default/images/standard/icon_lso.svg');
+            $notification->notifyByUsers([$parameter['usr_id']]);
+        }
     }
 
     private static function onObjectDeletion(array $parameter): void
@@ -114,6 +132,12 @@ class ilLearningSequenceAppEventListener
     {
         global $DIC;
         return $DIC['tree'];
+    }
+
+    protected static function getIlLanguage(): illanguage
+    {
+        global $DIC;
+        return $DIC['lng'];
     }
 
     protected static function getIlLPStatusWrapper(): ilLPStatusWrapper

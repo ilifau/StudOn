@@ -32,16 +32,25 @@ class FieldSelection extends ViewControlInput implements VCInterface\FieldSelect
 {
     protected Signal $internal_selection_signal;
     protected string $button_label = '';
+<<<<<<< HEAD
     protected array $options;
+=======
+>>>>>>> v9.1
 
     public function __construct(
         DataFactory $data_factory,
         Refinery $refinery,
         SignalGeneratorInterface $signal_generator,
+<<<<<<< HEAD
         array $options
     ) {
         parent::__construct($data_factory, $refinery);
         $this->options =$options;
+=======
+        protected array $options
+    ) {
+        parent::__construct($data_factory, $refinery);
+>>>>>>> v9.1
         $this->internal_selection_signal = $signal_generator->create();
     }
 

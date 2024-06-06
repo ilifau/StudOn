@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+use ILIAS\UI\Factory as UIFactory;
 
 /**
  * Class ilObjRoleFolderGUI
@@ -40,6 +41,7 @@ class ilObjRoleFolderGUI extends ilObjectGUI
 
     protected GlobalHttpState $http;
     protected Factory $refinery;
+    protected UIFactory $ui_factory;
 
     /**
      * Constructor
@@ -50,9 +52,11 @@ class ilObjRoleFolderGUI extends ilObjectGUI
         global $DIC;
 
         $this->logger = $DIC->logger()->ac();
-        $this->rbacadmin = $DIC->rbac()->admin();
+        $this->rbacadmin = $DIC['rbacadmin'];
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
+        $this->ui_factory = $DIC['ui.factory'];
+
         $this->type = "rolf";
         parent::__construct($a_data, $a_id, $a_call_by_reference, false);
         $this->lng->loadLanguageModule('rbac');
@@ -65,7 +69,6 @@ class ilObjRoleFolderGUI extends ilObjectGUI
         $this->prepareOutput();
 
         switch ($next_class) {
-
             case 'ilpermissiongui':
                 $perm_gui = new ilPermissionGUI($this);
                 $ret = $this->ctrl->forwardCommand($perm_gui);
@@ -130,16 +133,20 @@ class ilObjRoleFolderGUI extends ilObjectGUI
 
         if ($this->rbac_system->checkAccess('create_role', $this->object->getRefId())) {
             $this->ctrl->setParameter($this, 'new_type', 'role');
-            $this->toolbar->addButton(
-                $this->lng->txt('rolf_create_role'),
-                $this->ctrl->getLinkTarget($this, 'create')
+            $this->toolbar->addComponent(
+                $this->ui_factory->link()->standard(
+                    $this->lng->txt('rolf_create_role'),
+                    $this->ctrl->getLinkTarget($this, 'create')
+                )
             );
         }
         if ($this->rbac_system->checkAccess('create_rolt', $this->object->getRefId())) {
             $this->ctrl->setParameter($this, 'new_type', 'rolt');
-            $this->toolbar->addButton(
-                $this->lng->txt('rolf_create_rolt'),
-                $this->ctrl->getLinkTarget($this, 'create')
+            $this->toolbar->addComponent(
+                $this->ui_factory->link()->standard(
+                    $this->lng->txt('rolf_create_rolt'),
+                    $this->ctrl->getLinkTarget($this, 'create')
+                )
             );
             $this->ctrl->clearParameters($this);
         }
@@ -148,9 +155,11 @@ class ilObjRoleFolderGUI extends ilObjectGUI
             $this->rbac_system->checkAccess('create_rolt', $this->object->getRefId()) ||
             $this->rbac_system->checkAccess('create_rolt', $this->object->getRefId())
         ) {
-            $this->toolbar->addButton(
-                $this->lng->txt('rbac_import_role'),
-                $this->ctrl->getLinkTargetByClass('ilPermissionGUI', 'displayImportRoleForm')
+            $this->toolbar->addComponent(
+                $this->ui_factory->link()->standard(
+                    $this->lng->txt('rbac_import_role'),
+                    $this->ctrl->getLinkTargetByClass('ilPermissionGUI', 'displayImportRoleForm')
+                )
             );
         }
 
@@ -552,7 +561,7 @@ class ilObjRoleFolderGUI extends ilObjectGUI
         $role->changeExistingObjects(
             $a_start_obj,
             $mode,
-            array('all'),
+            ['all'],
             [],
             $a_operation_mode,
             $operation_stack
@@ -656,14 +665,14 @@ class ilObjRoleFolderGUI extends ilObjectGUI
             $this->tabs_gui->addTarget(
                 "view",
                 $this->ctrl->getLinkTarget($this, "view"),
-                array("", "view"),
+                ["", "view"],
                 get_class($this)
             );
 
             $this->tabs_gui->addTarget(
                 "settings",
                 $this->ctrl->getLinkTarget($this, "editSettings"),
-                array("editSettings"),
+                ["editSettings"],
                 get_class($this)
             );
         }
@@ -672,7 +681,7 @@ class ilObjRoleFolderGUI extends ilObjectGUI
             $this->tabs_gui->addTarget(
                 "perm_settings",
                 $this->ctrl->getLinkTargetByClass(
-                    array(get_class($this), 'ilpermissiongui'),
+                    [get_class($this), 'ilpermissiongui'],
                     "perm"
                 ),
                 "",
@@ -769,12 +778,12 @@ class ilObjRoleFolderGUI extends ilObjectGUI
 
                 $security = ilSecuritySettings::_getInstance();
 
-                $fields = array('adm_adm_role_protect' => array($security->isAdminRoleProtected(),
+                $fields = ['adm_adm_role_protect' => [$security->isAdminRoleProtected(),
                                                                 ilAdministrationSettingsFormHandler::VALUE_BOOL
-                )
-                );
+                ]
+                ];
 
-                return array(array("editSettings", $fields));
+                return [["editSettings", $fields]];
 
             case ilAdministrationSettingsFormHandler::FORM_PRIVACY:
 
@@ -782,15 +791,15 @@ class ilObjRoleFolderGUI extends ilObjectGUI
 
                 $subitems = null;
                 if ($privacy->enabledRbacLog()) {
-                    $subitems = array('rbac_log_age' => $privacy->getRbacLogAge());
+                    $subitems = ['rbac_log_age' => $privacy->getRbacLogAge()];
                 }
-                $fields = array('rbac_log' => array($privacy->enabledRbacLog(),
+                $fields = ['rbac_log' => [$privacy->enabledRbacLog(),
                                                     ilAdministrationSettingsFormHandler::VALUE_BOOL,
                                                     $subitems
-                )
-                );
+                ]
+                ];
 
-                return array(array("editSettings", $fields));
+                return [["editSettings", $fields]];
         }
         return [];
     }

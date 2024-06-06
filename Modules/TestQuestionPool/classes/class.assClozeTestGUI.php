@@ -61,8 +61,7 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                     sel = document.selection.createRange();
                     sel.text = code_start + sel.text + code_end;
                     this.focus();
-                }
-                else if (this.selectionStart || this.selectionStart == '0') {
+                } else if (this.selectionStart || this.selectionStart == '0') {
                     //For browsers like Firefox and Webkit based
                     var startPos = this.selectionStart;
                     var endPos = this.selectionEnd;
@@ -92,6 +91,8 @@ JS;
     private Container $dic;
     private Factory $refinery;
     private ArrayBasedRequestWrapper $post;
+    private \ILIAS\UI\Factory $ui_factory;
+    private \ILIAS\UI\Renderer $ui_renderer;
 
     /**
     * assClozeTestGUI constructor
@@ -103,6 +104,8 @@ JS;
         parent::__construct();
         global $DIC;
         $this->dic = $DIC;
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
         $this->refinery = $this->dic->refinery();
         $this->post = $this->dic->http()->wrapper()->post();
 
@@ -129,28 +132,26 @@ JS;
     protected function writePostData(bool $always = false): int
     {
         $hasErrors = (!$always) ? $this->editQuestion(true) : false;
-        if (!$hasErrors) {
-            require_once 'Services/Form/classes/class.ilPropertyFormGUI.php';
-
-            $cloze_text = $this->removeIndizesFromGapText(
-                $this->request->raw('cloze_text')
-            );
-
-            $this->object->setQuestion(
-                $this->request->raw('question')
-            );
-
-            $this->writeQuestionGenericPostData();
-            $this->object->setClozeText($cloze_text);
-            $this->object->setTextgapRating($this->request->raw('textgap_rating'));
-            $this->object->setIdenticalScoring((bool) ($this->request->raw('identical_scoring') ?? false));
-            $this->object->setFixedTextLength(($this->request->int('fixedTextLength') ?? 0));
-            $this->writeAnswerSpecificPostData(new ilPropertyFormGUI());
-            $this->saveTaxonomyAssignments();
-            return 0;
+        if ($hasErrors) {
+            return 1;
         }
 
-        return 1;
+        $cloze_text = $this->removeIndizesFromGapText(
+            $this->request->raw('cloze_text')
+        );
+
+        $this->object->setQuestion(
+            $this->request->raw('question')
+        );
+
+        $this->writeQuestionGenericPostData();
+        $this->object->setClozeText($cloze_text);
+        $this->object->setTextgapRating($this->request->raw('textgap_rating'));
+        $this->object->setIdenticalScoring((bool) ($this->request->raw('identical_scoring') ?? false));
+        $this->object->setFixedTextLength(($this->request->int('fixedTextLength') ?? 0));
+        $this->writeAnswerSpecificPostData(new ilPropertyFormGUI());
+        $this->saveTaxonomyAssignments();
+        return 0;
     }
 
     public function writeAnswerSpecificPostData(ilPropertyFormGUI $form): void
@@ -309,7 +310,6 @@ JS;
         $save = $this->isSaveCommand();
         $this->getQuestionTemplate();
 
-        include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
         $this->editForm = $form;
 
@@ -331,17 +331,44 @@ JS;
         if ($save) {
             $form->setValuesByPost();
             $errors = !$form->checkInput();
-            $form->setValuesByPost(); 	// again, because checkInput now performs the whole stripSlashes handling and we
-            // need this if we don't want to have duplication of backslashes
+            $form->setValuesByPost();
+
+            $gap_combinations = $this->request->raw('gap_combination');
+            if (is_array($gap_combinations)
+                && $gap_combinations !== []
+                && $this->hasErrorInGapCombinationPoints($gap_combinations)) {
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('points_non_numeric_or_negative_msg'));
+                $errors = true;
+            }
+
             if ($errors) {
                 $checkonly = false;
             }
         }
 
         if (!$checkonly) {
-            $this->tpl->setVariable("QUESTION_DATA", $form->getHTML());
+            $modal = ilModalGUI::getInstance();
+            $modal->setHeading($this->lng->txt(''));
+            $modal->setId('ilGapModal');
+            $modal->setBody('');
+            $this->tpl->setVariable("QUESTION_DATA", $form->getHTML() . $modal->getHTML());
         }
         return $errors;
+    }
+
+    private function hasErrorInGapCombinationPoints(array $gap_combinations): bool
+    {
+        foreach ($gap_combinations['points'] as $gaps_points) {
+            foreach ($gaps_points as $points) {
+                $points_standardized = str_replace(',', '.', $points);
+                if (!is_numeric($points_standardized)
+                    || (float) $points_standardized < 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public function addBasicQuestionFormProperties(ilPropertyFormGUI $form): void
@@ -391,7 +418,6 @@ JS;
         if (!$this->object->getSelfAssessmentEditingMode()) {
             if ($this->object->getAdditionalContentEditingMode() == assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_RTE) {
                 $question->setUseRte(true);
-                include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
                 $question->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("assessment"));
                 $question->addPlugin("latex");
                 $question->addButton("latex");
@@ -399,7 +425,6 @@ JS;
                 $question->setRTESupport($this->object->getId(), "qpl", "assessment");
             }
         } else {
-            require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
             $question->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
             $question->setUseTagsForRteOnly(false);
         }
@@ -419,14 +444,12 @@ JS;
         if (!$this->object->getSelfAssessmentEditingMode()) {
             if ($this->object->getAdditionalContentEditingMode() == assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_RTE) {
                 $cloze_text->setUseRte(true);
-                include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
                 $cloze_text->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("assessment"));
                 $cloze_text->addPlugin("latex");
                 $cloze_text->addButton("latex");
                 $cloze_text->addButton("pastelatex");
             }
         } else {
-            require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
             $cloze_text->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
             $cloze_text->setUseTagsForRteOnly(false);
         }
@@ -436,30 +459,25 @@ JS;
         $tpl = new ilTemplate("tpl.il_as_qpl_cloze_gap_button_code.html", true, true, "Modules/TestQuestionPool");
 
         $button = new ilCustomInputGUI('&nbsp;', '');
-        $action_button = ilSplitButtonGUI::getInstance();
 
-        $sb_text_gap = ilJsLinkButton::getInstance();
-        $sb_text_gap->setCaption('text_gap');
-        $sb_text_gap->setName('gapbutton');
-        $sb_text_gap->setId('gaptrigger_text');
-        $sb_text_gap->setTarget('');
-        $action_button->setDefaultButton($sb_text_gap);
+        $button_text_gap = $this->ui_factory->button()->standard($this->lng->txt('text_gap'), '')
+            ->withAdditionalOnLoadCode(
+                $this->getAddGapButtonClickClosure('text')
+            );
+        $button_select_gap = $this->ui_factory->button()->standard($this->lng->txt('select_gap'), '')
+            ->withAdditionalOnLoadCode(
+                $this->getAddGapButtonClickClosure('select')
+            );
+        $button_numeric_gap = $this->ui_factory->button()->standard($this->lng->txt('numeric_gap'), '')
+            ->withAdditionalOnLoadCode(
+                $this->getAddGapButtonClickClosure('numeric')
+            );
 
-        $sb_sel_gap = ilJsLinkButton::getInstance();
-        $sb_sel_gap->setCaption('select_gap');
-        $sb_sel_gap->setName('gapbutton_select');
-        $sb_sel_gap->setId('gaptrigger_select');
-        $sb_sel_gap->setTarget('');
-        $action_button->addMenuItem(new ilButtonToSplitButtonMenuItemAdapter($sb_sel_gap));
-
-        $sb_num_gap = ilJsLinkButton::getInstance();
-        $sb_num_gap->setCaption('numeric_gap');
-        $sb_num_gap->setName('gapbutton_numeric');
-        $sb_num_gap->setId('gaptrigger_numeric');
-        $sb_num_gap->setTarget('');
-        $action_button->addMenuItem(new ilButtonToSplitButtonMenuItemAdapter($sb_num_gap));
-
-        $tpl->setVariable('BUTTON', $action_button->render());
+        $tpl->setVariable('BUTTON', $this->ui_renderer->render([
+            $button_text_gap,
+            $button_select_gap,
+            $button_numeric_gap
+        ]));
         $tpl->parseCurrentBlock();
 
         $button->setHtml($tpl->get());
@@ -469,7 +487,7 @@ JS;
         // text rating
         if (!$this->object->getSelfAssessmentEditingMode()) {
             $textrating = new ilSelectInputGUI($this->lng->txt("text_rating"), "textgap_rating");
-            $text_options = array(
+            $text_options = [
                 "ci" => $this->lng->txt("cloze_textgap_case_insensitive"),
                 "cs" => $this->lng->txt("cloze_textgap_case_sensitive"),
                 "l1" => sprintf($this->lng->txt("cloze_textgap_levenshtein_of"), "1"),
@@ -477,7 +495,7 @@ JS;
                 "l3" => sprintf($this->lng->txt("cloze_textgap_levenshtein_of"), "3"),
                 "l4" => sprintf($this->lng->txt("cloze_textgap_levenshtein_of"), "4"),
                 "l5" => sprintf($this->lng->txt("cloze_textgap_levenshtein_of"), "5")
-            );
+            ];
             $textrating->setOptions($text_options);
             $textrating->setValue($this->object->getTextgapRating());
             $form->addItem($textrating);
@@ -505,6 +523,15 @@ JS;
         return $form;
     }
 
+    private function getAddGapButtonClickClosure(string $gap_type): Closure
+    {
+        return fn($id) => "var el = document.getElementById('{$id}').addEventListener('click', "
+            . '(e) => {'
+            . ' e.preventDefault();'
+            . " ClozeQuestionGapBuilder.addGapClickFunction('{$gap_type}');"
+            . '});';
+    }
+
     public function populateAnswerSpecificFormPart(ilPropertyFormGUI $form): ilPropertyFormGUI
     {
         if (self::OLD_CLOZE_TEST_UI) {
@@ -513,11 +540,10 @@ JS;
             }
             return $form;
         } else {
-            require_once 'Modules/TestQuestionPool/classes/Form/class.ilClozeGapInputBuilderGUI.php';
             $json = $this->populateJSON();
             $assClozeGapCombinationObject = new assClozeGapCombination();
             $combination_exists = $assClozeGapCombinationObject->combinationExistsForQid($this->object->getId());
-            $combinations = array();
+            $combinations = [];
             if ($combination_exists) {
                 $combinations = $assClozeGapCombinationObject->loadFromDb($this->object->getId());
             }
@@ -534,43 +560,43 @@ JS;
     protected function populateJSON(): array
     {
         $gap = $this->object->getGaps();
-        $array = array();
+        $array = [];
         if ($gap == null) {
             return $array;
         }
-        $translate_type = array('text','select','numeric');
+        $translate_type = ['text','select','numeric'];
         $i = 0;
         foreach ($gap as $content) {
             $shuffle = false;
             $value = $content->getItemsRaw();
-            $items = array();
+            $items = [];
             for ($j = 0, $jMax = count($value); $j < $jMax; $j++) {
                 if ($content->isNumericGap()) {
-                    $items[$j] = array(
+                    $items[$j] = [
                         'answer' => $value[$j]->getAnswerText(),
                         'lower' => $value[$j]->getLowerBound(),
                         'upper' => $value[$j]->getUpperBound(),
                         'points' => $value[$j]->getPoints(),
                         'error' => false
-                    );
+                    ];
                 } else {
-                    $items[$j] = array(
+                    $items[$j] = [
                         'answer' => $this->escapeTemplatePlaceholders($value[$j]->getAnswerText()),
                         'points' => $value[$j]->getPoints(),
                         'error' => false
-                    );
+                    ];
 
                     if ($content->isSelectGap()) {
                         $shuffle = $content->getShuffle();
                     }
                 }
             }
-            $answers[$i] = array(
+            $answers[$i] = [
             'type' => $translate_type[$content->getType()] ,
             'values' => $items ,
             'shuffle' => $shuffle,
             'text_field_length' => $content->getGapSize() > 0 ? $content->getGapSize() : '',
-            'used_in_gap_combination' => true);
+            'used_in_gap_combination' => true];
             $i++;
         }
         return $answers;
@@ -603,11 +629,11 @@ JS;
         $form->addItem($gapcounter);
 
         $gaptype = new ilSelectInputGUI($this->lng->txt('type'), "clozetype_$gapCounter");
-        $options = array(
+        $options = [
             0 => $this->lng->txt("text_gap"),
             1 => $this->lng->txt("select_gap"),
             2 => $this->lng->txt("numeric_gap")
-        );
+        ];
         $gaptype->setOptions($options);
         $gaptype->setValue($gap->getType());
         $form->addItem($gaptype);
@@ -671,8 +697,6 @@ JS;
      */
     protected function populateSelectGapFormPart($form, $gap, $gapCounter): ilPropertyFormGUI
     {
-        include_once "./Modules/TestQuestionPool/classes/class.ilAnswerWizardInputGUI.php";
-        include_once "./Modules/TestQuestionPool/classes/class.assAnswerCloze.php";
         $values = new ilAnswerWizardInputGUI($this->lng->txt("values"), "gap_" . $gapCounter . "");
         $values->setRequired(true);
         $values->setQuestionObject($this->object);
@@ -704,9 +728,6 @@ JS;
      */
     protected function populateTextGapFormPart($form, $gap, $gapCounter): ilPropertyFormGUI
     {
-        // Choices
-        include_once "./Modules/TestQuestionPool/classes/class.ilAnswerWizardInputGUI.php";
-        include_once "./Modules/TestQuestionPool/classes/class.assAnswerCloze.php";
         $values = new ilAnswerWizardInputGUI($this->lng->txt("values"), "gap_" . $gapCounter . "");
         $values->setRequired(true);
         $values->setQuestionObject($this->object);
@@ -830,10 +851,8 @@ JS;
      */
     public function getPreview($show_question_only = false, $showInlineFeedback = false): string
     {
-        $user_solution = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : array();
+        $user_solution = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : [];
 
-        // generate the question output
-        include_once "./Services/UICore/classes/class.ilTemplate.php";
         $template = new ilTemplate("tpl.il_as_qpl_cloze_question_output.html", true, true, "Modules/TestQuestionPool");
         $output = $this->object->getClozeTextForHTMLOutput();
         foreach ($this->object->getGaps() as $gap_index => $gap) {
@@ -905,7 +924,7 @@ JS;
             }
         }
         $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
-        $template->setVariable("CLOZETEXT", $this->object->prepareTextareaOutput($output, true));
+        $template->setVariable("CLOZETEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($output, true));
         $questionoutput = $template->get();
         if (!$show_question_only) {
             // get page object output
@@ -939,16 +958,15 @@ JS;
         $show_question_text = true
     ): string {
         // get the solution of the user for the active pass or from the last pass if allowed
-        $user_solution = array();
+        $user_solution = [];
         if (($active_id > 0) && (!$show_correct_solution)) {
             // get the solutions of a user
             $user_solution = $this->object->getSolutionValues($active_id, $pass);
             if (!is_array($user_solution)) {
-                $user_solution = array();
+                $user_solution = [];
             }
         }
 
-        include_once "./Services/UICore/classes/class.ilTemplate.php";
         $template = new ilTemplate("tpl.il_as_qpl_cloze_question_output_solution.html", true, true, "Modules/TestQuestionPool");
         $output = $this->object->getClozeTextForHTMLOutput();
         $assClozeGapCombinationObject = new assClozeGapCombination();
@@ -956,7 +974,7 @@ JS;
 
         foreach ($this->object->getGaps() as $gap_index => $gap) {
             $gaptemplate = new ilTemplate("tpl.il_as_qpl_cloze_question_output_solution_gap.html", true, true, "Modules/TestQuestionPool");
-            $found = array();
+            $found = [];
             foreach ($user_solution as $solutionarray) {
                 if ($solutionarray["value1"] == $gap_index) {
                     $found = $solutionarray;
@@ -971,7 +989,7 @@ JS;
 
                     if (count($check_for_gap_combinations) != 0) {
                         $gaps_used_in_combination = $assClozeGapCombinationObject->getGapsWhichAreUsedInCombination($this->object->getId());
-                        $custom_user_solution = array();
+                        $custom_user_solution = [];
                         if (array_key_exists($gap_index, $gaps_used_in_combination)) {
                             $combination_id = $gaps_used_in_combination[$gap_index];
                             foreach ($gaps_used_in_combination as $key => $value) {
@@ -979,7 +997,7 @@ JS;
                                 if ($value == $combination_id) {
                                     foreach ($user_solution as $solution_key => $solution_value) {
                                         if ($solution_value['value1'] == $key) {
-                                            $result_row = array();
+                                            $result_row = [];
                                             $result_row['gap_id'] = $solution_value['value1'];
                                             $result_row['value'] = $solution_value['value2'];
                                             array_push($custom_user_solution, $result_row);
@@ -1084,7 +1102,7 @@ JS;
             );
         }
 
-        $template->setVariable("CLOZETEXT", $this->object->prepareTextareaOutput($output, true));
+        $template->setVariable("CLOZETEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($output, true));
         // generate the question output
         $solutiontemplate = new ilTemplate("tpl.il_as_tst_solution_output.html", true, true, "Modules/TestQuestionPool");
         $questionoutput = $template->get();
@@ -1108,7 +1126,7 @@ JS;
             );
 
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
-            $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
+            $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
         }
 
         $solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
@@ -1149,7 +1167,6 @@ JS;
 
     public function getGenericFeedbackOutput(int $active_id, $pass): string
     {
-        include_once "./Modules/Test/classes/class.ilObjTest.php";
         $manual_feedback = ilObjTest::getManualFeedback($active_id, $this->object->getId(), $pass);
         if (strlen($manual_feedback)) {
             return $manual_feedback;
@@ -1162,7 +1179,7 @@ JS;
             $output = $this->genericFeedbackOutputBuilder($correct_feedback, $incorrect_feedback, $active_id, $pass);
         }
         //$test = new ilObjTest($this->object->active_id);
-        return $this->object->prepareTextareaOutput($output, true);
+        return ilLegacyFormElementsUtil::prepareTextareaOutput($output, true);
     }
 
     public function getTestOutput(
@@ -1175,7 +1192,7 @@ JS;
         $show_feedback = false
     ): string {
         // get the solution of the user for the active pass or from the last pass if allowed
-        $user_solution = array();
+        $user_solution = [];
         if ($use_post_solutions !== false) {
             $indexedSolution = $this->object->fetchSolutionSubmit($use_post_solutions);
             $user_solution = $this->object->fetchValuePairsFromIndexedValues($indexedSolution);
@@ -1183,12 +1200,10 @@ JS;
             $user_solution = $this->object->getTestOutputSolutions($active_id, $pass);
             // hey.
             if (!is_array($user_solution)) {
-                $user_solution = array();
+                $user_solution = [];
             }
         }
 
-        // generate the question output
-        include_once "./Services/UICore/classes/class.ilTemplate.php";
         $template = new ilTemplate("tpl.il_as_qpl_cloze_question_output.html", true, true, "Modules/TestQuestionPool");
         $output = $this->object->getClozeTextForHTMLOutput();
         foreach ($this->object->getGaps() as $gap_index => $gap) {
@@ -1263,13 +1278,13 @@ JS;
         }
 
         $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
-        $template->setVariable("CLOZETEXT", $this->object->prepareTextareaOutput($output, true));
+        $template->setVariable("CLOZETEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($output, true));
         $questionoutput = $template->get();
         $pageoutput = $this->outQuestionPage("", $is_postponed, $active_id, $questionoutput);
         return $pageoutput;
     }
 
-    public function getSpecificFeedbackOutput(array $userSolution): string
+    public function getSpecificFeedbackOutput(array $user_solution): string
     {
         if (!$this->object->feedbackOBJ->isSpecificAnswerFeedbackAvailable($this->object->getId())) {
             return '';
@@ -1277,23 +1292,23 @@ JS;
 
         $feedback = '<table class="test_specific_feedback"><tbody>';
 
-        foreach ($this->object->gaps as $gapIndex => $gap) {
-            $answerValue = $this->object->fetchAnswerValueForGap($userSolution, $gapIndex);
+        foreach ($this->object->gaps as $gap_index => $gap) {
+            $answer_value = $this->object->fetchAnswerValueForGap($user_solution, $gap_index);
             if ($gap->getType() !== assClozeGap::TYPE_TEXT
-                && $answerValue === '') {
+                && $answer_value === '') {
                 continue;
             }
-            $answerIndex = $this->object->feedbackOBJ->determineAnswerIndexForAnswerValue($gap, $answerValue);
-            $fb = $this->object->feedbackOBJ->determineTestOutputGapFeedback($gapIndex, $answerIndex);
+            $answer_index = $this->object->feedbackOBJ->determineAnswerIndexForAnswerValue($gap, $answer_value);
+            $fb = $this->object->feedbackOBJ->determineTestOutputGapFeedback($gap_index, $answer_index);
 
-            $caption = $this->lng->txt('gap') . ' ' . ($gapIndex + 1) . ': ';
+            $caption = $this->lng->txt('gap') . ' ' . ($gap_index + 1) . ': ';
             $feedback .= '<tr><td>';
             $feedback .= $caption . '</td><td>';
             $feedback .= $fb . '</td> </tr>';
         }
         $feedback .= '</tbody></table>';
 
-        return $this->object->prepareTextareaOutput($feedback, true);
+        return ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true);
     }
 
     /**
@@ -1307,7 +1322,7 @@ JS;
      */
     public function getAfterParticipationSuppressionAnswerPostVars(): array
     {
-        return array();
+        return [];
     }
 
     /**
@@ -1321,7 +1336,7 @@ JS;
      */
     public function getAfterParticipationSuppressionQuestionPostVars(): array
     {
-        return array();
+        return [];
     }
 
     /**
@@ -1332,8 +1347,8 @@ JS;
      */
     public function getAggregatedAnswersView(array $relevant_answers): string
     {
-        $overview = array();
-        $aggregation = array();
+        $overview = [];
+        $aggregation = [];
         foreach ($relevant_answers as $answer) {
             $overview[$answer['active_fi']][$answer['pass']][$answer['value1']] = $answer['value2'];
         }
@@ -1362,7 +1377,7 @@ JS;
             }
 
             if ($gap->type == CLOZE_TEXT) {
-                $present_elements = array();
+                $present_elements = [];
                 foreach ($gap->getItems($this->randomGroup->shuffleArray(new Seed\RandomSeed())) as $item) {
                     /** @var assAnswerCloze $item */
                     $present_elements[] = $item->getAnswertext();
@@ -1544,7 +1559,7 @@ JS;
 
     public function getAnswersFrequency($relevantAnswers, $questionIndex): array
     {
-        $answers = array();
+        $answers = [];
 
         foreach ($relevantAnswers as $row) {
             if ($row['value1'] != $questionIndex) {
@@ -1554,9 +1569,9 @@ JS;
             if (!isset($answers[$row['value2']])) {
                 $label = $this->getAnswerTextLabel($row['value1'], $row['value2']);
 
-                $answers[$row['value2']] = array(
+                $answers[$row['value2']] = [
                     'answer' => $label, 'frequency' => 0
-                );
+                ];
             }
 
             $answers[$row['value2']]['frequency']++;
@@ -1582,21 +1597,21 @@ JS;
 
     protected function getGapCombinations(): array
     {
-        $combinations = array();
+        $combinations = [];
 
         foreach ($this->object->getGapCombinations() as $c) {
             if (!isset($combinations[$c['cid']])) {
-                $combinations[$c['cid']] = array();
+                $combinations[$c['cid']] = [];
             }
 
             if (!isset($combinations[$c['cid']][$c['row_id']])) {
-                $combinations[$c['cid']][$c['row_id']] = array(
-                    'gaps' => array(), 'points' => $c['points'],
-                );
+                $combinations[$c['cid']][$c['row_id']] = [
+                    'gaps' => [], 'points' => $c['points'],
+                ];
             }
 
             if (!isset($combinations[$c['cid']][$c['row_id']]['gaps'][$c['gap_fi']])) {
-                $combinations[$c['cid']][$c['row_id']]['gaps'][$c['gap_fi']] = array();
+                $combinations[$c['cid']][$c['row_id']]['gaps'][$c['gap_fi']] = [];
             }
 
             $combinations[$c['cid']][$c['row_id']]['gaps'][$c['gap_fi']] = $c['answer'];
@@ -1629,7 +1644,6 @@ JS;
         $header->setTitle("Gap Combination " . ($combiIndex + 1));
         $form->addItem($header);
 
-        require_once 'Modules/TestQuestionPool/classes/forms/class.ilAssClozeTestCombinationVariantsInputGUI.php';
         $inp = new ilAssClozeTestCombinationVariantsInputGUI('Answers', 'combination_' . $combiIndex);
         $inp->setValues($gapCombi);
         $form->addItem($inp);
@@ -1657,7 +1671,6 @@ JS;
 
     protected function populateTextOrSelectGapCorrectionFormProperty($form, $gap, $gapIndex, $hidePoints): void
     {
-        require_once "Modules/TestQuestionPool/classes/forms/class.ilAssAnswerCorrectionsInputGUI.php";
         $values = new ilAssAnswerCorrectionsInputGUI($this->lng->txt("values"), "gap_" . $gapIndex);
         $values->setHidePointsEnabled($hidePoints);
         $values->setRequired(true);
@@ -1749,16 +1762,16 @@ JS;
     {
         // please dont ask (!) -.-
 
-        $combinationPoints = array('points' => array(), 'select' => array());
-        $combinationValues = array();
+        $combinationPoints = ['points' => [], 'select' => []];
+        $combinationValues = [];
 
         foreach ($this->getGapCombinations() as $combiId => $combi) {
             $values = $form->getItemByPostVar('combination_' . $combiId)->getValues();
 
             if (!isset($combinationPoints['points'][$combiId])) {
-                $combinationPoints['points'][$combiId] = array();
-                $combinationPoints['select'][$combiId] = array();
-                $combinationValues[$combiId] = array();
+                $combinationPoints['points'][$combiId] = [];
+                $combinationPoints['select'][$combiId] = [];
+                $combinationValues[$combiId] = [];
             }
 
             foreach ($combi as $varId => $variant) {

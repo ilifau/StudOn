@@ -45,7 +45,6 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
     public function __construct($id = -1)
     {
         parent::__construct();
-        require_once './Modules/TestQuestionPool/classes/class.assNumeric.php';
         $this->object = new assNumeric();
         if ($id >= 0) {
             $this->object->loadFromDb($id);
@@ -67,7 +66,6 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
     {
         $hasErrors = (!$always) ? $this->editQuestion(true) : false;
         if (!$hasErrors) {
-            require_once 'Services/Form/classes/class.ilPropertyFormGUI.php';
             $this->writeQuestionGenericPostData();
             $this->writeQuestionSpecificPostData(new ilPropertyFormGUI());
             $this->writeAnswerSpecificPostData(new ilPropertyFormGUI());
@@ -89,7 +87,6 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
         $save = $this->isSaveCommand();
         $this->getQuestionTemplate();
 
-        include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
         $this->editForm = $form;
 
@@ -143,7 +140,6 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
     */
     public function checkRange($lower, $upper): bool
     {
-        include_once "./Services/Math/classes/class.EvalMath.php";
         $eval = new EvalMath();
         $eval->suppress_errors = true;
         if (($eval->e($lower) !== false) and ($eval->e($upper) !== false)) {
@@ -189,7 +185,6 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
         }
 
         // generate the question output
-        require_once './Services/UICore/classes/class.ilTemplate.php';
         $template = new ilTemplate("tpl.il_as_qpl_numeric_output_solution.html", true, true, "Modules/TestQuestionPool");
         $solutiontemplate = new ilTemplate("tpl.il_as_tst_solution_output.html", true, true, "Modules/TestQuestionPool");
         if (is_array($solutions)) {
@@ -232,7 +227,7 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
             );
 
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
-            $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
+            $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
         }
         $solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
 
@@ -252,7 +247,6 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
     public function getPreview($show_question_only = false, $showInlineFeedback = false): string
     {
         // generate the question output
-        require_once './Services/UICore/classes/class.ilTemplate.php';
         $template = new ilTemplate("tpl.il_as_qpl_numeric_output.html", true, true, "Modules/TestQuestionPool");
         if (is_object($this->getPreviewSession())) {
             $template->setVariable("NUMERIC_VALUE", " value=\"" . $this->getPreviewSession()->getParticipantsSolution() . "\"");
@@ -291,7 +285,6 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
         }
 
         // generate the question output
-        require_once './Services/UICore/classes/class.ilTemplate.php';
         $template = new ilTemplate("tpl.il_as_qpl_numeric_output.html", true, true, "Modules/TestQuestionPool");
         if (is_array($solutions)) {
             foreach ($solutions as $solution) {
@@ -313,7 +306,7 @@ class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjust
     public function getSpecificFeedbackOutput(array $userSolution): string
     {
         $output = "";
-        return $this->object->prepareTextareaOutput($output, true);
+        return ilLegacyFormElementsUtil::prepareTextareaOutput($output, true);
     }
 
     public function writeQuestionSpecificPostData(ilPropertyFormGUI $form): void

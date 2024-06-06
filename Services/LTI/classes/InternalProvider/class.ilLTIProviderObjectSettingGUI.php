@@ -227,7 +227,7 @@ class ilLTIProviderObjectSettingGUI
             $op1->addSubItem($url);
             $url = new ilNonEditableValueGUI($this->lng->txt('lti_con_key_type_jwk'), 'jwt');
             $url->setValue(ILIAS_HTTP_PATH . '/Modules/LTIConsumer/lticerts.php');
-            //            $url->setInfo($this->lng->txt("lti_con_key_type_jwk_info"));
+            $url->setInfo($this->lng->txt("lti_con_key_type_jwk_info"));
             $op1->addSubItem($url);
 
             //                    $url = new ilNonEditableValueGUI($this->lng->txt('lti_13_initiate_url'), 'url');

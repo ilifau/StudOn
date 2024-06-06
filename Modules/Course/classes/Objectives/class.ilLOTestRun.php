@@ -186,7 +186,7 @@ class ilLOTestRun
 
         $percentage =
             ($this->getMaxPoints() > 0) ?
-                round(($sum_points / $this->getMaxPoints() * 100),0) :
+                round(($sum_points / $this->getMaxPoints() * 100), 0) :
                 100;
 
         return array(

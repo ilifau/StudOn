@@ -28,8 +28,8 @@ use ILIAS\Refinery\Factory as Refinery;
  */
 class ilPDMailGUI
 {
-    private GlobalHttpState $http;
-    private Refinery $refinery;
+    private readonly GlobalHttpState $http;
+    private readonly Refinery $refinery;
     protected ILIAS $ilias;
     protected ilRbacSystem $rbacsystem;
     protected ilLanguage $lng;
@@ -87,7 +87,6 @@ class ilPDMailGUI
 
         $tpl->setVariable('TXT_FROM', $this->lng->txt('from'));
 
-        /** @var ilObjUser|null $sender */
         $sender = ilObjectFactory::getInstanceByObjId($mail_data['sender_id'], false);
         if ($sender instanceof ilObjUser && $sender->getId() !== 0 && $sender->getId() !== ANONYMOUS_USER_ID) {
             $tpl->setCurrentBlock('pers_image');
@@ -96,14 +95,14 @@ class ilPDMailGUI
             $tpl->parseCurrentBlock();
 
             $tpl->setVariable('PUBLIC_NAME', $sender->getPublicName());
-        } elseif (null === $sender) {
+        } elseif (!$sender instanceof ilObjUser) {
             $tpl->setVariable(
                 'PUBLIC_NAME',
                 trim(($mail_data['import_name'] ?? '') . ' (' . $this->lng->txt('user_deleted') . ')')
             );
         } else {
             $tpl->setCurrentBlock('pers_image');
-            $tpl->setVariable('IMG_SENDER', ilUtil::getImagePath('HeaderIconAvatar.svg'));
+            $tpl->setVariable('IMG_SENDER', ilUtil::getImagePath('logo/HeaderIconAvatar.svg'));
             $tpl->setVariable('ALT_SENDER', htmlspecialchars(ilMail::_getIliasMailerName()));
             $tpl->parseCurrentBlock();
             $tpl->setVariable('PUBLIC_NAME', ilMail::_getIliasMailerName());

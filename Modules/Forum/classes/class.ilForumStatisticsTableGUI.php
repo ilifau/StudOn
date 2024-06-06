@@ -26,9 +26,6 @@ declare(strict_types=1);
 class ilForumStatisticsTableGUI extends ilTable2GUI
 {
     private bool $has_active_lp = false;
-    private bool $has_general_lp_access;
-    private bool $has_rbac_or_position_access;
-    private ilObjUser $actor;
     /** @var int[] */
     private array $completed = [];
     /** @var int[] */
@@ -40,9 +37,9 @@ class ilForumStatisticsTableGUI extends ilTable2GUI
         ilObjForumGUI $a_parent_obj,
         string $a_parent_cmd,
         ilObjForum $forum,
-        ilObjUser $actor,
-        bool $has_general_lp_access,
-        bool $has_rbac_or_position_access
+        private ilObjUser $actor,
+        private bool $has_general_lp_access,
+        private bool $has_rbac_or_position_access
     ) {
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
@@ -57,11 +54,11 @@ class ilForumStatisticsTableGUI extends ilTable2GUI
         $this->setRowTemplate('tpl.statistics_table_row.html', 'Modules/Forum');
 
         $columns = $this->getColumnDefinition();
-        foreach ($columns as $index => $column) {
+        foreach ($columns as $column) {
             $this->addColumn(
                 $column['txt'],
                 isset($column['sortable']) && $column['sortable'] ? $column['field'] : '',
-                ((string) ceil((100 / count($columns)))) . '%s'
+                (ceil((100 / count($columns)))) . '%'
             );
         }
 
@@ -170,12 +167,9 @@ class ilForumStatisticsTableGUI extends ilTable2GUI
 
     public function numericOrdering(string $a_field): bool
     {
-        switch ($a_field) {
-            case 'ranking':
-                return true;
-
-            default:
-                return false;
-        }
+        return match ($a_field) {
+            'ranking' => true,
+            default => false,
+        };
     }
 }

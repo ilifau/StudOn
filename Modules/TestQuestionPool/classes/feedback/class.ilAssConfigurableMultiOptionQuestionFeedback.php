@@ -16,8 +16,6 @@
  *
  *********************************************************************/
 
-require_once 'Modules/TestQuestionPool/classes/feedback/class.ilAssMultiOptionQuestionFeedback.php';
-
 /**
  * abstract parent feedback class for question types
  * with multiple answer options (mc, sc, ...)
@@ -45,9 +43,6 @@ abstract class ilAssConfigurableMultiOptionQuestionFeedback extends ilAssMultiOp
             $header->setTitle($this->lng->txt('feedback_answers'));
             $form->addItem($header);
 
-            require_once './Services/Form/classes/class.ilRadioGroupInputGUI.php';
-            require_once './Services/Form/classes/class.ilRadioOption.php';
-
             $feedback = new ilRadioGroupInputGUI($this->lng->txt('feedback_setting'), 'feedback_setting');
             $feedback->addOption(
                 new ilRadioOption($this->lng->txt('feedback_all'), self::FEEDBACK_SETTING_ALL)
@@ -63,7 +58,7 @@ abstract class ilAssConfigurableMultiOptionQuestionFeedback extends ilAssMultiOp
             $form->addItem($feedback);
 
             foreach ($this->getAnswerOptionsByAnswerIndex() as $index => $answer) {
-                $propertyLabel = $this->questionOBJ->prepareTextareaOutput(
+                $propertyLabel = ilLegacyFormElementsUtil::prepareTextareaOutput(
                     $this->buildAnswerOptionLabel($index, $answer),
                     true
                 );
@@ -93,7 +88,7 @@ abstract class ilAssConfigurableMultiOptionQuestionFeedback extends ilAssMultiOp
                         $this->getSpecificAnswerFeedbackPageObjectId($this->questionOBJ->getId(), 0, $index)
                     );
                 } else {
-                    $value = $this->questionOBJ->prepareTextareaOutput(
+                    $value = ilLegacyFormElementsUtil::prepareTextareaOutput(
                         $this->getSpecificAnswerFeedbackContent($this->questionOBJ->getId(), 0, $index)
                     );
                 }
@@ -171,6 +166,10 @@ abstract class ilAssConfigurableMultiOptionQuestionFeedback extends ilAssMultiOp
         );
 
         $row = $this->db->fetchAssoc($res);
+
+        if ($this->db->numRows($res) < 1) {
+            return;
+        }
 
         $this->db->update(
             $this->getSpecificQuestionTableName(),

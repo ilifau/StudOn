@@ -44,7 +44,8 @@ class ilAdministrationSettingsFormHandler
     public const FORM_TAGGING = 13;
     public const FORM_CERTIFICATE = 14;
     public const FORM_META_COPYRIGHT = 15;
-    public const FORM_TOS = 16;
+    public const FORM_CALENDAR = 17;
+    public const FORM_PRG = 18;
 
     public const FORM_CALENDAR = 17;
 
@@ -157,8 +158,8 @@ class ilAdministrationSettingsFormHandler
                 $types = array(self::SETTINGS_LP_COMPLETION_STATUS);
                 break;
 
-            case self::FORM_TOS:
-                $types = [self::SETTINGS_USER];
+            case self::FORM_PRG:
+                $types = array(self::SETTINGS_PRIVACY_SECURITY);
                 break;
 
             default:

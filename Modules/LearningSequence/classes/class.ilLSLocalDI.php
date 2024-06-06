@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use Pimple\Container;
 use ILIAS\Data\Factory as DataFactory;
@@ -35,7 +35,6 @@ class ilLSLocalDI extends Container
         ilObjLearningSequence $object
     ): void {
         $obj_id = (int) $object->getId();
-//        $obj_title = $object->getTitle();
 
         $current_user = $dic['ilUser'];
         $current_user_id = (int) $current_user->getId();
@@ -50,7 +49,6 @@ class ilLSLocalDI extends Container
         };
 
         $this["obj.obj_id"] = $obj_id;
-//        $this["obj.title"] = (string) $obj_title;
 
         $this["usr.id"] = $current_user_id;
 
@@ -92,8 +90,8 @@ class ilLSLocalDI extends Container
 
 
         $this["gui.learner"] = function ($c) use ($dic, $lsdic, $object): ilObjLearningSequenceLearnerGUI {
-            $intro = $object->getContentPageHTML($object::CP_INTRO);
-            $extro = $object->getContentPageHTML($object::CP_EXTRO);
+            $intro = $object->getContentPageHTML(LSOPageType::INTRO);
+            $extro = $object->getContentPageHTML(LSOPageType::EXTRO);
 
             return new ilObjLearningSequenceLearnerGUI(
                 $c["usr.id"],
@@ -192,7 +190,6 @@ class ilLSLocalDI extends Container
             $window_title = $dic['ilSetting']->get('short_inst_name', 'ILIAS');
 
             return new ilKioskPageRenderer(
-                $dic["tpl"],
                 $dic["global_screen"]->layout()->meta(),
                 $dic["ui.factory"],
                 $dic["ui.renderer"],

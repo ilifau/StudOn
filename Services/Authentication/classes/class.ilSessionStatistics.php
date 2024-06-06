@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -226,7 +228,6 @@ class ilSessionStatistics
         $ilAtomQuery->addTableLock("usr_session_stats");
 
         $ilAtomQuery->addQueryCallable(function (ilDBInterface $ilDB) use ($a_now, &$slot) {
-
             // if we had to wait for the lock, no current slot should be returned here
             $slot = self::getCurrentSlot($a_now);
             if (!is_array($slot)) {
@@ -455,7 +456,7 @@ class ilSessionStatistics
         $res = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($res);
         if ($row["dur"]) {
-            return $row["dur"];
+            return (int) $row["dur"];
         }
         //TODO check if return null as timestamp causes issues
         return null;

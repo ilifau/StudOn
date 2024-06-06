@@ -16,6 +16,11 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\UI\Renderer as UIRenderer;
+
 /**
  * @author        Björn Heyser <bheyser@databay.de>
  * @version        $Id$
@@ -24,115 +29,54 @@
  */
 class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
 {
-    private static array $TARGET_CLASS_PATH_BASE = array('ilRepositoryGUI', 'ilObjTestGUI');
+    private static array $TARGET_CLASS_PATH_BASE = ['ilRepositoryGUI', 'ilObjTestGUI'];
 
-    protected \ILIAS\DI\Container $DIC;
-    private ?ilToolbarGUI $globalToolbar = null;
-
-    protected ilDBInterface $db;
-    protected ilAccessHandler $access;
-    protected ilCtrl $ctrl;
-    protected ilComponentRepository $component_repository;
-    private \ilGlobalTemplateInterface $main_tpl;
-
-    protected ?ilObjTest $testOBJ = null;
     protected ?ilTestQuestionSetConfig $testQuestionSetConfig = null;
-    protected ?ilTestPlayerAbstractGUI $testPlayerGUI = null;
     protected ?ilTestSession $testSession = null;
 
     /**
-     * @var ilTestSequence|ilTestSequenceDynamicQuestionSet
+     * @var ilTestSequence
      */
     protected $testSequence;
 
-    /**
-     * @var string
-     */
-    private $sessionLockString;
-    private array $infoMessages = array();
-    private array $failureMessages = array();
+    private string $sessionLockString = '';
+    private array $infoMessages = [];
+    private array $failureMessages = [];
 
     public function __construct(
-        ilDBInterface $db,
-        ilAccessHandler $access,
-        ilCtrl $ctrl,
-        ilLanguage $lng,
-        ilComponentRepository $component_repository
+        private ilObjTest $test_obj,
+        private ilTestPlayerAbstractGUI $test_player_gui,
+        private ilTestQuestionSetConfig $test_question_set_config,
+        private ilTestSession $test_session,
+        private ilDBInterface $db,
+        private ilAccessHandler $access,
+        private ilCtrl $ctrl,
+        protected ilLanguage $lng,
+        private UIFactory $ui_factory,
+        private UIRenderer $ui_renderer,
+        private ilGlobalTemplateInterface $main_tpl,
+        private ilToolbarGUI $global_toolbar
     ) {
-        global $DIC;
-        $this->main_tpl = $DIC->ui()->mainTemplate(); /* @var ILIAS\DI\Container $DIC */
-        $this->DIC = $DIC;
-        $this->db = $db;
-        $this->access = $access;
-        $this->ctrl = $ctrl;
-        $this->lng = $lng;
-        $this->component_repository = $component_repository;
     }
 
-    public function getGlobalToolbar(): ?ilToolbarGUI
+    private function getTestQuestionSetConfig(): ?ilTestQuestionSetConfig
     {
-        return $this->globalToolbar;
+        return $this->test_question_set_config;
     }
 
-    public function setGlobalToolbar(ilToolbarGUI $globalToolbar): void
+    private function getTestOBJ(): ilObjTest
     {
-        $this->globalToolbar = $globalToolbar;
+        return $this->test_obj;
     }
 
-    public function getTestOBJ(): ?ilObjTest
+    private function getTestPlayerGUI(): ?ilTestPlayerAbstractGUI
     {
-        return $this->testOBJ;
+        return $this->test_player_gui;
     }
 
-    public function setTestOBJ(ilObjTest $testOBJ): void
+    private function getTestSession(): ?ilTestSession
     {
-        $this->testOBJ = $testOBJ;
-    }
-
-    public function getTestQuestionSetConfig(): ?ilTestQuestionSetConfig
-    {
-        return $this->testQuestionSetConfig;
-    }
-
-    public function setTestQuestionSetConfig(ilTestQuestionSetConfig $testQuestionSetConfig): void
-    {
-        $this->testQuestionSetConfig = $testQuestionSetConfig;
-    }
-
-    public function getTestPlayerGUI(): ?ilTestPlayerAbstractGUI
-    {
-        return $this->testPlayerGUI;
-    }
-
-    public function setTestPlayerGUI(ilTestPlayerAbstractGUI $testPlayerGUI): void
-    {
-        $this->testPlayerGUI = $testPlayerGUI;
-    }
-
-    public function getTestSession(): ?ilTestSession
-    {
-        return $this->testSession;
-    }
-
-    public function setTestSession(ilTestSession $testSession): void
-    {
-        $this->testSession = $testSession;
-    }
-
-    /**
-     * @return ilTestSequence|ilTestSequenceDynamicQuestionSet
-     */
-    public function getTestSequence()
-    {
-        return $this->testSequence;
-    }
-
-    /**
-     * @param ilTestSequence|ilTestSequenceDynamicQuestionSet $testSequence
-     */
-    public function setTestSequence($testSequence): void
-    {
-        $this->testSequence = $testSequence;
+        return $this->test_session;
     }
 
     public function getSessionLockString(): ?string
@@ -173,26 +117,17 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
         bool $a_multipart = false,
         string $a_target = ""
     ): void {
-        if ($this->globalToolbar instanceof parent) {
-            $this->globalToolbar->setFormAction($a_val, $a_multipart, $a_target);
+        if ($this->global_toolbar instanceof parent) {
+            $this->global_toolbar->setFormAction($a_val, $a_multipart, $a_target);
         } else {
             parent::setFormAction($a_val, $a_multipart, $a_target);
         }
     }
 
-    public function addButtonInstance(ilButtonBase $a_button): void
-    {
-        if ($this->globalToolbar instanceof parent) {
-            $this->globalToolbar->addButtonInstance($a_button);
-        } else {
-            parent::addButtonInstance($a_button);
-        }
-    }
-
     public function setCloseFormTag(bool $a_val): void
     {
-        if ($this->globalToolbar instanceof parent) {
-            $this->globalToolbar->setCloseFormTag($a_val);
+        if ($this->global_toolbar instanceof parent) {
+            $this->global_toolbar->setCloseFormTag($a_val);
         } else {
             parent::setCloseFormTag($a_val);
         }
@@ -202,8 +137,8 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
         ilToolbarItem $a_item,
         bool $a_output_label = false
     ): void {
-        if ($this->globalToolbar instanceof parent) {
-            $this->globalToolbar->addInputItem($a_item, $a_output_label);
+        if ($this->global_toolbar instanceof parent) {
+            $this->global_toolbar->addInputItem($a_item, $a_output_label);
         } else {
             parent::addInputItem($a_item, $a_output_label);
         }
@@ -211,17 +146,17 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
 
     public function addFormInput($formInput): void
     {
-        if ($this->globalToolbar instanceof parent) {
-            $this->globalToolbar->addFormInput($formInput);
+        if ($this->global_toolbar instanceof parent) {
+            $this->global_toolbar->addFormInput($formInput);
         }
     }
 
     public function clearItems(): void
     {
-        if ($this->globalToolbar instanceof parent) {
-            $this->globalToolbar->setItems(array());
+        if ($this->global_toolbar instanceof parent) {
+            $this->global_toolbar->setItems([]);
         } else {
-            $this->setItems(array());
+            $this->setItems([]);
         }
     }
 
@@ -240,7 +175,7 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
             return $target;
         }
 
-        return array($this->getClassName($target));
+        return [$this->getClassName($target)];
     }
 
     private function getClassPath($target): array
@@ -265,7 +200,7 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
 
     private function ensureInitialisedSessionLockString(): void
     {
-        if (!strlen($this->getSessionLockString())) {
+        if ($this->getSessionLockString() === '') {
             $this->setSessionLockString($this->buildSessionLockString());
         }
     }
@@ -282,9 +217,6 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
         }
 
         $questionContainerId = $this->getTestOBJ()->getId();
-
-        require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionSkillAssignmentList.php';
-        require_once 'Modules/Test/classes/class.ilTestSkillLevelThreshold.php';
 
         $assignmentList = new ilAssQuestionSkillAssignmentList($this->db);
         $assignmentList->setParentObjId($questionContainerId);
@@ -311,30 +243,29 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
     {
         $message = $this->lng->txt('tst_skl_level_thresholds_missing');
 
-        $linkTarget = $this->buildLinkTarget(
-            array('ilTestSkillAdministrationGUI', 'ilTestSkillLevelThresholdsGUI'),
+        $link_target = $this->buildLinkTarget(
+            ['ilTestSkillAdministrationGUI', 'ilTestSkillLevelThresholdsGUI'],
             ilTestSkillLevelThresholdsGUI::CMD_SHOW_SKILL_THRESHOLDS
         );
 
-        $link = $this->DIC->ui()->factory()->link()->standard(
-            $this->DIC->language()->txt('tst_skl_level_thresholds_link'),
-            $linkTarget
+        $link = $this->ui_factory->link()->standard(
+            $this->lng->txt('tst_skl_level_thresholds_link'),
+            $link_target
         );
 
-        $msgBox = $this->DIC->ui()->factory()->messageBox()->failure($message)->withLinks(array($link));
+        $msg_box = $this->ui_factory->messageBox()->failure($message)->withLinks([$link]);
 
-        return $this->DIC->ui()->renderer()->render($msgBox);
+        return $this->ui_renderer->render($msg_box);
     }
 
     private function hasFixedQuestionSetSkillAssignsLowerThanBarrier(): bool
     {
-        if (!$this->testOBJ->isFixedTest()) {
+        if (!$this->test_obj->isFixedTest()) {
             return false;
         }
 
-        require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionSkillAssignmentList.php';
         $assignmentList = new ilAssQuestionSkillAssignmentList($this->db);
-        $assignmentList->setParentObjId($this->testOBJ->getId());
+        $assignmentList->setParentObjId($this->test_obj->getId());
         $assignmentList->loadFromDb();
 
         return $assignmentList->hasSkillsAssignedLowerThanBarrier();
@@ -342,8 +273,6 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
 
     private function getSkillAssignBarrierInfo(): string
     {
-        require_once 'Modules/Test/classes/class.ilObjAssessmentFolder.php';
-
         return sprintf(
             $this->lng->txt('tst_skill_triggerings_num_req_answers_not_reached_warn'),
             ilObjAssessmentFolder::getSkillTriggerAnswerNumberBarrier()
@@ -352,116 +281,50 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
 
     public function build(): void
     {
-        if (!$this->testOBJ->isDynamicTest()) {
-            $this->ensureInitialisedSessionLockString();
+        $this->ensureInitialisedSessionLockString();
 
-            $this->setParameter($this->getTestPlayerGUI(), 'lock', $this->getSessionLockString());
-            $this->setParameter($this->getTestPlayerGUI(), 'sequence', $this->getTestSession()->getLastSequence());
-            $this->setParameter('ilObjTestGUI', 'ref_id', $this->getTestOBJ()->getRefId());
+        $this->setParameter($this->getTestPlayerGUI(), 'lock', $this->getSessionLockString());
+        $this->setParameter($this->getTestPlayerGUI(), 'sequence', $this->getTestSession()->getLastSequence());
+        $this->setParameter('ilObjTestGUI', 'ref_id', $this->getTestOBJ()->getRefId());
 
-            $this->setFormAction($this->buildFormAction($this->getTestPlayerGUI()));
-        }
-
-        $online_access = false;
-        if ($this->getTestOBJ()->getFixedParticipants()) {
-            include_once "./Modules/Test/classes/class.ilObjTestAccess.php";
-            $online_access_result = ilObjTestAccess::_lookupOnlineTestAccess($this->getTestOBJ()->getId(), $this->getTestSession()->getUserId());
-            if ($online_access_result === true) {
-                $online_access = true;
-            } else {
-                $this->addInfoMessage($online_access_result);
-            }
-        }
+        $this->setFormAction($this->buildFormAction($this->getTestPlayerGUI()));
 
         if (!$this->getTestOBJ()->getOfflineStatus() && $this->getTestOBJ()->isComplete($this->getTestQuestionSetConfig())) {
-            if ((!$this->getTestOBJ()->getFixedParticipants() || $online_access) && $this->access->checkAccess("read", "", $this->getTestOBJ()->getRefId())) {
+            if ($this->access->checkAccess("read", "", $this->getTestOBJ()->getRefId())) {
                 $executable = $this->getTestOBJ()->isExecutable(
                     $this->getTestSession(),
                     $this->getTestSession()->getUserId(),
-                    $allowPassIncrease = true
+                    true
                 );
 
-                if ($executable["executable"]) {
-                    if ($this->getTestOBJ()->areObligationsEnabled() && $this->getTestOBJ()->hasObligations($this->getTestOBJ()->getTestId())) {
-                        $this->addInfoMessage($this->lng->txt('tst_test_contains_obligatory_questions'));
-                    }
-
-                    if ($this->getTestSession()->getActiveId() > 0) {
-                        // resume test
-                        require_once 'Modules/Test/classes/class.ilTestPassesSelector.php';
-                        $testPassesSelector = new ilTestPassesSelector($this->db, $this->getTestOBJ());
-                        $testPassesSelector->setActiveId($this->getTestSession()->getActiveId());
-                        $testPassesSelector->setLastFinishedPass($this->getTestSession()->getLastFinishedPass());
-
-                        $closedPasses = $testPassesSelector->getClosedPasses();
-                        $existingPasses = $testPassesSelector->getExistingPasses();
-
-                        if ($existingPasses > $closedPasses) {
-                            $btn = ilSubmitButton::getInstance();
-                            $btn->setCaption('tst_resume_test');
-                            $btn->setCommand('resumePlayer');
-                            $btn->setPrimary(true);
-                            $this->addButtonInstance($btn);
-                        } else {
-                            $btn = ilSubmitButton::getInstance();
-                            $btn->setCaption($this->getTestOBJ()->getStartTestLabel($this->getTestSession()->getActiveId()), false);
-                            $btn->setCommand('startPlayer');
-                            $btn->setPrimary(true);
-                            $this->addButtonInstance($btn);
-                        }
-                    } else {
-                        // start new test
-                        $btn = ilSubmitButton::getInstance();
-                        $btn->setCaption($this->getTestOBJ()->getStartTestLabel($this->getTestSession()->getActiveId()), false);
-                        $btn->setCommand('startPlayer');
-                        $btn->setPrimary(true);
-                        $this->addButtonInstance($btn);
-                    }
-                } else {
-                    $this->addInfoMessage($executable['errormessage']);
+                if ($executable['executable'] && $this->getTestOBJ()->areObligationsEnabled() && $this->getTestOBJ()->hasObligations()) {
+                    $this->addInfoMessage($this->lng->txt('tst_test_contains_obligatory_questions'));
                 }
-            }
-
-            if ($this->DIC->user()->getId() == ANONYMOUS_USER_ID) {
-                if ($this->getItems()) {
-                    $this->addSeparator();
-                }
-
-                require_once 'Services/Form/classes/class.ilTextInputGUI.php';
-                $anonymous_id = new ilTextInputGUI($this->lng->txt('enter_anonymous_code'), 'anonymous_id');
-                $anonymous_id->setSize(8);
-                $this->addInputItem($anonymous_id, true);
-                $button = ilSubmitButton::getInstance();
-                $button->setCaption('submit');
-                $button->setCommand('setAnonymousId');
-                $this->addButtonInstance($button);
             }
         }
         if ($this->getTestOBJ()->getOfflineStatus() && !$this->getTestQuestionSetConfig()->areDepenciesBroken()) {
             $message = $this->lng->txt("test_is_offline");
 
-            $links = array();
+            $links = [];
 
             if ($this->access->checkAccess("write", "", $this->getTestOBJ()->getRefId())) {
-                $links[] = $this->DIC->ui()->factory()->link()->standard(
-                    $this->DIC->language()->txt('test_edit_settings'),
-                    $this->buildLinkTarget('ilobjtestsettingsgeneralgui')
+                $links[] = $this->ui_factory->link()->standard(
+                    $this->lng->txt('test_edit_settings'),
+                    $this->buildLinkTarget('ilobjtestsettingsmaingui')
                 );
             }
 
-            $msgBox = $this->DIC->ui()->factory()->messageBox()->info($message)->withLinks($links);
+            $msgBox = $this->ui_factory->messageBox()->info($message)->withLinks($links);
 
-            $this->populateMessage($this->DIC->ui()->renderer()->render($msgBox));
+            $this->populateMessage($this->ui_renderer->render($msgBox));
         }
 
         if ($this->access->checkAccess("write", "", $this->getTestOBJ()->getRefId())) {
-            require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssQuestionSkillAssignmentImportFails.php';
-            $qsaImportFails = new ilAssQuestionSkillAssignmentImportFails($this->testOBJ->getId());
-            require_once 'Modules/Test/classes/class.ilTestSkillLevelThresholdImportFails.php';
-            $sltImportFails = new ilTestSkillLevelThresholdImportFails($this->testOBJ->getId());
+            $qsaImportFails = new ilAssQuestionSkillAssignmentImportFails($this->test_obj->getId());
+            $sltImportFails = new ilTestSkillLevelThresholdImportFails($this->test_obj->getId());
 
             if ($qsaImportFails->failedImportsRegistered() || $sltImportFails->failedImportsRegistered()) {
-                $importFailsMsg = array();
+                $importFailsMsg = [];
 
                 if ($qsaImportFails->failedImportsRegistered()) {
                     $importFailsMsg[] = $qsaImportFails->getFailedImportsMessage($this->lng);
@@ -473,14 +336,14 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
 
                 $message = implode('<br />', $importFailsMsg);
 
-                $button = $this->DIC->ui()->factory()->button()->standard(
-                    $this->DIC->language()->txt('ass_skl_import_fails_remove_btn'),
-                    $this->DIC->ctrl()->getLinkTargetByClass('ilObjTestGUI', 'removeImportFails')
+                $button = $this->ui_factory->button()->standard(
+                    $this->lng->txt('ass_skl_import_fails_remove_btn'),
+                    $this->ctrl->getLinkTargetByClass('ilObjTestGUI', 'removeImportFails')
                 );
 
-                $msgBox = $this->DIC->ui()->factory()->messageBox()->failure($message)->withButtons(array($button));
+                $msgBox = $this->ui_factory->messageBox()->failure($message)->withButtons([$button]);
 
-                $this->populateMessage($this->DIC->ui()->renderer()->render($msgBox));
+                $this->populateMessage($this->ui_renderer->render($msgBox));
             } elseif ($this->getTestOBJ()->isSkillServiceToBeConsidered()) {
                 if ($this->areSkillLevelThresholdsMissing()) {
                     $this->populateMessage($this->getSkillLevelThresholdsMissingInfo());
@@ -503,20 +366,20 @@ class ilTestInfoScreenToolbarGUI extends ilToolbarGUI
 
     protected function populateMessage($message): void
     {
-        $this->DIC->ui()->mainTemplate()->setCurrentBlock('mess');
-        $this->DIC->ui()->mainTemplate()->setVariable('MESSAGE', $message);
-        $this->DIC->ui()->mainTemplate()->parseCurrentBlock();
+        $this->main_tpl->setCurrentBlock('mess');
+        $this->main_tpl->setVariable('MESSAGE', $message);
+        $this->main_tpl->parseCurrentBlock();
     }
 
     public function sendMessages(): void
     {
         $info_messages = $this->getInfoMessages();
-        if ($info_messages !== array()) {
+        if ($info_messages !== []) {
             $this->main_tpl->setOnScreenMessage('info', array_pop($info_messages));
         }
 
         $failure_messages = $this->getFailureMessages();
-        if ($failure_messages !== array()) {
+        if ($failure_messages !== []) {
             $this->main_tpl->setOnScreenMessage('failure', array_pop($failure_messages));
         }
     }

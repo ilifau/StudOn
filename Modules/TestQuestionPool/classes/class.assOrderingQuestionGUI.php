@@ -64,7 +64,6 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
     public function __construct($id = -1)
     {
         parent::__construct();
-        include_once "./Modules/TestQuestionPool/classes/class.assOrderingQuestion.php";
         $this->object = new assOrderingQuestion();
         if ($id >= 0) {
             $this->object->loadFromDb($id);
@@ -295,17 +294,19 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         $points->setMinvalueShouldBeGreater(true);
         $form->addItem($points);
 
-        $nested_answers = new ilSelectInputGUI(
-            $this->lng->txt('qst_use_nested_answers'),
-            self::F_USE_NESTED
-        );
-        $nested_answers_options = [
-            0 => $this->lng->txt('qst_nested_nested_answers_off'),
-            1 => $this->lng->txt('qst_nested_nested_answers_on')
-        ];
-        $nested_answers->setOptions($nested_answers_options);
-        $nested_answers->setValue($this->object->isOrderingTypeNested());
-        $form->addItem($nested_answers);
+        if (!$this->isInLearningModuleContext()) {
+            $nested_answers = new ilSelectInputGUI(
+                $this->lng->txt('qst_use_nested_answers'),
+                self::F_USE_NESTED
+            );
+            $nested_answers_options = [
+                0 => $this->lng->txt('qst_nested_nested_answers_off'),
+                1 => $this->lng->txt('qst_nested_nested_answers_on')
+            ];
+            $nested_answers->setOptions($nested_answers_options);
+            $nested_answers->setValue($this->object->isOrderingTypeNested());
+            $form->addItem($nested_answers);
+        }
 
         return $form;
     }
@@ -343,7 +344,7 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
             $this->lng->txt('edit_question'),
             $this->ctrl->getLinkTarget($this, 'editQuestion')
         );
-        if ($this->object->isOrderingTypeNested()) {
+        if ($this->object->isOrderingTypeNested() && !$this->isInLearningModuleContext()) {
             $tabs->addSubTab(
                 self::TAB_EDIT_NESTING,
                 $this->lng->txt('tab_nest_answers'),
@@ -370,7 +371,6 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 
     protected function buildEditForm(): ilAssOrderingQuestionAuthoringFormGUI
     {
-        require_once 'Modules/TestQuestionPool/classes/forms/class.ilAssOrderingQuestionAuthoringFormGUI.php';
         $form = new ilAssOrderingQuestionAuthoringFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this));
         $form->setTitle($this->outQuestionType());
@@ -405,7 +405,7 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 
         $this->object->initOrderingElementAuthoringProperties($orderingElementInput);
 
-        $list =  $this->object->getOrderingElementList();
+        $list = $this->object->getOrderingElementList();
         foreach ($list->getElements() as $element) {
             $element = $list->ensureValidIdentifiers($element);
         }
@@ -501,7 +501,7 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
                 );
 
                 $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
-                $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
+                $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
             }
         }
 
@@ -537,7 +537,6 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         $template->setCurrentBlock('nested_ordering_output');
         $template->setVariable('NESTED_ORDERING', $answers->getHTML());
         $template->parseCurrentBlock();
-
         $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
 
         if ($show_question_only) {

@@ -28,18 +28,15 @@ class ilForumProperties
     public const VIEW_DATE = 2;
     public const VIEW_DATE_ASC = 2;
     public const VIEW_DATE_DESC = 3;
-    public const FORUM_OVERVIEW_WITH_NEW_POSTS = 0;
-    public const FORUM_OVERVIEW_NO_NEW_POSTS = 1;
     public const FILE_UPLOAD_GLOBALLY_ALLOWED = 0;
     public const FILE_UPLOAD_INDIVIDUAL = 1;
-    public const THREAD_SORTING_DEFAULT = 0;
-    public const THREAD_SORTING_MANUAL = 1;
+    public const PAGE_SIZE_THREAD_OVERVIEW = 10;
+    public const PAGE_NAME_THREAD_OVERVIEW = 'page';
 
     /** @var array<int, ilForumProperties> */
     private static array $instances = [];
 
     private ilDBInterface $db;
-    private int $obj_id;
     private int $default_view = self::VIEW_DATE_ASC;
     private bool $anonymized = false;
     private bool $statistics_enabled = false;
@@ -60,7 +57,6 @@ class ilForumProperties
     /** Add 'Re: ' to subject on reply */
     private bool $add_re_subject = false;
     private bool $mark_mod_posts = false;
-    private int $thread_sorting = self::THREAD_SORTING_DEFAULT;
     private bool $is_thread_rating_enabled = false;
     private bool $file_upload_allowed = false;
     protected int $styleId = 0;
@@ -68,21 +64,16 @@ class ilForumProperties
     private ?int $lp_req_num_postings = null;
     protected \ILIAS\Style\Content\Object\ObjectFacade $content_style_service;
 
-    protected function __construct(int $a_obj_id = 0)
+    protected function __construct(private int $obj_id = 0)
     {
         global $DIC;
 
         $this->db = $DIC->database();
-        $this->obj_id = $a_obj_id;
         $this->read();
         $this->content_style_service = $DIC
             ->contentStyle()
             ->domain()
-            ->styleForObjId($a_obj_id);
-    }
-
-    private function __clone()
-    {
+            ->styleForObjId($obj_id);
     }
 
     public static function getInstance(int $a_obj_id = 0): self
@@ -96,7 +87,7 @@ class ilForumProperties
 
     private function read(): void
     {
-        if ($this->obj_id) {
+        if ($this->obj_id !== 0) {
             $res = $this->db->queryF(
                 'SELECT * FROM frm_settings WHERE obj_id = %s',
                 ['integer'],
@@ -119,7 +110,6 @@ class ilForumProperties
 
                 $this->notification_type = $row->notification_type ?? 'default';
                 $this->mark_mod_posts = (bool) $row->mark_mod_posts;
-                $this->thread_sorting = (int) $row->thread_sorting;
                 $this->is_thread_rating_enabled = (bool) $row->thread_rating;
                 $this->file_upload_allowed = (bool) $row->file_upload_allowed;
                 if (is_numeric($row->lp_req_num_postings)) {
@@ -146,7 +136,6 @@ class ilForumProperties
                     'add_re_subject' => ['integer', (int) $this->add_re_subject],
                     'notification_type' => ['text', $this->notification_type],
                     'mark_mod_posts' => ['integer', (int) $this->mark_mod_posts],
-                    'thread_sorting' => ['integer', $this->thread_sorting],
                     'thread_rating' => ['integer', (int) $this->is_thread_rating_enabled],
                     'file_upload_allowed' => ['integer', (int) $this->file_upload_allowed],
                     'lp_req_num_postings' => ['integer', $this->lp_req_num_postings],
@@ -159,7 +148,7 @@ class ilForumProperties
 
     public function update(): void
     {
-        if ($this->obj_id) {
+        if ($this->obj_id !== 0) {
             if (!$this->exists) {
                 $this->insert();
                 return;
@@ -178,7 +167,6 @@ class ilForumProperties
                     'add_re_subject' => ['integer', (int) $this->add_re_subject],
                     'notification_type' => ['text', $this->notification_type],
                     'mark_mod_posts' => ['integer', (int) $this->mark_mod_posts],
-                    'thread_sorting' => ['integer', $this->thread_sorting],
                     'thread_rating' => ['integer', (int) $this->is_thread_rating_enabled],
                     'file_upload_allowed' => ['integer', (int) $this->file_upload_allowed],
                     'lp_req_num_postings' => ['integer', (int) $this->lp_req_num_postings],
@@ -193,7 +181,7 @@ class ilForumProperties
 
     public function copy(int $a_new_obj_id): bool
     {
-        if ($a_new_obj_id) {
+        if ($a_new_obj_id !== 0) {
             $this->content_style_service->cloneTo($a_new_obj_id);
 
             $this->db->update(
@@ -209,7 +197,6 @@ class ilForumProperties
                     'add_re_subject' => ['integer', (int) $this->add_re_subject],
                     'notification_type' => ['text', $this->notification_type],
                     'mark_mod_posts' => ['integer', (int) $this->mark_mod_posts],
-                    'thread_sorting' => ['integer', $this->thread_sorting],
                     'thread_rating' => ['integer', (int) $this->is_thread_rating_enabled],
                     'file_upload_allowed' => ['integer', (int) $this->file_upload_allowed],
                     'lp_req_num_postings' => ['integer', $this->lp_req_num_postings],
@@ -236,7 +223,7 @@ class ilForumProperties
         $this->is_thread_rating_enabled = $is_thread_rating_enabled;
     }
 
-    public function setDefaultView($a_default_view): void
+    public function setDefaultView(int $a_default_view): void
     {
         $this->default_view = $a_default_view;
     }
@@ -436,16 +423,6 @@ class ilForumProperties
         return $this->mark_mod_posts;
     }
 
-    public function setThreadSorting(int $a_thread_sorting): void
-    {
-        $this->thread_sorting = $a_thread_sorting;
-    }
-
-    public function getThreadSorting(): int
-    {
-        return $this->thread_sorting;
-    }
-
     public function getUserToggleNoti(): bool
     {
         return $this->user_toggle_noti;
@@ -472,11 +449,7 @@ class ilForumProperties
             return true;
         }
 
-        if ($this->getFileUploadAllowed()) {
-            return true;
-        }
-
-        return false;
+        return $this->getFileUploadAllowed();
     }
 
     public static function isFileUploadGloballyAllowed(): bool

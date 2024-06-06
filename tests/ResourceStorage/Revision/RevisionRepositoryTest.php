@@ -25,12 +25,19 @@ use ILIAS\ResourceStorage\Revision\Repository\RevisionDBRepository;
 
 /**
  * Class ResourceBuilderTest
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 class RevisionRepositoryTest extends AbstractBaseTest
 {
     /**
      * @var \ILIAS\ResourceStorage\Resource\StorableFileResource|mixed
+<<<<<<< HEAD
+=======
+     */
+    public $resource;
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject|\ILIAS\ResourceStorage\Resource\InfoResolver\InfoResolver
+>>>>>>> v9.1
      */
     public $resource;
     /**
@@ -61,10 +68,12 @@ class RevisionRepositoryTest extends AbstractBaseTest
         $revision = $ar_revision_repo->blankFromUpload(
             $this->info_resolver,
             $this->resource,
-            $upload_result
+            $upload_result,
+            RevisionStatus::DRAFT
         );
 
         $this->assertEquals(100, $revision->getVersionNumber());
+        $this->assertEquals(RevisionStatus::DRAFT, $revision->getStatus());
     }
 
     public function testStream(): void
@@ -80,7 +89,8 @@ class RevisionRepositoryTest extends AbstractBaseTest
         $revision = $ar_revision_repo->blankFromStream(
             $this->info_resolver,
             $this->resource,
-            $stream
+            $stream,
+            RevisionStatus::PUBLISHED
         );
 
         $this->assertEquals($i, $revision->getVersionNumber());

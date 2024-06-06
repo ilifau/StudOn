@@ -57,7 +57,7 @@ class ilMultipleChoiceWizardInputGUI extends ilSingleChoiceWizardInputGUI
             return false;
         }
 
-        $values = $this->post_wrapper->retrieve($post_var, $this->refinery->custom()->transformation(fn ($v) => $v));
+        $values = $this->post_wrapper->retrieve($post_var, $this->refinery->custom()->transformation(fn($v) => $v));
 
         $values = ilArrayUtil::stripSlashesRecursive( //TODO: move into transform
             $values,
@@ -71,7 +71,7 @@ class ilMultipleChoiceWizardInputGUI extends ilSingleChoiceWizardInputGUI
             // check answers
             if (is_array($foundvalues['answer'])) {
                 foreach ($foundvalues['answer'] as $aidx => $answervalue) {
-                    if (((strlen($answervalue)) == 0)  && (!isset($foundvalues['imagename']) || !isset($foundvalues['imagename'][$aidx]) || strlen($foundvalues['imagename'][$aidx]) == 0)) {
+                    if (((strlen($answervalue)) == 0) && (!isset($foundvalues['imagename']) || !isset($foundvalues['imagename'][$aidx]) || strlen($foundvalues['imagename'][$aidx]) == 0)) {
                         $this->setAlert($lng->txt("msg_input_is_required"));
                         return false;
                     }
@@ -216,10 +216,10 @@ class ilMultipleChoiceWizardInputGUI extends ilSingleChoiceWizardInputGUI
         foreach ($this->values as $value) {
             if ($this->getSingleline()) {
                 if (!$this->hideImages) {
-                    if (strlen($value->getImage())) {
+                    if ($value->hasImage()) {
                         $imagename = $this->qstObject->getImagePathWeb() . $value->getImage();
                         if (($this->getSingleline()) && ($this->qstObject->getThumbSize())) {
-                            if (@file_exists($this->qstObject->getImagePath() . $this->qstObject->getThumbPrefix() . $value->getImage())) {
+                            if (file_exists($this->qstObject->getImagePath() . $this->qstObject->getThumbPrefix() . $value->getImage())) {
                                 $imagename = $this->qstObject->getImagePathWeb() . $this->qstObject->getThumbPrefix() . $value->getImage();
                             }
                         }
@@ -310,11 +310,13 @@ class ilMultipleChoiceWizardInputGUI extends ilSingleChoiceWizardInputGUI
             }
             if ($this->getAllowMove()) {
                 $tpl->setCurrentBlock("move");
-                $tpl->setVariable("CMD_UP", "cmd[up" . $this->getFieldId() . "][$i]");
-                $tpl->setVariable("CMD_DOWN", "cmd[down" . $this->getFieldId() . "][$i]");
                 $tpl->setVariable("ID", $this->getPostVar() . "[$i]");
-                $tpl->setVariable("UP_BUTTON", ilGlyphGUI::get(ilGlyphGUI::UP));
-                $tpl->setVariable("DOWN_BUTTON", ilGlyphGUI::get(ilGlyphGUI::DOWN));
+                $tpl->setVariable("UP_BUTTON", $this->renderer->render(
+                    $this->glyph_factory->up()->withAction('#')
+                ));
+                $tpl->setVariable("DOWN_BUTTON", $this->renderer->render(
+                    $this->glyph_factory->down()->withAction('#')
+                ));
                 $tpl->parseCurrentBlock();
             }
             $tpl->setCurrentBlock("row");
@@ -323,13 +325,15 @@ class ilMultipleChoiceWizardInputGUI extends ilSingleChoiceWizardInputGUI
             $tpl->setVariable("ID", $this->getPostVar() . "[answer][$i]");
             $tpl->setVariable("POINTS_ID", $this->getPostVar() . "[points][$i]");
             $tpl->setVariable("POINTS_UNCHECKED_ID", $this->getPostVar() . "[points_unchecked][$i]");
-            $tpl->setVariable("CMD_ADD", "cmd[add" . $this->getFieldId() . "][$i]");
-            $tpl->setVariable("CMD_REMOVE", "cmd[remove" . $this->getFieldId() . "][$i]");
             if ($this->getDisabled()) {
                 $tpl->setVariable("DISABLED_POINTS", " disabled=\"disabled\"");
             }
-            $tpl->setVariable("ADD_BUTTON", ilGlyphGUI::get(ilGlyphGUI::ADD));
-            $tpl->setVariable("REMOVE_BUTTON", ilGlyphGUI::get(ilGlyphGUI::REMOVE));
+            $tpl->setVariable("ADD_BUTTON", $this->renderer->render(
+                $this->glyph_factory->add()->withAction('#')
+            ));
+            $tpl->setVariable("REMOVE_BUTTON", $this->renderer->render(
+                $this->glyph_factory->remove()->withAction('#')
+            ));
             $tpl->parseCurrentBlock();
             $i++;
         }
@@ -371,7 +375,7 @@ class ilMultipleChoiceWizardInputGUI extends ilSingleChoiceWizardInputGUI
 
         global $DIC;
         $tpl = $DIC['tpl'];
-        $tpl->addJavascript("./Services/Form/js/ServiceFormWizardInput.js");
+        $tpl->addJavascript("./Modules/TestQuestionPool/templates/default/answerwizardinput.js");
         $tpl->addJavascript("./Modules/TestQuestionPool/templates/default/multiplechoicewizard.js");
     }
 

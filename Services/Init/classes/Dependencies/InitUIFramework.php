@@ -52,12 +52,17 @@ class InitUIFramework
                 $c["ui.factory.menu"],
                 $c["ui.factory.symbol"],
                 $c["ui.factory.toast"],
-                $c["ui.factory.legacy"]
+                $c["ui.factory.legacy"],
+                $c["ui.factory.launcher"],
+                $c["ui.factory.entity"]
             );
         };
         $c["ui.upload_limit_resolver"] = function ($c) {
             return new \ILIAS\UI\Implementation\Component\Input\UploadLimitResolver(
-                (int) \ilFileUtils::getUploadSizeLimitBytes()
+                (int) \ilFileUtils::getPhpUploadSizeLimitInBytes(),
+                ($c->offsetExists('upload_policy_resolver')) ?
+                    $c['upload_policy_resolver']->getUserUploadSizeLimitInBytes() :
+                    null
             );
         };
         $c["ui.data_factory"] = function ($c) {
@@ -81,10 +86,14 @@ class InitUIFramework
         $c["ui.factory.panel"] = function ($c) {
             return new ILIAS\UI\Implementation\Component\Panel\Factory($c["ui.factory.panel.listing"]);
         };
+        $c["ui.factory.interruptive_item"] = function ($c) {
+            return new ILIAS\UI\Implementation\Component\Modal\InterruptiveItem\Factory();
+        };
         $c["ui.factory.modal"] = function ($c) {
             return new ILIAS\UI\Implementation\Component\Modal\Factory(
                 $c["ui.signal_generator"],
-                $c["ui.factory.input.field"]
+                $c["ui.factory.interruptive_item"],
+                $c["ui.factory.input.field"],
             );
         };
         $c["ui.factory.dropzone"] = function ($c) {
@@ -228,7 +237,7 @@ class InitUIFramework
         $c["ui.factory.input.container.viewcontrol"] = function ($c) {
             return new ILIAS\UI\Implementation\Component\Input\Container\ViewControl\Factory(
                 $c["ui.signal_generator"],
-                $c["ui.factory.input.viewcontrol"]
+                $c["ui.factory.input.viewcontrol"],
             );
         };
         $c["ui.factory.input.viewcontrol"] = function ($c) {
@@ -237,13 +246,13 @@ class InitUIFramework
                 $c["ui.data_factory"],
                 $c["refinery"],
                 $c["ui.signal_generator"],
-                $c["lng"]
+                $c["lng"],
             );
         };
         $c["ui.factory.dropzone.file"] = function ($c) {
             return new ILIAS\UI\Implementation\Component\Dropzone\File\Factory(
                 $c["ui.signal_generator"],
-                $c["ui.factory.input.field"]
+                $c["ui.factory.input.field"],
             );
         };
         $c["ui.factory.panel.listing"] = function ($c) {
@@ -266,7 +275,9 @@ class InitUIFramework
                             $c["ui.javascript_binding"],
                             $c["refinery"],
                             $c["ui.pathresolver"],
-                            $c["ui.data_factory"]
+                            $c["ui.data_factory"],
+                            $c["help.text_retriever"],
+                            $c["ui.upload_limit_resolver"]
                         ),
                         new ILIAS\UI\Implementation\Component\Symbol\Glyph\GlyphRendererFactory(
                             $c["ui.factory"],
@@ -275,7 +286,9 @@ class InitUIFramework
                             $c["ui.javascript_binding"],
                             $c["refinery"],
                             $c["ui.pathresolver"],
-                            $c["ui.data_factory"]
+                            $c["ui.data_factory"],
+                            $c["help.text_retriever"],
+                            $c["ui.upload_limit_resolver"]
                         ),
                         new ILIAS\UI\Implementation\Component\Symbol\Icon\IconRendererFactory(
                             $c["ui.factory"],
@@ -284,7 +297,9 @@ class InitUIFramework
                             $c["ui.javascript_binding"],
                             $c["refinery"],
                             $c["ui.pathresolver"],
-                            $c["ui.data_factory"]
+                            $c["ui.data_factory"],
+                            $c["help.text_retriever"],
+                            $c["ui.upload_limit_resolver"]
                         ),
                         new ILIAS\UI\Implementation\Component\Input\Field\FieldRendererFactory(
                             $c["ui.factory"],
@@ -293,7 +308,9 @@ class InitUIFramework
                             $c["ui.javascript_binding"],
                             $c["refinery"],
                             $c["ui.pathresolver"],
-                            $c["ui.data_factory"]
+                            $c["ui.data_factory"],
+                            $c["help.text_retriever"],
+                            $c["ui.upload_limit_resolver"]
                         )
                     )
                 )
@@ -321,27 +338,36 @@ class InitUIFramework
             return new ilImagePathResolver();
         };
 
+        $c["ui.factory.launcher"] = function ($c): ILIAS\UI\Implementation\Component\Launcher\Factory {
+            return new ILIAS\UI\Implementation\Component\Launcher\Factory(
+                $c["ui.factory.modal"]
+            );
+        };
+
+        $c["ui.factory.entity"] = function ($c) {
+            return new ILIAS\UI\Implementation\Component\Entity\Factory();
+        };
 
         // currently this is will be a session storage because we cannot store
         // data on the client, see https://mantis.ilias.de/view.php?id=38503.
         $c["ui.storage"] = function ($c): ArrayAccess {
             return new class () implements ArrayAccess {
-                public function offsetExists($offset)
+                public function offsetExists(mixed $offset): bool
                 {
                     return ilSession::has($offset);
                 }
-                public function offsetGet($offset)
+                public function offsetGet(mixed $offset): mixed
                 {
                     return ilSession::get($offset);
                 }
-                public function offsetSet($offset, $value)
+                public function offsetSet(mixed $offset, mixed $value): void
                 {
                     if (!is_string($offset)) {
                         throw new InvalidArgumentException('Offset needs to be of type string.');
                     }
                     ilSession::set($offset, $value);
                 }
-                public function offsetUnset($offset)
+                public function offsetUnset(mixed $offset): void
                 {
                     ilSession::clear($offset);
                 }

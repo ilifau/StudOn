@@ -16,6 +16,9 @@
  *
  *********************************************************************/
 
+use ILIAS\SurveyQuestionPool\Editing\EditManager;
+use ILIAS\SurveyQuestionPool\InternalDomainService;
+
 /**
  * Class ilObjSurveyQuestionPool
  *
@@ -23,7 +26,8 @@
  */
 class ilObjSurveyQuestionPool extends ilObject
 {
-    protected \ILIAS\SurveyQuestionPool\Editing\EditManager $edit_manager;
+    protected InternalDomainService $domain;
+    protected EditManager $edit_manager;
     protected ilObjUser $user;
     public bool $online = false;
     protected ilComponentRepository $component_repository;
@@ -46,6 +50,7 @@ class ilObjSurveyQuestionPool extends ilObject
             ->internal()
             ->domain()
             ->editing();
+        $this->domain = $DIC->surveyQuestionPool()->internal()->domain();
     }
 
     public function create($a_upload = false): int
@@ -314,9 +319,7 @@ class ilObjSurveyQuestionPool extends ilObject
         $result = $ilDB->query("SELECT svy_question.*, svy_qtype.type_tag, svy_qtype.plugin FROM svy_question, svy_qtype WHERE svy_question.questiontype_fi = svy_qtype.questiontype_id AND svy_question.tstamp > 0 AND " . $ilDB->in('svy_question.question_id', $question_array, false, 'integer'));
         while ($row = $ilDB->fetchAssoc($result)) {
             if ($row["plugin"]) {
-                if ($this->isPluginActive($row["type_tag"])) {
-                    $result_array[] = $row;
-                }
+                continue;
             } else {
                 $result_array[] = $row;
             }
@@ -360,16 +363,16 @@ class ilObjSurveyQuestionPool extends ilObject
             foreach ($arrFilter as $key => $value) {
                 $arrFilter[$key] = str_replace('%', '', $value);
             }
-            if (array_key_exists('title', $arrFilter) && strlen($arrFilter['title'])) {
+            if (array_key_exists('title', $arrFilter) && strlen($arrFilter['title'] ?? "")) {
                 $where .= " AND " . $ilDB->like('svy_question.title', 'text', "%%" . $arrFilter['title'] . "%%");
             }
-            if (array_key_exists('description', $arrFilter) && strlen($arrFilter['description'])) {
+            if (array_key_exists('description', $arrFilter) && strlen($arrFilter['description'] ?? "")) {
                 $where .= " AND " . $ilDB->like('svy_question.description', 'text', "%%" . $arrFilter['description'] . "%%");
             }
-            if (array_key_exists('author', $arrFilter) && strlen($arrFilter['author'])) {
+            if (array_key_exists('author', $arrFilter) && strlen($arrFilter['author'] ?? "")) {
                 $where .= " AND " . $ilDB->like('svy_question.author', 'text', "%%" . $arrFilter['author'] . "%%");
             }
-            if (array_key_exists('type', $arrFilter) && strlen($arrFilter['type'])) {
+            if (array_key_exists('type', $arrFilter) && strlen($arrFilter['type'] ?? "")) {
                 $where .= " AND svy_qtype.type_tag = " . $ilDB->quote($arrFilter['type'], 'text');
             }
         }
@@ -382,9 +385,7 @@ class ilObjSurveyQuestionPool extends ilObject
         if ($query_result->numRows()) {
             while ($row = $ilDB->fetchAssoc($query_result)) {
                 if ($row["plugin"]) {
-                    if ($this->isPluginActive($row["type_tag"])) {
-                        $rows[] = $row;
-                    }
+                    continue;
                 } else {
                     $rows[] = $row;
                 }
@@ -582,7 +583,7 @@ class ilObjSurveyQuestionPool extends ilObject
             $isZip = (strcmp(strtolower(substr($source, -3)), 'zip') === 0);
             if ($isZip) {
                 // unzip file
-                ilFileUtils::unzip($source);
+                $this->domain->resources()->zip()->unzipFile($source);
 
                 // determine filenames of xml files
                 $subdir = basename($source, ".zip");
@@ -690,15 +691,6 @@ class ilObjSurveyQuestionPool extends ilObject
             //array_push($questiontypes, $row["type_tag"]);
             if ((int) $row["plugin"] === 0) {
                 $types[$lng->txt($row["type_tag"])] = $row;
-            } else {
-                global $DIC;
-
-                $component_factory = $DIC["component.factory"];
-                foreach ($component_factory->getActivePluginsInSlot("svyq") as $pl) {
-                    if (strcmp($pl->getQuestionType(), $row["type_tag"]) === 0) {
-                        $types[$pl->getQuestionTypeTranslation()] = $row;
-                    }
-                }
             }
         }
         ksort($types);
@@ -770,12 +762,6 @@ class ilObjSurveyQuestionPool extends ilObject
         while ($row = $ilDB->fetchAssoc($result)) {
             if ((int) $row["plugin"] === 0) {
                 $types[$row['type_tag']] = $lng->txt($row["type_tag"]);
-            } else {
-                foreach ($component_factory->getActivePluginsInSlot("svyq") as $pl) {
-                    if (strcmp($pl->getQuestionType(), $row["type_tag"]) === 0) {
-                        $types[$row['type_tag']] = $pl->getQuestionTypeTranslation();
-                    }
-                }
             }
         }
         ksort($types);
@@ -818,14 +804,6 @@ class ilObjSurveyQuestionPool extends ilObject
             }
         }
         return $result_array;
-    }
-
-    /**
-     * Checks whether or not a question plugin with a given name is active
-     */
-    public function isPluginActive(string $a_pname): bool
-    {
-        return $this->component_repository->getPluginByName($a_pname)->isActive();
     }
 
     /**

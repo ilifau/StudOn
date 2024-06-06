@@ -18,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\Refinery\Factory as Refinery;
+
 /**
 * @author Jens Conze
 * @ingroup ServicesMail
@@ -26,14 +28,10 @@ declare(strict_types=1);
 */
 class ilContactGUI
 {
-    public const CONTACTS_VIEW_GALLERY = 1;
-    public const CONTACTS_VIEW_TABLE = 2;
-    private \ILIAS\HTTP\GlobalHttpState $http;
-    /**
-     * @var int[]|null
-     */
-    private ?array $postUsrId = null;
+    final public const CONTACTS_VIEW_GALLERY = 'buddy_view_gallery';
+    final public const CONTACTS_VIEW_TABLE = 'buddy_view_table';
 
+    private readonly \ILIAS\HTTP\GlobalHttpState $http;
     protected ilGlobalTemplateInterface $tpl;
     protected ilCtrlInterface $ctrl;
     protected ilLanguage $lng;
@@ -45,9 +43,14 @@ class ilContactGUI
     protected ilErrorHandling $error;
     protected ilRbacSystem $rbacsystem;
     protected bool $has_sub_tabs = false;
-    protected ILIAS\Refinery\Factory $refinery;
+    protected Refinery $refinery;
     protected \ILIAS\UI\Factory $ui_factory;
     protected \ILIAS\UI\Renderer $ui_renderer;
+    /** @var array<string, string> */
+    private array $view_mode_options = [
+        self::CONTACTS_VIEW_TABLE => self::CONTACTS_VIEW_TABLE,
+        self::CONTACTS_VIEW_GALLERY => self::CONTACTS_VIEW_GALLERY,
+    ];
 
     public function __construct()
     {
@@ -153,23 +156,32 @@ class ilContactGUI
                 );
 
                 if (in_array(strtolower($this->ctrl->getCmdClass()), $galleryCmdClasses, true)) {
-                    $view_selection = new ilSelectInputGUI('', 'contacts_view');
-                    $view_selection->setOptions([
-                        (string) self::CONTACTS_VIEW_TABLE => $this->lng->txt('buddy_view_table'),
-                        (string) self::CONTACTS_VIEW_GALLERY => $this->lng->txt('buddy_view_gallery')
-                    ]);
-                    $view_selection->setValue(
-                        strtolower($this->ctrl->getCmdClass()) === strtolower(ilUsersGalleryGUI::class)
-                            ? (string) self::CONTACTS_VIEW_GALLERY
-                            : (string) self::CONTACTS_VIEW_TABLE
-                    );
-                    $this->toolbar->addInputItem($view_selection);
+                    $mode_options = array_combine(
+                        array_map(
+                            fn (string $mode): string => $this->lng->txt($mode),
+                            array_keys($this->view_mode_options)
+                        ),
+                        array_map(
+                            function (string $mode): string {
+                                $this->ctrl->setParameter($this, 'contacts_view', $mode);
+                                $url = $this->ctrl->getFormAction($this, 'changeContactsView');
+                                $this->ctrl->setParameter($this, 'contacts_view', null);
 
-                    $contact_view_btn = ilSubmitButton::getInstance();
-                    $contact_view_btn->setCaption('show');
-                    $contact_view_btn->setCommand('changeContactsView');
-                    $this->toolbar->addButtonInstance($contact_view_btn);
-                    $this->toolbar->setFormAction($this->ctrl->getFormAction($this, 'changeContactsView'));
+                                return $url;
+                            },
+                            array_keys($this->view_mode_options)
+                        ),
+                    );
+
+                    $active_mode = strtolower($this->ctrl->getCmdClass()) === strtolower(ilUsersGalleryGUI::class)
+                        ? self::CONTACTS_VIEW_GALLERY
+                        : self::CONTACTS_VIEW_TABLE;
+
+                    $sortViewControl = $this->ui_factory
+                        ->viewControl()
+                        ->mode($mode_options, $this->lng->txt($active_mode))
+                        ->withActive($this->lng->txt($active_mode));
+                    $this->toolbar->addComponent($sortViewControl);
                 }
 
                 if (
@@ -196,7 +208,7 @@ class ilContactGUI
             );
             $this->has_sub_tabs = true;
         } else {
-            $this->tpl->setTitleIcon(ilUtil::getImagePath('icon_cadm.svg'));
+            $this->tpl->setTitleIcon(ilUtil::getImagePath('standard/icon_cadm.svg'));
 
             $this->help->setScreenIdComponent('contacts');
 
@@ -263,18 +275,23 @@ class ilContactGUI
             $this->error->raiseError($this->lng->txt('msg_no_perm_read'), $this->error->MESSAGE);
         }
 
-        if ($this->http->wrapper()->post()->has('contacts_view')) {
-            switch ($this->http->wrapper()->post()->retrieve('contacts_view', $this->refinery->kindlyTo()->int())) {
-                case self::CONTACTS_VIEW_GALLERY:
-                    $this->ctrl->redirectByClass(ilUsersGalleryGUI::class);
+        $contacts_view = $this->http->wrapper()->query()->retrieve(
+            'contacts_view',
+            $this->refinery->byTrying([
+                $this->refinery->kindlyTo()->string(),
+                $this->refinery->always(self::CONTACTS_VIEW_TABLE)
+            ])
+        );
 
-                    // no break
-                case self::CONTACTS_VIEW_TABLE:
-                    $this->ctrl->redirect($this);
-            }
+        switch ($contacts_view) {
+            case self::CONTACTS_VIEW_GALLERY:
+                $this->ctrl->redirectByClass(ilUsersGalleryGUI::class);
+
+                // no break
+            case self::CONTACTS_VIEW_TABLE:
+            default:
+                $this->ctrl->redirect($this);
         }
-
-        $this->ctrl->redirect($this);
     }
 
 
@@ -320,22 +337,18 @@ class ilContactGUI
         $this->activateTab('my_contacts');
 
         if ($this->http->wrapper()->query()->has('inv_room_ref_id') &&
-            $this->http->wrapper()->query()->has('inv_room_scope') &&
             $this->http->wrapper()->query()->has('inv_usr_ids')) {
             $inv_room_ref_id = $this->http->wrapper()->query()->retrieve(
                 'inv_room_ref_id',
-                $this->refinery->kindlyTo()->int()
-            );
-            $inv_room_scope = $this->http->wrapper()->query()->retrieve(
-                'inv_room_scope',
                 $this->refinery->kindlyTo()->int()
             );
             $inv_usr_ids = $this->http->wrapper()->query()->retrieve(
                 'inv_usr_ids',
                 $this->refinery->in()->series([
                     $this->refinery->kindlyTo()->string(),
-                    $this->refinery->custom()->transformation(fn (string $value): array => explode(',', $value)),
-                    $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
+                    $this->refinery->custom()->transformation(fn(string $s): array => explode(',', $s)),
+                    $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()),
+                    $this->refinery->custom()->constraint(fn(array $a) => $a !== [], fn() => 'Empty array.'),
                 ])
             );
 
@@ -346,8 +359,7 @@ class ilContactGUI
             }
 
             if ($userlist !== []) {
-                $url = $inv_room_scope !== 0 ? ilLink::_getStaticLink($inv_room_ref_id, 'chtr', true, '_' . $inv_room_scope) : ilLink::_getStaticLink($inv_room_ref_id, 'chtr');
-
+                $url = ilLink::_getStaticLink($inv_room_ref_id, 'chtr');
                 $content[] = $this->ui_factory->messageBox()->success(
                     $this->lng->txt('chat_users_have_been_invited') . $this->ui_renderer->render(
                         $this->ui_factory->listing()->unordered($userlist)
@@ -393,7 +405,7 @@ class ilContactGUI
 
         try {
             $usr_ids = $this->http->wrapper()->post()->retrieve(
-                'usr_id',
+                'usr_ids',
                 $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
             );
 
@@ -401,7 +413,7 @@ class ilContactGUI
             if ($usr_ids === []) {
                 throw new LengthException('mail_select_one_entry');
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_select_one_entry'));
             $this->showContacts();
             return;
@@ -436,211 +448,151 @@ class ilContactGUI
         $this->ctrl->redirectToURL('ilias.php?baseClass=ilMailGUI&type=search_res');
     }
 
-    /**
-     * Last step of chat invitations
-     * check access for every selected user and send invitation
-     */
     public function submitInvitation(): void
     {
-        $usr_ids = [];
         try {
-            $usr_ids = $this->refinery->kindlyTo()->listOf(
-                $this->refinery->kindlyTo()->int()
-            )->transform(explode(',', $this->http->wrapper()->post()->retrieve(
-                'usr_id',
-                $this->refinery->kindlyTo()->string()
-            )));
-
-            // TODO: Replace this with some kind of 'ArrayLengthConstraint'
-            if ($usr_ids === []) {
-                throw new LengthException('select_one');
-            }
-        } catch (Exception $e) {
+            $usr_ids = $this->http->wrapper()->post()->retrieve('usr_ids', $this->refinery->in()->series([
+                $this->refinery->kindlyTo()->string(),
+                $this->refinery->custom()->transformation(fn(string $s) => explode(',', $s)),
+                $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()),
+                $this->refinery->custom()->constraint(fn(array $a) => $a !== [], fn() => 'Empty array.'),
+            ]));
+        } catch (Exception) {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt('select_one'), true);
             $this->ctrl->redirect($this);
         }
 
-        if (!$this->http->wrapper()->post()->has('room_id')) {
+        try {
+            $room_id = $this->http->wrapper()->post()->retrieve('room_id', $this->refinery->kindlyTo()->int());
+        } catch (Exception) {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt('select_one'));
-            $this->postUsrId = $usr_ids;
-            $this->inviteToChat();
+            $this->inviteToChat($usr_ids);
             return;
         }
 
-        // get selected chatroom from POST-String, format: "room_id,scope"
-        $room_ids = $this->refinery->kindlyTo()->listOf(
-            $this->refinery->kindlyTo()->int()
-        )->transform(explode(',', $this->http->wrapper()->post()->retrieve(
-            'room_id',
-            $this->refinery->kindlyTo()->string()
-        )));
-
-        $room_id = (int) $room_ids[0];
-
-        $scope = 0;
-        if (count($room_ids) > 1) {
-            $scope = (int) $room_ids[1];
-        }
-
         $room = ilChatroom::byRoomId($room_id, true);
+
         $no_access = [];
         $no_login = [];
         $valid_users = [];
-        $valid_user_to_login_map = [];
+        $ref_id = $room->getRefIdByRoomId($room_id);
 
         foreach ($usr_ids as $usr_id) {
             $login = ilObjUser::_lookupLogin($usr_id);
             if ($login === '') {
-                $no_login[$usr_id] = $usr_id;
-                continue;
-            }
-
-            $ref_id = $room->getRefIdByRoomId($room_id);
-
-            if (
-                !ilChatroom::checkPermissionsOfUser((int) $usr_id, 'read', $ref_id) ||
-                $room->isUserBanned((int) $usr_id)
+                $no_login[] = $usr_id;
+            } elseif (
+                !ilChatroom::checkPermissionsOfUser($usr_id, 'read', $ref_id) ||
+                $room->isUserBanned($usr_id)
             ) {
-                $no_access[$usr_id] = $login;
+                $no_access[] = $login;
             } else {
-                $valid_users[$usr_id] = $usr_id;
-                $valid_user_to_login_map[$usr_id] = $login;
+                $valid_users[] = $usr_id;
             }
         }
 
-        if (count($no_access) || count($no_login)) {
-            $message = '';
+        $message = join('', [
+            $this->asErrorMessage($no_access, $this->lng->txt('chat_users_without_permission')),
+            $this->asErrorMessage($no_login, $this->lng->txt('chat_users_without_login')),
+        ]);
 
-            if (count($no_access) > 0) {
-                $message .= $this->lng->txt('chat_users_without_permission') . ':<br>';
-                $list = '';
-
-                foreach ($no_access as $usr_id => $login) {
-                    $list .= '<li>' . $login . '</li>';
-                }
-
-                $message .= '<ul>';
-                $message .= $list;
-                $message .= '</ul>';
-            }
-
-            if (count($no_login) > 0) {
-                $message .= $this->lng->txt('chat_users_without_login') . ':<br>';
-                $list = '';
-
-                foreach ($no_login as $usr_id) {
-                    $list .= '<li>' . $usr_id . '</li>';
-                }
-
-                $message .= '<ul>';
-                $message .= $list;
-                $message .= '</ul>';
-            }
-
+        if ($message !== '') {
             $this->tpl->setOnScreenMessage('failure', $message);
-            $this->postUsrId = $usr_ids;
-            $this->inviteToChat();
+            $this->inviteToChat($usr_ids);
             return;
         }
 
-        $ref_id = $room->getRefIdByRoomId($room_id);
-
-        $url = $scope !== 0 ? ilLink::_getStaticLink($ref_id, 'chtr', true, '_' . $scope) : ilLink::_getStaticLink($ref_id, 'chtr');
-
         foreach ($valid_users as $id) {
-            $room->inviteUserToPrivateRoom((int) $id, $scope);
             $room->sendInvitationNotification(
                 null,
                 $this->user->getId(),
-                (int) $id,
-                $scope,
-                $url
+                $id,
+                ilLink::_getStaticLink($ref_id, 'chtr')
             );
         }
 
         $this->ctrl->setParameter($this, 'inv_room_ref_id', $ref_id);
-        $this->ctrl->setParameter($this, 'inv_room_scope', (int) $scope);
         $this->ctrl->setParameter($this, 'inv_usr_ids', implode(',', $valid_users));
 
         $this->ctrl->redirect($this);
     }
 
     /**
-     * Send chat invitations to selected Users
+     * @param null|list<int> $usr_ids
      */
-    protected function inviteToChat(): void
+    protected function inviteToChat(?array $usr_ids = null): void
     {
         $this->tabs_gui->activateSubTab('buddy_view_table');
         $this->activateTab('my_contacts');
 
         $this->lng->loadLanguageModule('chatroom');
 
-        $usr_ids = $this->postUsrId;
-        if (!is_array($usr_ids)) {
-            try {
-                $usr_ids = $this->http->wrapper()->post()->retrieve(
-                    'usr_id',
-                    $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
-                );
-            } catch (Exception $e) {
-                $usr_ids = [];
-            }
-        }
+        $usr_ids ??= $this->http->wrapper()->post()->retrieve('usr_ids', $this->refinery->byTrying([
+            $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()),
+            $this->refinery->always([])
+        ]));
 
-        if (!is_array($usr_ids) || [] === $usr_ids) {
+        if ([] === $usr_ids) {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt('select_one'), true);
             $this->ctrl->redirect($this);
         }
 
-        $usr_ids = $this->refinery->kindlyTo()->listOf(
-            $this->refinery->kindlyTo()->int()
-        )->transform($usr_ids);
+        $chat_rooms = (new ilChatroom())->getAccessibleRoomIdByTitleMap($this->user->getId());
 
-        $ilChatroom = new ilChatroom();
-        $chat_rooms = $ilChatroom->getAccessibleRoomIdByTitleMap($this->user->getId());
-        $subrooms = [];
+        $options = array_filter(
+            $chat_rooms,
+            fn(int $room_id) => !(ilChatroom::byRoomId($room_id))->isUserBanned($this->user->getId()),
+            ARRAY_FILTER_USE_KEY
+        );
 
-        foreach ($chat_rooms as $room_id => $title) {
-            $subrooms[] = $ilChatroom->getPrivateSubRooms($room_id, $this->user->getId());
+        asort($options);
+
+        $this->tpl->setTitle($this->lng->txt('mail_invite_users_to_chat'));
+        $this->tpl->setContent($this->inviteToChatForm($options, $usr_ids)->getHTML());
+        $this->tpl->printToStdout();
+    }
+
+    /**
+     * @param list<string|int> $array
+     */
+    private function asErrorMessage(array $array, string $title): string
+    {
+        if ($array === []) {
+            return '';
         }
 
+        $items = array_map(
+            fn($s) => '<li>' . htmlspecialchars((string) $s) . '</li>',
+            $array
+        );
+
+        return sprintf(
+            '%s<br><ul>%s</ul>',
+            $title,
+            join('', $items)
+        );
+    }
+
+    /**
+     * @param array<string, string> $options
+     * @param list<int> $usr_ids
+     */
+    private function inviteToChatForm(array $options, array $usr_ids): ilPropertyFormGUI
+    {
         $form = new ilPropertyFormGUI();
         $form->setTitle($this->lng->txt('mail_invite_users_to_chat'));
-
-        $psel = new ilSelectInputGUI($this->lng->txt('chat_select_room'), 'room_id');
-        $options = [];
-
-        asort($chat_rooms);
-        foreach ($chat_rooms as $room_id => $room) {
-            $ref_id = $room_id;
-
-            if ($ilChatroom->isUserBanned($this->user->getId())) {
-                continue;
-            }
-
-            $options[$ref_id] = $room;
-
-            foreach ($subrooms as $subroom) {
-                foreach ($subroom as $sub_id => $parent_id) {
-                    if ($parent_id === $ref_id) {
-                        $title = ilChatroom::lookupPrivateRoomTitle($sub_id);
-                        $options[$ref_id . ',' . $sub_id] = '+&nbsp;' . $title;
-                    }
-                }
-            }
-        }
-
-        $psel->setOptions($options);
-        $form->addItem($psel);
-        $phidden = new ilHiddenInputGUI('usr_id');
-        $phidden->setValue(implode(',', $usr_ids));
-        $form->addItem($phidden);
         $form->addCommandButton('submitInvitation', $this->lng->txt('submit'));
         $form->addCommandButton('showContacts', $this->lng->txt('cancel'));
         $form->setFormAction($this->ctrl->getFormAction($this, 'showContacts'));
 
-        $this->tpl->setTitle($this->lng->txt('mail_invite_users_to_chat'));
-        $this->tpl->setContent($form->getHTML());
-        $this->tpl->printToStdout();
+        $sel = new ilSelectInputGUI($this->lng->txt('chat_select_room'), 'room_id');
+        $sel->setOptions($options);
+        $form->addItem($sel);
+
+        $hidden = new ilHiddenInputGUI('usr_ids');
+        $hidden->setValue(implode(',', $usr_ids));
+        $form->addItem($hidden);
+
+        return $form;
     }
 }

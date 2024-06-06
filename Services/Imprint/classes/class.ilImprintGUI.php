@@ -3,15 +3,19 @@
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
+ *
  * ILIAS is licensed with the GPL-3.0,
  * see https://www.gnu.org/licenses/gpl-3.0.en.html
  * You should have received a copy of said license along with the
  * source code, too.
+ *
  * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Imprint\StandardGUIRequest;
 
@@ -81,11 +85,6 @@ class ilImprintGUI extends ilPageObjectGUI implements ilCtrlBaseClassInterface
         switch ($next_class) {
             default:
                 $this->setPresentationTitle($title);
-
-                $this->locator->addItem(
-                    $title,
-                    $this->ctrl->getLinkTarget($this, "preview")
-                );
                 $ret = parent::executeCommand();
                 $this->tabs_gui->activateTab("pg");
                 return $ret;
@@ -96,7 +95,7 @@ class ilImprintGUI extends ilPageObjectGUI implements ilCtrlBaseClassInterface
     {
         $lng = $this->lng;
 
-        if ($this->getOutputMode() == ilPageObjectGUI::PREVIEW) {
+        if ($this->getOutputMode() === ilPageObjectGUI::PREVIEW) {
             if (!$this->getPageObject()->getActive()) {
                 $this->tpl->setOnScreenMessage('info', $lng->txt("adm_imprint_inactive"));
             }
@@ -118,5 +117,31 @@ class ilImprintGUI extends ilPageObjectGUI implements ilCtrlBaseClassInterface
 
         $this->tpl->printToStdout("DEFAULT", true, false);
         exit();
+    }
+
+    protected function showEditToolbar(): void
+    {
+        $ui = $this->ui;
+        $lng = $this->lng;
+        if ($this->getEnableEditing()) {
+            $b = $ui->factory()->button()->standard(
+                $lng->txt("edit_page"),
+                $this->ctrl->getLinkTargetByClass([ilObjLegalNoticeGUI::class, __CLASS__], "edit")
+            );
+            $this->toolbar->addComponent($b);
+        }
+    }
+
+    public function getTabs(string $a_activate = ""): void
+    {
+        if ($this->getOutputMode() === self::PRESENTATION) {
+            $this->tabs_gui->activateTab('view');
+        }
+    }
+
+    public function preview(): string
+    {
+        $this->setOutputMode(self::PREVIEW);
+        return $this->showPage();
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -56,7 +58,7 @@ class ilSkillGSToolProvider extends AbstractDynamicToolProvider
 
         $tools = [];
 
-        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_skmg.svg"), $title);
+        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_skmg.svg"), $title);
 
         $additional_data = $called_contexts->current()->getAdditionalData();
         if ($additional_data->is(self::SHOW_SKILL_TREE, true)) {
@@ -70,7 +72,7 @@ class ilSkillGSToolProvider extends AbstractDynamicToolProvider
         }
 
         $title = $lang->txt("skmg_skill_templates");
-        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_skmg.svg"), $title);
+        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_skmg.svg"), $title);
 
         if ($additional_data->is(self::SHOW_TEMPLATE_TREE, true)) {
             $tree_id = $additional_data->get(self::SKILL_TREE_ID);

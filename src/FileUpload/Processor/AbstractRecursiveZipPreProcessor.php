@@ -57,8 +57,13 @@ abstract class AbstractRecursiveZipPreProcessor implements PreProcessor
                     }
                 }
                 $zip->close();
+<<<<<<< HEAD
             } catch (\Exception $e) {
                 return new ProcessingStatus(ProcessingStatus::REJECTED, $e->getMessage());
+=======
+            } catch (\Throwable $e) {
+                return new ProcessingStatus(ProcessingStatus::PENDING, '');
+>>>>>>> v9.1
             }
         }
 

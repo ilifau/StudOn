@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -33,14 +41,22 @@ class ButtonMonthTest extends ILIAS_UI_TestBase
         return new I\Component\Button\Factory();
     }
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Button\\Month", $f->month("02-2017"));
     }
 
+<<<<<<< HEAD
     public function test_get_default(): void
+=======
+    public function testGetDefault(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $c = $f->month("02-2017");
@@ -48,7 +64,11 @@ class ButtonMonthTest extends ILIAS_UI_TestBase
         $this->assertEquals("02-2017", $c->getDefault());
     }
 
+<<<<<<< HEAD
     public function test_render(): void
+=======
+    public function testRender(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();

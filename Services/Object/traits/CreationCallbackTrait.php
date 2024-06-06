@@ -41,5 +41,4 @@ trait CreationCallbackTrait
         }
         $callback_obj->afterSaveCallback($obj);
     }
-
 }

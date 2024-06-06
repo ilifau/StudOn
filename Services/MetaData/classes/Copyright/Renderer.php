@@ -23,16 +23,23 @@ namespace ILIAS\MetaData\Copyright;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
 use ILIAS\UI\Component\Link\Link;
+use ILIAS\ResourceStorage\Services as IRSS;
+use ILIAS\UI\Component\Link\Relationship;
 use ILIAS\UI\Component\Legacy\Legacy;
 
 class Renderer implements RendererInterface
 {
+    protected const FALLBACK_IMG = 'copyrights\all_rights_reserved.svg';
+
     protected Factory $factory;
+    protected IRSS $irss;
 
     public function __construct(
-        Factory $factory
+        Factory $factory,
+        IRSS $irss
     ) {
         $this->factory = $factory;
+        $this->irss = $irss;
     }
 
     /**
@@ -57,13 +64,52 @@ class Renderer implements RendererInterface
 
     protected function buildIcon(CopyrightDataInterface $copyright): ?Icon
     {
-        if (!$copyright->imageLink()) {
+        if (!$copyright->hasImage()) {
+            if ($copyright->fallBackToDefaultImage()) {
+                return $this->buildFallBackIcon($copyright);
+            }
             return null;
         }
+        if ($copyright->isImageLink()) {
+            return $this->buildIconFromLink($copyright);
+        } else {
+            return $this->buildIconFromFile($copyright);
+        }
+    }
+
+    protected function buildIconFromLink(CopyrightDataInterface $copyright): Icon
+    {
         return $this->customIcon(
             (string) $copyright->imageLink(),
             $copyright->altText()
         );
+    }
+
+    protected function buildIconFromFile(CopyrightDataInterface $copyright): ?Icon
+    {
+        if ($from_irss = $this->getSourceFromIRSS($copyright->imageFile())) {
+            $src = $from_irss;
+        } else {
+            return null;
+        }
+
+        return $this->customIcon(
+            $src,
+            $copyright->altText()
+        );
+    }
+
+    protected function buildFallBackIcon(CopyrightDataInterface $copyright): ?Icon
+    {
+        return $this->customIcon(
+            $this->getFallBackSrc(),
+            $copyright->altText()
+        );
+    }
+
+    protected function getFallBackSrc(): string
+    {
+        return \ilUtil::getImagePath(self::FALLBACK_IMG);
     }
 
     protected function buildLink(CopyrightDataInterface $copyright): ?Link
@@ -74,7 +120,7 @@ class Renderer implements RendererInterface
         return $this->standardLink(
             $copyright->fullName() !== '' ? $copyright->fullName() : (string) $copyright->link(),
             (string) $copyright->link()
-        );
+        )->withAdditionalRelationshipToReferencedResource(Relationship::LICENSE);
     }
 
     protected function customIcon(string $src, string $alt): Icon
@@ -90,5 +136,13 @@ class Renderer implements RendererInterface
     protected function textInLegacy(string $text): Legacy
     {
         return $this->factory->legacy($text);
+    }
+
+    protected function getSourceFromIRSS(string $string_id): string
+    {
+        if ($identifier = $this->irss->manage()->find($string_id)) {
+            return $this->irss->consume()->src($identifier)->getSrc();
+        }
+        return '';
     }
 }

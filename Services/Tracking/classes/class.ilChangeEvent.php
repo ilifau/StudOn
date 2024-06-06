@@ -261,7 +261,6 @@ class ilChangeEvent
                                 (int) $read_count_diff
                             );
                         } else {
-
                             // #10407
                             $ilDB->replace(
                                 'read_event',
@@ -381,7 +380,6 @@ class ilChangeEvent
 
             $ilAtomQuery->addQueryCallable(
                 function (ilDBInterface $ilDB) use ($a_now, $a_minimum, &$ret) {
-
                     // if other process was transferring, we had to wait for the lock and
                     // the source table should now have less than minimum/needed entries
                     $set = $ilDB->query(
@@ -425,7 +423,6 @@ class ilChangeEvent
 
                 $ilAtomQuery->addQueryCallable(
                     function (ilDBInterface $ilDB) use ($a_now, $a_minimum) {
-
                         // process log data (timestamp is not needed anymore)
                         $sql = "SELECT obj_id, obj_type, yyyy, mm, dd, hh, SUM(read_count) AS read_count," .
                             " SUM(childs_read_count) AS childs_read_count, SUM(spent_seconds) AS spent_seconds," .
@@ -899,5 +896,27 @@ class ilChangeEvent
             $res[] = (int) $row["usr_id"];
         }
         return $res;
+    }
+
+    /**
+     * _updateAccessForScormOfflinePlayer
+     * needed to synchronize last_access and first_access when learning modul is used offline
+     * called in ./Modules/ScormAicc/classes/class.ilSCORMOfflineMode.php
+     */
+    public static function _updateAccessForScormOfflinePlayer(
+        int $obj_id,
+        int $usr_id,
+        int $i_last_access,
+        string $t_first_access
+    ): bool {
+        global $DIC;
+
+        $ilDB = $DIC->database();
+        $res = $ilDB->queryF(
+            'UPDATE read_event SET first_access=%s, last_access = %s WHERE obj_id=%s AND usr_id=%s',
+            array('timestamp', 'integer', 'integer', 'integer'),
+            array($t_first_access, $i_last_access, $obj_id, $usr_id)
+        );
+        return true;
     }
 }

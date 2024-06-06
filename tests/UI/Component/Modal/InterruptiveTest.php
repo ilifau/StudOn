@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . '/ModalBase.php');
 
 use ILIAS\UI\Component as C;
@@ -25,30 +33,44 @@ use ILIAS\UI\Implementation as I;
 
 /**
  * Tests on implementation for the interruptive modal
- *
- * @author Stefan Wanzenried <sw@studer-raimann.ch>
  */
 class InterruptiveTest extends ModalBase
 {
+<<<<<<< HEAD
     public function test_get_title(): void
+=======
+    public function testGetTitle(): void
+>>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $this->assertEquals('myTitle', $interruptive->getTitle());
     }
 
+<<<<<<< HEAD
     public function test_get_message(): void
+=======
+    public function testGetMessage(): void
+>>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $this->assertEquals('myMessage', $interruptive->getMessage());
     }
 
+<<<<<<< HEAD
     public function test_get_form_action(): void
+=======
+    public function testGetFormAction(): void
+>>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $this->assertEquals('myFormAction', $interruptive->getFormAction());
     }
 
+<<<<<<< HEAD
     public function test_get_affected_items(): void
+=======
+    public function testGetAffectedItems(): void
+>>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $items = [$this->getInterruptiveItem(), $this->getInterruptiveItem()];
@@ -56,7 +78,11 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals($items, $interruptive->getAffectedItems());
     }
 
+<<<<<<< HEAD
     public function test_with_form_action(): void
+=======
+    public function testWithFormAction(): void
+>>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $interruptive2 = $interruptive->withFormAction('myFormAction2');
@@ -64,7 +90,11 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals('myFormAction2', $interruptive2->getFormAction());
     }
 
+<<<<<<< HEAD
     public function test_with_affected_items(): void
+=======
+    public function testWithAffectedItems(): void
+>>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $items = [$this->getInterruptiveItem(), $this->getInterruptiveItem()];
@@ -73,7 +103,11 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals($items, $interruptive2->getAffectedItems());
     }
 
+<<<<<<< HEAD
     public function test_simple_rendering(): void
+=======
+    public function testSimpleRendering(): void
+>>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('Title', 'Message', 'myAction.php');
         $expected = $this->brutallyTrimHTML($this->getExpectedHTML());
@@ -81,26 +115,80 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals($expected, $actual);
     }
 
+<<<<<<< HEAD
+=======
+    public function testRenderingWithItems(): void
+    {
+        $interruptive = $this->getModalFactory()->interruptive('Title', 'Message', 'myAction.php');
+        $items = [
+            $this->getKeyValueInterruptiveItem('keyvalue1'),
+            $this->getStandardInterruptiveItem('standard1'),
+            $this->getKeyValueInterruptiveItem('keyvalue2'),
+            $this->getKeyValueInterruptiveItem('keyvalue3'),
+            $this->getStandardInterruptiveItem('standard2')
+        ];
+        $interruptive = $interruptive->withAffectedItems($items);
+        $expected = $this->normalizeHTML($this->getExpectedHTML(true));
+        $actual = $this->normalizeHTML($this->getDefaultRenderer(null, $items)->render($interruptive));
+        $this->assertEquals($expected, $actual);
+    }
+
+>>>>>>> v9.1
     protected function getInterruptiveItem(): InterruptiveItemMock
     {
         return new InterruptiveItemMock();
     }
 
+<<<<<<< HEAD
     protected function getExpectedHTML(): string
+=======
+    protected function getStandardInterruptiveItem(string $canonical_name): StandardItemMock
+>>>>>>> v9.1
     {
-        $expected = <<<EOT
-<div class="modal fade il-modal-interruptive" tabindex="-1" role="dialog" id="id_1">
+        return new StandardItemMock($canonical_name);
+    }
+
+    protected function getKeyValueInterruptiveItem(string $canonical_name): KeyValueItemMock
+    {
+        return new KeyValueItemMock($canonical_name);
+    }
+
+    protected function getExpectedHTML(bool $with_items = false): string
+    {
+        $expected_start = <<<EOT
+<div class="modal fade c-modal--interruptive" tabindex="-1" role="dialog" id="id_1">
 	<div class="modal-dialog" role="document">
 		<form action="myAction.php" method="POST">
 			<div class="modal-content">
 				<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="cancel">
+<<<<<<< HEAD
 					<span aria-hidden="true">&times;</span></button><span class="modal-title">Title</span>
+=======
+					<span aria-hidden="true">&times;</span></button><h1 class="modal-title">Title</h1>
+>>>>>>> v9.1
 				</div>
 				<div class="modal-body">
-					<div class="alert alert-warning il-modal-interruptive-message" role="alert">Message</div>
+					<div class="alert alert-warning c-modal--interruptive__message" role="alert">Message</div>
+EOT;
+        $expected_items = <<<EOT
+					<div class="c-modal--interruptive__items">
+						<table>
+							standard1
+							standard2
+						</table>
+					</div>
+					<div class="c-modal--interruptive__items">
+						<dl>
+							keyvalue1
+							keyvalue2
+							keyvalue3
+						</dl>
+					</div>
+EOT;
+        $expected_end = <<<EOT
 				</div>
 				<div class="modal-footer">
-					<input type="submit" class="btn btn-primary" value="delete" name="cmd[delete]">
+					<input type="submit" class="btn btn-primary" value="delete"/>
 					<button class="btn btn-default" data-dismiss="modal">cancel</button>
 				</div>
 			</div>
@@ -108,7 +196,10 @@ class InterruptiveTest extends ModalBase
 	</div>
 </div>
 EOT;
-        return $expected;
+        if ($with_items) {
+            return $expected_start . $expected_items . $expected_end;
+        }
+        return $expected_start . $expected_end;
     }
 
 
@@ -131,13 +222,34 @@ EOT;
     }
 }
 
-class InterruptiveItemMock implements C\Modal\InterruptiveItem
+class InterruptiveItemMock implements C\Modal\InterruptiveItem\InterruptiveItem
 {
+<<<<<<< HEAD
+=======
+    protected string $canonical_name;
+
+    public function __construct(string $canonical_name = '')
+    {
+        $this->canonical_name = $canonical_name;
+    }
+
+>>>>>>> v9.1
     public function getId(): string
     {
         return '1';
     }
 
+<<<<<<< HEAD
+=======
+    public function getCanonicalName(): string
+    {
+        return $this->canonical_name ?: 'InterruptiveItem';
+    }
+}
+
+class StandardItemMock extends InterruptiveItemMock implements C\Modal\InterruptiveItem\Standard
+{
+>>>>>>> v9.1
     public function getTitle(): string
     {
         return 'title';
@@ -151,5 +263,18 @@ class InterruptiveItemMock implements C\Modal\InterruptiveItem
     public function getIcon(): C\Image\Image
     {
         return new I\Component\Image\Image(C\Image\Image::STANDARD, '', '');
+    }
+}
+
+class KeyValueItemMock extends InterruptiveItemMock implements C\Modal\InterruptiveItem\KeyValue
+{
+    public function getKey(): string
+    {
+        return 'key';
+    }
+
+    public function getValue(): string
+    {
+        return 'value';
     }
 }

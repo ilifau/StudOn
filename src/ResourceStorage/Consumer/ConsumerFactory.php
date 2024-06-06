@@ -21,13 +21,21 @@ declare(strict_types=1);
 namespace ILIAS\ResourceStorage\Consumer;
 
 use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
+<<<<<<< HEAD
 use ILIAS\ResourceStorage\Policy\FileNamePolicy;
 use ILIAS\ResourceStorage\Policy\NoneFileNamePolicy;
 use ILIAS\ResourceStorage\Resource\StorableResource;
+=======
+use ILIAS\ResourceStorage\Flavour\Flavour;
+use ILIAS\ResourceStorage\Policy\FileNamePolicy;
+use ILIAS\ResourceStorage\Policy\NoneFileNamePolicy;
+use ILIAS\ResourceStorage\Resource\StorableResource;
+use ILIAS\ResourceStorage\Resource\StorableContainerResource;
+>>>>>>> v9.1
 
 /**
  * Class ConsumerFactory
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 class ConsumerFactory
 {
@@ -101,6 +109,17 @@ class ConsumerFactory
         );
     }
 
+<<<<<<< HEAD
+=======
+    public function flavourUrl(Flavour $flavour, SrcBuilder $src_builder): FlavourURLs
+    {
+        return new FlavourURLs(
+            $src_builder,
+            $flavour
+        );
+    }
+
+>>>>>>> v9.1
     public function downloadMultiple(
         array $resources,
         ?string $zip_filename = null
@@ -110,6 +129,33 @@ class ConsumerFactory
             $this->stream_access,
             $this->file_name_policy,
             $zip_filename ?? 'Download.zip'
+<<<<<<< HEAD
+=======
+        );
+    }
+
+    public function containerZIP(
+        StorableContainerResource $resource,
+    ): ContainerConsumer {
+        return new ContainerZIPAccessConsumer(
+            $resource,
+            $this->stream_access
+        );
+    }
+
+    public function containerURI(
+        StorableContainerResource $resource,
+        SrcBuilder $src_builder,
+        string $start_file = 'index.html',
+        float $valid_for_at_least_minutes = 60.0
+    ): ContainerConsumer {
+        return new ContainerURIConsumer(
+            $src_builder,
+            $resource,
+            $this->stream_access,
+            $start_file,
+            $valid_for_at_least_minutes
+>>>>>>> v9.1
         );
     }
 }

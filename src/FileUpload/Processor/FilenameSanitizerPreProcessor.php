@@ -21,7 +21,7 @@ namespace ILIAS\FileUpload\Processor;
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\FileUpload\DTO\Metadata;
 use ILIAS\FileUpload\DTO\ProcessingStatus;
-use League\Flysystem\Util;
+use ILIAS\Filesystem\Util;
 
 /**
  * Class FilenameSanitizerPreProcessor
@@ -40,12 +40,49 @@ final class FilenameSanitizerPreProcessor implements PreProcessor
     public function process(FileStream $stream, Metadata $metadata): ProcessingStatus
     {
         $filename = $metadata->getFilename();
+<<<<<<< HEAD
 
         // remove some special characters
         $filename = \ILIAS\Filesystem\Util::sanitizeFileName($filename);
 
         $metadata->setFilename(Util::normalizeRelativePath($filename));
+=======
+        // remove some special characters
+        $filename = Util::sanitizeFileName($filename);
+
+        $metadata->setFilename($filename);
+>>>>>>> v9.1
 
         return new ProcessingStatus(ProcessingStatus::OK, 'Filename changed');
+    }
+
+    private function normalizeRelativePath(string $path): string
+    {
+        $path = str_replace('\\', '/', $path);
+        $path = preg_replace('#\p{C}+#u', '', $path);
+        $parts = [];
+
+        foreach (explode('/', $path) as $part) {
+            switch ($part) {
+                case '':
+                case '.':
+                    break;
+
+                case '..':
+                    if (empty($parts)) {
+                        throw new \LogicException(
+                            'Path is outside of the defined root, path: [' . $path . ']'
+                        );
+                    }
+                    array_pop($parts);
+                    break;
+
+                default:
+                    $parts[] = $part;
+                    break;
+            }
+        }
+
+        return implode('/', $parts);
     }
 }

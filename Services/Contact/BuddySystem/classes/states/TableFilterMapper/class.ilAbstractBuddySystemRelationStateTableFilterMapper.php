@@ -20,28 +20,21 @@ declare(strict_types=1);
 
 abstract class ilAbstractBuddySystemRelationStateTableFilterMapper implements ilBuddySystemRelationStateTableFilterMapper
 {
-    /** @var ilLanguage */
-    protected $lng;
-    /** @var ilBuddySystemRelationState */
-    protected $state;
-
-    final public function __construct(ilLanguage $lng, ilBuddySystemRelationState $state)
+    final public function __construct(protected ilLanguage $lng, protected ilBuddySystemRelationState $state)
     {
-        $this->lng = $lng;
-        $this->state = $state;
     }
 
     public function optionsForState(): array
     {
         return [
-            get_class($this->state) => $this->lng->txt('buddy_bs_state_' . strtolower($this->state->getName()))
+            $this->state::class => $this->lng->txt('buddy_bs_state_' . strtolower($this->state->getName()))
         ];
     }
 
     public function filterMatchesRelation(string $filter_key, ilBuddySystemRelation $relation): bool
     {
         return (
-            strtolower($filter_key) === strtolower(get_class($this->state))
+            strtolower($filter_key) === strtolower($this->state::class)
         );
     }
 }

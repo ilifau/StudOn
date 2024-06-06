@@ -30,12 +30,8 @@ class ilObjForumAdministrationTest extends TestCase
 
     public function testConstruct(): void
     {
-        if (!defined('DEBUG')) {
-            define('DEBUG', false);
-        }
-
         $this->mockLanguage->expects(self::once())->method('loadLanguageModule')->with('forum');
-        $instance = new ilObjForumAdministration();
+        new ilObjForumAdministration();
     }
 
     protected function setUp(): void

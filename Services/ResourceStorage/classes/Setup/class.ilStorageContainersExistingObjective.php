@@ -24,7 +24,7 @@ use ILIAS\Setup\Objective;
 
 /**
  * Class ilStorageContainersExistingObjective
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 class ilStorageContainersExistingObjective extends Objective\DirectoryCreatedObjective
 {

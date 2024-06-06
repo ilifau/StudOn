@@ -21,7 +21,7 @@
  *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
  *
- * @ilCtrl_Calls ilObjPortfolioTemplateGUI: ilPortfolioTemplatePageGUI, ilPageObjectGUI, ilNoteGUI
+ * @ilCtrl_Calls ilObjPortfolioTemplateGUI: ilPortfolioTemplatePageGUI, ilPageObjectGUI, ilCommentGUI
  * @ilCtrl_Calls ilObjPortfolioTemplateGUI: ilObjectCopyGUI, ilInfoScreenGUI, ilCommonActionDispatcherGUI
  * @ilCtrl_Calls ilObjPortfolioTemplateGUI: ilPermissionGUI, ilExportGUI, ilObjectContentStyleSettingsGUI
  * @ilCtrl_Calls ilObjPortfolioTemplateGUI: ilObjectMetaDataGUI
@@ -73,7 +73,7 @@ class ilObjPortfolioTemplateGUI extends ilObjPortfolioBaseGUI
                 $this->handlePageCall($cmd);
                 break;
 
-            case "ilnotegui":
+            case "ilcommentgui":
                 $this->preview();
                 break;
 
@@ -220,11 +220,10 @@ class ilObjPortfolioTemplateGUI extends ilObjPortfolioBaseGUI
         if ($this->checkPermissionBool("read")) {
             $this->lng->loadLanguageModule("cntr");
 
-            $button = ilLinkButton::getInstance();
-            $button->setPrimary(true);
-            $button->setCaption("prtf_create_portfolio_from_template");
-            $button->setUrl($this->ctrl->getLinkTarget($this, "createfromtemplate"));
-            $ilToolbar->addButtonInstance($button);
+            $this->gui->button(
+                $this->lng->txt("prtf_create_portfolio_from_template"),
+                $this->ctrl->getLinkTarget($this, "createfromtemplate")
+            )->primary()->toToolbar();
         }
 
         $info = new ilInfoScreenGUI($this);
@@ -314,7 +313,7 @@ class ilObjPortfolioTemplateGUI extends ilObjPortfolioBaseGUI
         $online->setInfo($this->lng->txt('prtt_activation_online_info') . $act_obj_info);
         $a_form->addItem($online);
 
-        $dur = new ilDateDurationInputGUI($this->lng->txt("rep_visibility_until"), "access_period");
+        $dur = new ilDateDurationInputGUI($this->lng->txt("rep_time_based_availability"), "access_period");
         $dur->setShowTime(true);
         $dur->setEndText($this->lng->txt('rep_activation_limited_end'));
         $a_form->addItem($dur);
@@ -516,11 +515,10 @@ class ilObjPortfolioTemplateGUI extends ilObjPortfolioBaseGUI
         if (!$this->checkPermissionBool("write") &&
             $this->checkPermissionBool("read")) {
             $this->lng->loadLanguageModule("cntr");
-
-            $button = ilLinkButton::getInstance();
-            $button->setPrimary(true);
-            $button->setCaption("prtf_create_portfolio_from_template");
-            $button->setUrl($this->ctrl->getLinkTarget($this, "createfromtemplate"));
+            $button = $this->gui->button(
+                $this->lng->txt("prtf_create_portfolio_from_template"),
+                $this->ctrl->getLinkTarget($this, "createfromtemplate")
+            )->primary();
             $this->tpl->setHeaderActionMenu($button->render());
         }
 

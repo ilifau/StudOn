@@ -1,6 +1,8 @@
 <?php
 
 declare(strict_types=1);
+
+declare(strict_types=1);
 use FAU\Ilias\Helper\WaitingListConstantsHelper;
 /**
  * This file is part of ILIAS, a powerful learning management system

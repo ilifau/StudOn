@@ -1,7 +1,10 @@
 <?php
 
+<<<<<<< HEAD
 declare(strict_types=1);
 
+=======
+>>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,11 +20,15 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+<<<<<<< HEAD
+=======
+
+declare(strict_types=1);
+>>>>>>> v9.1
 
 use ILIAS\Setup;
 use ILIAS\Refinery;
 use ILIAS\Data;
-use ILIAS\Setup\ObjectiveCollection;
 use ILIAS\Setup\Config;
 
 /**
@@ -58,11 +65,16 @@ class ilSetupAgent implements Setup\Agent
     public function getArrayToConfigTransformation(): Refinery\Transformation
     {
         return $this->refinery->custom()->transformation(function ($data) {
+            $export_hooks_path = null;
+            if (key_exists("export_hooks_path", $data)) {
+                $export_hooks_path = $data["export_hooks_path"];
+            }
             $datetimezone = $this->refinery->to()->toNew(\DateTimeZone::class);
             return new \ilSetupConfig(
                 $this->data->clientId($data["client_id"] ?? ''),
                 $datetimezone->transform([$data["server_timezone"] ?? "UTC"]),
-                $data["register_nic"] ?? false
+                $data["register_nic"] ?? false,
+                $export_hooks_path
             );
         });
     }
@@ -78,20 +90,17 @@ class ilSetupAgent implements Setup\Agent
             new Setup\ObjectiveCollection(
                 "Complete common ILIAS objectives.",
                 false,
+<<<<<<< HEAD
                 new Setup\Condition\PHPVersionCondition("7.4.0"),
+=======
+                new Setup\Condition\PHPVersionCondition("8.1.0"),
+>>>>>>> v9.1
                 new Setup\Condition\PHPExtensionLoadedCondition("dom"),
                 new Setup\Condition\PHPExtensionLoadedCondition("xsl"),
                 new Setup\Condition\PHPExtensionLoadedCondition("gd"),
                 $this->getPHPMemoryLimitCondition(),
                 new ilSetupConfigStoredObjective($config),
-                $config->getRegisterNIC()
-                    ? new ilNICKeyRegisteredObjective($config)
-                    : new Setup\ObjectiveCollection(
-                        "",
-                        false,
-                        new ilNICKeyStoredObjective($config),
-                        new ilInstIdDefaultStoredObjective($config)
-                    )
+                new ilNICKeyRegisteredObjective($config)
             )
         );
     }
@@ -125,8 +134,10 @@ class ilSetupAgent implements Setup\Agent
                 new ilNoVersionDowngradeConditionObjective($this->data)
             )
         ];
+
         if ($config !== null) {
             $objectives[] = new ilSetupConfigStoredObjective($config);
+            $objectives[] = new ilNICKeyRegisteredObjective($config);
         }
 
         return new Setup\ObjectiveCollection(
@@ -173,6 +184,17 @@ class ilSetupAgent implements Setup\Agent
                     }
 
                     return new ilNICKeyRegisteredObjective($config);
+                }
+            ),
+            "buildExportZip" => new Setup\ObjectiveConstructor(
+                "Build ILIAS export zip",
+                static function () use ($config): Setup\Objective {
+                    if (is_null($config)) {
+                        throw new \RuntimeException(
+                            "Missing Config for objective 'buildExportZip'."
+                        );
+                    }
+                    return new ilExportZipBuiltObjective($config);
                 }
             )
         ];

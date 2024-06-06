@@ -28,11 +28,6 @@ use Rector\Core\Exception\ShouldNotHappenException;
 
 final class ReplaceUtilSendMessageRector extends \Rector\Core\Rector\AbstractRector
 {
-    protected \ILIAS\CI\Rector\DIC\DICMemberResolver $dic_member_resolver;
-    protected \Rector\Transform\NodeTypeAnalyzer\TypeProvidingExprFromClassResolver $type_resolver;
-    protected \Rector\Core\NodeManipulator\ClassDependencyManipulator $class_dependecied;
-    protected \Rector\PostRector\Collector\PropertyToAddCollector $poperty_adder;
-    protected \Rector\Core\NodeManipulator\ClassInsertManipulator $class_insert;
     protected array $old_method_names = [
         'sendInfo',
         'sendSuccess',
@@ -42,19 +37,17 @@ final class ReplaceUtilSendMessageRector extends \Rector\Core\Rector\AbstractRec
     protected string $new_method_name = 'setOnScreenMessage';
 
     public function __construct(
-        \ILIAS\CI\Rector\DIC\DICMemberResolver $dic_member_resolver,
-        \Rector\Transform\NodeTypeAnalyzer\TypeProvidingExprFromClassResolver $typre_resolver,
-        \Rector\Core\NodeManipulator\ClassDependencyManipulator $classDependencyManipulator,
-        \Rector\PostRector\Collector\PropertyToAddCollector $propertyToAddCollector,
-        \Rector\Core\NodeManipulator\ClassInsertManipulator $class_insert
+        protected \ILIAS\CI\Rector\DIC\DICMemberResolver $dicMemberResolver,
+        protected \Rector\Transform\NodeTypeAnalyzer\TypeProvidingExprFromClassResolver $typeProvidingExprFromClassResolver,
+        protected \Rector\Core\NodeManipulator\ClassDependencyManipulator $classDependencyManipulator,
+        protected \Rector\PostRector\Collector\PropertyToAddCollector $propertyToAddCollector,
+        protected \Rector\Core\NodeManipulator\ClassInsertManipulator $classInsertManipulator
     ) {
-        $this->dic_member_resolver = $dic_member_resolver;
-        $this->type_resolver = $typre_resolver;
-        $this->class_dependecied = $classDependencyManipulator;
-        $this->poperty_adder = $propertyToAddCollector;
-        $this->class_insert = $class_insert;
     }
 
+    /**
+     * @return array<class-string<\PhpParser\Node\Expr>>
+     */
     public function getNodeTypes(): array
     {
         return [\PhpParser\Node\Expr\StaticCall::class];
@@ -82,7 +75,7 @@ final class ReplaceUtilSendMessageRector extends \Rector\Core\Rector\AbstractRec
     /**
      * @param Node $node the Static Call to ilUtil:sendXY
      */
-    public function refactor(Node $node)
+    public function refactor(Node $node): ?\PhpParser\Node\Expr\MethodCall
     {
         if (!$this->isApplicable($node)) {
             return null; // leave the node as it is
@@ -110,13 +103,13 @@ final class ReplaceUtilSendMessageRector extends \Rector\Core\Rector\AbstractRec
 
         // prepend a new argument with the type of the message, aka sendInfo goes to setOnScreenMessage('info', ...
         $message_type = strtolower(str_replace('send', '', $node->name->name));
-        $first_argument = $this->nodeFactory->createArg($message_type);
+        $arg = $this->nodeFactory->createArg($message_type);
         $arguments = $node->args;
-        array_unshift($arguments, $first_argument);
+        array_unshift($arguments, $arg);
 
         // ensure a dic property for ilGlobalTemplate is in the class. or we get another Expr to fetch ilGlobalTemplate
         try {
-            $dicPropertyFetch = $this->dic_member_resolver->ensureDICDependency(
+            $dicPropertyFetch = $this->dicMemberResolver->ensureDICDependency(
                 DICMemberMap::TPL,
                 $class_where_call_happens,
                 $method_where_call_happend
@@ -125,9 +118,6 @@ final class ReplaceUtilSendMessageRector extends \Rector\Core\Rector\AbstractRec
             throw  new ShouldNotHappenException(
                 "Could not process " . $this->file->getFilePath() . ': ' . $e->getMessage()
             );
-            echo "Could not process " . $this->file->getFilePath() . ': ' . $e->getMessage();
-            // there are places where the DIC dependency could not be added, we must skip thoses places
-            return null;
         }
 
         // return new method call

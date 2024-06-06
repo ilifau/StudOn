@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once("libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -42,7 +50,11 @@ class ToastTest extends ILIAS_UI_TestBase
         return new ILIAS\UI\Implementation\Component\Link\Factory();
     }
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $f = $this->getToastFactory();
 
@@ -53,9 +65,13 @@ class ToastTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider toast_provider
+     * @dataProvider getToastProvider
      */
+<<<<<<< HEAD
     public function test_toast(string $title, string $description, int $vanish_time, int $delay_time, string $action): void
+=======
+    public function testToast(string $title, string $description, int $vanish_time, int $delay_time, string $action): void
+>>>>>>> v9.1
     {
         $toast = $this->getToastFactory()->standard($title, $this->getIconFactory()->standard('', ''))
                       ->withDescription($description)
@@ -77,9 +93,13 @@ class ToastTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider toast_provider
+     * @dataProvider getToastProvider
      */
+<<<<<<< HEAD
     public function test_toast_container(string $title, string $description, int $vanish_time): void
+=======
+    public function testToastContainer(string $title, string $description, int $vanish_time): void
+>>>>>>> v9.1
     {
         $container = $this->getToastFactory()->container()->withAdditionalToast(
             $this->getToastFactory()->standard('', $this->getIconFactory()->standard('', ''))
@@ -91,7 +111,11 @@ class ToastTest extends ILIAS_UI_TestBase
         $this->assertCount(0, $container->withoutToasts()->getToasts());
     }
 
+<<<<<<< HEAD
     public function toast_provider(): array
+=======
+    public function getToastProvider(): array
+>>>>>>> v9.1
     {
         return [
             ['title', 'description', 5000, 500, 'test.php'],

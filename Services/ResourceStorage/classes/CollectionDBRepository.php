@@ -22,6 +22,11 @@ use ILIAS\ResourceStorage\Collection\Repository\CollectionRepository;
 use ILIAS\ResourceStorage\Collection\ResourceCollection;
 use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
+use ILIAS\ResourceStorage\Events\Subject;
+use ILIAS\ResourceStorage\Events\Event;
+use ILIAS\ResourceStorage\Events\Data;
+use ILIAS\ResourceStorage\Events\DataContainer;
+use ILIAS\ResourceStorage\Events\CollectionData;
 
 /**
  * Class CollectionDBRepository
@@ -100,7 +105,7 @@ class CollectionDBRepository implements CollectionRepository
         $r = $this->db->manipulateF($q, ['text'], [$identification->serialize()]);
     }
 
-    public function update(ResourceCollection $collection): void
+    public function update(ResourceCollection $collection, DataContainer $event_data_container): void
     {
         $identification = $collection->getIdentification();
         $resource_identifications = $collection->getResourceIdentifications();
@@ -108,7 +113,7 @@ class CollectionDBRepository implements CollectionRepository
         $title = $collection->getTitle();
 
         $resource_identification_strings = array_map(
-            fn (ResourceIdentification $i): string => $i->serialize(),
+            fn(ResourceIdentification $i): string => $i->serialize(),
             $resource_identifications
         );
 
@@ -126,6 +131,9 @@ class CollectionDBRepository implements CollectionRepository
                 self::R_IDENTIFICATION => ['text', $resource_identification_string],
                 'position' => ['integer', (int)$position + 1],
             ]);
+            $event_data_container->append(
+                new CollectionData(['rid' => $resource_identification_string, 'rcid' => $identification->serialize()])
+            );
         }
         foreach ($resource_identification_strings as $position => $resource_identification_string) {
             $this->db->update(

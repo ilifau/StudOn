@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+use ILIAS\Skill\Service\SkillUsageService;
+
 /**
  * User interface for assignment of questions from a test question pool (or
  * directly from a test) to competences.
@@ -76,6 +78,8 @@ class ilAssQuestionSkillAssignmentsGUI
 
     private \ILIAS\TestQuestionPool\InternalRequestService $request;
 
+    private SkillUsageService $skillUsageService;
+
     /**
      * @param ilCtrl $ctrl
      * @param ilAccessHandler $access
@@ -92,6 +96,7 @@ class ilAssQuestionSkillAssignmentsGUI
         $this->db = $db;
         global $DIC;
         $this->request = $DIC->testQuestionPool()->internal()->request();
+        $this->skillUsageService = $DIC->skills()->usage();
     }
 
     public function getQuestionOrderSequence(): ?array
@@ -244,7 +249,7 @@ class ilAssQuestionSkillAssignmentsGUI
                                 $assignment->saveToDb();
 
                                 // add skill usage
-                                ilSkillUsage::setUsage($this->getQuestionContainerId(), $skillBaseId, $skillTrefId);
+                                $this->skillUsageService->addUsage($this->getQuestionContainerId(), $skillBaseId, $skillTrefId);
                             }
                         }
                     }
@@ -295,7 +300,7 @@ class ilAssQuestionSkillAssignmentsGUI
                         $assignment->saveToDb();
 
                         // add skill usage
-                        ilSkillUsage::setUsage($this->getQuestionContainerId(), $skillBaseId, $skillTrefId);
+                        $this->skillUsageService->addUsage($this->getQuestionContainerId(), $skillBaseId, $skillTrefId);
                     }
 
                     $handledSkills[$skillId] = $skill;
@@ -311,11 +316,10 @@ class ilAssQuestionSkillAssignmentsGUI
 
                 // remove skill usage
                 if (!$assignment->isSkillUsed()) {
-                    ilSkillUsage::setUsage(
+                    $this->skillUsageService->removeUsage(
                         $assignment->getParentObjId(),
                         $assignment->getSkillBaseId(),
-                        $assignment->getSkillTrefId(),
-                        false
+                        $assignment->getSkillTrefId()
                     );
                 }
             }
@@ -353,14 +357,14 @@ class ilAssQuestionSkillAssignmentsGUI
 
             $skillSelectorToolbarGUI->setOpenFormTag(true);
             $skillSelectorToolbarGUI->setCloseFormTag(false);
-            $skillSelectorToolbarGUI->setLeadingImage(ilUtil::getImagePath("arrow_upright.svg"), " ");
+            $skillSelectorToolbarGUI->setLeadingImage(ilUtil::getImagePath("nav/arrow_upright.svg"), " ");
             $tpl->setVariable('SKILL_SELECTOR_TOOLBAR_TOP', $this->ctrl->getHTML($skillSelectorToolbarGUI));
 
             $tpl->setVariable('SKILL_SELECTOR_EXPLORER', $this->ctrl->getHTML($skillSelectorExplorerGUI));
 
             $skillSelectorToolbarGUI->setOpenFormTag(false);
             $skillSelectorToolbarGUI->setCloseFormTag(true);
-            $skillSelectorToolbarGUI->setLeadingImage(ilUtil::getImagePath("arrow_downright.svg"), " ");
+            $skillSelectorToolbarGUI->setLeadingImage(ilUtil::getImagePath("nav/arrow_downright.svg"), " ");
             $tpl->setVariable('SKILL_SELECTOR_TOOLBAR_BOTTOM', $this->ctrl->getHTML($skillSelectorToolbarGUI));
 
             $this->tpl->setContent($tpl->get());
@@ -447,7 +451,7 @@ class ilAssQuestionSkillAssignmentsGUI
             $assignment->saveToDb();
 
             // add skill usage
-            ilSkillUsage::setUsage(
+            $this->skillUsageService->addUsage(
                 $this->getQuestionContainerId(),
                 (int) $this->request->raw('skill_base_id'),
                 (int) $this->request->raw('skill_tref_id')
@@ -536,7 +540,7 @@ class ilAssQuestionSkillAssignmentsGUI
         $questionId = (int) $_POST['question_id'];
 
         if ($this->isTestQuestion($questionId) && $this->isSyncOriginalPossibleAndAllowed($questionId)) {
-            $question = assQuestion::_instantiateQuestion($questionId);
+            $question = assQuestion::instantiateQuestion($questionId);
 
             $question->syncSkillAssignments(
                 $question->getObjId(),

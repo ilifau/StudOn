@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-require_once 'Services/Calendar/classes/class.ilDateTime.php';
+require_once 'Services/Calendar/classes/class.ilDateTime.php'; // Required because of global contant IL_CAL_DATE
 
 /**
  * Collection of basic placeholder values that can be used
@@ -26,14 +26,14 @@ require_once 'Services/Calendar/classes/class.ilDateTime.php';
  */
 class ilDefaultPlaceholderValues implements ilCertificatePlaceholderValues
 {
-    private array $placeholder;
-    private ilCertificateObjectHelper $objectHelper;
-    private ilCertificateDateHelper $dateHelper;
-    private int $dateFormat;
-    private ilLanguage $language;
-    private ilCertificateUtilHelper $utilHelper;
-    private ilUserDefinedFieldsPlaceholderValues $userDefinedFieldsPlaceholderValues;
-    private int $birthdayDateFormat;
+    private readonly array $placeholder;
+    private readonly ilCertificateObjectHelper $objectHelper;
+    private readonly ilCertificateDateHelper $dateHelper;
+    private readonly int $dateFormat;
+    private readonly ilLanguage $language;
+    private readonly ilCertificateUtilHelper $utilHelper;
+    private readonly ilUserDefinedFieldsPlaceholderValues $userDefinedFieldsPlaceholderValues;
+    private readonly ilLanguage $user_language;
 
     public function __construct(
         ?ilCertificateObjectHelper $objectHelper = null,
@@ -42,7 +42,7 @@ class ilDefaultPlaceholderValues implements ilCertificatePlaceholderValues
         ?ilLanguage $language = null,
         ?ilCertificateUtilHelper $utilHelper = null,
         ?ilUserDefinedFieldsPlaceholderValues $userDefinedFieldsPlaceholderValues = null,
-        int $birthdayDateFormat = IL_CAL_DATE
+        private readonly int $birthdayDateFormat = IL_CAL_DATE
     ) {
         if (null === $objectHelper) {
             $objectHelper = new ilCertificateObjectHelper();
@@ -76,8 +76,6 @@ class ilDefaultPlaceholderValues implements ilCertificatePlaceholderValues
         }
         $this->userDefinedFieldsPlaceholderValues = $userDefinedFieldsPlaceholderValues;
 
-        $this->birthdayDateFormat = $birthdayDateFormat;
-
         $this->placeholder = [
             'USER_LOGIN' => '',
             'USER_FULLNAME' => '',
@@ -101,9 +99,6 @@ class ilDefaultPlaceholderValues implements ilCertificatePlaceholderValues
     }
 
     /**
-     * @param int $userId
-     * @param int $objId
-     * @return array - Array with a mapping of [placholder_key] => actual value
      * @throws ilDatabaseException
      * @throws ilDateTimeException
      * @throws ilException
@@ -112,12 +107,12 @@ class ilDefaultPlaceholderValues implements ilCertificatePlaceholderValues
      */
     public function getPlaceholderValues(int $userId, int $objId): array
     {
-        /** @var ilObjUser $user */
+        /** @var ilObjUser|null $user */
         $user = $this->objectHelper->getInstanceByObjId($userId);
         if (!$user instanceof ilObjUser) {
             throw new ilException('The entered id: ' . $userId . ' is not an user object');
         }
-
+        $user_lng = $this->getUserLanguage($user);
         $placeholder = $this->placeholder;
 
         $placeholder['USER_LOGIN'] = $this->utilHelper->prepareFormOutput((trim($user->getLogin())));
@@ -129,7 +124,7 @@ class ilDefaultPlaceholderValues implements ilCertificatePlaceholderValues
         $salutation = '';
         $gender = $user->getGender();
         if (trim($gender) !== '' && strtolower($gender) !== 'n') {
-            $salutation = $this->utilHelper->prepareFormOutput($this->language->txt("salutation_" . trim($gender)));
+            $salutation = $this->utilHelper->prepareFormOutput($user_lng->txt("salutation_" . trim($gender)));
         }
 
         $placeholder['USER_SALUTATION'] = $salutation;
@@ -169,9 +164,6 @@ class ilDefaultPlaceholderValues implements ilCertificatePlaceholderValues
      * that is used to create a preview certificate.
      * Due the fact that this is a class to create default values
      * the placeholder values will be identical to the description
-     * @param int $userId
-     * @param int $objId
-     * @return array
      * @throws ilDateTimeException
      * @throws ilException
      */
@@ -217,5 +209,24 @@ class ilDefaultPlaceholderValues implements ilCertificatePlaceholderValues
             $previewPlacholderValues,
             $this->userDefinedFieldsPlaceholderValues->getPlaceholderValuesForPreview($userId, $objId)
         );
+    }
+
+    private function getUserLanguage(ilObjUser $user): ilLanguage
+    {
+        if ($this->user_language instanceof ilLanguage) {
+            return $this->user_language;
+        }
+        $language = new ilLanguage($user->getLanguage());
+        $language->loadLanguageModule('certificate');
+        $this->user_language = $language;
+        return $language;
+    }
+
+    /**
+     * @internal
+     */
+    public function setUserLanguage(ilLanguage $language): void
+    {
+        $this->user_language = $language;
     }
 }

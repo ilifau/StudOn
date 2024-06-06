@@ -572,7 +572,7 @@ class ilConditionHandlerGUI
             $title = ilObject::_lookupTitle($condition['trigger_obj_id']) .
                 " (" . $this->lng->txt("condition") . ": " .
                 $this->lng->txt('condition_' . $condition['operator']) . ")";
-            $icon = ilUtil::getImagePath('icon_' . $condition['trigger_type'] . '.svg');
+            $icon = ilUtil::getImagePath('standard/icon_' . $condition['trigger_type'] . '.svg');
             $alt = $this->lng->txt('obj_' . $condition['trigger_type']);
 
             $cgui->addItem("conditions[]", (string) $condition_id, $title, $icon, $alt);
@@ -593,8 +593,51 @@ class ilConditionHandlerGUI
         foreach ($condition_ids as $condition_id) {
             $this->ch_obj->deleteCondition($condition_id);
         }
+        $this->adjustConditionsAfterDeletion();
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('condition_deleted'), true);
         $this->ctrl->redirect($this, 'listConditions');
+    }
+
+    protected function adjustConditionsAfterDeletion()
+    {
+        $conditions = ilConditionHandler::_getPersistedConditionsOfTarget(
+            $this->getTargetRefId(),
+            $this->getTargetId()
+        );
+        $optional_conditions = ilConditionHandler::getPersistedOptionalConditionsOfTarget(
+            $this->getTargetRefId(),
+            $this->getTargetId()
+        );
+        if (
+            count($conditions) === 1 &&
+            count($optional_conditions) > 0
+        ) {
+            // set to obligatory
+            foreach ($conditions as $condition) {
+                ilConditionHandler::updateObligatory($condition['id'], true);
+            }
+        }
+        $num_obligatory = ilConditionHandler::lookupObligatoryConditionsOfTarget(
+            $this->getTargetRefId(),
+            $this->getTargetId()
+        );
+        if (
+            $num_obligatory == count($conditions)
+        ) {
+            // set all obligatory
+            foreach ($conditions as $condition) {
+                ilConditionHandler::updateObligatory($condition['id'], true);
+            }
+        } elseif (
+            $num_obligatory > count($conditions)
+        ) {
+            // reduce required triggers to maximum
+            ilConditionHandler::saveNumberOfRequiredTriggers(
+                $this->getTargetRefId(),
+                $this->getTargetId(),
+                count($conditions) - 1
+            );
+        }
     }
 
     public function selector(): void
@@ -798,14 +841,14 @@ class ilConditionHandlerGUI
         }
         switch ($a_mode) {
             case 'edit':
-                $form->setTitleIcon(ilUtil::getImagePath('icon_' . $this->getTargetType() . '.svg'));
+                $form->setTitleIcon(ilUtil::getImagePath('standard/icon_' . $this->getTargetType() . '.svg'));
                 $form->setTitle($this->lng->txt('rbac_edit_condition'));
                 $form->addCommandButton('updateCondition', $this->lng->txt('save'));
                 $form->addCommandButton('listConditions', $this->lng->txt('cancel'));
                 break;
 
             case 'add':
-                $form->setTitleIcon(ilUtil::getImagePath('icon_' . $this->getTargetType() . '.svg'));
+                $form->setTitleIcon(ilUtil::getImagePath('standard/icon_' . $this->getTargetType() . '.svg'));
                 $form->setTitle($this->lng->txt('add_condition'));
                 $form->addCommandButton('assign', $this->lng->txt('save'));
                 $form->addCommandButton('selector', $this->lng->txt('back'));

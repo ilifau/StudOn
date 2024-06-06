@@ -26,11 +26,8 @@ use ILIAS\Data\Result\Error;
 
 class AccessQuestionImage implements SimpleAccess
 {
-    private Readable $readable;
-
-    public function __construct(Readable $readable)
+    public function __construct(private readonly Readable $readable)
     {
-        $this->readable = $readable;
     }
 
     public function isPermitted(string $path): Result

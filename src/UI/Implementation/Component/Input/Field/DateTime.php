@@ -84,20 +84,28 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
      *
      * Allows to pass a \DateTimeImmutable for consistencies sake.
      */
-    public function withValue($value)
+    public function withValue($value): self
     {
+        // This is necessary, otherwise DateTimeImmutable will replace
+        // the empty string with the current date during rendering.
+        // The empty string is the default value posted by the input, if
+        // it is left empty.
+        if ($value === '') {
+            $value = null;
+        }
         // TODO: It would be a lot nicer if the value would be held as DateTimeImmutable
         // internally, but currently this is just to much. Added to the roadmap.
         if ($value instanceof \DateTimeImmutable) {
-            $value = $this->format->applyTo($value);
+            $value = $value->format(Renderer::HTML5_NATIVE_DATETIME_FORMAT);
         }
-
-        $clone = clone $this;
-        $clone->value = $value;
-        return $clone;
+        return parent::withValue($value);
     }
 
+<<<<<<< HEAD
     public function withFormat(DateFormat $format): C\Input\Field\DateTime
+=======
+    public function withFormat(DateFormat $format): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->format = $format;
@@ -110,7 +118,11 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
     }
 
 
+<<<<<<< HEAD
     public function withTimezone(string $tz): C\Input\Field\DateTime
+=======
+    public function withTimezone(string $tz): self
+>>>>>>> v9.1
     {
         $timezone_trafo = $this->refinery->dateTime()->changeTimezone($tz);
         $clone = clone $this;
@@ -126,7 +138,11 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
         return $this->timezone;
     }
 
+<<<<<<< HEAD
     public function withMinValue(DateTimeImmutable $datetime): C\Input\Field\DateTime
+=======
+    public function withMinValue(DateTimeImmutable $datetime): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->min_date = $datetime;
@@ -138,7 +154,11 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
         return $this->min_date;
     }
 
+<<<<<<< HEAD
     public function withMaxValue(DateTimeImmutable $datetime): C\Input\Field\DateTime
+=======
+    public function withMaxValue(DateTimeImmutable $datetime): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->max_date = $datetime;
@@ -150,7 +170,11 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
         return $this->max_date;
     }
 
+<<<<<<< HEAD
     public function withUseTime(bool $with_time): C\Input\Field\DateTime
+=======
+    public function withUseTime(bool $with_time): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->with_time = $with_time;
@@ -162,7 +186,11 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
         return $this->with_time;
     }
 
+<<<<<<< HEAD
     public function withTimeOnly(bool $time_only): C\Input\Field\DateTime
+=======
+    public function withTimeOnly(bool $time_only): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->with_time_only = $time_only;
@@ -176,7 +204,25 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
 
     protected function isClientSideValueOk($value): bool
     {
-        return is_string($value);
+        if ($value instanceof \DateTimeImmutable || is_null($value)) {
+            return true;
+        }
+
+        if (!is_string($value)) {
+            return false;
+        }
+
+        try {
+            new \DateTimeImmutable($value);
+            return true;
+        }
+        // We should mostly not catch generic Throwables because we will be masking
+        // a lot of error conditions in this way... But, unfortunately, I cannot
+        // currently see a better way to check if \DateTimeImmutable would accept
+        // the supplied $value, so here we go...
+        catch (\Throwable $e) {
+            return false;
+        }
     }
 
     protected function getConstraintForRequirement(): ?Constraint
@@ -185,8 +231,17 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
             return $this->requirement_constraint;
         }
 
+<<<<<<< HEAD
         return $this->refinery->string()->hasMinLength(1)
             ->withProblemBuilder(fn ($txt, $value) => $txt("datetime_required"));
+=======
+        return $this->refinery->logical()->sequential([
+            $this->refinery->logical()->not($this->refinery->null()),
+            $this->refinery->string()->hasMinLength(1)
+        ])
+        ->withProblemBuilder(fn($txt, $value) => $txt("datetime_required"));
+
+>>>>>>> v9.1
     }
 
     /**
@@ -202,7 +257,11 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
      * The bootstrap picker can be configured, e.g. with a minimum date.
      * @param array <string => mixed> $config
      */
+<<<<<<< HEAD
     public function withAdditionalPickerconfig(array $config): C\Input\Field\DateTime
+=======
+    public function withAdditionalPickerconfig(array $config): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->additional_picker_config = array_merge($clone->additional_picker_config, $config);
@@ -211,7 +270,7 @@ class DateTime extends FormInput implements C\Input\Field\DateTime
 
     public function getUpdateOnLoadCode(): Closure
     {
-        return fn ($id) => "$('#$id').on('input dp.change', function(event) {
+        return fn($id) => "$('#$id').on('input dp.change', function(event) {
 				il.UI.input.onFieldUpdate(event, '$id', $('#$id').find('input').val());
 			});
 			il.UI.input.onFieldUpdate(event, '$id', $('#$id').find('input').val());";

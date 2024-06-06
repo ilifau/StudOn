@@ -24,7 +24,7 @@ use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 /**
  * Class RevisionCollection
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 class RevisionCollection
 {
@@ -91,10 +91,23 @@ class RevisionCollection
         $this->add($revision);
     }
 
+<<<<<<< HEAD
     public function getCurrent(): Revision
+=======
+    public function getCurrent(bool $including_drafts): Revision
+>>>>>>> v9.1
     {
-        $v = array_values($this->revisions);
-        sort($v);
+        $v = $this->revisions;
+
+        if (!$including_drafts) {
+            $v = array_filter($v, static function (Revision $revision): bool {
+                return $revision->getStatus() === RevisionStatus::PUBLISHED;
+            });
+        }
+        usort($v, static function (Revision $a, Revision $b): int {
+            return $a->getVersionNumber() <=> $b->getVersionNumber();
+        });
+
         $current = end($v);
         if (!$current instanceof Revision) {
             $current = new NullRevision($this->identification);
@@ -106,16 +119,39 @@ class RevisionCollection
     /**
      * @return Revision[]
      */
+<<<<<<< HEAD
     public function getAll(): array
+=======
+    public function getAll(bool $including_drafts): array
+>>>>>>> v9.1
     {
-        return $this->revisions;
+        if($including_drafts) {
+            return $this->revisions;
+        }
+        return array_filter($this->revisions, static function (Revision $revision): bool {
+            return $revision->getStatus() === RevisionStatus::PUBLISHED;
+        });
     }
 
+<<<<<<< HEAD
     public function getMax(): int
+=======
+    public function getMax(bool $including_drafts): int
+>>>>>>> v9.1
     {
         if ($this->revisions === []) {
             return 0;
         }
-        return max(array_keys($this->revisions));
+        return $this->getCurrent($including_drafts)->getVersionNumber();
+    }
+
+    public function getFullSize(): int
+    {
+        $size = 0;
+        foreach ($this->revisions as $revision) {
+            $size += $revision->getInformation()->getSize();
+        }
+
+        return $size;
     }
 }

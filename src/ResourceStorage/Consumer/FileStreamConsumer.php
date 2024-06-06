@@ -48,8 +48,12 @@ class FileStreamConsumer implements StreamConsumer
     public function getStream(): FileStream
     {
         $revision = $this->stream_access->populateRevision($this->getRevision());
+<<<<<<< HEAD
 
         return $revision->maybeGetToken()->resolveStream();
+=======
+        return $revision->maybeStreamResolver()?->getStream();
+>>>>>>> v9.1
     }
 
     /**

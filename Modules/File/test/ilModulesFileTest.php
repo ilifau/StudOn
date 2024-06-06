@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,11 +16,12 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestCase;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\DI\Container;
 use ILIAS\ResourceStorage\Services;
-use ILIAS\FileUpload\FileUploadImpl;
 use ILIAS\FileUpload\FileUpload;
 use ILIAS\ResourceStorage\Manager\Manager;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
@@ -45,7 +44,7 @@ class ilModulesFileTest extends TestCase
     protected function setUp(): void
     {
         global $DIC;
-        $this->dic_backup = is_object($DIC) ? clone $DIC : $DIC;
+        $this->dic_backup = is_object($DIC) ? clone $DIC : null;
 
         $DIC = new Container();
         $DIC['resource_storage'] = $this->storage_mock = $this->createMock(Services::class);
@@ -66,6 +65,9 @@ class ilModulesFileTest extends TestCase
         $DIC['ilAppEventHandler'] = $this->createMock(ilAppEventHandler::class);
         $DIC['lng'] = $this->createMock(ilLanguage::class);
         $DIC['ilCtrl'] = $this->createMock(ilCtrlInterface::class);
+        $DIC['refinery'] = $this->createMock(\ILIAS\Refinery\Factory::class);
+        $DIC['http'] = $this->createMock(\ILIAS\HTTP\Services::class);
+        $DIC['object.customicons.factory'] = $this->createMock(ilObjectCustomIconFactory::class);
         /*  $DIC['ilCtrl'] = $this->getMockBuilder(ilCtrl::class)
                                 ->disableOriginalConstructor()
                                 ->disableArgumentCloning()
@@ -73,9 +75,6 @@ class ilModulesFileTest extends TestCase
 
         if (!defined('ILIAS_LOG_ENABLED')) {
             define('ILIAS_LOG_ENABLED', false);
-        }
-        if (!defined('DEBUG')) {
-            define('DEBUG', false);
         }
     }
 
@@ -85,8 +84,13 @@ class ilModulesFileTest extends TestCase
         $DIC = $this->dic_backup;
     }
 
+    /**
+     * @preserveGlobalState disabled
+     * @runInSeparateProcess
+     */
     public function testAppendStream(): void
     {
+        // DB mock
         $title = 'Revision One';
         $file_stream = Streams::ofString('Test Content');
 
@@ -94,8 +98,39 @@ class ilModulesFileTest extends TestCase
                            ->method('manage')
                            ->willReturn($this->manager_mock);
 
+        $this->db_mock->expects($this->any())
+                      ->method('query')
+                      ->willReturnCallback(function ($query) {
+                          $mock_object = $this->createMock(ilDBStatement::class);
+                          $mock_object->expects($this->any())->method('fetchAssoc')->willReturn([$query]);
+
+                          return $mock_object;
+                      });
+
+        $this->db_mock->expects($this->any())
+                      ->method('fetchAssoc')
+                      ->willReturnCallback(function (ilDBStatement $statement): ?array {
+                          $row = $statement->fetchAssoc();
+                          $query = '';
+                          if ($row !== null) {
+                              $query = end($row);
+                          }
+                          if (str_contains($query, 'last_update')) {
+                              return [
+                                  'last_update' => '',
+                                  'create_date' => ''
+                              ];
+                          }
+
+                          return null;
+                      });
+
         // Create File Object with disabled news notification
-        $file = new ilObjFile();
+        $file = $this->getMockBuilder(ilObjFile::class)
+            ->onlyMethods(['update'])
+            ->getMock();
+        $file->method('update');
+
         $r = new ReflectionClass(ilObjFile::class);
         $property = $r->getProperty('just_notified');
         $property->setAccessible(true);
@@ -134,7 +169,6 @@ class ilModulesFileTest extends TestCase
                            ->method('getCurrentRevision')
                            ->with($rid)
                            ->willReturn($revision);
-
 
         $this->manager_mock->expects($this->any())
                            ->method('getResource')

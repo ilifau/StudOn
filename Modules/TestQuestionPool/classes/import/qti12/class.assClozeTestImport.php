@@ -48,43 +48,29 @@ class assClozeTestImport extends assQuestionImport
         ilSession::clear('import_mob_xhtml');
         $presentation = $item->getPresentation();
 
-        $packageIliasVersion = $item->getIliasSourceVersion('ILIAS_VERSION');
-        $seperate_question_field = $item->getMetadataEntry("question");
+        $questiontext = $this->processNonAbstractedImageReferences(
+            $item->getMetadataEntry("question") ?? '&nbsp;',
+            $item->getIliasSourceNic()
+        );
 
-        $questiontext = '';
-        if (!$packageIliasVersion || version_compare($packageIliasVersion, '5.0.0', '<')) {
-            $questiontext = '&nbsp;';
-        } elseif ($seperate_question_field) {
-            $questiontext = $this->processNonAbstractedImageReferences(
-                $seperate_question_field,
-                $item->getIliasSourceNic()
-            );
-        }
-
-        $clozetext = array();
+        $clozetext_array = [];
         $shuffle = 0;
-        $now = getdate();
-        $created = sprintf("%04d%02d%02d%02d%02d%02d", $now['year'], $now['mon'], $now['mday'], $now['hours'], $now['minutes'], $now['seconds']);
-        $gaps = array();
+        $gaps = [];
         foreach ($presentation->order as $entry) {
             switch ($entry["type"]) {
                 case "material":
 
-                    $materialString = $this->object->QTIMaterialToString(
+                    $material_string = $this->QTIMaterialToString(
                         $presentation->material[$entry["index"]]
                     );
 
-                    if ($questiontext === '&nbsp;') {
-                        $questiontext = $materialString;
-                    } else {
-                        array_push($clozetext, $materialString);
-                    }
+                    array_push($clozetext_array, $material_string);
 
                     break;
                 case "response":
                     $response = $presentation->response[$entry["index"]];
                     $rendertype = $response->getRenderType();
-                    array_push($clozetext, "<<" . $response->getIdent() . ">>");
+                    array_push($clozetext_array, "<<" . $response->getIdent() . ">>");
 
                     switch (strtolower(get_class($response->getRenderType()))) {
                         case "ilqtirenderfib":
@@ -93,56 +79,56 @@ class assClozeTestImport extends assQuestionImport
                                 case ilQTIRenderFib::FIBTYPE_INTEGER:
                                     array_push(
                                         $gaps,
-                                        array(
+                                        [
                                             "ident" => $response->getIdent(),
                                             "type" => CLOZE_NUMERIC,
-                                            "answers" => array(),
+                                            "answers" => [],
                                             "minnumber" => $response->getRenderType()->getMinnumber(),
                                             "maxnumber" => $response->getRenderType()->getMaxnumber(),
                                             'gap_size' => $response->getRenderType()->getMaxchars()
-                                        )
+                                        ]
                                     );
                                     break;
                                 default:
                                 case ilQTIRenderFib::FIBTYPE_STRING:
                                     array_push(
                                         $gaps,
-                                        array("ident" => $response->getIdent(),
+                                        ["ident" => $response->getIdent(),
                                               "type" => CLOZE_TEXT,
-                                              "answers" => array(),
+                                              "answers" => [],
                                               'gap_size' => $response->getRenderType()->getMaxchars()
-                                        )
+                                        ]
                                     );
                                     break;
                             }
                             break;
                         case "ilqtirenderchoice":
-                            $answers = array();
+                            $answers = [];
                             $shuffle = $rendertype->getShuffle();
                             $answerorder = 0;
                             foreach ($rendertype->response_labels as $response_label) {
                                 $ident = $response_label->getIdent();
                                 $answertext = "";
                                 foreach ($response_label->material as $mat) {
-                                    $answertext .= $this->object->QTIMaterialToString($mat);
+                                    $answertext .= $this->QTIMaterialToString($mat);
                                 }
-                                $answers[$ident] = array(
+                                $answers[$ident] = [
                                     "answertext" => $answertext,
                                     "points" => 0,
                                     "answerorder" => $answerorder++,
                                     "action" => "",
                                     "shuffle" => $rendertype->getShuffle()
-                                );
+                                ];
                             }
-                            array_push($gaps, array("ident" => $response->getIdent(), "type" => CLOZE_SELECT, "shuffle" => $rendertype->getShuffle(), "answers" => $answers));
+                            array_push($gaps, ["ident" => $response->getIdent(), "type" => CLOZE_SELECT, "shuffle" => $rendertype->getShuffle(), "answers" => $answers]);
                             break;
                     }
                     break;
             }
         }
-        $responses = array();
-        $feedbacks = array();
-        $feedbacksgeneric = array();
+        $responses = [];
+        $feedbacks = [];
+        $feedbacksgeneric = [];
         foreach ($item->resprocessing as $resprocessing) {
             foreach ($resprocessing->respcondition as $respcondition) {
                 $ident = "";
@@ -168,20 +154,20 @@ class assClozeTestImport extends assQuestionImport
                                         }
                                     }
                                 } elseif ($g["type"] == CLOZE_TEXT) {
-                                    array_push($gaps[$gi]["answers"], array(
+                                    array_push($gaps[$gi]["answers"], [
                                         "answertext" => $equals,
                                         "points" => $setvar->getContent(),
                                         "answerorder" => count($gaps[$gi]["answers"]),
                                         "action" => $setvar->getAction()
 
-                                    ));
+                                    ]);
                                 } elseif ($g["type"] == CLOZE_NUMERIC) {
-                                    array_push($gaps[$gi]["answers"], array(
+                                    array_push($gaps[$gi]["answers"], [
                                         "answertext" => $equals,
                                         "points" => $setvar->getContent(),
                                         "answerorder" => count($gaps[$gi]["answers"]),
                                         "action" => $setvar->getAction()
-                                    ));
+                                    ]);
                                 }
                             }
                         }
@@ -267,9 +253,9 @@ class assClozeTestImport extends assQuestionImport
             $textgap_rating = "ci";
         }
         $this->object->setTextgapRating($textgap_rating);
-        $gaptext = array();
+        $gaptext = [];
         foreach ($gaps as $gapidx => $gap) {
-            $gapcontent = array();
+            $gapcontent = [];
             $clozegap = new assClozeGap($gap["type"]);
             foreach ($gap["answers"] as $index => $answer) {
                 $gapanswer = new assAnswerCloze($answer["answertext"], $answer["points"], $answer["answerorder"]);
@@ -292,7 +278,7 @@ class assClozeTestImport extends assQuestionImport
         }
 
         $this->object->setQuestion($questiontext);
-        $clozetext = join("", $clozetext);
+        $clozetext = join("", $clozetext_array);
 
         foreach ($gaptext as $idx => $val) {
             $clozetext = str_replace("<<" . $idx . ">>", $val, $clozetext);
@@ -316,15 +302,13 @@ class assClozeTestImport extends assQuestionImport
 
         // handle the import of media objects in XHTML code
         foreach ($feedbacks as $ident => $material) {
-            $m = $this->object->QTIMaterialToString($material);
+            $m = $this->QTIMaterialToString($material);
             $feedbacks[$ident] = $m;
         }
         foreach ($feedbacksgeneric as $correctness => $material) {
-            $m = $this->object->QTIMaterialToString($material);
+            $m = $this->QTIMaterialToString($material);
             $feedbacksgeneric[$correctness] = $m;
         }
-        $questiontext = $this->object->getQuestion();
-        $clozetext = $this->object->getClozeText();
         if (is_array(ilSession::get("import_mob_xhtml"))) {
             foreach (ilSession::get("import_mob_xhtml") as $mob) {
                 if ($tst_id > 0) {
@@ -368,15 +352,18 @@ class assClozeTestImport extends assQuestionImport
 
         if (count($item->suggested_solutions)) {
             foreach ($item->suggested_solutions as $suggested_solution) {
-                $this->object->setSuggestedSolution($suggested_solution["solution"]->getContent(), $suggested_solution["gap_index"], true);
+                $this->importSuggestedSolution(
+                    $this->object->getId(),
+                    $suggested_solution["solution"]->getContent(),
+                    $suggested_solution["gap_index"]
+                );
             }
-            $this->object->saveToDb();
         }
         if (isset($tst_id) && $tst_id !== $questionpool_id) {
             $qpl_qid = $this->object->getId();
-            $tst_qid = $this->object->duplicate(true, "", "", "", $tst_id);
+            $tst_qid = $this->object->duplicate(true, "", "", -1, $tst_id);
             $tst_object->questions[$question_counter++] = $tst_qid;
-            $import_mapping[$item->getIdent()] = array("pool" => $qpl_qid, "test" => $tst_qid);
+            $import_mapping[$item->getIdent()] = ["pool" => $qpl_qid, "test" => $tst_qid];
             return $import_mapping;
         }
 

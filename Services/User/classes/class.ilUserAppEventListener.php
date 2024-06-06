@@ -27,36 +27,25 @@ class ilUserAppEventListener implements ilAppEventListener
     /**
      * @param array<string,mixed>  $a_parameter
      */
-    public static function handleEvent(string $a_component, string $a_event, array $a_parameter): void
+    public static function handleEvent(string $component, string $event, array $parameter): void
     {
-        if ('Services/Object' === $a_component && 'beforeDeletion' === $a_event) {
-            if (isset($a_parameter['object']) && $a_parameter['object'] instanceof ilObjRole) {
-                \ilStartingPoint::onRoleDeleted($a_parameter['object']);
-            }
-        }
+        /** @var ILIAS\DI\Container $DIC */
+        global $DIC;
 
-        if ('Services/TermsOfService' === $a_component && ilTermsOfServiceEventWithdrawn::class === $a_event) {
-            global $DIC;
+        $user_starting_point_repository = new ilUserStartingPointRepository(
+            $DIC['ilUser'],
+            $DIC['ilDB'],
+            $DIC['tpl'],
+            $DIC->logger(),
+            $DIC['tree'],
+            $DIC['rbacreview'],
+            $DIC['rbacsystem'],
+            $DIC['ilSetting']
+        );
 
-            /** @var ilObjUser $user */
-            $user = $a_parameter['event']->getUser();
-
-            $defaultAuth = ilAuthUtils::AUTH_LOCAL;
-            if ($DIC['ilSetting']->get('auth_mode')) {
-                $defaultAuth = $DIC['ilSetting']->get('auth_mode');
-            }
-            $isLdapUser = (
-                $user->getAuthMode() == ilAuthUtils::AUTH_LDAP ||
-                ($user->getAuthMode() === 'default' && $defaultAuth == ilAuthUtils::AUTH_LDAP)
-            );
-
-            if ($isLdapUser) {
-                $mail = new ilTermsOfServiceWithdrawnMimeMail();
-                $mail->setAdditionalInformation(['user' => $user]);
-                $mail->setRecipients([$DIC->settings()->get('admin_mail')]);
-                $mail->send();
-            } elseif ($DIC->settings()->get('tos_withdrawal_usr_deletion', "0")) {
-                $user->delete();
+        if ('Services/Object' === $component && 'beforeDeletion' === $event) {
+            if (isset($parameter['object']) && $parameter['object'] instanceof ilObjRole) {
+                $user_starting_point_repository->onRoleDeleted($parameter['object']);
             }
         }
     }

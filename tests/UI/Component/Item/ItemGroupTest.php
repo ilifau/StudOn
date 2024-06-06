@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -34,7 +42,11 @@ class ItemGroupTest extends ILIAS_UI_TestBase
         return new I\Component\Item\Factory();
     }
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -46,7 +58,11 @@ class ItemGroupTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Item\\Group", $group);
     }
 
+<<<<<<< HEAD
     public function test_get_title(): void
+=======
+    public function testGetTitle(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $c = $f->group("group", array(
@@ -57,7 +73,11 @@ class ItemGroupTest extends ILIAS_UI_TestBase
         $this->assertEquals("group", $c->getTitle());
     }
 
+<<<<<<< HEAD
     public function test_get_items(): void
+=======
+    public function testGetItems(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -71,7 +91,11 @@ class ItemGroupTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getItems(), $items);
     }
 
+<<<<<<< HEAD
     public function test_with_actions(): void
+=======
+    public function testWithActions(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -89,7 +113,11 @@ class ItemGroupTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getActions(), $actions);
     }
 
+<<<<<<< HEAD
     public function test_render_base(): void
+=======
+    public function testRenderBase(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -111,12 +139,20 @@ class ItemGroupTest extends ILIAS_UI_TestBase
   <ul>
     <li class="il-std-item-container">
       <div class="il-item il-std-item ">
+<<<<<<< HEAD
         <div class="il-item-title">title1</div>
+=======
+        <h4 class="il-item-title">title1</h4>
+>>>>>>> v9.1
       </div>
     </li>
     <li class="il-std-item-container">
       <div class="il-item il-std-item ">
+<<<<<<< HEAD
         <div class="il-item-title">title2</div>
+=======
+        <h4 class="il-item-title">title2</h4>
+>>>>>>> v9.1
       </div>
     </li>
   </ul>
@@ -129,7 +165,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_with_actions(): void
+=======
+    public function testRenderWithActions(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -152,7 +192,11 @@ EOT;
   <h3>group</h3>
   <div class="dropdown">
     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu">
+<<<<<<< HEAD
       <span class="caret"></span>
+=======
+     <span class="caret"></span>
+>>>>>>> v9.1
     </button>
     <ul id="id_3_menu" class="dropdown-menu">
       <li>
@@ -167,12 +211,20 @@ EOT;
     <ul>
         <li class="il-std-item-container">
           <div class="il-item il-std-item ">
+<<<<<<< HEAD
             <div class="il-item-title">title1</div>
+=======
+            <h4 class="il-item-title">title1</h4>
+>>>>>>> v9.1
           </div>
         </li>
         <li class="il-std-item-container">
           <div class="il-item il-std-item ">
+<<<<<<< HEAD
             <div class="il-item-title">title2</div>
+=======
+            <h4 class="il-item-title">title2</h4>
+>>>>>>> v9.1
           </div>
         </li>
     </ul>

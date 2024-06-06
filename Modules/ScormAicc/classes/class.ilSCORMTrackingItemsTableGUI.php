@@ -199,11 +199,7 @@ class ilSCORMTrackingItemsTableGUI extends ilTable2GUI
         $this->setData($tr_data);
     }
 
-    /**
-     * @param string|float|int|null $value
-     * @return string|float|int|null
-     */
-    protected function parseValue(string $id, $value, string $type)
+    protected function parseValue(string $id, string|float|int|null $value, string $type): string|float|int|null
     {
         global $DIC;
         $lng = $DIC->language();

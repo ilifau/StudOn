@@ -26,7 +26,7 @@ class ilBuddySystemRelationsTableGUI extends ilTable2GUI
 {
     private const APPLY_FILTER_CMD = 'applyContactsTableFilter';
     private const RESET_FILTER_CMD = 'resetContactsTableFilter';
-    public const STATE_FILTER_ELM_ID = 'relation_state_type';
+    final public const STATE_FILTER_ELM_ID = 'relation_state_type';
 
     protected ilGlobalTemplateInterface $containerTemplate;
     protected bool $hasAccessToMailSystem = false;
@@ -35,10 +35,6 @@ class ilBuddySystemRelationsTableGUI extends ilTable2GUI
     /** @var array<string, mixed>  */
     protected array $filter = [];
 
-    /**
-     * @param object $a_parent_obj
-     * @param string $a_parent_cmd
-     */
     public function __construct(object $a_parent_obj, string $a_parent_cmd)
     {
         global $DIC;
@@ -123,9 +119,7 @@ class ilBuddySystemRelationsTableGUI extends ilTable2GUI
     }
 
     /**
-     * @param string $filterKey
      * @param mixed $value
-     * @return void
      */
     public function applyFilterValue(string $filterKey, $value): void
     {
@@ -158,6 +152,7 @@ class ilBuddySystemRelationsTableGUI extends ilTable2GUI
         });
 
         $public_names = ilUserUtil::getNamePresentation($relations->getKeys(), false, false, '', false, true, false);
+        /** @var array<int, string> $logins */
         $logins = ilUserUtil::getNamePresentation($relations->getKeys(), false, false, '', false, false, false);
 
         $logins = array_map(static function (string $value): string {
@@ -184,9 +179,10 @@ class ilBuddySystemRelationsTableGUI extends ilTable2GUI
                 0 === ilStr::strlen($public_name_query) ||
                 ilStr::strpos(
                     ilStr::strtolower($public_names[$usrId]),
-                    ilStr::strtolower($public_name_query)
+                    ilStr::strtolower($public_name_query),
+                    0
                 ) !== false ||
-                ilStr::strpos(ilStr::strtolower($logins[$usrId]), ilStr::strtolower($public_name_query)) !== false
+                ilStr::strpos(ilStr::strtolower($logins[$usrId]), ilStr::strtolower($public_name_query), 0) !== false
             );
 
             if (!$hasMatchingName) {
@@ -196,7 +192,7 @@ class ilBuddySystemRelationsTableGUI extends ilTable2GUI
             return ilObjUser::_lookupActive($usrId);
         });
 
-        foreach ($relations->toArray() as $usr_id => $relation) {
+        foreach (array_keys($relations->toArray()) as $usr_id) {
             $data[] = [
                 'usr_id' => $usr_id,
                 'public_name' => $public_names[$usr_id],
@@ -213,7 +209,7 @@ class ilBuddySystemRelationsTableGUI extends ilTable2GUI
     protected function fillRow(array $a_set): void
     {
         if ($this->hasAccessToMailSystem) {
-            $a_set['chb'] = ilLegacyFormElementsUtil::formCheckbox(false, 'usr_id[]', (string) $a_set['usr_id']);
+            $a_set['chb'] = ilLegacyFormElementsUtil::formCheckbox(false, 'usr_ids[]', (string) $a_set['usr_id']);
         }
 
         $public_profile = ilObjUser::_lookupPref($a_set['usr_id'], 'public_profile');

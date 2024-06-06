@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 use PHPUnit\Framework\TestCase;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
@@ -42,7 +50,11 @@ class JavaScriptBindableTest extends TestCase
         $this->mock = new JSComponentMock();
     }
 
+<<<<<<< HEAD
     public function test_withOnLoadCode(): void
+=======
+    public function testWithOnLoadCode(): void
+>>>>>>> v9.1
     {
         $m = $this->mock->withOnLoadCode(function ($id) {
             return "Its me, $id!";
@@ -53,7 +65,11 @@ class JavaScriptBindableTest extends TestCase
         $this->assertEquals("Its me, Mario!", $binder("Mario"));
     }
 
+<<<<<<< HEAD
     public function test_withOnLoadCode_false_closure_1(): void
+=======
+    public function testWithOnLoadCodeFalseClosure1(): void
+>>>>>>> v9.1
     {
         try {
             $this->mock->withOnLoadCode(function (): void {
@@ -64,7 +80,11 @@ class JavaScriptBindableTest extends TestCase
         }
     }
 
+<<<<<<< HEAD
     public function test_withOnLoadCode_false_closure_2(): void
+=======
+    public function testWithOnLoadCodeFalseClosure2(): void
+>>>>>>> v9.1
     {
         try {
             $this->mock->withOnLoadCode(function ($id, $some_arg): void {
@@ -75,7 +95,11 @@ class JavaScriptBindableTest extends TestCase
         }
     }
 
+<<<<<<< HEAD
     public function test_withAdditionalOnLoadCode(): void
+=======
+    public function testWithAdditionalOnLoadCode(): void
+>>>>>>> v9.1
     {
         $m = $this->mock
             ->withOnLoadCode(function ($id) {
@@ -90,7 +114,11 @@ class JavaScriptBindableTest extends TestCase
         $this->assertEquals("Its me, Mario!\nAnd again, me: Mario.", $binder("Mario"));
     }
 
+<<<<<<< HEAD
     public function test_withAdditionalOnLoadCode_no_previous(): void
+=======
+    public function testWithAdditionalOnLoadCodeNoPrevious(): void
+>>>>>>> v9.1
     {
         $m = $this->mock
             ->withAdditionalOnLoadCode(function ($id) {

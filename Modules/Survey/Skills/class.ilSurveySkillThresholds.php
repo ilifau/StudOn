@@ -76,10 +76,11 @@ class ilSurveySkillThresholds
         );
     }
 
-    public function cloneTo(ilObjSurvey $target_survey, array $mapping) : void
+    public function cloneTo(ilObjSurvey $target_survey, array $mapping): void
     {
         $target_thresholds = new self($target_survey);
-        $set = $this->db->queryF("SELECT * FROM svy_skill_threshold " .
+        $set = $this->db->queryF(
+            "SELECT * FROM svy_skill_threshold " .
             " WHERE survey_id = %s ",
             ["integer"],
             [$this->survey->getId()]

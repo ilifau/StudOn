@@ -31,6 +31,8 @@ class ilAdvancedMDFieldDefinitionText extends ilAdvancedMDFieldDefinitionGroupBa
 
     protected ?int $max_length = null;
     protected bool $multi = false;
+    protected bool $multilingual_value_support = true;
+
 
     //
     // generic types
@@ -68,13 +70,20 @@ class ilAdvancedMDFieldDefinitionText extends ilAdvancedMDFieldDefinitionGroupBa
         $definition->setMaxLength($this->getMaxLength());
         $definition->setActiveLanguages($field_translations->getActivatedLanguages($this->getFieldId(), true));
         $definition->setDefaultLanguage($field_translations->getDefaultLanguage());
+        $definition->setMultilingualValueSupport($this->isMultilingualValueSupport());
         return $definition;
     }
 
 
-    //
-    // properties
-    //
+    public function isMultilingualValueSupport(): bool
+    {
+        return $this->multilingual_value_support;
+    }
+
+    public function setMultilingualValueSupport(bool $multilingual_value_support): void
+    {
+        $this->multilingual_value_support = $multilingual_value_support;
+    }
 
     public function setMaxLength(?int $max_length)
     {
@@ -105,14 +114,17 @@ class ilAdvancedMDFieldDefinitionText extends ilAdvancedMDFieldDefinitionGroupBa
     {
         $this->setMaxLength(isset($a_def["max"]) ? (int) $a_def["max"] : null);
         $this->setMulti((bool) ($a_def[self::KEY_MULTI] ?? false));
+        $multilingual_values = (bool) ($a_def['multilingual_values'] ?? true);
+        $this->setMultilingualValueSupport($multilingual_values);
     }
 
     protected function getFieldDefinition(): array
     {
-        return array(
+        return [
             "max" => $this->getMaxLength(),
-            self::KEY_MULTI => $this->isMulti()
-        );
+            self::KEY_MULTI => $this->isMulti(),
+            'multilingual_values' => $this->isMultilingualValueSupport()
+        ];
     }
 
     public function getFieldDefinitionForTableGUI(string $content_language): array
@@ -147,6 +159,7 @@ class ilAdvancedMDFieldDefinitionText extends ilAdvancedMDFieldDefinitionGroupBa
         global $DIC;
 
         $lng = $DIC['lng'];
+        $lng->loadLanguageModule('meta');
 
         $max = new ilNumberInputGUI($lng->txt("md_adv_text_max_length"), "max");
         $max->setValue((string) $this->getMaxLength());
@@ -165,6 +178,18 @@ class ilAdvancedMDFieldDefinitionText extends ilAdvancedMDFieldDefinitionGroupBa
             $max->setDisabled(true);
             $multi->setDisabled(true);
         }
+        $record_translations = ilAdvancedMDRecordTranslations::getInstanceByRecordId($this->getRecordId());
+        if (!count($record_translations->getTranslations())) {
+            return;
+        }
+        $multilingual_values = new ilCheckboxInputGUI(
+            $lng->txt('md_adv_text_multi_val'),
+            'multilingual'
+        );
+        $multilingual_values->setInfo($lng->txt('md_adv_text_multi_val_info'));
+        $multilingual_values->setChecked($this->isMultilingualValueSupport());
+        $multilingual_values->setValue("1");
+        $a_form->addItem($multilingual_values);
     }
 
     /**
@@ -177,6 +202,7 @@ class ilAdvancedMDFieldDefinitionText extends ilAdvancedMDFieldDefinitionGroupBa
         $max = $a_form->getInput("max");
         $this->setMaxLength(($max !== "" && $max !== null) ? (int) $max : null);
         $this->setMulti((bool) $a_form->getInput(self::KEY_MULTI));
+        $this->setMultilingualValueSupport((bool) $a_form->getInput('multilingual'));
     }
 
     //
@@ -187,6 +213,7 @@ class ilAdvancedMDFieldDefinitionText extends ilAdvancedMDFieldDefinitionGroupBa
     {
         $a_writer->xmlElement('FieldValue', array("id" => "max"), $this->getMaxLength());
         $a_writer->xmlElement('FieldValue', array("id" => self::KEY_MULTI), $this->isMulti());
+        $a_writer->xmlElement('FieldValue', ['id' => 'multilingual_values'], $this->isMultilingualValueSupport());
     }
 
     public function importXMLProperty(string $a_key, string $a_value): void
@@ -196,6 +223,11 @@ class ilAdvancedMDFieldDefinitionText extends ilAdvancedMDFieldDefinitionGroupBa
         }
         if ($a_key === self::KEY_MULTI) {
             $this->setMulti((bool) $a_value);
+        }
+        if ($a_key == 'multilingual_values') {
+            $this->setMultilingualValueSupport(
+                $a_value != '' ? true : false
+            );
         }
     }
 

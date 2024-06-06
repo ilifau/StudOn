@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Component\Item;
 
 use ILIAS\UI\Component\Symbol\Icon\Icon;
@@ -27,6 +35,8 @@ use ILIAS\UI\Component\Chart\ProgressMeter\ProgressMeter;
 use ILIAS\Data\Color;
 use ILIAS\UI\Component\Dropdown\Standard as DropdownStandard;
 use ILIAS\UI\Component\Symbol\Avatar\Avatar;
+use ILIAS\UI\Component\Button\Standard as ButtonStandard;
+use ILIAS\UI\Component\Link\Standard as LinkStandard;
 
 /**
  * Interface Standard Item
@@ -113,4 +123,11 @@ interface Standard extends Item
      * Get the actions of the item.
      */
     public function getActions(): ?DropdownStandard;
+<<<<<<< HEAD
+=======
+
+    public function withMainAction(ButtonStandard|LinkStandard $button): Standard;
+
+    public function getMainAction(): ButtonStandard|LinkStandard|null;
+>>>>>>> v9.1
 }

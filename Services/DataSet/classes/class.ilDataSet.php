@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+use ILIAS\ResourceStorage\Collection\ResourceCollection;
+
 /**
  * A dataset contains in data in a common structure that can be
  * shared and transformed for different purposes easily, examples
@@ -35,6 +37,9 @@
  */
 abstract class ilDataSet
 {
+    public const DATASET_NS = 'http://www.ilias.de/Services/DataSet/ds/4_3';
+    public const DATASET_NS_PREFIX = 'ds';
+
     public const EXPORT_NO_INST_ID = 1;
     public const EXPORT_ID_ILIAS_LOCAL = 2;
     public const EXPORT_ID_ILIAS_LOCAL_INVALID = 3;
@@ -42,6 +47,7 @@ abstract class ilDataSet
     public const EXPORT_ID_ILIAS_REMOTE_INVALID = 5;
     public const EXPORT_ID = 6;
     public const EXPORT_ID_INVALID = 7;
+    protected \ILIAS\ResourceStorage\Services $irss;
 
     public int $dircnt = 0;
     protected string $current_installation_id = "";
@@ -63,6 +69,7 @@ abstract class ilDataSet
 
         $this->db = $DIC->database();
         $this->ds_log = ilLoggerFactory::getLogger('ds');
+        $this->irss = $DIC->resourceStorage();
     }
 
     /**
@@ -237,17 +244,20 @@ abstract class ilDataSet
             //			$atts["xmlns:".$prefix] = $ns;
             $cnt++;
         }
-
         $this->ds_log->debug("Start writing Dataset, entity: " . $a_entity . ", schema version: " . $a_schema_version .
             ", ids: " . print_r($a_ids, true));
-        $writer->xmlStartTag($this->getDSPrefixString() . 'DataSet', $atts);
 
+        if ($this->getDSPrefix() !== '') {
+            $atts['xmlns:' . $this->getDSPrefix()] = self::DATASET_NS;
+        } else {
+            $atts['xmlns'] = self::DATASET_NS;
+        }
+        $writer->xmlStartTag($this->getDSPrefixString() . 'DataSet', $atts);
         // add types
         if (!$a_omit_types) {
             $this->ds_log->debug("...write types");
             $this->addTypesXml($writer, $a_entity, $a_schema_version);
         }
-
         // add records
         $this->ds_log->debug("...write records");
         $this->addRecordsXml($writer, $prefixes, $a_entity, $a_schema_version, $a_ids, $a_field);
@@ -279,17 +289,36 @@ abstract class ilDataSet
             $a_writer->xmlStartTag($this->getXMLEntityTag($a_entity, ''));
             $rec = $this->getXmlRecord($a_entity, $a_schema_version, $d);
             foreach ($rec as $f => $c) {
-                if ((($types[$f] ?? "") == "directory") && $this->absolute_export_dir !== "" && $this->relative_export_dir !== "") {
-                    ilFileUtils::makeDirParents($this->absolute_export_dir . "/dsDir_" . $this->dircnt);
-                    $sdir = realpath($c);
-                    $tdir = realpath($this->absolute_export_dir . "/dsDir_" . $this->dircnt);
-                    try {
-                        ilFileUtils::rCopy($sdir, $tdir);
-                    } catch (\ILIAS\Filesystem\Exception\FileNotFoundException $e) {
-                        $this->ds_log->error($e->getMessage());
+                if ($this->absolute_export_dir !== "" && $this->relative_export_dir !== "") {
+                    if (($types[$f] ?? "") === "directory") {
+                        ilFileUtils::makeDirParents($this->absolute_export_dir . "/dsDir_" . $this->dircnt);
+                        $sdir = realpath($c);
+                        $tdir = realpath($this->absolute_export_dir . "/dsDir_" . $this->dircnt);
+                        try {
+                            ilFileUtils::rCopy($sdir, $tdir);
+                        } catch (\ILIAS\Filesystem\Exception\FileNotFoundException $e) {
+                            $this->ds_log->error($e->getMessage());
+                        }
+                        $c = $this->relative_export_dir . "/dsDir_" . $this->dircnt;
+                        $this->dircnt++;
                     }
-                    $c = $this->relative_export_dir . "/dsDir_" . $this->dircnt;
-                    $this->dircnt++;
+                    if (($types[$f] ?? "") === "rscollection") {
+                        $tdir = $this->absolute_export_dir . "/dsDir_" . $this->dircnt;
+                        ilFileUtils::makeDirParents($tdir);
+                        $tdir = realpath($tdir);
+                        if ($collection = $this->getCollection($rec, $a_entity, $a_schema_version, $f, $c)) {
+                            foreach ($collection->getResourceIdentifications() as $rid) {
+                                $info = $this->irss->manage()->getResource($rid)
+                                                   ->getCurrentRevision()
+                                                   ->getInformation();
+                                $stream = $this->irss->consume()->stream($rid);
+                                $name = $tdir . "/" . $info->getTitle();
+                                file_put_contents($name, $stream->getStream()->getContents());
+                            }
+                        }
+                        $c = $this->relative_export_dir . "/dsDir_" . $this->dircnt;
+                        $this->dircnt++;
+                    }
                 }
                 // this changes schema/dtd
                 //$a_writer->xmlElement($a_prefixes[$a_entity].":".$f,
@@ -298,6 +327,7 @@ abstract class ilDataSet
             }
 
             $a_writer->xmlEndTag($this->getXMLEntityTag($a_entity, ''));
+
             $a_writer->xmlEndTag($this->getDSPrefixString() . "Rec");
 
             $this->afterXmlRecordWriting($a_entity, $a_schema_version, $d);
@@ -499,6 +529,16 @@ abstract class ilDataSet
         ilImportMapping $a_mapping,
         string $a_schema_version
     ): void {
+    }
+
+    public function getCollection(
+        array $record,
+        string $entity,
+        string $schema_version,
+        string $field,
+        string $value
+    ): ?ResourceCollection {
+        return null;
     }
 
     protected function stripTags(array $rec, array $omit_keys = []): array

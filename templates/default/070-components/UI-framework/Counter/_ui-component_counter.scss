@@ -1,0 +1,66 @@
+@use "../../../010-settings/"as *;
+@use "../../../050-layout/basics"as *;
+
+//== Counter
+//
+//##
+$il-counter-color: $il-text-color-invert;
+$il-counter-border-radius: $il-border-radius-secondary-large;
+$il-counter-padding: 2px 4px;
+$il-counter-font-size: $il-font-size-xsmall;
+$il-counter-margin-left: -4px;
+
+//== Status Counter
+//
+//##
+$il-counter-status-bg: $il-neutral-light-color;
+$il-counter-status-position-bottom: -5px;
+
+//== Novelty Counter
+//
+//##
+$il-counter-novelty-bg: $il-warning-color;
+$il-counter-novelty-position-top: -5px;
+
+.badge {
+  min-width: 10px;
+  font-size: $il-counter-font-size;
+  margin-left: $il-counter-margin-left;
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  color: $il-counter-color;
+  line-height: 1;
+  border-radius: $il-counter-border-radius;
+  &:empty {
+    display: none;
+  }
+}
+
+.il-counter {
+  position: relative;
+  font-size: $il-font-size-base;
+}
+
+.il-counter-novelty {
+  padding: $il-counter-padding;
+  position: absolute;
+  top: $il-counter-novelty-position-top;
+  background-color: $il-counter-novelty-bg;
+}
+.il-counter-status {
+  padding: $il-counter-padding;
+  position: absolute;
+  bottom: $il-counter-status-position-bottom;
+  background-color: $il-counter-status-bg;
+}
+
+.glyph {
+  .il-counter-spacer {
+		margin-left: $il-counter-margin-left;
+		font-size: $il-counter-font-size;
+		padding: $il-counter-padding;
+		visibility: hidden;
+	}
+}

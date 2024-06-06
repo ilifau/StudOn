@@ -22,6 +22,10 @@ namespace ILIAS\UI\Component\Table;
 
 use ILIAS\UI\Component\ViewControl\HasViewControls;
 use Closure;
+<<<<<<< HEAD
+=======
+use ILIAS\UI\Implementation\Component\Signal;
+>>>>>>> v9.1
 use ILIAS\UI\Component\JavaScriptBindable;
 
 /**

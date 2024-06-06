@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,7 +19,7 @@
  ********************************************************************
  */
 
-use ILIAS\Skill\Tree;
+use ILIAS\Skill\Node;
 
 /**
  * Basic skill template GUI class
@@ -34,7 +36,7 @@ class ilBasicSkillTemplateGUI extends ilBasicSkillGUI
     protected ilHelpGUI $help;
     protected ilToolbarGUI $toolbar;
 
-    public function __construct(Tree\SkillTreeNodeManager $node_manager, int $a_node_id = 0, int $a_tref_id = 0)
+    public function __construct(Node\SkillTreeNodeManager $node_manager, int $a_node_id = 0, int $a_tref_id = 0)
     {
         global $DIC;
 
@@ -145,7 +147,7 @@ class ilBasicSkillTemplateGUI extends ilBasicSkillGUI
                 0,
                 "sktp",
                 "",
-                false
+                0
             )
         );
     }
@@ -311,13 +313,12 @@ class ilBasicSkillTemplateGUI extends ilBasicSkillGUI
 
         $this->setTabs("usage");
 
-        $usage_info = new ilSkillUsage();
-        $usages = $usage_info->getAllUsagesOfTemplate($this->base_skill_id);
+        $usages = $this->usage_manager->getAllUsagesOfTemplate($this->base_skill_id);
 
         $html = "";
         foreach ($usages as $k => $usage) {
-            $tab = new ilSkillUsageTableGUI($this, "showUsage", $k, $usage);
-            $html .= $tab->getHTML() . "<br/><br/>";
+            $table = $this->table_manager->getUsageTable($k, $usage)->getComponent();
+            $html .= $this->ui_ren->render($table) . "<br/><br/>";
         }
 
         $tpl->setContent($html);
@@ -337,12 +338,11 @@ class ilBasicSkillTemplateGUI extends ilBasicSkillGUI
 
         $this->setTabs("objects");
 
-        $usage_info = new ilSkillUsage();
-        $objects = $usage_info->getAssignedObjectsForSkillTemplate($this->base_skill_id);
+        $objects = $this->usage_manager->getAssignedObjectsForSkillTemplate($this->base_skill_id);
 
-        $tab = new ilSkillAssignedObjectsTableGUI($this, "showObjects", $objects);
+        $table = $this->table_manager->getAssignedObjectsTable($objects)->getComponent();
 
-        $tpl->setContent($tab->getHTML());
+        $tpl->setContent($this->ui_ren->render($table));
     }
 
     public function redirectToParent(bool $a_tmp_mode = false): void

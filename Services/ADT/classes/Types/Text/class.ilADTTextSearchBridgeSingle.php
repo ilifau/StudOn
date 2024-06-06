@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 class ilADTTextSearchBridgeSingle extends ilADTSearchBridgeSingle
@@ -28,10 +44,20 @@ class ilADTTextSearchBridgeSingle extends ilADTSearchBridgeSingle
 
     public function addToForm(): void
     {
+        $this->addTextInputToForm(true);
+    }
+
+    public function addToFilterForm(): void
+    {
+        $this->addTextInputToForm(false);
+    }
+
+    protected function addTextInputToForm(bool $submit_on_enter): void
+    {
         $text = new ilTextInputGUI($this->getTitle(), $this->getElementId());
         $text->setSize(20);
         $text->setMaxLength(512);
-        $text->setSubmitFormOnEnter(true);
+        $text->setSubmitFormOnEnter($submit_on_enter);
 
         $text->setValue($this->getADT()->getText());
 
@@ -113,7 +139,9 @@ class ilADTTextSearchBridgeSingle extends ilADTSearchBridgeSingle
     public function isInCondition(ilADT $a_adt): bool
     {
         if ($this->getADT()->getCopyOfDefinition()->isComparableTo($a_adt)) {
-            return $this->getADT()->equals($a_adt);
+            if (str_contains(strtolower($a_adt->getText()), strtolower($this->getADT()->getText()))) {
+                return true;
+            }
         }
         return false;
     }

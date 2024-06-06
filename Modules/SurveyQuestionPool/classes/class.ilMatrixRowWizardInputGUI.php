@@ -23,11 +23,11 @@
  */
 class ilMatrixRowWizardInputGUI extends ilTextInputGUI
 {
+    protected \ILIAS\Survey\InternalGUIService $gui;
     protected ilGlobalTemplateInterface $tpl;
     protected ?SurveyCategories $values = null;
     protected bool $allowMove = false;
     protected bool $show_wizard = false;
-    protected bool $show_save_phrase = false;
     protected string $categorytext;
     protected string $labeltext;
     protected bool $use_other_answer;
@@ -45,11 +45,11 @@ class ilMatrixRowWizardInputGUI extends ilTextInputGUI
         parent::__construct($a_title, $a_postvar);
 
         $this->show_wizard = false;
-        $this->show_save_phrase = false;
         $this->categorytext = $lng->txt('row_text');
         $this->use_other_answer = false;
 
         $this->setMaxLength(1000); // #6803
+        $this->gui = $DIC->survey()->internal()->gui();
     }
 
     public function getUseOtherAnswer(): bool
@@ -125,15 +125,6 @@ class ilMatrixRowWizardInputGUI extends ilTextInputGUI
         return $this->labeltext;
     }
 
-    public function setShowSavePhrase(bool $a_value): void
-    {
-        $this->show_save_phrase = $a_value;
-    }
-
-    public function getShowSavePhrase(): bool
-    {
-        return $this->show_save_phrase;
-    }
 
     public function checkInput(): bool
     {
@@ -143,7 +134,7 @@ class ilMatrixRowWizardInputGUI extends ilTextInputGUI
             // check answers
             if (is_array($foundvalues['answer'])) {
                 foreach ($foundvalues['answer'] as $idx => $answervalue) {
-                    if (((strlen($answervalue)) == 0) && ($this->getRequired() && (!$foundvalues['other'][$idx]))) {
+                    if (((strlen($answervalue ?? "")) == 0) && ($this->getRequired() && (!$foundvalues['other'][$idx]))) {
                         $this->setAlert($lng->txt("msg_input_is_required"));
                         return false;
                     }
@@ -195,8 +186,8 @@ class ilMatrixRowWizardInputGUI extends ilTextInputGUI
                     $tpl->setVariable("CMD_UP", "cmd[up" . $this->getFieldId() . "][$i]");
                     $tpl->setVariable("CMD_DOWN", "cmd[down" . $this->getFieldId() . "][$i]");
                     $tpl->setVariable("ID", $this->getPostVar() . "[$i]");
-                    $tpl->setVariable("UP_BUTTON", ilGlyphGUI::get(ilGlyphGUI::UP));
-                    $tpl->setVariable("DOWN_BUTTON", ilGlyphGUI::get(ilGlyphGUI::DOWN));
+                    $tpl->setVariable("UP_BUTTON", $this->gui->symbol()->glyph("up")->render());
+                    $tpl->setVariable("DOWN_BUTTON", $this->gui->symbol()->glyph("down")->render());
                     $tpl->parseCurrentBlock();
                 }
 
@@ -215,25 +206,10 @@ class ilMatrixRowWizardInputGUI extends ilTextInputGUI
 
                 $tpl->setVariable("CMD_ADD", "cmd[add" . $this->getFieldId() . "][$i]");
                 $tpl->setVariable("CMD_REMOVE", "cmd[remove" . $this->getFieldId() . "][$i]");
-                $tpl->setVariable("ADD_BUTTON", ilGlyphGUI::get(ilGlyphGUI::ADD));
-                $tpl->setVariable("REMOVE_BUTTON", ilGlyphGUI::get(ilGlyphGUI::REMOVE));
+                $tpl->setVariable("ADD_BUTTON", $this->gui->symbol()->glyph("add")->render());
+                $tpl->setVariable("REMOVE_BUTTON", $this->gui->symbol()->glyph("remove")->render());
                 $tpl->parseCurrentBlock();
             }
-        }
-
-        if ($this->getShowWizard()) {
-            $tpl->setCurrentBlock("wizard");
-            $tpl->setVariable("CMD_WIZARD", 'cmd[wizard' . $this->getFieldId() . ']');
-            $tpl->setVariable("WIZARD_BUTTON", ilUtil::getImagePath('wizard.svg'));
-            $tpl->setVariable("WIZARD_TEXT", $lng->txt('add_phrase'));
-            $tpl->parseCurrentBlock();
-        }
-
-        if ($this->getShowSavePhrase()) {
-            $tpl->setCurrentBlock('savephrase');
-            $tpl->setVariable("POST_VAR", $this->getPostVar());
-            $tpl->setVariable("VALUE_SAVE_PHRASE", $lng->txt('save_phrase'));
-            $tpl->parseCurrentBlock();
         }
 
         if ($this->getUseOtherAnswer()) {

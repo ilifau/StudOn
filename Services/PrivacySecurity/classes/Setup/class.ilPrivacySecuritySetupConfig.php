@@ -40,12 +40,12 @@ class ilPrivacySecuritySetupConfig implements Setup\Config
         return $this->force_https_on_login;
     }
 
-    public function getAuthDurationInMs() : ?int
+    public function getAuthDurationInMs(): ?int
     {
         return $this->authentication_duration_in_ms;
     }
 
-    public function getAccountAssistanceDurationInMs() : ?int
+    public function getAccountAssistanceDurationInMs(): ?int
     {
         return $this->account_assistance_duration_in_ms;
     }

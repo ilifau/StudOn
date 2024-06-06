@@ -30,10 +30,12 @@ class ilObjFileUnzipRecursiveProcessor extends ilObjFileAbstractZipProcessor
      */
     private array $path_map = [];
 
-
-
-    public function process(ResourceIdentification $rid, array $options = []): void
-    {
+    public function process(
+        ResourceIdentification $rid,
+        string $title = null,
+        string $description = null,
+        int $copyright_id = null
+    ): void {
         $this->openZip($rid);
         $base_node = $this->gui_object->getParentId();
 
@@ -54,13 +56,20 @@ class ilObjFileUnzipRecursiveProcessor extends ilObjFileAbstractZipProcessor
             $this->path_map[$directory] = (int) $obj->getRefId();
         }
 
-
         // Create Files
         foreach ($this->getZipFiles() as $file_path) {
             $dir_name = dirname($file_path) . '/';
             $parent_id_of_iteration = (int) ($this->path_map[$dir_name] ?? $base_node);
+            $rid_of_iteration = $this->storeZippedFile($file_path);
 
-            $this->createFileObj($this->storeZippedFile($file_path), $parent_id_of_iteration, [], true);
+            $file_obj = $this->createFileObj(
+                $rid_of_iteration,
+                $parent_id_of_iteration,
+                null,
+                null,
+                $copyright_id,
+                true
+            );
         }
 
         $this->closeZip();

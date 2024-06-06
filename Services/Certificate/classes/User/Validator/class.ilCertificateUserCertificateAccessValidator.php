@@ -23,7 +23,7 @@ declare(strict_types=1);
  */
 class ilCertificateUserCertificateAccessValidator
 {
-    private ilUserCertificateRepository $userCertificateRepository;
+    private readonly ilUserCertificateRepository $userCertificateRepository;
 
     public function __construct(?ilUserCertificateRepository $userCertificateRepository = null)
     {
@@ -41,7 +41,7 @@ class ilCertificateUserCertificateAccessValidator
     {
         try {
             $this->userCertificateRepository->fetchActiveCertificate($userId, $objId);
-        } catch (ilException $exception) {
+        } catch (ilException) {
             return false;
         }
 

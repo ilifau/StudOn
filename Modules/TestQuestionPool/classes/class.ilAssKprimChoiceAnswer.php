@@ -58,15 +58,27 @@ class ilAssKprimChoiceAnswer
         return $this->answertext;
     }
 
-    public function setImageFile($imageFile): void
+    public function setImageFile(?string $imageFile): void
     {
         $this->imageFile = $imageFile;
     }
 
-    public function getImageFile()
+    public function getImageFile(): ?string
     {
         return $this->imageFile;
     }
+
+    // sk 2023-12-01: These are proxy functions to make things work like the other answertypes for Choice Questions
+    public function setImage(?string $image): ?string
+    {
+        return $this->setImageFile($image);
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->getImageFile();
+    }
+    // End proxy functions
 
     public function setImageFsDir($imageFsDir): void
     {

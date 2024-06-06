@@ -17,6 +17,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 if (!file_exists(getcwd() . '/ilias.ini.php')) {
     exit();
 }

@@ -1,0 +1,44 @@
+@use "../../../010-settings/" as *;
+@use "../../../050-layout/basics" as *;
+
+/* Modules/Wiki */
+
+a.ilWikiPageMissing:link, a.ilWikiPageMissing:visited {
+	color: $il-danger-color;
+}
+
+a.ilWikiPageMissing:hover {
+	color: $il-text-hover-color;
+}
+
+ul.ilWikiBlockList {
+	margin: 0 0 0 20px;
+	padding: 0;
+	list-style: disc outside;
+}
+
+ul.ilWikiBlockListNoIndent {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+li.ilWikiBlockItem {
+	margin: 0;
+<<<<<<< HEAD:templates/default/less/Modules/Wiki/delos.less
+	padding-top: @il-padding-large-vertical;
+	padding-bottom: @il-padding-large-vertical;
+	font-size: @il-font-size-small;
+=======
+	padding-top: $il-padding-large-vertical;
+	padding-bottom: $il-padding-large-vertical;
+	font-size: $il-font-size-small;
+>>>>>>> v9.1:templates/default/070-components/legacy/Modules/_component_wiki.scss
+}
+
+/* see mantis #0027530 */
+#block_wikiside_0 {
+	.panel-body {
+		overflow: visible;
+	}
+}

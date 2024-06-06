@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -45,38 +47,6 @@ class ilSkillTemplateCategory extends ilSkillTreeNode
     public function delete(): void
     {
         $ilDB = $this->db;
-
-        $sctp_id = $this->getId();
-        $skill_tree = $this->skill_service->internal()->repo()->getTreeRepo()->getTreeForNodeId($sctp_id);
-        $childs = $skill_tree->getChildsByTypeFilter(
-            $sctp_id,
-            ["sktp", "sctp"]
-        );
-        foreach ($childs as $node) {
-            switch ($node["type"]) {
-                case "sktp":
-                    $obj = new ilBasicSkillTemplate((int) $node["obj_id"]);
-                    $obj->delete();
-                    break;
-
-                case "sctp":
-                    $obj = new ilSkillTemplateCategory((int) $node["obj_id"]);
-                    $obj->delete();
-                    break;
-            }
-        }
-
-        foreach (\ilSkillTemplateReference::_lookupTrefIdsForTopTemplateId($sctp_id) as $tref_id) {
-            $obj = ilSkillTreeNodeFactory::getInstance($tref_id);
-            $skill_tree = $this->skill_service->internal()->repo()->getTreeRepo()->getTreeForNodeId($tref_id);
-            $node_data = $skill_tree->getNodeData($tref_id);
-            if (is_object($obj)) {
-                $obj->delete();
-            }
-            if ($skill_tree->isInTree($tref_id)) {
-                $skill_tree->deleteTree($node_data);
-            }
-        }
 
         $ilDB->manipulate(
             "DELETE FROM skl_templ_ref WHERE "

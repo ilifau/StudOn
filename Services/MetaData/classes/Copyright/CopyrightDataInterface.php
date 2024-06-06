@@ -28,7 +28,15 @@ interface CopyrightDataInterface
 
     public function link(): ?URI;
 
+    public function hasImage(): bool;
+
+    public function isImageLink(): bool;
+
     public function imageLink(): ?URI;
 
+    public function imageFile(): string;
+
     public function altText(): string;
+
+    public function fallBackToDefaultImage(): bool;
 }

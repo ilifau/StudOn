@@ -71,14 +71,13 @@ class ilGlossaryImporter extends ilXmlImporter
     public function finalProcessing(
         ilImportMapping $a_mapping
     ): void {
-
         // get all glossaries of the import
         $maps = $a_mapping->getMappingsOfEntity("Modules/Glossary", "glo");
         foreach ($maps as $old => $new) {
             if ($old != "new_id" && (int) $old > 0) {
                 // get all new taxonomys of this object
                 $new_tax_ids = $a_mapping->getMapping("Services/Taxonomy", "tax_usage_of_obj", $old);
-                if ($new_tax_ids !== false) {
+                if (!is_null($new_tax_ids)) {
                     $tax_ids = explode(":", $new_tax_ids);
                     foreach ($tax_ids as $tid) {
                         ilObjTaxonomy::saveUsage((int) $tid, (int) $new);

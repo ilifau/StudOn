@@ -56,12 +56,20 @@ class Services implements GlobalHttpState
         $this->agent = new AgentDetermination();
     }
 
+<<<<<<< HEAD
     public function durations() : DurationFactory
+=======
+    public function durations(): DurationFactory
+>>>>>>> v9.1
     {
         return $this->raw->durations();
     }
 
+<<<<<<< HEAD
     public function wrapper() : WrapperFactory
+=======
+    public function wrapper(): WrapperFactory
+>>>>>>> v9.1
     {
         return $this->wrapper;
     }

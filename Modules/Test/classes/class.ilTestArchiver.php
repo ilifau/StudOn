@@ -16,6 +16,14 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\UI\Renderer as UIRenderer;
+use ILIAS\Test\InternalRequestService;
+use ILIAS\HTTP\GlobalHttpState;
+use ILIAS\Refinery\Factory as RefineryFactory;
+
 /**
  * Class ilTestArchiver
  *
@@ -34,21 +42,16 @@ class ilTestArchiver
     public const DIR_SEP = '/';
 
     public const HTML_SUBMISSION_FILENAME = 'test_submission.html';
-    public const PDF_SUBMISSION_FILENAME = 'test_submission.pdf';
     public const PASS_MATERIALS_PATH_COMPONENT = 'materials';
     public const QUESTION_PATH_COMPONENT_PREFIX = 'q_';
 
     public const TEST_BEST_SOLUTION_PATH_COMPONENT = 'best_solution';
     public const HTML_BEST_SOLUTION_FILENAME = 'best_solution.html';
-    public const PDF_BEST_SOLUTION_FILENAME = 'best_solution.pdf';
     public const TEST_MATERIALS_PATH_COMPONENT = 'materials';
 
-    protected const TEST_RESULT_FILENAME = 'test_result.pdf';
+    protected const TEST_RESULT_FILENAME = 'test_result.html';
 
-    public const TEST_OVERVIEW_PDF_FILENAME = 'results_overview_html_v';
-    public const TEST_OVERVIEW_PDF_POSTFIX = '.pdf';
-
-    public const TEST_OVERVIEW_HTML_FILENAME = 'results_overview_pdf_v';
+    public const TEST_OVERVIEW_HTML_FILENAME = 'results_overview_html_v';
     public const TEST_OVERVIEW_HTML_POSTFIX = '.html';
 
     public const LOG_DTSGROUP_FORMAT = 'D M j G:i:s T Y';
@@ -97,7 +100,21 @@ class ilTestArchiver
     protected $test_ref_id;
     protected $archive_data_index;
 
-    protected ilDBInterface $ilDB;
+    protected ilLanguage $lng;
+    protected ilDBInterface $db;
+    protected ilCtrl $ctrl;
+    protected ilObjUser $user;
+    protected ilTabsGUI $tabs;
+    protected ilToolbarGUI $toolbar;
+    protected ilGlobalTemplateInterface $tpl;
+    protected UIFactory $ui_factory;
+    protected UIRenderer $ui_renderer;
+    protected ilAccess $access;
+    protected InternalRequestService $testrequest;
+    protected GlobalHttpState $http;
+    protected RefineryFactory $refinery;
+
+    protected ilTestHTMLGenerator $html_generator;
 
     /**
      * @var ilTestParticipantData
@@ -106,21 +123,32 @@ class ilTestArchiver
 
     #endregion
 
-    /**
-     * Returns a new ilTestArchiver object
-     *
-     * @param $test_obj_id integer Object-ID of the test, the archiver is instantiated for.
-     */
-    public function __construct($test_obj_id, $test_ref_id = null)
+    public function __construct(int $test_obj_id, ?int $test_ref_id = null)
     {
-        /** @var $ilias ILIAS */
+        /** @var ILIAS\DI\Container $DIC */
         global $DIC;
+        $this->lng = $DIC['lng'];
+        $this->db = $DIC['ilDB'];
+        $this->ctrl = $DIC['ilCtrl'];
+        $this->user = $DIC['ilUser'];
+        $this->tabs = $DIC['ilTabs'];
+        $this->toolbar = $DIC['ilToolbar'];
+        $this->tpl = $DIC['tpl'];
+        $this->ui_factory = $DIC['ui.factory'];
+        $this->ui_renderer = $DIC['ui.renderer'];
+        $this->access = $DIC['ilAccess'];
+        $this->testrequest = $DIC->test()->internal()->request();
+        $this->http = $DIC->http();
+        $this->refinery = $DIC->refinery();
+
         $ilias = $DIC['ilias'];
+
+        $this->html_generator = new ilTestHTMLGenerator();
+
         $this->external_directory_path = $ilias->ini_ilias->readVariable('clients', 'datadir');
         $this->client_id = $ilias->client_id;
         $this->test_obj_id = $test_obj_id;
         $this->test_ref_id = $test_ref_id;
-        $this->ilDB = $ilias->db;
 
         $this->archive_data_index = $this->readArchiveDataIndex();
 
@@ -144,35 +172,6 @@ class ilTestArchiver
     }
 
     #region API methods
-
-    /**
-     * Hands in a participants test submission ("a completed test") for archiving.
-     *
-     * The archive takes an html-string and a path to a PDF-file and saves it according to the archives
-     * general structure. The test is identified by active_fi and pass number, allowing to store relevant
-     * files even for anonymous tests.
-     *
-     * @param $active_fi	integer	Active-FI of the test participant
-     * @param $pass			integer	Pass-number of the actual test
-     * @param $html_string	string	HTML-string of the test submission
-     * @param $pdf_path		string	Path to a pdf representation of the test submission.
-     */
-    public function handInParticipantSubmission($active_fi, $pass, $pdf_path, $html_string)
-    {
-        $this->ensureTestArchiveIsAvailable();
-        $this->ensurePassDataDirectoryIsAvailable($active_fi, $pass);
-
-        $pdf_new_path = $this->getPassDataDirectory($active_fi, $pass) . self::DIR_SEP
-            . self::PDF_SUBMISSION_FILENAME;
-        copy($pdf_path, $pdf_new_path);
-        # /home/mbecker/public_html/ilias/trunk-primary/extern/default/tst_data/archive/tst_350/2013/09/19/80_1_root_user_/test_submission.pdf
-        $html_new_path = $this->getPassDataDirectory($active_fi, $pass) . self::DIR_SEP
-            . self::HTML_SUBMISSION_FILENAME;
-        file_put_contents($html_new_path, $html_string);
-
-        $this->logArchivingProcess(date(self::LOG_DTSGROUP_FORMAT) . self::LOG_ADDITION_STRING . $pdf_new_path);
-        $this->logArchivingProcess(date(self::LOG_DTSGROUP_FORMAT) . self::LOG_ADDITION_STRING . $html_new_path);
-    }
 
     /**
      * Hands in a particpants question material, such as an upload or other binary content.
@@ -227,7 +226,7 @@ class ilTestArchiver
      * @param $html_string	string	HTML-string of the test submission
      * @param $pdf_path		string	Path to a pdf representation of the test submission.
      */
-    public function handInTestBestSolution($html_string, $pdf_path)
+    public function handInTestBestSolution($best_solution)
     {
         $this->ensureTestArchiveIsAvailable();
 
@@ -236,9 +235,10 @@ class ilTestArchiver
             mkdir($best_solution_path, 0777, true);
         }
 
-        file_put_contents($best_solution_path . self::DIR_SEP . self::HTML_BEST_SOLUTION_FILENAME, $html_string);
-
-        copy($pdf_path, $best_solution_path . self::DIR_SEP . self::PDF_BEST_SOLUTION_FILENAME);
+        $this->html_generator->generateHTML(
+            $best_solution,
+            $best_solution_path . self::DIR_SEP . self::HTML_BEST_SOLUTION_FILENAME
+        );
 
         $this->logArchivingProcess(
             date(self::LOG_DTSGROUP_FORMAT) . self::LOG_ADDITION_STRING
@@ -246,8 +246,7 @@ class ilTestArchiver
         );
 
         $this->logArchivingProcess(
-            date(self::LOG_DTSGROUP_FORMAT) . self::LOG_ADDITION_STRING
-                . $best_solution_path . self::DIR_SEP . self::PDF_BEST_SOLUTION_FILENAME
+            date(self::LOG_DTSGROUP_FORMAT) . self::LOG_ADDITION_STRING . $best_solution_path
         );
     }
 
@@ -301,27 +300,6 @@ class ilTestArchiver
         $new_path = $this->getPassDataDirectory($active_fi, $pass) . self::DIR_SEP . self::TEST_RESULT_FILENAME;
         copy($pdf_path, $new_path);
         $this->logArchivingProcess(date(self::LOG_DTSGROUP_FORMAT) . self::LOG_ADDITION_STRING . $new_path);
-    }
-
-    /**
-     * Hands in a test results overview.
-     *
-     * @param $html_string	string HTML of the test results overview.
-     * @param $pdf_path		string Path
-     */
-    public function handInTestResultsOverview($html_string, $pdf_path)
-    {
-        $this->ensureTestArchiveIsAvailable();
-        $new_pdf_path = $this->getTestArchive() . self::DIR_SEP
-            . self::TEST_OVERVIEW_PDF_FILENAME
-            . $this->countFilesInDirectory($this->getTestArchive(), self::TEST_OVERVIEW_PDF_FILENAME) . self::TEST_OVERVIEW_PDF_POSTFIX;
-        copy($pdf_path, $new_pdf_path);
-        $html_path = $this->getTestArchive() . self::DIR_SEP . self::TEST_OVERVIEW_HTML_FILENAME
-            . $this->countFilesInDirectory($this->getTestArchive(), self::TEST_OVERVIEW_HTML_FILENAME) . self::TEST_OVERVIEW_HTML_POSTFIX;
-        file_put_contents($html_path, $html_string);
-
-        $this->logArchivingProcess(date(self::LOG_DTSGROUP_FORMAT) . self::LOG_ADDITION_STRING . $new_pdf_path);
-        $this->logArchivingProcess(date(self::LOG_DTSGROUP_FORMAT) . self::LOG_ADDITION_STRING . $html_path);
     }
 
     #endregion
@@ -382,12 +360,12 @@ class ilTestArchiver
      */
     public function updateTestArchive()
     {
-        $query = 'SELECT * FROM ass_log WHERE obj_fi = ' . $this->ilDB->quote($this->test_obj_id, 'integer');
-        $result = $this->ilDB->query($query);
+        $query = 'SELECT * FROM ass_log WHERE obj_fi = ' . $this->db->quote($this->test_obj_id, 'integer');
+        $result = $this->db->query($query);
 
         $outfile_lines = '';
         /** @noinspection PhpAssignmentInConditionInspection */
-        while ($row = $this->ilDB->fetchAssoc($result)) {
+        while ($row = $this->db->fetchAssoc($result)) {
             $outfile_lines .= "\r\n" . implode("\t", $row);
         }
         file_put_contents($this->getTestArchive() . self::DIR_SEP . self::TEST_LOG_FILENAME, $outfile_lines);
@@ -398,7 +376,21 @@ class ilTestArchiver
             $test->setRefId($this->test_ref_id);
         }
 
-        $gui = new ilParticipantsTestResultsGUI();
+        $gui = new ilParticipantsTestResultsGUI(
+            $this->ctrl,
+            $this->lng,
+            $this->db,
+            $this->user,
+            $this->tabs,
+            $this->toolbar,
+            $this->tpl,
+            $this->ui_factory,
+            $this->ui_renderer,
+            new ilTestParticipantAccessFilterFactory($this->access),
+            $this->testrequest,
+            $this->http,
+            $this->refinery
+        );
         $gui->setTestObj($test);
 
         $objectiveOrientedContainer = new ilTestObjectiveOrientedContainer();
@@ -411,8 +403,8 @@ class ilTestArchiver
         }
         $output_template = $gui->createUserResults(true, false, true, $array_of_actives);
 
-        $filename = realpath($this->getTestArchive()) . self::DIR_SEP . 'participant_pass_overview.pdf';
-        ilTestPDFGenerator::generatePDF($output_template->get(), ilTestPDFGenerator::PDF_OUTPUT_FILE, $filename, PDF_USER_RESULT);
+        $filename = realpath($this->getTestArchive()) . self::DIR_SEP . 'participant_pass_overview.html';
+        $this->html_generator->generateHTML($output_template->get(), $filename);
 
         return;
     }
@@ -525,42 +517,41 @@ class ilTestArchiver
      */
     protected function getPassDataDirectory($active_fi, $pass): ?string
     {
-        $passDataDir = $this->buildPassDataDirectory($active_fi, $pass);
+        $pass_data_dir = $this->buildPassDataDirectory($active_fi, $pass);
 
-        if (!$passDataDir) {
-            $test_obj = new ilObjTest($this->test_obj_id, false);
-            if ($test_obj->getAnonymity()) {
-                $firstname = 'anonym';
-                $lastname = '';
-                $matriculation = '0';
-            } else {
-                if ($this->getParticipantData()) {
-                    $usrData = $this->getParticipantData()->getUserDataByActiveId($active_fi);
-                    $firstname = $usrData['firstname'];
-                    $lastname = $usrData['lastname'];
-                    $matriculation = $usrData['matriculation'];
-                } else {
-                    global $DIC;
-                    $ilUser = $DIC['ilUser'];
-                    $firstname = $ilUser->getFirstname();
-                    $lastname = $ilUser->getLastname();
-                    $matriculation = $ilUser->getMatriculation();
-                }
-            }
-
-            $this->appendToArchiveDataIndex(
-                date(DATE_ISO8601),
-                $active_fi,
-                $pass,
-                $firstname,
-                $lastname,
-                $matriculation
-            );
-
-            $passDataDir = $this->buildPassDataDirectory($active_fi, $pass);
+        if ($pass_data_dir !== null) {
+            return $pass_data_dir;
         }
 
-        return $passDataDir;
+        $test_obj = new ilObjTest($this->test_obj_id, false);
+        if ($test_obj->getAnonymity()) {
+            $firstname = 'anonym';
+            $lastname = '';
+            $matriculation = '0';
+        } else {
+            if ($this->getParticipantData()) {
+                $usr_data = $this->getParticipantData()->getUserDataByActiveId($active_fi);
+                $firstname = $usr_data['firstname'];
+                $lastname = $usr_data['lastname'];
+                $matriculation = $usr_data['matriculation'];
+            } else {
+
+                $firstname = $this->user->getFirstname();
+                $lastname = $this->user->getLastname();
+                $matriculation = $this->user->getMatriculation();
+            }
+        }
+
+        $this->appendToArchiveDataIndex(
+            date(DATE_ISO8601),
+            $active_fi,
+            $pass,
+            $firstname,
+            $lastname,
+            $matriculation
+        );
+
+        return $this->buildPassDataDirectory($active_fi, $pass);
     }
 
     /**
@@ -615,6 +606,8 @@ class ilTestArchiver
         // Data are taken from the current user as the implementation expects the first interaction of the pass
         // takes place from the usage/behaviour of the current user.
 
+        $user = $this->user;
+
         if ($this->getParticipantData()) {
             $usrData = $this->getParticipantData()->getUserDataByActiveId($active_fi);
             $user = new ilObjUser();
@@ -622,10 +615,6 @@ class ilTestArchiver
             $user->setLastname($usrData['lastname']);
             $user->setMatriculation($usrData['matriculation']);
             $user->setFirstname($usrData['firstname']);
-        } else {
-            global $DIC;
-            $ilUser = $DIC['ilUser'];
-            $user = $ilUser;
         }
 
         $this->appendToArchiveDataIndex(

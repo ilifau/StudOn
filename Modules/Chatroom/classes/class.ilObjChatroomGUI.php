@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\HTTP\Response\ResponseHeader;
+use ILIAS\Chatroom\AccessBridge;
 
 /**
  * Class ilObjChatroomGUI
@@ -48,7 +49,7 @@ class ilObjChatroomGUI extends ilChatroomObjectGUI implements ilCtrlSecurityInte
         global $DIC;
         $main_tpl = $DIC->ui()->mainTemplate();
 
-        $parts = array_filter(explode('_', $params));
+        $parts = array_filter(explode('_', (string) $params));
         $ref_id = (int) $parts[0];
         $sub = (int) ($parts[1] ?? 0);
 
@@ -231,7 +232,7 @@ class ilObjChatroomGUI extends ilChatroomObjectGUI implements ilCtrlSecurityInte
 
             default:
                 try {
-                    $res = explode('-', $this->ctrl->getCmd(''), 2);
+                    $res = explode('-', (string) $this->ctrl->getCmd(''), 2);
                     $result = $this->dispatchCall($res[0], $res[1] ?? '');
                     if (!$result && method_exists($this, $this->ctrl->getCmd() . 'Object')) {
                         $this->prepareOutput();
@@ -257,11 +258,28 @@ class ilObjChatroomGUI extends ilChatroomObjectGUI implements ilCtrlSecurityInte
                 break;
         }
 
+        if ($this->object?->getType() !== 'chta') {
+            $this->addHeaderAction();
+        }
+
         if ($tabFactory !== null &&
             $tabFactory->getActivatedTab() !== null &&
             $this->tabs_gui->getActiveTab() !== $tabFactory->getActivatedTab()) {
             $this->tabs_gui->activateTab($tabFactory->getActivatedTab());
         }
+    }
+
+    protected function createActionDispatcherGUI(): ilCommonActionDispatcherGUI
+    {
+        global $DIC;
+
+        return new ilCommonActionDispatcherGUI(
+            ilCommonActionDispatcherGUI::TYPE_REPOSITORY,
+            new AccessBridge($DIC->rbac()->system()),
+            $this->object->getType(),
+            $this->ref_id,
+            $this->object->getId()
+        );
     }
 
     public function getConnector(): ilChatroomServerConnector
@@ -337,7 +355,6 @@ class ilObjChatroomGUI extends ilChatroomObjectGUI implements ilCtrlSecurityInte
             'object_id' => $objId,
             'autogen_usernames' => 'Autogen #',
             'display_past_msgs' => 20,
-            'private_rooms_enabled' => 0
         ]);
 
         $rbac_log_roles = $this->rbac_review->getParentRoleIds($newObj->getRefId());
@@ -347,5 +364,17 @@ class ilObjChatroomGUI extends ilChatroomObjectGUI implements ilCtrlSecurityInte
         $this->object = $newObj;
 
         return $newObj;
+    }
+
+    /**
+     * @param ilObjChatroom $new_object
+     */
+    protected function afterImport(ilObject $new_object): void
+    {
+        $room = ilChatroom::byObjectId($new_object->getId());
+        $connector = $this->getConnector();
+        $response = $connector->sendCreatePrivateRoom($room->getRoomId(), $new_object->getOwner(), $new_object->getTitle());
+
+        parent::afterImport($new_object);
     }
 }

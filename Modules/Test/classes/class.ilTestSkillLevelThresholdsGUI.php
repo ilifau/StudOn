@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
@@ -105,8 +107,6 @@ class ilTestSkillLevelThresholdsGUI
 
     private function saveSkillThresholdsCmd()
     {
-        require_once 'Modules/Test/classes/class.ilTestSkillLevelThreshold.php';
-
         if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
             $assignmentList = $this->buildSkillQuestionAssignmentList();
             $assignmentList->loadFromDb();
@@ -220,7 +220,6 @@ class ilTestSkillLevelThresholdsGUI
 
     private function buildTableGUI(): ilTestSkillLevelThresholdsTableGUI
     {
-        require_once 'Modules/Test/classes/tables/class.ilTestSkillLevelThresholdsTableGUI.php';
         $table = new ilTestSkillLevelThresholdsTableGUI(
             $this,
             $this->getTestId(),
@@ -236,7 +235,6 @@ class ilTestSkillLevelThresholdsGUI
 
     private function buildSkillQuestionAssignmentList(): ilAssQuestionSkillAssignmentList
     {
-        require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionSkillAssignmentList.php';
         $assignmentList = new ilAssQuestionSkillAssignmentList($this->db);
         $assignmentList->setParentObjId($this->getQuestionContainerId());
 
@@ -245,7 +243,6 @@ class ilTestSkillLevelThresholdsGUI
 
     private function buildSkillLevelThresholdList(): ilTestSkillLevelThresholdList
     {
-        require_once 'Modules/Test/classes/class.ilTestSkillLevelThresholdList.php';
         $thresholdList = new ilTestSkillLevelThresholdList($this->db);
         $thresholdList->setTestId($this->getTestId());
 

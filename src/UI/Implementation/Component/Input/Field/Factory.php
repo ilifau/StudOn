@@ -219,4 +219,20 @@ class Factory implements I\Factory
     {
         return new Hidden($this->data_factory, $this->refinery);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function colorpicker(string $label, ?string $byline = null): I\ColorPicker
+    {
+        return new ColorPicker($this->data_factory, $this->refinery, $label, $byline);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function markdown(I\MarkdownRenderer $md_renderer, string $label, string $byline = null): I\Markdown
+    {
+        return new Markdown($this->data_factory, $this->refinery, $md_renderer, $label, $byline);
+    }
 }

@@ -26,11 +26,11 @@ use ILIAS\ResourceStorage\Revision\RevisionCollection;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 
 /**
- * Class StorableFileResource
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
-class StorableFileResource implements StorableResource
+class StorableFileResource extends AbstractStorableResource
 {
+<<<<<<< HEAD
     private \ILIAS\ResourceStorage\Revision\RevisionCollection $revisions;
     /**
      * @var ResourceStakeholder[]
@@ -43,11 +43,14 @@ class StorableFileResource implements StorableResource
      * StorableFileResource constructor.
      */
     public function __construct(ResourceIdentification $identification)
+=======
+    public function getType(): ResourceType
+>>>>>>> v9.1
     {
-        $this->identification = $identification;
-        $this->revisions = new RevisionCollection($identification);
+        return ResourceType::SINGLE_FILE;
     }
 
+<<<<<<< HEAD
     /**
      * @inheritDoc
      */
@@ -188,4 +191,6 @@ class StorableFileResource implements StorableResource
     {
         return $this->revisions->getMax();
     }
+=======
+>>>>>>> v9.1
 }

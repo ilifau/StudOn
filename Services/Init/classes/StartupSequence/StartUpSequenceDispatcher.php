@@ -1,7 +1,22 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Init\StartupSequence;
 
@@ -13,6 +28,8 @@ use ilForcedUserPasswordChangeStartUpStep;
 use ilTermsOfServiceWithdrawalStartUpStep;
 use ilUserProfileStartUpStep;
 use SplQueue;
+use ILIAS\LegalDocuments\StartUpStep;
+use ILIAS\StaticURL\Builder\StandardURIBuilder;
 
 /**
  * Class StartupSequenceDispatcher
@@ -34,11 +51,9 @@ class StartUpSequenceDispatcher
     protected function initSequence(): void
     {
         $this->sequence = new SplQueue();
-        $this->sequence->push(new ilTermsOfServiceWithdrawalStartUpStep(
-            $this->dic
-        ));
-        $this->sequence->push(new ilTermsOfServiceAcceptanceStartUpStep(
-            $this->dic
+        $this->sequence->push(new StartUpStep(
+            $this->dic->ctrl(),
+            $this->dic['legalDocuments']
         ));
         $this->sequence->push(new ilUserProfileStartUpStep(
             $this->dic->user(),
@@ -55,7 +70,17 @@ class StartUpSequenceDispatcher
     {
         if (!ilSession::get('orig_request_target')) {
             //#16324 don't use the complete REQUEST_URI
-            $url = substr($_SERVER['REQUEST_URI'], (strrpos($_SERVER['REQUEST_URI'], '/') + 1));
+
+            $url = $_SERVER['REQUEST_URI'];
+            $short = strpos($url, StandardURIBuilder::SHORT);
+
+            if (preg_match('@/([^/]+\\.php[?/].*)$@', $url, $matches)) {
+                $url = $matches[1];
+            } elseif ($short !== false) {
+                $url = substr($url, $short + 1);
+            } else {
+                $url = substr($url, strrpos($url, '/') + 1);
+            }
 
             ilSession::set('orig_request_target', $url);
         }
@@ -93,6 +118,11 @@ class StartUpSequenceDispatcher
             $step = $this->sequence->shift();
 
             if ($step->isInFulfillment()) {
+                $this->dic->globalScreen()->tool()->context()->current()->addAdditionalData(
+                    \ILIAS\Init\StartupSequence\StartUpSequenceLayoutProvider::FORCED_STARTUP_STEP,
+                    true
+                );
+                
                 $this->dic->logger()->init()->debug('Step is in fulfillment:' . get_class($step));
                 return false;
             }

@@ -43,8 +43,12 @@ interface DataRow extends Component
      */
     public function getActions(): array;
 
+<<<<<<< HEAD
     /**
      * @return string|Component
      */
     public function getCellContent(string $col_id);
+=======
+    public function getCellContent(string $col_id): string|Component;
+>>>>>>> v9.1
 }

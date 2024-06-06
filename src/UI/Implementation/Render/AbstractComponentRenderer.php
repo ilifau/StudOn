@@ -25,9 +25,12 @@ use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\JavaScriptBindable;
 use ILIAS\UI\Component\Triggerer;
 use ILIAS\UI\Factory;
+use ILIAS\UI\HelpTextRetriever;
+use ILIAS\UI\Help;
 use ilLanguage;
 use InvalidArgumentException;
 use LogicException;
+use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
 
 /**
  * Base class for all component renderers.
@@ -36,8 +39,9 @@ use LogicException;
  * ComponentRenderer::render. Assumes that there is no special resource the
  * component requires.
  */
-abstract class AbstractComponentRenderer implements ComponentRenderer
+abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextRetriever
 {
+<<<<<<< HEAD
     private Factory $ui_factory;
     private TemplateFactory $tpl_factory;
     private ilLanguage $lng;
@@ -64,6 +68,21 @@ abstract class AbstractComponentRenderer implements ComponentRenderer
         $this->refinery = $refinery;
         $this->image_path_resolver = $image_path_resolver;
         $this->data_factory = $data_factory;
+=======
+    private static array $component_storage;
+
+    final public function __construct(
+        private Factory $ui_factory,
+        private TemplateFactory $tpl_factory,
+        private ilLanguage $lng,
+        private JavaScriptBinding $js_binding,
+        private \ILIAS\Refinery\Factory $refinery,
+        private ImagePathResolver $image_path_resolver,
+        private DataFactory $data_factory,
+        private HelpTextRetriever $help_text_retriever,
+        private UploadLimitResolver $upload_limit_resolver,
+    ) {
+>>>>>>> v9.1
     }
 
     /**
@@ -92,6 +111,11 @@ abstract class AbstractComponentRenderer implements ComponentRenderer
     final protected function getRefinery(): \ILIAS\Refinery\Factory
     {
         return $this->refinery;
+    }
+
+    final protected function getUploadLimitResolver(): UploadLimitResolver
+    {
+        return $this->upload_limit_resolver;
     }
 
     /**
@@ -135,7 +159,7 @@ abstract class AbstractComponentRenderer implements ComponentRenderer
     final protected function getTemplate(string $name, bool $purge_unfilled_vars, bool $purge_unused_blocks): Template
     {
         $path = $this->getTemplatePath($name);
-        return $this->tpl_factory->getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks);
+        return $this->getTemplateRaw($path, $purge_unfilled_vars, $purge_unused_blocks);
     }
 
     /**
@@ -145,6 +169,14 @@ abstract class AbstractComponentRenderer implements ComponentRenderer
     {
         $component = $this->getMyComponent();
         return "src/UI/templates/default/$component/$name";
+    }
+
+    /**
+     * Get a template from any path.
+     */
+    private function getTemplateRaw(string $path, bool $purge_unfilled_vars, bool $purge_unused_blocks): Template
+    {
+        return $this->tpl_factory->getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks);
     }
 
     /**
@@ -305,6 +337,30 @@ abstract class AbstractComponentRenderer implements ComponentRenderer
         return $this->image_path_resolver;
     }
 
+<<<<<<< HEAD
+=======
+    public function getHelpText(Help\Purpose $purpose, Help\Topic ...$topics): array
+    {
+        return $this->help_text_retriever->getHelpText($purpose, ...$topics);
+    }
+
+    /*
+     * This is supposed to unify rendering of tooltips over all components.
+     */
+    protected ?TooltipRenderer $tooltip_renderer = null;
+
+    protected function getTooltipRenderer(): TooltipRenderer
+    {
+        if ($this->tooltip_renderer === null) {
+            $this->tooltip_renderer = new TooltipRenderer(
+                $this,
+                fn($path, $f1, $f2) => $this->getTemplateRaw($path, $f1, $f2)
+            );
+        }
+        return $this->tooltip_renderer;
+    }
+
+>>>>>>> v9.1
     protected function convertSpecialCharacters(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'utf-8');

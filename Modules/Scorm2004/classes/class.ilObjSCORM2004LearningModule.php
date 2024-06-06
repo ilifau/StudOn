@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpDynamicFieldDeclarationInspection */
+
 declare(strict_types=1);
 
 /**
@@ -25,6 +27,9 @@ declare(strict_types=1);
  */
 class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
 {
+    private string $packageFolder;
+    private string $backupManifest;
+    private DomDocument $totransform;
     protected ilObjUser $user;
 
     protected ilTabsGUI $tabs;
@@ -39,8 +44,8 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
 
     /**
     * Constructor
-    * @param	integer	reference_id or object_id
-    * @param	boolean	treat the id as reference_id (true) or object_id (false)
+    * @param	integer $a_id                reference_id or object_id
+    * @param	boolean $a_call_by_reference treat the id as reference_id (true) or object_id (false)
     */
     public function __construct(int $a_id = 0, bool $a_call_by_reference = true)
     {
@@ -134,7 +139,6 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         if ($needs_convert) {
             // if file exists and enough space left on device
             if ($check_for_manifest_file && ($check_disc_free > 1)) {
-
                 // create backup from original
                 if (!copy($manifest_file, $manifest_file . ".old")) {
                     echo "Failed to copy $manifest_file...<br>\n";
@@ -147,7 +151,7 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
                 while (!feof($f_read_handler)) {
                     $zeile = fgets($f_read_handler);
                     //echo mb_detect_encoding($zeile);
-                    fwrite($f_write_handler, utf8_encode($zeile));
+                    fwrite($f_write_handler, mb_convert_encoding($zeile, "UTF-8", mb_detect_encoding($zeile)));
                 }
                 fclose($f_read_handler);
                 fclose($f_write_handler);
@@ -229,9 +233,11 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         }
         if (strtolower(trim($schema)) === "cam 1.3" || strtolower(trim($schema)) === "2004 3rd edition" || strtolower(trim($schema)) === "2004 4th edition") {
             //no conversion
+            //            $this->converted = false;
             return;
         }
 
+        //        $this->converted = true;
         //convert to SCORM 2004
 
         //check for broken SCORM 1.2 manifest file (missing organization default-common error in a lot of manifest files)
@@ -271,7 +277,7 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         $ilLog->debug("SCORM: about to transform to SCORM 2004");
 
         $xsl = new DOMDocument();
-        $xsl->async = false;
+        //        $xsl->async = false;
         $xsl->load(self::CONVERT_XSL);
         $prc = new XSLTProcessor();
         $r = @$prc->importStyleSheet($xsl);
@@ -820,10 +826,7 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         return $items;
     }
 
-    /**
-     * @return string|bool
-     */
-    public static function _getStatus(int $a_obj_id, int $a_user_id)
+    public static function _getStatus(int $a_obj_id, int $a_user_id): bool|string
     {
         global $DIC;
 
@@ -846,10 +849,7 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         return false;
     }
 
-    /**
-     * @return string|bool
-     */
-    public static function _getSatisfied(int $a_obj_id, int $a_user_id)
+    public static function _getSatisfied(int $a_obj_id, int $a_user_id): bool|string
     {
         global $DIC;
 
@@ -873,10 +873,7 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         return false;
     }
 
-    /**
-     * @return float|bool
-     */
-    public static function _getMeasure(int $a_obj_id, int $a_user_id)
+    public static function _getMeasure(int $a_obj_id, int $a_user_id): float|bool
     {
         global $DIC;
 

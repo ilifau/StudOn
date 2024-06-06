@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Class ilTestNavigationToolbarGUITest
@@ -34,7 +34,6 @@ class ilTestNavigationToolbarGUITest extends ilTestBaseTestCase
 
         $this->testObj = new ilTestNavigationToolbarGUI(
             $this->createMock(ilCtrl::class),
-            $this->createMock(ilLanguage::class),
             $this->createMock(ilTestPlayerAbstractGUI::class)
         );
     }
@@ -53,22 +52,13 @@ class ilTestNavigationToolbarGUITest extends ilTestBaseTestCase
         $this->assertTrue($this->testObj->isSuspendTestButtonEnabled());
     }
 
-    public function testQuestionListButtonEnabled(): void
+    public function testUserPassOverviewButtonEnabled(): void
     {
-        $this->testObj->setQuestionListButtonEnabled(false);
-        $this->assertFalse($this->testObj->isQuestionListButtonEnabled());
+        $this->testObj->setUserPassOverviewEnabled(false);
+        $this->assertFalse($this->testObj->isUserPassOverviewEnabled());
 
-        $this->testObj->setQuestionListButtonEnabled(true);
-        $this->assertTrue($this->testObj->isQuestionListButtonEnabled());
-    }
-
-    public function testQuestionTreeButtonEnabled(): void
-    {
-        $this->testObj->setQuestionTreeButtonEnabled(false);
-        $this->assertFalse($this->testObj->isQuestionTreeButtonEnabled());
-
-        $this->testObj->setQuestionTreeButtonEnabled(true);
-        $this->assertTrue($this->testObj->isQuestionTreeButtonEnabled());
+        $this->testObj->setUserPassOverviewEnabled(true);
+        $this->assertTrue($this->testObj->isUserPassOverviewEnabled());
     }
 
     public function testQuestionTreeVisible(): void
@@ -78,15 +68,6 @@ class ilTestNavigationToolbarGUITest extends ilTestBaseTestCase
 
         $this->testObj->setQuestionTreeVisible(true);
         $this->assertTrue($this->testObj->isQuestionTreeVisible());
-    }
-
-    public function testQuestionSelectionButtonEnabled(): void
-    {
-        $this->testObj->setQuestionSelectionButtonEnabled(false);
-        $this->assertFalse($this->testObj->isQuestionSelectionButtonEnabled());
-
-        $this->testObj->setQuestionSelectionButtonEnabled(true);
-        $this->assertTrue($this->testObj->isQuestionSelectionButtonEnabled());
     }
 
     public function testFinishTestButtonEnabled(): void

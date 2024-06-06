@@ -21,7 +21,6 @@
 /**
  * Class ilObjCourse
  * @author  Stefan Meyer <meyer@leifos.com>
- * @version $Id$
  */
 class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 {
@@ -95,6 +94,8 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
     private ?ilCourseParticipant $member_obj = null;
     private ?ilCourseParticipants $members_obj = null;
+
+    private array $local_roles = [];
 
     public function __construct(int $a_id = 0, bool $a_call_by_reference = true)
     {
@@ -282,7 +283,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
         $this->subscription_ref_id = (int) $a_ref_id;
     }
     // fau.
-    public function getSubscriptionUnlimitedStatus()
+    public function getSubscriptionUnlimitedStatus(): bool
     {
         return $this->subscription_limitation_type == ilCourseConstants::IL_CRS_SUBSCRIPTION_UNLIMITED;
     }
@@ -413,28 +414,6 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             "AND sub_notify = 1";
         $res = $ilDB->query($query);
         return (bool) $res->numRows();
-    }
-
-    public function getSubItems(
-        bool $a_admin_panel_enabled = false,
-        bool $a_include_side_block = false,
-        int $a_get_single = 0,
-        \ilContainerUserFilter $container_user_filter = null
-    ): array {
-        // Caching
-        if (isset($this->items[(int) $a_admin_panel_enabled][(int) $a_include_side_block])) {
-            return $this->items[(int) $a_admin_panel_enabled][(int) $a_include_side_block];
-        }
-
-        // Results are stored in $this->items
-        parent::getSubItems($a_admin_panel_enabled, $a_include_side_block, $a_get_single);
-        $this->items = ilContainerSessionsContentGUI::prepareSessionPresentationLimitation(
-            $this->items,
-            $this,
-            $a_admin_panel_enabled,
-            $a_include_side_block
-        );
-        return $this->items[(int) $a_admin_panel_enabled][(int) $a_include_side_block];
     }
 
     public function getSubscriptionNotify(): bool
@@ -780,8 +759,8 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             $this->db,
             $pathFactory,
             $templateRepository,
+            CLIENT_WEB_DIR,
             $DIC->filesystem()->web(),
-            null,
             new ilCertificateObjectHelper()
         );
         $cloneAction->cloneCertificate($this, $new_obj);
@@ -1230,7 +1209,6 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             $this->setContactPhone((string) $row->contact_phone);
             $this->setContactEmail((string) $row->contact_email);
             $this->setContactConsultation((string) $row->contact_consultation);
-            $this->setOfflineStatus(!(bool) $row->activation_type); // see below
             $this->setSubscriptionLimitationType((int) $row->sub_limitation_type);
             // fau: objectSub - read sub_ref_id
             $this->setSubscriptionRefId($row->sub_ref_id);

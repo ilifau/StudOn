@@ -25,11 +25,15 @@ declare(strict_types=1);
 class ilListOfQuestionsTableGUITest extends ilTestBaseTestCase
 {
     private ilListOfQuestionsTableGUI $tableGui;
-    private ilObjTestGUI $parentObj_mock;
+    private ilTestPlayerFixedQuestionSetGUI $parentObj_mock;
 
     protected function setUp(): void
     {
+        global $DIC;
         parent::setUp();
+
+        $this->addGlobal_uiFactory();
+        $this->addGlobal_uiRenderer();
 
         $lng_mock = $this->createMock(ilLanguage::class);
         $ctrl_mock = $this->createMock(ilCtrl::class);
@@ -56,9 +60,10 @@ class ilListOfQuestionsTableGUITest extends ilTestBaseTestCase
         $this->setGlobalVariable("component.factory", $component_factory);
         $this->setGlobalVariable("ilDB", $this->createMock(ilDBInterface::class));
 
-        $this->parentObj_mock = $this->getMockBuilder(ilObjTestGUI::class)->disableOriginalConstructor()->onlyMethods(array('getObject'))->getMock();
+        $this->parentObj_mock = $this->getMockBuilder(ilTestPlayerFixedQuestionSetGUI::class)
+            ->disableOriginalConstructor()->onlyMethods(array('getObject'))->getMock();
         $this->parentObj_mock->expects($this->any())->method('getObject')->willReturn($this->createMock(ilObjTest::class));
-        $this->tableGui = new ilListOfQuestionsTableGUI($this->parentObj_mock, "");
+        $this->tableGui = new ilListOfQuestionsTableGUI($this->parentObj_mock, "", $DIC['ui.factory'], $DIC['ui.renderer']);
     }
 
     public function test_instantiateObject_shouldReturnInstance(): void

@@ -18,6 +18,11 @@
 
 declare(strict_types=1);
 
+use ILIAS\Filesystem\Util\Convert\ImageOutputOptions;
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\Filesystem\Util\Archive\Unzip;
+use ILIAS\Filesystem\Util\Archive\ZipDirectoryHandling;
+
 /**
  * Just a wrapper class to create Unit Test for other classes.
  * Can be remove when the static method calls have been removed
@@ -25,6 +30,18 @@ declare(strict_types=1);
  */
 class ilCertificateUtilHelper
 {
+    private \ILIAS\Filesystem\Util\Convert\LegacyImages $image_converter;
+    private \ILIAS\Filesystem\Util\Archive\Archives $archives;
+    private \ILIAS\FileDelivery\Services $delivery;
+
+    public function __construct()
+    {
+        global $DIC;
+        $this->image_converter = $DIC->fileConverters()->legacyImages();
+        $this->archives = $DIC->archives();
+        $this->delivery = $DIC->fileDelivery();
+    }
+
     public function deliverData(string $data, string $fileName, string $mimeType): void
     {
         ilUtil::deliverData(
@@ -42,11 +59,15 @@ class ilCertificateUtilHelper
     public function convertImage(
         string $from,
         string $to,
-        string $targetFormat = '',
-        string $geometry = '',
-        string $backgroundColor = ''
+        string $geometry = ''
     ): void {
-        ilShellUtil::convertImage($from, $to, $targetFormat, $geometry, $backgroundColor);
+        $this->image_converter->convertToFormat(
+            $from,
+            $to,
+            ImageOutputOptions::FORMAT_JPG,
+            $geometry === '' ? null : (int) $geometry,
+            $geometry === '' ? null : (int) $geometry,
+        );
     }
 
     public function stripSlashes(string $string): string
@@ -54,14 +75,15 @@ class ilCertificateUtilHelper
         return ilUtil::stripSlashes($string);
     }
 
-    public function zip(string $exportPath, string $zipPath): void
+    /**
+     * @param list<Streams> $streams
+     */
+    public function zipAndDeliver(array $streams, string $download_filename): void
     {
-        ilFileUtils::zip($exportPath, $zipPath);
-    }
-
-    public function deliverFile(string $zipPath, string $zipFileName, string $mime): void
-    {
-        ilFileDelivery::deliverFileLegacy($zipPath, $zipFileName, $mime);
+        $this->delivery->delivery()->attached(
+            $this->archives->zip($streams)->get(),
+            $download_filename
+        );
     }
 
     public function getDir(string $copyDirectory): array
@@ -69,9 +91,16 @@ class ilCertificateUtilHelper
         return ilFileUtils::getDir($copyDirectory);
     }
 
-    public function unzip(string $file, bool $overwrite): void
+    public function unzip(string $file, string $zip_output_path, bool $overwrite): Unzip
     {
-        ilFileUtils::unzip($file, $overwrite);
+        return $this->archives->unzip(
+            Streams::ofResource(fopen($file, 'rb')),
+            $this->archives->unzipOptions()
+                           ->withOverwrite($overwrite)
+                           ->withZipOutputPath($zip_output_path)
+                           ->withDirectoryHandling(ZipDirectoryHandling::KEEP_STRUCTURE)
+
+        );
     }
 
     public function delDir(string $path): void
@@ -80,12 +109,6 @@ class ilCertificateUtilHelper
     }
 
     /**
-     * @param string $file
-     * @param string $name
-     * @param string $target
-     * @param bool   $raise_errors
-     * @param string $mode
-     * @return bool
      * @throws ilException
      */
     public function moveUploadedFile(

@@ -26,7 +26,7 @@ use ILIAS\Modules\Test\Incident;
 use ilDBInterface;
 use ilDBStatement;
 use ilDBConstants;
-use ilAccess;
+use ilAccessHandler;
 use Closure;
 
 class AccessFileUploadPreviewTest extends TestCase
@@ -34,14 +34,14 @@ class AccessFileUploadPreviewTest extends TestCase
     public function testConstruct() : void
     {
         $database = $this->getMockBuilder(ilDBInterface::class)->disableOriginalConstructor()->getMock();
-        $access = $this->getMockBuilder(ilAccess::class)->disableOriginalConstructor()->getMock();
+        $access = $this->getMockBuilder(ilAccessHandler::class)->getMock();
         $this->assertInstanceOf(AccessFileUploadPreview::class, new AccessFileUploadPreview($database, $access));
     }
 
     public function testNoUploadPath() : void
     {
         $database = $this->getMockBuilder(ilDBInterface::class)->disableOriginalConstructor()->getMock();
-        $access = $this->getMockBuilder(ilAccess::class)->disableOriginalConstructor()->getMock();
+        $access = $this->getMockBuilder(ilAccessHandler::class)->getMock();
 
         $instance = new AccessFileUploadPreview($database, $access);
         $result = $instance->isPermitted('/data/some/path/file.pdf');
@@ -51,7 +51,7 @@ class AccessFileUploadPreviewTest extends TestCase
     public function testFalseWithInvalidId() : void
     {
         $database = $this->getMockBuilder(ilDBInterface::class)->disableOriginalConstructor()->getMock();
-        $access = $this->getMockBuilder(ilAccess::class)->disableOriginalConstructor()->getMock();
+        $access = $this->getMockBuilder(ilAccessHandler::class)->getMock();
         $statement = $this->getMockBuilder(ilDBStatement::class)->disableOriginalConstructor()->getMock();
 
         $database->expects(self::once())->method('queryF')->with('SELECT obj_fi FROM qpl_questions WHERE question_id = %s', [ilDBConstants::T_INTEGER], [383])->willReturn($statement);
@@ -69,7 +69,7 @@ class AccessFileUploadPreviewTest extends TestCase
     public function testWithTypes(?string $type, bool $permitted, ?string $requires_permission) : void
     {
         $database = $this->getMockBuilder(ilDBInterface::class)->disableOriginalConstructor()->getMock();
-        $access = $this->getMockBuilder(ilAccess::class)->disableOriginalConstructor()->getMock();
+        $access = $this->getMockBuilder(ilAccessHandler::class)->getMock();
         $statement = $this->getMockBuilder(ilDBStatement::class)->disableOriginalConstructor()->getMock();
         $incident = $this->getMockBuilder(Incident::class)->disableOriginalConstructor()->getMock();
 

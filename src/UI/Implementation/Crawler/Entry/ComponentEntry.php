@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Crawler\Entry;
 
 use JsonSerializable;
@@ -345,6 +353,9 @@ class ComponentEntry extends AbstractEntryPart implements JsonSerializable
             )
                 . "/" . str_replace(" ", "", $this->getTitle());
             $path_array = self::array_iunique(explode("/", $path_components));
+            if ($path_array[2] !== "examples") {
+                array_splice($path_array, 2, 0, 'examples');
+            }
             $this->examples_path = implode("/", $path_array);
         }
         return $this->examples_path;

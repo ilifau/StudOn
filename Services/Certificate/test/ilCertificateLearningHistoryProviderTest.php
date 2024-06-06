@@ -61,6 +61,10 @@ class ilCertificateLearningHistoryProviderTest extends ilCertificateBaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
+                           ->disableOriginalConstructor()
+                           ->getMock();
+
         $provider = new ilCertificateLearningHistoryProvider(
             10,
             $learningHistoryFactory,
@@ -71,7 +75,8 @@ class ilCertificateLearningHistoryProviderTest extends ilCertificateBaseTestCase
             $controller,
             $certificateSettings,
             $uiFactory,
-            $uiRenderer
+            $uiRenderer,
+            $utilHelper
         );
 
         $this->assertTrue($provider->isActive());
@@ -122,7 +127,7 @@ class ilCertificateLearningHistoryProviderTest extends ilCertificateBaseTestCase
                             'crs',
                             300,
                             'Ilyas Odys',
-                            123456789,
+                            123_456_789,
                             '<xml>Some Content</xml>',
                             '["SOME_PLACEHOLDER"]',
                             null,
@@ -145,7 +150,7 @@ class ilCertificateLearningHistoryProviderTest extends ilCertificateBaseTestCase
                             'tst',
                             5000,
                             'Ilyas Odys',
-                            987654321,
+                            987_654_321,
                             '<xml>Some Content</xml>',
                             '["SOME_PLACEHOLDER"]',
                             null,
@@ -242,19 +247,19 @@ class ilCertificateLearningHistoryProviderTest extends ilCertificateBaseTestCase
                 'Certificate for link achieved.',
                 'Certificate for link achieved.',
                 '/some/acutal/image/path/background.png',
-                123456789,
+                123_456_789,
                 200
             ),
             new ilLearningHistoryEntry(
                 'Certificate for link achieved.',
                 'Certificate for link achieved.',
                 '/some/acutal/image/path/background.png',
-                987654321,
+                987_654_321,
                 500
             ),
         ];
 
-        $actualEntries = $provider->getEntries(123456789, 987654321);
+        $actualEntries = $provider->getEntries(123_456_789, 987_654_321);
         $this->assertEquals($expectedEntries, $actualEntries);
     }
 
@@ -304,6 +309,10 @@ class ilCertificateLearningHistoryProviderTest extends ilCertificateBaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
+                           ->disableOriginalConstructor()
+                           ->getMock();
+
         $provider = new ilCertificateLearningHistoryProvider(
             10,
             $learningHistoryFactory,
@@ -314,7 +323,8 @@ class ilCertificateLearningHistoryProviderTest extends ilCertificateBaseTestCase
             $controller,
             $certificateSettings,
             $uiFactory,
-            $uiRenderer
+            $uiRenderer,
+            $utilHelper
         );
 
         $this->assertSame('Certificates', $provider->getName());

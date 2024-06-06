@@ -205,7 +205,7 @@ class ilECSCourseMemberAssignment
         $this->cms_sub_id = $a_id;
     }
 
-    public function getCmsSubId(): ?int
+    public function getCmsSubId(): int
     {
         return $this->cms_sub_id;
     }
@@ -225,7 +225,7 @@ class ilECSCourseMemberAssignment
         $this->uid = $a_id;
     }
 
-    public function getUid(): ?string
+    public function getUid(): string
     {
         return $this->uid;
     }
@@ -322,13 +322,9 @@ class ilECSCourseMemberAssignment
             $this->setServer((int) $row->sid);
             $this->setMid((int) $row->mid);
             $this->setCmsId((int) $row->cms_id);
-            if (!is_null($row->cms_sub_id)) {
-                $this->setCmsSubId((int) $row->cms_sub_id);
-            }
+            $this->setCmsSubId((int) $row->cms_sub_id);
             $this->setObjId((int) $row->obj_id);
-            if (!is_null($row->usr_id)) {
-                $this->setUid($row->usr_id);
-            }
+            $this->setUid($row->usr_id);
             $this->setStatus((bool) $row->status);
         }
         return true;

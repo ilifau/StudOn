@@ -382,7 +382,6 @@ class ilSCORM13MDImporter extends ilMDXMLCopier
                 }
 
                 break;
-
         }
     }
 
@@ -711,7 +710,6 @@ class ilSCORM13MDImporter extends ilMDXMLCopier
                     $this->md_ide->update();
                 }
                 break;
-
         }
         $this->md_chr_data = '';
     }

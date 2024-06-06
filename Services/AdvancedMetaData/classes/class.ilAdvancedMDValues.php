@@ -318,7 +318,6 @@ class ilAdvancedMDValues
         $record_mapping = [];
         foreach (ilAdvancedMDRecord::_getRecords() as $record) {
             if ($record->getParentObject() == $a_source_id && is_null($parent_mapping)) {
-
                 // if we have a sub object and are in a copy process,
                 // the main object must have already copied its records
                 if (!is_null($a_source_sub_id) && $copy_id > 0) {

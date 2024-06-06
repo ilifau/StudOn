@@ -15,7 +15,8 @@
  *
  *********************************************************************/
 
-include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
+use ILIAS\TA\Questions\assQuestionSuggestedSolution;
+use ILIAS\TA\Questions\assQuestionSuggestedSolutionsDatabaseRepository;
 
 /**
 * Class for question imports
@@ -51,7 +52,7 @@ class assQuestionImport
 
     public function getFeedbackGeneric($item): array
     {
-        $feedbacksgeneric = array();
+        $feedbacksgeneric = [];
         foreach ($item->resprocessing as $resprocessing) {
             foreach ($resprocessing->respcondition as $respcondition) {
                 foreach ($respcondition->displayfeedback as $feedbackpointer) {
@@ -97,7 +98,7 @@ class assQuestionImport
         }
         // handle the import of media objects in XHTML code
         foreach ($feedbacksgeneric as $correctness => $material) {
-            $m = $this->object->QTIMaterialToString($material);
+            $m = $this->QTIMaterialToString($material);
             $feedbacksgeneric[$correctness] = $m;
         }
         return $feedbacksgeneric;
@@ -120,7 +121,7 @@ class assQuestionImport
      */
     protected function getFeedbackAnswerSpecific(ilQTIItem $item, $prefix = 'response_'): array
     {
-        $feedbacks = array();
+        $feedbacks = [];
 
         foreach ($item->itemfeedback as $ifb) {
             if ($ifb->getIdent() == 'response_allcorrect' || $ifb->getIdent() == 'response_onenotcorrect') {
@@ -157,7 +158,7 @@ class assQuestionImport
         }
 
         foreach ($feedbacks as $ident => $material) {
-            $m = $this->object->QTIMaterialToString($material);
+            $m = $this->QTIMaterialToString($material);
             $feedbacks[$ident] = $m;
         }
 
@@ -244,7 +245,7 @@ class assQuestionImport
         $matches = null;
 
         if (preg_match_all($reg, $text, $matches)) {
-            $mobs = array();
+            $mobs = [];
             for ($i = 0, $max = count($matches[1]); $i < $max; $i++) {
                 $mobSrcId = $matches[1][$i];
                 $mobSrcName = $matches[2][$i];
@@ -255,9 +256,9 @@ class assQuestionImport
                 //}
 
                 //$_SESSION["import_mob_xhtml"][] = array(
-                $mobs[] = array(
+                $mobs[] = [
                     "mob" => $mobSrcLabel, "uri" => 'objects/' . $mobSrcLabel . '/' . $mobSrcName
-                );
+                ];
             }
             ilSession::set('import_mob_xhtml', $mobs);
         }
@@ -296,10 +297,63 @@ class assQuestionImport
 
         $repo = $this->getSuggestedSolutionsRepo();
 
-        $nu_value = $this->object->_resolveInternalLink($value);
+        $nu_value = $this->object->resolveInternalLink($value);
         $solution = $repo->create($question_id, $type)
             ->withInternalLink($nu_value)
             ->withImportId($value);
-        $repo->update($solution);
+        $repo->update([$solution]);
     }
+
+    protected function findSolutionTypeByValue(string $value): ?string
+    {
+        foreach (array_keys(assQuestionSuggestedSolution::TYPES) as $type) {
+            $search_type = '_' . $type . '_';
+            if (strpos($value, $search_type) !== false) {
+                return $type;
+            }
+        }
+        return null;
+    }
+
+
+    protected ?assQuestionSuggestedSolutionsDatabaseRepository $suggestedsolution_repo = null;
+    protected function getSuggestedSolutionsRepo(): assQuestionSuggestedSolutionsDatabaseRepository
+    {
+        if (is_null($this->suggestedsolution_repo)) {
+            $dic = ilQuestionPoolDIC::dic();
+            $this->suggestedsolution_repo = $dic['question.repo.suggestedsolutions'];
+        }
+        return $this->suggestedsolution_repo;
+    }
+
+    /**
+     * Reads an QTI material tag and creates a text or XHTML string
+     * @return string text or xhtml string
+     */
+    public function QTIMaterialToString(ilQTIMaterial $a_material): string
+    {
+        $result = "";
+        $mobs = [];
+        for ($i = 0; $i < $a_material->getMaterialCount(); $i++) {
+            $material = $a_material->getMaterial($i);
+            if (strcmp($material["type"], "mattext") === 0) {
+                $result .= $material["material"]->getContent();
+            }
+            if (strcmp($material["type"], "matimage") === 0) {
+                $matimage = $material["material"];
+                if (preg_match("/(il_([0-9]+)_mob_([0-9]+))/", $matimage->getLabel(), $matches)) {
+                    // import an mediaobject which was inserted using tiny mce
+                    //if (!is_array(ilSession::get("import_mob_xhtml"))) {
+                    //    ilSession::set("import_mob_xhtml", array());
+                    //}
+                    $mobs[] = ["mob" => $matimage->getLabel(),
+                                    "uri" => $matimage->getUri()
+                    ];
+                }
+            }
+        }
+        ilSession::set('import_mob_xhtml', $mobs);
+        return $result;
+    }
+
 }

@@ -40,8 +40,12 @@ class ilWikiPageTemplate
     }
 
     public function getAllInfo(
-        int $a_type = self::TYPE_ALL
+        int $a_type = self::TYPE_ALL,
+        string $lang = "-"
     ): array {
+        if ($lang === "") {
+            $lang = "-";
+        }
         $and = "";
         if ($a_type === self::TYPE_NEW_PAGES) {
             $and = " AND t.new_pages = " . $this->db->quote(1, "integer");
@@ -50,11 +54,13 @@ class ilWikiPageTemplate
             $and = " AND t.add_to_page = " . $this->db->quote(1, "integer");
         }
 
-        $set = $this->db->query(
+        $set = $this->db->queryF(
             $q = "SELECT t.wiki_id, t.wpage_id, p.title, t.new_pages, t.add_to_page FROM wiki_page_template t JOIN il_wiki_page p ON " .
-            " (t.wpage_id = p.id) " .
-            " WHERE t.wiki_id = " . $this->db->quote($this->wiki_id, "integer") .
-            $and
+            " (t.wpage_id = p.id AND p.lang = %s) " .
+            " WHERE t.wiki_id = %s " .
+            $and,
+            ["text", "integer"],
+            [$lang, $this->wiki_id]
         );
         $templates = array();
         while ($rec = $this->db->fetchAssoc($set)) {

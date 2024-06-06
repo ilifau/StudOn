@@ -33,6 +33,8 @@ class assSingleChoiceGUITest extends assBaseTestCase
     {
         parent::setUp();
 
+        $this->setGlobalVariable('ilLog', $this->createMock(ilLogger::class));
+
         $ilCtrl_mock = $this->getMockBuilder(ilCtrl::class)
                             ->disableOriginalConstructor()
                             ->getMock();
@@ -54,9 +56,6 @@ class assSingleChoiceGUITest extends assBaseTestCase
 
     public function test_instantiateObject_shouldReturnInstance(): void
     {
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assSingleChoiceGUI.php';
-
         // Act
         $instance = new assSingleChoiceGUI();
 

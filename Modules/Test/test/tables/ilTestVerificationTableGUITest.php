@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,10 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\Services\Logging\NullLogger;
+
 /**
  * Class ilTestVerificationTableGUITest
  * @author Marvin Beym <mbeym@databay.de>
@@ -28,70 +30,26 @@ class ilTestVerificationTableGUITest extends ilTestBaseTestCase
 
     protected function setUp(): void
     {
+        global $DIC;
         parent::setUp();
 
-        $lng_mock = $this->createMock(ilLanguage::class);
+        $this->addGlobal_ilDB();
+        $this->addGlobal_ilUser();
+        $this->addGlobal_lng();
+        $this->addGlobal_tpl();
+        $this->addGlobal_ilComponentRepository();
+        $this->addGlobal_ilComponentFactory();
+
         $ctrl_mock = $this->createMock(ilCtrl::class);
         $ctrl_mock
-                  ->method("getFormAction")
-                  ->willReturnCallback(function () {
-                      return "testFormAction";
-                  });
-
-        $this->setGlobalVariable("lng", $lng_mock);
+            ->method("getFormAction")
+            ->willReturnCallback(function () {
+                return "testFormAction";
+            });
         $this->setGlobalVariable("ilCtrl", $ctrl_mock);
-        $this->setGlobalVariable("tpl", $this->createMock(ilGlobalPageTemplate::class));
-        $this->setGlobalVariable("component.repository", $this->createMock(ilComponentRepository::class));
-        $this->setGlobalVariable("component.factory", $this->createMock(ilComponentFactory::class));
-        $this->setGlobalVariable("ilDB", $this->createMock(ilDBInterface::class));
-        $this->setGlobalVariable("ilUser", $this->createMock(ilObjUser::class));
-
-        $this->setGlobalVariable("ilLoggerFactory", new class () extends ilLoggerFactory {
-            public function __construct()
-            {
-            }
-
-            public static function getRootLogger(): ilLogger
-            {
-                return new class () extends ilLogger {
-                    public function __construct()
-                    {
-                    }
-
-                    public function write(string $a_message, $a_level = ilLogLevel::INFO): void
-                    {
-                    }
-
-                    public function info(string $a_message): void
-                    {
-                    }
-
-                    public function debug(string $a_message, array $a_context = array()): void
-                    {
-                    }
-                };
-            }
-
-            public static function getLogger(string $a_component_id): ilLogger
-            {
-                return new class () extends ilLogger {
-                    public function __construct()
-                    {
-                    }
-
-                    public function write(string $a_message, $a_level = ilLogLevel::INFO): void
-                    {
-                    }
-
-                    public function debug(string $a_message, array $a_context = array()): void
-                    {
-                    }
-                };
-            }
-        });
 
         $test_gui = $this->getMockBuilder(ilObjTestVerificationGUI::class)->disableOriginalConstructor()->getMock();
-        $this->tableGui = new ilTestVerificationTableGUI($test_gui);
+        $this->tableGui = new ilTestVerificationTableGUI($test_gui, '', $DIC['ilDB'], $DIC['ilUser'], new NullLogger());
     }
 
     public function test_instantiateObject_shouldReturnInstance(): void

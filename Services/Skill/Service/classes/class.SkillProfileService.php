@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -39,37 +41,79 @@ class SkillProfileService
     /**
      * @throws \ilSkillProfileNotFoundException
      */
-    public function getById(int $profile_id): Profile\SkillProfile
+    public function getProfile(int $profile_id): Profile\SkillProfile
     {
-        return $this->profile_manager->getById($profile_id);
+        return $this->profile_manager->getProfile($profile_id);
     }
 
-    public function delete(int $profile_id): void
+    public function deleteProfile(int $profile_id): void
     {
         $this->profile_manager->delete($profile_id);
         $this->profile_completion_manager->deleteEntriesForProfile($profile_id);
     }
 
-    public function lookupTitle(int $profile_id): string
+    public function lookupProfileTitle(int $profile_id): string
     {
         $title = $this->profile_manager->lookupTitle($profile_id);
         return $title;
     }
 
-    public function lookupRefId(int $profile_id): int
+    public function lookupProfileRefId(int $profile_id): int
     {
         $ref_id = $this->profile_manager->lookupRefId($profile_id);
         return $ref_id;
     }
 
+    /**
+     * @return Profile\SkillProfileLevel[]
+     */
+    public function getSkillLevels(int $profile_id): array
+    {
+        return $this->profile_manager->getSkillLevels($profile_id);
+    }
+
+    /**
+     * @return Profile\SkillProfile[]
+     */
     public function getProfilesOfUser(int $user_id): array
     {
         return $this->profile_manager->getProfilesOfUser($user_id);
     }
 
+    /**
+     * @return Profile\SkillProfile[]
+     */
     public function getAllGlobalProfiles(): array
     {
         $profiles = $this->profile_manager->getAllGlobalProfiles();
+        return $profiles;
+    }
+
+    /**
+     * Get global and local profiles of a role
+     * @return Profile\SkillRoleProfile[]
+     */
+    public function getAllProfilesOfRole(int $role_id): array
+    {
+        $profiles = $this->profile_manager->getAllProfilesOfRole($role_id);
+        return $profiles;
+    }
+
+    /**
+     * @return Profile\SkillRoleProfile[]
+     */
+    public function getGlobalProfilesOfRole(int $role_id): array
+    {
+        $profiles = $this->profile_manager->getGlobalProfilesOfRole($role_id);
+        return $profiles;
+    }
+
+    /**
+     * @return Profile\SkillRoleProfile[]
+     */
+    public function getLocalProfilesOfRole(int $role_id): array
+    {
+        $profiles = $this->profile_manager->getLocalProfilesOfRole($role_id);
         return $profiles;
     }
 
@@ -78,10 +122,15 @@ class SkillProfileService
         $this->profile_manager->addRoleToProfile($profile_id, $role_id);
     }
 
+    public function removeRoleFromProfile(int $profile_id, int $role_id): void
+    {
+        $this->profile_manager->removeRoleFromProfile($profile_id, $role_id);
+    }
+
     /**
      * Update the old ref id with the new ref id after import
      */
-    public function updateRefIdAfterImport(int $profile_id, int $new_ref_id): void
+    public function updateProfileRefIdAfterImport(int $profile_id, int $new_ref_id): void
     {
         $this->profile_manager->updateRefIdAfterImport($profile_id, $new_ref_id);
     }
@@ -91,6 +140,6 @@ class SkillProfileService
      */
     public function writeCompletionEntryForAllProfiles(int $user_id): void
     {
-        $this->profile_completion_manager->writeCompletionEntryForAllProfiles($user_id);
+        $this->profile_completion_manager->writeCompletionEntryForAllProfilesOfUser($user_id);
     }
 }

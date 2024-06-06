@@ -79,7 +79,7 @@ class ilObjGroupReferenceListGUI extends ilObjGroupListGUI
         $this->subscribe_enabled = true;
         $this->link_enabled = false;
         $this->info_screen_enabled = true;
-        $this->type = "grp";
+        $this->type = 'grpr';
         $this->gui_class_name = "ilobjgroupgui";
 
         $this->substitutions = ilAdvancedMDSubstitution::_getInstanceByObjectType($this->type);
@@ -118,9 +118,6 @@ class ilObjGroupReferenceListGUI extends ilObjGroupListGUI
         $target_description = ilObject::_lookupDescription($target_obj_id);
 
         $this->deleted = $tree->isDeleted($target_ref_id);
-
-        $this->conditions_ok = ilConditionHandler::_checkAllConditionsOfTarget($target_ref_id, $target_obj_id);
-
 
         parent::initItem($target_ref_id, $target_obj_id, $type, $target_title, $target_description);
 

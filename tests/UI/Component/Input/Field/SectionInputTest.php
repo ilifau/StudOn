@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 
@@ -59,14 +67,14 @@ class SectionInputTest extends ILIAS_UI_TestBase
                 <div class="form-group row">
                     <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">input1</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_1" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_1" type="text" class="form-control form-control-sm" />
                         <div class="help-block">in 1</div>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="id_2" class="control-label col-sm-4 col-md-3 col-lg-2">input2</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_2" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_2" type="text" class="form-control form-control-sm" />
                         <div class="help-block">in 2</div>
                     </div>
                 </div>
@@ -97,7 +105,7 @@ EOT;
                 <div class="form-group row">
                     <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">input1</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_1" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_1" type="text" class="form-control form-control-sm" />
                         <div class="help-block">in 1</div>
                     </div>
                 </div>

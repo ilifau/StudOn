@@ -18,22 +18,18 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\CI\Rector\ReplaceWithDIC;
+namespace ILIAS\CI\Rector\ilUtils;
 
 class Example
 {
-    public function __construct()
-    {
-    }
-
-    protected function foo()
+    protected function foo(): void
     {
         \ilUtil::sendFailure('my_text', true);
         \ilUtil::sendSuccess('my_text', true);
         \ilUtil::sendQuestion('my_text', true);
     }
 
-    protected static function bar()
+    protected static function bar(): void
     {
         \ilUtil::sendInfo('my_text', true);
     }

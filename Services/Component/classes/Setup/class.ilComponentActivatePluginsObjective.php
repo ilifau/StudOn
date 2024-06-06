@@ -16,11 +16,11 @@
  *
  *********************************************************************/
 
-
 declare(strict_types=1);
 
 use ILIAS\Setup;
 use ILIAS\DI;
+use ILIAS\Services\Logging\NullLogger;
 
 class ilComponentActivatePluginsObjective implements Setup\Objective
 {
@@ -130,29 +130,7 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
         $GLOBALS["DIC"]["ilDB"] = $db;
         $GLOBALS["DIC"]["ilIliasIniFile"] = $ini;
         $GLOBALS["DIC"]["ilClientIniFile"] = $client_ini;
-        $GLOBALS["DIC"]["ilLog"] = new class () extends ilLogger {
-            public function __construct()
-            {
-            }
-            public function write(string $a_message, $a_level = ilLogLevel::INFO): void
-            {
-            }
-            public function info(string $a_message): void
-            {
-            }
-            public function warning(string $a_message): void
-            {
-            }
-            public function error(string $a_message): void
-            {
-            }
-            public function debug(string $a_message, array $a_context = []): void
-            {
-            }
-            public function dump($a_variable, int $a_level = ilLogLevel::INFO): void
-            {
-            }
-        };
+        $GLOBALS["DIC"]["ilLog"] = new NullLogger();
         $GLOBALS["DIC"]["ilLoggerFactory"] = new class () extends ilLoggerFactory {
             public function __construct()
             {
@@ -187,10 +165,6 @@ class ilComponentActivatePluginsObjective implements Setup\Objective
                 $this->prefs["language"] = "en";
             }
         };
-
-        if (!defined('DEBUG')) {
-            define('DEBUG', false);
-        }
 
         if (!defined('SYSTEM_ROLE_ID')) {
             define('SYSTEM_ROLE_ID', '2');

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,8 +16,13 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\EmployeeTalk\UI\ControlFlowCommand;
 use ILIAS\EmployeeTalk\UI\ControlFlowCommandHandler;
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\UI\Renderer as UIRenderer;
+use ILIAS\UI\Implementation\Component\Modal\Interruptive as InterruptiveModal;
 
 final class ilEmployeeTalkTableGUI extends ilTable2GUI
 {
@@ -27,16 +30,24 @@ final class ilEmployeeTalkTableGUI extends ilTable2GUI
     public const STATUS_PENDING = 1;
     public const STATUS_COMPLETED = 2;
 
+    private UIFactory $ui_factory;
+    private UIRenderer $ui_renderer;
     private ilLanguage $language;
+    private ilObjEmployeeTalkAccess $talk_access;
 
-    public function __construct(ControlFlowCommandHandler $a_parent_obj, $a_parent_cmd = "")
+    /**
+     * InterruptiveModal[]
+     */
+    private array $delete_modals = [];
+
+    public function __construct(ControlFlowCommandHandler $a_parent_obj, $a_parent_cmd = '')
     {
-        /**
-         * @var \ILIAS\DI\Container $container
-         */
-        $container = $GLOBALS['DIC'];
+        global $DIC;
 
-        $this->language = $container->language();
+        $this->talk_access = new ilObjEmployeeTalkAccess();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
+        $this->language = $DIC->language();
         $this->language->loadLanguageModule('etal');
         $this->language->loadLanguageModule('orgu');
 
@@ -46,7 +57,7 @@ final class ilEmployeeTalkTableGUI extends ilTable2GUI
 
         parent::__construct($a_parent_obj, $a_parent_cmd, '');
         $this->setRowTemplate('tpl.list_employee_talk_row.html', "Modules/EmployeeTalk");
-        $this->setFormAction($container->ctrl()->getFormAction($a_parent_obj));
+        $this->setFormAction($DIC->ctrl()->getFormAction($a_parent_obj));
         ;
         $this->setDefaultOrderDirection('desc');
 
@@ -56,11 +67,8 @@ final class ilEmployeeTalkTableGUI extends ilTable2GUI
         $this->setEnableTitle(true);
         $this->setDisableFilterHiding(true);
         $this->setEnableNumInfo(true);
-        //$this->setExternalSorting(false);
-        //$this->setExternalSegmentation(false);
         $this->setExternalSegmentation(true);
 
-        //$this->setExportFormats(array(self::EXPORT_EXCEL, self::EXPORT_CSV));
         $this->addColumns();
 
         $this->initFilter();
@@ -140,32 +148,42 @@ final class ilEmployeeTalkTableGUI extends ilTable2GUI
 
     protected function fillRow($a_set): void
     {
-        $class = strtolower(ilObjEmployeeTalkGUI::class);
-        $classPath = [
-            strtolower(ilDashboardGUI::class),
-            strtolower(ilMyStaffGUI::class),
-            strtolower(ilEmployeeTalkMyStaffListGUI::class),
-            $class
-        ];
-        $this->ctrl->setParameterByClass($class, "ref_id", $a_set["ref_id"]);
-        $url = $this->ctrl->getLinkTargetByClass($classPath, ControlFlowCommand::DEFAULT);
+        $talk_class = strtolower(ilObjEmployeeTalkGUI::class);
+        $class_path = $this->getParentObject()->getClassPath();
+        $class_path[] = $talk_class;
 
-        $actions = new ilAdvancedSelectionListGUI();
-        $actions->setListTitle($this->language->txt("actions"));
-        $actions->setAsynch(true);
-        $actions->setId((string) $a_set["ref_id"]);
+        $ref_id = $a_set['ref_id'];
+        $this->ctrl->setParameterByClass($talk_class, 'ref_id', $ref_id);
+        $url = $this->ctrl->getLinkTargetByClass($class_path, ControlFlowCommand::DEFAULT);
 
-        $actions->setAsynchUrl(
-            str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass(
-                [
-                    strtolower(ilDashboardGUI::class),
-                    strtolower(ilMyStaffGUI::class),
-                    strtolower(ilEmployeeTalkMyStaffListGUI::class)
-                ],
-                ControlFlowCommand::TABLE_ACTIONS,
-                "",
-                true
-            )) . '&ref_id=' . $a_set["ref_id"]
+        $buttons = [];
+        if ($this->talk_access->canEdit($ref_id)) {
+            $buttons[] = $this->ui_factory->link()->standard(
+                $this->language->txt('edit'),
+                $this->ctrl->getLinkTargetByClass($class_path, ControlFlowCommand::UPDATE)
+            );
+        } else {
+            $buttons[] = $this->ui_factory->link()->standard(
+                $this->language->txt('view'),
+                $this->ctrl->getLinkTargetByClass($class_path, ControlFlowCommand::INDEX)
+            );
+        }
+
+        if ($this->talk_access->canDelete($ref_id)) {
+            $modal = $this->getConfirmationModal(
+                $a_set['etal_title'],
+                $ref_id,
+                $this->ctrl->getLinkTargetByClass($class_path, ControlFlowCommand::DELETE)
+            );
+            $buttons[] = $this->ui_factory->button()->shy(
+                $this->language->txt('delete'),
+                ''
+            )->withOnClick($modal->getShowSignal());
+            $this->delete_modals[] = $modal;
+        }
+        $this->ctrl->clearParametersByClass($talk_class);
+        $actions = $this->ui_factory->dropdown()->standard($buttons)->withLabel(
+            $this->language->txt('actions')
         );
 
         $this->tpl->setVariable("HREF_ETAL_TITLE", $url);
@@ -175,7 +193,7 @@ final class ilEmployeeTalkTableGUI extends ilTable2GUI
         $this->tpl->setVariable("VAL_ETAL_SUPERIOR", $a_set['etal_superior']);
         $this->tpl->setVariable("VAL_ETAL_EMPLOYEE", $a_set['etal_employee']);
         $this->tpl->setVariable("VAL_ETAL_STATUS", $a_set['etal_status']);
-        $this->tpl->setVariable("ACTIONS", $actions->getHTML());
+        $this->tpl->setVariable("ACTIONS", $this->ui_renderer->render($actions));
     }
 
     public function setTalkData(array $talks): void
@@ -210,7 +228,7 @@ final class ilEmployeeTalkTableGUI extends ilTable2GUI
 
             if ($filter['etal_superior'] !== "") {
                 $filterUser = ilObjUser::getUserIdByLogin($filter['etal_superior']);
-                if (intval($talk->getOwner()) !== $filterUser) {
+                if ($talk->getOwner() !== $filterUser) {
                     continue;
                 }
             }
@@ -221,7 +239,7 @@ final class ilEmployeeTalkTableGUI extends ilTable2GUI
                 }
             }
 
-            if ($filter['etal_date'] !== false && $filter['etal_date'] !== null) {
+            if ($filter['etal_date'] !== false && $filter['etal_date'] !== null && $filter['etal_date'] !== '') {
                 $filterDate = new ilDateTime($filter['etal_date'], IL_CAL_DATE);
                 if (
                     !ilDateTime::_equals($filterDate, $val->getStartDate(), IL_CAL_DAY)
@@ -264,12 +282,34 @@ final class ilEmployeeTalkTableGUI extends ilTable2GUI
             ];
         }
 
-        $offset = intval($this->getOffset());
-        $limit = intval($this->getLimit()) + 1;
+        $offset = $this->getOffset();
+        $limit = $this->getLimit() + 1;
 
         $this->setMaxCount(count($data));
 
         $dataSlice = array_slice($data, $offset, $limit, true);
         $this->setData($dataSlice);
+    }
+
+    protected function getConfirmationModal(
+        string $talk_title,
+        int $talk_ref_id,
+        string $action
+    ): InterruptiveModal {
+        $item = $this->ui_factory->modal()->interruptiveItem()->standard(
+            (string) $talk_ref_id,
+            $talk_title
+        );
+
+        return $this->ui_factory->modal()->interruptive(
+            $this->language->txt('confirm'),
+            $this->language->txt('etal_delete_confirmation_msg'),
+            $action
+        )->withAffectedItems([$item]);
+    }
+
+    public function getHTML(): string
+    {
+        return parent::getHTML() . $this->ui_renderer->render($this->delete_modals);
     }
 }

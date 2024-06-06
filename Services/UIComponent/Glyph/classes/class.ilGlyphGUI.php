@@ -18,6 +18,8 @@
 
 /**
  * @author Alexander Killing <killing@leifos.de>
+ *
+ * @deprecated 10
  */
 class ilGlyphGUI
 {
@@ -78,7 +80,6 @@ class ilGlyphGUI
                 $html = '<span class="sr-only">' . $text .
                     '</span><span class="' . self::$map[$a_glyph]["class"] . '"></span>';
                 break;
-
         }
         return $html;
     }

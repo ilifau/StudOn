@@ -1,0 +1,297 @@
+@use "../../../010-settings/" as s;
+@use "../../../010-settings/legacy-settings/legacy-settings_form" as s-form;
+@use "../../../030-tools/tool_focus-outline" as f;
+@use "../../../050-layout/basics"as l;
+@use "../../../050-layout/standardpage" as l-spage;
+@use "../../../030-tools/_tool_buttons" as * with (
+  $font-family: s.$il-font-family-sans-serif,
+  $font-size: s.$il-button-font-size,
+  $font-weight: s.$il-button-font-weight,
+  $button-color: s.$il-main-color,
+  $button-text-color: s.$il-text-color-invert,
+  $text-decoration: none,
+  $button-style-outlined: false,
+  $border-width: 1px,
+  $border-radius: s.$il-border-radius-base,
+  $line-height: inherit,
+  // button height is by default largely determined by this value
+  $input-field-height: s-form.$il-input-min-height,
+  $padding-small-x: l.$il-padding-small-horizontal,
+  // padding y is only a small buffer for when the button contains multiple lines
+  $padding-small-y: l.$il-padding-small-vertical,
+  $inner-spacing: l.$il-padding-small-horizontal,
+  $set-full-width: false,
+  $button_active-transform: none
+);
+@use "../../../030-tools/_tool_browser-prefixes" as *;
+
+
+//== Buttons
+
+$input-min-height-large: s-form.$il-input-min-height * 1.8;
+
+//** many variables can be found on settings layer
+
+// Base styles
+// --------------------------------------------------
+
+.btn {
+  @include make-button($set-basics: true, $set-design: false, $set-size: true);
+}
+
+a.btn {
+  &.disabled,
+  fieldset[disabled] & {
+    pointer-events: none; // Future-proof disabling of clicks on `<a>` elements
+  }
+}
+
+//This is legacy for the old forms implementation. Can be removed as soon as the old implementation is removed.
+input.btn {
+  min-width: s-form.$il-button-min-width-forms;
+
+  @media (max-width: s.$il-grid-float-breakpoint-max){
+    min-width: 0;
+  }
+}
+
+.btn-default {
+  @include make-button($set-basics: false, $set-design: true, 
+    $button-color: s.$il-btn-standard-bg,
+
+    $bg-color: s.$il-btn-standard-bg,
+    $text-color: s.$il-btn-standard-color,
+    $border-color: s.$il-btn-standard-border,
+
+    $disabled_bg-color: s.$il-disabled-btn-bg,
+    $disabled_text-color: s.$il-disabled-btn-color,
+    $disabled_border-color: s.$il-disabled-btn-border,
+    
+    $engaged_bg-color: s.$il-engaged-btn-bg,
+    $engaged_text-color: s.$il-engaged-btn-color,
+    $engaged_border-color: s.$il-btn-standard-border,
+    $engaged_border-width: 1px);
+}
+
+.navbar-form > a {
+  @extend .btn;
+  @extend .btn-default;
+}
+
+.btn-primary {
+  @include make-button($set-basics: false, $set-design: true,
+    $button-color: s.$il-btn-primary-bg,
+
+    $bg-color: s.$il-btn-primary-bg,
+    $text-color: s.$il-btn-primary-color,
+    $border-color: s.$il-btn-primary-border,
+
+    $disabled_bg-color: s.$il-disabled-btn-bg,
+    $disabled_text-color: s.$il-disabled-btn-color,
+    $disabled_border-color: s.$il-disabled-btn-border,
+    
+    $engaged_bg-color: s.$il-engaged-btn-bg,
+    $engaged_text-color: s.$il-engaged-btn-color,
+    $engaged_border-color: s.$il-btn-primary-border,
+    $engaged_border-width: 1px);
+}
+
+.btn-ctrl {
+  @include make-button($input-field-height: s.$il-btn-ctrl-outer-height,
+                        $border-radius: s.$il-border-radius-secondary-large,
+                        $button-text-color: s.$il-btn-ctrl-color,
+                        $button-color: s.$il-btn-ctrl-bg,
+                        $border-color: s.$il-btn-ctrl-border,
+                        $hover_border-color: s.$il-btn-ctrl-engaged-border);
+  &.engaged,
+  .open & {
+    border: 1px solid s.$il-btn-ctrl-engaged-border;
+    background-color: s.$il-main-bg;
+  }
+  .open & {
+    box-shadow: none;
+  }
+}
+
+.ilTableNav > table > tbody > tr > td {
+  > .btn-group > .btn-link,
+  > .dropdown > .btn-default {
+    @extend .btn-ctrl;
+    margin-left: l.$il-margin-xs-horizontal;
+  }
+} 
+
+// ILIAS doesn't use btn-success, btn-info, btn-warning, btn-danger
+
+// Link buttons
+// -------------------------
+
+// Make a button look and behave like a link
+.btn-link {
+  padding: 0;
+	text-align: left;
+	white-space: normal;
+  vertical-align: baseline;
+  font-size: inherit;
+  font-weight: s.$il-font-weight-base;
+  color: s.$il-link-color;
+  border: 0;
+  min-height: 0;
+
+  &,
+  &:active,
+  &.active,
+  &[disabled],
+  fieldset[disabled] & {
+    background-color: transparent;
+    @include box-shadow(none);
+  }
+  &,
+  &:hover,
+  &:active {
+    border-color: transparent;
+  }
+  &:hover {
+    color: s.$il-link-hover-color;
+    text-decoration: s.$il-link-hover-decoration;
+    background-color: transparent;
+  }
+  &[disabled],
+  fieldset[disabled] & {
+    background-color: s.$il-disabled-btn-bg;
+    color: s.$il-disabled-btn-color;
+    border: 1px solid s.$il-disabled-btn-border;
+    &:hover {
+      text-decoration: none;
+    }
+  }
+  &.engaged {
+    color: s.$il-engaged-btn-color;
+    background-color: s.$il-highlight-bg;
+  }
+}
+
+//
+// BULKY BUTTONS
+//
+
+// base styling for all
+
+.btn-bulky {
+	@include make-button($set-basics: false, $set-design: true,
+    $button-color: s.$il-bulky-bg-color,
+    $text-color: s.$il-bulky-text-color,
+    $border-color: s.$il-bulky-border-color,
+    $font-size: s.$il-bulky-label-size,
+    $input-field-height: $input-min-height-large,
+
+    $set-full-width: true,
+    $padding-small-x: l.$il-padding-large-horizontal,
+    $padding-small-y: l.$il-padding-large-vertical,
+    $inner-spacing: l.$il-padding-large-vertical,
+
+    $hover_bg-color: s.$il-bulky-bg-color-engaged,
+    $hover_border-color: s.$il-bulky-bg-color-engaged,
+
+    $disabled_bg-color: s.$il-disabled-btn-bg,
+    $disabled_text-color: s.$il-disabled-btn-color,
+    $disabled_border-color: s.$il-disabled-btn-border,
+    
+    $active_transform: null,
+
+    $engaged_text-color: inherit,
+    $engaged_bg-color: s.$il-bulky-bg-color-engaged,
+    $engaged_border-width: 1px);
+  @include f.il-focus-border-only();
+}
+
+.il-link.link-bulky,
+.il-drilldown .menulevel {
+  @extend .btn;
+  @extend .btn-bulky;
+}
+
+// same visual design for bulky buttons and links in slate and drilldown
+.il-maincontrols-slate,
+.il-drilldown {
+  .btn-bulky,
+  .il-link.link-bulky {
+    margin-bottom: l-spage.$il-slate-content-spacing;
+    .bulky-label {
+      flex-grow: 1;
+      text-align: left;
+    }
+  }
+}
+
+// Button Sizes
+// --------------------------------------------------
+
+.btn-lg {
+  // line-height: ensure even-numbered height of button next to large input
+  @include make-button($set-basics: false, $set-design: false, $set-size: true,
+  $font-size: s.$il-font-size-large,
+  $input-field-height: $input-min-height-large,
+  $padding-small-y: l.$il-padding-xlarge-vertical,
+  $padding-small-x: l.$il-padding-xlarge-horizontal);
+}
+.btn-sm {
+  // line-height: ensure proper height of button next to small input
+  @include make-button($set-basics: false, $set-design: false, $set-size: true,
+  $font-size: s.$il-font-size-xsmall,
+  $input-field-height: s-form.$il-input-line-height-base - l.$il-padding-base-vertical,
+  $padding-small-y: l.$il-padding-small-vertical,
+  $padding-small-x: l.$il-padding-small-horizontal);
+}
+
+// #16322
+button > .glyphicon {
+  pointer-events: none;
+}
+
+.il-btn-month .dropdown-menu {
+  min-width:250px;
+}
+
+
+//
+// button with loading animation
+//
+.il-btn-with-loading-animation {
+	background-image: url("#{s.$il-background-images-path}media/loader.svg");
+  background-color: s.$il-disabled-btn-bg;
+  border-color: s.$il-disabled-btn-border;
+  &:hover {
+    background-color: s.$il-disabled-btn-bg;
+    border-color: s.$il-disabled-btn-border;
+  }
+	background-repeat: no-repeat;
+	background-position: right center;
+	padding-right: 18px;
+}
+
+.minimize, .close {
+  font-size: (s.$il-font-size-base * 1.5);
+  font-weight: s.$il-font-weight-bold;
+  line-height: 1;
+  color: s.$il-neutral-light-color;
+  background-color: transparent;
+  border: 0;
+
+  &:hover,
+  &:focus {
+    color: s.$il-neutral-color;
+    text-decoration: none;
+  }
+
+  button & {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+  }
+}
+
+.close{
+  float: right;
+}

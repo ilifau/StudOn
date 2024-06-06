@@ -44,7 +44,14 @@ class Renderer extends AbstractComponentRenderer
 {
     public const DYNAMIC_INPUT_ID_PLACEHOLDER = 'DYNAMIC_INPUT_ID';
 
-    public const DATEPICKER_MINMAX_FORMAT = 'Y/m/d';
+    public const DATETIME_DATEPICKER_MINMAX_FORMAT = 'Y-m-d\Th:m';
+    public const DATE_DATEPICKER_MINMAX_FORMAT = 'Y-m-d';
+    public const TYPE_DATE = 'date';
+    public const TYPE_DATETIME = 'datetime-local';
+    public const TYPE_TIME = 'time';
+    public const HTML5_NATIVE_DATETIME_FORMAT = 'Y-m-d H:i';
+    public const HTML5_NATIVE_DATE_FORMAT = 'Y-m-d';
+    public const HTML5_NATIVE_TIME_FORMAT = 'H:i';
 
     public const DATEPICKER_FORMAT_MAPPING = [
         'd' => 'DD',
@@ -60,6 +67,14 @@ class Renderer extends AbstractComponentRenderer
         'Y' => 'YYYY',
         'y' => 'YY'
     ];
+
+    /**
+     * @var float This factor will be used to calculate a percentage of the PHP upload-size limit which
+     *            will be used as chunk-size for chunked uploads. This needs to be done because file uploads
+     *            fail if the file is exactly as big as this limit or slightly less. 90% turned out to be a
+     *            functional fraction for now.
+     */
+    protected const FILE_UPLOAD_CHUNK_SIZE_FACTOR = 0.9;
 
     /**
      * @inheritdoc
@@ -108,6 +123,9 @@ class Renderer extends AbstractComponentRenderer
             case ($component instanceof F\Select):
                 return $this->renderSelectField($component);
 
+            case ($component instanceof F\Markdown):
+                return $this->renderMarkdownField($component, $default_renderer);
+
             case ($component instanceof F\Textarea):
                 return $this->renderTextareaField($component);
 
@@ -128,6 +146,9 @@ class Renderer extends AbstractComponentRenderer
 
             case ($component instanceof F\Hidden):
                 return $this->renderHiddenField($component);
+
+            case ($component instanceof F\ColorPicker):
+                return $this->renderColorPickerField($component);
 
             default:
                 throw new LogicException("Cannot render '" . get_class($component) . "'");
@@ -422,13 +443,16 @@ class Renderer extends AbstractComponentRenderer
         if (!$value) {
             $tpl->setVariable("SELECTED", 'selected="selected"');
         }
-        if ($component->isRequired()) {
+        if ($component->isRequired() && !$value) {
             $tpl->setVariable("DISABLED_OPTION", "disabled");
             $tpl->setVariable("HIDDEN", "hidden");
         }
-        $tpl->setVariable("VALUE", null);
-        $tpl->setVariable("VALUE_STR", "-");
-        $tpl->parseCurrentBlock();
+
+        if(!($value && $component->isRequired())) {
+            $tpl->setVariable("VALUE", null);
+            $tpl->setVariable("VALUE_STR", $component->isRequired() ? $this->txt('ui_select_dropdown_label') : '-');
+            $tpl->parseCurrentBlock();
+        }
 
         foreach ($component->getOptions() as $option_key => $option_value) {
             $tpl->setCurrentBlock("options");
@@ -446,41 +470,123 @@ class Renderer extends AbstractComponentRenderer
         return $this->wrapInFormContext($component, $tpl->get(), $id);
     }
 
+<<<<<<< HEAD
     protected function renderTextareaField(F\Textarea $component): string
+=======
+    protected function renderMarkdownField(F\Markdown $component, RendererInterface $default_renderer): string
+>>>>>>> v9.1
     {
-        $tpl = $this->getTemplate("tpl.textarea.html", true, true);
-        $this->applyName($component, $tpl);
+        /** @var $component F\Markdown */
+        $component = $component->withAdditionalOnLoadCode(
+            static function ($id) use ($component): string {
+                return "
+                    il.UI.Input.markdown.init(
+                        '$id',
+                        '{$component->getMarkdownRenderer()->getAsyncUrl()}',
+                        '{$component->getMarkdownRenderer()->getParameterName()}'
+                    );
+                ";
+            }
+        );
 
-        if ($component->isLimited()) {
-            $this->toJS("ui_chars_remaining");
-            $this->toJS("ui_chars_min");
-            $this->toJS("ui_chars_max");
+        $textarea_tpl = $this->getPreparedTextareaTemplate($component);
+        $textarea_id = $this->bindJSandApplyId($component, $textarea_tpl);
 
-            $counter_id_prefix = "textarea_feedback_";
-            $min = $component->getMinLimit();
-            $max = $component->getMaxLimit();
+        $markdown_tpl = $this->getTemplate("tpl.markdown.html", true, true);
+        $markdown_tpl->setVariable('TEXTAREA', $textarea_tpl->get());
 
-            /**
-             * @var $component F\Textarea
-             */
-            $component = $component->withAdditionalOnLoadCode(function ($id) use ($counter_id_prefix, $min, $max) {
-                return "il.UI.textarea.changeCounter('$id','$counter_id_prefix','$min','$max');";
-            });
+        $markdown_tpl->setVariable(
+            'PREVIEW',
+            $component->getMarkdownRenderer()->render(
+                $this->htmlEntities()($component->getValue() ?? '')
+            )
+        );
 
-            $id = $this->bindJSandApplyId($component, $tpl);
+        $markdown_tpl->setVariable(
+            'VIEW_CONTROLS',
+            $default_renderer->render(
+                $this->getUIFactory()->viewControl()->mode([
+                    $this->txt('ui_md_input_edit') => '#',
+                    $this->txt('ui_md_input_view') => '#',
+                ], "")
+            )
+        );
 
-            $tpl->setVariable("COUNT_ID", $id);
-            $tpl->setVariable("FEEDBACK_MAX_LIMIT", $max);
-        } else {
-            $id = $this->bindJSandApplyId($component, $tpl);
+        /** @var $markdown_actions_glyphs Component\Symbol\Glyph\Glyph[] */
+        $markdown_actions_glyphs = [
+            'ACTION_HEADING' => $this->getUIFactory()->symbol()->glyph()->header(),
+            'ACTION_LINK' => $this->getUIFactory()->symbol()->glyph()->link(),
+            'ACTION_BOLD' => $this->getUIFactory()->symbol()->glyph()->bold(),
+            'ACTION_ITALIC' => $this->getUIFactory()->symbol()->glyph()->italic(),
+            'ACTION_ORDERED_LIST' => $this->getUIFactory()->symbol()->glyph()->numberedlist(),
+            'ACTION_UNORDERED_LIST' => $this->getUIFactory()->symbol()->glyph()->bulletlist()
+        ];
+
+        foreach ($markdown_actions_glyphs as $tpl_variable => $glyph) {
+            if ($component->isDisabled()) {
+                $glyph = $glyph->withUnavailableAction();
+            }
+
+            $action = $this->getUIFactory()->button()->standard($default_renderer->render($glyph), '#');
+
+            if ($component->isDisabled()) {
+                $action = $action->withUnavailableAction();
+            }
+
+            $markdown_tpl->setVariable($tpl_variable, $default_renderer->render($action));
         }
 
+<<<<<<< HEAD
         $this->applyName($component, $tpl);
         $this->applyValue($component, $tpl, $this->htmlEntities());
         $this->maybeDisable($component, $tpl);
         return $this->wrapInFormContext($component, $tpl->get(), $id);
     }
 
+=======
+        // label must point to the wrapped textarea input, not the markdown input.
+        return $this->wrapInFormContext($component, $markdown_tpl->get(), $textarea_id);
+    }
+
+    protected function renderTextareaField(F\Textarea $component): string
+    {
+        /** @var $component F\Textarea */
+        $component = $component->withAdditionalOnLoadCode(
+            static function ($id): string {
+                return "
+                    il.UI.Input.textarea.init('$id');
+                ";
+            }
+        );
+
+        $tpl = $this->getPreparedTextareaTemplate($component);
+        $id = $this->bindJSandApplyId($component, $tpl);
+
+        return $this->wrapInFormContext($component, $tpl->get(), $id);
+    }
+
+    protected function getPreparedTextareaTemplate(F\Textarea $component): Template
+    {
+        $tpl = $this->getTemplate("tpl.textarea.html", true, true);
+
+        if (0 < $component->getMaxLimit()) {
+            $tpl->setVariable('REMAINDER_TEXT', $this->txt('ui_chars_remaining'));
+            $tpl->setVariable('REMAINDER', $component->getMaxLimit() - strlen($component->getValue() ?? ''));
+            $tpl->setVariable('MAX_LIMIT', $component->getMaxLimit());
+        }
+
+        if (null !== $component->getMinLimit()) {
+            $tpl->setVariable('MIN_LIMIT', $component->getMinLimit());
+        }
+
+        $this->applyName($component, $tpl);
+        $this->applyValue($component, $tpl, $this->htmlEntities());
+        $this->maybeDisable($component, $tpl);
+
+        return $tpl;
+    }
+
+>>>>>>> v9.1
     protected function renderRadioField(F\Radio $component): string
     {
         $tpl = $this->getTemplate("tpl.radio.html", true, true);
@@ -546,18 +652,28 @@ class Renderer extends AbstractComponentRenderer
     }
 
     protected function renderDateTimeField(F\DateTime $component, RendererInterface $default_renderer): string
+<<<<<<< HEAD
+=======
+    {
+        list($component, $tpl) = $this->internalRenderDateTimeField($component, $default_renderer);
+        $id = $this->bindJSandApplyId($component, $tpl);
+        return $this->wrapInFormContext($component, $tpl->get(), $id);
+    }
+
+    /**
+     * @return array<DateTime,Template>
+     */
+    protected function internalRenderDateTimeField(F\DateTime $component, RendererInterface $default_renderer): array
+>>>>>>> v9.1
     {
         $tpl = $this->getTemplate("tpl.datetime.html", true, true);
         $this->applyName($component, $tpl);
 
-        $f = $this->getUIFactory();
-
         if ($component->getTimeOnly() === true) {
-            $cal_glyph = $f->symbol()->glyph()->time("#");
             $format = $component::TIME_FORMAT;
+            $dt_type = self::TYPE_TIME;
         } else {
-            $cal_glyph = $f->symbol()->glyph()->calendar("#");
-
+            $dt_type = self::TYPE_DATE;
             $format = $this->getTransformedDateFormat(
                 $component->getFormat(),
                 self::DATEPICKER_FORMAT_MAPPING
@@ -565,79 +681,60 @@ class Renderer extends AbstractComponentRenderer
 
             if ($component->getUseTime() === true) {
                 $format .= ' ' . $component::TIME_FORMAT;
+                $dt_type = self::TYPE_DATETIME;
             }
         }
-        $tpl->setVariable("CALENDAR_GLYPH", $default_renderer->render($cal_glyph));
 
-        $config = [
-            'showClear' => true,
-            'sideBySide' => true,
-            'format' => $format,
-            'locale' => $this->getLangKey()
-        ];
-        $config = array_merge($config, $component->getAdditionalPickerconfig());
+        $tpl->setVariable("DTTYPE", $dt_type);
+
+        $min_max_format = self::DATE_DATEPICKER_MINMAX_FORMAT;
+        if ($dt_type === self::TYPE_DATETIME) {
+            $min_max_format = self::DATETIME_DATEPICKER_MINMAX_FORMAT;
+        }
 
         $min_date = $component->getMinValue();
         if (!is_null($min_date)) {
-            $config['minDate'] = date_format($min_date, self::DATEPICKER_MINMAX_FORMAT);
+            $tpl->setVariable("MIN_DATE", date_format($min_date, $min_max_format));
         }
         $max_date = $component->getMaxValue();
         if (!is_null($max_date)) {
-            $config['maxDate'] = date_format($max_date, self::DATEPICKER_MINMAX_FORMAT);
+            $tpl->setVariable("MAX_DATE", date_format($max_date, $min_max_format));
         }
 
-        $tpl->setVariable("PLACEHOLDER", $format);
-
-        if ($component->getValue() !== null) {
-            $tpl->setVariable("VALUE", $component->getValue());
-        }
-
-        $disabled = $component->isDisabled();
-
-        /**
-         * @var $component F\DateTime
-         */
-        $component = $component->withAdditionalOnLoadCode(function ($id) use ($config, $disabled) {
-            $js = '$("#' . $id . '").datetimepicker(' . json_encode($config) . ');';
-            if ($disabled) {
-                $js .= '$("#' . $id . ' input").prop(\'disabled\', true);';
+        $this->applyValue($component, $tpl, function (?string $value) use ($dt_type) {
+            if ($value !== null) {
+                $value = new \DateTimeImmutable($value);
+                return $value->format(match ($dt_type) {
+                    self::TYPE_DATETIME => self::HTML5_NATIVE_DATETIME_FORMAT,
+                    self::TYPE_DATE => self::HTML5_NATIVE_DATE_FORMAT,
+                    self::TYPE_TIME => self::HTML5_NATIVE_TIME_FORMAT,
+                });
             }
-            return $js;
+            return null;
         });
+        $this->maybeDisable($component, $tpl);
 
-        $id = $this->bindJSandApplyId($component, $tpl);
-        return $this->wrapInFormContext($component, $tpl->get(), $id);
+        return [$component, $tpl];
     }
 
     protected function renderDurationField(F\Duration $component, RendererInterface $default_renderer): string
     {
-        $tpl = $this->getTemplate("tpl.duration.html", true, true);
-        $this->applyName($component, $tpl);
-
-        /**
-         * @var $component F\Duration
-         */
-        $component = $component->withAdditionalOnLoadCode(
-            function ($id) {
-                return "$(document).ready(function() {
-                    il.UI.Input.duration.init('$id');
-                });";
-            }
-        );
-        $id = $this->bindJSandApplyId($component, $tpl);
-
-        $input_html = '';
         $inputs = $component->getInputs();
+
         $input = array_shift($inputs); //from
+        list($input, $tpl) = $this->internalRenderDateTimeField($input, $default_renderer);
+        $first_input_id = $this->bindJSandApplyId($input, $tpl);
+        $input_html = $this->wrapInFormContext($input, $tpl->get(), $first_input_id);
+
+        $input = array_shift($inputs) //until
+            ->withAdditionalPickerconfig(['useCurrent' => false]);
         $input_html .= $default_renderer->render($input);
-        $input = array_shift($inputs)->withAdditionalPickerconfig([ //until
-                                                                    'useCurrent' => false
-        ]);
-        $input_html .= $default_renderer->render($input);
+
+        $tpl = $this->getTemplate("tpl.duration.html", true, true);
+        $id = $this->bindJSandApplyId($component, $tpl);
         $tpl->setVariable('DURATION', $input_html);
 
-        $this->maybeDisable($component, $tpl);
-        return $this->wrapInFormContext($component, $tpl->get(), $id);
+        return $this->wrapInFormContext($component, $tpl->get(), $first_input_id);
     }
 
     protected function renderSection(F\Section $section, RendererInterface $default_renderer): string
@@ -745,20 +842,20 @@ class Renderer extends AbstractComponentRenderer
     public function registerResources(ResourceRegistry $registry): void
     {
         parent::registerResources($registry);
-        $registry->register('./node_modules/moment/min/moment-with-locales.min.js');
-        $registry->register('./node_modules/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js');
-
         $registry->register('./node_modules/@yaireo/tagify/dist/tagify.min.js');
         $registry->register('./node_modules/@yaireo/tagify/dist/tagify.css');
         $registry->register('./src/UI/templates/js/Input/Field/tagInput.js');
 
-        $registry->register('./src/UI/templates/js/Input/Field/textarea.js');
         $registry->register('./src/UI/templates/js/Input/Field/input.js');
+<<<<<<< HEAD
         $registry->register('./src/UI/templates/js/Input/Field/duration.js');
+=======
+>>>>>>> v9.1
         $registry->register('./node_modules/dropzone/dist/dropzone.js');
         $registry->register('./src/UI/templates/js/Input/Field/file.js');
         $registry->register('./src/UI/templates/js/Input/Field/groups.js');
         $registry->register('./src/UI/templates/js/Input/Field/dynamic_inputs_renderer.js');
+        $registry->register('./src/UI/templates/js/Input/Field/dist/input.factory.min.js');
     }
 
     /**
@@ -833,6 +930,11 @@ class Renderer extends AbstractComponentRenderer
             Component\Input\Field\File::class,
             Component\Input\Field\Url::class,
             Component\Input\Field\Hidden::class,
+<<<<<<< HEAD
+=======
+            Component\Input\Field\ColorPicker::class,
+            Component\Input\Field\Markdown::class,
+>>>>>>> v9.1
         ];
     }
 
@@ -881,6 +983,9 @@ class Renderer extends AbstractComponentRenderer
                 $current_file_count = count($input->getDynamicInputs());
                 $translations = json_encode($input->getTranslations());
                 $is_disabled = ($input->isDisabled()) ? 'true' : 'false';
+                $php_upload_limit = $this->getUploadLimitResolver()->getPhpUploadLimitInBytes();
+                $should_upload_be_chunked = ($input->getMaxFileSize() > $php_upload_limit) ? 'true' : 'false';
+                $chunk_size = (int) floor($php_upload_limit * self::FILE_UPLOAD_CHUNK_SIZE_FACTOR);
                 return "
                     $(document).ready(function () {
                         il.UI.Input.File.init(
@@ -894,8 +999,13 @@ class Renderer extends AbstractComponentRenderer
                             '{$this->prepareDropzoneJsMimeTypes($input->getAcceptedMimeTypes())}',
                             $is_disabled,
                             $translations,
+<<<<<<< HEAD
                             '{$input->getUploadHandler()->supportsChunkedUploads()}',
                             {$input->getMaxFileSize()}
+=======
+                            $should_upload_be_chunked,
+                            $chunk_size
+>>>>>>> v9.1
                         );
                     });
                 ";
@@ -958,5 +1068,15 @@ class Renderer extends AbstractComponentRenderer
         }
 
         return $mime_type_string;
+    }
+
+    protected function renderColorPickerField(F\ColorPicker $component): string
+    {
+        $tpl = $this->getTemplate("tpl.colorpicker.html", true, true);
+        $this->applyName($component, $tpl);
+        $tpl->setVariable('VALUE', $component->getValue());
+        $id = $this->bindJSandApplyId($component, $tpl);
+
+        return $this->wrapInFormContext($component, $tpl->get());
     }
 }

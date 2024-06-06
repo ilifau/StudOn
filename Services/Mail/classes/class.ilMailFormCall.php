@@ -26,19 +26,14 @@ declare(strict_types=1);
  */
 class ilMailFormCall
 {
-    public const SESSION_KEY = 'mail_transport';
-    public const REFERER_KEY = 'r';
-    public const SIGNATURE_KEY = 'sig';
-    public const CONTEXT_PREFIX = 'ctx';
-    public const CONTEXT_KEY = 'ctx_template';
+    final public const SESSION_KEY = 'mail_transport';
+    final public const REFERER_KEY = 'r';
+    final public const SIGNATURE_KEY = 'sig';
+    final public const CONTEXT_PREFIX = 'ctx';
+    final public const CONTEXT_KEY = 'ctx_template';
 
     /**
      * @param object|string $gui
-     * @param string $cmd
-     * @param array $gui_params
-     * @param array $mail_params
-     * @param array $context_params
-     * @return string
      */
     public static function getLinkTarget(
         $gui,
@@ -52,11 +47,6 @@ class ilMailFormCall
 
     /**
      * @param object|string $gui
-     * @param string $cmd
-     * @param array $gui_params
-     * @param array $mail_params
-     * @param array $context_params
-     * @return string
      */
     public static function getRedirectTarget(
         $gui,
@@ -69,13 +59,7 @@ class ilMailFormCall
     }
 
     /**
-     * @param string $argument_separator
      * @param object|string $gui
-     * @param string $cmd
-     * @param array $gui_params
-     * @param array $mail_params
-     * @param array $context_params
-     * @return string
      */
     protected static function getTargetUrl(
         string $argument_separator,

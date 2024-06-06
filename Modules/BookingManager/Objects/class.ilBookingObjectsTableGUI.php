@@ -22,6 +22,7 @@
  */
 class ilBookingObjectsTableGUI extends ilTable2GUI
 {
+    protected string $process_class;
     protected \ILIAS\UI\Renderer $ui_renderer;
     protected \ILIAS\UI\Factory $ui_factory;
     protected ilAccessHandler $access;
@@ -98,6 +99,11 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
         $this->setEnableHeader(true);
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
         $this->setRowTemplate("tpl.booking_object_row.html", "Modules/BookingManager");
+        $this->process_class = $DIC->bookingManager()
+            ->internal()
+            ->gui()
+            ->process()
+            ->getProcessClass($a_pool_has_schedule);
 
         $this->initFilter();
         $this->getItems();
@@ -295,7 +301,7 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
         $this->tpl->setVariable("TXT_TITLE", $a_set["title"]);
 
         if (in_array("description", $selected, true)) {
-            $this->tpl->setVariable("TXT_DESC", nl2br($a_set["description"]));
+            $this->tpl->setVariable("TXT_DESC", nl2br($a_set["description"] ?? ""));
         }
 
         if (isset($a_set["full_up"])) {
@@ -353,7 +359,7 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
 
             $items[] = $this->ui_factory->button()->shy(
                 $lng->txt('book_book'),
-                $ilCtrl->getLinkTargetByClass("ilbookingprocessgui", 'book')
+                $ilCtrl->getLinkTargetByClass($this->process_class, 'book')
             );
 
             $ilCtrl->setParameter($this->parent_obj, 'sseed', '');
@@ -363,7 +369,7 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
             if (trim($a_set['post_text']) || $a_set['post_file']) {
                 $items[] = $this->ui_factory->button()->shy(
                     $lng->txt('book_post_booking_information'),
-                    $ilCtrl->getLinkTargetByClass("ilbookingprocessgui", 'displayPostInfo')
+                    $ilCtrl->getLinkTargetByClass($this->process_class, 'displayPostInfo')
                 );
             }
         }
@@ -392,7 +398,7 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
             //if (!empty(ilBookingParticipant::getAssignableParticipants($a_set["booking_object_id"]))) {
             if (isset($this->filter['period']['from'])) {
                 $ilCtrl->setParameterByClass(
-                    "ilbookingprocessgui",
+                    $this->process_class,
                     'sseed',
                     $this->filter['period']['from']->get(IL_CAL_DATE)
                 );
@@ -400,10 +406,10 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
 
             $items[] = $this->ui_factory->button()->shy(
                 $lng->txt('book_assign_participant'),
-                $ilCtrl->getLinkTargetByClass("ilbookingprocessgui", 'assignParticipants')
+                $ilCtrl->getLinkTargetByClass($this->process_class, 'assignParticipants')
             );
 
-            $ilCtrl->setParameterByClass("ilbookingprocessgui", 'sseed', '');
+            $ilCtrl->setParameterByClass($this->process_class, 'sseed', '');
             //}
         }
 

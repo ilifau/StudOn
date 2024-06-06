@@ -25,20 +25,13 @@ use PHPUnit\Framework\MockObject\MockObject;
  */
 class ilApiUserCertificateRepositoryTest extends ilCertificateBaseTestCase
 {
-    /** @var MockObject&ilDBInterface */
-    private $database;
-    /** @var MockObject&ilLogger */
-    private $logger;
-    /** @var MockObject&ilCtrlInterface */
-    private $controller;
+    private \ilDBInterface&\PHPUnit\Framework\MockObject\MockObject $database;
+    private \ilCtrlInterface&\PHPUnit\Framework\MockObject\MockObject $controller;
 
     protected function setUp(): void
     {
         $this->database = $this->createMock(ilDBInterface::class);
         $this->controller = $this->createMock(ilCtrlInterface::class);
-        $this->logger = $this->getMockBuilder(ilLogger::class)
-                         ->disableOriginalConstructor()
-                         ->getMock();
     }
 
     public function testGetUserData(): void
@@ -53,7 +46,7 @@ class ilApiUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                     'title' => 'test',
                     'obj_id' => 100,
                     'ref_id' => 5000,
-                    'acquired_timestamp' => 1234567890,
+                    'acquired_timestamp' => 1_234_567_890,
                     'usr_id' => 2000,
                     'firstname' => 'ilyas',
                     'lastname' => 'homer',
@@ -66,7 +59,7 @@ class ilApiUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                     'title' => 'test',
                     'obj_id' => 100,
                     'ref_id' => 6000,
-                    'acquired_timestamp' => 1234567890,
+                    'acquired_timestamp' => 1_234_567_890,
                     'usr_id' => 2000,
                     'firstname' => 'ilyas',
                     'lastname' => 'homer',
@@ -80,7 +73,6 @@ class ilApiUserCertificateRepositoryTest extends ilCertificateBaseTestCase
 
         $repository = new \ILIAS\Certificate\API\Repository\UserDataRepository(
             $this->database,
-            $this->logger,
             $this->controller,
             'no title given'
         );
@@ -94,7 +86,7 @@ class ilApiUserCertificateRepositoryTest extends ilCertificateBaseTestCase
         $this->assertSame(5, $object->getCertificateId());
         $this->assertSame(100, $object->getObjectId());
         $this->assertSame([5000, 6000], $object->getObjectRefIds());
-        $this->assertSame(1234567890, $object->getIssuedOnTimestamp());
+        $this->assertSame(1_234_567_890, $object->getIssuedOnTimestamp());
         $this->assertSame(2000, $object->getUserId());
         $this->assertSame('ilyas', $object->getUserFirstName());
         $this->assertSame('homer', $object->getUserLastName());

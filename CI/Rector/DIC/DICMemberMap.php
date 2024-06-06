@@ -27,14 +27,14 @@ class DICMemberMap
 
     public function __construct()
     {
-        $tpl = new DICMember(
+        $dicMember = new DICMember(
             self::TPL,
             \ilGlobalTemplateInterface::class,
             ['ui', 'mainTemplate'],
             'main_tpl'
         );
-        $tpl->setAlternativeClasses([\ilTemplate::class, \ilGlobalTemplate::class, \ilGlobalPageTemplate::class]);
-        $this->map[self::TPL] = $tpl;
+        $dicMember->setAlternativeClasses([\ilTemplate::class, \ilGlobalTemplate::class, \ilGlobalPageTemplate::class]);
+        $this->map[self::TPL] = $dicMember;
     }
 
     public function getByName(string $name): DICMember

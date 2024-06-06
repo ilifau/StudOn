@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Repository;
 
 use ILIAS\DI\RBACServices;
@@ -25,10 +25,11 @@ use ILIAS\DI\LoggingServices;
 use ILIAS\Filesystem\Filesystems;
 use ILIAS\ResourceStorage;
 use ILIAS\Refinery;
+use ILIAS\Repository\Object\ObjectAdapterInterface;
+use ILIAS\Repository\Object\ObjectAdapter;
+use ILIAS\Repository\Profile\ProfileAdapter;
+use ILIAS\Repository\Resources\DomainService;
 
-/**
- * @author Alexander Killing <killing@leifos.de>
- */
 trait GlobalDICDomainServices
 {
     private \ILIAS\DI\Container $DIC;
@@ -96,5 +97,35 @@ trait GlobalDICDomainServices
     public function objectDefinition(): \ilObjectDefinition
     {
         return $this->DIC["objDefinition"];
+    }
+
+    public function object(): ObjectAdapterInterface
+    {
+        return new ObjectAdapter();
+    }
+
+    public function profile(): ProfileAdapter
+    {
+        return new ProfileAdapter(
+            $this->lng()
+        );
+    }
+
+    public function objectDataCache(): \ilObjectDataCache
+    {
+        return $this->DIC["ilObjDataCache"];
+    }
+
+    public function backgroundTasks(): \ILIAS\BackgroundTasks\BackgroundTaskServices
+    {
+        return $this->DIC->backgroundTasks();
+    }
+
+    public function resources(): DomainService
+    {
+        return new DomainService(
+            $this->DIC->archives(),
+            $this->DIC->legacyArchives()
+        );
     }
 }

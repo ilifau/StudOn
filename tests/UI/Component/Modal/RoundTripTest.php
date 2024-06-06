@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . '/ModalBase.php');
 
 /**
@@ -27,13 +35,21 @@ require_once(__DIR__ . '/ModalBase.php');
  */
 class RoundTripTest extends ModalBase
 {
+<<<<<<< HEAD
     public function test_get_title(): void
+=======
+    public function testGetTitle(): void
+>>>>>>> v9.1
     {
         $roundtrip = $this->getModalFactory()->roundtrip('myTitle', $this->getDummyComponent());
         $this->assertEquals('myTitle', $roundtrip->getTitle());
     }
 
+<<<<<<< HEAD
     public function test_get_content(): void
+=======
+    public function testGetContent(): void
+>>>>>>> v9.1
     {
         $content = $this->getDummyComponent();
         $roundtrip = $this->getModalFactory()->roundtrip('myTitle', $content);
@@ -43,7 +59,11 @@ class RoundTripTest extends ModalBase
         $this->assertEquals($content, $roundtrip->getContent());
     }
 
+<<<<<<< HEAD
     public function test_get_action_buttons(): void
+=======
+    public function testGetActionButtons(): void
+>>>>>>> v9.1
     {
         $roundtrip = $this->getModalFactory()->roundtrip('myTitle', $this->getDummyComponent());
         $action_buttons = [
@@ -54,7 +74,11 @@ class RoundTripTest extends ModalBase
         $this->assertEquals($action_buttons, $roundtrip->getActionButtons());
     }
 
+<<<<<<< HEAD
     public function test_with_action_buttons(): void
+=======
+    public function testWithActionButtons(): void
+>>>>>>> v9.1
     {
         $roundtrip = $this->getModalFactory()->roundtrip('myTitle', $this->getDummyComponent());
         $action_buttons = [
@@ -67,7 +91,11 @@ class RoundTripTest extends ModalBase
         $this->assertEquals($action_buttons, $roundtrip2->getActionButtons());
     }
 
+<<<<<<< HEAD
     public function test_simple_rendering(): void
+=======
+    public function testSimpleRendering(): void
+>>>>>>> v9.1
     {
         $roundtrip = $this->getModalFactory()->roundtrip('Title', $this->getUIFactory()->legacy('Content'))
             ->withActionButtons([
@@ -86,7 +114,11 @@ class RoundTripTest extends ModalBase
    <div class="modal-dialog" role="document" data-replace-marker="component">
       <div class="modal-content">
          <div class="modal-header">
+<<<<<<< HEAD
             <button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true"></span></button><span class="modal-title">Title</span>
+=======
+            <button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true"></span></button><h1 class="modal-title">Title</h1>
+>>>>>>> v9.1
          </div>
          <div class="modal-body">Content</div>
          <div class="modal-footer">

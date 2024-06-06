@@ -71,12 +71,14 @@ class ilMemberViewSettings
     {
         $this->container = $container;
         ilSession::set(self::SESSION_MEMBER_VIEW_CONTAINER, $this->container);
+        /** @var ilContainer $my_container **/
+        $my_container = ilObjectFactory::getInstanceByRefId($container);
         $this->container_service
             ->internal()
             ->domain()
             ->content()
-            ->view()
-            ->setContentView();
+            ->mode($my_container)
+            ->setContentMode();
     }
 
     /**
@@ -195,11 +197,7 @@ class ilMemberViewSettings
      */
     protected function findEffectiveRefId(): int
     {
-        if ($this->ctrl->isAsynch()) {
-            // Ignore asynchronous requests
-            return 0;
-        }
-
+        // re-enable asynchronous request due to #41218
         $ref_id = (int) ($this->request->getQueryParams()['ref_id'] ?? 0);
         if ($ref_id) {
             return $this->current_ref_id = $ref_id;

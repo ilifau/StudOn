@@ -47,7 +47,7 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
      */
     public function getLabel(): string
     {
-        return "Module- and Servicedefinitions are stored. Events are initialized.";
+        return "Module- and Servicedefinitions are stored.";
     }
 
     /**
@@ -142,7 +142,6 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
             new \ilBadgeDefinitionProcessor($db),
             new \ilCOPageDefinitionProcessor($db),
             new \ilComponentInfoDefinitionProcessor(),
-            new \ilEventDefinitionProcessor($db),
             new \ilLoggingDefinitionProcessor($db),
             new \ilCronDefinitionProcessor(
                 $db,
@@ -152,7 +151,6 @@ class ilComponentDefinitionsStoredObjective implements Setup\Objective
             ),
             new \ilMailTemplateContextDefinitionProcessor($db),
             new \ilObjectDefinitionProcessor($db),
-            new \ilPDFGenerationDefinitionProcessor($db),
             new \ilSystemCheckDefinitionProcessor($db),
             new \ilSecurePathDefinitionProcessor($db),
         );

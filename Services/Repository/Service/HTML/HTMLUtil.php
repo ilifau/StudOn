@@ -37,11 +37,6 @@ class HTMLUtil
 
     public function strip(string $input): string
     {
-        // see https://www.ilias.de/mantis/view.php?id=19727
-        $str = \ilUtil::stripSlashes($input);
-        if ($str !== $input) {
-            $str = \ilUtil::stripSlashes(str_replace("<", "< ", $input));
-        }
-        return $str;
+        return \ilUtil::stripSlashes($input);
     }
 }

@@ -20,6 +20,8 @@ use PHPUnit\Framework\TestCase;
 use ILIAS\Refinery\Factory as RefineryFactory;
 use ILIAS\Refinery\Random\Group as RandomGroup;
 use ILIAS\DI\Container;
+use ILIAS\ResourceStorage\Services;
+use ILIAS\UI\Implementation\Factory;
 
 /**
  * Class assBaseTestCase
@@ -61,6 +63,9 @@ abstract class assBaseTestCase extends TestCase
         $rbacsystem_mock = $this->getMockBuilder(ilRbacSystem::class)->disableOriginalConstructor()->getMock();
         $this->setGlobalVariable('rbacsystem', $rbacsystem_mock);
 
+        $rbacreview_mock = $this->getMockBuilder(ilRbacReview::class)->disableOriginalConstructor()->getMock();
+        $this->setGlobalVariable('rbacreview', $rbacreview_mock);
+
         $refineryMock = $this->getMockBuilder(RefineryFactory::class)->disableOriginalConstructor()->getMock();
         $refineryMock->method('random')->willReturn($this->getMockBuilder(RandomGroup::class)->getMock());
         $this->setGlobalVariable('refinery', $refineryMock);
@@ -73,6 +78,9 @@ abstract class assBaseTestCase extends TestCase
 
         $repository_mock = $this->createMock(ilComponentRepository::class);
         $this->setGlobalVariable('component.repository', $repository_mock);
+
+        $component_factory_mock = $this->createMock(ilComponentFactory::class);
+        $this->setGlobalVariable('component.factory', $component_factory_mock);
 
         $this->setGlobalVariable('http', $this->getMockBuilder(ILIAS\HTTP\Services::class)->disableOriginalConstructor()->getMock());
 
@@ -115,6 +123,14 @@ abstract class assBaseTestCase extends TestCase
     {
         return $this->getMockBuilder(\ilDBInterface::class)->disableOriginalConstructor()->getMock();
     }
+    protected function getIRSSMock()
+    {
+        return $this->getMockBuilder(Services::class)->disableOriginalConstructor()->getMock();
+    }
+    protected function getFileDeliveryMock()
+    {
+        return $this->getMockBuilder(\ILIAS\FileDelivery\Services::class)->disableOriginalConstructor()->getMock();
+    }
 
     protected function getIliasMock()
     {
@@ -127,5 +143,15 @@ abstract class assBaseTestCase extends TestCase
         $mock->account = $account;
 
         return $mock;
+    }
+
+    protected function addGlobal_uiFactory(): void
+    {
+        $this->setGlobalVariable("ui.factory", $this->createMock(Factory::class));
+    }
+
+    protected function addGlobal_uiRenderer(): void
+    {
+        $this->setGlobalVariable("ui.renderer", $this->createMock(ILIAS\UI\Implementation\DefaultRenderer::class));
     }
 }

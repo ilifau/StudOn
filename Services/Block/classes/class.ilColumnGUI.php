@@ -19,6 +19,7 @@
 declare(strict_types=1);
 
 use ILIAS\HTTP\Agent\AgentDetermination;
+use ILIAS\Container\Content\ItemPresentationManager;
 
 define("IL_COL_LEFT", "left");
 define("IL_COL_RIGHT", "right");
@@ -39,8 +40,10 @@ define("IL_SCREEN_FULL", "full");
  */
 class ilColumnGUI
 {
+    protected array $repositoryitems;
     protected string $coltype;
     protected ilDashboardSidePanelSettingsRepository $dash_side_panel_settings;
+    protected ?ItemPresentationManager $item_presentation = null;
     protected \ILIAS\Block\StandardGUIRequest $request;
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
@@ -53,9 +56,6 @@ class ilColumnGUI
     protected string $type;
     protected bool $enableedit = false;
     protected bool $repositorymode = false;
-    /** @var array[] */
-    protected array $repositoryitems = array();
-    /** @var array<string,array[]> */
     protected array $blocks = [];
     // all blocks that are repository objects
     /** @var string[] */
@@ -77,7 +77,7 @@ class ilColumnGUI
         "ilConsultationHoursCalendarBlockGUI" => "Services/Calendar/",
         "ilPDTasksBlockGUI" => "Services/Tasks/",
         "ilPDMailBlockGUI" => "Services/Mail/",
-        "ilPDSelectedItemsBlockGUI" => "Services/Dashboard/ItemsBlock/",
+        "ilSelectedItemsBlockGUI" => "Services/Dashboard/Block/",
         "ilPDNewsBlockGUI" => "Services/News/",
         'ilPollBlockGUI' => 'Modules/Poll/',
         'ilClassificationBlockGUI' => 'Services/Classification/',
@@ -86,14 +86,14 @@ class ilColumnGUI
     );
 
     protected static array $block_types = array(
-        "ilPDMailBlockGUI" => "pdmail",
-        "ilPDTasksBlockGUI" => "pdtasks",
-        "ilPDNewsBlockGUI" => "pdnews",
+        "ilPDMailBlockGUI" => 'pd' . ilDashboardSidePanelSettingsRepository::MAIL,
+        "ilPDTasksBlockGUI" => 'pd' . ilDashboardSidePanelSettingsRepository::TASKS,
+        "ilPDNewsBlockGUI" => 'pd' . ilDashboardSidePanelSettingsRepository::NEWS,
         "ilNewsForContextBlockGUI" => "news",
         "ilCalendarBlockGUI" => "cal",
-        "ilPDCalendarBlockGUI" => "pdcal",
+        "ilPDCalendarBlockGUI" => 'pd' . ilDashboardSidePanelSettingsRepository::CALENDAR,
         "ilConsultationHoursCalendarBlockGUI" => "chcal",
-        "ilPDSelectedItemsBlockGUI" => "pditems",
+        "ilSelectedItemsBlockGUI" => "pditems",
         'ilPollBlockGUI' => 'poll',
         'ilClassificationBlockGUI' => 'clsfct',
         "ilPDStudyProgrammeSimpleListGUI" => "prgsimplelist",
@@ -128,7 +128,7 @@ class ilColumnGUI
             "ilPDNewsBlockGUI" => IL_COL_RIGHT,
             "ilPDStudyProgrammeSimpleListGUI" => IL_COL_CENTER,
             "ilPDStudyProgrammeExpandableListGUI" => IL_COL_CENTER,
-            "ilPDSelectedItemsBlockGUI" => IL_COL_CENTER,
+            "ilSelectedItemsBlockGUI" => IL_COL_CENTER,
             "ilPDMailBlockGUI" => IL_COL_RIGHT
             )
         );
@@ -151,12 +151,12 @@ class ilColumnGUI
     protected array $check_global_activation =
         array("news" => true,
             "cal" => true,
-            "pdcal" => true,
             "chcal" => true,
-            "pdnews" => true,
+            "pd" . ilDashboardSidePanelSettingsRepository::CALENDAR => true,
+            "pd" . ilDashboardSidePanelSettingsRepository::NEWS => true,
             "pdtag" => true,
-            "pdmail" => true,
-            "pdtasks" => true,
+            "pd" . ilDashboardSidePanelSettingsRepository::MAIL => true,
+            "pd" . ilDashboardSidePanelSettingsRepository::TASKS => true,
             "tagcld" => true,
             "clsfct" => true);
 
@@ -341,6 +341,22 @@ class ilColumnGUI
         return $this->repositoryitems;
     }
 
+    public function setItemPresentationManager(
+        ItemPresentationManager $item_presentation
+    ): void {
+        $this->item_presentation = $item_presentation;
+    }
+
+    public function getItemPresentationManager(): ItemPresentationManager
+    {
+        return $this->item_presentation;
+    }
+
+    public function hasItemPresentationManager(): bool
+    {
+        return isset($this->item_presentation);
+    }
+
     public function executeCommand(): string
     {
         $ilCtrl = $this->ctrl;
@@ -458,7 +474,6 @@ class ilColumnGUI
         $sum_moveable = count($this->blocks[$this->getSide()]);
 
         foreach ($this->blocks[$this->getSide()] as $block) {
-
             // set block id to context obj id,
             // if block is not a custom block and context is not personal desktop
             if (!$block["custom"] && $ilCtrl->getContextObjType() != "" && $ilCtrl->getContextObjType() != "user") {
@@ -510,7 +525,7 @@ class ilColumnGUI
 
         if ($this->request->getBlock() != "") {
             $block = explode("_", $this->request->getBlock());
-            ilBlockSetting::_writeDetailLevel($block[0], 2, $ilUser->getId(), $block[1]);
+            ilBlockSetting::_writeDetailLevel($block[0], "2", $ilUser->getId(), (int) $block[1]);
         }
 
         $ilCtrl->returnToParent($this);
@@ -551,9 +566,11 @@ class ilColumnGUI
         $this->blocks[IL_COL_RIGHT] = array();
         $this->blocks[IL_COL_CENTER] = array();
 
-        $user_id = ($this->getColType() === "pd")
-            ? $ilUser->getId()
-            : 0;
+        $user_id = 0;
+        if ($this->getColType() === 'pd') {
+            $user_id = $ilUser->getId();
+            $positions = array_flip($this->dash_side_panel_settings->getPositions());
+        }
 
         $def_nr = 1000;
         if (isset($this->default_blocks[$this->getColType()])) {
@@ -585,6 +602,11 @@ class ilColumnGUI
                     if ($side == IL_COL_LEFT) {
                         $side = IL_COL_RIGHT;
                     }
+
+                    if ($this->getColType() === 'pd' && in_array(substr($type, 2), $this->dash_side_panel_settings->getValidModules(), true)) {
+                        $nr = $positions[substr($type, 2)] ?? $nr;
+                    }
+
                     $this->blocks[$side][] = array(
                         "nr" => $nr,
                         "class" => $class,
@@ -621,13 +643,11 @@ class ilColumnGUI
                 }
             }
         } else {	// get all subitems
-            $rep_items = $this->getRepositoryItems();
             foreach ($this->rep_block_types as $block_type) {
-                if ($this->isGloballyActivated($block_type)) {
-                    if (!isset($rep_items[$block_type]) || !is_array($rep_items[$block_type])) {
-                        continue;
-                    }
-                    foreach ($rep_items[$block_type] as $item) {
+                if ($this->isGloballyActivated($block_type) && $this->hasItemPresentationManager()) {
+                    $item_ref_ids = $this->getItemPresentationManager()->getRefIdsOfType($block_type);
+                    foreach ($item_ref_ids as $item_ref_id) {
+                        $item = $this->getItemPresentationManager()->getRawDataByRefId($item_ref_id);
                         $costum_block = new ilCustomBlock();
                         $costum_block->setContextObjId((int) $item["obj_id"]);
                         $costum_block->setContextObjType($block_type);
@@ -698,12 +718,12 @@ class ilColumnGUI
         }
 
         if (isset($this->check_global_activation[$a_type]) && $this->check_global_activation[$a_type]) {
-            if ($a_type == 'pdnews') {
+            if ($a_type === 'pd' . ilDashboardSidePanelSettingsRepository::NEWS) {
                 return ($this->dash_side_panel_settings->isEnabled($this->dash_side_panel_settings::NEWS) &&
                     $ilSetting->get('block_activated_news'));
-            } elseif ($a_type == 'pdmail') {
+            } elseif ($a_type === 'pd' . ilDashboardSidePanelSettingsRepository::MAIL) {
                 return $this->dash_side_panel_settings->isEnabled($this->dash_side_panel_settings::MAIL);
-            } elseif ($a_type == 'pdtasks') {
+            } elseif ($a_type === 'pd' . ilDashboardSidePanelSettingsRepository::TASKS) {
                 return $this->dash_side_panel_settings->isEnabled($this->dash_side_panel_settings::TASKS);
             } elseif ($a_type == 'news') {
                 return
@@ -724,7 +744,7 @@ class ilColumnGUI
                 return true;
             } elseif ($a_type == 'cal' || $a_type == 'chcal') {
                 return ilCalendarSettings::lookupCalendarContentPresentationEnabled($ilCtrl->getContextObjId());
-            } elseif ($a_type == 'pdcal') {
+            } elseif ($a_type === 'pd' . ilDashboardSidePanelSettingsRepository::CALENDAR) {
                 if (!$this->dash_side_panel_settings->isEnabled($this->dash_side_panel_settings::CALENDAR)) {
                     return false;
                 }

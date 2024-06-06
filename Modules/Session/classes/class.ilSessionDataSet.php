@@ -47,12 +47,15 @@ class ilSessionDataSet extends ilDataSet
 
     public function getSupportedVersions(): array
     {
-        return ['7.0'];
+        return ['9.0'];
         //return array("4.1.0", "5.0.0", "5.1.0", '5.4.0', '7.0');
     }
 
     protected function getXmlNamespace(string $a_entity, string $a_schema_version): string
     {
+        if ($a_entity === 'sess_item') {
+            $a_entity = 'sess';
+        }
         return "http://www.ilias.de/xml/Modules/Session/" . $a_entity;
     }
 
@@ -145,6 +148,8 @@ class ilSessionDataSet extends ilDataSet
                         'Type' => 'integer'
                     );
                 case "7.0":
+                case '9.0':
+                default:
                     return array(
                         "Id" => "integer",
                         "Title" => "text",
@@ -182,6 +187,8 @@ class ilSessionDataSet extends ilDataSet
                 case "5.1.0":
                 case "5.4.0":
                 case '7.0':
+                case '9.0':
+                default:
                     return array(
                         "SessionId" => "integer",
                         "ItemId" => "text",
@@ -246,6 +253,8 @@ class ilSessionDataSet extends ilDataSet
                     $this->readDidacticTemplateType($a_ids);
                     break;
                 case "7.0":
+                case '9.0':
+                default:
                     $this->getDirectDataFromQuery($q = "SELECT ev.obj_id id, od.title title, odes.description description, " .
                         " location, tutor_name, tutor_email, tutor_phone, details, reg_type registration, " .
                         " reg_limited limited_registration, reg_waiting_list waiting_list, reg_auto_wait auto_wait, " .
@@ -271,6 +280,8 @@ class ilSessionDataSet extends ilDataSet
                 case "5.1.0":
                 case '5.4.0':
                 case '7.0':
+                case '9.0':
+                default:
                     $this->getDirectDataFromQuery($q = "SELECT event_id session_id, item_id " .
                         " FROM event_items " .
                         "WHERE " .
@@ -339,6 +350,7 @@ class ilSessionDataSet extends ilDataSet
                 switch ($a_schema_version) {
                     case '5.4.0':
                     case '7.0':
+                    case '9.0':
                         if (isset($a_rec['MailMembers'])) {
                             $newObj->setMailToMembersType((int) $a_rec['MailMembers']);
                         }
@@ -354,10 +366,11 @@ class ilSessionDataSet extends ilDataSet
                         if (isset($a_rec['RegistrationNotificationOption'])) {
                             $newObj->setRegistrationNotificationOption((string) $a_rec['RegistrationNotificationOption']);
                         }
-                        $this->applyDidacticTemplate($newObj, (int) $a_rec['Type']);
+                        $this->applyDidacticTemplate($newObj, (int) ($a_rec['Type'] ?? 0));
                         // no break
                     case "5.0.0":
                     case "5.1.0":
+                    default:
                         $newObj->setRegistrationType((int) ($a_rec["Registration"] ?? 0));
 
                         $newObj->enableRegistrationUserLimit((int) ($a_rec["LimitedRegistration"] ?? 0));
@@ -371,20 +384,6 @@ class ilSessionDataSet extends ilDataSet
                         if (isset($a_rec["AutoWait"])) {
                             $newObj->setWaitingListAutoFill((bool) ($a_rec["AutoWait"] ?? false));
                         }
-                        break;
-                    case '5.4.0':
-                    case '7.0':
-                        if (isset($a_rec['MailMembers'])) {
-                            $newObj->setMailToMembersType((int) ($a_rec['MailMembers'] ?? 0));
-                        }
-                        if (isset($a_rec['ShowMembers'])) {
-                            $newObj->setShowMembers((bool) ($a_rec['ShowMembers'] ?? false));
-                        }
-                        if (isset($a_rec['ShowCannotPart'])) {
-                            $newObj->enableCannotParticipateOption((bool) ($a_rec['show_cannot_part'] ?? false));
-                            break;
-                        }
-                        $this->applyDidacticTemplate($newObj, (int) ($a_rec['Type'] ?? 0));
                         break;
                 }
 

@@ -116,11 +116,10 @@ class ilMMItemInformation implements ItemInformation
      */
     public function isItemActive(isItem $item): bool
     {
-        $serialize = $item->getProviderIdentification()->serialize();
-        if (isset($this->items[$serialize]['active'])) {
-            return $this->items[$serialize]['active'] === '1';
+        if (!isset($this->items[$item->getProviderIdentification()->serialize()]['active'])) {
+            return $item->isAvailable();
         }
-        return true;
+        return ((int) ($this->items[$item->getProviderIdentification()->serialize()]['active'] ?? 0) === 1);
     }
 
     /**

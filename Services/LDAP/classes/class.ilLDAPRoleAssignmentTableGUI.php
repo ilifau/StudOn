@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -57,17 +59,17 @@ class ilLDAPRoleAssignmentTableGUI extends ilTable2GUI
         $this->tpl->setVariable('TXT_EDIT', $this->lng->txt('edit'));
 
         if ($a_set['add']) {
-            $this->tpl->setVariable('STATA_SRC', ilUtil::getImagePath('icon_ok.svg'));
+            $this->tpl->setVariable('STATA_SRC', ilUtil::getImagePath('standard/icon_ok.svg'));
             $this->tpl->setVariable('STATA_ALT', $this->lng->txt('yes'));
         } else {
-            $this->tpl->setVariable('STATA_SRC', ilUtil::getImagePath('icon_not_ok.svg'));
+            $this->tpl->setVariable('STATA_SRC', ilUtil::getImagePath('standard/icon_not_ok.svg'));
             $this->tpl->setVariable('STATA_ALT', $this->lng->txt('no'));
         }
         if ($a_set['remove']) {
-            $this->tpl->setVariable('STATB_SRC', ilUtil::getImagePath('icon_ok.svg'));
+            $this->tpl->setVariable('STATB_SRC', ilUtil::getImagePath('standard/icon_ok.svg'));
             $this->tpl->setVariable('STATB_ALT', $this->lng->txt('yes'));
         } else {
-            $this->tpl->setVariable('STATB_SRC', ilUtil::getImagePath('icon_not_ok.svg'));
+            $this->tpl->setVariable('STATB_SRC', ilUtil::getImagePath('standard/icon_not_ok.svg'));
             $this->tpl->setVariable('STATB_ALT', $this->lng->txt('no'));
         }
 
@@ -98,7 +100,6 @@ class ilLDAPRoleAssignmentTableGUI extends ilTable2GUI
                 case ilLDAPRoleAssignmentRule::TYPE_PLUGIN:
                     $tmp_arr['type'] = $this->lng->txt('ldap_role_by_plugin');
                     break;
-
             }
 
             $tmp_arr['condition'] = $rule->conditionToString();

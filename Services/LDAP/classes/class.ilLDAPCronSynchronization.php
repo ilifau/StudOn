@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,7 +18,7 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 /**
 *
@@ -55,9 +57,9 @@ class ilLDAPCronSynchronization extends ilCronJob
         return $this->lng->txt("ldap_user_sync_cron_info");
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_DAILY;
+        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
     }
 
     public function getDefaultScheduleValue(): ?int

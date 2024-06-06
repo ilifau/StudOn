@@ -19,19 +19,19 @@ declare(strict_types=1);
  *********************************************************************/
 
 /**
- * @classDescription  GUI for simple Lucene search
- *
- * @author            Stefan Meyer <meyer@leifos.com>
- *
- * @ilCtrl_IsCalledBy ilLuceneSearchGUI: ilSearchControllerGUI
- * @ilCtrl_Calls      ilLuceneSearchGUI: ilPropertyFormGUI
- * @ilCtrl_Calls      ilLuceneSearchGUI: ilObjectGUI, ilContainerGUI
- * @ilCtrl_Calls      ilLuceneSearchGUI: ilObjCategoryGUI, ilObjCourseGUI, ilObjFolderGUI, ilObjGroupGUI
- * @ilCtrl_Calls      ilLuceneSearchGUI: ilObjStudyProgrammeGUI
- * @ilCtrl_Calls      ilLuceneSearchGUI: ilObjRootFolderGUI, ilObjectCopyGUI
- *
- * @ingroup           ServicesSearch
- */
+* @classDescription GUI for simple Lucene search
+*
+* @author Stefan Meyer <meyer@leifos.com>
+*
+* @ilCtrl_IsCalledBy ilLuceneSearchGUI: ilSearchControllerGUI
+* @ilCtrl_Calls ilLuceneSearchGUI: ilPropertyFormGUI
+* @ilCtrl_Calls ilLuceneSearchGUI: ilObjectGUI, ilContainerGUI
+* @ilCtrl_Calls ilLuceneSearchGUI: ilObjCategoryGUI, ilObjCourseGUI, ilObjFolderGUI, ilObjGroupGUI
+* @ilCtrl_Calls ilLuceneSearchGUI: ilObjStudyProgrammeGUI
+* @ilCtrl_Calls ilLuceneSearchGUI: ilObjRootFolderGUI, ilObjectCopyGUI
+*
+* @ingroup ServicesSearch
+*/
 class ilLuceneSearchGUI extends ilSearchBaseGUI
 {
     protected ilTabsGUI $tabs;
@@ -434,7 +434,7 @@ class ilLuceneSearchGUI extends ilSearchBaseGUI
         }
         if ($adm_cmds) {
             $this->tpl->setCurrentBlock("lucene_adm_view_components");
-            $this->tpl->setVariable("LUCENE_ADM_IMG_ARROW", ilUtil::getImagePath("arrow_upright.svg"));
+            $this->tpl->setVariable("LUCENE_ADM_IMG_ARROW", ilUtil::getImagePath("nav/arrow_upright.svg"));
             $this->tpl->setVariable("LUCENE_ADM_ALT_ARROW", $this->lng->txt("actions"));
             $this->tpl->parseCurrentBlock();
             $adm_view_cmp = true;
@@ -587,7 +587,6 @@ class ilLuceneSearchGUI extends ilSearchBaseGUI
             case 3:
                 // on
                 return '+(cdate:' . $limit->get(IL_CAL_DATE) . '*) ';
-
         }
         return '';
     }

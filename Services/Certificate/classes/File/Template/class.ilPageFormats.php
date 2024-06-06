@@ -18,26 +18,19 @@
 
 declare(strict_types=1);
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilPageFormats
 {
-    public const DEFAULT_MARGIN_BODY_TOP = '0cm';
-    public const DEFAULT_MARGIN_BODY_RIGHT = '2cm';
-    public const DEFAULT_MARGIN_BODY_BOTTOM = '0cm';
-    public const DEFAULT_MARGIN_BODY_LEFT = '2cm';
+    final public const DEFAULT_MARGIN_BODY_TOP = '0cm';
+    final public const DEFAULT_MARGIN_BODY_RIGHT = '2cm';
+    final public const DEFAULT_MARGIN_BODY_BOTTOM = '0cm';
+    final public const DEFAULT_MARGIN_BODY_LEFT = '2cm';
 
-    private ilLanguage $language;
-
-    public function __construct(ilLanguage $language)
+    public function __construct(private readonly ilLanguage $language)
     {
-        $this->language = $language;
     }
 
     /**
-     * Retrieves predefined page formats
-     * @return array<string, array{name: string, value: string, width: string, height: string}>
+     * @return array{a4: array{name: string, value: string, width: string, height: string}, a4landscape: array{name: string, value: string, width: string, height: string}, a5: array{name: string, value: string, width: string, height: string}, a5landscape: array{name: string, value: string, width: string, height: string}, letter: array{name: string, value: string, width: string, height: string}, letterlandscape: array{name: string, value: string, width: string, height: string}, custom: array{name: string, value: string, width: string, height: string}}
      */
     public function fetchPageFormats(): array
     {

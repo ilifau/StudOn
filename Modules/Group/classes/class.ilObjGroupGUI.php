@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,10 +16,14 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
 use FAU\Ilias\Helper\ContainerHelper;
 use FAU\Ilias\Helper\ObjGroupGUIHelper;
+use ILIAS\News\Service as News;
+
 /**
  * Class ilObjGroupGUI
  *
@@ -58,7 +60,7 @@ class ilObjGroupGUI extends ilContainerGUI
     private GlobalHttpState $http;
     protected Factory $refinery;
     protected ilRbacSystem $rbacsystem;
-    protected ilNewsService $news;
+    protected News $news;
 
     /**
      * @inheritDoc
@@ -453,6 +455,18 @@ class ilObjGroupGUI extends ilContainerGUI
         }
     }
 
+    public function enableAdministrationPanelObject(): void
+    {
+        $this->getModeManager()->setAdminMode();
+        $this->ctrl->redirect($this, "");
+    }
+
+    public function disableAdministrationPanelObject(): void
+    {
+        $this->getModeManager()->setContentMode();
+        $this->ctrl->redirect($this, "");
+    }
+
     /**
      * @inheritDoc
      */
@@ -471,8 +485,9 @@ class ilObjGroupGUI extends ilContainerGUI
             'grp'
         );
 
-        if ($this->getAdminMode() === self::ADMIN_MODE_SETTINGS) {
-            parent::viewObject();
+        if ($this->isActiveAdministrationPanel()) {
+            parent::renderObject();
+            $this->addAdoptContentLinkToToolbar();
             return;
         }
 
@@ -819,7 +834,7 @@ class ilObjGroupGUI extends ilContainerGUI
             // END PATCH ChangeEvents: Record update Object.
             // Update ecs export settings
             $ecs = new ilECSGroupSettings($this->object);
-            $ecs->handleSettingsUpdate();
+            $ecs->handleSettingsUpdate($form);
         } else {
             $this->tpl->setOnScreenMessage('failure', $GLOBALS['DIC']->language()->txt('err_check_input')); // #16975
 
@@ -1474,7 +1489,6 @@ class ilObjGroupGUI extends ilContainerGUI
                         $registration_text . $this->lng->txt('grp_reg_passwd_info_screen')
                     );
                     break;
-                    
             }
             // fau.
             /*
@@ -1603,10 +1617,11 @@ class ilObjGroupGUI extends ilContainerGUI
     }
 
 
-    public static function _goto(int $a_target, string $a_add = ""): void
+    public static function _goto(string $a_target, string $a_add = ""): void
     {
         global $DIC;
         $main_tpl = $DIC->ui()->mainTemplate();
+        $a_target = (int) $a_target;
 
         $ilUser = $DIC->user();
         $ilAccess = $DIC->access();
@@ -1785,7 +1800,7 @@ class ilObjGroupGUI extends ilContainerGUI
             $form->addItem($reg_link);
 
             $link = new ilCustomInputGUI($this->lng->txt('grp_reg_code_link'));
-            $val = ilLink::_getLink($this->object->getRefId(), $this->object->getType(), array(), '_rcode' . $this->object->getRegistrationAccessCode());
+            $val = ilLink::_getLink($this->object->getRefId(), $this->object->getType(), array(), 'rcode' . $this->object->getRegistrationAccessCode());
             $link->setHTML('<span class="small">' . $val . '</span>');
             $reg_code->addSubItem($link);
             $form->addItem($reg_code);
@@ -2080,7 +2095,7 @@ class ilObjGroupGUI extends ilContainerGUI
         switch ($a_mode) {
             case 'create':
                 $form->setTitle($this->lng->txt('grp_new'));
-                $form->setTitleIcon(ilUtil::getImagePath('icon_grp.svg'));
+                $form->setTitleIcon(ilUtil::getImagePath('standard/icon_grp.svg'));
 
                 $form->addCommandButton('save', $this->lng->txt('grp_new'));
                 $form->addCommandButton('cancel', $this->lng->txt('cancel'));
@@ -2088,7 +2103,7 @@ class ilObjGroupGUI extends ilContainerGUI
 
             case 'edit':
                 $form->setTitle($this->lng->txt('grp_edit'));
-                $form->setTitleIcon(ilUtil::getImagePath('icon_grp.svg'));
+                $form->setTitleIcon(ilUtil::getImagePath('standard/icon_grp.svg'));
 
                 // Edit ecs export settings
                 $ecs = new ilECSGroupSettings($this->object);
@@ -2104,7 +2119,6 @@ class ilObjGroupGUI extends ilContainerGUI
     protected function setSubTabs(string $a_tab): void
     {
         switch ($a_tab) {
-
             case 'settings':
                 $this->tabs_gui->addSubTabTarget(
                     "grp_settings",
@@ -2244,7 +2258,7 @@ class ilObjGroupGUI extends ilContainerGUI
                 if (!$noti->isCurrentUserActive()) {
                     $lg->addHeaderIcon(
                         "not_icon",
-                        ilUtil::getImagePath("notification_off.svg"),
+                        ilUtil::getImagePath("object/notification_off.svg"),
                         $this->lng->txt("grp_notification_deactivated")
                     );
 
@@ -2253,7 +2267,7 @@ class ilObjGroupGUI extends ilContainerGUI
                 } else {
                     $lg->addHeaderIcon(
                         "not_icon",
-                        ilUtil::getImagePath("notification_on.svg"),
+                        ilUtil::getImagePath("object/notification_on.svg"),
                         $this->lng->txt("grp_notification_activated")
                     );
 

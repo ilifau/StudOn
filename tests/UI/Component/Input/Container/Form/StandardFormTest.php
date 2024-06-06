@@ -99,7 +99,11 @@ class StandardFormTest extends ILIAS_UI_TestBase
         return new WithButtonNoUIFactory($this->buildButtonFactory());
     }
 
+<<<<<<< HEAD
     public function test_getPostURL(): void
+=======
+    public function testGetPostURL(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -108,7 +112,11 @@ class StandardFormTest extends ILIAS_UI_TestBase
         $this->assertEquals($url, $form->getPostURL());
     }
 
+<<<<<<< HEAD
     public function test_render(): void
+=======
+    public function testRender(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -141,7 +149,11 @@ class StandardFormTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
+<<<<<<< HEAD
     public function test_submit_caption(): void
+=======
+    public function testSubmitCaption(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -151,15 +163,19 @@ class StandardFormTest extends ILIAS_UI_TestBase
             $if->text("label", "byline"),
         ]);
 
-        $this->assertNull($form->getSubmitCaption());
+        $this->assertNull($form->getSubmitLabel());
 
         $caption = 'Caption';
-        $form = $form->withSubmitCaption($caption);
+        $form = $form->withSubmitLabel($caption);
 
-        $this->assertEquals($caption, $form->getSubmitCaption());
+        $this->assertEquals($caption, $form->getSubmitLabel());
     }
 
+<<<<<<< HEAD
     public function test_submit_caption_render(): void
+=======
+    public function testSubmitCaptionRender(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -167,7 +183,7 @@ class StandardFormTest extends ILIAS_UI_TestBase
         $url = "MY_URL";
         $form = $f->standard($url, [
             $if->text("label", "byline"),
-        ])->withSubmitCaption('create');
+        ])->withSubmitLabel('create');
 
         $r = $this->getDefaultRenderer();
         $html = $this->brutallyTrimHTML($r->render($form));
@@ -192,7 +208,11 @@ class StandardFormTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
+<<<<<<< HEAD
     public function test_render_no_url(): void
+=======
+    public function testRenderNoUrl(): void
+>>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -365,6 +385,12 @@ class StandardFormTest extends ILIAS_UI_TestBase
 <form role="form" class="il-standard-form form-horizontal" enctype="multipart/form-data" action="MY_URL" method="post" novalidate="novalidate">
     <div class="il-standard-form-header clearfix">
         <div class="il-standard-form-cmd"><button class="btn btn-default" data-action="">save</button></div>
+<<<<<<< HEAD
+=======
+        <div class="il-standard-form-required">
+            <span class="asterisk">*</span><span class="small"> required_field</span>
+        </div>
+>>>>>>> v9.1
     </div>
     <div class="form-group row">
         <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label<span class="asterisk">*</span></label>

@@ -35,6 +35,7 @@ abstract class Column implements C\Column
     protected bool $initially_visible = true;
     protected bool $highlighted = false;
     protected int $index;
+<<<<<<< HEAD
     protected string $title;
     protected \ilLanguage $lng;
 
@@ -44,6 +45,15 @@ abstract class Column implements C\Column
     ) {
         $this->title = $title;
         $this->lng = $lng;
+=======
+    protected ?string $asc_label = null;
+    protected ?string $desc_label = null;
+
+    public function __construct(
+        protected \ilLanguage $lng,
+        protected string $title
+    ) {
+>>>>>>> v9.1
     }
 
     public function getTitle(): string
@@ -53,7 +63,11 @@ abstract class Column implements C\Column
 
     public function getType(): string
     {
+<<<<<<< HEAD
         $class = explode('\\', static::class);
+=======
+        $class = explode('\\', $this::class);
+>>>>>>> v9.1
         return array_pop($class);
     }
 
@@ -133,10 +147,14 @@ abstract class Column implements C\Column
         return $this->highlighted;
     }
 
+<<<<<<< HEAD
     /**
      * @return string|Component
      */
     public function format($value)
+=======
+    public function format($value): string|Component
+>>>>>>> v9.1
     {
         return (string) $value;
     }

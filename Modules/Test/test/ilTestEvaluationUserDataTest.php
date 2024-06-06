@@ -49,7 +49,6 @@ class ilTestEvaluationUserDataTest extends ilTestBaseTestCase
             "timeOfWork",
             "numberOfQuestions",
             "questionsWorkedThrough",
-            "markECTS",
             "mark_official",
             "mark",
             "maxpoints",
@@ -65,10 +64,8 @@ class ilTestEvaluationUserDataTest extends ilTestBaseTestCase
 
     public function testPassScoring(): void
     {
-        $expected = [1, 0, 20, 120, 12];
-
-        $this->testObj->setPassScoring($expected);
-        $this->assertEquals($expected, $this->testObj->getPassScoring());
+        $this->testObj->setPassScoring(1);
+        $this->assertEquals(1, $this->testObj->getPassScoring());
     }
 
     public function testPassed(): void
@@ -156,12 +153,6 @@ class ilTestEvaluationUserDataTest extends ilTestBaseTestCase
         $this->assertEquals("testMark", $this->testObj->getMark());
     }
 
-    public function testECTSMark(): void
-    {
-        $this->testObj->setECTSMark("testECTSMark");
-        $this->assertEquals("testECTSMark", $this->testObj->getECTSMark());
-    }
-
     public function testGetQuestionsWorkedThrough(): void
     {
         $testEvaluationPassData = new ilTestEvaluationPassData();
@@ -231,22 +222,22 @@ class ilTestEvaluationUserDataTest extends ilTestBaseTestCase
 
     public function testSetTimeOfWork(): void
     {
-        $this->testObj->setTimeOfWork(215);
-        $this->assertEquals(215, $this->testObj->timeOfWork);
+        $this->testObj->setTimeOfWork('215');
+        $this->assertEquals('215', $this->testObj->timeOfWork);
     }
 
     public function testFirstVisit(): void
     {
-        $this->testObj->setFirstVisit("2125");
+        $this->testObj->setFirstVisit(2125);
 
-        $this->assertEquals("2125", $this->testObj->getFirstVisit());
+        $this->assertEquals(2125, $this->testObj->getFirstVisit());
     }
 
     public function testLastVisit(): void
     {
-        $this->testObj->setLastVisit("2125");
+        $this->testObj->setLastVisit(2125);
 
-        $this->assertEquals("2125", $this->testObj->getLastVisit());
+        $this->assertEquals(2125, $this->testObj->getLastVisit());
     }
 
     public function testGetPasses(): void
@@ -346,28 +337,7 @@ class ilTestEvaluationUserDataTest extends ilTestBaseTestCase
         $this->assertEquals(5, $this->testObj->getQuestionCount());
     }
 
-    /**
-     * @dataProvider reachedPointsDataProvider
-     */
-    public function testReachedPoints($input, float $expected): void
-    {
-        $pass = new ilTestEvaluationPassData();
-        $pass->setReachedPoints($input);
-        $this->testObj->addPass(0, $pass);
-
-        $this->assertEquals($expected, $this->testObj->getReachedPoints());
-    }
-
-    public function reachedPointsDataProvider(): array
-    {
-        return [
-            "float X.0" => [25.0, 25.0],
-            "float X.Y" => [25.3, 25.3],
-            "int" => [25, 25.0]
-        ];
-    }
-
-    public function testGetUninitializedReachedPoints(): void
+    public function testReachedPoints(): void
     {
         $pass = new ilTestEvaluationPassData();
         $this->testObj->addPass(0, $pass);

@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -37,14 +45,22 @@ class ItemTest extends ILIAS_UI_TestBase
         return new I\Component\Item\Factory();
     }
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Item\\Standard", $f->standard("title"));
     }
 
+<<<<<<< HEAD
     public function test_get_title(): void
+=======
+    public function testGetTitle(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $c = $f->standard("title");
@@ -52,7 +68,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals("title", $c->getTitle());
     }
 
+<<<<<<< HEAD
     public function test_with_description(): void
+=======
+    public function testWithDescription(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -61,7 +81,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals("description", $c->getDescription());
     }
 
+<<<<<<< HEAD
     public function test_with_properties(): void
+=======
+    public function testWithProperties(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -71,7 +95,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getProperties(), $props);
     }
 
+<<<<<<< HEAD
     public function test_with_progress(): void
+=======
+    public function testWithProgress(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $chart = new I\Component\Chart\ProgressMeter\ProgressMeter(100, 50);
@@ -81,7 +109,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getProgress(), $chart);
     }
 
+<<<<<<< HEAD
     public function test_with_actions(): void
+=======
+    public function testWithActions(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -94,7 +126,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getActions(), $actions);
     }
 
+<<<<<<< HEAD
     public function test_with_color(): void
+=======
+    public function testWithColor(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $df = new Data\Factory();
@@ -106,7 +142,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getColor(), $color);
     }
 
+<<<<<<< HEAD
     public function test_with_lead_image(): void
+=======
+    public function testWithLeadImage(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -117,7 +157,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getLead(), $image);
     }
 
+<<<<<<< HEAD
     public function test_with_lead_icon(): void
+=======
+    public function testWithLeadIcon(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -128,7 +172,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals($icon, $c->getLead());
     }
 
+<<<<<<< HEAD
     public function test_with_lead_letter_avatar(): void
+=======
+    public function testWithLeadLetterAvatar(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -139,18 +187,26 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals($avatar, $c->getLead());
     }
 
+<<<<<<< HEAD
     public function test_with_lead_picture_avatar(): void
+=======
+    public function testWithLeadPictureAvatar(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
-        $avatar = new Picture('./templates/default/images/no_photo_xsmall.jpg', 'demo.user');
+        $avatar = new Picture('./templates/default/images/placeholder/no_photo_xsmall.jpg', 'demo.user');
 
         $c = $f->standard("title")->withLeadAvatar($avatar);
 
         $this->assertEquals($avatar, $c->getLead());
     }
 
+<<<<<<< HEAD
     public function test_with_lead_text(): void
+=======
+    public function testWithLeadText(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -159,7 +215,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals("text", $c->getLead());
     }
 
+<<<<<<< HEAD
     public function test_with_no_lead(): void
+=======
+    public function testWithNoLead(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -168,7 +228,11 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals(null, $c->getLead());
     }
 
+<<<<<<< HEAD
     public function test_with_audio_player(): void
+=======
+    public function testWithAudioPlayer(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -178,7 +242,31 @@ class ItemTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getAudioPlayer(), $audio);
     }
 
+<<<<<<< HEAD
     public function test_render_base(): void
+=======
+    public function testWithMainActionButton(): void
+    {
+        $f = $this->getFactory();
+
+        $main_action = $this->createMock(I\Component\Button\Standard::class);
+        $c = $f->standard("Title")->withMainAction($main_action);
+
+        $this->assertEquals($c->getMainAction(), $main_action);
+    }
+
+    public function testWithMainActionLink(): void
+    {
+        $f = $this->getFactory();
+
+        $main_action = $this->createMock(I\Component\Link\Standard::class);
+        $c = $f->standard("Title")->withMainAction($main_action);
+
+        $this->assertEquals($c->getMainAction(), $main_action);
+    }
+
+    public function testRenderBase(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -199,15 +287,24 @@ class ItemTest extends ILIAS_UI_TestBase
 
         $expected = <<<EOT
         <div class="il-item il-std-item ">
+<<<<<<< HEAD
             <div class="il-item-title">Item Title</div>
 			<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"> <span class="caret"></span></button>
+=======
+            <h4 class="il-item-title">Item Title</h4>
+			<div class="il-item-actions l-bar__space-keeper"><div class="l-bar__element"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"><span class="caret"></span></button>
+>>>>>>> v9.1
                 <ul id="id_3_menu" class="dropdown-menu">
 	                <li><button class="btn btn-link" data-action="https://www.ilias.de" id="id_1"  >ILIAS</button>
                     </li>
                         <li><button class="btn btn-link" data-action="https://www.github.com" id="id_2"  >GitHub</button>
                     </li>
                 </ul>
+<<<<<<< HEAD
             </div>
+=======
+            </div></div></div>
+>>>>>>> v9.1
 			<div class="il-item-description">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.</div>
 			<hr class="il-item-divider" />
 			<div class="row">
@@ -235,7 +332,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_lead_image(): void
+=======
+    public function testRenderLeadImage(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -252,7 +353,7 @@ EOT;
 			<img src="src" class="img-standard" alt="str" />
 		</div>
 		<div class="col-xs-10 col-sm-9">
-            <div class="il-item-title">title</div>
+            <h4 class="il-item-title">title</h4>
 		</div>
 	</div>
 </div>
@@ -264,7 +365,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_lead_icon(): void
+=======
+    public function testRenderLeadIcon(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -278,10 +383,10 @@ EOT;
 <div class="il-item il-std-item ">
 	<div class="media">
 		<div class="media-left">
-			<img class="icon name small" src="./templates/default/images/icon_default.svg" alt="aria_label" />
+			<img class="icon name small" src="./templates/default/images/standard/icon_default.svg" alt="aria_label" />
         </div>
 		<div class="media-body">
-            <div class="il-item-title">title</div>
+            <h4 class="il-item-title">title</h4>
 		</div>
 	</div>
 </div>
@@ -293,7 +398,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_lead_letter_avatar(): void
+=======
+    public function testRenderLeadLetterAvatar(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -313,7 +422,7 @@ EOT;
             </span>
         </div>
         <div class="media-body">
-            <div class="il-item-title">title</div>
+            <h4 class="il-item-title">title</h4>
         </div>
     </div>
 </div>
@@ -325,12 +434,16 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_lead_picture_avatar(): void
+=======
+    public function testRenderLeadPictureAvatar(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
 
-        $avatar = new Picture('./templates/default/images/no_photo_xsmall.jpg', 'demo.user');
+        $avatar = new Picture('./templates/default/images/placeholder/no_photo_xsmall.jpg', 'demo.user');
 
         $c = $f->standard("title")->withLeadAvatar($avatar);
 
@@ -340,11 +453,11 @@ EOT;
     <div class="media">
         <div class="media-left">
             <span class="il-avatar il-avatar-picture il-avatar-size-large">
-                <img src="./templates/default/images/no_photo_xsmall.jpg" alt="user_avatar"/>
+                <img src="./templates/default/images/placeholder/no_photo_xsmall.jpg" alt="user_avatar"/>
             </span>
         </div>
         <div class="media-body">
-            <div class="il-item-title">title</div>
+            <h4 class="il-item-title">title</h4>
         </div>
     </div>
 </div>
@@ -356,7 +469,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_progress(): void
+=======
+    public function testRenderProgress(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -370,7 +487,7 @@ EOT;
 <div class="il-item il-std-item ">
 	<div class="row">
 	    <div class="col-sm-9">
-            <div class="il-item-title">title</div>
+            <h4 class="il-item-title">title</h4>
 		</div>
 		<div class="col-xs-3 col-sm-2 col-lg-2">
 		    <div class="il-chart-progressmeter-box ">
@@ -404,7 +521,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_progress_and_lead_image(): void
+=======
+    public function testRenderProgressAndLeadImage(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -422,7 +543,7 @@ EOT;
 			<img src="src" class="img-standard" alt="str" />
 		</div>
 	    <div class="col-xs-6 col-sm-7 col-lg-8">
-            <div class="il-item-title">title</div>
+            <h4 class="il-item-title">title</h4>
 		</div>
 		<div class="col-xs-3 col-sm-2 col-lg-2">
 		    <div class="il-chart-progressmeter-box ">
@@ -456,7 +577,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_progress_and_lead_icon(): void
+=======
+    public function testRenderProgressAndLeadIcon(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -471,10 +596,10 @@ EOT;
 <div class="il-item il-std-item ">
     <div class="media">
 		<div class="media-left">
-			<img class="icon name small" src="./templates/default/images/icon_default.svg" alt="aria_label" />
+			<img class="icon name small" src="./templates/default/images/standard/icon_default.svg" alt="aria_label" />
         </div>
 		<div class="media-body">
-            <div class="il-item-title">title</div>
+            <h4 class="il-item-title">title</h4>
 		</div>
 		<div class="media-right">
 			<div class="il-chart-progressmeter-box ">
@@ -508,7 +633,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_lead_text_and_color(): void
+=======
+    public function testRenderLeadTextAndColor(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -527,7 +656,7 @@ EOT;
 			lead
 		</div>
 		<div class="col-sm-9">
-            <div class="il-item-title">title</div>
+            <h4 class="il-item-title">title</h4>
 		</div>
 	</div>
 </div>
@@ -539,7 +668,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_shy_title_and_various_properties(): void
+=======
+    public function testShyTitleAndVariousProperties(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -558,6 +691,7 @@ EOT;
         $html = $this->brutallyTrimHTML($r->render($c));
         $expected = $this->brutallyTrimHTML(<<<EOT
 <div class="il-item il-std-item ">
+<<<<<<< HEAD
    <div class="il-item-title"><button class="btn btn-link" data-action="https://www.ilias.de" id="id_1">ILIAS</button></div>
    <hr class="il-item-divider" />
    <div class="row">
@@ -568,13 +702,49 @@ EOT;
       <div class="col-md-6 il-multi-line-cap-3"><span class="il-item-property-name">Property Shy</span><span class="il-item-property-value"><button class="btn btn-link" data-action="https://www.github.com" id="id_2">GitHub</button></span></div>
       <div class="col-md-6 il-multi-line-cap-3"><span class="il-item-property-name">Property Icon</span><span class="il-item-property-value"><img class="icon name small" src="./templates/default/images/icon_default.svg" alt="aria_label"/></span></div>
    </div>
+=======
+    <h4 class="il-item-title">
+        <button class="btn btn-link" data-action="https://www.ilias.de" id="id_1">ILIAS</button>
+    </h4>
+    <hr class="il-item-divider" />
+    <div class="row">
+        <div class="col-md-6 il-multi-line-cap-3">
+            <span class="il-item-property-name">Property Text</span>
+            <span class="il-item-property-value">Text</span>
+        </div>
+        <div class="col-md-6 il-multi-line-cap-3">
+            <span class="il-item-property-name">Property HTML</span>
+            <span class="il-item-property-value">
+                <a>Link</a>
+            </span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 il-multi-line-cap-3">
+            <span class="il-item-property-name">Property Shy</span>
+            <span class="il-item-property-value">
+                <button class="btn btn-link" data-action="https://www.github.com" id="id_2">GitHub</button>
+            </span>
+        </div>
+        <div class="col-md-6 il-multi-line-cap-3">
+            <span class="il-item-property-name">Property Icon</span>
+            <span class="il-item-property-value">
+                <img class="icon name small" src="./templates/default/images/standard/icon_default.svg" alt="aria_label"/>
+            </span>
+        </div>
+    </div>
+>>>>>>> v9.1
 </div>
 EOT);
 
         $this->assertEquals($expected, $html);
     }
 
+<<<<<<< HEAD
     public function test_link_title(): void
+=======
+    public function testLinkTitle(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -583,13 +753,17 @@ EOT);
         $html = $r->render($c);
 
         $expected = <<<EOT
-<div class="il-item il-std-item "><div class="il-item-title"><a href="https://www.ilias.de">ILIAS</a></div></div>
+<div class="il-item il-std-item "><h4 class="il-item-title"><a href="https://www.ilias.de">ILIAS</a></h4></div>
 EOT;
 
         $this->assertHTMLEquals($expected, $html);
     }
 
+<<<<<<< HEAD
     public function test_render_audio_player(): void
+=======
+    public function testRenderAudioPlayer(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -600,7 +774,7 @@ EOT;
         $html = $r->render($c);
         $expected = <<<EOT
 <div class="il-item il-std-item ">
-    <div class="il-item-title">title</div>
+    <h4 class="il-item-title">title</h4>
     <div class="il-item-audio"><div class="il-audio-container">
     <audio class="il-audio-player" id="id_1" src="src" preload="metadata"></audio>
 </div></div>
@@ -611,4 +785,63 @@ EOT;
             $this->brutallyTrimHTML($html)
         );
     }
+
+    public function testMainActionButton(): void
+    {
+        $f = $this->getFactory();
+
+        $expected_button_html = md5(I\Component\Button\Standard::class);
+        $main_action = $this->createMock(I\Component\Button\Standard::class);
+        $main_action->method('getCanonicalName')->willReturn($expected_button_html);
+
+        $c = $f->standard("Title")->withMainAction($main_action);
+
+        $html = $this->getDefaultRenderer(null, [
+            $main_action
+        ])->render($c);
+
+        $expected = <<<EOT
+        <div class="il-item il-std-item ">
+            <h4 class="il-item-title">Title</h4>
+            <div class="il-item-actions l-bar__space-keeper">
+                <div class="l-bar__element">$expected_button_html
+            </div>
+            </div>
+        </div>
+EOT;
+
+        $this->assertHTMLEquals(
+            $this->brutallyTrimHTML($expected),
+            $this->brutallyTrimHTML($html)
+        );
+    }
+
+    public function testMainActionLink(): void
+    {
+        $f = $this->getFactory();
+        $expected_link_html = md5(I\Component\Link\Standard::class);
+        $main_action = $this->createMock(I\Component\Link\Standard::class);
+        $main_action->method('getCanonicalName')->willReturn($expected_link_html);
+
+        $c = $f->standard("Title")->withMainAction($main_action);
+
+        $html = $this->getDefaultRenderer(null, [
+            $main_action
+        ])->render($c);
+
+        $expected = <<<EOT
+        <div class="il-item il-std-item ">
+            <h4 class="il-item-title">Title</h4>
+            <div class="il-item-actions l-bar__space-keeper">
+                <div class="l-bar__element">$expected_link_html</div>
+            </div>
+        </div>
+EOT;
+
+        $this->assertHTMLEquals(
+            $this->brutallyTrimHTML($expected),
+            $this->brutallyTrimHTML($html)
+        );
+    }
+
 }

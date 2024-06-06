@@ -20,7 +20,7 @@ use ILIAS\Refinery\Random\Group as RandomGroup;
 use ILIAS\Refinery\Random\Seed\RandomSeed;
 use ILIAS\Refinery\Random\Seed\GivenSeed;
 use ILIAS\Refinery\Transformation;
-use ILIAS\DI\RBACServices;
+use ILIAS\GlobalScreen\Services as GlobalScreen;
 
 /**
  * @author		Björn Heyser <bheyser@databay.de>
@@ -33,7 +33,7 @@ use ILIAS\DI\RBACServices;
  * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilAssQuestionHintRequestGUI
  * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilAssGenFeedbackPageGUI
  * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilAssSpecFeedbackPageGUI
- * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilNoteGUI
+ * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilCommentGUI
  */
 class ilAssQuestionPreviewGUI
 {
@@ -49,47 +49,23 @@ class ilAssQuestionPreviewGUI
 
     public const FEEDBACK_FOCUS_ANCHOR = 'focus';
 
-    private RBACServices $rbac_services;
-
-    private ilCtrlInterface $ctrl;
-    private ilRbacSystem $rbac_system;
-    private ilTabsGUI $tabs;
-    private ilGlobalTemplateInterface $tpl;
-    private ilLanguage $lng;
-    private ilDBInterface $db;
-    private ilObjUser $user;
     private assQuestionGUI $questionGUI;
     private assQuestion $questionOBJ;
     private ?ilAssQuestionPreviewSettings $previewSettings = null;
     private ?ilAssQuestionPreviewSession $previewSession = null;
     private ?ilAssQuestionPreviewHintTracking $hintTracking = null;
-    private RandomGroup $randomGroup;
-
-    private int $parent_ref_id;
 
     public function __construct(
-        ilCtrl $ctrl,
-        ilRbacSystem $rbac_system,
-        ilTabsGUI $tabs,
-        ilGlobalTemplateInterface $tpl,
-        ilLanguage $lng,
-        ilDBInterface $db,
-        ilObjUser $user,
-        RandomGroup $randomGroup,
-        int $parent_ref_id,
-        RBACServices $rbac_services
+        private ilCtrl $ctrl,
+        private ilRbacSystem $rbac_system,
+        private ilTabsGUI $tabs,
+        private ilGlobalTemplateInterface $tpl,
+        private ilLanguage $lng,
+        private ilDBInterface $db,
+        private ilObjUser $user,
+        private RandomGroup $randomGroup,
+        private GlobalScreen $global_screen
     ) {
-        $this->ctrl = $ctrl;
-        $this->rbac_system = $rbac_system;
-        $this->tabs = $tabs;
-        $this->tpl = $tpl;
-        $this->lng = $lng;
-        $this->db = $db;
-        $this->user = $user;
-        $this->randomGroup = $randomGroup;
-        $this->rbac_services = $rbac_services;
-        $this->parent_ref_id = $parent_ref_id;
-
         $this->tpl->addCss(ilObjStyleSheet::getContentStylePath(0));
         $this->tpl->addCss(ilObjStyleSheet::getSyntaxStylePath());
     }
@@ -118,7 +94,7 @@ class ilAssQuestionPreviewGUI
                 $this->tabs->addTarget(
                     "statistics",
                     $this->ctrl->getLinkTargetByClass('ilAssQuestionPreviewGUI', "assessment"),
-                    array("assessment"),
+                    ["assessment"],
                     $classname,
                     ""
                 );
@@ -139,17 +115,6 @@ class ilAssQuestionPreviewGUI
                         $this->lng->txt("backtocallingtest"),
                         "ilias.php?baseClass=ilObjTestGUI&cmd=questions&ref_id=$ref_id"
                     );
-                } elseif (isset($_GET['calling_consumer']) && (int) $_GET['calling_consumer']) {
-                    $ref_id = (int) $_GET['calling_consumer'];
-                    $consumer = ilObjectFactory::getInstanceByRefId($ref_id);
-                    if ($consumer instanceof ilQuestionEditingFormConsumer) {
-                        $this->tabs->setBackTarget(
-                            $consumer->getQuestionEditingFormBackTargetLabel(),
-                            $consumer->getQuestionEditingFormBackTarget($_GET['consumer_context'])
-                        );
-                    } else {
-                        $this->tabs->setBackTarget($this->lng->txt("qpl"), ilLink::_getLink($ref_id));
-                    }
                 } else {
                     $this->ctrl->clearParameterByClass(ilObjQuestionPoolGUI::class, 'q_id');
                     $this->tabs->setBackTarget($this->lng->txt("backtocallingpool"), $this->ctrl->getLinkTargetByClass(ilObjQuestionPoolGUI::class, "questions"));
@@ -160,8 +125,6 @@ class ilAssQuestionPreviewGUI
         $this->questionGUI->outAdditionalOutput();
 
         $this->questionGUI->populateJavascriptFilesRequiredForWorkForm($this->tpl);
-        $this->questionOBJ->setOutputType(OUTPUT_JAVASCRIPT); // TODO: remove including depending stuff
-
         $this->questionGUI->setTargetGui($this);
         $this->questionGUI->setQuestionActionCmd(self::CMD_HANDLE_QUESTION_ACTION);
 
@@ -212,7 +175,17 @@ class ilAssQuestionPreviewGUI
 
         switch ($nextClass) {
             case 'ilassquestionhintrequestgui':
-                $gui = new ilAssQuestionHintRequestGUI($this, self::CMD_SHOW, $this->questionGUI, $this->hintTracking);
+                $gui = new ilAssQuestionHintRequestGUI(
+                    $this,
+                    self::CMD_SHOW,
+                    $this->questionGUI,
+                    $this->hintTracking,
+                    $this->ctrl,
+                    $this->lng,
+                    $this->tpl,
+                    $this->tabs,
+                    $this->global_screen
+                );
                 $this->ctrl->forwardCommand($gui);
                 break;
             case 'ilassspecfeedbackpagegui':
@@ -220,12 +193,10 @@ class ilAssQuestionPreviewGUI
                 $forwarder = new ilAssQuestionFeedbackPageObjectCommandForwarder($this->questionOBJ, $this->ctrl, $this->tabs, $this->lng);
                 $forwarder->forward();
                 break;
-            case 'ilnotegui':
-                $notesGUI = new ilNoteGUI($this->questionOBJ->getObjId(), $this->questionOBJ->getId(), 'quest');
-                $notesGUI->enablePublicNotes(true);
-                $notesGUI->enablePublicNotesDeletion(true);
-                $notesPanelHTML = $this->ctrl->forwardCommand($notesGUI);
-                $this->showCmd($notesPanelHTML);
+            case 'ilcommentgui':
+                $comment_gui = new ilCommentGUI($this->questionOBJ->getObjId(), $this->questionOBJ->getId(), 'quest');
+                $comments_panel_html = $this->ctrl->forwardCommand($comment_gui);
+                $this->showCmd($comments_panel_html);
                 break;
             default:
                 $cmd = $this->ctrl->getCmd(self::CMD_SHOW) . 'Cmd';
@@ -247,10 +218,10 @@ class ilAssQuestionPreviewGUI
             return false;
         }
 
-        return (bool) $this->rbac_services->system()->checkAccess('write', (int) $_GET['ref_id']);
+        return (bool) $this->rbac_system->checkAccess('write', (int) $_GET['ref_id']);
     }
 
-    private function showCmd($notesPanelHTML = ''): void
+    private function showCmd(string $notes_panel_html = ''): void
     {
         $tpl = new ilTemplate('tpl.qpl_question_preview.html', true, true, 'Modules/TestQuestionPool');
         $tpl->setVariable('PREVIEW_FORMACTION', $this->buildPreviewFormAction());
@@ -260,7 +231,7 @@ class ilAssQuestionPreviewGUI
         $this->handleInstantResponseRendering($tpl);
 
         if ($this->isCommentingRequired()) {
-            $this->populateNotesPanel($tpl, $notesPanelHTML);
+            $this->populateCommentsPanel($tpl, $notes_panel_html);
         }
 
         $this->tpl->setContent($tpl->get());
@@ -369,14 +340,14 @@ class ilAssQuestionPreviewGUI
         $toolbarGUI->setResetPreviewCmd(self::CMD_RESET);
 
         // Check Permissions first, some Toolbar Actions are only available for write access
-        if ($this->rbac_services->system()->checkAccess('write', (int) $_GET['ref_id'])) {
+        if ($this->rbac_system->checkAccess('write', (int) $_GET['ref_id'])) {
             $toolbarGUI->setEditPageCmd(
                 $this->ctrl->getLinkTargetByClass('ilAssQuestionPageGUI', 'edit')
             );
 
             $toolbarGUI->setEditQuestionCmd(
                 $this->ctrl->getLinkTargetByClass(
-                    array('ilrepositorygui','ilobjquestionpoolgui', get_class($this->questionGUI)),
+                    ['ilrepositorygui','ilobjquestionpoolgui', get_class($this->questionGUI)],
                     'editQuestion'
                 )
             );
@@ -412,7 +383,7 @@ class ilAssQuestionPreviewGUI
 
         $questionHtml .= $this->getQuestionNavigationHtml();
 
-        $pageGUI->setQuestionHTML(array($this->questionOBJ->getId() => $questionHtml));
+        $pageGUI->setQuestionHTML([$this->questionOBJ->getId() => $questionHtml]);
 
         $pageGUI->setPresentationTitle($this->questionOBJ->getTitle());
 
@@ -456,7 +427,7 @@ class ilAssQuestionPreviewGUI
 
         $this->questionGUI->setPreviewSession($this->previewSession);
 
-        $pageGUI->setQuestionHTML(array($this->questionOBJ->getId() => $this->questionGUI->getSolutionOutput(0, null, false, false, true, false, true, false, false)));
+        $pageGUI->setQuestionHTML([$this->questionOBJ->getId() => $this->questionGUI->getSolutionOutput(0, null, false, false, true, false, true, false, false)]);
 
         $output = $this->questionGUI->getSolutionOutput(0, null, false, false, true, false, true, false, false);
 
@@ -626,14 +597,14 @@ class ilAssQuestionPreviewGUI
         return $this->randomGroup->shuffleArray(new GivenSeed((int) $this->previewSession->getRandomizerSeed()));
     }
 
-    protected function populateNotesPanel(ilTemplate $tpl, $notesPanelHTML): void
+    protected function populateCommentsPanel(ilTemplate $tpl, string $comments_panel_html): void
     {
-        if (!strlen($notesPanelHTML)) {
-            $notesPanelHTML = $this->questionGUI->getNotesHTML();
+        if ($comments_panel_html === '') {
+            $comments_panel_html = $this->questionGUI->geCommentsPanelHTML();
         }
 
         $tpl->setCurrentBlock('notes_panel');
-        $tpl->setVariable('NOTES_PANEL', $notesPanelHTML);
+        $tpl->setVariable('NOTES_PANEL', $comments_panel_html);
         $tpl->parseCurrentBlock();
     }
 }

@@ -16,8 +16,12 @@
  *
  *********************************************************************/
 
-use ILIAS\DI\UIServices;
+declare(strict_types=1);
+
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\UI\Renderer as UIRenderer;
 use ILIAS\Test\InternalRequestService;
+use ILIAS\TestQuestionPool\QuestionInfoService;
 
 /**
  * GUI class that manages the question set configuration for continues tests
@@ -52,103 +56,80 @@ class ilTestRandomQuestionSetConfigGUI
     public const CMD_RESET_POOLSYNC = 'resetPoolSync';
 
     public const HTTP_PARAM_AFTER_REBUILD_QUESTION_STAGE_CMD = 'afterRebuildQuestionStageCmd';
-    private InternalRequestService $testrequest;
 
-    public ilCtrlInterface $ctrl;
-    public ?ilAccessHandler $access;
-    public ilTabsGUI $tabs;
-    public ilLanguage $lng;
-    public ilGlobalTemplateInterface $tpl;
-    public ilDBInterface $db;
-    public ilTree $tree;
-    public ilComponentRepository $component_repository;
-    public ilObjTest $testOBJ;
-
-    public ilObjectDefinition $obj_definition;
-    protected UIServices $ui;
-    protected ilObjUser $user;
-    protected ilObjectDataCache $obj_cache;
-
-    protected ilTestRandomQuestionSetConfig $questionSetConfig;
-    protected ilTestRandomQuestionSetSourcePoolDefinitionFactory $sourcePoolDefinitionFactory;
-    protected ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList;
+    protected ilTestRandomQuestionSetConfig $question_set_config;
+    protected ilTestRandomQuestionSetSourcePoolDefinitionFactory $source_pool_definition_factory;
+    protected ilTestRandomQuestionSetSourcePoolDefinitionList $source_pool_definition_list;
     protected ilTestRandomQuestionSetStagingPoolBuilder $stagingPool;
     protected ilTestRandomQuestionSetConfigStateMessageHandler $configStateMessageHandler;
-    private ilTestProcessLockerFactory $processLockerFactory;
 
     public function __construct(
-        ilCtrl $ctrl,
-        ilAccessHandler $access,
-        ilTabsGUI $tabs,
-        ilLanguage $lng,
-        ilGlobalTemplateInterface $tpl,
-        ilDBInterface $db,
-        ilTree $tree,
-        ilComponentRepository $component_repository,
-        ilObjTest $testOBJ,
-        ilTestProcessLockerFactory $processLockerFactory
+        private ilObjTest $test_obj,
+        private ilCtrl $ctrl,
+        private ilObjUser $user,
+        private ilAccessHandler $access,
+        private UIFactory $ui_factory,
+        private UIRenderer $ui_renderer,
+        private ilTabsGUI $tabs,
+        private ilLanguage $lng,
+        private ilLogger $log,
+        private ilGlobalTemplateInterface $tpl,
+        private ilDBInterface $db,
+        private ilTree $tree,
+        private ilComponentRepository $component_repository,
+        private ilObjectDefinition $obj_definition,
+        private ilObjectDataCache $obj_cache,
+        private ilTestProcessLockerFactory $processLockerFactory,
+        private InternalRequestService $testrequest,
+        private QuestionInfoService $questioninfo
     ) {
-        /** @var ILIAS\DI\Container $DIC */
-        global $DIC;
-        $this->testrequest = $DIC->test()->internal()->request();
-
-        $this->ui = $DIC->ui();
-        $this->user = $DIC->user();
-        $this->obj_definition = $DIC['objDefinition'];
-        $this->obj_cache = $DIC['ilObjDataCache'];
-
-        $this->ctrl = $ctrl;
-        $this->access = $access;
-        $this->tabs = $tabs;
-        $this->lng = $lng;
-        $this->tpl = $tpl;
-        $this->db = $db;
-        $this->tree = $tree;
-        $this->component_repository = $component_repository;
-        $this->testOBJ = $testOBJ;
-
-        $this->questionSetConfig = new ilTestRandomQuestionSetConfig(
+        $this->question_set_config = new ilTestRandomQuestionSetConfig(
             $this->tree,
             $this->db,
+            $this->lng,
+            $this->log,
             $this->component_repository,
-            $this->testOBJ
+            $this->test_obj,
+            $this->questioninfo
         );
-        $this->questionSetConfig->loadFromDb();
+        $this->question_set_config->loadFromDb();
 
-        $this->sourcePoolDefinitionFactory = new ilTestRandomQuestionSetSourcePoolDefinitionFactory(
+        $this->source_pool_definition_factory = new ilTestRandomQuestionSetSourcePoolDefinitionFactory(
             $this->db,
-            $this->testOBJ
+            $this->test_obj
         );
 
-        $this->sourcePoolDefinitionList = new ilTestRandomQuestionSetSourcePoolDefinitionList(
+        $this->source_pool_definition_list = new ilTestRandomQuestionSetSourcePoolDefinitionList(
             $this->db,
-            $this->testOBJ,
-            $this->sourcePoolDefinitionFactory
+            $this->test_obj,
+            $this->source_pool_definition_factory
         );
 
-        $this->sourcePoolDefinitionList->loadDefinitions();
+        $this->source_pool_definition_list->loadDefinitions();
 
         $this->stagingPool = new ilTestRandomQuestionSetStagingPoolBuilder(
             $this->db,
-            $this->testOBJ
+            $this->log,
+            $this->test_obj
         );
 
         $this->configStateMessageHandler = new ilTestRandomQuestionSetConfigStateMessageHandler(
             $this->lng,
-            $this->ui,
+            $this->ui_factory,
+            $this->ui_renderer,
             $this->ctrl
         );
 
         $this->configStateMessageHandler->setTargetGUI($this);
-        $this->configStateMessageHandler->setQuestionSetConfig($this->questionSetConfig);
-        $this->configStateMessageHandler->setParticipantDataExists($this->testOBJ->participantDataExist());
-        $this->configStateMessageHandler->setLostPools($this->sourcePoolDefinitionList->getLostPools());
+        $this->configStateMessageHandler->setQuestionSetConfig($this->question_set_config);
+        $this->configStateMessageHandler->setParticipantDataExists($this->test_obj->participantDataExist());
+        $this->configStateMessageHandler->setLostPools($this->source_pool_definition_list->getLostPools());
         $this->processLockerFactory = $processLockerFactory;
     }
 
     public function executeCommand(): void
     {
-        if (!$this->access->checkAccess("write", "", $this->testOBJ->getRefId())) {
+        if (!$this->access->checkAccess("write", "", $this->test_obj->getRefId())) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt("cannot_edit_test"), true);
             $this->ctrl->redirectByClass('ilObjTestGUI', "infoScreen");
         }
@@ -164,7 +145,7 @@ class ilTestRandomQuestionSetConfigGUI
 
         switch ($nextClass) {
             case 'iltestrandomquestionsetpooldefinitionformgui':
-                $this->questionSetConfig->loadFromDb();
+                $this->question_set_config->loadFromDb();
                 $poolId = $this->fetchQuestionPoolIdParameter();
                 $sourcePoolDefinition = $this->getSourcePoolDefinitionByAvailableQuestionPoolId($poolId);
                 $availableTaxonomyIds = ilObjTaxonomy::getUsageOfObject($sourcePoolDefinition->getPoolId());
@@ -195,11 +176,11 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function isFrozenConfigRequired(): bool
     {
-        if ($this->testOBJ->participantDataExist()) {
+        if ($this->test_obj->participantDataExist()) {
             return true;
         }
 
-        if ($this->sourcePoolDefinitionList->hasLostPool()) {
+        if ($this->source_pool_definition_list->hasLostPool()) {
             return true;
         }
 
@@ -265,17 +246,17 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function buildQuestionStageCmd(): void
     {
-        if ($this->sourcePoolDefinitionList->areAllUsedPoolsAvailable()) {
+        if ($this->source_pool_definition_list->areAllUsedPoolsAvailable()) {
             $locker = $this->processLockerFactory->retrieveLockerForNamedOperation();
             $locker->executeNamedOperation(__FUNCTION__, function (): void {
-                $this->stagingPool->rebuild($this->sourcePoolDefinitionList);
-                $this->sourcePoolDefinitionList->saveDefinitions();
+                $this->stagingPool->rebuild($this->source_pool_definition_list);
+                $this->source_pool_definition_list->saveDefinitions();
 
-                $this->questionSetConfig->loadFromDb();
-                $this->questionSetConfig->setLastQuestionSyncTimestamp(time());
-                $this->questionSetConfig->saveToDb();
+                $this->question_set_config->loadFromDb();
+                $this->question_set_config->setLastQuestionSyncTimestamp(time());
+                $this->question_set_config->saveToDb();
 
-                $this->testOBJ->saveCompleteStatus($this->questionSetConfig);
+                $this->test_obj->saveCompleteStatus($this->question_set_config);
 
                 $this->ctrl->setParameterByClass(self::class, 'modified', 'sync');
             });
@@ -302,7 +283,7 @@ class ilTestRandomQuestionSetConfigGUI
         $disabled_form = $this->preventFormBecauseOfSync();
 
         if ($form === null) {
-            $this->questionSetConfig->loadFromDb();
+            $this->question_set_config->loadFromDb();
             $form = $this->buildGeneralConfigFormGUI($disabled_form);
         }
 
@@ -334,10 +315,10 @@ class ilTestRandomQuestionSetConfigGUI
 
         $form->save();
 
-        $this->questionSetConfig->setLastQuestionSyncTimestamp(0);
-        $this->questionSetConfig->saveToDb();
+        $this->question_set_config->setLastQuestionSyncTimestamp(0);
+        $this->question_set_config->saveToDb();
 
-        $this->testOBJ->saveCompleteStatus($this->questionSetConfig);
+        $this->test_obj->saveCompleteStatus($this->question_set_config);
 
         $this->ctrl->setParameter($this, 'modified', 'save');
         $this->ctrl->redirect($this, self::CMD_SHOW_GENERAL_CONFIG_FORM);
@@ -349,9 +330,9 @@ class ilTestRandomQuestionSetConfigGUI
         $form = new ilTestRandomQuestionSetGeneralConfigFormGUI(
             $this->ctrl,
             $this->lng,
-            $this->testOBJ,
+            $this->test_obj,
             $this,
-            $this->questionSetConfig
+            $this->question_set_config
         );
 
         //TODO: should frozen config not lead to 'completely disabled' as well?!
@@ -374,7 +355,7 @@ class ilTestRandomQuestionSetConfigGUI
     {
         $disabled_form = $this->preventFormBecauseOfSync();
 
-        $this->questionSetConfig->loadFromDb();
+        $this->question_set_config->loadFromDb();
 
         $content = '';
 
@@ -384,12 +365,12 @@ class ilTestRandomQuestionSetConfigGUI
         }
 
         $table = $this->buildSourcePoolDefinitionListTableGUI($disabled_form);
-        $table->init($this->sourcePoolDefinitionList);
+        $table->init($this->source_pool_definition_list);
         $content .= $this->ctrl->getHTML($table);
 
-        if (!$this->sourcePoolDefinitionList->areAllUsedPoolsAvailable()) {
+        if (!$this->source_pool_definition_list->areAllUsedPoolsAvailable()) {
             $table = $this->buildNonAvailablePoolsTableGUI();
-            $table->init($this->sourcePoolDefinitionList);
+            $table->init($this->source_pool_definition_list);
             $content .= $this->ctrl->getHTML($table);
         }
 
@@ -409,24 +390,20 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function saveSourcePoolDefinitionListCmd(): void
     {
-        $this->questionSetConfig->loadFromDb();
+        $this->question_set_config->loadFromDb();
 
         $table = $this->buildSourcePoolDefinitionListTableGUI();
 
-        $table->applySubmit($this->sourcePoolDefinitionList);
+        $table->applySubmit($this->source_pool_definition_list);
 
-        $this->sourcePoolDefinitionList->reindexPositions();
-        $this->sourcePoolDefinitionList->saveDefinitions();
+        $this->source_pool_definition_list->reindexPositions();
+        $this->source_pool_definition_list->saveDefinitions();
 
-        // fau: delayCopyRandomQuestions - don't rebuild the staging pool, just clear the sycn timestamp
-        #$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
-        #$this->sourcePoolDefinitionList->saveDefinitions();
-        #$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
-        $this->questionSetConfig->setLastQuestionSyncTimestamp(0);
+        $this->question_set_config->setLastQuestionSyncTimestamp(0);
         // fau.
-        $this->questionSetConfig->saveToDb();
+        $this->question_set_config->saveToDb();
 
-        $this->testOBJ->saveCompleteStatus($this->questionSetConfig);
+        $this->test_obj->saveCompleteStatus($this->question_set_config);
 
         $this->ctrl->setParameter($this, 'modified', 'save');
         $this->ctrl->redirect($this, self::CMD_SHOW_SRC_POOL_DEF_LIST);
@@ -438,7 +415,7 @@ class ilTestRandomQuestionSetConfigGUI
             $this->ctrl,
             $this->lng,
             $this,
-            $this->questionSetConfig
+            $this->question_set_config
         );
 
         $toolbar->build();
@@ -449,10 +426,13 @@ class ilTestRandomQuestionSetConfigGUI
     private function buildSourcePoolDefinitionListTableGUI(bool $disabled = false): ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI
     {
         $table = new ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI(
-            $this->ctrl,
-            $this->lng,
             $this,
-            self::CMD_SHOW_SRC_POOL_DEF_LIST
+            self::CMD_SHOW_SRC_POOL_DEF_LIST,
+            $this->access,
+            $this->ui_factory,
+            $this->ui_renderer,
+            $this->testrequest->raw('def_order') ?? [],
+            $this->testrequest->raw('quest_amount') ?? []
         );
 
         if (!$this->isFrozenConfigRequired()) {
@@ -460,17 +440,15 @@ class ilTestRandomQuestionSetConfigGUI
         }
 
         $table->setQuestionAmountColumnEnabled(
-            $this->questionSetConfig->isQuestionAmountConfigurationModePerPool()
+            $this->question_set_config->isQuestionAmountConfigurationModePerPool()
         );
 
-        // fau: taxFilter/typeFilter - show the mapped taxonomy filters if pools are synced
         $table->setShowMappedTaxonomyFilter(
-            $this->questionSetConfig->getLastQuestionSyncTimestamp() != 0
+            $this->question_set_config->getLastQuestionSyncTimestamp() != 0
         );
-        // fau.
 
-        $translater = new ilTestTaxonomyFilterLabelTranslater($this->db);
-        $translater->loadLabels($this->sourcePoolDefinitionList);
+        $translater = new ilTestQuestionFilterLabelTranslater($this->db, $this->lng);
+        $translater->loadLabels($this->source_pool_definition_list);
         $table->setTaxonomyFilterLabelTranslater($translater);
 
         if ($disabled) {
@@ -516,33 +494,34 @@ class ilTestRandomQuestionSetConfigGUI
     private function deleteSourcePoolDefinitions($definitionIds): void
     {
         foreach ($definitionIds as $definitionId) {
-            $definition = $this->sourcePoolDefinitionFactory->getSourcePoolDefinitionByDefinitionId($definitionId);
+            $definition = $this->source_pool_definition_factory->getSourcePoolDefinitionByDefinitionId($definitionId);
             $definition->deleteFromDb();
         }
 
-        $this->sourcePoolDefinitionList->reindexPositions();
-        $this->sourcePoolDefinitionList->saveDefinitions();
+        $this->source_pool_definition_list->reindexPositions();
+        $this->source_pool_definition_list->saveDefinitions();
 
-        $this->questionSetConfig->loadFromDb();
-        $this->questionSetConfig->setLastQuestionSyncTimestamp(0);
-        $this->questionSetConfig->saveToDb();
+        $this->question_set_config->loadFromDb();
+        $this->question_set_config->setLastQuestionSyncTimestamp(0);
+        $this->question_set_config->saveToDb();
 
-        $this->testOBJ->saveCompleteStatus($this->questionSetConfig);
+        $this->test_obj->saveCompleteStatus($this->question_set_config);
     }
 
     // hey: randomPoolSelector - new pool selector explorer command
     protected function showPoolSelectorExplorerCmd(): void
     {
-        $this->questionSetConfig->loadFromDb();
+        $this->question_set_config->loadFromDb();
 
         $selector = new ilTestQuestionPoolSelectorExplorer(
             $this,
             self::CMD_SHOW_POOL_SELECTOR_EXPLORER,
-            self::CMD_SHOW_CREATE_SRC_POOL_DEF_FORM
+            self::CMD_SHOW_CREATE_SRC_POOL_DEF_FORM,
+            $this->obj_cache
         );
 
         $selector->setAvailableQuestionPools(
-            array_keys($this->questionSetConfig->getSelectableQuestionPools())
+            array_keys($this->question_set_config->getSelectableQuestionPools())
         );
 
         if ($selector->handleCommand()) {
@@ -555,7 +534,7 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function showCreateSourcePoolDefinitionFormCmd(ilTestRandomQuestionSetPoolDefinitionFormGUI $form = null): void
     {
-        $this->questionSetConfig->loadFromDb();
+        $this->question_set_config->loadFromDb();
 
         $poolId = $this->fetchQuestionPoolIdParameter();
 
@@ -580,7 +559,7 @@ class ilTestRandomQuestionSetConfigGUI
      */
     private function saveCreateSourcePoolDefinitionFormCmd($redirect_back_to_form = false): void
     {
-        $this->questionSetConfig->loadFromDb();
+        $this->question_set_config->loadFromDb();
 
         $poolId = $this->fetchQuestionPoolIdParameter();
         $sourcePoolDefinition = $this->getSourcePoolDefinitionByAvailableQuestionPoolId($poolId);
@@ -599,16 +578,16 @@ class ilTestRandomQuestionSetConfigGUI
 
         $form->applySubmit($sourcePoolDefinition, $availableTaxonomyIds);
 
-        $sourcePoolDefinition->setSequencePosition($this->sourcePoolDefinitionList->getNextPosition());
+        $sourcePoolDefinition->setSequencePosition($this->source_pool_definition_list->getNextPosition());
         $sourcePoolDefinition->saveToDb();
-        $this->sourcePoolDefinitionList->addDefinition($sourcePoolDefinition);
+        $this->source_pool_definition_list->addDefinition($sourcePoolDefinition);
 
-        $this->sourcePoolDefinitionList->saveDefinitions();
+        $this->source_pool_definition_list->saveDefinitions();
 
-        $this->questionSetConfig->setLastQuestionSyncTimestamp(0);
-        $this->questionSetConfig->saveToDb();
+        $this->question_set_config->setLastQuestionSyncTimestamp(0);
+        $this->question_set_config->saveToDb();
 
-        $this->testOBJ->saveCompleteStatus($this->questionSetConfig);
+        $this->test_obj->saveCompleteStatus($this->question_set_config);
 
         if ($redirect_back_to_form) {
             $this->tpl->setOnScreenMessage('success', $this->lng->txt("tst_msg_random_qsc_modified_add_new_rule"), true);
@@ -626,9 +605,9 @@ class ilTestRandomQuestionSetConfigGUI
         $form = new ilTestRandomQuestionSetPoolDefinitionFormGUI(
             $this->ctrl,
             $this->lng,
-            $this->testOBJ,
+            $this->test_obj,
             $this,
-            $this->questionSetConfig
+            $this->question_set_config
         );
 
         $form->setSaveCommand(self::CMD_SAVE_CREATE_SRC_POOL_DEF_FORM);
@@ -639,10 +618,10 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function showEditSourcePoolDefinitionFormCmd(ilTestRandomQuestionSetPoolDefinitionFormGUI $form = null): void
     {
-        $this->questionSetConfig->loadFromDb();
+        $this->question_set_config->loadFromDb();
 
         $defId = $this->fetchSingleSourcePoolDefinitionIdParameter();
-        $sourcePoolDefinition = $this->sourcePoolDefinitionFactory->getSourcePoolDefinitionByDefinitionId($defId);
+        $sourcePoolDefinition = $this->source_pool_definition_factory->getSourcePoolDefinitionByDefinitionId($defId);
         $availableTaxonomyIds = ilObjTaxonomy::getUsageOfObject($sourcePoolDefinition->getPoolId());
 
         if ($form === null) {
@@ -655,10 +634,10 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function saveEditSourcePoolDefinitionFormCmd(): void
     {
-        $this->questionSetConfig->loadFromDb();
+        $this->question_set_config->loadFromDb();
 
         $defId = $this->fetchSingleSourcePoolDefinitionIdParameter();
-        $sourcePoolDefinition = $this->sourcePoolDefinitionFactory->getSourcePoolDefinitionByDefinitionId($defId);
+        $sourcePoolDefinition = $this->source_pool_definition_factory->getSourcePoolDefinitionByDefinitionId($defId);
         $availableTaxonomyIds = ilObjTaxonomy::getUsageOfObject($sourcePoolDefinition->getPoolId());
 
         $form = $this->buildEditSourcePoolDefinitionFormGUI();
@@ -676,10 +655,10 @@ class ilTestRandomQuestionSetConfigGUI
 
         $sourcePoolDefinition->saveToDb();
 
-        $this->questionSetConfig->setLastQuestionSyncTimestamp(0);
-        $this->questionSetConfig->saveToDb();
+        $this->question_set_config->setLastQuestionSyncTimestamp(0);
+        $this->question_set_config->saveToDb();
 
-        $this->testOBJ->saveCompleteStatus($this->questionSetConfig);
+        $this->test_obj->saveCompleteStatus($this->question_set_config);
 
         $this->ctrl->setParameterByClass(self::class, 'modified', 'save');
         $this->ctrl->redirect($this, self::CMD_SHOW_SRC_POOL_DEF_LIST);
@@ -690,9 +669,9 @@ class ilTestRandomQuestionSetConfigGUI
         $form = new ilTestRandomQuestionSetPoolDefinitionFormGUI(
             $this->ctrl,
             $this->lng,
-            $this->testOBJ,
+            $this->test_obj,
             $this,
-            $this->questionSetConfig
+            $this->question_set_config
         );
 
         $form->setSaveCommand(self::CMD_SAVE_EDIT_SRC_POOL_DEF_FORM);
@@ -747,9 +726,9 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function getSourcePoolDefinitionByAvailableQuestionPoolId($poolId): ilTestRandomQuestionSetSourcePoolDefinition
     {
-        $availablePools = $this->testOBJ->getAvailableQuestionpools(
+        $availablePools = $this->test_obj->getAvailableQuestionpools(
             true,
-            $this->questionSetConfig->arePoolsWithHomogeneousScoredQuestionsRequired(),
+            $this->question_set_config->arePoolsWithHomogeneousScoredQuestionsRequired(),
             false,
             true,
             true
@@ -758,10 +737,10 @@ class ilTestRandomQuestionSetConfigGUI
         if (isset($availablePools[$poolId])) {
             $originalPoolData = $availablePools[$poolId];
 
-            $originalPoolData['qpl_path'] = $this->questionSetConfig->getQuestionPoolPathString($poolId);
-            $originalPoolData['qpl_ref_id'] = $this->questionSetConfig->getFirstQuestionPoolRefIdByObjId($poolId);
+            $originalPoolData['qpl_path'] = $this->question_set_config->getQuestionPoolPathString($poolId);
+            $originalPoolData['qpl_ref_id'] = $this->question_set_config->getFirstQuestionPoolRefIdByObjId($poolId);
 
-            return $this->sourcePoolDefinitionFactory->getSourcePoolDefinitionByOriginalPoolData($originalPoolData);
+            return $this->source_pool_definition_factory->getSourcePoolDefinitionByOriginalPoolData($originalPoolData);
         }
 
         throw new ilTestQuestionPoolNotAvailableAsSourcePoolException();
@@ -772,20 +751,23 @@ class ilTestRandomQuestionSetConfigGUI
      */
     protected function fetchPoolIdsParameter(): array
     {
-        $poolIds = [];
+        $pool_ids = [];
         if ($this->testrequest->isset('derive_pool_ids') && is_array($this->testrequest->raw('derive_pool_ids'))) {
-            $poolIds = [];
+            $pool_ids = [];
 
-            foreach ($this->testrequest->raw('derive_pool_ids') as $poolId) {
-                $poolIds[] = (int) $poolId;
+            foreach ($this->testrequest->raw('derive_pool_ids') as $pool_id) {
+                $pool_ids[] = (int) $pool_id;
             }
         } elseif ($this->testrequest->isset('derive_pool_ids') && preg_match('/^\d+(\:\d+)*$/', $this->testrequest->raw('derive_pool_ids'))) {
-            $poolIds = explode(':', $this->testrequest->raw('derive_pool_ids'));
+            $pool_ids = array_map(
+                fn(int $id) => (int) $id,
+                explode(':', $this->testrequest->raw('derive_pool_ids'))
+            );
         } elseif ($this->testrequest->isset('derive_pool_id') && (int) $this->testrequest->raw('derive_pool_id')) {
-            $poolIds = [(int) $this->testrequest->raw('derive_pool_id')];
+            $pool_ids = [(int) $this->testrequest->raw('derive_pool_id')];
         }
 
-        return $poolIds;
+        return $pool_ids;
     }
 
     protected function fetchTargetRefParameter(): ?int
@@ -819,34 +801,34 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function deriveNewPoolsCmd(): void
     {
-        $poolIds = $this->fetchPoolIdsParameter();
-        $targetRef = $this->fetchTargetRefParameter();
-        if (!$this->access->checkAccess('write', '', $targetRef)) {
+        $pool_ids = $this->fetchPoolIdsParameter();
+        $target_ref = $this->fetchTargetRefParameter();
+        if (!$this->access->checkAccess('write', '', $target_ref)) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_permission"), true);
-            $this->ctrl->setParameterByClass(ilObjTestGUI::class, 'ref_id', $this->testOBJ->getRefId());
+            $this->ctrl->setParameterByClass(ilObjTestGUI::class, 'ref_id', $this->test_obj->getRefId());
             $this->ctrl->redirectByClass(ilObjTestGUI::class);
         }
 
-        if (count($poolIds)) {
-            foreach ($poolIds as $poolId) {
-                $lostPool = $this->sourcePoolDefinitionList->getLostPool($poolId);
+        if ($pool_ids !== []) {
+            foreach ($pool_ids as $pool_id) {
+                $lost_pool = $this->source_pool_definition_list->getLostPool($pool_id);
 
-                $deriver = new ilTestRandomQuestionSetPoolDeriver($this->db, $this->component_repository, $this->testOBJ);
-                $deriver->setSourcePoolDefinitionList($this->sourcePoolDefinitionList);
-                $deriver->setTargetContainerRef($targetRef);
+                $deriver = new ilTestRandomQuestionSetPoolDeriver($this->db, $this->component_repository, $this->test_obj);
+                $deriver->setSourcePoolDefinitionList($this->source_pool_definition_list);
+                $deriver->setTargetContainerRef($target_ref);
                 $deriver->setOwnerId($this->user->getId());
-                $newPool = $deriver->derive($lostPool);
+                $new_pool = $deriver->derive($lost_pool);
 
-                $srcPoolDefinition = $this->sourcePoolDefinitionList->getDefinitionBySourcePoolId($newPool->getId());
-                $srcPoolDefinition->setPoolTitle($newPool->getTitle());
-                $srcPoolDefinition->setPoolPath($this->questionSetConfig->getQuestionPoolPathString($newPool->getId()));
-                $srcPoolDefinition->setPoolRefId($this->questionSetConfig->getFirstQuestionPoolRefIdByObjId($newPool->getId()));
+                $srcPoolDefinition = $this->source_pool_definition_list->getDefinitionBySourcePoolId($new_pool->getId());
+                $srcPoolDefinition->setPoolTitle($new_pool->getTitle());
+                $srcPoolDefinition->setPoolPath($this->question_set_config->getQuestionPoolPathString($new_pool->getId()));
+                $srcPoolDefinition->setPoolRefId($this->question_set_config->getFirstQuestionPoolRefIdByObjId($new_pool->getId()));
                 $srcPoolDefinition->saveToDb();
 
                 ilTestRandomQuestionSetStagingPoolQuestionList::updateSourceQuestionPoolId(
-                    $this->testOBJ->getTestId(),
-                    $lostPool->getId(),
-                    $newPool->getId()
+                    $this->test_obj->getTestId(),
+                    $lost_pool->getId(),
+                    $new_pool->getId()
                 );
             }
 
@@ -884,10 +866,10 @@ class ilTestRandomQuestionSetConfigGUI
     protected function preventFormBecauseOfSync(): bool
     {
         $return = false;
-        $last_sync = $this->questionSetConfig->getLastQuestionSyncTimestamp();
+        $last_sync = $this->question_set_config->getLastQuestionSyncTimestamp();
 
         if ($last_sync !== null && $last_sync !== 0 &&
-            !$this->isFrozenConfigRequired() && $this->questionSetConfig->isQuestionSetBuildable()) {
+            !$this->isFrozenConfigRequired() && $this->question_set_config->isQuestionSetBuildable()) {
             return true;
         }
         return false;
@@ -895,8 +877,8 @@ class ilTestRandomQuestionSetConfigGUI
 
     public function resetPoolSyncCmd(): void
     {
-        $this->questionSetConfig->setLastQuestionSyncTimestamp(0);
-        $this->questionSetConfig->saveToDb();
+        $this->question_set_config->setLastQuestionSyncTimestamp(0);
+        $this->question_set_config->saveToDb();
         $this->ctrl->redirect($this, self::CMD_SHOW_GENERAL_CONFIG_FORM);
     }
 
@@ -915,13 +897,13 @@ class ilTestRandomQuestionSetConfigGUI
         if ($this->testrequest->isset('modified')) {
             $action = $this->testrequest->raw('modified');
             if ($action === 'save') {
-                $success_message = $this->ui->factory()->messageBox()->success($this->getGeneralModificationSuccessMessage());
+                $success_message = $this->ui_factory->messageBox()->success($this->getGeneralModificationSuccessMessage());
             } elseif ($action === 'remove') {
-                $success_message = $this->ui->factory()->messageBox()->success($this->lng->txt("tst_msg_source_pool_definitions_deleted"));
+                $success_message = $this->ui_factory->messageBox()->success($this->lng->txt("tst_msg_source_pool_definitions_deleted"));
             } elseif ($action === 'sync') {
-                $success_message = $this->ui->factory()->messageBox()->success($this->lng->txt("tst_msg_random_question_set_synced"));
+                $success_message = $this->ui_factory->messageBox()->success($this->lng->txt("tst_msg_random_question_set_synced"));
             }
-            $message .= $this->ui->renderer()->render(
+            $message .= $this->ui_renderer->render(
                 $success_message
             );
         }
@@ -932,14 +914,14 @@ class ilTestRandomQuestionSetConfigGUI
     protected function buildValidationMessage(): string
     {
         if ($this->configStateMessageHandler->isValidationFailed()) {
-            return $this->ui->renderer()->render(
-                $this->ui->factory()->messageBox()->failure($this->configStateMessageHandler->getValidationReportHtml())
+            return $this->ui_renderer->render(
+                $this->ui_factory->messageBox()->failure($this->configStateMessageHandler->getValidationReportHtml())
             );
         }
 
         if ($this->configStateMessageHandler->hasValidationReports()) {
-            return $this->ui->renderer()->render(
-                $this->ui->factory()->messageBox()->info($this->configStateMessageHandler->getValidationReportHtml())
+            return $this->ui_renderer->render(
+                $this->ui_factory->messageBox()->info($this->configStateMessageHandler->getValidationReportHtml())
             );
         }
 
@@ -951,8 +933,8 @@ class ilTestRandomQuestionSetConfigGUI
      */
     protected function populateOnScreenMessage($message)
     {
-        $this->ui->mainTemplate()->setCurrentBlock('mess');
-        $this->ui->mainTemplate()->setVariable('MESSAGE', $message);
-        $this->ui->mainTemplate()->parseCurrentBlock();
+        $this->tpl->setCurrentBlock('mess');
+        $this->tpl->setVariable('MESSAGE', $message);
+        $this->tpl->parseCurrentBlock();
     }
 }

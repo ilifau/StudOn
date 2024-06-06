@@ -48,6 +48,7 @@ class ilExAssignmentReminder
 
     protected ilLogger $log;
     protected ilAccessHandler $access;
+    private ilMailTemplatePlaceholderResolver $placeholder_resolver;
 
     //todo remove the params as soon as possible.
     public function __construct(
@@ -60,6 +61,7 @@ class ilExAssignmentReminder
         $this->tree = $DIC->repositoryTree();
         $this->access = $DIC->access();
         $this->log = ilLoggerFactory::getLogger("exc");
+        $this->placeholder_resolver = $DIC->mail()->placeholderResolver();
 
         if ($a_ass_id) {
             $this->ass_id = $a_ass_id;
@@ -293,7 +295,6 @@ class ilExAssignmentReminder
 
             $exc_refs = ilObject::_getAllReferences($exc_id);
             foreach ($exc_refs as $exc_ref) {
-
                 // check if we have an upper course
                 if ($course_ref_id = $this->tree->checkForParentType($exc_ref, 'crs')) {
                     $obj = new ilObjCourse($course_ref_id);
@@ -301,7 +302,7 @@ class ilExAssignmentReminder
                     $parent_ref_id = $course_ref_id;
                     $parent_obj_type = 'crs';
 
-                // check if we have an upper group
+                    // check if we have an upper group
                 } elseif ($group_ref_id = $this->tree->checkForParentType($exc_ref, 'grp')) {
                     $obj = new ilObjGroup($group_ref_id);
                     $participants_class = ilGroupParticipants::class;
@@ -500,8 +501,7 @@ class ilExAssignmentReminder
 
             //if the template exists (can be deleted via Administration/Mail)
             if ($template_id) {
-                /** @var \ilMailTemplateService $templateService */
-                $templateService = $DIC['mail.texttemplates.service'];
+                $templateService = $DIC->mail()->textTemplates();
                 $tpl = $templateService->loadTemplateForId((int) $template_id);
             }
             $subject = "";
@@ -593,8 +593,7 @@ class ilExAssignmentReminder
 
             $user = new ilObjUser($a_reminder_data["member_id"]);
 
-            $processor = new ilMailTemplatePlaceholderResolver($context, $a_message);
-            $a_message = $processor->resolve($user, $a_reminder_data);
+            $a_message = $this->placeholder_resolver->resolve($context, $a_message, $user, $a_reminder_data);
         } catch (Exception $e) {
             ilLoggerFactory::getLogger('mail')->error(__METHOD__ . ' has been called with invalid context.');
         }

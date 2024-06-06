@@ -66,6 +66,7 @@ class ilLikeGUI
 
     protected function initJavascript(): void
     {
+        ilYuiUtil::initConnection();
         $this->main_tpl->addJavaScript("./Services/Like/js/Like.js");
     }
 
@@ -191,13 +192,20 @@ class ilLikeGUI
         $f = $this->ui->factory();
         $like = null;
         switch ($a_const) {
-            case ilLikeData::TYPE_LIKE: $like = $f->symbol()->glyph()->like(); break;
-            case ilLikeData::TYPE_DISLIKE: $like = $f->symbol()->glyph()->dislike(); break;
-            case ilLikeData::TYPE_LOVE: $like = $f->symbol()->glyph()->love(); break;
-            case ilLikeData::TYPE_LAUGH: $like = $f->symbol()->glyph()->laugh(); break;
-            case ilLikeData::TYPE_ASTOUNDED: $like = $f->symbol()->glyph()->astounded(); break;
-            case ilLikeData::TYPE_SAD: $like = $f->symbol()->glyph()->sad(); break;
-            case ilLikeData::TYPE_ANGRY: $like = $f->symbol()->glyph()->angry(); break;
+            case ilLikeData::TYPE_LIKE: $like = $f->symbol()->glyph()->like();
+                break;
+            case ilLikeData::TYPE_DISLIKE: $like = $f->symbol()->glyph()->dislike();
+                break;
+            case ilLikeData::TYPE_LOVE: $like = $f->symbol()->glyph()->love();
+                break;
+            case ilLikeData::TYPE_LAUGH: $like = $f->symbol()->glyph()->laugh();
+                break;
+            case ilLikeData::TYPE_ASTOUNDED: $like = $f->symbol()->glyph()->astounded();
+                break;
+            case ilLikeData::TYPE_SAD: $like = $f->symbol()->glyph()->sad();
+                break;
+            case ilLikeData::TYPE_ANGRY: $like = $f->symbol()->glyph()->angry();
+                break;
         }
         if ($unavailable) {
             $like = $like->withUnavailableAction();

@@ -30,11 +30,11 @@ use Psr\Http\Message\ServerRequestInterface;
 class ilAuthFrontendCredentialsApache extends ilAuthFrontendCredentials
 {
     private ServerRequestInterface $httpRequest;
-    private ilCtrl $ctrl;
+    private ilCtrlInterface $ctrl;
     private ilSetting $settings;
     private ilLogger $logger;
 
-    public function __construct(ServerRequestInterface $httpRequest, ilCtrl $ctrl)
+    public function __construct(ServerRequestInterface $httpRequest, ilCtrlInterface $ctrl)
     {
         global $DIC;
         $this->logger = $DIC->logger()->auth();

@@ -27,7 +27,6 @@ class ilFileSystemComponentDataDirectoryCreatedObjective extends Setup\Objective
 
     protected int $base_location;
 
-
     public function __construct(
         string $component_dir,
         int $base_location = self::DATADIR
@@ -38,13 +37,12 @@ class ilFileSystemComponentDataDirectoryCreatedObjective extends Setup\Objective
         $this->base_location = $base_location;
     }
 
-
     public function getHash(): string
     {
         return hash("sha256", self::class . "::" . $this->component_dir . $this->base_location);
     }
 
-    protected function buildPath(Setup\Environment $environment): ?string
+    protected function buildPath(Setup\Environment $environment): string
     {
         $ini = $environment->getResource(Setup\Environment::RESOURCE_ILIAS_INI);
         $client_id = $environment->getResource(Setup\Environment::RESOURCE_CLIENT_ID);
@@ -63,8 +61,8 @@ class ilFileSystemComponentDataDirectoryCreatedObjective extends Setup\Objective
         }
 
         $client_data_dir = $data_dir . '/' . $client_id;
-        $new_dir = $client_data_dir . '/' . $this->component_dir;
-        return $new_dir;
+
+        return $client_data_dir . '/' . $this->component_dir;
     }
 
     /**
@@ -88,6 +86,9 @@ class ilFileSystemComponentDataDirectoryCreatedObjective extends Setup\Objective
 
     public function achieve(Setup\Environment $environment): Setup\Environment
     {
+        if (!$this->checkEnvironment($environment)) {
+            throw new Setup\UnachievableException("Environment is not ready for this objective");
+        }
         $this->path = $this->buildPath($environment);
         return parent::achieve($environment);
     }
@@ -97,10 +98,21 @@ class ilFileSystemComponentDataDirectoryCreatedObjective extends Setup\Objective
      */
     public function isApplicable(Setup\Environment $environment): bool
     {
-        if (($path = $this->buildPath($environment)) === null) {
+        if (!$this->checkEnvironment($environment)) {
             return false;
         }
-        $this->path = $path;
+        $this->path = $this->buildPath($environment);
         return parent::isApplicable($environment);
+    }
+
+    private function checkEnvironment(Setup\Environment $environment): bool
+    {
+        if (null === $environment->getResource(Setup\Environment::RESOURCE_ILIAS_INI)) {
+            return false;
+        }
+        if (null === $environment->getResource(Setup\Environment::RESOURCE_CLIENT_ID)) {
+            return false;
+        }
+        return true;
     }
 }

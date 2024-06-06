@@ -19,24 +19,8 @@
 // no namespace for ilCtrl classes
 //namespace ILIAS\MyStaff\Courses\ShowUser;
 
-/*
-use Closure;
-use ilAdvancedSelectionListGUI;
-use ilCSVWriter;
-use ilExcel;*/
 use ILIAS\MyStaff\ilMyStaffAccess;
 use ILIAS\MyStaff\ListCourses\ilMStListCourse;
-
-/*
-use ilLPStatus;
-use ilMStShowUserCoursesGUI;
-use ilMyStaffGUI;
-use ilObjUserTracking;
-use ilOrgUnitOperation;
-use ilRepositorySelectorInputGUI;
-use ilSelectInputGUI;
-use ilTable2GUI;
-use ilTextInputGUI;*/
 
 /**
  * Class ilMStShowUserCoursesTableGUI
@@ -50,6 +34,8 @@ class ilMStShowUserCoursesTableGUI extends ilTable2GUI
     protected ilMyStaffAccess $access;
     protected ?array $columnDefinition = null;
     protected ?array $orgu_names = null;
+    protected \ILIAS\UI\Factory $ui_fac;
+    protected \ILIAS\UI\Renderer $ui_ren;
 
     /**
      * @param ilMStShowUserCoursesGUI $parent_obj
@@ -60,6 +46,8 @@ class ilMStShowUserCoursesTableGUI extends ilTable2GUI
         global $DIC;
 
         $this->access = ilMyStaffAccess::getInstance();
+        $this->ui_fac = $DIC->ui()->factory();
+        $this->ui_ren = $DIC->ui()->renderer();
 
         $this->usr_id = $DIC->http()->request()->getQueryParams()['usr_id'];
 
@@ -286,40 +274,31 @@ class ilMStShowUserCoursesTableGUI extends ilTable2GUI
             }
         }
 
-        $actions = new ilAdvancedSelectionListGUI();
-        $actions->setListTitle($DIC->language()->txt("actions"));
-        $actions->setId($set->getUsrId() . "-" . $set->getCrsRefId());
-
         $mst_lco_usr_id = $set->getUsrId();
         $mst_lco_crs_ref_id = $set->getCrsRefId();
 
+        $actions = [];
+
         if ($DIC->access()->checkAccess("visible", "", $mst_lco_crs_ref_id)) {
             $link = ilLink::_getStaticLink($mst_lco_crs_ref_id, ilMyStaffAccess::COURSE_CONTEXT);
-            $actions->addItem(
+            $actions[] = $this->ui_fac->link()->standard(
                 ilObject2::_lookupTitle(ilObject2::_lookupObjectId($mst_lco_crs_ref_id)),
-                '',
                 $link
             );
         };
 
-        foreach (
-            ilOrgUnitUserAssignment::innerjoin('object_reference', 'orgu_id', 'ref_id')->where(array(
-                'user_id' => $mst_lco_usr_id,
-                'object_reference.deleted' => null
-            ), array('user_id' => '=', 'object_reference.deleted' => '!='))->get() as $org_unit_assignment
-        ) {
-            if ($DIC->access()->checkAccess("read", "", $org_unit_assignment->getOrguId())) {
+        foreach (array_unique(ilObjOrgUnitTree::_getInstance()->getOrgUnitOfUser($mst_lco_usr_id)) as $orgu_id) {
+            if ($DIC->access()->checkAccess("read", "", $orgu_id) && !ilObject::_isInTrash($orgu_id)) {
                 $org_units = $this->getTextRepresentationOfOrgUnits();
-                $link = ilLink::_getStaticLink($org_unit_assignment->getOrguId(), 'orgu');
-                $actions->addItem($org_units[$org_unit_assignment->getOrguId()], '', $link);
+                $link = ilLink::_getStaticLink($orgu_id, 'orgu');
+                $actions[] = $this->ui_fac->link()->standard($org_units[$orgu_id], $link);
             }
         }
 
-        $DIC->ctrl()->setParameterByClass(ilMStShowUserCoursesGUI::class, 'mst_lco_usr_id', $mst_lco_usr_id);
-        $DIC->ctrl()->setParameterByClass(ilMStShowUserCoursesGUI::class, 'mst_lco_crs_ref_id', $mst_lco_crs_ref_id);
+        $DIC->ctrl()->setParameterByClass(ilMStShowUserCoursesGUI::class, 'mst_lco_usr_id', $set->getUsrId());
+        $DIC->ctrl()->setParameterByClass(ilMStShowUserCoursesGUI::class, 'mst_lco_crs_ref_id', $set->getCrsRefId());
 
-        $actions = ilMyStaffGUI::extendActionMenuWithUserActions(
-            $actions,
+        $actions[] = \ilMyStaffGUI::extendActionMenuWithUserActions(
             $mst_lco_usr_id,
             rawurlencode($this->ctrl->getLinkTargetByClass(
                 "ilMStShowUserCoursesGUI",
@@ -327,7 +306,8 @@ class ilMStShowUserCoursesTableGUI extends ilTable2GUI
             ))
         );
 
-        $this->tpl->setVariable('ACTIONS', $actions->getHTML());
+        $dropdown = $this->ui_fac->dropdown()->standard($actions)->withLabel($this->lng->txt("actions"));
+        $this->tpl->setVariable("ACTIONS", $this->ui_ren->render($dropdown));
         $this->tpl->parseCurrentBlock();
     }
 

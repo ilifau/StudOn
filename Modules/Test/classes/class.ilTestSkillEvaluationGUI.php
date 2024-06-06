@@ -16,6 +16,12 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\DI\LoggingServices;
+use ILIAS\Skill\Service\SkillService;
+use ILIAS\Test\InternalRequestService;
+
 /**
  * User interface which displays the competences which a learner has shown in a
  * test.
@@ -32,63 +38,28 @@ class ilTestSkillEvaluationGUI
 {
     public const INVOLVE_SKILLS_BELOW_NUM_ANSWERS_BARRIER_FOR_GAP_ANALASYS = false;
 
+    public const SKILL_PROFILE_PARAM = 'skill_profile';
     public const CMD_SHOW = 'show';
-    /**
-     * @var ilCtrl
-     */
-    private $ctrl;
 
-    /**
-     * @var ilGlobalTemplateInterface
-     */
-    private $tpl;
+    private ilTestSession $testSession;
+    private ilTestObjectiveOrientedContainer $objectiveOrientedContainer;
+    private ilAssQuestionList $questionList;
 
-    /**
-     * @var ilLanguage
-     */
-    private $lng;
+    protected bool $noSkillProfileOptionEnabled = false;
+    protected array $availableSkillProfiles = [];
+    protected array $availableSkills = [];
+    protected ?ilTestPassesSelector $testPassesSelector = null;
 
-    /**
-     * @var ilDBInterface
-     */
-    private $db;
-
-    /**
-     * @var ilObjTest
-     */
-    protected $testOBJ;
-
-    /**
-     * @var ilTestSession
-     */
-    private $testSession;
-
-    /**
-     * @var ilTestObjectiveOrientedContainer
-     */
-    private $objectiveOrientedContainer;
-
-    /**
-     * @var ilAssQuestionList
-     */
-    private $questionList;
-
-    protected $noSkillProfileOptionEnabled = false;
-    protected $availableSkillProfiles = array();
-    protected $availableSkills = array();
-
-    /**
-     * @var ilTestPassesSelector
-     */
-    protected $testPassesSelector = null;
-
-    public function __construct(ilCtrl $ctrl, ilTabsGUI $tabs, ilGlobalTemplateInterface $tpl, ilLanguage $lng, ilDBInterface $db, ilObjTest $testOBJ)
-    {
-        $this->ctrl = $ctrl;
-        $this->tpl = $tpl;
-        $this->lng = $lng;
-        $this->db = $db;
-        $this->testOBJ = $testOBJ;
+    public function __construct(
+        private ilObjTest $test_obj,
+        private ilCtrl $ctrl,
+        private ilGlobalTemplateInterface $tpl,
+        private ilLanguage $lng,
+        private ilDBInterface $db,
+        private LoggingServices $logging_services,
+        private SkillService $skills_service,
+        private InternalRequestService $testrequest
+    ) {
     }
 
     /**
@@ -127,8 +98,6 @@ class ilTestSkillEvaluationGUI
     {
         $cmd = $this->ctrl->getCmd(self::CMD_SHOW) . 'Cmd';
 
-        $this->manageTabs($cmd);
-
         $this->$cmd();
     }
 
@@ -137,42 +106,26 @@ class ilTestSkillEvaluationGUI
         return false;
     }
 
-    private function manageTabs($cmd)
+    protected function init(bool $skill_profile_enabled): void
     {
-        #$this->tabs->clearTargets();
-#
-#		$this->tabs->setBackTarget(
-#			$this->lng->txt('tst_results_back_introduction'),
-#			$this->ctrl->getLinkTargetByClass('ilObjTestGUI', 'infoScreen')
-#		);
-
-#		if( $this->getObjectiveOrientedContainer()->isObjectiveOrientedPresentationRequired() )
-#		{
-#			require_once 'Services/Link/classes/class.ilLink.php';
-#			$courseLink = ilLink::_getLink($this->getObjectiveOrientedContainer()->getRefId());
-#			$this->tabs->setBack2Target($this->lng->txt('back_to_objective_container'), $courseLink);
-#		}
-    }
-
-    protected function init($skillProfileEnabled)
-    {
-        require_once 'Modules/Test/classes/class.ilTestPassesSelector.php';
-        $this->testPassesSelector = new ilTestPassesSelector($this->db, $this->testOBJ);
+        $this->testPassesSelector = new ilTestPassesSelector($this->db, $this->test_obj);
         $this->testPassesSelector->setActiveId($this->testSession->getActiveId());
         $this->testPassesSelector->setLastFinishedPass($this->testSession->getLastFinishedPass());
 
         $assSettings = new ilSetting('assessment');
-        require_once 'Modules/Test/classes/class.ilTestSkillEvaluation.php';
         $skillEvaluation = new ilTestSkillEvaluation(
             $this->db,
-            $this->testOBJ->getTestId(),
-            $this->testOBJ->getRefId()
+            $this->logging_services,
+            $this->test_obj->getTestId(),
+            $this->test_obj->getRefId(),
+            $this->skills_service->profile(),
+            $this->skills_service->personal()
         );
 
         $skillEvaluation->setUserId($this->getTestSession()->getUserId());
         $skillEvaluation->setActiveId($this->getTestSession()->getActiveId());
 
-        $skillEvaluation->setNumRequiredBookingsForSkillTriggering($assSettings->get(
+        $skillEvaluation->setNumRequiredBookingsForSkillTriggering((int) $assSettings->get(
             'ass_skl_trig_num_answ_barrier',
             ilObjAssessmentFolder::DEFAULT_SKL_TRIG_NUM_ANSWERS_BARRIER
         ));
@@ -188,15 +141,15 @@ class ilTestSkillEvaluationGUI
         // should be reportedPasses - yes - indeed, skill level status will not respect - avoid confuse here
         $evaluationPasses = $this->testPassesSelector->getExistingPasses();
 
-        $availableSkills = array();
+        $availableSkills = [];
 
         foreach ($evaluationPasses as $evalPass) {
-            $testResults = $this->testOBJ->getTestResult($this->getTestSession()->getActiveId(), $evalPass, true);
+            $testResults = $this->test_obj->getTestResult($this->getTestSession()->getActiveId(), $evalPass, true);
 
             $skillEvaluation->setPass($evalPass);
             $skillEvaluation->evaluate($testResults);
 
-            if ($skillProfileEnabled && self::INVOLVE_SKILLS_BELOW_NUM_ANSWERS_BARRIER_FOR_GAP_ANALASYS) {
+            if ($skill_profile_enabled && self::INVOLVE_SKILLS_BELOW_NUM_ANSWERS_BARRIER_FOR_GAP_ANALASYS) {
                 $skills = $skillEvaluation->getSkillsInvolvedByAssignment();
             } else {
                 $skills = $skillEvaluation->getSkillsMatchingNumAnswersBarrier();
@@ -210,32 +163,31 @@ class ilTestSkillEvaluationGUI
 
     private function showCmd()
     {
-        //ilUtil::sendInfo($this->lng->txt('tst_skl_res_interpretation_hint_msg'));
+        $selected_skill_profile = $this->testrequest->int(self::SKILL_PROFILE_PARAM);
+        $skill_profile_enabled = $selected_skill_profile !== null;
 
-        $selectedSkillProfile = ilTestSkillEvaluationToolbarGUI::fetchSkillProfileParam($_POST);
+        $this->init($skill_profile_enabled);
 
-        $this->init($selectedSkillProfile);
+        $evaluation_toolbar_gui = $this->buildEvaluationToolbarGUI($selected_skill_profile);
 
-        $evaluationToolbarGUI = $this->buildEvaluationToolbarGUI($selectedSkillProfile);
-
-        $personalSkillsGUI = $this->buildPersonalSkillsGUI(
+        $personal_skills_gui = $this->buildPersonalSkillsGUI(
             $this->getTestSession()->getUserId(),
-            $evaluationToolbarGUI->getSelectedEvaluationMode(),
+            $evaluation_toolbar_gui->getSelectedEvaluationMode(),
             $this->getAvailableSkills()
         );
 
         $this->tpl->setContent(
-            $this->ctrl->getHTML($evaluationToolbarGUI) . $this->ctrl->getHTML($personalSkillsGUI)
+            $this->ctrl->getHTML($evaluation_toolbar_gui) . $this->ctrl->getHTML($personal_skills_gui)
         );
     }
 
-    private function buildEvaluationToolbarGUI($selectedSkillProfileId): ilTestSkillEvaluationToolbarGUI
+    private function buildEvaluationToolbarGUI(int $selectedSkillProfileId): ilTestSkillEvaluationToolbarGUI
     {
         if (!$this->isNoSkillProfileOptionEnabled() && !$selectedSkillProfileId) {
-            $selectedSkillProfileId = key($this->getAvailableSkillProfiles());
+            $selectedSkillProfileId = key($this->getAvailableSkillProfiles()) ?? 0;
         }
 
-        $gui = new ilTestSkillEvaluationToolbarGUI($this->ctrl, $this->lng, $this, self::CMD_SHOW);
+        $gui = new ilTestSkillEvaluationToolbarGUI($this->ctrl, $this->lng);
 
         $gui->setAvailableSkillProfiles($this->getAvailableSkillProfiles());
         $gui->setNoSkillProfileOptionEnabled($this->isNoSkillProfileOptionEnabled());
@@ -246,79 +198,56 @@ class ilTestSkillEvaluationGUI
         return $gui;
     }
 
-    private function buildPersonalSkillsGUI($usrId, $selectedSkillProfileId, $availableSkills): ilTestPersonalSkillsGUI
-    {
-        $gui = new ilTestPersonalSkillsGUI($this->lng, $this->testOBJ->getId());
+    private function buildPersonalSkillsGUI(
+        int $usrId,
+        ?int $selectedSkillProfileId,
+        array $availableSkills
+    ): ilTestPersonalSkillsGUI {
+        $gui = new ilTestPersonalSkillsGUI($this->lng, $this->test_obj->getId());
 
         $gui->setAvailableSkills($availableSkills);
         $gui->setSelectedSkillProfile($selectedSkillProfileId);
-
-        //$gui->setReachedSkillLevels($reachedSkillLevels);
         $gui->setUsrId($usrId);
 
         return $gui;
     }
 
-    /**
-     * @param \ilTestSession $testSession
-     */
-    public function setTestSession($testSession)
+    public function setTestSession(ilTestSession $testSession): void
     {
         $this->testSession = $testSession;
     }
 
-    /**
-     * @return \ilTestSession
-     */
     public function getTestSession(): ilTestSession
     {
         return $this->testSession;
     }
 
-    /**
-     * @return boolean
-     */
     public function isNoSkillProfileOptionEnabled(): bool
     {
         return $this->noSkillProfileOptionEnabled;
     }
 
-    /**
-     * @param boolean $noSkillProfileOptionEnabled
-     */
-    public function setNoSkillProfileOptionEnabled($noSkillProfileOptionEnabled)
+    public function setNoSkillProfileOptionEnabled(bool $noSkillProfileOptionEnabled): void
     {
         $this->noSkillProfileOptionEnabled = $noSkillProfileOptionEnabled;
     }
 
-    /**
-     * @return array
-     */
     public function getAvailableSkillProfiles(): array
     {
         return $this->availableSkillProfiles;
     }
 
-    /**
-     * @param array $availableSkillProfiles
-     */
-    public function setAvailableSkillProfiles($availableSkillProfiles)
+    public function setAvailableSkillProfiles(array $availableSkillProfiles): void
     {
         $this->availableSkillProfiles = $availableSkillProfiles;
     }
 
-    /**
-     * @return array
-     */
     public function getAvailableSkills(): array
     {
         return $this->availableSkills;
     }
 
-    /**
-     * @param array $availableSkills
-     */
-    public function setAvailableSkills($availableSkills)
+    public function setAvailableSkills(array $availableSkills): void
     {
         $this->availableSkills = $availableSkills;
     }

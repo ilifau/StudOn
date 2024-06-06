@@ -322,6 +322,12 @@ interface Factory
      * rules:
      *   usage:
      *     1: Password Input MUST be used for passwords.
+     *   composition:
+     *     1: >
+     *        The input MUST always be rendered with the attribute autocomplete="off".
+     *        This advises browsers to NOT autofill the input field with cached passwords
+     *        and avoids potential exposure of confidential data, especially in
+     *        shared environments.
      *   interaction:
      *     1: >
      *         Password Input SHOULD NOT limit the number of characters.
@@ -565,7 +571,7 @@ interface Factory
      * ---
      * description:
      *   purpose: >
-     *     A File Input is used to upload a single file using the native
+     *     A File Input is used to upload one or multiple files, using the native
      *     filebrowser of a browser or Drag&Drop.
      *   composition: >
      *     A File Input is composed as a Dropzone and a list of files. The
@@ -683,4 +689,74 @@ interface Factory
      * @return \ILIAS\UI\Component\Input\Field\Hidden
      */
     public function hidden(): Hidden;
+<<<<<<< HEAD
+=======
+
+    /**
+     * ---
+     * description:
+     *   purpose: >
+     *     A Color Picker Input is used to select a color value.
+     *   composition: >
+     *      Color Picker will render an input-tag with type="color".
+     *   effect: >
+     *     As soon as the Color Picker is clicked, a pop-up window opens, which contains the individual options of the color selection.
+     * context:
+     *   - The Color Picker input is used in UI-forms.
+     * rules:
+     *   usage:
+     *     1: The Color Picker should be used to select an individual color value.
+     * accessibility:
+     *     1: >
+     *        As with all Inputs, the Color Picker Input MUST be operable by only using inputs.
+     *        If HTML5 Standards are used, it is the responsibility of the Browser to provide this functionality.
+     * ---
+     * @param string      $label
+     * @param string|null $byline
+     * @return \ILIAS\UI\Component\Input\Field\ColorPicker
+     */
+    public function colorPicker(string $label, ?string $byline = null): ColorPicker;
+
+    /**
+     * ---
+     * description:
+     *   purpose: >
+     *      Markdown inputs are used when formatted text should be submitted by using markdown-syntax.
+     *      The input does support a user in writing markdown by providing action-buttons that insert the corresponding
+     *      characters. It also provides a preview section where the already formatted text will be displayed.
+     *   composition: >
+     *      The Markdown input consists of two tabs (edit and preview) which will be implemented as buttons (ViewControl).
+     *      The action-buttons either consist of a button or a Glyph, to better illustrate its intention. The editable
+     *      area will be a simple textarea. If a limit is set, a byline about limitation is automatically set.
+     *   effect: >
+     *      Markdown inputs will render a textarea HTML tag which is decorated with action-buttons. Markdown inputs are
+     *      NOT restricted to one line of text and counts the amount of character input by user and displays the number.
+     *      The following formatting options will have a special effect on the input's preview:
+     *          - Headings (# text)
+     *          - Links ([text](url))
+     *          - Bold (**text**)
+     *          - Italic (_text_)
+     *          - Ordered list (1. text)
+     *          - Unordered list (- text)
+     *   rivals:
+     *      Text input: use a text-input if the content should not be formatted one line only.
+     *      Textarea input: use a text-input if the content should not be formatted and on multiple lines.
+     *
+     * context:
+     *   - The Markdown input is used in UI-Forms.
+     *
+     * rules:
+     *   usage:
+     *      1: >
+     *        This input MUST be used whenever markdown-syntax is supported, e.g. if the user should be able to submit
+     *        formatted text.
+     *
+     * ---
+     * @param MarkdownRenderer $md_renderer
+     * @param string           $label
+     * @param string|null      $byline
+     * @return \ILIAS\UI\Component\Input\Field\Markdown
+     */
+    public function markdown(MarkdownRenderer $md_renderer, string $label, string $byline = null): Markdown;
+>>>>>>> v9.1
 }

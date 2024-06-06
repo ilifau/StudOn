@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
@@ -54,24 +56,16 @@ class ilTestPasswordChecker
 
     public function isPasswordProtectionPageRedirectRequired(): bool
     {
-        if (!$this->isTestPasswordEnabled()) {
-            return false;
-        }
-
-        if ($this->isPrivilegedParticipant()) {
-            return false;
-        }
-
-        if ($this->isUserEnteredPasswordCorrect()) {
-            return false;
-        }
-
-        return true;
+        return  (
+            $this->isTestPasswordEnabled()
+            && !$this->isPrivilegedParticipant()
+            && !$this->isUserEnteredPasswordCorrect()
+        );
     }
 
-    protected function isTestPasswordEnabled(): int
+    protected function isTestPasswordEnabled(): bool
     {
-        return strlen($this->testOBJ->getPassword());
+        return $this->testOBJ->getPassword() !== null;
     }
 
     protected function isPrivilegedParticipant(): bool
@@ -81,7 +75,7 @@ class ilTestPasswordChecker
 
     public function wrongUserEnteredPasswordExist(): bool
     {
-        if (!strlen($this->getUserEnteredPassword())) {
+        if ($this->getUserEnteredPassword() && $this->getUserEnteredPassword() === '') {
             return false;
         }
 

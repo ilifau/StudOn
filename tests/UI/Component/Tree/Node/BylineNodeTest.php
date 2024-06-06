@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once("libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "../../../../Base.php");
 
@@ -55,10 +63,10 @@ class BylineNodeTest extends ILIAS_UI_TestBase
         $html = $r->render($node);
 
         $expected = <<<EOT
-			<li id="" class="il-tree-node node-simple" role="treeitem">
-				<span class="node-line">
-					<span class="node-label">My Label</span>
-					<span class="node-byline">This is my byline</span>
+			<li class="c-tree__node c-tree__node--simple" role="treeitem">
+				<span class="c-tree__node__line">
+					<span class="c-tree__node__label">My Label</span>
+					<span class="c-tree__node__byline">This is my byline</span>
 				</span>
 			</li>
 EOT;
@@ -77,13 +85,13 @@ EOT;
         $html = $r->render($node);
 
         $expected = <<<EOT
-			<li id="" class="il-tree-node node-simple" role="treeitem">
-				<span class="node-line">
-					<span class="node-label">
-						<img class="icon small" src="./templates/default/images/icon_default.svg" alt=""/>
+			<li class="c-tree__node c-tree__node--simple" role="treeitem">
+				<span class="c-tree__node__line">
+					<span class="c-tree__node__label">
+						<img class="icon small" src="./templates/default/images/standard/icon_default.svg" alt=""/>
 						My Label
 					</span>
-					<span class="node-byline">This is my byline</span>
+					<span class="c-tree__node__byline">This is my byline</span>
 				</span>
 			</li>
 EOT;
@@ -103,13 +111,13 @@ EOT;
         $html = $r->render($node);
 
         $expected = <<<EOT
-			<li id=""
-				 class="il-tree-node node-simple expandable"
+			<li
+				 class="c-tree__node c-tree__node--simple expandable"
 				 role="treeitem" aria-expanded="false"
 				 data-async_url="something.de" data-async_loaded="false">
-				<span class="node-line">
-					<span class="node-label">My Label</span>
-					<span class="node-byline">This is my byline</span>
+				<span class="c-tree__node__line">
+					<span class="c-tree__node__label">My Label</span>
+					<span class="c-tree__node__byline">This is my byline</span>
 				</span>
 				<ul role="group"></ul>
 			</li>
@@ -130,13 +138,13 @@ EOT;
         $html = $r->render($node);
 
         $expected = <<<EOT
-			<li id=""
-				 class="il-tree-node node-simple expandable"
+			<li
+				 class="c-tree__node c-tree__node--simple expandable"
 				 role="treeitem" aria-expanded="true"
 				 data-async_url="something.de" data-async_loaded="false">
-				<span class="node-line">
-					<span class="node-label">My Label</span>
-					<span class="node-byline">This is my byline</span>
+				<span class="c-tree__node__line">
+					<span class="c-tree__node__label">My Label</span>
+					<span class="c-tree__node__byline">This is my byline</span>
 				</span>
 				<ul role="group"></ul>
 			</li>

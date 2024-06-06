@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestSuite;
 
@@ -37,6 +37,27 @@ class ilModulesOrgUnitSuite extends TestSuite
         /** @noRector */
         require_once("./Modules/OrgUnit/test/ilOrgUnitOperationRegisteredObjectiveTest.php");
         $suite->addTestSuite("ilOrgUnitOperationRegisteredObjectiveTest");
+
+        require_once("./Modules/OrgUnit/test/ilModulesOrgUnitAuthorityTest.php");
+        $suite->addTestSuite("ilModulesOrgUnitAuthorityTest");
+
+        require_once("./Modules/OrgUnit/test/ilModulesOrgUnitPositionTest.php");
+        $suite->addTestSuite("ilModulesOrgUnitPositionTest");
+
+        require_once("./Modules/OrgUnit/test/ilModulesOrgUnitUserAssignmentTest.php");
+        $suite->addTestSuite("ilModulesOrgUnitUserAssignmentTest");
+
+        require_once("./Modules/OrgUnit/test/ilModulesOrgUnitOperationContextTest.php");
+        $suite->addTestSuite("ilModulesOrgUnitOperationContextTest");
+
+        require_once("./Modules/OrgUnit/test/ilModulesOrgUnitOperationTest.php");
+        $suite->addTestSuite("ilModulesOrgUnitOperationTest");
+
+        require_once("./Modules/OrgUnit/test/ilModulesOrgUnitPermissionTest.php");
+        $suite->addTestSuite("ilModulesOrgUnitPermissionTest");
+
+        require_once("./Modules/OrgUnit/test/ilModulesOrgUnitTypeTest.php");
+        $suite->addTestSuite("ilModulesOrgUnitTypeTest");
 
         return $suite;
     }

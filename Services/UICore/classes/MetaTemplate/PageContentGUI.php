@@ -42,11 +42,6 @@ class PageContentGUI
     /**
      * @var array<string, string>
      */
-    protected array $lightbox = [];
-
-    /**
-     * @var array<string, string>
-     */
     protected array $messages = [];
 
     /**
@@ -144,13 +139,6 @@ class PageContentGUI
     {
         if (!empty($main_content)) {
             $this->main_content = $main_content;
-        }
-    }
-
-    public function addLightbox(string $lightbox_html, string $id): void
-    {
-        if (!empty($lightbox_html)) {
-            $this->lightbox[$id] = $lightbox_html;
         }
     }
 
@@ -304,7 +292,6 @@ class PageContentGUI
                 $this->template->setCurrentBlock("content");
                 $this->fillTabs();
                 $this->fillMainContent();
-                $this->fillLightbox();
                 $this->template->parseCurrentBlock();
             }
         }
@@ -552,16 +539,13 @@ class PageContentGUI
         if (null === $this->admin_panel_commands_toolbar) {
             return;
         }
-
         $current_toolbar = $this->admin_panel_commands_toolbar;
-
         // Add arrow if desired.
         if ($this->should_display_admin_panel_arrow) {
-            $current_toolbar->setLeadingImage(\ilUtil::getImagePath("arrow_upright.svg"), $lng->txt("actions"));
+            $current_toolbar->setLeadingImage(\ilUtil::getImagePath("nav/arrow_upright.svg"), $lng->txt("actions"));
         }
 
         $this->fillPageFormAction();
-
         // Add top admin bar.
         $this->template->setCurrentBlock("adm_view_components");
         $this->template->setVariable("ADM_PANEL1", $current_toolbar->getHTML());
@@ -573,7 +557,7 @@ class PageContentGUI
 
             // Replace previously set arrow image.
             if ($this->should_display_admin_panel_arrow) {
-                $current_toolbar->setLeadingImage(\ilUtil::getImagePath("arrow_downright.svg"), $lng->txt("actions"));
+                $current_toolbar->setLeadingImage(\ilUtil::getImagePath("nav/arrow_downright.svg"), $lng->txt("actions"));
             }
 
             $current_toolbar->setId($current_toolbar->getId() . "2");
@@ -621,10 +605,5 @@ class PageContentGUI
                 $this->template->setVariable("SUB_TABS", $this->sub_tabs_html);
             }
         }
-    }
-
-    protected function fillLightbox(): void
-    {
-        $this->template->setVariable('LIGHTBOX', implode('', $this->lightbox));
     }
 }

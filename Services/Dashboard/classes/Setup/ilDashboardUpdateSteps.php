@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Dashboard\Setup;
 
 use ilDatabaseUpdateSteps;
+use ilDBConstants;
 use ilDBInterface;
 
 class ilDashboardUpdateSteps implements ilDatabaseUpdateSteps
@@ -34,7 +35,87 @@ class ilDashboardUpdateSteps implements ilDatabaseUpdateSteps
 
     public function step_1(): void
     {
-        $this->db->manipulateF('DELETE FROM settings WHERE keyword = %s', ['text'], ['enable_block_moving']);
-        $this->db->manipulate('DELETE FROM il_block_setting WHERE ' . $this->db->like('type', 'text', 'pd%'));
+        $this->db->manipulateF('DELETE FROM settings WHERE keyword = %s', [ilDBConstants::T_TEXT], ['enable_block_moving']);
+        $this->db->manipulate('DELETE FROM il_block_setting WHERE ' . $this->db->like('type', ilDBConstants::T_TEXT, 'pd%'));
+    }
+
+    public function step_2(): void
+    {
+        $this->db->insert('settings', [
+            'module' => [ilDBConstants::T_TEXT, 'common'],
+            'keyword' => [ilDBConstants::T_TEXT, 'disable_recommended_content'],
+            'value' => [ilDBConstants::T_TEXT, '0']
+        ]);
+        $this->db->insert('settings', [
+            'module' => [ilDBConstants::T_TEXT, 'common'],
+            'keyword' => [ilDBConstants::T_TEXT, 'disable_study_programmes'],
+            'value' => [ilDBConstants::T_TEXT, '0']
+        ]);
+        $this->db->insert('settings', [
+            'module' => [ilDBConstants::T_TEXT, 'common'],
+            'keyword' => [ilDBConstants::T_TEXT, 'disable_learning_sequences'],
+            'value' => [ilDBConstants::T_TEXT, '0']
+        ]);
+
+        $sql = 'SELECT * FROM settings WHERE keyword = %s';
+        for ($view = 0; $view <= 4; $view++) {
+            if ($this->db->numRows($this->db->queryF($sql, [ilDBConstants::T_TEXT], ['pd_active_pres_view_' . $view])) === 0) {
+                $this->db->insert('settings', [
+                    'module' => [ilDBConstants::T_TEXT, 'common'],
+                    'keyword' => [ilDBConstants::T_TEXT, 'pd_active_pres_view_' . $view],
+                    'value' => [ilDBConstants::T_TEXT, serialize(['list', 'tile'])]
+                ]);
+            }
+            if ($this->db->numRows($this->db->queryF($sql, [ilDBConstants::T_TEXT], ['pd_def_pres_view_' . $view])) === 0) {
+                $this->db->insert('settings', [
+                    'module' => [ilDBConstants::T_TEXT, 'common'],
+                    'keyword' => [ilDBConstants::T_TEXT, 'pd_def_pres_view_' . $view],
+                    'value' => [ilDBConstants::T_TEXT, 'list']
+                ]);
+            }
+        }
+        if ($this->db->numRows($this->db->queryF($sql, [ilDBConstants::T_TEXT], ['pd_active_sort_view_1'])) === 0) {
+            $this->db->insert('settings', [
+                'module' => [ilDBConstants::T_TEXT, 'common'],
+                'keyword' => [ilDBConstants::T_TEXT, 'pd_active_sort_view_1'],
+                'value' => [ilDBConstants::T_TEXT, serialize(['location', 'type', 'alphabet'])]
+            ]);
+        }
+        if ($this->db->numRows($this->db->queryF($sql, [ilDBConstants::T_TEXT], ['pd_active_sort_view_3'])) === 0) {
+            $this->db->insert('settings', [
+                'module' => [ilDBConstants::T_TEXT, 'common'],
+                'keyword' => [ilDBConstants::T_TEXT, 'pd_active_sort_view_3'],
+                'value' => [ilDBConstants::T_TEXT, serialize(['location', 'alphabet'])]
+            ]);
+        }
+        if ($this->db->numRows($this->db->queryF($sql, [ilDBConstants::T_TEXT], ['pd_active_sort_view_4'])) === 0) {
+            $this->db->insert('settings', [
+                'module' => [ilDBConstants::T_TEXT, 'common'],
+                'keyword' => [ilDBConstants::T_TEXT, 'pd_active_sort_view_4'],
+                'value' => [ilDBConstants::T_TEXT, serialize(['location', 'alphabet'])]
+            ]);
+        }
+
+        if ($this->db->numRows($this->db->queryF($sql, [ilDBConstants::T_TEXT], ['pd_def_sort_view_1'])) === 0) {
+            $this->db->insert('settings', [
+                'module' => [ilDBConstants::T_TEXT, 'common'],
+                'keyword' => [ilDBConstants::T_TEXT, 'pd_def_sort_view_1'],
+                'value' => [ilDBConstants::T_TEXT, 'location']
+            ]);
+        }
+        if ($this->db->numRows($this->db->queryF($sql, [ilDBConstants::T_TEXT], ['pd_def_sort_view_3'])) === 0) {
+            $this->db->insert('settings', [
+                'module' => [ilDBConstants::T_TEXT, 'common'],
+                'keyword' => [ilDBConstants::T_TEXT, 'pd_def_sort_view_3'],
+                'value' => [ilDBConstants::T_TEXT, 'location']
+            ]);
+        }
+        if ($this->db->numRows($this->db->queryF($sql, [ilDBConstants::T_TEXT], ['pd_def_sort_view_4'])) === 0) {
+            $this->db->insert('settings', [
+                'module' => [ilDBConstants::T_TEXT, 'common'],
+                'keyword' => [ilDBConstants::T_TEXT, 'pd_def_sort_view_4'],
+                'value' => [ilDBConstants::T_TEXT, 'location']
+            ]);
+        }
     }
 }

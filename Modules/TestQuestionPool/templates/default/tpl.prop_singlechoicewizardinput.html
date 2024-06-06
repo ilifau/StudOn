@@ -3,7 +3,11 @@
 		<thead>
 			<tr>
 				<th>{ANSWER_TEXT}</th>
-				<th class="imagecolumn"><!-- BEGIN image_heading -->{ANSWER_IMAGE}<!-- END image_heading --></th>
+				<th class="imagecolumn">
+<!-- BEGIN image_heading -->
+                    {ANSWER_IMAGE}
+<!-- END image_heading -->
+                </th>
 <!-- BEGIN points_heading -->
 				<th>{POINTS_TEXT}</th>
 <!-- END points_heading -->
@@ -57,12 +61,12 @@
 <!-- BEGIN answer id field -->
 				<input class="form-control" type="hidden" name="{POST_VAR}[answer_id][{ROW_NUMBER}]" <!-- BEGIN prop_answer_id_propval -->value="{PROPERTY_VALUE}" <!-- END prop_answer_id_propval -->/>
 <!-- END answer id field -->
-				<td class="ilValignTop">
-					<button type="button" name="{CMD_ADD}" class="singlechoice_add btn btn-link" id="add_{ID}">{ADD_BUTTON}</button>
-					<button type="button" name="{CMD_REMOVE}" class="singlechoice_remove btn btn-link" id="remove_{ID}">{REMOVE_BUTTON}</button>
+				<td class="ilValignTop ilWhiteSpaceNowrap">
+					<div class="singlechoice_add btn btn-link" id="add_{ID}">{ADD_BUTTON}</div>
+					<div class="singlechoice_remove btn btn-link" id="remove_{ID}">{REMOVE_BUTTON}</div>
 <!-- BEGIN move -->
-					<button type="button" name="{CMD_UP}" class="singlechoice_up btn btn-link" id="up_{ID}">{UP_BUTTON}</button>
-					<button type="button" name="{CMD_DOWN}" class="singlechoice_down btn btn-link" id="down_{ID}">{DOWN_BUTTON}</button>
+					<div class="singlechoice_up btn btn-link" id="up_{ID}">{UP_BUTTON}</div>
+					<div class="singlechoice_down btn btn-link" id="down_{ID}">{DOWN_BUTTON}</div>
 <!-- END move -->
 				</td>
 			</tr>

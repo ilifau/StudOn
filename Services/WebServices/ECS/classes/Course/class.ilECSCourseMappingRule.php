@@ -148,7 +148,7 @@ class ilECSCourseMappingRule
      * Check if rule matches
      * @return string 0 if not matches; otherwise rule_id_index @see matches
      */
-    public static function isMatching($course, int $a_sid, int $a_mid, int $a_ref_id): string
+    public static function isMatching($course, $a_sid, $a_mid, $a_ref_id): string
     {
         global $DIC;
 
@@ -227,7 +227,7 @@ class ilECSCourseMappingRule
         }
         $values = ilECSMappingUtils::getCourseValueByMappingAttribute($course, $this->getAttribute());
 
-        $children = $this->tree->getChildsByType($parent_ref, 'cat');
+        $childs = $this->tree->getChildsByType($parent_ref, 'cat');
         $category_references = [];
         foreach ($values as $value) {
             $found = false;
@@ -275,7 +275,7 @@ class ilECSCourseMappingRule
      * Check if rule matches
      * @return int -1 does not match, 0 matches with disabled filter, >0 matches xth index in course attribute value.
      */
-    private function matches($course): int
+    public function matches($course): int
     {
         if ($this->isFilterEnabled()) {
             $values = ilECSMappingUtils::getCourseValueByMappingAttribute($course, $this->getAttribute());

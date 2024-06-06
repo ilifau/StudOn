@@ -36,7 +36,7 @@ use ILIAS\UI\Component\Item\Notification;
  */
 class MailNotificationProvider extends AbstractNotificationProvider
 {
-    public const MUTED_UNTIL_PREFERENCE_KEY = 'mail_nc_muted_until';
+    final public const MUTED_UNTIL_PREFERENCE_KEY = 'mail_nc_muted_until';
 
     public function getNotifications(): array
     {
@@ -110,7 +110,7 @@ class MailNotificationProvider extends AbstractNotificationProvider
                     new ilDateTime($dateTime->getTimestamp(), IL_CAL_UNIX)
                 ),
             ]);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
         }
 
         $group = $factory->standardGroup($id('mail_bucket_group'))

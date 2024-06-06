@@ -21,7 +21,7 @@ use ILIAS\UI\Component\Input\Container\Filter\Standard;
 use ILIAS\DI\UIServices;
 use ILIAS\Repository\Clipboard\ClipboardManager;
 use ILIAS\Container\StandardGUIRequest;
-use ILIAS\Container\Content\ViewManager;
+use ILIAS\Container\Content\ModeManager;
 
 /**
  * Class ilContainerGUI
@@ -32,9 +32,12 @@ use ILIAS\Container\Content\ViewManager;
  */
 class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 {
+    protected \ILIAS\Container\InternalGUIService $gui;
     protected \ILIAS\Style\Content\GUIService $content_style_gui;
     protected ilRbacSystem $rbacsystem;
     protected ilRbacReview $rbacreview;
+    protected ?\ILIAS\Container\Content\ItemPresentationManager $item_presentation = null;
+    protected \ILIAS\Container\InternalDomainService $domain;
     protected ilTabsGUI $tabs;
     protected ilErrorHandling $error;
     protected ilObjectDefinition $obj_definition;
@@ -56,7 +59,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     protected int $current_position = 0;
     protected ClipboardManager $clipboard;
     protected StandardGUIRequest $std_request;
-    protected ViewManager $view_manager;
+    protected ?ModeManager $mode_manager = null;
     protected ilComponentFactory $component_factory;
     protected \ILIAS\Style\Content\DomainService $content_style_domain;
     // fau: studyCond
@@ -114,18 +117,40 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             ->gui()
             ->standardRequest();
         $this->requested_redirectSource = $this->std_request->getRedirectSource();
-        $this->view_manager = $DIC
-            ->container()
+        $this->domain = $DIC->container()
             ->internal()
-            ->domain()
-            ->content()
-            ->view();
+            ->domain();
 
         $this->container_filter_service = new ilContainerFilterService();
         $this->initFilter();
         $cs = $DIC->contentStyle();
         $this->content_style_gui = $cs->gui();
         $this->content_style_domain = $cs->domain();
+        $this->gui = $DIC->container()->internal()->gui();
+    }
+
+    protected function getModeManager(): ModeManager
+    {
+        if (is_null($this->mode_manager)) {
+            $this->mode_manager = $this->domain
+                ->content()
+                ->mode($this->getObject());
+        }
+        return $this->mode_manager;
+    }
+
+    protected function getItemPresentation($include_empty_blocks = true): \ILIAS\Container\Content\ItemPresentationManager
+    {
+        if (is_null($this->item_presentation)) {
+            $this->item_presentation = $this->domain
+                ->content()
+                ->itemPresentation(
+                    $this->getObject(),
+                    $this->container_user_filter,
+                    $include_empty_blocks
+                );
+        }
+        return $this->item_presentation;
     }
 
     public function executeCommand(): void
@@ -233,7 +258,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $page_gui->setStyleId(
             $style->getEffectiveStyleId()
         );
-
+        $page_gui->setItemPresentationManager($this->getItemPresentation(false));
         $page_gui->setTemplateTargetVar("ADM_CONTENT");
         $page_gui->setFileDownloadLink("");
         //$page_gui->setLinkParams($this->ctrl->getUrlParameterString()); // todo
@@ -316,22 +341,13 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         if (ilContainer::_lookupContainerSetting($this->object->getId(), "hide_header_icon_and_title")) {
             $this->tpl->setTitle($this->object->getTitle(), true);
         } else {
-            $this->tpl->setTitle($this->object->getTitle());
-            $this->tpl->setDescription($this->object->getLongDescription());
-
-            // set tile icon
-            $icon = ilObject::_getIcon($this->object->getId(), "big", $this->object->getType());
-            $this->tpl->setTitleIcon($icon, $this->lng->txt("obj_" . $this->object->getType()));
-
-            $lgui = ilObjectListGUIFactory::_getListGUIByType($this->object->getType());
-            $lgui->initItem($this->object->getRefId(), $this->object->getId(), $this->object->getType());
-            $this->tpl->setAlertProperties($lgui->getAlertProperties());
+            parent::setTitleAndDescription();
         }
     }
 
     protected function showPossibleSubObjects(): void
     {
-        if ($this->isActiveAdministrationPanel() || $this->isActiveOrdering()) {
+        if ($this->isActiveOrdering()) {
             return;
         }
         $gui = new ilObjectAddNewItemGUI($this->object->getRefId());
@@ -347,23 +363,35 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         switch ($view_mode) {
             // all items in one block
             case ilContainer::VIEW_SIMPLE:
-                $container_view = new ilContainerSimpleContentGUI($this);
+                $container_view = new ilContainerSimpleContentGUI(
+                    $this,
+                    $this->getItemPresentation()
+                );
                 break;
 
             case ilContainer::VIEW_OBJECTIVE:
-                $container_view = new ilContainerObjectiveGUI($this);
+                $container_view = new ilContainerObjectiveGUI(
+                    $this,
+                    $this->getItemPresentation()
+                );
                 break;
 
                 // all items in one block
             case ilContainer::VIEW_SESSIONS:
             case ilCourseConstants::IL_CRS_VIEW_TIMING: // not nice this workaround
-                $container_view = new ilContainerSessionsContentGUI($this);
+                $container_view = new ilContainerSessionsContentGUI(
+                    $this,
+                    $this->getItemPresentation()
+                );
                 break;
 
                 // all items in one block
             case ilContainer::VIEW_BY_TYPE:
             default:
-                $container_view = new ilContainerByTypeContentGUI($this, $this->container_user_filter);
+                $container_view = new ilContainerByTypeContentGUI(
+                    $this,
+                    $this->getItemPresentation()
+                );
                 break;
         }
         return $container_view;
@@ -382,6 +410,9 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         $this->setContentSubTabs();
         if ($this->isActiveAdministrationPanel()) {
+            if (!$this->item_presentation->canManageItems()) {
+                $this->ctrl->redirect($this, "disableAdministrationPanel");
+            }
             $ilTabs->activateSubTab("manage");
         } else {
             $ilTabs->activateSubTab("view_content");
@@ -389,7 +420,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         $container_view->setOutput();
 
-        $this->adminCommands = $container_view->adminCommands;
+        //$this->adminCommands = $container_view->adminCommands;
 
         $is_container_cmd = strtolower($this->std_request->getCmdClass()) === strtolower(get_class($this))
             || ($this->std_request->getCmdClass() === "");
@@ -398,7 +429,9 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         // we will create nested forms in case, e.g. a news/calendar item is added
         if ($is_container_cmd) {
             $this->showAdministrationPanel();
-            $this->showPossibleSubObjects();
+            if (!$this->edit_order) {
+                $this->showPossibleSubObjects();
+            }
 
             if (is_object($this->object) &&
                 $user->getId() !== ANONYMOUS_USER_ID &&
@@ -484,15 +517,14 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         } elseif ($this->isActiveAdministrationPanel()) {
             // #11545
             $main_tpl->setPageFormAction($this->ctrl->getFormAction($this));
-
             $toolbar = new ilToolbarGUI();
             $toolbar->setId("adm");
             $this->ctrl->setParameter($this, "type", "");
             $this->ctrl->setParameter($this, "item_ref_id", "");
 
-            if ($this->object->gotItems()) {
+            if ($this->gotItems()) {
                 $toolbar->setLeadingImage(
-                    ilUtil::getImagePath("arrow_upright.svg"),
+                    ilUtil::getImagePath("nav/arrow_upright.svg"),
                     $lng->txt("actions")
                 );
                 $toolbar->addFormButton(
@@ -511,6 +543,8 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
                     $this->lng->txt('link_selected_items'),
                     'link'
                 );
+
+                $toolbar = $this->addAvailabilityPeriodButtonToToolbar($toolbar);
                 // add download button if multi download enabled
                 $folder_set = new ilSetting('fold');
                 if ((bool) $folder_set->get('enable_multi_download') === true) {
@@ -521,32 +555,18 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
                     );
                 }
             }
-            if ($this->object->getType() === 'crs' || $this->object->getType() === 'grp') {
-                if ($this->object->gotItems()) {
-                    $toolbar->addSeparator();
-                }
-
-                $this->toolbar->addButton(
-                    $this->lng->txt('cntr_adopt_content'),
-                    $this->ctrl->getLinkTargetByClass(
-                        'ilObjectCopyGUI',
-                        'adoptContent'
-                    )
-                );
-            }
-
             $main_tpl->addAdminPanelToolbar(
                 $toolbar,
-                $this->object->gotItems() && !$this->clipboard->hasEntries(),
-                $this->object->gotItems() && !$this->clipboard->hasEntries()
+                $this->gotItems() && !$this->clipboard->hasEntries(),
+                $this->gotItems() && !$this->clipboard->hasEntries()
             );
 
             // form action needed, see http://www.ilias.de/mantis/view.php?id=9630
-            if ($this->object->gotItems()) {
+            if ($this->gotItems()) {
                 $main_tpl->setPageFormAction($this->ctrl->getFormAction($this));
             }
         } elseif ($this->edit_order) {
-            if ($this->object->gotItems() && $ilAccess->checkAccess("write", "", $this->object->getRefId())) {
+            if ($this->getItemPresentation()->hasItems() && $ilAccess->checkAccess("write", "", $this->object->getRefId())) {
                 if ($this->isActiveOrdering()) {
                     // #11843
                     $main_tpl->setPageFormAction($this->ctrl->getFormAction($this));
@@ -587,13 +607,18 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
                 $GLOBALS['tpl']->addAdminPanelToolbar(
                     $toolbar,
-                    $this->object->gotItems(),
-                    $this->object->gotItems()
+                    $this->gotItems(),
+                    $this->gotItems()
                 );
             } else {
                 $this->tpl->setOnScreenMessage('info', $this->lng->txt('msg_no_downloadable_objects'), true);
             }
         }
+    }
+
+    protected function gotItems(): bool
+    {
+        return $this->getItemPresentation()->hasItems();
     }
 
     public function showPermanentLink(): void
@@ -686,17 +711,12 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         exit;
     }
 
-    public function clearAdminCommandsDetermination(): void
-    {
-        $this->adminCommands = false;
-    }
-
     public function addHeaderRow(
         ilTemplate $a_tpl,
         string $a_type,
         bool $a_show_image = true
     ): void {
-        $icon = ilUtil::getImagePath("icon_" . $a_type . ".svg");
+        $icon = ilUtil::getImagePath("standard/icon_" . $a_type . ".svg");
         $title = $this->lng->txt("objs_" . $a_type);
 
         if ($a_show_image) {
@@ -723,7 +743,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         $nbsp = true;
         if ($ilSetting->get("icon_position_in_lists") === "item_rows") {
-            $icon = ilUtil::getImagePath("icon_" . $a_image_type . ".svg");
+            $icon = ilUtil::getImagePath("standard/icon_" . $a_image_type . ".svg");
             $alt = $this->lng->txt("obj_" . $a_image_type);
 
             if ($ilSetting->get('custom_icons')) {
@@ -843,17 +863,8 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             }
         }
 
-        if ($ilUser->getId() !== ANONYMOUS_USER_ID &&
-            (
-                $this->adminCommands ||
-                (is_object($this->object) &&
-                    ($this->rbacsystem->checkAccess("write", $this->object->getRefId())))
-                ||
-                (is_object($this->object) &&
-                    ($this->object->getHiddenFilesFound())) ||
-                $this->clipboard->hasEntries()
-            )
-        ) {
+        $item_presentation = $this->getItemPresentation();
+        if ($item_presentation->canManageItems()) {
             if ($this->isActiveAdministrationPanel()) {
                 $ilTabs->addSubTab("manage", $lng->txt("cntr_manage"), $ilCtrl->getLinkTarget($this, ""));
             } else {
@@ -864,11 +875,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
                 );
             }
         }
-        if (is_object($this->object) &&
-            $ilUser->getId() !== ANONYMOUS_USER_ID &&
-            $this->rbacsystem->checkAccess("write", $this->object->getRefId()) /* &&
-            $this->object->getOrderType() == ilContainer::SORT_MANUAL */ // always on because of custom block order
-        ) {
+        if ($item_presentation->canOrderItems()) {
             $ilTabs->addSubTab("ordering", $lng->txt("cntr_ordering"), $ilCtrl->getLinkTarget($this, "editOrder"));
         }
     }
@@ -910,13 +917,13 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
     public function enableAdministrationPanelObject(): void
     {
-        $this->view_manager->setAdminView();
+        $this->getModeManager()->setAdminMode();
         $this->ctrl->redirect($this, "render");
     }
 
     public function disableAdministrationPanelObject(): void
     {
-        $this->view_manager->setContentView();
+        $this->getModeManager()->setContentMode();
         $this->ctrl->redirect($this, "render");
     }
 
@@ -924,7 +931,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     {
         $ilTabs = $this->tabs;
         $this->edit_order = true;
-        $this->view_manager->setContentView();
+        $this->getModeManager()->setOrderingMode();
         $this->renderObject();
 
         $ilTabs->activateSubTab("ordering");
@@ -1540,12 +1547,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $t = new ilToolbarGUI();
         $t->setFormAction($this->ctrl->getFormAction($this, "performPasteIntoMultipleObjects"));
 
-        $b = ilSubmitButton::getInstance();
-        $b->setCaption($txt_var);
-        $b->setCommand("performPasteIntoMultipleObjects");
-
-        //$t->addFormButton($this->lng->txt($txt_var), "performPasteIntoMultipleObjects");
-        $t->addStickyItem($b);
+        $this->gui->button(
+            $this->lng->txt($txt_var),
+            "performPasteIntoMultipleObjects"
+        )->submit()->toToolbar(true, $t);
 
         $t->addSeparator();
         $this->lng->loadLanguageModule('obj');
@@ -1553,9 +1558,9 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         $t->addFormButton($this->lng->txt("cancel"), "cancelMoveLink");
         $t->setCloseFormTag(false);
-        $t->setLeadingImage(ilUtil::getImagePath("arrow_upright.svg"), " ");
+        $t->setLeadingImage(ilUtil::getImagePath("nav/arrow_upright.svg"), " ");
         $output = $t->getHTML() . $output;
-        $t->setLeadingImage(ilUtil::getImagePath("arrow_downright.svg"), " ");
+        $t->setLeadingImage(ilUtil::getImagePath("nav/arrow_downright.svg"), " ");
         $t->setCloseFormTag(true);
         $t->setOpenFormTag(false);
         $output .= "<br />" . $t->getHTML();
@@ -1855,13 +1860,12 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     public function isActiveAdministrationPanel(): bool
     {
         // #10081
-        if ($this->view_manager->isAdminView() &&
-            $this->object->getRefId() &&
+        if ($this->object->getRefId() &&
             !$this->rbacsystem->checkAccess("visible,read", $this->object->getRefId())) {
             return false;
         }
 
-        return $this->view_manager->isAdminView();
+        return $this->getModeManager()->isAdminMode();
     }
 
     public function setColumnSettings(ilColumnGUI $column_gui): void
@@ -1869,8 +1873,8 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $ilAccess = $this->access;
         parent::setColumnSettings($column_gui);
 
-        $column_gui->setRepositoryItems(
-            $this->object->getSubItems($this->isActiveAdministrationPanel(), true)
+        $column_gui->setItemPresentationManager(
+            $this->item_presentation
         );
 
         //if ($ilAccess->checkAccess("write", "", $this->object->getRefId())
@@ -1959,7 +1963,6 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         // Allow comma
         $positions = $this->std_request->getPositions();
-
         $sorting->savePost($positions);
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('cntr_saved_sorting'), true);
         $this->ctrl->redirect($this, "editOrder");
@@ -2126,10 +2129,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $uri_builder = new ilWebDAVUriBuilder($DIC->http()->request());
         $href = $uri_builder->getUriToMountInstructionModalByRef($this->object->getRefId());
 
-        $btn = ilButton::getInstance();
-        $btn->setCaption('mount_webfolder');
-        $btn->setOnClick("triggerWebDAVModal('$href')");
-        $ilToolbar->addButtonInstance($btn);
+        $this->gui->button(
+            $this->lng->txt("mount_webfolder"),
+            "#"
+        )->onClick("triggerWebDAVModal('$href'); return false;")->toToolbar();
 
         $tpl->setContent($this->form->getHTML());
     }

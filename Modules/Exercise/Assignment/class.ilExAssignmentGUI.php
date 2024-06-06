@@ -27,6 +27,7 @@ use ILIAS\Exercise\Assignment\Mandatory\MandatoryAssignmentsManager;
  */
 class ilExAssignmentGUI
 {
+    protected \ILIAS\Exercise\InternalGUIService $gui;
     protected \ILIAS\MediaObjects\MediaType\MediaTypeManager $media_type;
     protected ilLanguage $lng;
     protected ilObjUser $user;
@@ -61,6 +62,9 @@ class ilExAssignmentGUI
         $this->service = $service;
         $this->mandatory_manager = $service->domain()->assignment()->mandatoryAssignments($this->exc);
         $this->media_type = $DIC->mediaObjects()->internal()->domain()->mediaType();
+        $this->gui = $DIC->exercise()
+            ->internal()
+            ->gui();
     }
 
     /**
@@ -268,11 +272,12 @@ class ilExAssignmentGUI
 
         // submissions are visible, even if other users may still have a larger individual deadline
         if ($state->hasSubmissionEnded()) {
-            $button = ilLinkButton::getInstance();
-            $button->setCaption("exc_list_submission");
-            $button->setUrl($this->getSubmissionLink("listPublicSubmissions"));
-
-            $a_info->addProperty($lng->txt("exc_public_submission"), $button->render());
+            $b = $this->gui->link(
+                $lng->txt("exc_list_submission"),
+                $this->getSubmissionLink("listPublicSubmissions")
+            )->emphasised()
+                ->render();
+            $a_info->addProperty($lng->txt("exc_public_submission"), $b);
         } else {
             $a_info->addProperty(
                 $lng->txt("exc_public_submission"),
@@ -298,7 +303,7 @@ class ilExAssignmentGUI
             foreach ($files as $file) {
                 $cnt++;
                 // get mime type
-                $mime = ilObjMediaObject::getMimeType($file['fullpath']);
+                $mime = $file['mime'] ?? ilObjMediaObject::getMimeType($file['fullpath']);
 
                 $ui_factory = $DIC->ui()->factory();
                 $ui_renderer = $DIC->ui()->renderer();
@@ -310,7 +315,7 @@ class ilExAssignmentGUI
 
 
                     $image = $ui_renderer->render($ui_factory->image()->responsive($file['fullpath'], $output_filename));
-                    $image_lens = ilUtil::getImagePath("enlarge.svg");
+                    $image_lens = ilUtil::getImagePath("media/enlarge.svg");
 
                     $modal = ilModalGUI::getInstance();
                     $modal->setId($item_id);
@@ -409,9 +414,8 @@ class ilExAssignmentGUI
     ): void {
         $lng = $this->lng;
 
-        $storage = new ilFSStorageExercise($a_ass->getExerciseId(), $a_ass->getId());
-        $cnt_files = $storage->countFeedbackFiles($a_feedback_id);
-
+        $feedback_file_manager = $this->service->domain()->assignment()->tutorFeedbackFile($a_ass->getId());
+        $cnt_files = $feedback_file_manager->count($this->user->getId());
         $lpcomment = $a_ass->getMemberStatus()->getComment();
         $mark = $a_ass->getMemberStatus()->getMark();
         $status = $a_ass->getMemberStatus()->getStatus();
@@ -448,7 +452,7 @@ class ilExAssignmentGUI
                     '<a id="fb' . $a_ass->getId() . '"></a>');
 
                 if ($cnt_files > 0) {
-                    $files = $storage->getFeedbackFiles($a_feedback_id);
+                    $files = $feedback_file_manager->getFiles($this->user->getId());
                     foreach ($files as $file) {
                         $a_info->addProperty(
                             $file,
@@ -506,7 +510,7 @@ class ilExAssignmentGUI
         }
 
         $ilCtrl->setParameterByClass("ilexsubmissiongui", "ass_id", $this->current_ass_id);
-        $url = $ilCtrl->getLinkTargetByClass("ilexsubmissiongui", $a_cmd);
+        $url = $ilCtrl->getLinkTargetByClass([ilAssignmentPresentationGUI::class, "ilexsubmissiongui"], $a_cmd);
         $ilCtrl->setParameterByClass("ilexsubmissiongui", "ass_id", "");
 
         if (is_array($a_params)) {
@@ -546,4 +550,8 @@ class ilExAssignmentGUI
                 );
         }
     }
+
+    ////
+    //// Listing panels
+    ////
 }

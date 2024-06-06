@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory as Refinery;
 
@@ -27,11 +27,11 @@ use ILIAS\Refinery\Factory as Refinery;
  */
 class ilMailOptionsGUI
 {
-    private ilGlobalTemplateInterface $tpl;
-    private ilCtrlInterface $ctrl;
-    private ilLanguage $lng;
-    private ilSetting $settings;
-    private ilObjUser $user;
+    private readonly ilGlobalTemplateInterface $tpl;
+    private readonly ilCtrlInterface $ctrl;
+    private readonly ilLanguage $lng;
+    private readonly ilSetting $settings;
+    private readonly ilObjUser $user;
     protected GlobalHttpState $http;
     protected Refinery $refinery;
     protected ilMailOptionsFormGUI $form;
@@ -75,16 +75,10 @@ class ilMailOptionsGUI
             $this->ctrl->redirectByClass(ilMailGUI::class);
         }
 
-        $nextClass = $this->ctrl->getNextClass($this);
-        switch ($nextClass) {
-            default:
-                if (!($cmd = $this->ctrl->getCmd())) {
-                    $cmd = 'showOptions';
-                }
-
-                $this->$cmd();
-                break;
+        if (!($cmd = $this->ctrl->getCmd())) {
+            $cmd = 'showOptions';
         }
+        $this->$cmd();
     }
 
     public function setForm(ilMailOptionsFormGUI $form): void

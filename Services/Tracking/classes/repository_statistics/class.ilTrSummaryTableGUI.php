@@ -732,7 +732,7 @@ class ilTrSummaryTableGUI extends ilLPTableBaseGUI
             }
         }
 
-        if (trim($value) == "") {
+        if (trim((string) $value) == "") {
             if ($id == "title") {
                 return "--" . $this->lng->txt("none") . "--";
             }

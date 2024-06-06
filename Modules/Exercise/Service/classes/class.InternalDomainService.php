@@ -20,36 +20,79 @@ declare(strict_types=1);
 
 namespace ILIAS\Exercise;
 
-/**
- * Exercise domain service (business logic)
- * @author Alexander Killing <killing@leifos.de>
- */
+use ILIAS\Repository\GlobalDICDomainServices;
+use ILIAS\DI\Container;
+use ILIAS\Exercise\Object\ObjectManager;
+use ILIAS\Exercise\Notification\NotificationManager;
+use ILIAS\Refinery\Logical\Not;
+use ILIAS\Exercise\InstructionFile\InstructionFileManager;
+use ILIAS\Exercise\Team\TeamManager;
+use ILIAS\Exercise\IndividualDeadline\IndividualDeadlineManager;
+
 class InternalDomainService
 {
+    use GlobalDICDomainServices;
+
     protected InternalDataService $data;
     protected InternalRepoService $repo;
     protected Assignment\DomainService $assignment_service;
 
     public function __construct(
+        Container $dic,
         InternalDataService $data,
         InternalRepoService $repo
     ) {
         $this->data = $data;
         $this->repo = $repo;
+        $this->initDomainServices($dic);
         $this->assignment_service = new Assignment\DomainService(
             $this,
             $repo
         );
     }
 
-    public function refinery():\ILIAS\Refinery\Factory
+    public function log(): \ilLogger
     {
-        global $DIC;
-        return $DIC->refinery();
+        return $this->logger()->exc();
+    }
+
+    public function object(int $ref_id): ObjectManager
+    {
+        return new ObjectManager($ref_id);
     }
 
     public function assignment(): Assignment\DomainService
     {
         return $this->assignment_service;
     }
+
+    public function peerReview(\ilExAssignment $ass): ?\ilExPeerReview
+    {
+        if ($ass->getPeerReview()) {
+            return new \ilExPeerReview($ass);
+        }
+        return null;
+    }
+
+    public function notification(int $ref_id): NotificationManager
+    {
+        return new NotificationManager(
+            $this,
+            $ref_id
+        );
+    }
+
+    public function team(): TeamManager
+    {
+        return new TeamManager(
+            $this->repo,
+            $this
+        );
+    }
+
+    public function individualDeadline(): IndividualDeadlineManager
+    {
+        return new IndividualDeadlineManager();
+    }
+
 }

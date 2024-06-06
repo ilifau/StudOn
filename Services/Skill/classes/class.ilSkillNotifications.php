@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +20,7 @@
  */
 
 use ILIAS\Skill\Service\SkillTreeService;
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 /**
  * Course/group skill notification
@@ -68,9 +71,9 @@ class ilSkillNotifications extends ilCronJob
         return $lng->txt("skll_skill_notification_desc");
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_DAILY;
+        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -174,7 +177,6 @@ class ilSkillNotifications extends ilCronJob
         $a_achievements = $vtree->getOrderedNodeset($a_achievements, "skill_id", "tref_id");
 
         foreach ($a_achievements as $skill_level) {
-
             // path
             $path = [];
             foreach ($tree->getPathId($skill_level["trigger_ref_id"]) as $node) {
@@ -226,8 +228,8 @@ class ilSkillNotifications extends ilCronJob
         $mail = new ilMail(ANONYMOUS_USER_ID);
         $mail->enqueue(
             ilObjUser::_lookupLogin($a_user_id),
-            '',
-            '',
+            "",
+            "",
             $subject,
             $ntf->composeAndGetMessage($a_user_id, null, "read", true),
             []

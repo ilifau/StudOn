@@ -525,12 +525,12 @@ class ilMemberExport
                             // fau.
                             #$this->csv->addColumn($this->user_profile_data[$usr_id][$field]);
                             $this->addCol($this->user_profile_data[$usr_id][$field] ?? '', $row, $col++);
+                            $this->addCol($this->user_profile_data[$usr_id][$field] ?? '', $row, $col++);
                         } else {
                             #$this->csv->addColumn('');
                             $this->addCol('', $row, $col++);
                         }
                         break;
-
                 }
             }
 

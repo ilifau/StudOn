@@ -38,7 +38,11 @@ abstract class Form extends Container implements C\Input\Container\Form\Form
     public function __construct(
         C\Input\Field\Factory $field_factory,
         NameSource $name_source,
+<<<<<<< HEAD
         array $inputs
+=======
+        array $inputs,
+>>>>>>> v9.1
     ) {
         parent::__construct($name_source);
         $this->setInputGroup($field_factory->group($inputs)->withDedicatedName('form'));

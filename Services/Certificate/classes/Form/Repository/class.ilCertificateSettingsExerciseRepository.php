@@ -27,9 +27,7 @@ use ILIAS\Filesystem\Exception\IOException;
  */
 class ilCertificateSettingsExerciseRepository implements ilCertificateFormRepository
 {
-    private ilLanguage $language;
-    private ilCertificateSettingsFormRepository $settingsFormFactory;
-    private ilObject $object;
+    private readonly ilCertificateSettingsFormRepository $settingsFormFactory;
 
     public function __construct(
         ilObject $object,
@@ -42,28 +40,23 @@ class ilCertificateSettingsExerciseRepository implements ilCertificateFormReposi
         ilCertificatePlaceholderDescription $placeholderDescriptionObject,
         ?ilCertificateSettingsFormRepository $settingsFormFactory = null
     ) {
-        $this->object = $object;
-        $this->language = $language;
+        global $DIC;
 
-        if (null === $settingsFormFactory) {
-            $settingsFormFactory = new ilCertificateSettingsFormRepository(
-                $object->getId(),
-                $certificatePath,
-                $hasAdditionalElements,
-                $language,
-                $ctrl,
-                $access,
-                $toolbar,
-                $placeholderDescriptionObject
-            );
-        }
-
-        $this->settingsFormFactory = $settingsFormFactory;
+        $this->settingsFormFactory = $settingsFormFactory ?? new ilCertificateSettingsFormRepository(
+            $object->getId(),
+            $certificatePath,
+            $hasAdditionalElements,
+            $language,
+            $ctrl,
+            $access,
+            $toolbar,
+            $placeholderDescriptionObject,
+            $DIC->ui()->factory(),
+            $DIC->ui()->renderer()
+        );
     }
 
     /**
-     * @param ilCertificateGUI $certificateGUI
-     * @return ilPropertyFormGUI
      * @throws FileAlreadyExistsException
      * @throws FileNotFoundException
      * @throws IOException

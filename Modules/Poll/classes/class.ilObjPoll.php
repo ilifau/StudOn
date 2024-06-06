@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,10 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Filesystem\Util\Convert\ImageOutputOptions;
 
 /**
 * Class ilObjPoll
@@ -37,8 +39,7 @@ class ilObjPoll extends ilObject2
     protected int $period_begin = 0;
     protected int $period_end = 0;
 
-    // 4.5
-    protected int $max_number_answers = 1;
+    protected int $max_number_answers = 0;
     protected bool $result_sort_by_votes = false;
     protected bool $mode_non_anonymous = false;
     protected bool $show_comments = false;
@@ -51,12 +52,14 @@ class ilObjPoll extends ilObject2
 
     public const SHOW_RESULTS_AS_BARCHART = 1;
     public const SHOW_RESULTS_AS_PIECHART = 2;
+    private \ILIAS\Filesystem\Util\Convert\LegacyImages $image_converter;
 
     public function __construct(int $a_id = 0, bool $a_reference = true)
     {
         global $DIC;
 
         $this->db = $DIC->database();
+        $this->image_converter = $DIC->fileConverters()->legacyImages();
         // default
         $this->setViewResults(self::VIEW_RESULTS_AFTER_VOTE);
         $this->setAccessType(ilObjectActivation::TIMINGS_DEACTIVATED);
@@ -357,9 +360,18 @@ class ilObjPoll extends ilObject2
             $new_obj->setOfflineStatus(true);
         }
 
-        $new_obj->setViewResults($this->getViewResults());
+        $view_results = $this->getViewResults();
+        if ($view_results === ilObjPoll::VIEW_RESULTS_AFTER_PERIOD) {
+            // default view results setting to always, since
+            // voting period is not copied.
+            $view_results = ilObjPoll::VIEW_RESULTS_ALWAYS;
+        }
+        $new_obj->setViewResults($view_results);
         $new_obj->setShowComments($this->getShowComments());
         $new_obj->setShowResultsAs($this->getShowResultsAs());
+        $new_obj->setMaxNumberOfAnswers($this->getMaxNumberOfAnswers());
+        $new_obj->setSortResultByVotes($this->getSortResultByVotes());
+        $new_obj->setNonAnonymous($this->getNonAnonymous());
         $new_obj->update();
 
         // answers
@@ -447,22 +459,23 @@ class ilObjPoll extends ilObject2
             chmod($path . $original, 0770);
 
             // take quality 100 to avoid jpeg artefacts when uploading jpeg files
-            // taking only frame [0] to avoid problems with animated gifs
-            $original_file = ilShellUtil::escapeShellArg($path . $original);
-            $thumb_file = ilShellUtil::escapeShellArg($path . $thumb);
-            $processed_file = ilShellUtil::escapeShellArg($path . $processed);
+            $original_file = $path . $original;
+            $thumb_file = $path . $thumb;
+            $processed_file = $path . $processed;
 
-            // -geometry "100x100>" is escaped by -geometry "100x100\>"
-            // re-replace "\>" with ">"
-            $convert_100 = $original_file . "[0] -geometry \"100x100>\" -quality 100 PNG:" . $thumb_file;
-            $escaped_convert_100 = ilShellUtil::escapeShellCmd($convert_100);
-            $escaped_convert_100 = str_replace('-geometry "100x100\>', '-geometry "100x100>', $escaped_convert_100);
-            ilShellUtil::execQuoted(PATH_TO_CONVERT, $escaped_convert_100);
+            $this->image_converter->croppedSquare(
+                $original_file,
+                $thumb_file,
+                100,
+                ImageOutputOptions::FORMAT_PNG
+            );
 
-            $convert_300 = $original_file . "[0] -geometry \"" . self::getImageSize() . ">\" -quality 100 PNG:" . $processed_file;
-            $escaped_convert_300 = ilShellUtil::escapeShellCmd($convert_300);
-            $escaped_convert_300 = str_replace('-geometry "' . self::getImageSize() . '\>"', '-geometry "' . self::getImageSize() . '>"', $escaped_convert_300);
-            ilShellUtil::execQuoted(PATH_TO_CONVERT, $escaped_convert_300);
+            $this->image_converter->croppedSquare(
+                $original_file,
+                $processed_file,
+                300,
+                ImageOutputOptions::FORMAT_PNG
+            );
 
             $this->setImage($processed);
             return true;
@@ -473,7 +486,7 @@ class ilObjPoll extends ilObject2
     public static function getImageSize(): string
     {
         // :TODO:
-        return "300x300";
+        return "600x600";
     }
 
 

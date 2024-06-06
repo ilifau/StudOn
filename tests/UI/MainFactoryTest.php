@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once 'tests/UI/AbstractFactoryTest.php';
 
 /**
@@ -35,7 +43,8 @@ class MainFactoryTest extends AbstractFactoryTest
         "table" => ["rules" => false],
         "layout" => ["rules" => false],
         "menu" => ["rules" => false],
-        "symbol" => ["rules" => false]
+        "symbol" => ["rules" => false],
+        "entity" => ["context" => true]
     ];
 
     public string $factory_title = 'ILIAS\\UI\\Factory';
@@ -43,7 +52,11 @@ class MainFactoryTest extends AbstractFactoryTest
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_proper_namespace(): void
+=======
+    public function testProperNamespace(): void
+>>>>>>> v9.1
     {
         // Nothing to test here.
     }
@@ -51,12 +64,20 @@ class MainFactoryTest extends AbstractFactoryTest
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_proper_name(): void
+=======
+    public function testProperName(): void
+>>>>>>> v9.1
     {
         // Nothing to test here.
     }
 
+<<<<<<< HEAD
     protected function get_regex_factory_namespace(): string
+=======
+    protected function getRegexFactoryNamespace(): string
+>>>>>>> v9.1
     {
         return "\\\\ILIAS\\\\UI\\\\Component";
     }

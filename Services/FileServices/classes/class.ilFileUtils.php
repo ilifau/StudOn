@@ -16,10 +16,8 @@
  *
  *********************************************************************/
 
-use ILIAS\Filesystem\Definitions\SuffixDefinitions;
 use ILIAS\Filesystem\Util\LegacyPathHelper;
 use ILIAS\FileUpload\DTO\UploadResult;
-use ILIAS\FileUpload\DTO\ProcessingStatus;
 use ILIAS\Data\DataSize;
 
 /**
@@ -31,100 +29,6 @@ use ILIAS\Data\DataSize;
  */
 class ilFileUtils
 {
-    /**
-     * @deprecated Will be removed completely with ILIAS 9
-     */
-    public static function processZipFile(
-        string $a_directory,
-        string $a_file,
-        bool $structure
-    ): void {
-        global $DIC;
-
-        $lng = $DIC->language();
-
-        $pathinfo = pathinfo($a_file);
-        $file = $pathinfo["basename"];
-
-        // see 22727
-        if ($pathinfo["extension"] ?? '' === '') {
-            $file .= ".zip";
-        }
-
-        // Copy zip-file to new directory, unzip and remove it
-        // TODO: check archive for broken file
-        //copy ($a_file, $a_directory . "/" . $file);
-        self::moveUploadedFile($a_file, $file, $a_directory . "/" . $file);
-        self::unzip($a_directory . "/" . $file);
-        unlink($a_directory . "/" . $file);
-        //echo "-".$a_directory . "/" . $file."-";
-        // Stores filename and paths into $filearray to check for viruses
-        // Checks if filenames can be read, else -> throw exception and leave
-        $filearray = [];
-        ilFileUtils::recursive_dirscan($a_directory, $filearray);
-
-        // if there are no files unziped (->broken file!)
-        if (empty($filearray)) {
-            throw new ilFileUtilsException(
-                $lng->txt("archive_broken"),
-                ilFileUtilsException::$BROKEN_FILE
-            );
-        }
-
-        // virus handling
-        foreach ($filearray["file"] as $key => $value) {
-            // remove "invisible" files
-            if (substr($value, 0, 1) == "." || stristr(
-                $filearray["path"][$key],
-                "/__MACOSX/"
-            )) {
-                unlink($filearray["path"][$key] . $value);
-                unset($filearray["path"][$key]);
-                unset($filearray["file"][$key]);
-                continue;
-            }
-
-            $vir = ilVirusScanner::virusHandling($filearray["path"][$key], $value);
-            if (!$vir[0]) {
-                // Unlink file and throw exception
-                unlink($filearray['path'][$key]);
-                throw new ilFileUtilsException(
-                    $lng->txt("file_is_infected") . "<br />" . $vir[1],
-                    ilFileUtilsException::$INFECTED_FILE
-                );
-            } elseif ($vir[1] != "") {
-                throw new ilFileUtilsException(
-                    $vir[1],
-                    ilFileUtilsException::$INFECTED_FILE
-                );
-            }
-        }
-
-        // If archive is to be used "flat"
-        $doublettes = '';
-        if (!$structure) {
-            foreach (array_count_values($filearray["file"]) as $key => $value) {
-                // Archive contains same filenames in different directories
-                if ($value != "1") {
-                    $doublettes .= " '" . ilFileUtils::utf8_encode($key) . "'";
-                }
-            }
-            if (strlen($doublettes) > 0) {
-                throw new ilFileUtilsException(
-                    $lng->txt("exc_upload_error") . "<br />" . $lng->txt(
-                        "zip_structure_error"
-                    ) . $doublettes,
-                    ilFileUtilsException::$DOUBLETTES_FOUND
-                );
-            }
-        } else {
-            $mac_dir = $a_directory . "/__MACOSX";
-            if (file_exists($mac_dir)) {
-                self::delDir($mac_dir);
-            }
-        }
-    }
-
     /**
      * Recursively scans a given directory and writes path and filename into referenced array
      *
@@ -164,31 +68,12 @@ class ilFileUtils
     }
 
     /**
-     * utf8-encodes string if it is not a valid utf8-string.
-     *
-     * @param string $string String to encode
-     *
-     * @return string utf-8-encoded string
-     * @author  Jan Hippchen
-     * @version 1.12.3.08
+     * @deprecated in ILIAS 9 for ILIAS 10: Use Refinery\String\Encoding instead
      */
     public static function utf8_encode(string $string): string
     {
-
-        // From http://w3.org/International/questions/qa-forms-utf-8.html
-        return (preg_match(
-            '%^(?:
-			[\x09\x0A\x0D\x20-\x7E]            # ASCII
-			| [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
-			|  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
-			| [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
-			|  \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
-			|  \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
-			| [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
-			|  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
-			)*$%xs',
-            $string
-        )) ? $string : utf8_encode($string);
+        global $DIC;
+        return $DIC->refinery()->string()->encoding()->latin1ToUtf8()->transform($string);
     }
 
     /**
@@ -317,7 +202,7 @@ class ilFileUtils
             }
         }
 
-        $old_mask = umask(0000);
+        umask(0000);
         foreach ($dirs as $dirindex => $dir) {
             // starting with the longest existing path
             if ($dirindex >= $found_index) {
@@ -443,11 +328,7 @@ class ilFileUtils
         if (is_dir($a_dir)) {
             return true;
         }
-        $old_mask = umask(0000);
-        $result = @mkdir($a_dir, fileperms($path));
-        umask($old_mask);
-        
-        return $result;
+        return mkdir($a_dir, fileperms($path));
     }
 
     protected static function sanitateTargetPath(string $a_target): array
@@ -560,58 +441,16 @@ class ilFileUtils
     }
 
     /**
-     *    zips given directory/file into given zip.file
-     *
-     * @static
-     *
+     * @deprecated Please refactor your code using $DIC->archives()->zip() (recommended) or $DIC->legacyArchives()->zip() instead.
      */
     public static function zip(
         string $a_dir,
         string $a_file,
         bool $compress_content = false
     ): bool {
-        $cdir = getcwd();
-
-        if ($compress_content) {
-            $a_dir .= "/*";
-            $pathinfo = pathinfo($a_dir);
-            chdir($pathinfo["dirname"]);
-        }
-
-        $pathinfo = pathinfo($a_file);
-        $dir = $pathinfo["dirname"];
-        $file = $pathinfo["basename"];
-
-        if (!$compress_content) {
-            chdir($dir);
-        }
-
-        $zip = PATH_TO_ZIP;
-
-        if (!$zip) {
-            chdir($cdir);
-            return false;
-        }
-
-        if (is_array($a_dir)) {
-            $source = "";
-            foreach ($a_dir as $dir) {
-                $name = basename($dir);
-                $source .= " " . ilShellUtil::escapeShellArg($name);
-            }
-        } else {
-            $name = basename($a_dir);
-            if (trim($name) != "*") {
-                $source = ilShellUtil::escapeShellArg($name);
-            } else {
-                $source = $name;
-            }
-        }
-
-        $zipcmd = "-r " . ilShellUtil::escapeShellArg($a_file) . " " . $source;
-        ilShellUtil::execQuoted($zip, $zipcmd);
-        chdir($cdir);
-        return true;
+        global $DIC;
+        // ensure top directory should be the same behaviour as before, if you need it to be different, you should legacyArchives directly
+        return $DIC->legacyArchives()->zip($a_dir, $a_file, true);
     }
 
     /**
@@ -799,7 +638,7 @@ class ilFileUtils
     public static function getFileSizeInfo(): string
     {
         global $DIC;
-        $size = new DataSize(self::getUploadSizeLimitBytes(), DataSize::MB);
+        $size = new DataSize(self::getPhpUploadSizeLimitInBytes(), DataSize::MB);
         $max_filesize = $size->__toString();
         $lng = $DIC->language();
 
@@ -839,102 +678,28 @@ class ilFileUtils
         return $temp_name;
     }
 
-    public static function unzip(
-        string $path_to_zip_file,
-        bool $overwrite_existing = false,
-        bool $unpack_flat = false
-    ): void {
+    /**
+     * unzip file
+     *
+     * @param string  $a_file    full path/filename
+     * @param boolean $overwrite pass true to overwrite existing files
+     * @static
+     *
+     */
+    public static function unzip(string $a_file, bool $overwrite = false, bool $a_flat = false): bool
+    {
+        if(defined('DEVMODE') && DEVMODE) {
+            trigger_error('Deprecated method called: ' . __METHOD__, E_USER_DEPRECATED);
+        }
+
         global $DIC;
-
-        $sanitizer = new ilFileServicesFilenameSanitizer(
-            $DIC->fileServiceSettings()
+        return $DIC->legacyArchives()->unzip(
+            $a_file,
+            null,
+            $overwrite,
+            $a_flat,
+            false
         );
-
-        $log = $DIC->logger()->root();
-
-        if (!is_file($path_to_zip_file)) {
-            return;
-        }
-
-        // we unpack the zip always in a temp directory
-        $temporary_unzip_directory = self::ilTempnam();
-        self::makeDir($temporary_unzip_directory);
-        copy($path_to_zip_file, $temporary_unzip_directory . DIRECTORY_SEPARATOR . basename($path_to_zip_file));
-        $original_path_to_zip_file = $path_to_zip_file;
-        $path_to_zip_file = $temporary_unzip_directory . DIRECTORY_SEPARATOR . basename($path_to_zip_file);
-        $original_zip_path_info = pathinfo($original_path_to_zip_file);
-        $unzippable_zip_path_info = pathinfo($path_to_zip_file);
-
-        $unzippable_zip_directory = $unzippable_zip_path_info["dirname"];
-        $unzippable_zip_filename = $unzippable_zip_path_info["basename"];
-
-        // unzip
-        $current_directory = getcwd();
-        chdir($unzippable_zip_directory);
-        $unzip_command = PATH_TO_UNZIP;
-
-        // real unzip
-        if (!$overwrite_existing) {
-            $unzip_parameters = ilShellUtil::escapeShellArg($unzippable_zip_filename);
-        } else {
-            $unzip_parameters = "-o " . ilShellUtil::escapeShellArg($unzippable_zip_filename);
-        }
-        ilShellUtil::execQuoted($unzip_command, $unzip_parameters);
-        // move back
-        chdir($current_directory);
-
-        // remove all sym links
-        clearstatcache();			// prevent is_link from using cache
-        $dir_realpath = realpath($unzippable_zip_directory);
-        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($unzippable_zip_directory)) as $name => $f) {
-            if (is_link($name)) {
-                $target = readlink($name);
-                if (substr($target, 0, strlen($dir_realpath)) != $dir_realpath) {
-                    unlink($name);
-                    $log->info("Removed symlink " . $name);
-                }
-            }
-            if (is_file($name) && $name !== $sanitizer->sanitize($name)) {
-                // rename file if it contains invalid suffix
-                $new_name = ilFileUtils::getValidFilename($name);
-                rename($name, $new_name);
-            }
-        }
-
-        // rename executables
-        self::renameExecutables($unzippable_zip_directory);
-
-        // now we have to move the files to the original directory.
-        // if $a_flat is true, we move the files only without directories, otherwise we move the whole directory.
-        // since some provide a realtive path here, we have to get the absolute path first
-        $target_dir_name = $original_zip_path_info["dirname"];
-        $target_dir_name = realpath($target_dir_name);
-
-        if ($unpack_flat) {
-            $file_array = [];
-            self::recursive_dirscan($temporary_unzip_directory, $file_array);
-            if (is_array($file_array["file"])) {
-                foreach ($file_array["file"] as $k => $f) {
-                    if (
-                        substr($f, 0, 1) !== "."
-                        && $f !== basename($original_path_to_zip_file)
-                    ) {
-                        copy(
-                            $file_array["path"][$k] . $f,
-                            $target_dir_name . DIRECTORY_SEPARATOR . $f
-                        );
-                    }
-                }
-            }
-        } else {
-            $target_directory = $target_dir_name;
-            self::rCopy(
-                $temporary_unzip_directory,
-                $target_directory
-            );
-        }
-
-        self::delDir($temporary_unzip_directory);
     }
 
     /**
@@ -975,25 +740,14 @@ class ilFileUtils
 
         // read a_dir
         $dir = opendir($a_dir);
-        if ($dir === false) {
-            return false;
-        }
-
-        $prohibited =  [
-            '...'
-        ];
 
         while ($file = readdir($dir)) {
-            if (
-                $file !== "."
-                && $file !== ".."
-            ) {
+            if ($file !== "." && $file !== "..") {
                 // triple dot is not allowed in filenames
-                if (in_array($file, $prohibited)) {
+                if ($file === '...') {
                     unlink($a_dir . "/" . $file);
                     continue;
                 }
-
                 // directories
                 if (@is_dir($a_dir . "/" . $file)) {
                     self::rRenameSuffix($a_dir . "/" . $file, $a_old_suffix, $a_new_suffix);
@@ -1010,7 +764,6 @@ class ilFileUtils
                             unlink($a_dir . '/' . $file);
                             continue;
                         }
-
                         $file = substr($file, 0, -1);
                     }
 
@@ -1022,7 +775,7 @@ class ilFileUtils
                         // check if file exists
                         if (file_exists($new_name)) {
                             if (is_dir($new_name)) {
-                                self::delDir($new_name);
+                                ilFileUtils::delDir($new_name);
                             } else {
                                 unlink($new_name);
                             }
@@ -1044,7 +797,7 @@ class ilFileUtils
     /**
      * @deprecated should use DataSize instead
      */
-    public static function getUploadSizeLimitBytes(): string
+    public static function getPhpUploadSizeLimitInBytes(): string
     {
         $convertPhpIniSizeValueToBytes = function ($phpIniSizeValue) {
             if (is_numeric($phpIniSizeValue)) {

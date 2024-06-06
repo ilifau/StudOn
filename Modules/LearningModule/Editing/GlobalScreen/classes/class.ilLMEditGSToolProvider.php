@@ -34,7 +34,7 @@ class ilLMEditGSToolProvider extends AbstractDynamicToolProvider
         $additional_data = $called_contexts->current()->getAdditionalData();
         if ($additional_data->is(self::SHOW_TREE, true)) {
             $title = $this->dic->language()->txt('objs_st');
-            $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_chp.svg"), $title);
+            $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_chp.svg"), $title);
 
             $iff = function ($id) {
                 return $this->identification_provider->contextAwareIdentifier($id);
@@ -49,11 +49,8 @@ class ilLMEditGSToolProvider extends AbstractDynamicToolProvider
                     if ($c instanceof LegacySlate) {
                         $signal_id = $c->getToggleSignal()->getId();
                         return $c->withAdditionalOnLoadCode(static function ($id) use ($hashed) {
-                            return "
-                                 console.log('trigger added');
-                                 $('body').on('il-lm-editor-tree', function(){
+                            return "document.addEventListener('il-lm-editor-tree', () => {
                                     il.UI.maincontrols.mainbar.engageTool('$hashed');
-                                    console.log('trigger tree');
                                  });";
                         });
                     }

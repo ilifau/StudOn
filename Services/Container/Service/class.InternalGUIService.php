@@ -50,4 +50,22 @@ class InternalGUIService
             $this->domain_service->refinery()
         );
     }
+
+    public function content(): Content\GUIService
+    {
+        return new Content\GUIService(
+            $this->data_service,
+            $this->domain_service,
+            $this
+        );
+    }
+
+    public function classification(): Classification\GUIService
+    {
+        return new Classification\GUIService(
+            $this->domain_service,
+            $this
+        );
+    }
+
 }

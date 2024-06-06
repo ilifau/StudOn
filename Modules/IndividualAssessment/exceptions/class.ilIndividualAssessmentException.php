@@ -18,6 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
- class ilIndividualAssessmentException extends ilException
- {
- }
+class ilIndividualAssessmentException extends ilException
+{
+}

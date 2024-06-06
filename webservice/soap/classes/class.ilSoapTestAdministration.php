@@ -1,25 +1,20 @@
 <?php
-/*
- +-----------------------------------------------------------------------------+
- | ILIAS open source                                                           |
- +-----------------------------------------------------------------------------+
- | Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
- |                                                                             |
- | This program is free software; you can redistribute it and/or               |
- | modify it under the terms of the GNU General Public License                 |
- | as published by the Free Software Foundation; either version 2              |
- | of the License, or (at your option) any later version.                      |
- |                                                                             |
- | This program is distributed in the hope that it will be useful,             |
- | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
- | GNU General Public License for more details.                                |
- |                                                                             |
- | You should have received a copy of the GNU General Public License           |
- | along with this program; if not, write to the Free Software                 |
- | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
- +-----------------------------------------------------------------------------+
-*/
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Test & Assessment Soap functions
@@ -31,7 +26,7 @@ include_once './webservice/soap/classes/class.ilSoapAdministration.php';
 
 class ilSoapTestAdministration extends ilSoapAdministration
 {
-    private function hasWritePermissionForTest(int $active_id) : bool
+    private function hasWritePermissionForTest(int $active_id): bool
     {
         global $DIC;
 
@@ -59,7 +54,7 @@ class ilSoapTestAdministration extends ilSoapAdministration
         return $permission_ok;
     }
 
-    public function isAllowedCall(string $sid, int $active_id, bool $saveaction = true) : bool
+    public function isAllowedCall(string $sid, int $active_id, bool $saveaction = true): bool
     {
         global $DIC;
 
@@ -421,6 +416,7 @@ class ilSoapTestAdministration extends ilSoapAdministration
 
         $lng = $DIC['lng'];
         $ilDB = $DIC['ilDB'];
+        $questioninfo = $DIC->testQuestionPool()->questionInfo();
 
         $result = $ilDB->queryF(
             "SELECT tst_tests.random_test FROM tst_active, tst_tests WHERE tst_active.active_id = %s AND tst_tests.test_id = tst_active.test_fi",
@@ -434,7 +430,7 @@ class ilSoapTestAdministration extends ilSoapAdministration
         $is_random = $row["random_test"];
 
         include_once "./Modules/Test/classes/class.ilTestSequence.php";
-        $sequence = new ilTestSequence($active_id, $pass, $is_random);
+        $sequence = new ilTestSequence($ilDB, $active_id, $pass, $questioninfo);
         return $sequence->getSequenceForQuestion($question_id);
     }
 
@@ -457,6 +453,7 @@ class ilSoapTestAdministration extends ilSoapAdministration
 
         $lng = $DIC['lng'];
         $ilDB = $DIC['ilDB'];
+        $questioninfo = $DIC->testQuestionPool()->questionInfo();
 
         $result = $ilDB->queryF(
             "SELECT tst_tests.random_test FROM tst_active, tst_tests WHERE tst_active.active_id = %s AND tst_tests.test_id = tst_active.test_fi",
@@ -470,7 +467,7 @@ class ilSoapTestAdministration extends ilSoapAdministration
         $is_random = $row["random_test"];
 
         include_once "./Modules/Test/classes/class.ilTestSequence.php";
-        $sequence = new ilTestSequence($active_id, $pass, $is_random);
+        $sequence = new ilTestSequence($ilDB, $active_id, $pass, $questioninfo);
         $result = $ilDB->queryF(
             "SELECT question_fi, points FROM tst_test_result WHERE active_fi = %s AND pass = %s",
             array('integer', 'integer'),
@@ -514,6 +511,7 @@ class ilSoapTestAdministration extends ilSoapAdministration
 
         $lng = $DIC['lng'];
         $ilDB = $DIC['ilDB'];
+        $questioninfo = $DIC->testQuestionPool()->questionInfo();
 
         $result = $ilDB->queryF(
             "SELECT tst_tests.random_test FROM tst_active, tst_tests WHERE tst_active.active_id = %s AND tst_tests.test_id = tst_active.test_fi",
@@ -527,7 +525,7 @@ class ilSoapTestAdministration extends ilSoapAdministration
         $is_random = $row["random_test"];
 
         include_once "./Modules/Test/classes/class.ilTestSequence.php";
-        $sequence = new ilTestSequence($active_id, $pass, $is_random);
+        $sequence = new ilTestSequence($ilDB, $active_id, $pass, $questioninfo);
         return $sequence->getUserQuestionCount();
     }
 
@@ -728,17 +726,17 @@ class ilSoapTestAdministration extends ilSoapAdministration
         return $xmlWriter->getXML();
     }
 
-    protected function checkManageParticipantsAccess(int $refId) : bool
+    protected function checkManageParticipantsAccess(int $refId): bool
     {
         return $this->getTestAccess($refId)->checkManageParticipantsAccess();
     }
 
-    protected function checkParticipantsResultsAccess(int $refId) : bool
+    protected function checkParticipantsResultsAccess(int $refId): bool
     {
         return $this->getTestAccess($refId)->checkParticipantsResultsAccess();
     }
 
-    protected function getTestAccess(int $refId) : ilTestAccess
+    protected function getTestAccess(int $refId): ilTestAccess
     {
         require_once 'Modules/Test/classes/class.ilTestAccess.php';
 

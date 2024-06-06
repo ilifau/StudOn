@@ -18,8 +18,6 @@
 
 namespace ILIAS\OrgUnit\Webservices\SOAP;
 
-use ilOrgUnitUserAssignmentQueries;
-
 /**
  * Class UserIdsOfPosition
  * @author Fabian Schmid <fs@studer-raimann.ch>
@@ -33,14 +31,7 @@ class UserIdsOfPosition extends Base
     {
         $position_id = $params[self::POSITION_ID];
 
-        // $record = ilOrgUnitPosition::find($position_id);
-
-        $usr_ids = [];
-        foreach (ilOrgUnitUserAssignmentQueries::getInstance()->getUserAssignmentsOfPosition($position_id) as $assignment) {
-            $usr_ids[] = $assignment->getUserId();
-        }
-
-        return $usr_ids;
+        return $this->assignmentRepo->getUsersByPosition($position_id);
     }
 
     public function getName(): string

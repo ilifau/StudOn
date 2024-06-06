@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\Object\ilObjectDIC;
+use ILIAS\Object\Properties\ObjectReferenceProperties\ObjectReferenceProperties;
+
 /**
  * Class ilObject
  * Basic functions for all objects
@@ -32,8 +35,10 @@ class ilObject
     public const DESC_LENGTH = 128; // (short) description column max length in db
     public const LONG_DESC_LENGTH = 4000; // long description column max length in db
     public const TABLE_OBJECT_DATA = "object_data";
-    protected ilLogger $obj_log;
 
+    private ?ilObjectProperties $object_properties = null;
+
+    protected ilLogger $obj_log;
     protected ?ILIAS $ilias;
     protected ?ilObjectDefinition $obj_definition;
     protected ilDBInterface $db;
@@ -45,9 +50,8 @@ class ilObject
     protected ilRbacReview $rbac_review;
     protected ilObjUser $user;
     protected ilLanguage $lng;
+    private ilObjectDIC $object_dic;
 
-    protected int $id;
-    protected bool $referenced;
     protected bool $call_by_reference;
     protected int $max_title = self::TITLE_LENGTH;
     protected int $max_desc = self::DESC_LENGTH;
@@ -55,7 +59,6 @@ class ilObject
     protected ?int $ref_id = null;
     protected string $type = "";
     protected string $title = "";
-    protected bool $offline = false;
     protected string $desc = "";
     protected string $long_desc = "";
     protected int $owner = 0;
@@ -81,8 +84,11 @@ class ilObject
      * @param int  $id        reference_id or object_id
      * @param bool $reference bool treat the id as reference_id (true) or object_id (false)
      */
-    public function __construct(int $id = 0, bool $reference = true)
-    {
+    public function __construct(
+        protected int $id = 0,
+        protected bool $referenced = true
+    ) {
+        /** @var ILIAS\DI\Container $DIC */
         global $DIC;
 
         $this->ilias = $DIC["ilias"];
@@ -93,9 +99,9 @@ class ilObject
         $this->error = $DIC["ilErr"];
         $this->tree = $DIC["tree"];
         $this->app_event_handler = $DIC["ilAppEventHandler"];
+        $this->object_dic = ilObjectDIC::dic();
 
-        $this->referenced = $reference;
-        $this->call_by_reference = $reference;
+        $this->call_by_reference = $this->referenced;
 
         if (isset($DIC["lng"])) {
             $this->lng = $DIC["lng"];
@@ -126,6 +132,22 @@ class ilObject
         if ($id != 0) {
             $this->read();
         }
+    }
+
+    public function getObjectProperties(): ilObjectProperties
+    {
+        if ($this->object_properties === null) {
+            $this->object_properties = $this->object_dic['object_properties_agregator']->getFor($this->id, $this->type);
+        }
+        return $this->object_properties;
+    }
+
+    /**
+     * @deprecated 11: Do absolutely not use this! I will NOT check any usages before removal.
+     */
+    public function flushObjectProperties(): void
+    {
+        $this->object_properties = null;
     }
 
     /**
@@ -163,7 +185,7 @@ class ilObject
             // read object data
             $sql =
                 "SELECT od.obj_id, od.type, od.title, od.description, od.owner, od.create_date," . PHP_EOL
-                . "od.last_update, od.import_id, od.offline, ore.ref_id, ore.obj_id, ore.deleted, ore.deleted_by" . PHP_EOL
+                . "od.last_update, od.import_id, ore.ref_id, ore.obj_id, ore.deleted, ore.deleted_by" . PHP_EOL
                 . "FROM " . self::TABLE_OBJECT_DATA . " od" . PHP_EOL
                 . "JOIN object_reference ore ON od.obj_id = ore.obj_id" . PHP_EOL
                 . "WHERE ore.ref_id = " . $this->db->quote($this->ref_id, "integer") . PHP_EOL
@@ -172,7 +194,7 @@ class ilObject
             $result = $this->db->query($sql);
 
             // check number of records
-            if ($this->db->numRows($result) == 0) {
+            if ($this->db->numRows($result) === 0) {
                 $message = sprintf(
                     "ilObject::read(): Object with ref_id %s not found! (%s)",
                     $this->ref_id,
@@ -193,7 +215,7 @@ class ilObject
             ;
             $result = $this->db->query($sql);
 
-            if ($this->db->numRows($result) == 0) {
+            if ($this->db->numRows($result) === 0) {
                 $message = sprintf("ilObject::read(): Object with obj_id: %s (%s) not found!", $this->id, $this->type);
                 throw new ilObjectNotFoundException($message);
             }
@@ -226,8 +248,6 @@ class ilObject
         $this->create_date = (string) $obj["create_date"];
         $this->last_update = (string) $obj["last_update"];
         $this->import_id = (string) $obj["import_id"];
-
-        $this->setOfflineStatus((bool) $obj['offline']);
 
         if ($this->obj_definition->isRBACObject($this->getType())) {
             $sql =
@@ -265,6 +285,8 @@ class ilObject
                 $this->setDescription((string) $row->description);
             }
         }
+
+        $this->object_properties = null;
     }
 
     public function getId(): int
@@ -324,7 +346,13 @@ class ilObject
 
     final public function setTitle(string $title): void
     {
-        $this->title = ilStr::shortenTextExtended($title, $this->max_title ?? self::TITLE_LENGTH, $this->add_dots);
+        $property = $this->getObjectProperties()->getPropertyTitleAndDescription()->withTitle(
+            ilStr::shortenTextExtended($title, $this->max_title ?? self::TITLE_LENGTH, $this->add_dots)
+        );
+
+        $this->object_properties = $this->getObjectProperties()->withPropertyTitleAndDescription($property);
+
+        $this->title = $property->getTitle();
 
         // WebDAV needs to access the untranslated title of an object
         $this->untranslatedTitle = $this->title;
@@ -335,11 +363,16 @@ class ilObject
         return $this->desc;
     }
 
-    final public function setDescription(string $desc): void
+    final public function setDescription(string $description): void
     {
+        $property = $this->getObjectProperties()
+            ->getPropertyTitleAndDescription()->withDescription($description);
+
+        $this->object_properties = $this->getObjectProperties()->withPropertyTitleAndDescription($property);
+
         // Shortened form is storted in object_data. Long form is stored in object_description
-        $this->desc = ilStr::shortenTextExtended($desc, $this->max_desc, $this->add_dots);
-        $this->long_desc = ilStr::shortenTextExtended($desc, ilObject::LONG_DESC_LENGTH);
+        $this->desc = $property->getDescription();
+        $this->long_desc = $property->getLongDescription();
     }
 
     /**
@@ -347,12 +380,14 @@ class ilObject
      */
     public function getLongDescription(): string
     {
-        if (strlen($this->long_desc)) {
+        if ($this->long_desc !== '') {
             return $this->long_desc;
-        } elseif (strlen($this->desc)) {
+        }
+
+        if ($this->desc !== '') {
             return $this->desc;
         }
-        return "";
+        return '';
     }
 
     final public function getImportId(): string
@@ -390,14 +425,22 @@ class ilObject
         return (int) $row->obj_id;
     }
 
+    /**
+     * @deprecated 11
+     */
     public function setOfflineStatus(bool $status): void
     {
-        $this->offline = $status;
+        $property_is_online = $this->getObjectProperties()->getPropertyIsOnline()->withOnline();
+        if ($status) {
+            $property_is_online = $property_is_online->withOffline();
+        }
+
+        $this->object_properties = $this->getObjectProperties()->withPropertyIsOnline($property_is_online);
     }
 
     public function getOfflineStatus(): bool
     {
-        return $this->offline;
+        return !$this->getObjectProperties()->getPropertyIsOnline()->getIsOnline();
     }
 
     public function supportsOfflineHandling(): bool
@@ -518,11 +561,10 @@ class ilObject
             "create_date" => ["date", $this->db->now()],
             "last_update" => ["date", $this->db->now()],
             "import_id" => ["text", $this->getImportId()],
-            "offline" => ["integer", $this->supportsOfflineHandling() ? $this->getOfflineStatus() : null]
         ];
 
         $this->db->insert(self::TABLE_OBJECT_DATA, $values);
-
+        $this->object_properties = null;
 
         // Save long form of description if is rbac object
         if ($this->obj_definition->isRBACObject($this->getType())) {
@@ -533,13 +575,17 @@ class ilObject
             $this->db->insert('object_description', $values);
         }
 
+        if ($this->supportsOfflineHandling()) {
+            $property_is_online = $this->getObjectProperties()->getPropertyIsOnline()->withOffline();
+            $this->getObjectProperties()->storePropertyIsOnline($property_is_online);
+        }
+
         if ($this->obj_definition->isOrgUnitPermissionType($this->type)) {
             ilOrgUnitGlobalSettings::getInstance()->saveDefaultPositionActivationStatus($this->id);
         }
 
         // the line ($this->read();) messes up meta data handling: meta data,
         // that is not saved at this time, gets lost, so we query for the dates alone
-        //$this->read();
         $sql =
             "SELECT last_update, create_date" . PHP_EOL
             . "FROM " . self::TABLE_OBJECT_DATA . PHP_EOL
@@ -575,57 +621,7 @@ class ilObject
 
     public function update(): bool
     {
-        $values = [
-            "title" => ["text", $this->getTitle()],
-            "description" => ["text", ilStr::subStr($this->getDescription(), 0, 128)],
-            "last_update" => ["date", $this->db->now()],
-            "import_id" => ["text", $this->getImportId()],
-            "offline" => ["integer", $this->supportsOfflineHandling() ? $this->getOfflineStatus() : null]
-        ];
-
-        $where = [
-            "obj_id" => ["integer", $this->getId()]
-        ];
-
-        $this->db->update(self::TABLE_OBJECT_DATA, $values, $where);
-
-        // the line ($this->read();) messes up meta data handling: metadata,
-        // that is not saved at this time, gets lost, so we query for the dates alone
-        //$this->read();
-        $sql =
-            "SELECT last_update" . PHP_EOL
-            . "FROM " . self::TABLE_OBJECT_DATA . PHP_EOL
-            . "WHERE obj_id = " . $this->db->quote($this->getId(), "integer") . PHP_EOL
-        ;
-        $obj_set = $this->db->query($sql);
-        $obj_rec = $this->db->fetchAssoc($obj_set);
-        $this->last_update = $obj_rec["last_update"];
-
-        if ($this->obj_definition->isRBACObject($this->getType())) {
-            // Update long description
-            $sql =
-                "SELECT obj_id, description" . PHP_EOL
-                . "FROM object_description" . PHP_EOL
-                . "WHERE obj_id = " . $this->db->quote($this->getId(), 'integer') . PHP_EOL
-            ;
-            $res = $this->db->query($sql);
-
-            if ($res->numRows()) {
-                $values = [
-                    'description' => ['clob',$this->getLongDescription()]
-                ];
-                $where = [
-                    'obj_id' => ['integer',$this->getId()]
-                ];
-                $this->db->update('object_description', $values, $where);
-            } else {
-                $values = [
-                    'description' => ['clob',$this->getLongDescription()],
-                    'obj_id' => ['integer',$this->getId()]
-                ];
-                $this->db->insert('object_description', $values);
-            }
-        }
+        $this->getObjectProperties()->storeCoreProperties();
 
         $this->app_event_handler->raise(
             'Services/Object',
@@ -655,10 +651,10 @@ class ilObject
             $this->app_event_handler->raise(
                 'Services/Object',
                 'update',
-                array('obj_id' => $this->getId(),
+                ['obj_id' => $this->getId(),
                       'obj_type' => $this->getType(),
                       'ref_id' => $this->getRefId()
-                )
+                ]
             );
 
             // Update Title and description
@@ -829,7 +825,7 @@ class ilObject
 
         $result = $db->query($sql);
 
-        $ref = array();
+        $ref = [];
         while ($row = $db->fetchAssoc($result)) {
             $ref[(int) $row["ref_id"]] = (int) $row["ref_id"];
         }
@@ -1148,7 +1144,7 @@ class ilObject
         ;
         $result = $db->query($sql);
 
-        $objects = array();
+        $objects = [];
         while ($row = $db->fetchAssoc($result)) {
             if ((!$omit_trash) || ilObject::_hasUntrashedReference((int) $row["obj_id"])) {
                 $objects[$row["title"] . "." . $row["obj_id"]] = [
@@ -1563,7 +1559,7 @@ class ilObject
 
             $options[$row->child] = $title;
         }
-        return $options ?: array();
+        return $options ?: [];
     }
 
     /**
@@ -1571,6 +1567,7 @@ class ilObject
      */
     public function cloneObject(int $target_id, int $copy_id = 0, bool $omit_tree = false): ?ilObject
     {
+        /** @var ILIAS\DI\Container $DIC */
         global $DIC;
 
         $ilUser = $DIC["ilUser"];
@@ -1589,19 +1586,21 @@ class ilObject
             $this->obj_log->debug("title incl. copy info: " . $title);
         }
 
-        // create instance
+        /** @var ilObject $new_obj */
         $new_obj = new $class_name(0, false);
         $new_obj->setOwner($ilUser->getId());
-        $new_obj->setTitle($title);
-        $new_obj->setDescription($this->getLongDescription());
-        $new_obj->setType($this->getType());
+        $new_obj->title = $title;
+        $new_obj->long_desc = $this->getLongDescription();
+        $new_obj->desc = $this->getDescription();
+        $new_obj->type = $this->getType();
 
         // Choose upload mode to avoid creation of additional settings, db entries ...
         $new_obj->create(true);
 
         if ($this->supportsOfflineHandling()) {
-            $new_obj->setOffLineStatus($this->getOfflineStatus());
-            $new_obj->update();
+            $new_obj->getObjectProperties()->storePropertyIsOnline(
+                $this->getObjectProperties()->getPropertyIsOnline()
+            );
         }
 
         if (!$options->isTreeCopyDisabled() && !$omit_tree) {
@@ -1632,13 +1631,12 @@ class ilObject
         $this->db->manipulate($sql);
         // END WebDAV: Clone WebDAV properties
 
-        /** @var ilObjectCustomIconFactory $customIconFactory */
         $customIconFactory = $DIC['object.customicons.factory'];
         $customIcon = $customIconFactory->getByObjId($this->getId(), $this->getType());
         $customIcon->copy($new_obj->getId());
 
-        $tile_image = $DIC->object()->commonSettings()->tileImage()->getByObjId($this->getId());
-        $tile_image->copy($new_obj->getId());
+        $tile_image = $this->getObjectProperties()->getPropertyTileImage()->getTileImage();
+        $tile_image->cloneFor($new_obj->getId());
 
         $this->app_event_handler->raise(
             'Services/Object',
@@ -1668,7 +1666,7 @@ class ilObject
 
         if ($obj_translations->getLanguages() === []) {
             $existing_titles = array_map(
-                fn (array $child): string => $child['title'],
+                fn(array $child): string => $child['title'],
                 $other_children_of_same_type
             );
 
@@ -1688,8 +1686,8 @@ class ilObject
         array $other_children_of_same_type
     ): string {
         $nodes_translations = array_map(
-            fn (array $child): ilObjectTranslation =>
-                ilObjectTranslation::getInstance((int) $child['obj_id']),
+            fn(array $child): ilObjectTranslation =>
+                ilObjectTranslation::getInstance($child['obj_id']),
             $other_children_of_same_type
         );
 
@@ -1852,7 +1850,6 @@ class ilObject
         }
 
         if ($obj_id && $ilSetting->get('custom_icons')) {
-            /** @var ilObjectCustomIconFactory  $customIconFactory */
             $customIconFactory = $DIC['object.customicons.factory'];
             $customIcon = $customIconFactory->getPresenterByObjId($obj_id, $type);
             if ($customIcon->exists()) {
@@ -1879,15 +1876,15 @@ class ilObject
                     $class_name = "il" . $objDefinition->getClassName($type) . 'Plugin';
                     $location = $objDefinition->getLocation($type);
                     if (is_file($location . "/class." . $class_name . ".php")) {
-                        return call_user_func(array($class_name, "_getIcon"), $type, $size, $obj_id);
+                        return call_user_func([$class_name, "_getIcon"], $type, $size, $obj_id);
                     }
                 }
-                return ilUtil::getImagePath("icon_cmps.svg");
+                return ilUtil::getImagePath("standard/icon_cmps.svg");
             }
 
-            return ilUtil::getImagePath("icon_" . $type . ".svg");
+            return ilUtil::getImagePath("standard/icon_" . $type . ".svg");
         } else {
-            return "./images/icon_" . $type . ".svg";
+            return "./images/standard/icon_" . $type . ".svg";
         }
     }
 
@@ -1924,7 +1921,7 @@ class ilObject
         $ref_id = $this->getRefId();
         $type = $this->type;
 
-        if (!$ref_id || !in_array($type, array("file", "lm", "wiki"))) {
+        if (!$ref_id || !in_array($type, ["file", "lm", "wiki"])) {
             return false;
         }
 
@@ -1966,14 +1963,14 @@ class ilObject
         $tree = $DIC->repositoryTree();
 
         if ($depth == 0) {
-            $deps["dep"] = array();
+            $deps["dep"] = [];
         }
 
         $deps["del_ids"][$obj_id] = $obj_id;
 
         if (!$objDefinition->isPluginTypeName($type)) {
             $class_name = "ilObj" . $objDefinition->getClassName($type);
-            $odeps = call_user_func(array($class_name, "getDeletionDependencies"), $obj_id);
+            $odeps = call_user_func([$class_name, "getDeletionDependencies"], $obj_id);
             if (is_array($odeps)) {
                 foreach ($odeps as $id => $message) {
                     $deps["dep"][$id][$obj_id][] = $message;
@@ -2015,7 +2012,7 @@ class ilObject
         ;
         $result = $db->query($sql);
 
-        $all = array();
+        $all = [];
         while ($row = $db->fetchAssoc($result)) {
             $all[$row["obj_id"]] = $row["description"];
         }
@@ -2057,7 +2054,7 @@ class ilObject
 
         $res = $db->query($sql);
 
-        $all = array();
+        $all = [];
         while ($row = $db->fetchAssoc($res)) {
             $all[$row["type"]][$row["obj_id"]] = $row["title"];
         }
@@ -2073,12 +2070,12 @@ class ilObject
         global $DIC;
         $db = $DIC->database();
 
-        if (!in_array($type, array("catr", "crsr", "sess", "grpr", "prgr"))) {
+        if (!in_array($type, ["catr", "crsr", "sess", "grpr", "prgr"])) {
             return;
         }
 
         // any missing titles?
-        $missing_obj_ids = array();
+        $missing_obj_ids = [];
         foreach ($obj_title_map as $obj_id => $title) {
             if (!trim($title)) {
                 $missing_obj_ids[] = $obj_id;

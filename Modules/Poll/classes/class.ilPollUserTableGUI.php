@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\UI\Component\Symbol\Icon\Icon;
 
@@ -46,7 +45,7 @@ class ilPollUserTableGUI extends ilTable2GUI
 
         $this->rendered_checked_icon = $ui_renderer->render(
             $ui_factory->symbol()->icon()->custom(
-                ilUtil::getImagePath('icon_ok.svg'),
+                ilUtil::getImagePath('standard/icon_ok.svg'),
                 $lng->txt('poll_answer_selected_alt_text'),
                 Icon::MEDIUM
             )

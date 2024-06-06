@@ -91,7 +91,6 @@ class ilForumTopicTest extends TestCase
 
             'num_posts' => '',
             'num_unread_posts' => '',
-            'num_new_posts' => '',
             'usr_notification_is_enabled' => '',
         ];
 
@@ -115,7 +114,6 @@ class ilForumTopicTest extends TestCase
 
         $this->assertSame(0, $instance->getNumPosts());
         $this->assertSame(0, $instance->getNumUnreadPosts());
-        $this->assertSame(0, $instance->getNumNewPosts());
         $this->assertFalse($instance->isUserNotificationEnabled());
     }
 
@@ -479,8 +477,6 @@ class ilForumTopicTest extends TestCase
 
     public function testMakeStickyFailed(): void
     {
-        $id = 1929;
-
         $this->mockDatabase->expects(self::never())->method('manipulateF');
 
         $instance = new ilForumTopic();
@@ -570,9 +566,9 @@ class ilForumTopicTest extends TestCase
         parent::tearDown();
     }
 
-    private function withIgnoredQuery(InvocationMocker $mock, ...$expected): InvocationMocker
+    private function withIgnoredQuery(InvocationMocker $mock, array ...$expected): InvocationMocker
     {
-        return $mock->willReturnCallback(function ($ignored, ...$actual) use ($expected) {
+        return $mock->willReturnCallback(function ($ignored, ...$actual) use ($expected): void {
             $this->assertSame($expected, $actual);
         });
     }

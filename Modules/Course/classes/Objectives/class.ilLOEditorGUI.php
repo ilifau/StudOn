@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=0);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=0);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Style\Content\Object\ObjectFacade;
 use ILIAS\HTTP\GlobalHttpState;
@@ -37,9 +37,6 @@ class ilLOEditorGUI
 
     public const TEST_NEW = 1;
     public const TEST_ASSIGN = 2;
-
-    public const SETTINGS_TEMPLATE_IT = 'il_astpl_loc_initial';
-    public const SETTINGS_TEMPLATE_QT = 'il_astpl_loc_qualified';
 
     private ilLogger $logger;
 
@@ -297,10 +294,10 @@ class ilLOEditorGUI
         $form = $this->initSettingsForm();
         if ($form->checkInput()) {
             $settings = ilLOSettings::getInstanceByObjId($this->getParentObject()->getId());
-            $settings->setInitialTestType($form->getInput('ittype'));
+            $settings->setInitialTestType((int) $form->getInput('ittype'));
             switch ($settings->getInitialTestType()) {
                 case ilLOSettings::TYPE_INITIAL_PLACEMENT_ALL:
-                    $settings->setInitialTestAsStart($form->getInput('start_ip'));
+                    $settings->setInitialTestAsStart((bool) $form->getInput('start_ip'));
                     break;
 
                 case ilLOSettings::TYPE_INITIAL_PLACEMENT_SELECTED:
@@ -308,7 +305,7 @@ class ilLOEditorGUI
                     break;
 
                 case ilLOSettings::TYPE_INITIAL_QUALIFYING_ALL:
-                    $settings->setInitialTestAsStart($form->getInput('start_iq'));
+                    $settings->setInitialTestAsStart((bool) $form->getInput('start_iq'));
                     break;
 
                 case ilLOSettings::TYPE_INITIAL_QUALIFYING_SELECTED:
@@ -320,10 +317,10 @@ class ilLOEditorGUI
                     break;
             }
 
-            $settings->setQualifyingTestType($form->getInput('qttype'));
+            $settings->setQualifyingTestType((int) $form->getInput('qttype'));
             switch ($settings->getQualifyingTestType()) {
                 case ilLOSettings::TYPE_QUALIFYING_ALL:
-                    $settings->setQualifyingTestAsStart($form->getInput('start_q'));
+                    $settings->setQualifyingTestAsStart((bool) $form->getInput('start_q'));
                     break;
 
                 case ilLOSettings::TYPE_QUALIFYING_SELECTED:
@@ -331,8 +328,8 @@ class ilLOEditorGUI
                     break;
             }
 
-            $settings->resetResults($form->getInput('reset'));
-            $settings->setPassedObjectiveMode($form->getInput('passed_mode'));
+            $settings->resetResults((bool) $form->getInput('reset'));
+            $settings->setPassedObjectiveMode((int) $form->getInput('passed_mode'));
 
             if (
                 ($settings->getInitialTestType() != ilLOSettings::TYPE_INITIAL_NONE) &&
@@ -652,7 +649,7 @@ class ilLOEditorGUI
             $assignment = new ilLOTestAssignment($assign_id);
 
             $obj_id = ilObject::_lookupObjId($assignment->getTestRefId());
-            $confirm->addItem('tst[]', $assign_id, ilObject::_lookupTitle($obj_id));
+            $confirm->addItem('tst[]', (string) $assign_id, ilObject::_lookupTitle($obj_id));
         }
 
         $this->tpl->setContent($confirm->getHTML());
@@ -705,7 +702,7 @@ class ilLOEditorGUI
 
         foreach ($tests as $tst_id) {
             $obj_id = ilObject::_lookupObjId($tst_id);
-            $confirm->addItem('tst[]', $tst_id, ilObject::_lookupTitle($obj_id));
+            $confirm->addItem('tst[]', (string) $tst_id, ilObject::_lookupTitle($obj_id));
         }
         $this->tpl->setContent($confirm->getHTML());
 
@@ -867,41 +864,6 @@ class ilLOEditorGUI
         );
     }
 
-    protected function applySettingsTemplate(ilObjTest $tst): bool
-    {
-        $tpl_id = 0;
-        foreach (ilSettingsTemplate::getAllSettingsTemplates('tst', true) as $nr => $template) {
-            switch ($this->getTestType()) {
-                case self::TEST_TYPE_IT:
-                    if ($template['title'] == self::SETTINGS_TEMPLATE_IT) {
-                        $tpl_id = $template['id'];
-                    }
-                    break;
-                case self::TEST_TYPE_QT:
-                    if ($template['title'] == self::SETTINGS_TEMPLATE_QT) {
-                        $tpl_id = $template['id'];
-                    }
-                    break;
-            }
-            if ($tpl_id) {
-                break;
-            }
-        }
-
-        if (!$tpl_id) {
-            return false;
-        }
-
-        $template = new ilSettingsTemplate($tpl_id, ilObjAssessmentFolderGUI::getSettingsTemplateConfig());
-        $template_settings = $template->getSettings();
-        if ($template_settings !== []) {
-            $tst_gui = new ilObjTestGUI();
-            $tst_gui->applyTemplate($template_settings, $tst);
-        }
-        $tst->setTemplate($tpl_id);
-        return true;
-    }
-
     protected function updateStartObjects(): void
     {
         $start = new ilContainerStartObjects(0, $this->getParentObject()->getId());
@@ -931,30 +893,26 @@ class ilLOEditorGUI
                 $tst->createReference();
                 $tst->putInTree($this->getParentObject()->getRefId());
                 $tst->setPermissions($this->getParentObject()->getRefId());
-
-                // apply settings template
-                $this->applySettingsTemplate($tst);
-
-                $tst->setQuestionSetType($form->getInput('qtype'));
-
-                $tst->saveToDb();
+                $general_settings = $tst->getMainSettings()->getGeneralSettings()->withQuestionSetType($form->getInput('qtype'));
+                $tst->getMainSettingsRepository()->store(
+                    $tst->getMainSettings()->withGeneralSettings($general_settings)
+                );
 
                 $assignment = new ilLOTestAssignment();
                 $assignment->setContainerId($this->getParentObject()->getId());
                 $assignment->setAssignmentType($this->getTestType());
-                $assignment->setObjectiveId($form->getInput('objective'));
+                $assignment->setObjectiveId((int) $form->getInput('objective'));
                 $assignment->setTestRefId($tst->getRefId());
                 $assignment->save();
             } else {
                 $assignment = new ilLOTestAssignment();
                 $assignment->setContainerId($this->getParentObject()->getId());
                 $assignment->setAssignmentType($this->getTestType());
-                $assignment->setObjectiveId($form->getInput('objective'));
-                $assignment->setTestRefId($form->getInput('tst'));
+                $assignment->setObjectiveId((int) $form->getInput('objective'));
+                $assignment->setTestRefId((int) $form->getInput('tst'));
                 $assignment->save();
 
-                $tst = new ilObjTest($form->getInput('tst'), true);
-                $this->applySettingsTemplate($tst);
+                $tst = new ilObjTest((int) $form->getInput('tst'), true);
                 $tst->saveToDb();
             }
 
@@ -1009,13 +967,10 @@ class ilLOEditorGUI
                 $tst->createReference();
                 $tst->putInTree($this->getParentObject()->getRefId());
                 $tst->setPermissions($this->getParentObject()->getRefId());
-
-                // apply settings template
-                $this->applySettingsTemplate($tst);
-
-                $tst->setQuestionSetType($form->getInput('qtype'));
-
-                $tst->saveToDb();
+                $general_settings = $tst->getMainSettings()->getGeneralSettings()->withQuestionSetType($form->getInput('qtype'));
+                $tst->getMainSettingsRepository()->store(
+                    $tst->getMainSettings()->withGeneralSettings($general_settings)
+                );
 
                 if ($this->getTestType() == self::TEST_TYPE_IT) {
                     $this->getSettings()->setInitialTest($tst->getRefId());
@@ -1025,14 +980,13 @@ class ilLOEditorGUI
                 $this->getSettings()->update();
             } else {
                 if ($this->getTestType() == self::TEST_TYPE_IT) {
-                    $this->getSettings()->setInitialTest($form->getInput('tst'));
+                    $this->getSettings()->setInitialTest((int) $form->getInput('tst'));
                 } else {
-                    $this->getSettings()->setQualifiedTest($form->getInput('tst'));
+                    $this->getSettings()->setQualifiedTest((int) $form->getInput('tst'));
                 }
 
                 $this->getSettings()->update();
                 $tst = new ilObjTest($settings->getTestByType($this->getTestType()), true);
-                $this->applySettingsTemplate($tst);
                 $tst->saveToDb();
             }
 
@@ -1168,7 +1122,7 @@ class ilLOEditorGUI
 
             $confirm->addItem(
                 'objective_ids[]',
-                $objective_id,
+                (string) $objective_id,
                 $name
             );
         }

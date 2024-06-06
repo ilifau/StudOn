@@ -24,7 +24,10 @@ use ILIAS\Refinery\Transformation;
 use ILIAS\Data\Result;
 use ILIAS\UI\Implementation\Component\Input\InputData;
 use ILIAS\UI\Implementation\Component\Input\NameSource;
+<<<<<<< HEAD
 use ILIAS\UI\Implementation\Component\Input\Input;
+=======
+>>>>>>> v9.1
 
 /**
  * @author Thibeau Fuhrer <thibeau@sr.solutions>
@@ -44,7 +47,11 @@ trait GroupDecorator
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function withValue($value): Input
+=======
+    public function withValue($value): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->setInputGroup($clone->getInputGroup()->withValue($value));
@@ -54,7 +61,11 @@ trait GroupDecorator
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function withAdditionalTransformation(Transformation $trafo): Input
+=======
+    public function withAdditionalTransformation(Transformation $trafo): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->setInputGroup($clone->getInputGroup()->withAdditionalTransformation($trafo));
@@ -64,7 +75,11 @@ trait GroupDecorator
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function withNameFrom(NameSource $source, ?string $parent_name = null): Input
+=======
+    public function withNameFrom(NameSource $source, ?string $parent_name = null): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->setInputGroup($clone->getInputGroup()->withNameFrom($source, $parent_name));
@@ -74,7 +89,11 @@ trait GroupDecorator
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function withInput(InputData $input): Input
+=======
+    public function withInput(InputData $input): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->setInputGroup($clone->getInputGroup()->withInput($input));

@@ -111,12 +111,18 @@ class Renderer extends AbstractComponentRenderer
             $tpl = $this->setHeaderVars($tpl, $component->getIsUIDemo());
         }
 
+<<<<<<< HEAD
         foreach ($component->getMetaData() as $meta_key => $meta_value) {
             $tpl->setCurrentBlock('meta_datum');
             $tpl->setVariable('META_KEY', $meta_key);
             $tpl->setVariable('META_VALUE', $meta_value);
             $tpl->parseCurrentBlock();
         }
+=======
+        $tpl->setVariable('META_DATA', $this->getDataFactory()->htmlMetadata()->collection(
+            $component->getMetaData()
+        )->toHtml());
+>>>>>>> v9.1
 
         return $tpl->get();
     }
@@ -171,14 +177,11 @@ class Renderer extends AbstractComponentRenderer
         }
 
         if ($for_ui_demo) {
-            $base_url = '../../../../../../';
-            $tpl->setVariable("BASE", $base_url);
-
             $additional_js_files = [
                 iljQueryUtil::getLocaljQueryPath(),
                 './Services/JavaScript/js/Basic.js',
-                ilUIFramework::BOWER_BOOTSTRAP_JS,
-                './libs/bower/bower_components/jquery-migrate/jquery-migrate.min.js',
+                ilUIFramework::BOOTSTRAP_JS,
+                './node_modules/jquery-migrate/jquery-migrate.min.js',
             ];
 
             array_unshift($js_files, ...$additional_js_files);

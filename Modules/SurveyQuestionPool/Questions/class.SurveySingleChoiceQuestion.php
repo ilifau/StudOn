@@ -47,50 +47,6 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
         $this->categories = new SurveyCategories();
     }
 
-    /**
-     * Gets the available categories for a given phrase
-     */
-    public function getCategoriesForPhrase(int $phrase_id): array
-    {
-        $ilDB = $this->db;
-        $categories = array();
-        $result = $ilDB->queryF(
-            "SELECT svy_category.* FROM svy_category, svy_phrase_cat WHERE svy_phrase_cat.category_fi = svy_category.category_id AND svy_phrase_cat.phrase_fi = %s ORDER BY svy_phrase_cat.sequence",
-            array('integer'),
-            array($phrase_id)
-        );
-        while ($row = $ilDB->fetchAssoc($result)) {
-            if ((int) $row["defaultvalue"] === 1 && (int) $row["owner_fi"] === 0) {
-                $categories[$row["category_id"]] = $this->lng->txt($row["title"]);
-            } else {
-                $categories[$row["category_id"]] = $row["title"];
-            }
-        }
-        return $categories;
-    }
-
-    /**
-     * Adds a phrase to the question
-     */
-    public function addPhrase(int $phrase_id): void
-    {
-        $ilUser = $this->user;
-        $ilDB = $this->db;
-
-        $result = $ilDB->queryF(
-            "SELECT svy_category.* FROM svy_category, svy_phrase_cat WHERE svy_phrase_cat.category_fi = svy_category.category_id AND svy_phrase_cat.phrase_fi = %s AND (svy_category.owner_fi = 0 OR svy_category.owner_fi = %s) ORDER BY svy_phrase_cat.sequence",
-            array('integer', 'integer'),
-            array($phrase_id, $ilUser->getId())
-        );
-        while ($row = $ilDB->fetchAssoc($result)) {
-            $neutral = $row["neutral"];
-            if ((int) $row["defaultvalue"] === 1 && (int) $row["owner_fi"] === 0) {
-                $this->categories->addCategory($this->lng->txt($row["title"]), 0, $neutral);
-            } else {
-                $this->categories->addCategory($row["title"], 0, $neutral);
-            }
-        }
-    }
 
     public function getQuestionDataArray(int $id): array
     {
@@ -182,7 +138,6 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
                 )
             );
 
-            $this->saveMaterial();
             $this->saveCategoriesToDb();
         }
         return $affectedRows;
@@ -245,7 +200,7 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
 
         $a_xml_writer->xmlElement("description", null, $this->getDescription());
         $a_xml_writer->xmlElement("author", null, $this->getAuthor());
-        if (strlen($this->label)) {
+        if (strlen($this->label ?? "")) {
             $attrs = array(
                 "label" => $this->label,
             );
@@ -262,16 +217,16 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
             $attrs = array(
                 "id" => $i
             );
-            if (strlen($this->categories->getCategory($i)->other)) {
+            if (strlen($this->categories->getCategory($i)->other ?? "")) {
                 $attrs['other'] = $this->categories->getCategory($i)->other;
             }
-            if (strlen($this->categories->getCategory($i)->neutral)) {
+            if (strlen($this->categories->getCategory($i)->neutral ?? "")) {
                 $attrs['neutral'] = $this->categories->getCategory($i)->neutral;
             }
-            if (strlen($this->categories->getCategory($i)->label)) {
+            if (strlen($this->categories->getCategory($i)->label ?? "")) {
                 $attrs['label'] = $this->categories->getCategory($i)->label;
             }
-            if (strlen($this->categories->getCategory($i)->scale)) {
+            if (strlen($this->categories->getCategory($i)->scale ?? "")) {
                 $attrs['scale'] = $this->categories->getCategory($i)->scale;
             }
             $a_xml_writer->xmlStartTag("response_single", $attrs);
@@ -329,43 +284,6 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
         }
     }
 
-    /**
-     * Saves a set of categories to a default phrase
-     * note: data comes from session
-     */
-    public function savePhrase(string $title): void
-    {
-        $ilUser = $this->user;
-        $ilDB = $this->db;
-
-        $next_id = $ilDB->nextId('svy_phrase');
-        $affectedRows = $ilDB->manipulateF(
-            "INSERT INTO svy_phrase (phrase_id, title, defaultvalue, owner_fi, tstamp) VALUES (%s, %s, %s, %s, %s)",
-            array('integer','text','text','integer','integer'),
-            array($next_id, $title, 1, $ilUser->getId(), time())
-        );
-        $phrase_id = $next_id;
-
-        $counter = 1;
-        $phrase_data = $this->edit_manager->getPhraseData();
-        foreach ($phrase_data as $data) {
-            $next_id = $ilDB->nextId('svy_category');
-            $affectedRows = $ilDB->manipulateF(
-                "INSERT INTO svy_category (category_id, title, defaultvalue, owner_fi, tstamp, neutral) VALUES (%s, %s, %s, %s, %s, %s)",
-                array('integer','text','text','integer','integer','text'),
-                array($next_id, $data['answer'], 1, $ilUser->getId(), time(), $data['neutral'])
-            );
-            $category_id = $next_id;
-            $next_id = $ilDB->nextId('svy_phrase_cat');
-            $affectedRows = $ilDB->manipulateF(
-                "INSERT INTO svy_phrase_cat (phrase_category_id, phrase_fi, category_fi, sequence, other, scale) VALUES (%s, %s, %s, %s, %s, %s)",
-                array('integer', 'integer', 'integer','integer', 'integer', 'integer'),
-                array($next_id, $phrase_id, $category_id, $counter, ($data['other']) ? 1 : 0, $data['scale'])
-            );
-            $counter++;
-        }
-    }
-
     public function getQuestionType(): string
     {
         return "SurveySingleChoiceQuestion";
@@ -381,7 +299,7 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
     ): array {
         $entered_value = $post_data[$this->getId() . "_value"] ?? "";
         $data = array();
-        if (strlen($entered_value)) {
+        if (strlen($entered_value ?? "")) {
             $data[] = array("value" => $entered_value,
                             "textanswer" => $post_data[$this->getId() . '_' . $entered_value . '_other'] ?? ""
             );
@@ -414,11 +332,11 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
 
         $this->log->debug("Entered value = " . $entered_value);
 
-        if ((!$this->getObligatory()) && (strlen($entered_value) == 0)) {
+        if ((!$this->getObligatory()) && (strlen($entered_value ?? "") == 0)) {
             return "";
         }
 
-        if (strlen($entered_value) == 0) {
+        if (strlen($entered_value ?? "") == 0) {
             return $this->lng->txt("question_not_checked");
         }
 
@@ -426,7 +344,7 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
             $cat = $this->categories->getCategory($i);
             if ($cat->other) {
                 if ($i == $entered_value) {
-                    if (array_key_exists($this->getId() . "_" . $entered_value . "_other", $post_data) && !strlen($post_data[$this->getId() . "_" . $entered_value . "_other"])) {
+                    if (array_key_exists($this->getId() . "_" . $entered_value . "_other", $post_data) && !strlen($post_data[$this->getId() . "_" . $entered_value . "_other"] ?? "")) {
                         return $this->lng->txt("question_mr_no_other_answer");
                     }
                 } elseif (strlen($post_data[$this->getId() . "_" . $i . "_other"] ?? "")) {
@@ -451,7 +369,7 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
             return array(array("value" => $entered_value,
                 "textanswer" => $post_data[$this->getId() . "_" . $entered_value . "_other"] ?? ""));
         }
-        if (strlen($entered_value) == 0) {
+        if (strlen($entered_value ?? "") == 0) {
             return null;
         }
 
@@ -461,14 +379,14 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
         $fields['answer_id'] = array("integer", $next_id);
         $fields['question_fi'] = array("integer", $this->getId());
         $fields['active_fi'] = array("integer", $active_id);
-        $fields['value'] = array("float", (strlen($entered_value)) ? $entered_value : null);
+        $fields['value'] = array("float", (strlen($entered_value ?? "")) ? $entered_value : null);
         $fields['textanswer'] = array("clob", isset($post_data[$this->getId() . "_" . $entered_value . "_other"]) ?
             $this->stripSlashesAddSpaceFallback($post_data[$this->getId() . "_" . $entered_value . "_other"]) : null);
         $fields['tstamp'] = array("integer", time());
 
         $affectedRows = $ilDB->insert("svy_answer", $fields);
 
-        $debug_value = (strlen($entered_value)) ? $entered_value : "NULL";
+        $debug_value = (strlen($entered_value ?? "")) ? $entered_value : "NULL";
         $debug_answer = $post_data[$this->getId() . "_" . $entered_value . "_other"] ?? "NULL";
         $this->log->debug("INSERT svy_answer answer_id=" . $next_id . " question_fi=" . $this->getId() . " active_fi=" . $active_id . " value=" . $debug_value . " textanswer=" . $debug_answer);
         return null;
@@ -483,10 +401,10 @@ class SurveySingleChoiceQuestion extends SurveyQuestion
             }
             $this->categories->addCategory(
                 $categorytext,
-                strlen($data['other']) ? $data['other'] : 0,
-                strlen($data['neutral']) ? $data['neutral'] : 0,
-                strlen($data['label']) ? $data['label'] : null,
-                strlen($data['scale']) ? $data['scale'] : null
+                strlen($data['other'] ?? "") ? $data['other'] : 0,
+                strlen($data['neutral'] ?? "") ? $data['neutral'] : 0,
+                strlen($data['label'] ?? "") ? $data['label'] : null,
+                strlen($data['scale'] ?? "") ? $data['scale'] : null
             );
         }
     }

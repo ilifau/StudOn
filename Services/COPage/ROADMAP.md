@@ -1,8 +1,24 @@
 # Roadmap
 
+## Without Priority
+
+The following issues are mostly usability issues, that could be tackled as part of the ongoing PER project.
+- Action to edit translations is hard to find: https://mantis.ilias.de/view.php?id=33957
+- Creating instance link areas for new media objects is cumbersome, see [README.md](./README.md)
+
+
 ## Short Term
 
-### Page Editor Refactoring (ILIAS 7, at least partially)
+### Remove jQuery / unmaintained lib dependencies
+
+- Migrate from jQueryUI draggable to a non jQuery lib, e.g. https://shopify.github.io/draggable/ 
+- Migrate from Owl.Carousel to a better maintained lib. Suggested is https://github.com/ganlanyuan/tiny-slider, but there might be a better alternative.
+
+### Improve/avoid error messages
+
+- If tags are incorrectly nested in text editing (see e.g. https://mantis.ilias.de/view.php?id=37044), XML errors are presented to the user which are hard to interpret ("Opening and ending tag mismatch..."). We either implement a mechanism that fixes simple XML errors (e.g. adding missing closing tags) or transform these messages to something more readable (e.g. by removing the technical parts and focus on the faulty tag type, e.g. kw, iln, ...)
+
+### Continue Page Editor Refactoring (started with ILIAS 7)
 
 https://docu.ilias.de/goto_docu_wiki_wpage_6254_1357.html
 
@@ -18,9 +34,15 @@ Link formattings lead to subtle issues (e.g. #30906) sometimes, since they are n
 
 In general the old string manipulations should be replaced by DOM manipulations whenever possible when transforming the client side data.
 
-### Remove remaining hardcoded styles from code
+### Clarify dependency/relation with Style/Content component
 
-E.g. style_selector_reset and similar places.
+See roadmap in [Content Style](../../Services/Style/Content/ROADMAP.md).
+
+Similar to the system style concepts the small less dependency (css/content.less) should be migrated to sass.
+
+### Page Content Integration
+
+Relocate the classes to have all necessary files for a PC in one subfolder. Remove the special case conditionals for using the slate implementation. Simplify the ctrl flow and reuse of create/edit forms.
 
 ## Mid Term
 
@@ -33,7 +55,12 @@ See https://mantis.ilias.de/view.php?id=29680
 
 This code is copied from an older mediawiki version. I compares two versions of page HTML outputs and marks differences. The code should either be replaced by a lib that provides the same functionality, refactored and integrated into own code or at least replaced by an up-to-date code excerpt from mediawiki.
 
-### Lower Cyclomatic Complexity
+
+### Accordions and Media
+
+Currently media players continue to play if accordions are being closed. A generalised event handling should allow components to act on show/hide events.
+
+### Lower Cyclomatic Complexity (Ongoing)
 
 This component suffers from record high cyclomatic complexity numbers. Refactorings should target and split up methods and classes to gain better maintainability.
 
@@ -56,6 +83,18 @@ Cyclomatic Complexity
     Maximum Method Complexity                   114.00
 ...
 ```
+
+### Refactor Update Listeners
+
+If i18n is enabled and a page is copied (e.g. because of a new translation), it is currently not possible to attach an update listener to that page. Because \ilPageObject::copyPageToTranslation statically creates a new instance for the copied page, listeners attached to the source page instance are not copied/executed on update. Of course just copying the update listeners is maybe not sufficient (because copying their arguments could create new issues).
+
+See also https://mantis.ilias.de/view.php?id=29057
+
+## Long Term
+
+### Internal Links for More Contexts
+
+Internal links are not supported in all contexts. The behaviour of the different link targets is not well defined and thus a general usability issue. A separate activation of these (e.g. only in the learning module) might be feasible. If possible the link concepts should be revised completely.
 
 ### Integration of new question service
 

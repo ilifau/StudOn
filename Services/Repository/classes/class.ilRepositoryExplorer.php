@@ -146,7 +146,6 @@ class ilRepositoryExplorer extends ilExplorer
 
             default:
                 return ilLink::_getStaticLink($a_node_id, $a_type, true);
-
         }
     }
 
@@ -197,7 +196,7 @@ class ilRepositoryExplorer extends ilExplorer
                 }
                 return false;
 
-            // media pools can only be edited
+                // media pools can only be edited
             case "mep":
                 if ($rbacsystem->checkAccess("read", $ref_id)) {
                     return true;
@@ -208,11 +207,11 @@ class ilRepositoryExplorer extends ilExplorer
             case 'catr':
                 return ilContainerReferenceAccess::_isAccessible($ref_id);
             case 'prg':
-                    return $rbacsystem->checkAccess("visible", $ref_id);
+                return $rbacsystem->checkAccess("visible", $ref_id);
 
 
 
-            // all other types are only clickable, if read permission is given
+                // all other types are only clickable, if read permission is given
             default:
                 if ($rbacsystem->checkAccess("read", $ref_id)) {
                     // check if lm is online

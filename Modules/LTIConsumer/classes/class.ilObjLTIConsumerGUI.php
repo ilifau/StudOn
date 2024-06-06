@@ -91,9 +91,6 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             $forms[self::CFORM_CUSTOM_NEW] = $this->initCustomCreateForm($a_new_type);
         }
 
-        //$forms[self::CFORM_IMPORT] = $this->initImportForm($a_new_type), // no import yet
-        $forms[self::CFORM_CLONE] = $this->fillCloneTemplate(null, $a_new_type);
-
         return $forms;
     }
 
@@ -627,7 +624,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
 
             $return->addHeaderIcon(
                 'cert_icon',
-                ilUtil::getImagePath('icon_cert.svg'),
+                ilUtil::getImagePath('standard/icon_cert.svg'),
                 $DIC->language()->txt('download_certificate'),
                 null,
                 null,
@@ -687,6 +684,8 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
         global $DIC;
         /* @var \ILIAS\DI\Container $DIC */
 
+        $ilErr = $DIC['ilErr'];
+
         if (!ilLTIConsumerContentGUI::isEmbeddedLaunchRequest()) {
             $this->prepareOutput();
             $this->addHeaderAction();
@@ -694,8 +693,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
 
         if (!$this->creation_mode) {
             $this->trackObjectReadEvent();
-
-            if ($this->object->getProvider()->hasProviderIcon()) {
+            if ($this->object instanceof ilObjLTIConsumer && $this->object->getProvider()->hasProviderIcon()) {
                 $DIC->ui()->mainTemplate()->setTitleIcon(
                     $this->object->getProvider()->getProviderIcon()->getAbsoluteFilePath(),
                     'Icon ' . $this->object->getProvider()->getTitle()
@@ -728,7 +726,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             case strtolower(ilLearningProgressGUI::class):
 
                 if (!$DIC->access()->checkAccess('read', '', $this->object->getRefId())) {
-                    $DIC['ilErr']->raiseError($DIC->language()->txt("msg_no_perm_read"));
+                    $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"), $ilErr->WARNING);
                 } else {
                     $DIC->tabs()->activateTab(self::TAB_ID_LEARNING_PROGRESS);
 
@@ -745,7 +743,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             case strtolower(ilObjectMetaDataGUI::class):
 
                 if (!$DIC->access()->checkAccess('write', '', $this->object->getRefId())) {
-                    $DIC['ilErr']->raiseError($DIC->language()->txt("msg_no_perm_write"));
+                    $ilErr->raiseError($DIC->language()->txt("msg_no_perm_write"), $ilErr->WARNING);
                 } else {
 
                     $DIC->tabs()->activateTab(self::TAB_ID_METADATA);
@@ -766,7 +764,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             case strtolower(ilLTIConsumerSettingsGUI::class):
 
                 if (!$DIC->access()->checkAccess('write', '', $this->object->getRefId())) {
-                    $DIC['ilErr']->raiseError($DIC->language()->txt("msg_no_perm_write"));
+                    $ilErr->raiseError($DIC->language()->txt("msg_no_perm_write"), $ilErr->WARNING);
                 } else {
                     $DIC->tabs()->activateTab(self::TAB_ID_SETTINGS);
 
@@ -778,7 +776,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             case strtolower(ilLTIConsumerXapiStatementsGUI::class):
 
                 if (!$DIC->access()->checkAccess('read', '', $this->object->getRefId())) {
-                    $DIC['ilErr']->raiseError($DIC->language()->txt("msg_no_perm_read"));
+                    $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"), $ilErr->WARNING);
                 } else {
 
                     $DIC->tabs()->activateTab(self::TAB_ID_STATEMENTS);
@@ -792,7 +790,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             case strtolower(ilLTIConsumerScoringGUI::class):
 
                 if (!$DIC->access()->checkAccess('read', '', $this->object->getRefId())) {
-                    $DIC['ilErr']->raiseError($DIC->language()->txt("msg_no_perm_read"));
+                    $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"), $ilErr->WARNING);
                 } else {
                     $DIC->tabs()->activateTab(self::TAB_ID_SCORING);
 
@@ -805,7 +803,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             case strtolower(ilLTIConsumerGradeSynchronizationGUI::class):
 
                 if (!$DIC->access()->checkAccess('read', '', $this->object->getRefId())) {
-                    $DIC['ilErr']->raiseError($DIC->language()->txt("msg_no_perm_read"));
+                    $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"), $ilErr->WARNING);
                 } else {
                     $DIC->tabs()->activateTab(self::TAB_ID_GRADE_SYNCHRONIZATION);
 
@@ -818,7 +816,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             case strtolower(ilLTIConsumerContentGUI::class):
 
                 if (!$DIC->access()->checkAccess('read', '', $this->object->getRefId())) {
-                    $DIC['ilErr']->raiseError($DIC->language()->txt("msg_no_perm_read"));
+                    $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"), $ilErr->WARNING);
                 } else {
                     $DIC->tabs()->activateTab(self::TAB_ID_CONTENT);
 
@@ -872,6 +870,9 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
     {
         global $DIC;
 
+        if (!$this->object instanceof ilObjLTIConsumer) {
+            return;
+        }
         /* @var \ILIAS\DI\Container $DIC */
         $DIC->language()->loadLanguageModule('lti');
 
@@ -1068,7 +1069,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
         /* @var ilErrorHandling $ilErr */
 
         if (!$this->checkPermissionBool("visible") && !$this->checkPermissionBool("read")) {
-            $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"));
+            $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"), $ilErr->MESSAGE);
         }
 
         $this->handleAvailablityMessage();
@@ -1120,13 +1121,13 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
         );
 
         $info->addProperty(
-            $DIC->language()->txt("conf_privacy_name"),
-            $DIC->language()->txt('conf_privacy_name_' . ilObjCmiXapiGUI::getPrivacyNameString($this->object->getProvider()->getPrivacyName()))
+            $DIC->language()->txt("clti_privacy_name"),
+            $DIC->language()->txt('clti_privacy_name_' . ilObjCmiXapiGUI::getPrivacyNameString($this->object->getProvider()->getPrivacyName()))
         );
 
         $info->addProperty(
-            $DIC->language()->txt("conf_privacy_ident"),
-            $DIC->language()->txt('conf_privacy_ident_' . ilObjCmiXapiGUI::getPrivacyIdentString($this->object->getProvider()->getPrivacyIdent()))
+            $DIC->language()->txt("clti_privacy_ident"),
+            $DIC->language()->txt('clti_privacy_ident_' . ilObjCmiXapiGUI::getPrivacyIdentString($this->object->getProvider()->getPrivacyIdent()))
         );
         if ($this->object->getProvider()->isExternalProvider()) {
             $info->addProperty(

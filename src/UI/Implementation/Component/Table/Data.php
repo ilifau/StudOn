@@ -80,18 +80,22 @@ class Data extends Table implements T\Data, JSBindable
     protected ?array $filter = null;
     protected ?array $additional_parameters = null;
     protected ?string $id = null;
+<<<<<<< HEAD
     protected ViewControl\Factory $view_control_factory;
     protected ViewControlContainer\Factory $view_control_container_factory;
     protected DataFactory $data_factory;
     protected DataRowBuilder $data_row_builder;
     protected T\DataRetrieval $data_retrieval;
     protected \ArrayAccess $storage;
+=======
+>>>>>>> v9.1
 
     /**
      * @param array<string, Column> $columns
      */
     public function __construct(
         SignalGeneratorInterface $signal_generator,
+<<<<<<< HEAD
         ViewControl\Factory $view_control_factory,
         ViewControlContainer\Factory $view_control_container_factory,
         DataFactory $data_factory,
@@ -100,23 +104,40 @@ class Data extends Table implements T\Data, JSBindable
         array $columns,
         T\DataRetrieval $data_retrieval,
         \ArrayAccess $storage
+=======
+        protected ViewControl\Factory $view_control_factory,
+        protected ViewControlContainer\Factory $view_control_container_factory,
+        protected DataFactory $data_factory,
+        protected DataRowBuilder $data_row_builder,
+        string $title,
+        array $columns,
+        protected T\DataRetrieval $data_retrieval,
+        protected \ArrayAccess $storage
+>>>>>>> v9.1
     ) {
         $this->checkArgListElements('columns', $columns, [Column::class]);
         if ($columns === []) {
             throw new \InvalidArgumentException('cannot construct a table without columns.');
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> v9.1
         parent::__construct($title);
         $this->multi_action_signal = $signal_generator->create();
         $this->selection_signal = $signal_generator->create();
         $this->async_action_signal = $signal_generator->create();
 
         $this->columns = $this->enumerateColumns($columns);
+<<<<<<< HEAD
         $this->view_control_factory = $view_control_factory;
         $this->view_control_container_factory = $view_control_container_factory;
         $this->data_factory = $data_factory;
         $this->data_row_builder = $data_row_builder;
         $this->data_retrieval = $data_retrieval;
         $this->storage = $storage;
+=======
+>>>>>>> v9.1
     }
 
     /**
@@ -138,7 +159,11 @@ class Data extends Table implements T\Data, JSBindable
         $visible_cols = $this->getVisibleColumns();
         $sortable_visible_cols = array_filter(
             $visible_cols,
+<<<<<<< HEAD
             static fn ($c): bool => $c->isSortable()
+=======
+            static fn($c): bool => $c->isSortable()
+>>>>>>> v9.1
         );
         if ($sortable_visible_cols === []) {
             return array_key_first($visible_cols);
@@ -337,7 +362,11 @@ class Data extends Table implements T\Data, JSBindable
     {
         return array_filter(
             $this->getColumns(),
+<<<<<<< HEAD
             static fn ($c): bool => $c->isOptional()
+=======
+            static fn($c): bool => $c->isOptional()
+>>>>>>> v9.1
         );
     }
 
@@ -348,7 +377,11 @@ class Data extends Table implements T\Data, JSBindable
     {
         return array_filter(
             $this->getOptionalColumns(),
+<<<<<<< HEAD
             static fn ($c): bool => $c->isInitiallyVisible()
+=======
+            static fn($c): bool => $c->isInitiallyVisible()
+>>>>>>> v9.1
         );
     }
 
@@ -360,7 +393,11 @@ class Data extends Table implements T\Data, JSBindable
         $visible_optional_columns = $this->getSelectedOptionalColumns();
         return array_filter(
             $this->getColumns(),
+<<<<<<< HEAD
             fn (Column $col, string $col_id): bool => !$col->isOptional() || in_array($col_id, $visible_optional_columns, true),
+=======
+            fn(Column $col, string $col_id): bool => !$col->isOptional() || in_array($col_id, $visible_optional_columns, true),
+>>>>>>> v9.1
             ARRAY_FILTER_USE_BOTH
         );
     }
@@ -414,6 +451,7 @@ class Data extends Table implements T\Data, JSBindable
         if ($request = $this->getRequest()) {
             $view_controls = $this->applyValuesToViewcontrols($view_controls, $request);
             $data = $view_controls->getData();
+<<<<<<< HEAD
 
             $range = $data[self::VIEWCONTROL_KEY_PAGINATION] ?? null;
             if($range) {
@@ -421,6 +459,10 @@ class Data extends Table implements T\Data, JSBindable
             }
             $table = $table
                 ->withRange($range)
+=======
+            $table = $table
+                ->withRange(($data[self::VIEWCONTROL_KEY_PAGINATION] ?? null)?->croppedTo($total_count ?? PHP_INT_MAX))
+>>>>>>> v9.1
                 ->withOrder($data[self::VIEWCONTROL_KEY_ORDERING] ?? null)
                 ->withSelectedOptionalColumns($data[self::VIEWCONTROL_KEY_FIELDSELECTION] ?? null);
         }
@@ -464,7 +506,11 @@ class Data extends Table implements T\Data, JSBindable
     {
         $sortable_visible_cols = array_filter(
             $this->getVisibleColumns(),
+<<<<<<< HEAD
             static fn ($c): bool => $c->isSortable()
+=======
+            static fn($c): bool => $c->isSortable()
+>>>>>>> v9.1
         );
 
         if ($sortable_visible_cols === []) {
@@ -493,7 +539,11 @@ class Data extends Table implements T\Data, JSBindable
 
         return $this->view_control_factory
             ->fieldSelection(array_map(
+<<<<<<< HEAD
                 static fn ($c): string => $c->getTitle(),
+=======
+                static fn($c): string => $c->getTitle(),
+>>>>>>> v9.1
                 $optional_cols
             ))
             ->withValue($this->getSelectedOptionalColumns());

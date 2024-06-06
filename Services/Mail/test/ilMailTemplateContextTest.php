@@ -57,8 +57,7 @@ class ilMailTemplateContextTest extends ilMailBaseTest
             public function resolveSpecificPlaceholder(
                 string $placeholder_id,
                 array $context_parameters,
-                ilObjUser $recipient = null,
-                bool $html_markup = false
+                ilObjUser $recipient = null
             ): string {
                 return '';
             }
@@ -182,7 +181,7 @@ class ilMailTemplateContextTest extends ilMailBaseTest
         if ($superiors === []) {
             $expectedIdsConstraint = [];
         } else {
-            $expectedIdsConstraint = self::logicalAnd(...array_map(static function (ilOrgUnitUser $user) {
+            $expectedIdsConstraint = self::logicalAnd(...array_map(static function (ilOrgUnitUser $user): \PHPUnit\Framework\Constraint\TraversableContainsEqual {
                 return self::containsEqual($user->getUserId());
             }, $superiors));
         }
@@ -202,18 +201,20 @@ class ilMailTemplateContextTest extends ilMailBaseTest
             $lngHelper
         );
 
-        $placeholderResolver = new ilMailTemplatePlaceholderResolver($context, implode('', [
-            '[MAIL_SALUTATION]',
-            '[FIRST_NAME]',
-            '[LAST_NAME]',
-            '[LOGIN]',
-            '[TITLE]',
-            '[FIRSTNAME_LASTNAME_SUPERIOR]',
-            '[ILIAS_URL]',
-            '[INSTALLATION_NAME]',
-        ]));
+        $mustache = new Mustache_Engine();
+        $placeholderResolver = new ilMailTemplatePlaceholderResolver($mustache);
 
-        $replaceMessage = $placeholderResolver->resolve($user);
+        $message = implode('', [
+            '{{MAIL_SALUTATION}}',
+            '{{FIRST_NAME}}',
+            '{{LAST_NAME}}',
+            '{{LOGIN}}',
+            '{{TITLE}}',
+            '{{FIRSTNAME_LASTNAME_SUPERIOR}}',
+            '{{ILIAS_URL}}',
+            '{{INSTALLATION_NAME}}',
+        ]);
+        $replaceMessage = $placeholderResolver->resolve($context, $message, $user);
 
         $this->assertStringContainsString('###Dr. Ing###', $replaceMessage);
         $this->assertStringContainsString('###phpunit###', $replaceMessage);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -15,8 +17,6 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-
-declare(strict_types=1);
 
 /**
 * Class ilSCORMPresentationGUI
@@ -146,7 +146,6 @@ class ilSCORMPresentationGUI
         }
         $api_link = $this->ctrl->getLinkTarget($this, "apiInitData");
         $this->tpl->setVariable("TITLE", $this->slm->getTitle());
-        $this->tpl->setVariable("ICON", ilUtil::getImagePath("favicon.ico", ""));
         $this->tpl->setVariable("API_LINK", $api_link);
         $this->tpl->printToStdout("DEFAULT", false, true);
 
@@ -511,10 +510,8 @@ class ilSCORMPresentationGUI
             $certificateLogger = $DIC->logger()->root();
 
             $ilUserCertificateRepository = new ilUserCertificateRepository();
-            $pdfGenerator = new ilPdfGenerator($ilUserCertificateRepository, $certificateLogger);
-
+            $pdfGenerator = new ilPdfGenerator($ilUserCertificateRepository);
             $pdfAction = new ilCertificatePdfAction(
-                $certificateLogger,
                 $pdfGenerator,
                 new ilCertificateUtilHelper(),
                 $this->lng->txt('error_creating_certificate_pdf')

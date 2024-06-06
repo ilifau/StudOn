@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Notes;
 
@@ -63,26 +63,8 @@ class InternalGUIService
         global $DIC;
         $ref_id = $DIC->repository()->internal()->gui()->standardRequest()->getRefId();
         $type = \ilObject::_lookupType($ref_id, true);
-        switch ($type) {
-            /*
-            case "cat":
-                $path = ["ilrepositorygui", "ilobjcategorygui", "ilcommonactiondispatchergui", "ilnotegui"];
-                break;
-            case "root":
-                $path = ["ilrepositorygui", "ilobjrootfoldergui", "ilcommonactiondispatchergui", "ilnotegui"];
-                break;
-            case "lm":
-                $path = ["illmpresentationgui", "ilcommonactiondispatchergui", "ilnotegui"];
-                break;
-            case "wiki":
-                $path = ["ilwikihandlergui", "ilobjwikigui", "ilcommonactiondispatchergui", "ilnotegui"];
-                break;*/
-            default:    // not working
-                $path = ["ilcommonactiondispatchergui", "ilnotegui"];
-                break;
-        }
-
         if ($ajax_url === "") {
+            $path = ["ilcommonactiondispatchergui", "ilnotegui"];
             $ajax_url = $this->ctrl()->getLinkTargetByClass(
                 $path,
                 "",
@@ -94,30 +76,9 @@ class InternalGUIService
         $lng->loadLanguageModule("notes");
         \ilModalGUI::initJS($tpl);
 
-        $lng->toJS(array("private_notes", "notes_public_comments", "cancel"), $tpl);
-        \iljQueryUtil::initjQuery($tpl);
-        \ilYuiUtil::initConnection($tpl);
+        $lng->toJS(array("private_notes", "notes_public_comments", "cancel", "notes_messages"), $tpl);
         $tpl->addJavaScript("./Services/Notes/js/ilNotes.js");
         $tpl->addOnLoadCode("ilNotes.setAjaxUrl('" . $ajax_url . "');");
-    }
-
-    /**
-     * @param array|string $class_path
-     */
-    public function filter(
-        string $filter_id,
-        $class_path,
-        string $cmd,
-        bool $activated = true,
-        bool $expanded = true
-    ): FilterAdapterGUI {
-        return new FilterAdapterGUI(
-            $filter_id,
-            $class_path,
-            $cmd,
-            $activated,
-            $expanded
-        );
     }
 
     public function print(): PrintProcessGUI
@@ -128,6 +89,40 @@ class InternalGUIService
             $this->http(),
             $this->ui(),
             $this->domain_service->lng()
+        );
+    }
+
+    public function getCommentsGUI(
+        $rep_obj_id,
+        int $obj_id,
+        string $obj_type,
+        int $news_id = 0,
+        bool $include_subs = false,
+        bool $ajax = true,
+        string $search_text = ""
+    ): \ilCommentGUI {
+        return new \ilCommentGUI(
+            $rep_obj_id,
+            $obj_id,
+            $obj_type,
+            $include_subs,
+            $news_id,
+            $ajax,
+            $search_text
+        );
+    }
+
+    public function getMessagesGUI(
+        int $recipient,
+        int $rep_obj_id,
+        int $obj_id,
+        string $obj_type
+    ): \ilMessageGUI {
+        return new \ilMessageGUI(
+            $recipient,
+            $rep_obj_id,
+            $obj_id,
+            $obj_type
         );
     }
 }

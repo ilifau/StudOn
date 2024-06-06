@@ -28,8 +28,12 @@ class ilBenchmarkTableGUI extends ilTable2GUI
     /**
      * Constructor
      */
-    public function __construct($a_parent_obj, $a_parent_cmd, $a_records, $a_mode = "chronological")
-    {
+    public function __construct(
+        ?object $a_parent_obj,
+        string $a_parent_cmd,
+        array $a_records,
+        protected string $mode = "chronological"
+    ) {
         global $DIC;
 
         $this->ctrl = $DIC->ctrl();
@@ -42,7 +46,6 @@ class ilBenchmarkTableGUI extends ilTable2GUI
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->setLimit(9999);
-        $this->mode = $a_mode;
 
         switch ($this->mode) {
             case "slowest_first":
@@ -73,7 +76,6 @@ class ilBenchmarkTableGUI extends ilTable2GUI
                 $this->addColumn($this->lng->txt("adm_time"));
                 $this->addColumn($this->lng->txt("adm_sql"));
                 break;
-
         }
 
         $this->setEnableHeader(true);

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -82,7 +81,7 @@ class assKprimChoiceImport extends assQuestionImport
                                             }
                                         }
                                     } else {
-                                        $answertext = $this->object->QTIMaterialToString($mat);
+                                        $answertext = $this->QTIMaterialToString($mat);
                                     }
                                 }
 
@@ -196,7 +195,7 @@ class assKprimChoiceImport extends assQuestionImport
         $this->object->setComment($item->getComment());
         $this->object->setAuthor($item->getAuthor());
         $this->object->setOwner($ilUser->getId());
-        $this->object->setQuestion($this->object->QTIMaterialToString($item->getQuestiontext()));
+        $this->object->setQuestion($this->QTIMaterialToString($item->getQuestiontext()));
         $this->object->setObjId($questionpool_id);
         $this->object->setShuffleAnswersEnabled($shuffle);
         $this->object->setAnswerType($item->getMetadataEntry("answer_type"));
@@ -240,6 +239,11 @@ class assKprimChoiceImport extends assQuestionImport
                 if ($fh = fopen($imagepath, "wb")) {
                     $imagefile = fwrite($fh, $image);
                     fclose($fh);
+                    $this->object->generateThumbForFile(
+                        $answer["imagefile"]["label"],
+                        $this->object->getImagePath(),
+                        $this->object->getThumbSize()
+                    );
                 }
             }
         }
@@ -252,11 +256,11 @@ class assKprimChoiceImport extends assQuestionImport
 
         // handle the import of media objects in XHTML code
         foreach ($feedbacks as $ident => $material) {
-            $m = $this->object->QTIMaterialToString($material);
+            $m = $this->QTIMaterialToString($material);
             $feedbacks[$ident] = $m;
         }
         foreach ($feedbacksgeneric as $correctness => $material) {
-            $m = $this->object->QTIMaterialToString($material);
+            $m = $this->QTIMaterialToString($material);
             $feedbacksgeneric[$correctness] = $m;
         }
         $questiontext = $this->object->getQuestion();
@@ -310,13 +314,16 @@ class assKprimChoiceImport extends assQuestionImport
         $this->object->saveToDb();
         if (count($item->suggested_solutions)) {
             foreach ($item->suggested_solutions as $suggested_solution) {
-                $this->object->setSuggestedSolution($suggested_solution["solution"]->getContent(), $suggested_solution["gap_index"], true);
+                $this->importSuggestedSolution(
+                    $this->object->getId(),
+                    $suggested_solution["solution"]->getContent(),
+                    $suggested_solution["gap_index"]
+                );
             }
-            $this->object->saveToDb();
         }
         if ($tst_id > 0) {
             $q_1_id = $this->object->getId();
-            $question_id = $this->object->duplicate(true, "", "", "", $tst_id);
+            $question_id = $this->object->duplicate(true, "", "", -1, $tst_id);
             $tst_object->questions[$question_counter++] = $question_id;
             $import_mapping[$item->getIdent()] = array("pool" => $q_1_id, "test" => $question_id);
         } else {

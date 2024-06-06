@@ -56,7 +56,7 @@ class ilMainMenuSearchGUI
 
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
-        $DIC['tpl']->addJavascript('Services/Search/js/SearchMainMenu.js');
+        $DIC->ui()->mainTemplate()->addJavascript('Services/Search/js/SearchMainMenu.js');
 
         $this->initRefIdFromQuery();
     }
@@ -126,7 +126,7 @@ class ilMainMenuSearchGUI
         );
 
         $this->tpl->setVariable('IMG_MM_SEARCH', ilUtil::img(
-            ilUtil::getImagePath("icon_seas.svg"),
+            ilUtil::getImagePath("standard/icon_seas.svg"),
             $this->lng->txt("search")
         ));
 

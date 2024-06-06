@@ -351,8 +351,6 @@ class SurveyQuestion
         } else {
             $clone->saveToDb();
         }
-        // duplicate the materials
-        $clone->duplicateMaterials($original_id);
         // copy XHTML media objects
         $clone->copyXHTMLMediaObjectsOfQuestion($original_id);
         return $clone->getId();
@@ -377,8 +375,6 @@ class SurveyQuestion
 
         $clone->saveToDb();
 
-        // duplicate the materials
-        $clone->duplicateMaterials($original_id);
         // copy XHTML media objects
         $clone->copyXHTMLMediaObjectsOfQuestion($original_id);
         return $clone->getId();
@@ -402,27 +398,7 @@ class SurveyQuestion
      */
     public function loadFromDb(int $question_id): void
     {
-        $ilDB = $this->db;
-
-        $result = $ilDB->queryF(
-            "SELECT * FROM svy_material WHERE question_fi = %s",
-            array('integer'),
-            array($this->getId())
-        );
-        $this->material = array();
-        if ($result->numRows()) {
-            while ($row = $ilDB->fetchAssoc($result)) {
-                $mat = new ilSurveyMaterial();
-                $mat->type = (string) $row['material_type'];
-                $mat->internal_link = (string) $row['internal_link'];
-                $mat->title = (string) $row['material_title'];
-                $mat->import_id = (string) $row['import_id'];
-                $mat->text_material = (string) $row['text_material'];
-                $mat->external_link = (string) $row['external_link'];
-                $mat->file_material = (string) $row['file_material'];
-                $this->material[] = $mat;
-            }
-        }
+        $this->material = [];
     }
 
     /**
@@ -492,7 +468,7 @@ class SurveyQuestion
                 "obj_fi" => array("integer", $this->getObjId()),
                 "owner_fi" => array("integer", $this->getOwner()),
                 "title" => array("text", $this->getTitle()),
-                "label" => array("text", (strlen($this->label)) ? $this->label : null),
+                "label" => array("text", (strlen($this->label ?? "")) ? $this->label : null),
                 "description" => array("text", $this->getDescription()),
                 "author" => array("text", $this->getAuthor()),
                 "questiontext" => array("clob", ilRTE::_replaceMediaObjectImageSrc($this->getQuestiontext(), 0)),
@@ -510,7 +486,7 @@ class SurveyQuestion
             // update existing dataset
             $affectedRows = $ilDB->update("svy_question", array(
                 "title" => array("text", $this->getTitle()),
-                "label" => array("text", (strlen($this->label)) ? $this->label : null),
+                "label" => array("text", (strlen($this->label ?? "")) ? $this->label : null),
                 "description" => array("text", $this->getDescription()),
                 "author" => array("text", $this->getAuthor()),
                 "questiontext" => array("clob", ilRTE::_replaceMediaObjectImageSrc($this->getQuestiontext(), 0)),
@@ -524,41 +500,6 @@ class SurveyQuestion
             $this->log->debug("UPDATE svy_question id=" . $this->getId() . " SET: title=" . $this->getTitle() . " ...");
         }
         return $affectedRows;
-    }
-
-    public function saveMaterial(): void
-    {
-        $ilDB = $this->db;
-
-        $this->log->debug("DELETE: svy_material question_fi=" . $this->getId());
-
-        $affectedRows = $ilDB->manipulateF(
-            "DELETE FROM svy_material WHERE question_fi = %s",
-            array('integer'),
-            array($this->getId())
-        );
-        ilInternalLink::_deleteAllLinksOfSource("sqst", $this->getId());
-
-        foreach ($this->material as $material) {
-            $next_id = $ilDB->nextId('svy_material');
-
-            $this->log->debug("INSERT: svy_material question_fi=" . $this->getId());
-
-            $affectedRows = $ilDB->manipulateF(
-                "INSERT INTO svy_material " .
-                "(material_id, question_fi, internal_link, import_id, material_title, tstamp," .
-                "text_material, external_link, file_material, material_type) " .
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                array('integer','integer','text','text','text','integer','text','text','text','integer'),
-                array(
-                    $next_id, $this->getId(), $material->internal_link, $material->import_id,
-                    $material->title, time(), $material->text_material, $material->external_link,
-                    $material->file_material, $material->type)
-            );
-            if (preg_match("/il_(\d*?)_(\w+)_(\d+)/", $material->internal_link, $matches)) {
-                ilInternalLink::_saveLink("sqst", $this->getId(), $matches[2], (int) $matches[3], (int) $matches[1]);
-            }
-        }
     }
 
     /**
@@ -911,7 +852,7 @@ class SurveyQuestion
                 array($this->getOriginalId())
             );
             ilInternalLink::_deleteAllLinksOfSource("sqst", $this->original_id);
-            if (strlen($this->material["internal_link"])) {
+            if (strlen($this->material["internal_link"] ?? "")) {
                 $next_id = $ilDB->nextId('svy_material');
                 $affectedRows = $ilDB->manipulateF(
                     "INSERT INTO svy_material (material_id, question_fi, internal_link, import_id, material_title, tstamp) VALUES (%s, %s, %s, %s, %s, %s)",
@@ -926,40 +867,6 @@ class SurveyQuestion
                 }
             }
         }
-    }
-
-    /**
-     * Returns a phrase title for phrase id
-     */
-    public function getPhrase(int $phrase_id): string
-    {
-        $ilDB = $this->db;
-
-        $result = $ilDB->queryF(
-            "SELECT title FROM svy_phrase WHERE phrase_id = %s",
-            array('integer'),
-            array($phrase_id)
-        );
-        if ($row = $ilDB->fetchAssoc($result)) {
-            return $row["title"];
-        }
-        return "";
-    }
-
-    /**
-     * Returns true if the phrase title already exists for the current user(!)
-     */
-    public function phraseExists(string $title): bool
-    {
-        $ilUser = $this->user;
-        $ilDB = $this->db;
-
-        $result = $ilDB->queryF(
-            "SELECT phrase_id FROM svy_phrase WHERE title = %s AND owner_fi = %s",
-            array('text', 'integer'),
-            array($title, $ilUser->getId())
-        );
-        return $result->numRows() > 0;
     }
 
     public static function _questionExists(int $question_id): bool
@@ -980,154 +887,6 @@ class SurveyQuestion
         return $result->numRows() === 1;
     }
 
-    public function addInternalLink(string $material_id): void
-    {
-        $material_title = "";
-        if ($material_id !== '') {
-            if (preg_match("/il__(\w+)_(\d+)/", $material_id, $matches)) {
-                $type = $matches[1];
-                $target_id = $matches[2];
-                $material_title = $this->lng->txt("obj_$type") . ": ";
-                switch ($type) {
-                    case "lm":
-                        $cont_obj_gui = new ilObjContentObjectGUI("", $target_id, true);
-                        $cont_obj = $cont_obj_gui->getObject();
-                        $material_title .= $cont_obj->getTitle();
-                        break;
-
-                    case "pg":
-                        $lm_id = ilLMObject::_lookupContObjID($target_id);
-                        $cont_obj_gui = new ilObjLearningModuleGUI("", $lm_id, false);
-                        /** @var ilObjLearningModule $cont_obj */
-                        $cont_obj = $cont_obj_gui->getObject();
-                        $pg_obj = new ilLMPageObject($cont_obj, $target_id);
-                        $material_title .= $pg_obj->getTitle();
-                        break;
-
-                    case "st":
-                        $lm_id = ilLMObject::_lookupContObjID($target_id);
-                        $cont_obj_gui = new ilObjLearningModuleGUI("", $lm_id, false);
-                        /** @var ilObjLearningModule $cont_obj */
-                        $cont_obj = $cont_obj_gui->getObject();
-                        $st_obj = new ilStructureObject($cont_obj, $target_id);
-                        $material_title .= $st_obj->getTitle();
-                        break;
-
-                    case "git":
-                        $material_title = $this->lng->txt("glossary_term") . ": " . ilGlossaryTerm::_lookGlossaryTerm($target_id);
-                        break;
-                    case "mob":
-                        break;
-                }
-            }
-
-            $mat = new ilSurveyMaterial();
-            $mat->type = 0;
-            $mat->internal_link = $material_id;
-            $mat->title = $material_title;
-            $this->addMaterial($mat);
-            $this->saveMaterial();
-        }
-    }
-
-    /**
-     * @param array $a_array Array with indexes of the materials to delete
-     */
-    public function deleteMaterials(array $a_array): void
-    {
-        foreach ($a_array as $idx) {
-            unset($this->material[$idx]);
-        }
-        $this->material = array_values($this->material);
-        $this->saveMaterial();
-    }
-
-    /**
-     * Duplicates the materials of a question
-     * @param int $question_id
-     * @throws ilSurveyException
-     */
-    public function duplicateMaterials(int $question_id): void
-    {
-        foreach ($this->materials as $filename) {
-            $materialspath = $this->getMaterialsPath();
-            $materialspath_original = preg_replace("/([^\d])$this->id([^\d])/", "\${1}$question_id\${2}", $materialspath);
-            if (!file_exists($materialspath)) {
-                ilFileUtils::makeDirParents($materialspath);
-            }
-            if (!copy($materialspath_original . $filename, $materialspath . $filename)) {
-                throw new ilSurveyException("Unable to duplicate materials.");
-            }
-        }
-    }
-
-    public function addMaterial(ilSurveyMaterial $obj_material): void
-    {
-        $this->material[] = $obj_material;
-    }
-
-    /**
-     * Sets a material link for the question
-     * @param string $material_id An internal link pointing to the material
-     * @param bool $is_import A boolean indication that the internal link was imported from another ILIAS installation
-     */
-    public function setMaterial(
-        string $material_id = "",
-        bool $is_import = false,
-        string $material_title = ""
-    ): void {
-        if (strcmp($material_id, "") !== 0) {
-            $import_id = "";
-            if ($is_import) {
-                $import_id = $material_id;
-                $material_id = self::_resolveInternalLink($import_id);
-            }
-            if (strcmp($material_title, "") === 0) {
-                if (preg_match("/il__(\w+)_(\d+)/", $material_id, $matches)) {
-                    $type = $matches[1];
-                    $target_id = $matches[2];
-                    $material_title = $this->lng->txt("obj_$type") . ": ";
-                    switch ($type) {
-                        case "lm":
-                            $cont_obj_gui = new ilObjContentObjectGUI("", $target_id, true);
-                            $cont_obj = $cont_obj_gui->getObject();
-                            $material_title .= $cont_obj->getTitle();
-                            break;
-
-                        case "pg":
-                            $lm_id = ilLMObject::_lookupContObjID($target_id);
-                            $cont_obj_gui = new ilObjLearningModuleGUI("", $lm_id, false);
-                            /** @var ilObjLearningModule $cont_obj */
-                            $cont_obj = $cont_obj_gui->getObject();
-                            $pg_obj = new ilLMPageObject($cont_obj, $target_id);
-                            $material_title .= $pg_obj->getTitle();
-                            break;
-
-                        case "st":
-                            $lm_id = ilLMObject::_lookupContObjID($target_id);
-                            $cont_obj_gui = new ilObjLearningModuleGUI("", $lm_id, false);
-                            /** @var ilObjLearningModule $cont_obj */
-                            $cont_obj = $cont_obj_gui->getObject();
-                            $st_obj = new ilStructureObject($cont_obj, $target_id);
-                            $material_title .= $st_obj->getTitle();
-                            break;
-
-                        case "git":
-                            $material_title = $this->lng->txt("glossary_term") . ": " . ilGlossaryTerm::_lookGlossaryTerm($target_id);
-                            break;
-                        case "mob":
-                            break;
-                    }
-                }
-            }
-            $this->material = array(
-                "internal_link" => $material_id,
-                "import_id" => $import_id,
-                "title" => $material_title
-            );
-        }
-        $this->saveMaterial();
-    }
 
     public static function _resolveInternalLink(
         string $internal_link
@@ -1306,15 +1065,6 @@ class SurveyQuestion
         }
         if (file_exists("./Modules/SurveyQuestionPool/Questions/class." . $type . ".php")) {
             return true;
-        } else {
-            global $DIC;
-
-            $component_factory = $DIC["component.factory"];
-            foreach ($component_factory->getActivePluginsInSlot("svyq") as $pl) {
-                if (strcmp($pl->getQuestionType(), $question_type) === 0) {
-                    return true;
-                }
-            }
         }
         return false;
     }
@@ -1331,13 +1081,6 @@ class SurveyQuestion
         if (file_exists("./Modules/SurveyQuestionPool/Questions/class." . $type_tag . ".php")) {
             $lng = $DIC->language();
             return $lng->txt($type_tag);
-        } else {
-            $component_factory = $DIC["component.factory"];
-            foreach ($component_factory->getActivePluginsInSlot("svyq") as $pl) {
-                if (strcmp($pl->getQuestionType(), $type_tag) === 0) {
-                    return $pl->getQuestionTypeTranslation();
-                }
-            }
         }
         return "";
     }

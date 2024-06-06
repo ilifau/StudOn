@@ -34,7 +34,6 @@ class ilStudyProgrammeUserTable
     public const PRG_COLS = [
         ['name', 'name', false, true, true],
         ['login', 'login', false, true, true],
-        ['prg_orgus', 'prg_orgus', true, true, true],
         ['prg_status', 'prg_status', false, true, true],
         ['prg_completion_date', 'prg_completion_date', true, true, true],
         ['prg_completion_by', 'prg_completion_by', true, true, true],
@@ -113,9 +112,14 @@ class ilStudyProgrammeUserTable
 
     public function getColumns(int $prg_id, bool $add_active_column = false): array
     {
+        $prg_cols = $this->getPrgColumns();
+        $prg_cols_pre = array_slice($prg_cols, 0, 2);
+        $prg_cols_post = array_slice($prg_cols, 2);
+
         $columns = array_merge(
-            $this->getPrgColumns(),
-            $this->getUserDataColumns($prg_id)
+            $prg_cols_pre,
+            $this->getUserDataColumns($prg_id),
+            $prg_cols_post
         );
 
         if ($add_active_column) {
@@ -172,9 +176,8 @@ class ilStudyProgrammeUserTable
 
     protected function includeLearningProgress(int $usr_id): bool
     {
-        return
-            in_array($usr_id, $this->user_ids_viewer_may_read_learning_progress_of)
-            || $this->skip_perm_check_on_user;
+        return $this->skip_perm_check_on_user
+            || in_array($usr_id, $this->user_ids_viewer_may_read_learning_progress_of);
     }
 
     protected function toRow(ilPRGAssignment $ass, int $node_id): ilStudyProgrammeUserTableRow
@@ -184,7 +187,8 @@ class ilStudyProgrammeUserTable
             $ass->getId(),
             $ass->getUserId(),
             $node_id,
-            $ass->getRootId() === $node_id
+            $ass->getRootId() === $node_id,
+            $ass->getUserInformation()
         );
 
         $show_lp = $this->includeLearningProgress($ass->getUserId());
@@ -202,18 +206,17 @@ class ilStudyProgrammeUserTable
             ->withLastname($ass->getUserInformation()->getLastname())
             ->withLogin($ass->getUserInformation()->getLogin())
             ->withOrgUs($ass->getUserInformation()->getOrguRepresentation())
-            ->withUDF($ass->getUserInformation()->getAllUdf())
-            ->withGender($this->lng->txt('gender_' . $ass->getUserInformation()->getUdf('gender')))
+            ->withGender($this->lng->txt('gender_' . $ass->getUserInformation()->getGender()))
             ->withStatus($show_lp ? $this->statusToRepresent($pgs->getStatus()) : '')
             ->withStatusRaw($pgs->getStatus())
             ->withCompletionDate(
                 $show_lp && $pgs->getCompletionDate() ? $pgs->getCompletionDate()->format($this->getUserDateFormat()) : ''
             )
             ->withCompletionBy(
-                $show_lp && $pgs->getCompletionBy() ? $this->completionByToRepresent($pgs->getCompletionBy()) : ''
+                $show_lp && $pgs->getCompletionBy() ? $this->completionByToRepresent($pgs) : ''
             )
-            ->withCompletionByObjId(
-                $show_lp && $pgs->getCompletionBy() ? $pgs->getCompletionBy() : null
+            ->withCompletionByObjIds(
+                $show_lp && $pgs->getCompletionBy() ? $this->completionByToCollection($pgs) : null
             )
             ->withPointsReachable($points_reachable)
             ->withPointsRequired((string) $pgs->getAmountOfPoints())
@@ -288,7 +291,8 @@ class ilStudyProgrammeUserTable
     public function assignmentSourceToRepresent(bool $manually, int $assignment_src): string
     {
         $srcs = array_flip(ilStudyProgrammeAutoMembershipSource::SOURCE_MAPPING);
-        if ($manually || ! in_array($assignment_src, $srcs)) {
+        $srcs[ilPRGAssignment::AUTO_ASSIGNED_BY_RESTART] = 'restarted';
+        if ($manually || ! array_key_exists($assignment_src, $srcs)) {
             return $this::lookupTitle($assignment_src);
         }
         return implode(' ', [
@@ -297,12 +301,35 @@ class ilStudyProgrammeUserTable
         ]);
     }
 
-    public function completionByToRepresent(int $completion_by): string
+    public function completionByToRepresent(ilPRGProgress $progress): string
     {
-        if ($completion_by === ilPRGProgress::COMPLETED_BY_SUBNODES) {
-            return $this->lng->txt("prg_completed_by_subnodes");
+        $completion_by = $progress->getCompletionBy();
+        if ($completion_by !== ilPRGProgress::COMPLETED_BY_SUBNODES) {
+            return $this::lookupTitle($completion_by);
         }
-        return $this::lookupTitle($completion_by);
+
+        $out = array_map(
+            fn(int $node_obj_id): string => self::lookupTitle($node_obj_id),
+            $this->completionByToCollection($progress)
+        );
+
+        return implode(', ', $out);
+    }
+
+    protected function completionByToCollection(ilPRGProgress $progress): array
+    {
+        $completion_by = $progress->getCompletionBy();
+        if ($completion_by !== ilPRGProgress::COMPLETED_BY_SUBNODES) {
+            return [$completion_by];
+        }
+        $successful_subnodes = array_filter(
+            $progress->getSubnodes(),
+            static fn(ilPRGProgress $pgs): bool => $pgs->isSuccessful()
+        );
+        return  array_map(
+            static fn(ilPRGProgress $pgs): int => $pgs->getNodeId(),
+            $successful_subnodes
+        );
     }
 
     public static function lookupTitle(int $obj_id): string
@@ -310,10 +337,22 @@ class ilStudyProgrammeUserTable
         $type = ilObject::_lookupType($obj_id);
         switch ($type) {
             case 'usr':
-            case 'prg':
                 return ilObject::_lookupTitle($obj_id);
+            case 'prg':
+                $title = ilObject::_lookupTitle($obj_id);
+                if(ilObject::_isInTrash(ilObjStudyProgramme::getRefIdFor($obj_id))) {
+                    return sprintf('(%s)', $title);
+                }
+                return $title;
             case 'crsr':
-                return ilContainerReference::_lookupTitle($obj_id);
+                $title = ilContainerReference::_lookupTitle($obj_id);
+                $target_obj_id = ilContainerReference::_lookupTargetId($obj_id);
+                $refs = ilObject::_getAllReferences($target_obj_id);
+                $target_ref_id = array_shift($refs) ?? null;
+                if($target_ref_id === null || ilObject::_isInTrash($target_ref_id)) {
+                    return sprintf('(%s)', $title);
+                }
+                return $title;
         }
 
         if ($del = ilObjectDataDeletionLog::get($obj_id)) {

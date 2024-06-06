@@ -21,6 +21,7 @@ declare(strict_types=1);
 class ilSystemStyleHTMLExport
 {
     private array $images = [];
+    protected array $img_sub_dirs;
     protected string $style_dir;
     protected string $style_img_dir;
     protected string $img_dir;
@@ -31,26 +32,34 @@ class ilSystemStyleHTMLExport
         $this->style_dir = $a_exp_dir . '/templates/default';
         $this->style_img_dir = $a_exp_dir . '/templates/default/images';
         $this->img_dir = $a_exp_dir . '/images';
-        $this->img_browser_dir = $a_exp_dir . '/images/browser';
+        $this->img_sub_dirs =
+            [
+                $a_exp_dir . '/images/browser',
+                $a_exp_dir . '/images/media',
+                $a_exp_dir . '/images/nav',
+                $a_exp_dir . '/images/standard'
+            ];
 
         // add standard images
-        $this->addImage('enlarge.svg');
+        $this->addImage('media/enlarge.svg');
         $this->addImage('browser/blank.png', '/browser/plus.png');
         $this->addImage('browser/blank.png', '/browser/minus.png');
         $this->addImage('browser/blank.png', '/browser/blank.png');
-        $this->addImage('spacer.png');
-        $this->addImage('icon_st.svg');
-        $this->addImage('icon_pg.svg');
-        $this->addImage('icon_lm.svg');
-        $this->addImage('nav_arr_L.png');
-        $this->addImage('nav_arr_R.png');
+        $this->addImage('media/spacer.png');
+        $this->addImage('standard/icon_st.svg');
+        $this->addImage('standard/icon_pg.svg');
+        $this->addImage('standard/icon_lm.svg');
+        $this->addImage('nav/nav_arr_L.png');
+        $this->addImage('nav/nav_arr_R.png');
     }
 
     public function createDirectories(): void
     {
         ilFileUtils::makeDirParents($this->style_dir);
         ilFileUtils::makeDirParents($this->img_dir);
-        ilFileUtils::makeDirParents($this->img_browser_dir);
+        foreach ($this->img_sub_dirs as $sub_browser) {
+            ilFileUtils::makeDirParents($sub_browser);
+        }
     }
 
     /**

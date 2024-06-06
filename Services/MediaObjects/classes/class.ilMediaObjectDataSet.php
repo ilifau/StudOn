@@ -113,7 +113,6 @@ class ilMediaObjectDataSet extends ilDataSet
                         "Format" => "text",
                         "TextRepresentation" => "text"
                     );
-
             }
         }
 
@@ -209,7 +208,6 @@ class ilMediaObjectDataSet extends ilDataSet
                         " FROM media_item WHERE " .
                         $ilDB->in("mob_id", $a_ids, false, "integer"));
                     break;
-
             }
         }
 

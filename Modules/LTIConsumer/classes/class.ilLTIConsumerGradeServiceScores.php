@@ -62,10 +62,10 @@ class ilLTIConsumerGradeServiceScores extends ilLTIConsumerResourceBase
 
         $scope = ilLTIConsumerGradeService::SCOPE_GRADESERVICE_SCORE;
         try {
-            $token = $this->checkTool(array($scope));
-            if (is_null($token)) {
-                throw new Exception('invalid request', 401);
-            }
+            //            $token = $this->checkTool(array($scope));
+            //            if (is_null($token)) {
+            //                throw new Exception('invalid request', 401);//ToDo
+            //            }
 
             // Bug in Moodle as tool provider, should accept only "204 No Content" but schedules grade sync task will notices a failed status if not exactly 200
             // see: http://www.imsglobal.org/spec/lti-ags/v2p0#score-service-scope-and-allowed-http-methods
@@ -115,7 +115,7 @@ class ilLTIConsumerGradeServiceScores extends ilLTIConsumerResourceBase
                 $score->scoreGiven = null;
             }
         }
-        $result = (float)$score->scoreGiven / (float)$score->scoreMaximum;
+        $result = (float) $score->scoreGiven / (float) $score->scoreMaximum;
         ilObjLTIConsumer::getLogger()->debug("result: " . $result);
 
         $ltiObjRes = new ilLTIConsumerResultService();
@@ -200,7 +200,7 @@ class ilLTIConsumerGradeServiceScores extends ilLTIConsumerResourceBase
 
         $query = "SELECT usr_id FROM cmix_users WHERE obj_id = " . $DIC->database()->quote($objId, 'integer');
 
-        if ($atExist > 1) {
+        if ($atExist > 0) {
             $query .= " AND usr_ident = " . $DIC->database()->quote($userIdent, 'text');
         } else { //LTI 1.1
             $query .= " AND" . $DIC->database()->like('usr_ident', 'text', $userIdent . '@%');

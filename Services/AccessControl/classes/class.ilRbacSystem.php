@@ -153,7 +153,7 @@ class ilRbacSystem
         // Create the PA cache if it does not exist yet
         $paCacheKey = $a_user_id . ':' . $a_ref_id;
         if (!is_array(self::$_paCache)) {
-            self::$_paCache = array();
+            self::$_paCache = [];
         }
 
         if (array_key_exists($paCacheKey, self::$_paCache)) {
@@ -168,6 +168,9 @@ class ilRbacSystem
 
             $ops = [];
             while ($row = $r->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+                if ($row->ops_id === ':') {
+                    continue;
+                }
                 if (in_array((int) $row->rol_id, $roles)) {
                     $ops = array_merge($ops, unserialize(stripslashes($row->ops_id)));
                 }
@@ -237,10 +240,13 @@ class ilRbacSystem
             $r = $this->db->query($q);
 
             while ($row = $r->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+                if($row->ops_id === ':') {
+                    continue;
+                }
                 if (in_array($row->rol_id, $roles[(int) $row->ref_id])) {
                     $ops[(int) $row->ref_id] = array_merge(
                         $ops[(int) $row->ref_id],
-                        unserialize(stripslashes($row->ops_id))
+                        unserialize($row->ops_id)
                     );
                 }
             }
@@ -259,20 +265,23 @@ class ilRbacSystem
     public function checkPermission(int $a_ref_id, int $a_rol_id, string $a_operation): bool
     {
         $ops = [];
-        $query = 'SELECT ops_id FROM rbac_operations ' .
+        $query_rbac_operations = 'SELECT ops_id FROM rbac_operations ' .
             'WHERE operation = ' . $this->db->quote($a_operation, 'text');
-        $res = $this->db->query($query);
+        $res_rbac_operations = $this->db->query($query_rbac_operations);
         $ops_id = 0;
-        while ($row = $this->db->fetchObject($res)) {
+        while ($row = $this->db->fetchObject($res_rbac_operations)) {
             $ops_id = (int) $row->ops_id;
         }
 
-        $query = "SELECT * FROM rbac_pa " .
+        $query_rbac_pa = "SELECT * FROM rbac_pa " .
             "WHERE rol_id = " . $this->db->quote($a_rol_id, 'integer') . " " .
             "AND ref_id = " . $this->db->quote($a_ref_id, 'integer') . " ";
-        $res = $this->db->query($query);
+        $res_rbac_pa = $this->db->query($query_rbac_pa);
 
-        while ($row = $this->db->fetchObject($res)) {
+        while ($row = $this->db->fetchObject($res_rbac_pa)) {
+            if ($row->ops_id === ':') {
+                continue;
+            }
             $ops = array_merge($ops, unserialize($row->ops_id));
         }
         return in_array($ops_id, $ops);
@@ -365,7 +374,7 @@ class ilRbacSystem
         } else {
             $this->mem_view['active'] = true;
             $this->mem_view['items'] = $this->tree->getSubTreeIds($settings->getContainer());
-            $this->mem_view['items'] = array_merge($this->mem_view['items'], array($settings->getContainer()));
+            $this->mem_view['items'] = array_merge($this->mem_view['items'], [$settings->getContainer()]);
             $this->mem_view['role'] = ilParticipants::getDefaultMemberRole($settings->getContainer());
         }
     }

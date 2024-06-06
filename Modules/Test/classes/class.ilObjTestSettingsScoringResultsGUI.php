@@ -18,6 +18,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Renderer as UIRenderer;
 use ILIAS\Refinery\Factory as Refinery;
@@ -46,77 +48,34 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
     public const CMD_CANCEL_RECALC = 'cancelSaveForm';
     private const F_CONFIRM_SETTINGS = 'f_settings';
 
-    protected ilCtrlInterface $ctrl;
-    protected ilAccessHandler $access;
-    protected ilLanguage $lng;
-    protected ilGlobalTemplateInterface $tpl;
-    protected ilTree $tree;
-    protected ilDBInterface $db;
-    protected ilComponentRepository $component_repository;
-    protected ilObjTestGUI $testGUI;
-    private ilTestQuestionSetConfigFactory $testQuestionSetConfigFactory;
-
-    protected ScoreSettingsRepository $score_settings_repo;
-    protected int $test_id;
-    protected UIFactory $ui_factory;
-    protected UIRenderer $ui_renderer;
-    protected Refinery $refinery;
-    protected ilTabsGUI $tabs;
-    protected ilObjUser $active_user;
-
-
     public function __construct(
-        ilCtrlInterface $ctrl,
-        ilAccessHandler $access,
-        ilLanguage $lng,
-        ilTree $tree,
-        ilDBInterface $db,
-        ilComponentRepository $component_repository,
-        ilObjTestGUI $testGUI,
-        \ilGlobalTemplateInterface $main_template,
-        ilTabsGUI $tabs,
-        ScoreSettingsRepository $score_settings_repo,
-        int $test_id,
-        UIFactory $ui_factory,
-        UIRenderer $ui_renderer,
-        Refinery $refinery,
-        Request $request,
-        ilObjUser $active_user
+        protected ilCtrlInterface $ctrl,
+        protected ilAccessHandler $access,
+        protected ilLanguage $lng,
+        protected ilTree $tree,
+        protected ilDBInterface $db,
+        protected ilComponentRepository $component_repository,
+        protected ilObjTestGUI $test_gui,
+        protected \ilGlobalTemplateInterface $tpl,
+        protected ilTabsGUI $tabs,
+        protected ScoreSettingsRepository $score_settings_repo,
+        protected int $test_id,
+        protected UIFactory $ui_factory,
+        protected UIRenderer $ui_renderer,
+        protected Refinery $refinery,
+        protected Request $request,
+        protected ilObjUser $active_user
     ) {
-        $this->ctrl = $ctrl;
-        $this->access = $access;
-        $this->lng = $lng;
-        $this->tree = $tree;
-        $this->db = $db;
-        $this->component_repository = $component_repository;
-        $this->testGUI = $testGUI;
-        $this->testOBJ = $testGUI->getObject();
-        $this->tpl = $main_template;
-        $this->tabs = $tabs;
-        $this->active_user = $active_user;
+        parent::__construct($test_gui->getObject());
 
-        $this->testQuestionSetConfigFactory = new ilTestQuestionSetConfigFactory(
-            $this->tree,
-            $this->db,
-            $this->component_repository,
-            $this->testOBJ
-        );
+        $template_id = $this->test_object->getTemplate();
 
-        $templateId = $this->testOBJ->getTemplate();
-
-        if ($templateId) {
+        if ($template_id) {
             $this->settingsTemplate = new ilSettingsTemplate(
-                (int)$templateId,
+                (int)$template_id,
                 ilObjAssessmentFolderGUI::getSettingsTemplateConfig()
             );
         }
-
-        $this->score_settings_repo = $score_settings_repo;
-        $this->test_id = $test_id;
-        $this->ui_factory = $ui_factory;
-        $this->ui_renderer = $ui_renderer;
-        $this->refinery = $refinery;
-        $this->request = $request;
     }
 
     protected function loadScoreSettings(): ilObjTestScoreSettings
@@ -133,9 +92,9 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
      */
     public function executeCommand()
     {
-        if (!$this->access->checkAccess('write', '', $this->testGUI->getRefId())) {
+        if (!$this->access->checkAccess('write', '', $this->test_gui->getRefId())) {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt('cannot_edit_test'), true);
-            $this->ctrl->redirect($this->testGUI, 'infoScreen');
+            $this->ctrl->redirect($this->test_gui, 'infoScreen');
         }
 
         $this->tabs->activateTab(ilTestTabsManager::TAB_ID_SETTINGS);
@@ -158,7 +117,7 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
                             ->withRequest($this->getRelayedRequest())
                             ->getData();
                         $this->storeScoreSettings($settings);
-                        $this->testOBJ->recalculateScores(true);
+                        $this->test_object->recalculateScores(true);
                         $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_score_settings_modified_and_recalc"), true);
                         $this->ctrl->redirect($this, self::CMD_SHOW_FORM);
                         break;
@@ -225,23 +184,14 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
             $this->refinery
         ];
 
+
         $environment = [];
-        $df = (new \ILIAS\Data\Factory())->dateFormat();
-        switch ($this->active_user->getDateFormat()) {
-            case ilCalendarSettings::DATE_FORMAT_DMY:
-                $date_format = $df->germanShort();
-                break;
-            case ilCalendarSettings::DATE_FORMAT_MDY:
-                //americanShort
-                $date_format = $df->custom()->month()->slash()->day()->slash()->year()->get();
-                break;
-            case ilCalendarSettings::DATE_FORMAT_YMD:
-            default:
-                $date_format = $df->standard();
-        }
-        $environment['user_date_format'] = $date_format;
+        $environment['user_date_format'] = (new \ILIAS\Data\Factory())->dateFormat()->withTime24(
+            $this->active_user->getDateFormat()
+        );
         $environment['user_time_zone'] = $this->active_user->getTimeZone();
 
+        $anonymity_flag = (bool) $this->test_object->getAnonymity();
         $disabled_flag = ($this->areScoringSettingsWritable() === false);
 
         $settings = $this->loadScoreSettings();
@@ -275,13 +225,15 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 
     private function isScoreReportingAvailable(): bool
     {
-        if (!$this->testOBJ->getScoreReporting()) {
+        if (!$this->test_object->getScoreReporting()) {
             return false;
         }
 
+        $now = (new DateTimeImmutable("NOW"))->format('YmdHis');
+
         if (
-            $this->testOBJ->getScoreReporting() == ilObjTest::SCORE_REPORTING_DATE
-            && $this->testOBJ->getReportingDate() > time()
+            $this->test_object->getScoreReporting() == ilObjTestSettingsResultSummary::SCORE_REPORTING_DATE
+            && $this->test_object->getReportingDate() > $now
         ) {
             return false;
         }
@@ -291,7 +243,7 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 
     private function areScoringSettingsWritable(): bool
     {
-        if (!$this->testOBJ->participantDataExist()) {
+        if (!$this->test_object->participantDataExist()) {
             return true;
         }
 
@@ -304,8 +256,8 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 
     protected function getTaxonomyOptions(): array
     {
-        $available_taxonomy_ids = ilObjTaxonomy::getUsageOfObject($this->testOBJ->getId());
-        $taxononmy_translator = new ilTestTaxonomyFilterLabelTranslater($this->db);
+        $available_taxonomy_ids = ilObjTaxonomy::getUsageOfObject($this->test_object->getId());
+        $taxononmy_translator = new ilTestQuestionFilterLabelTranslater($this->db, $this->lng);
         $taxononmy_translator->loadLabelsFromTaxonomyIds($available_taxonomy_ids);
 
         $taxonomy_options = [];
@@ -326,7 +278,7 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
         );
 
         return
-            $this->testOBJ->participantDataExist() &&
+            $this->test_object->participantDataExist() &&
             $this->areScoringSettingsWritable() &&
             $settings_changed;
     }

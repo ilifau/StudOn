@@ -19,51 +19,33 @@
 declare(strict_types=1);
 
 use ILIAS\DI\Container;
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
 class ilCertificateCron extends ilCronJob
 {
-    public const DEFAULT_SCHEDULE_HOURS = 1;
-
     protected ?ilLanguage $lng;
-    private ?ilCertificateQueueRepository $queueRepository;
-    private ?ilCertificateTemplateRepository $templateRepository;
-    private ?ilUserCertificateRepository $userRepository;
-    private ?ilLogger $logger;
-    private ?ilCertificateValueReplacement $valueReplacement;
-    private ?ilCertificateObjectHelper $objectHelper;
-    private ?Container $dic = null;
-    private ?ilSetting $settings;
-    private ?ilCronManager $cronManager;
+    private ?Container $dic;
 
     public function __construct(
-        ?ilCertificateQueueRepository $queueRepository = null,
-        ?ilCertificateTemplateRepository $templateRepository = null,
-        ?ilUserCertificateRepository $userRepository = null,
-        ?ilCertificateValueReplacement $valueReplacement = null,
-        ?ilLogger $logger = null,
+        private ?ilCertificateQueueRepository $queueRepository = null,
+        private ?ilCertificateTemplateRepository $templateRepository = null,
+        private ?ilUserCertificateRepository $userRepository = null,
+        private ?ilCertificateValueReplacement $valueReplacement = null,
+        private ?ilLogger $logger = null,
         ?Container $dic = null,
         ?ilLanguage $language = null,
-        ?ilCertificateObjectHelper $objectHelper = null,
-        ?ilSetting $setting = null,
-        ?ilCronManager $cronManager = null
+        private ?ilCertificateObjectHelper $objectHelper = null,
+        private ?ilSetting $settings = null,
+        private ?ilCronManager $cronManager = null
     ) {
         if (null === $dic) {
             global $DIC;
             $dic = $DIC;
         }
         $this->dic = $dic;
-
-        $this->queueRepository = $queueRepository;
-        $this->templateRepository = $templateRepository;
-        $this->userRepository = $userRepository;
-        $this->valueReplacement = $valueReplacement;
-        $this->logger = $logger;
-        $this->objectHelper = $objectHelper;
-        $this->settings = $setting;
-        $this->cronManager = $cronManager;
 
         if ($dic && isset($dic['lng'])) {
             $language = $dic->language();
@@ -176,7 +158,7 @@ class ilCertificateCron extends ilCronJob
         }
 
         $result->setStatus($status);
-        if (count($succeededGenerations) > 0) {
+        if ($succeededGenerations !== []) {
             $result->setMessage(sprintf(
                 'Generated %s certificate(s) in run. Result: %s',
                 count($succeededGenerations),
@@ -204,9 +186,9 @@ class ilCertificateCron extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_IN_MINUTES;
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -215,14 +197,10 @@ class ilCertificateCron extends ilCronJob
     }
 
     /**
-     * @param int                     $entryCounter
-     * @param ilCertificateQueueEntry $entry
-     * @param array                   $succeededGenerations
-     * @return array
-     * @throws ilDatabaseException
-     * @throws ilException
+     * @throws ilCertificateIssuingObjectNotFound
+     * @throws ilCertificateOwnerNotFound
+     * @throws ilCouldNotFindCertificateTemplate
      * @throws ilInvalidCertificateException
-     * @throws ilObjectNotFoundException
      */
     public function processEntry(int $entryCounter, ilCertificateQueueEntry $entry, array $succeededGenerations): array
     {
@@ -238,7 +216,10 @@ class ilCertificateCron extends ilCronJob
 
         $placeholderValueObject = new $class();
         if (!$placeholderValueObject instanceof ilCertificatePlaceholderValues) {
-            throw new ilException('The given class ' . $class . ' MUST be an instance of ilCertificateCronAdapter and MUST have an accessible namespace. The class map MAY be reloader.');
+            throw new ilInvalidCertificateException(
+                'The given class ' . $class . ' must be an instance of ilCertificateCronAdapter and must ' .
+                'have an accessible namespace. The composer class map should be reloaded.'
+            );
         }
 
         $objId = $entry->getObjId();
@@ -256,7 +237,7 @@ class ilCertificateCron extends ilCronJob
 
         $object = $this->objectHelper->getInstanceByObjId($objId, false);
         if (!$object instanceof ilObject) {
-            throw new ilException(sprintf(
+            throw new ilCertificateIssuingObjectNotFound(sprintf(
                 'The given object id: "%s"  could not be referred to an actual object',
                 $objId
             ));
@@ -266,7 +247,7 @@ class ilCertificateCron extends ilCronJob
 
         $userObject = $this->objectHelper->getInstanceByObjId($userId, false);
         if (!($userObject instanceof ilObjUser)) {
-            throw new ilException('The given user id"' . $userId . '" could not be referred to an actual user');
+            throw new ilCertificateOwnerNotFound('The given user id"' . $userId . '" could not be referred to an actual user');
         }
 
         $this->logger->debug(sprintf(

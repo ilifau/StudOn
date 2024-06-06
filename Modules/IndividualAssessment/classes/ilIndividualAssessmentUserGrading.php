@@ -139,6 +139,7 @@ class ilIndividualAssessmentUserGrading
         array $grading_options,
         bool $may_be_edited = true,
         bool $place_required = false,
+        bool $file_required = false,
         bool $amend = false
     ): \ILIAS\UI\Component\Input\Container\Form\FormInput {
         $name = $input
@@ -162,6 +163,7 @@ class ilIndividualAssessmentUserGrading
         $file = $input
             ->file($file_handler, $lng->txt('iass_upload_file'), $lng->txt('iass_file_dropzone'))
             ->withValue($this->hasFile() ? [$this->getFile()] : [])
+            ->withRequired($file_required)
         ;
 
         $file_visible = $input
@@ -194,7 +196,7 @@ class ilIndividualAssessmentUserGrading
 
         if (!is_null($this->getEventTime())) {
             $event_time = $event_time->withValue(
-                $this->getEventTime()->format($date_format->toString() . ' HH:mm')
+                $this->getEventTime()
             );
         }
 

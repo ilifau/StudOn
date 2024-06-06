@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\Modal;
 
 use ILIAS\UI\Component\Modal\LightboxDescriptionEnabledPage;
@@ -25,7 +33,14 @@ use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Implementation\Render\ResourceRegistry;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
+<<<<<<< HEAD
 use ILIAS\UI\Implementation\Component\Input\Container\Form\FormWithoutSubmitButton;
+=======
+use ILIAS\UI\Component\Modal\InterruptiveItem\InterruptiveItem;
+use ILIAS\UI\Implementation\Component\Input\Container\Form\FormWithoutSubmitButton;
+use ILIAS\UI\Component\Modal\LightboxPage;
+use ILIAS\UI\Implementation\Render\Template;
+>>>>>>> v9.1
 
 /**
  * @author Stefan Wanzenried <sw@studer-raimann.ch>
@@ -53,7 +68,7 @@ class Renderer extends AbstractComponentRenderer
         } elseif ($component instanceof Component\Modal\Lightbox) {
             return $this->renderLightbox($component, $default_renderer);
         }
-        return '';
+        throw new \LogicException(self::class . " cannot render component '" . get_class($component) . "'.");
     }
 
     /**
@@ -127,27 +142,67 @@ class Renderer extends AbstractComponentRenderer
         $tpl->setVariable('FORM_ACTION', $value);
         $tpl->setVariable('TITLE', $modal->getTitle());
         $tpl->setVariable('MESSAGE', $modal->getMessage());
-        if (count($modal->getAffectedItems())) {
-            $tpl->setCurrentBlock('with_items');
-            foreach ($modal->getAffectedItems() as $item) {
-                $tpl->setCurrentBlock('item');
-                $icon = ($item->getIcon()) ? $default_renderer->render($item->getIcon()) : '';
-                $desc = ($item->getDescription()) ? '<br>' . $item->getDescription() : '';
-                $tpl->setVariable('ITEM_ICON', $icon);
-                $tpl->setVariable('ITEM_ID', $item->getId());
-                $tpl->setVariable('ITEM_TITLE', $item->getTitle());
-                $tpl->setVariable('ITEM_DESCRIPTION', $desc);
-                $tpl->parseCurrentBlock();
-            }
+
+        $standard_items = $this->renderInterruptiveItemsByClass(
+            Component\Modal\InterruptiveItem\Standard::class,
+            $modal->getAffectedItems(),
+            $default_renderer
+        );
+        if ($standard_items) {
+            $tpl->setCurrentBlock('with_standard_items');
+            $tpl->setVariable('STANDARD_ITEMS', $standard_items);
         }
+<<<<<<< HEAD
         $tpl->setVariable('ACTION_BUTTON_LABEL', $this->txt($modal->getActionButtonLabel()));
         $tpl->setVariable('ACTION_BUTTON', $modal->getActionButtonLabel());
         $tpl->setVariable('CANCEL_BUTTON_LABEL', $this->txt($modal->getCancelButtonLabel()));
         $tpl->setVariable('CLOSE_LABEL', $this->txt($modal->getCancelButtonLabel()));
+=======
+
+        $key_value_items = $this->renderInterruptiveItemsByClass(
+            Component\Modal\InterruptiveItem\KeyValue::class,
+            $modal->getAffectedItems(),
+            $default_renderer
+        );
+        if ($key_value_items) {
+            $tpl->setCurrentBlock('with_key_value_items');
+            $tpl->setVariable('KEY_VALUE_ITEMS', $key_value_items);
+        }
+
+        $tpl->setVariable('ACTION_BUTTON_LABEL', $modal->getActionButtonLabel() ?? $this->txt('delete'));
+        $tpl->setVariable('CANCEL_BUTTON_LABEL', $modal->getCancelButtonLabel() ?? $this->txt('cancel'));
+        $tpl->setVariable('CLOSE_LABEL', $modal->getCancelButtonLabel() ?? $this->txt('cancel'));
+>>>>>>> v9.1
 
         return $tpl->get();
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * Filters items by provided class, and renders only those.
+     * @param string            $class_name
+     * @param InterruptiveItem  $items
+     * @param RendererInterface $default_renderer
+     * @return string
+     */
+    protected function renderInterruptiveItemsByClass(
+        string $class_name,
+        array $items,
+        RendererInterface $default_renderer
+    ): string {
+        $items_of_class = array_filter(
+            $items,
+            fn($i) => $i instanceof $class_name
+        );
+        $rendered_items = '';
+        foreach ($items_of_class as $item) {
+            $rendered_items .= $default_renderer->render($item);
+        }
+        return $rendered_items;
+    }
+
+>>>>>>> v9.1
     protected function renderRoundTrip(Component\Modal\RoundTrip $modal, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate('tpl.roundtrip.html', true, true);
@@ -178,7 +233,11 @@ class Renderer extends AbstractComponentRenderer
 
             // render submit in modal footer.
             $submit = $this->getUIFactory()->button()->standard(
+<<<<<<< HEAD
                 $modal->getSubmitCaption(),
+=======
+                $modal->getSubmitLabel() ?? $this->txt('save'),
+>>>>>>> v9.1
                 ''
             )->withOnClick($modal->getForm()->getSubmitSignal());
             $tpl->setCurrentBlock('with_submit');
@@ -186,7 +245,11 @@ class Renderer extends AbstractComponentRenderer
             $tpl->parseCurrentBlock();
         }
 
+<<<<<<< HEAD
         $tpl->setVariable('CANCEL_BUTTON_LABEL', $this->txt($modal->getCancelButtonLabel()));
+=======
+        $tpl->setVariable('CANCEL_BUTTON_LABEL', $modal->getCancelButtonLabel() ?? $this->txt('cancel'));
+>>>>>>> v9.1
         return $tpl->get();
     }
 
@@ -201,6 +264,10 @@ class Renderer extends AbstractComponentRenderer
         $tpl->setVariable('TITLE', $pages[0]->getTitle());
         $tpl->setVariable('ID_CAROUSEL', $id_carousel);
         $tpl->setVariable('CLOSE_LABEL', $this->txt('close'));
+<<<<<<< HEAD
+=======
+        $tpl->setVariable('COLOR_SCHEME', $modal->getScheme());
+>>>>>>> v9.1
 
         if (count($pages) > 1) {
             $tpl->setCurrentBlock('has_indicators');
@@ -212,20 +279,10 @@ class Renderer extends AbstractComponentRenderer
                 $tpl->parseCurrentBlock();
             }
         }
-        foreach ($pages as $i => $page) {
-            if ($page instanceof LightboxTextPage) {
-                $tpl->setCurrentBlock('pages');
-                $tpl->touchBlock('page_type_text');
-                $tpl->parseCurrentBlock();
-            }
-            $tpl->setCurrentBlock('pages');
-            $tpl->setVariable('CLASS_ACTIVE', ($i == 0) ? ' active' : '');
-            $tpl->setVariable('TITLE2', htmlentities($page->getTitle(), ENT_QUOTES, 'UTF-8'));
-            $tpl->setVariable('CONTENT', $default_renderer->render($page->getComponent()));
-            if ($page instanceof LightboxDescriptionEnabledPage) {
-                $tpl->setVariable('DESCRIPTION', $page->getDescription());
-            }
-            $tpl->parseCurrentBlock();
+        $first = true;
+        foreach ($pages as $page) {
+            $this->renderPage($page, $first, $tpl, $default_renderer);
+            $first = false;
         }
         if (count($pages) > 1) {
             $tpl->setCurrentBlock('controls');
@@ -246,5 +303,31 @@ class Renderer extends AbstractComponentRenderer
             Component\Modal\RoundTrip::class,
             Component\Modal\Lightbox::class,
         );
+    }
+
+    private function renderPage(LightboxPage $page, bool $first, Template $tpl, RendererInterface $default_renderer): void
+    {
+        $vertical = false;
+        $components = [$page->getComponent()];
+        if ($page instanceof LightboxTextPage) {
+            $tpl->setCurrentBlock('pages');
+            $tpl->touchBlock('page_type_text');
+            $tpl->parseCurrentBlock();
+        } elseif ($page instanceof LightboxCardPage) {
+            $components = array_merge(
+                $page->getComponent()->getSections(),
+                $page->getComponent()->getHiddenSections()
+            );
+            $vertical = true;
+        }
+        $tpl->setCurrentBlock('pages');
+        $tpl->setVariable('CLASS_ACTIVE', $first ? 'active' : '');
+        $tpl->setVariable('ORIENTATION', $vertical ? 'item-vertical' : '');
+        $tpl->setVariable('TITLE2', htmlentities($page->getTitle(), ENT_QUOTES, 'UTF-8'));
+        $tpl->setVariable('CONTENT', $default_renderer->render($components));
+        if ($page instanceof LightboxDescriptionEnabledPage) {
+            $tpl->setVariable('DESCRIPTION', $page->getDescription());
+        }
+        $tpl->parseCurrentBlock();
     }
 }

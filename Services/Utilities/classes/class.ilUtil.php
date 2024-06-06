@@ -75,9 +75,6 @@ class ilUtil
             $styleDefinition = $DIC["styleDefinition"];
         }
 
-        if (is_int(strpos($_SERVER["PHP_SELF"], "setup.php"))) {
-            $module_path = "..";
-        }
         if ($module_path != "") {
             $module_path = "/" . $module_path;
         }
@@ -91,25 +88,23 @@ class ilUtil
 
         if (is_object($styleDefinition)) {
             $image_dir = $styleDefinition->getImageDirectory($current_style);
-        }
-        $skin_img = "";
-        if ($current_skin == "default") {
-            $user_img = "." . $module_path . "/templates/default/" . $image_dir . "/" . $img;
-            $skin_img = "." . $module_path . "/templates/default/images/" . $img;
-        } elseif (is_object($styleDefinition) && $current_skin != "default") {
-            $user_img = "./Customizing/global/skin/" .
-                $current_skin . $module_path . "/" . $image_dir . "/" . $img;
-            $skin_img = "./Customizing/global/skin/" .
-                $current_skin . $module_path . "/images/" . $img;
+        } else {
+            $image_dir = "images";
         }
 
+        $skin_img = "";
+
+        if ($current_skin == "default") {
+            $skin_img = "." . $module_path . "/templates/default/" . $image_dir . "/" . $img;
+        } elseif (is_object($styleDefinition) && $current_skin != "default") {
+            $skin_img = "./Customizing/global/skin/" .
+                $current_skin . "/". $current_style. "/". $module_path . $image_dir . "/" . $img;
+        }
 
         if ($offline) {
             return "./images/" . $img;
-        } elseif (@file_exists($user_img) && $image_dir != "") {
-            return $user_img;        // found image for skin and style
         } elseif (file_exists($skin_img)) {
-            return $skin_img;        // found image in skin/images
+            return $skin_img;        // found image for skin and style
         }
 
         return $default_img;            // take image in default
@@ -154,6 +149,7 @@ class ilUtil
 
         // add version as parameter to force reload for new releases
         // use ilStyleDefinition instead of account to get the current style
+
         $stylesheet_name = (strlen($a_css_name))
             ? $a_css_name
             : ilStyleDefinition::getCurrentStyle() . ".css";
@@ -165,7 +161,7 @@ class ilUtil
         // use ilStyleDefinition instead of account to get the current skin
         if (ilStyleDefinition::getCurrentSkin() != "default") {
             $filename = "./Customizing/global/skin/" . ilStyleDefinition::getCurrentSkin(
-                ) . "/" . $a_css_location . $stylesheet_name;
+            ) . "/" . ilStyleDefinition::getCurrentStyle() . "/" . $a_css_location . $stylesheet_name;
         }
         if (strlen($filename) == 0 || !file_exists($filename)) {
             $filename = "./" . $a_css_location . "templates/default/" . $stylesheet_name;
@@ -222,7 +218,7 @@ class ilUtil
 
     /**
      * @deprecated Use the respective `Refinery` transformation `$refinery->string()->makeClickable("foo bar")` to convert URL-like string parts to an HTML anchor (`<a>`) element.
-     * WIll be removed in ILIAS 10.
+     * Will be removed in ILIAS 10.
      */
     public static function makeClickable(string $a_text, bool $detectGotoLinks = false): string
     {
@@ -470,12 +466,12 @@ class ilUtil
             $a_str = ilUtil::unmaskSecureTags($a_str, $allow_array);
 
         // a possible solution could be something like:
-            // $a_str = str_replace("<", "&lt;", $a_str);
-            // $a_str = str_replace(">", "&gt;", $a_str);
-            // $a_str = ilUtil::unmaskSecureTags($a_str, $allow_array);
+        // $a_str = str_replace("<", "&lt;", $a_str);
+        // $a_str = str_replace(">", "&gt;", $a_str);
+        // $a_str = ilUtil::unmaskSecureTags($a_str, $allow_array);
             //
-            // output would be ok then, but input fields would show
-            // "a &lt;= b" for input "a <= b" if data is brought back to a form
+        // output would be ok then, but input fields would show
+        // "a &lt;= b" for input "a <= b" if data is brought back to a form
         } else {
             // only for scripts, that need to allow more/other tags and parameters
             if ($a_strip_html) {
@@ -846,11 +842,11 @@ class ilUtil
             filter_var("http://de.de/" . $url, FILTER_VALIDATE_URL) === false) {
             return "";
         }
-        if (trim(strtolower(parse_url($url, PHP_URL_SCHEME))) == "javascript") {
+        if (trim(strtolower(parse_url($url, PHP_URL_SCHEME) ?? '')) === "javascript") {
             return "";
         }
-        $url = htmlspecialchars($url, ENT_QUOTES);
-        return $url;
+
+        return htmlspecialchars($url, ENT_QUOTES);
     }
 
     /**

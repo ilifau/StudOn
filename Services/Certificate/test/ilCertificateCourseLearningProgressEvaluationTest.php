@@ -38,7 +38,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                         '[]',
                         1,
                         'v5.4.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/thumbnail.svg',
@@ -52,7 +52,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                         '[]',
                         1,
                         'v5.4.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/thumbnail.svg',
@@ -137,7 +137,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                         '[]',
                         1,
                         'v5.4.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/thumbnail.svg',
@@ -151,7 +151,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                         '[]',
                         1,
                         'v5.4.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/thumbnail.svg',
@@ -237,7 +237,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                         '[]',
                         1,
                         'v5.4.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/thumbnail.svg',
@@ -251,7 +251,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                         '[]',
                         1,
                         'v5.4.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/thumbnail.svg',
@@ -312,7 +312,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                     'template_values' => '[]',
                     'version' => 1,
                     'ilias_version' => 'v5.4.0',
-                    'created_timestamp' => 123456789,
+                    'created_timestamp' => 123_456_789,
                     'currently_active' => true,
                     'background_image_path' => '/some/where/background.jpg',
                     'thumbnail_image_path' => 'some/path/test.svg'
@@ -326,7 +326,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                     'template_values' => '[]',
                     'version' => 55,
                     'ilias_version' => 'v5.3.0',
-                    'created_timestamp' => 123456789,
+                    'created_timestamp' => 123_456_789,
                     'currently_active' => false,
                     'background_image_path' => '/some/where/else/background.jpg',
                     'thumbnail_image_path' => 'some/path/test.svg'
@@ -337,8 +337,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
 
     /**
      * @dataProvider globalLearningProgressStateProvder
-     * @param bool                    $isGlobalLpEnabled
-     * @param ilCertificateTemplate[] $template_recods
+     * @param array[] $template_recods
      */
     public function testRetrievingCertificateTemplatesForCoursesWorksAsExpectedWhenUsingNonCachingRepository(
         bool $isGlobalLpEnabled,
@@ -346,7 +345,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
     ): void {
         $statement = $database = $this->getMockBuilder(ilDBStatement::class)->getMock();
         $i = 0;
-        $database->method('fetch')->willReturnCallback(static function () use (&$i, $template_recods) {
+        $database->method('fetch')->willReturnCallback(static function () use (&$i, $template_recods): ?array {
             $result = $template_recods[$i] ?? null;
             ++$i;
 
@@ -411,7 +410,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                         '[]',
                         1,
                         'v5.4.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/thumbnail.svg',
@@ -425,7 +424,7 @@ class ilCertificateCourseLearningProgressEvaluationTest extends ilCertificateBas
                         '[]',
                         1,
                         'v5.4.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/thumbnail.svg',

@@ -781,9 +781,11 @@ class ilObjLTIConsumer extends ilObject2
         global $DIC; /* @var \ILIAS\DI\Container $DIC */
 
         $roles = $DIC->access()->checkAccess('write', '', $this->getRefId()) ? "Instructor" : "Learner";
+
         if ($DIC->rbac()->review()->isAssigned($DIC->user()->getId(), SYSTEM_ROLE_ID)) {
             $roles = "Administrator";
         }
+
         if ($this->getProvider()->getAlwaysLearner() == true) {
             $roles = "Learner";
         }

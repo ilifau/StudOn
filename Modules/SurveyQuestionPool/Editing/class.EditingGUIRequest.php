@@ -85,23 +85,6 @@ class EditingGUIRequest
         return $this->strArray("sort");
     }
 
-
-    public function getPhraseId(): int
-    {
-        return $this->int("p_id");
-    }
-
-    public function getPhraseIds(): array
-    {
-        return $this->intArray("phrase");
-    }
-
-    public function getPhraseTitle(): string
-    {
-        return $this->str("phrase_title");
-    }
-
-
     public function getAnswers(): array
     {
         $ans = $this->arrayArray("answers");
@@ -170,11 +153,6 @@ class EditingGUIRequest
     public function getFiles(): array
     {
         return $this->strArray("file");
-    }
-
-    public function getMaterialIndexes(): array
-    {
-        return $this->intArray("idx");
     }
 
     public function getPercentRow(): int

@@ -1,26 +1,30 @@
 <?php
 
+<<<<<<< HEAD
+=======
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+>>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Finder\Iterator;
 
 use ILIAS\Filesystem\DTO\Metadata;
 use ILIAS\Filesystem\Filesystem;
-use ReturnTypeWillChange;
-
-/******************************************************************************
- *
- * This file is part of ILIAS, a powerful learning management system.
- *
- * ILIAS is licensed with the GPL-3.0, you should have received a copy
- * of said license along with the source code.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- *      https://www.ilias.de
- *      https://github.com/ILIAS-eLearning
- *
- *****************************************************************************/
 
 /**
  * Class RecursiveDirectoryIterator
@@ -29,20 +33,14 @@ use ReturnTypeWillChange;
  */
 class RecursiveDirectoryIterator implements \RecursiveIterator
 {
-    private Filesystem $filesystem;
-    protected string $dir;
     /** @var Metadata[] */
     protected array $files = [];
 
     /**
      * RecursiveDirectoryIterator constructor.
-     * @param Filesystem $filesystem
-     * @param string $dir
      */
-    public function __construct(Filesystem $filesystem, string $dir)
+    public function __construct(private Filesystem $filesystem, protected string $dir)
     {
-        $this->filesystem = $filesystem;
-        $this->dir = $dir;
     }
 
     /**
@@ -64,7 +62,11 @@ class RecursiveDirectoryIterator implements \RecursiveIterator
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function current(): Metadata
+=======
+    public function current(): bool|\ILIAS\Filesystem\DTO\Metadata
+>>>>>>> v9.1
     {
         return current($this->files);
     }
@@ -83,7 +85,14 @@ class RecursiveDirectoryIterator implements \RecursiveIterator
     public function rewind(): void
     {
         $contents = $this->filesystem->listContents($this->dir, false);
+<<<<<<< HEAD
         $this->files = array_combine(array_map(static fn (Metadata $metadata): string => $metadata->getPath(), $contents), $contents);
+=======
+        $this->files = array_combine(
+            array_map(static fn (Metadata $metadata): string => $metadata->getPath(), $contents),
+            $contents
+        );
+>>>>>>> v9.1
     }
 
     /**

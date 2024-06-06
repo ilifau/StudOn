@@ -1,6 +1,9 @@
 <?php
 
+<<<<<<< HEAD
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +20,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\GlobalScreen\ScreenContext;
 
 use ILIAS\Data\ReferenceId;
@@ -25,13 +30,13 @@ use ILIAS\Refinery\Factory;
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
 
 /**
- * Class ContextRepository
  * The Collection of all available Contexts in the System. You can use them in
  * your @see ScreenContextAwareProvider to announce you are interested in.
  *
  * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @internal
  */
-class ContextRepository
+final class ContextRepository
 {
     private array $contexts = [];
     private const C_MAIN = 'main';
@@ -50,63 +55,86 @@ class ContextRepository
         $this->refinery = $DIC->refinery();
     }
 
+<<<<<<< HEAD
     /**
      * @return ScreenContext
      */
+=======
+>>>>>>> v9.1
     public function main(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, self::C_MAIN);
     }
 
+<<<<<<< HEAD
     /**
      * @return ScreenContext
      */
+=======
+>>>>>>> v9.1
     public function internal(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, 'internal');
     }
 
+<<<<<<< HEAD
     /**
      * @return ScreenContext
      */
+=======
+>>>>>>> v9.1
     public function external(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, 'external');
     }
 
+<<<<<<< HEAD
     /**
      * @return ScreenContext
      */
+=======
+>>>>>>> v9.1
     public function desktop(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, self::C_DESKTOP);
     }
 
+<<<<<<< HEAD
     /**
      * @return ScreenContext
      */
+=======
+>>>>>>> v9.1
     public function repository(): ScreenContext
     {
         $context = $this->get(BasicScreenContext::class, self::C_REPO);
         $ref_id = $this->wrapper->query()->has('ref_id')
             ? $this->wrapper->query()->retrieve('ref_id', $this->refinery->kindlyTo()->int())
-            : 0;
-        $context = $context->withReferenceId(new ReferenceId($ref_id));
+            : null;
+        if ($ref_id) {
+            $context = $context->withReferenceId(new ReferenceId($ref_id));
+        }
 
         return $context;
     }
 
+<<<<<<< HEAD
     /**
      * @return ScreenContext
      */
+=======
+>>>>>>> v9.1
     public function administration(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, self::C_ADMINISTRATION);
     }
 
+<<<<<<< HEAD
     /**
      * @return ScreenContext
      */
+=======
+>>>>>>> v9.1
     public function lti(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, self::C_LTI);

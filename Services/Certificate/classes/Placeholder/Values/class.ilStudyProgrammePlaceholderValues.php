@@ -20,25 +20,19 @@ declare(strict_types=1);
 
 class ilStudyProgrammePlaceholderValues implements ilCertificatePlaceholderValues
 {
-    private ilDefaultPlaceholderValues $defaultPlaceholderValuesObject;
-    private ilLanguage $language;
-    private ilCertificateObjectHelper $objectHelper;
-    private ilCertificateParticipantsHelper $participantsHelper;
-    private ilCertificateUtilHelper $ilUtilHelper;
+    private readonly ilDefaultPlaceholderValues $defaultPlaceholderValuesObject;
+    private readonly ilCertificateObjectHelper $objectHelper;
 
     public function __construct(
         ?ilDefaultPlaceholderValues $defaultPlaceholderValues = null,
         ?ilLanguage $language = null,
-        ?ilCertificateObjectHelper $objectHelper = null,
-        ?ilCertificateParticipantsHelper $participantsHelper = null,
-        ?ilCertificateUtilHelper $ilUtilHelper = null
+        ?ilCertificateObjectHelper $objectHelper = null
     ) {
         if (null === $language) {
             global $DIC;
             $language = $DIC->language();
             $language->loadLanguageModule('certificate');
         }
-        $this->language = $language;
 
         if (null === $defaultPlaceholderValues) {
             $defaultPlaceholderValues = new ilDefaultPlaceholderValues();
@@ -49,16 +43,6 @@ class ilStudyProgrammePlaceholderValues implements ilCertificatePlaceholderValue
         }
         $this->objectHelper = $objectHelper;
 
-        if (null === $participantsHelper) {
-            $participantsHelper = new ilCertificateParticipantsHelper();
-        }
-        $this->participantsHelper = $participantsHelper;
-
-        if (null === $ilUtilHelper) {
-            $ilUtilHelper = new ilCertificateUtilHelper();
-        }
-        $this->ilUtilHelper = $ilUtilHelper;
-
         $this->defaultPlaceholderValuesObject = $defaultPlaceholderValues;
     }
 
@@ -68,9 +52,6 @@ class ilStudyProgrammePlaceholderValues implements ilCertificatePlaceholderValue
      * ilInvalidCertificateException MUST be thrown if the
      * data could not be determined or the user did NOT
      * achieve the certificate.
-     * @param int $userId
-     * @param int $objId
-     * @return array - [PLACEHOLDER] => 'actual value'
      * @throws ilDatabaseException
      * @throws ilException
      * @throws ilObjectNotFoundException
@@ -90,11 +71,12 @@ class ilStudyProgrammePlaceholderValues implements ilCertificatePlaceholderValue
             $latest_progress ? (string) $latest_progress->getCurrentAmountOfPoints() : ''
         );
         $placeholders['PRG_COMPLETION_DATE'] = ilLegacyFormElementsUtil::prepareFormOutput(
-            $latest_progress ? $latest_progress->getCompletionDate()->format('d.m.Y') : ''
+            $latest_progress && $latest_progress->getCompletionDate() instanceof DateTimeImmutable ? $latest_progress->getCompletionDate(
+            )->format('d.m.Y') : ''
         );
         $placeholders['PRG_EXPIRES_AT'] = ilLegacyFormElementsUtil::prepareFormOutput(
-            $latest_progress && $latest_progress->getValidityOfQualification() ?
-                $latest_progress->getValidityOfQualification()->format('d.m.Y') : ''
+            $latest_progress && $latest_progress->getValidityOfQualification(
+            ) instanceof DateTimeImmutable ? $latest_progress->getValidityOfQualification()->format('d.m.Y') : ''
         );
         return $placeholders;
     }
@@ -103,9 +85,6 @@ class ilStudyProgrammePlaceholderValues implements ilCertificatePlaceholderValue
      * This method is different then the 'getPlaceholderValues' method, this
      * method is used to create a placeholder value array containing dummy values
      * that is used to create a preview certificate.
-     * @param int $userId
-     * @param int $objId
-     * @return array
      */
     public function getPlaceholderValuesForPreview(int $userId, int $objId): array
     {
@@ -140,7 +119,7 @@ class ilStudyProgrammePlaceholderValues implements ilCertificatePlaceholderValue
     {
         $successful = array_filter(
             $assignments,
-            fn ($ass) => $ass->getProgressTree()->isSuccessful()
+            fn($ass) => $ass->getProgressTree()->isSuccessful()
         );
         if (count($successful) === 0) {
             return null;
@@ -149,7 +128,7 @@ class ilStudyProgrammePlaceholderValues implements ilCertificatePlaceholderValue
         //is there an unlimited validity? if so, take latest.
         $unlimited = array_filter(
             $successful,
-            fn ($ass) => is_null($ass->getProgressTree()->getValidityOfQualification())
+            fn($ass) => is_null($ass->getProgressTree()->getValidityOfQualification())
         );
         if (count($unlimited) > 0) {
             $successful = $unlimited;
@@ -168,7 +147,7 @@ class ilStudyProgrammePlaceholderValues implements ilCertificatePlaceholderValue
             //there are (only) limited validities: take the one that lasts the longest.
             $limited = array_filter(
                 $successful,
-                fn ($ass) => !is_null($ass->getProgressTree()->getValidityOfQualification())
+                fn($ass) => !is_null($ass->getProgressTree()->getValidityOfQualification())
             );
             $successful = $limited;
             usort($successful, static function (ilPRGAssignment $a, ilPRGAssignment $b): int {

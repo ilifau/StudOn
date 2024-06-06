@@ -25,20 +25,17 @@ declare(strict_types=1);
  */
 class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRepository
 {
-    private ilDBInterface $database;
-    private ilLogger $logger;
-    private ilObjectDataCache $objectDataCache;
+    private readonly ilLogger $logger;
+    private readonly ilObjectDataCache $objectDataCache;
 
     public function __construct(
-        ilDBInterface $database,
+        private readonly ilDBInterface $database,
         ?ilLogger $logger = null,
         ?ilObjectDataCache $objectDataCache = null
     ) {
-        $this->database = $database;
-
         if (null === $logger) {
             global $DIC;
-            $logger = $logger = $DIC->logger()->cert();
+            $logger = $DIC->logger()->cert();
         }
         $this->logger = $logger;
 
@@ -91,11 +88,6 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
         return $this->database->manipulate($sql);
     }
 
-    /**
-     * @param int $templateId
-     * @return ilCertificateTemplate
-     * @throws ilException
-     */
     public function fetchTemplate(int $templateId): ilCertificateTemplate
     {
         $this->logger->debug(sprintf('START - Fetch certificate template with id: "%s"', $templateId));
@@ -112,11 +104,10 @@ ORDER BY version ASC';
             return $this->createCertificateTemplate($row);
         }
 
-        throw new ilException(sprintf('No template with id "%s" found', $templateId));
+        throw new ilCouldNotFindCertificateTemplate(sprintf('No template with id "%s" found', $templateId));
     }
 
     /**
-     * @param int $objId
      * @return ilCertificateTemplate[]
      */
     public function fetchCertificateTemplatesByObjId(int $objId): array
@@ -186,9 +177,7 @@ ORDER BY id DESC
     }
 
     /**
-     * @param int $objId
-     * @return ilCertificateTemplate
-     * @throws ilException
+     * @throws ilCouldNotFindCertificateTemplate
      */
     public function fetchCurrentlyActiveCertificate(int $objId): ilCertificateTemplate
     {
@@ -209,7 +198,7 @@ AND currently_active = 1
             return $this->createCertificateTemplate($row);
         }
 
-        throw new ilException((sprintf('NO active certificate template found for: "%s"', $objId)));
+        throw new ilCouldNotFindCertificateTemplate((sprintf('NO active certificate template found for: "%s"', $objId)));
     }
 
     public function fetchPreviousCertificate(int $objId): ilCertificateTemplate
@@ -353,9 +342,7 @@ WHERE id = ' . $this->database->quote($previousCertificate->getId(), 'integer');
     }
 
     /**
-     * @param int $objId
-     * @return ilCertificateTemplate
-     * @throws ilException
+     * @throws ilCouldNotFindCertificateTemplate
      */
     public function fetchFirstCreatedTemplate(int $objId): ilCertificateTemplate
     {
@@ -375,7 +362,7 @@ ORDER BY id ASC ';
             return $this->createCertificateTemplate($row);
         }
 
-        throw new ilException('No matching template found. MAY missing DBUpdate. Please check if the correct version is installed.');
+        throw new ilCouldNotFindCertificateTemplate('No matching template found. MAY missing DBUpdate. Please check if the correct version is installed.');
     }
 
     private function deactivatePreviousTemplates(int $objId): void
@@ -444,7 +431,6 @@ WHERE obj_id = ' . $this->database->quote($objId, 'integer');
 
     /**
      * @param array<string, mixed> $row
-     * @return ilCertificateTemplate
      */
     private function createCertificateTemplate(array $row): ilCertificateTemplate
     {

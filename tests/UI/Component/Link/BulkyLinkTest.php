@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,12 +21,19 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
 use ILIAS\UI\Component\Link as C;
 use ILIAS\UI\Implementation\Component as I;
 use ILIAS\Data;
+use ILIAS\Data\LanguageTag;
+use ILIAS\UI\Component\Link\Relationship;
 
 /**
  * Testing behavior of the Bulky Link.
@@ -140,7 +150,7 @@ class BulkyLinkTest extends ILIAS_UI_TestBase
 
         $expected = ''
             . '<a class="il-link link-bulky" href="http://www.ilias.de">'
-            . '	<img class="icon someExample small" src="./templates/default/images/icon_default.svg" alt=""/>'
+            . '	<img class="icon someExample small" src="./templates/default/images/standard/icon_default.svg" alt=""/>'
             . '	<span class="bulky-label">label</span>'
             . '</a>';
 
@@ -159,7 +169,7 @@ class BulkyLinkTest extends ILIAS_UI_TestBase
 
         $expected = ''
             . '<a class="il-link link-bulky" href="http://www.ilias.de" id="id_1">'
-            . '<img class="icon someExample small" src="./templates/default/images/icon_default.svg" alt=""/>'
+            . '<img class="icon someExample small" src="./templates/default/images/standard/icon_default.svg" alt=""/>'
             . ' <span class="bulky-label">label</span>'
             . '</a>';
 
@@ -177,7 +187,7 @@ class BulkyLinkTest extends ILIAS_UI_TestBase
 
         $expected = ''
         . '<a class="il-link link-bulky" href="http://www.ilias.de" role="menuitem">'
-        . '<img class="icon someExample small" src="./templates/default/images/icon_default.svg" alt=""/>'
+        . '<img class="icon someExample small" src="./templates/default/images/standard/icon_default.svg" alt=""/>'
         . ' <span class="bulky-label">label</span>'
         . '</a>';
 
@@ -195,7 +205,7 @@ class BulkyLinkTest extends ILIAS_UI_TestBase
 
         $expected = ''
             . '<a class="il-link link-bulky" href="http://www.ilias.de" role="menuitem">'
-            . '<img class="icon someExample small" src="./templates/default/images/icon_default.svg"  alt=""/>'
+            . '<img class="icon someExample small" src="./templates/default/images/standard/icon_default.svg"  alt=""/>'
             . ' <span class="bulky-label">Example</span>'
             . '</a>';
 
@@ -203,5 +213,86 @@ class BulkyLinkTest extends ILIAS_UI_TestBase
             $expected,
             $r->render($b)
         );
+    }
+
+    public function testRenderWithLanguage(): void
+    {
+        $language = $this->getMockBuilder(LanguageTag::class)->getMock();
+        $language->method('__toString')->willReturn('en');
+        $reference = $this->getMockBuilder(LanguageTag::class)->getMock();
+        $reference->method('__toString')->willReturn('fr');
+
+        $r = $this->getDefaultRenderer();
+        $b = $this->factory->bulky($this->icon, "label", $this->target)
+            ->withContentLanguage($language)
+            ->withLanguageOfReferencedContent($reference);
+
+        $expected = ''
+            . '<a lang="en" hreflang="fr" class="il-link link-bulky" href="http://www.ilias.de">'
+            . '<img class="icon someExample small" src="./templates/default/images/standard/icon_default.svg" alt=""/>'
+            . ' <span class="bulky-label">label</span>'
+            . '</a>';
+
+        $this->assertHTMLEquals(
+            $expected,
+            $r->render($b)
+        );
+    }
+
+    public function testRenderWithHelpTopic(): void
+    {
+        $r = $this->getDefaultRenderer();
+        $b = $this->factory->bulky($this->icon, "label", $this->target)
+            ->withHelpTopics(new \ILIAS\UI\Help\Topic("a"));
+
+        $html = $r->render($b);
+        $expected_html = <<<EXP
+            <div class="c-tooltip__container">
+                <a class="il-link link-bulky" aria-describedby="id_1" href="http://www.ilias.de" id="id_2">
+                    <img class="icon someExample small" src="./templates/default/images/standard/icon_default.svg" alt="" />
+                    <span class="bulky-label">label</span>
+                </a>
+                <div id="id_1" role="tooltip" class="c-tooltip c-tooltip--hidden"><p>tooltip: a</p></div>
+             </div>
+EXP;
+
+        $this->assertHTMLEquals($expected_html, $html);
+    }
+
+    public function testRenderWithRelationships(): void
+    {
+        $r = $this->getDefaultRenderer();
+        $b = $this->factory->bulky($this->icon, "label", $this->target)
+               ->withAdditionalRelationshipToReferencedResource(Relationship::LICENSE)
+               ->withAdditionalRelationshipToReferencedResource(Relationship::NOOPENER);
+
+        $expected_html = <<<EXP
+            <a class="il-link link-bulky" href="http://www.ilias.de" rel="license noopener">
+                <img class="icon someExample small" src="./templates/default/images/standard/icon_default.svg" alt=""/>
+                <span class="bulky-label">label</span>
+            </a>
+EXP;
+
+        $html = $r->render($b);
+        $this->assertHTMLEquals($expected_html, $html);
+    }
+
+    public function testRenderWithDuplicateRelationship(): void
+    {
+        $r = $this->getDefaultRenderer();
+        $b = $this->factory->bulky($this->icon, "label", $this->target)
+                           ->withAdditionalRelationshipToReferencedResource(Relationship::LICENSE)
+                           ->withAdditionalRelationshipToReferencedResource(Relationship::NOOPENER)
+                           ->withAdditionalRelationshipToReferencedResource(Relationship::LICENSE);
+
+        $expected_html = <<<EXP
+            <a class="il-link link-bulky" href="http://www.ilias.de" rel="license noopener">
+                <img class="icon someExample small" src="./templates/default/images/standard/icon_default.svg" alt=""/>
+                <span class="bulky-label">label</span>
+            </a>
+EXP;
+
+        $html = $r->render($b);
+        $this->assertHTMLEquals($expected_html, $html);
     }
 }

@@ -15,7 +15,7 @@
  *
  *********************************************************************/
 
-include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
+use ILIAS\TA\Questions\assQuestionSuggestedSolution;
 
 /**
 * Class for question exports
@@ -63,7 +63,7 @@ class assQuestionExport
                 0,
                 $index
             );
-            $this->object->addQTIMaterial($a_xml_writer, $fb);
+            $this->addQTIMaterial($a_xml_writer, $fb);
             $a_xml_writer->xmlEndTag("flow_mat");
             $a_xml_writer->xmlEndTag("itemfeedback");
         }
@@ -148,7 +148,7 @@ class assQuestionExport
             $a_xml_writer->xmlStartTag("itemfeedback", $attrs);
             // qti flow_mat
             $a_xml_writer->xmlStartTag("flow_mat");
-            $this->object->addQTIMaterial($a_xml_writer, $feedback_allcorrect);
+            $this->addQTIMaterial($a_xml_writer, $feedback_allcorrect);
             $a_xml_writer->xmlEndTag("flow_mat");
             $a_xml_writer->xmlEndTag("itemfeedback");
         }
@@ -160,7 +160,7 @@ class assQuestionExport
             $a_xml_writer->xmlStartTag("itemfeedback", $attrs);
             // qti flow_mat
             $a_xml_writer->xmlStartTag("flow_mat");
-            $this->object->addQTIMaterial($a_xml_writer, $feedback_onenotcorrect);
+            $this->addQTIMaterial($a_xml_writer, $feedback_onenotcorrect);
             $a_xml_writer->xmlEndTag("flow_mat");
             $a_xml_writer->xmlEndTag("itemfeedback");
         }
@@ -247,5 +247,60 @@ class assQuestionExport
             $writer->xmlElement(self::ITEM_SOLUTIONHINT, $attrs, $data);
         }
         return $writer;
+    }
+
+    protected function addSuggestedSolutionLink(ilXmlWriter $writer, assQuestionSuggestedSolution $suggested_solution): ilXmlWriter
+    {
+        if (!$suggested_solution->isOfTypeLink()) {
+            return $writer;
+        }
+
+        if (preg_match("/il_(\d*?)_(\w+)_(\d+)/", $suggested_solution->getInternalLink(), $matches) !== 1) {
+            return $writer;
+        }
+
+        $writer->xmlStartTag("material");
+        $intlink = "il_" . IL_INST_ID . "_" . $matches[2] . "_" . $matches[3];
+        if (strcmp($matches[1], "") != 0) {
+            $intlink = $suggested_solution->getInternalLink();
+        }
+        $attrs = array(
+            "label" => "suggested_solution"
+        );
+        $writer->xmlElement("mattext", $attrs, $intlink);
+        $writer->xmlEndTag("material");
+
+        return $writer;
+    }
+
+    public function addQTIMaterial(ilXmlWriter $a_xml_writer, string $a_material, bool $close_material_tag = true, bool $add_mobs = true): void
+    {
+        $a_xml_writer->xmlStartTag("material");
+        $attrs = array(
+            "texttype" => "text/plain"
+        );
+        if (ilUtil::isHTML($a_material)) {
+            $attrs["texttype"] = "text/xhtml";
+        }
+        $a_xml_writer->xmlElement("mattext", $attrs, ilRTE::_replaceMediaObjectImageSrc($a_material, 0));
+        if ($add_mobs) {
+            $mobs = ilObjMediaObject::_getMobsOfObject("qpl:html", $this->object->getId());
+            foreach ($mobs as $mob) {
+                $moblabel = "il_" . IL_INST_ID . "_mob_" . $mob;
+                if (str_contains($a_material, "mm_$mob")) {
+                    if (ilObjMediaObject::_exists($mob)) {
+                        $mob_obj = new ilObjMediaObject($mob);
+                        $imgattrs = array(
+                            "label" => $moblabel,
+                            "uri" => "objects/" . "il_" . IL_INST_ID . "_mob_" . $mob . "/" . $mob_obj->getTitle()
+                        );
+                    }
+                    $a_xml_writer->xmlElement("matimage", $imgattrs, null);
+                }
+            }
+        }
+        if ($close_material_tag) {
+            $a_xml_writer->xmlEndTag("material");
+        }
     }
 }

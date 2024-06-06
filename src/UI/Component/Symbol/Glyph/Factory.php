@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Component\Symbol\Glyph;
 
 /**
@@ -34,9 +42,6 @@ interface Factory
      *       The Settings Glyph uses the glyphicon-cog.
      *   effect: >
      *      Upon clicking, a settings Dropdown is opened.
-     *
-     * context:
-     *    - In ILIAS <5.4, blocks on the Personal Desktop feature the Settings Glyph.
      *
      * rules:
      *   usage:
@@ -1319,8 +1324,152 @@ interface Factory
      *       1: >
      *          The aria-label MUST be ‘collapse/back'.
      * ---
-     * @param   string|null $action
+     * @param string|null $action
      * @return  \ILIAS\UI\Component\Symbol\Glyph\Glyph
      */
     public function collapseHorizontal(string $action = null): Glyph;
+
+    /**
+     * ---
+     * description:
+     *   purpose: >
+     *      The Heading Glyph indicates the intention of an action in an e.g. link or button, which
+     *      transforms some text from or into a heading.
+     *   composition: >
+     *       The Heading Glyph is composed of the letter H.
+     *   effect: >
+     *      Clicking the Heading Glyph may insert or transform some text into a heading.
+     *   rivals:
+     *      Bold Glyph: should be used if the transformation should be bold.
+     *      Italic Glyph: should be used if the transformation should be italic.
+     *      Link Glyph: should be used if the transformation should be a link.
+     *
+     * context:
+     *    -  Appears in the markdown-actions.
+     *
+     * rules:
+     *   accessibility:
+     *       1: >
+     *          The aria-label MUST be ‘Insert Heading'.
+     * ---
+     * @param string|null $action
+     * @return  \ILIAS\UI\Component\Symbol\Glyph\Glyph
+     */
+    public function header(string $action = null): Glyph;
+
+    /**
+     * ---
+     * description:
+     *   purpose: >
+     *      The Italic Glyph indicates the intention of an action in an e.g. link or button, which
+     *      transforms some text from or into cursive one.
+     *   composition: >
+     *       The Italic Glyph is composed of the letter I.
+     *   effect: >
+     *      Clicking the Italic Glyph may insert or transform some text into cursive one.
+     *   rivals:
+     *      Bold Glyph: should be used if the transformation should be bold.
+     *      Heading Glyph: should be used if the transformation should be a heading.
+     *      Link Glyph: should be used if the transformation should be a link.
+     *
+     * context:
+     *    -  Appears in the markdown-actions.
+     *
+     * rules:
+     *   accessibility:
+     *       1: >
+     *          The aria-label MUST be ‘Insert Italic'.
+     * ---
+     * @param string|null $action
+     * @return  \ILIAS\UI\Component\Symbol\Glyph\Glyph
+     */
+    public function italic(string $action = null): Glyph;
+
+    /**
+     * ---
+     * description:
+     *   purpose: >
+     *      The Bold Glyph indicates the intention of an action in an e.g. link or button, which
+     *      transforms some text from or into bold one.
+     *   composition: >
+     *       The Bold Glyph is composed of the letter B.
+     *   effect: >
+     *      Clicking the Bold Glyph may insert or transform some text into bold one.
+     *   rivals:
+     *      Italic Glyph: should be used if the transformation should be italic.
+     *      Heading Glyph: should be used if the transformation should be a heading.
+     *      Link Glyph: should be used if the transformation should be a link.
+     *
+     * context:
+     *    -  Appears in the markdown-actions.
+     *
+     * rules:
+     *   accessibility:
+     *       1: >
+     *          The aria-label MUST be ‘Insert Bold'.
+     * ---
+     * @param string|null $action
+     * @return  \ILIAS\UI\Component\Symbol\Glyph\Glyph
+     */
+    public function bold(string $action = null): Glyph;
+
+    /**
+     * ---
+     * description:
+     *   purpose: >
+     *      The Link Glyph indicates the intention of an action in an e.g. link or button, which
+     *      transforms some text from or into a link.
+     *   composition: >
+     *       The Link Glyph is composed out of two linked chain-pieces that ilustrate the official
+     *       URL symbol.
+     *   effect: >
+     *      Clicking the Link Glyph may insert or transform some text into bold one.
+     *   rivals:
+     *      Italic Glyph: should be used if the transformation should be italic.
+     *      Heading Glyph: should be used if the transformation should be a heading.
+     *      Bold Glyph: should be used if the transformation should be bold.
+     *
+     * context:
+     *    -  Appears in the markdown-actions.
+     *
+     * rules:
+     *   accessibility:
+     *       1: >
+     *          The aria-label MUST be ‘Insert Link'.
+     * ---
+     * @param string|null $action
+     * @return  \ILIAS\UI\Component\Symbol\Glyph\Glyph
+     */
+    public function link(string $action = null): Glyph;
+
+
+    /**
+     * ---
+     * description:
+     *   purpose: >
+     *      The Launch Glyph indicates a process to start, e.g. subscribing to a
+     *      Course or triggering a SCORM Module.
+     *   composition: >
+     *      The Launch Glyph uses the glyphicon plane.
+     *   effect: >
+     *      Clicking the Launch Glyph will immediately start or continue the process; this
+     *      may manifest as a Modal to open or the redirection to the appropriate Page.
+     * context:
+     *    -  The Launch Glyph appears in the Launcher's Bulky Button.
+     * rules:
+     *   accessibility:
+     *       1: >
+     *          The aria-label MUST be 'launch'.
+     *   usage:
+     *       1: The LAUNCH Glyph MUST NOT be used for mere navigation; focus is on
+     *         a process to start, which means altering a user's relation to some object.
+     * ---
+     * @param   string|null $action
+     * @return  \ILIAS\UI\Component\Symbol\Glyph\Glyph
+     */
+<<<<<<< HEAD
+    public function collapseHorizontal(string $action = null): Glyph;
+=======
+    public function launch(string $action = null): Glyph;
+>>>>>>> v9.1
 }

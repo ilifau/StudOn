@@ -23,11 +23,8 @@ declare(strict_types=1);
  */
 class ilMailTransportSettings
 {
-    private ilMailOptions $mailOptions;
-
-    public function __construct(ilMailOptions $mailOptions)
+    public function __construct(private readonly ilMailOptions $mailOptions)
     {
-        $this->mailOptions = $mailOptions;
     }
 
     public function adjust(string $firstMail, string $secondMail, bool $persist = true): void
@@ -60,7 +57,6 @@ class ilMailTransportSettings
             if ($persist) {
                 $this->mailOptions->updateOptions();
             }
-            return;
         }
     }
 }

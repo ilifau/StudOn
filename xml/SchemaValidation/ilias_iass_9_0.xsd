@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified">
+
+  <xs:element name='Iass'>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="id" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="title" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="description" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="content" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="recordTemplate" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="eventTimePlaceRequired" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="file_required" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="contact" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="responsibility" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="phone" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="mails" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="consultation_hours" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

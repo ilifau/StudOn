@@ -18,6 +18,7 @@
 
 declare(strict_types=1);
 
+<<<<<<<< HEAD:src/ResourceStorage/Consumer/StreamAccess/UnlockKey.php
 namespace ILIAS\ResourceStorage\Consumer\StreamAccess;
 
 /**
@@ -32,6 +33,23 @@ class UnlockKey
     }
 
     public function __unserialize(array $data): void
+========
+namespace ILIAS\MetaData\Elements\RessourceID;
+
+class NullRessourceID implements RessourceIDInterface
+{
+    public function type(): string
+>>>>>>>> v9.1:Services/MetaData/classes/Elements/RessourceID/NullRessourceID.php
     {
+    }
+
+    public function objID(): int
+    {
+        return 0;
+    }
+
+    public function subID(): int
+    {
+        return 0;
     }
 }

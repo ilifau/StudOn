@@ -46,11 +46,11 @@ class ilContentPageExporter extends ilXmlExporter implements ilContentPageObject
     public function getValidSchemaVersions(string $a_entity): array
     {
         return [
-            '5.4.0' => [
-                'namespace' => 'http://www.ilias.de/Modules/ContentPage/' . self::OBJ_TYPE . '/5_4',
-                'xsd_file' => 'ilias_' . self::OBJ_TYPE . '_5_4.xsd',
+            '9.0' => [
+                'namespace' => 'http://www.ilias.de/Modules/ContentPage/' . self::OBJ_TYPE . '/9',
+                'xsd_file' => 'ilias_' . self::OBJ_TYPE . '_9.xsd',
                 'uses_dataset' => true,
-                'min' => '5.4.0',
+                'min' => '9.0',
                 'max' => '',
             ],
         ];
@@ -60,12 +60,15 @@ class ilContentPageExporter extends ilXmlExporter implements ilContentPageObject
     {
         $pageObjectIds = [];
         $styleIds = [];
+        $metadataIds = [];
 
         foreach ($a_ids as $copaObjId) {
             $copa = ilObjectFactory::getInstanceByObjId($copaObjId, false);
             if (!$copa || !($copa instanceof ilObjContentPage)) {
                 continue;
             }
+
+            $metadataIds[] = $copaObjId . ':0:' . self::OBJ_TYPE;
 
             $copaPageObjIds = $copa->getPageObjIds();
             foreach ($copaPageObjIds as $copaPageObjId) {
@@ -87,6 +90,14 @@ class ilContentPageExporter extends ilXmlExporter implements ilContentPageObject
                 'component' => 'Services/COPage',
                 'entity' => 'pg',
                 'ids' => $pageObjectIds,
+            ];
+        }
+
+        if (count($metadataIds) > 0) {
+            $deps[] = [
+                'component' => 'Services/MetaData',
+                'entity' => 'md',
+                'ids' => $metadataIds,
             ];
         }
 

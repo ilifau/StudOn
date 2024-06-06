@@ -38,9 +38,6 @@ class ilMStListCertificatesGUI
     private ilGlobalTemplateInterface $main_tpl;
     private ilCtrlInterface $ctrl;
     private ilLanguage $language;
-    private WrapperFactory $httpWrapper;
-    private ILIAS\Refinery\Factory $refinery;
-    private ilAccessHandler $accessHandler;
 
     public function __construct()
     {
@@ -48,10 +45,7 @@ class ilMStListCertificatesGUI
         $this->main_tpl = $DIC->ui()->mainTemplate();
         $this->ctrl = $DIC->ctrl();
         $this->language = $DIC->language();
-        $this->httpWrapper = $DIC->http()->wrapper();
-        $this->refinery = $DIC->refinery();
         $this->access = ilMyStaffAccess::getInstance();
-        $this->accessHandler = $DIC->access();
     }
 
     protected function checkAccessOrFail(): void
@@ -108,7 +102,7 @@ class ilMStListCertificatesGUI
 
         $this->table = new ilMStListCertificatesTableGUI($this, self::CMD_INDEX);
         $this->main_tpl->setTitle($this->language->txt('mst_list_certificates'));
-        $this->main_tpl->setTitleIcon(ilUtil::getImagePath('icon_cert.svg'));
+        $this->main_tpl->setTitleIcon(ilUtil::getImagePath('standard/icon_cert.svg'));
         $this->main_tpl->setContent($this->table->getHTML());
     }
 

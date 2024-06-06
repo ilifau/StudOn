@@ -28,8 +28,12 @@ use ILIAS\UI\Component\Symbol\Symbol;
  * Class BaseItem
  * @author Fabian Schmid <fs@studer-raimann.ch>
  */
-class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTitle, isParent
+class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTitle, isParent, hasContentLanguage
 {
+<<<<<<< HEAD
+=======
+    use ContentLanguage;
+>>>>>>> v9.1
     use \ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
 
     /**

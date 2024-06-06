@@ -18,18 +18,30 @@
 
 declare(strict_types=1);
 
-/**
- * Class ilContentPageDataSet
- */
 class ilContentPageDataSet extends ilDataSet implements ilContentPageObjectConstants
 {
-    /** @var int[] */
-    protected array $newMobIds = [];
+    /**
+     * @var array<int, list<int>>
+     */
+    public static array $style_map = [];
+
+    protected \ILIAS\Style\Content\DomainService $content_style_domain;
+
+    public function __construct()
+    {
+        global $DIC;
+
+        parent::__construct();
+
+        $this->content_style_domain = $DIC
+            ->contentStyle()
+            ->domain();
+    }
 
     public function getSupportedVersions(): array
     {
         return [
-            '5.4.0',
+            '5.4.0', '9.0.0',
         ];
     }
 
@@ -40,18 +52,15 @@ class ilContentPageDataSet extends ilDataSet implements ilContentPageObjectConst
 
     protected function getTypes(string $a_entity, string $a_version): array
     {
-        switch ($a_entity) {
-            case self::OBJ_TYPE:
-                return [
-                    'id' => 'integer',
-                    'title' => 'text',
-                    'description' => 'text',
-                    'info-tab' => 'integer'
-                ];
-
-            default:
-                return [];
-        }
+        return match ($a_entity) {
+            self::OBJ_TYPE => [
+                'id' => 'integer',
+                'title' => 'text',
+                'description' => 'text',
+                'info-tab' => 'integer'
+            ],
+            default => [],
+        };
     }
 
     public function readData(string $a_entity, string $a_version, array $a_ids): void
@@ -67,7 +76,6 @@ class ilContentPageDataSet extends ilDataSet implements ilContentPageObjectConst
 
 
     /**
-     * @param string $entity
      * @param int[] $ids
      */
     protected function readEntityData(string $entity, array $ids): void
@@ -120,6 +128,10 @@ class ilContentPageDataSet extends ilDataSet implements ilContentPageObjectConst
                     $newObject->create();
                 }
 
+                if ($a_rec['Style'] ?? false) {
+                    self::$style_map[(int) $a_rec['Style']][] = $newObject->getId();
+                }
+
                 ilContainer::_writeContainerSetting(
                     $newObject->getId(),
                     ilObjectServiceSettingsGUI::INFO_TAB_VISIBILITY,
@@ -138,7 +150,28 @@ class ilContentPageDataSet extends ilDataSet implements ilContentPageObjectConst
                     self::OBJ_TYPE . ':' . $a_rec['id'],
                     self::OBJ_TYPE . ':' . $newObject->getId()
                 );
+                $a_mapping->addMapping(
+                    'Services/MetaData',
+                    'md',
+                    $a_rec['id'] . ':0:' . self::OBJ_TYPE,
+                    $newObject->getId() . ':0:' . self::OBJ_TYPE
+                );
                 break;
         }
+    }
+
+    public function getXmlRecord(
+        string $a_entity,
+        string $a_version,
+        array $a_set
+    ): array {
+        if ($a_entity === self::OBJ_TYPE) {
+            $style = $this->content_style_domain->styleForObjId((int) $a_set['id']);
+            $a_set['Style'] = $style->getStyleId();
+
+            return $a_set;
+        }
+        
+        return parent::getXmlRecord($a_entity, $a_version, $a_set);
     }
 }

@@ -34,13 +34,33 @@ class NullCopyrightData implements CopyrightDataInterface
         return null;
     }
 
+    public function hasImage(): bool
+    {
+        return false;
+    }
+
+    public function isImageLink(): bool
+    {
+        return false;
+    }
+
     public function imageLink(): ?URI
     {
         return null;
     }
 
+    public function imageFile(): string
+    {
+        return '';
+    }
+
     public function altText(): string
     {
         return '';
+    }
+
+    public function fallBackToDefaultImage(): bool
+    {
+        return false;
     }
 }

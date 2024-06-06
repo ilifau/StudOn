@@ -24,16 +24,12 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
         'crs',
         'grp',
     ];
-
-    /** @var ilDBInterface */
-    private $db;
-    /** @var int */
-    private $recoveryFolderId;
-
+    
+    private ilDBInterface $db;
+    private int $recoveryFolderId;
     // fau: filterMyMem - class variable for term
     private string $filterTermId;
     // fau.
-
 
     public function __construct(ilDBInterface $db, int $recoveryFolderId)
     {
@@ -56,9 +52,6 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
         return self::VALID_OBJECT_TYPES;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getForUser(ilObjUser $user, array $objTypes, string $actorLanguageCode): Generator
     {
         $objTypes = array_intersect($objTypes, self::VALID_OBJECT_TYPES);
@@ -70,7 +63,7 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
             'od.type',
             $objTypes,
             false,
-            'text'
+            ilDBConstants::T_TEXT
         );
 
         // fau: filterMyMem - add term filter to query, if defined
@@ -138,7 +131,7 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
                 WHERE ua.usr_id = %s
                 $termFilter
             ",
-            ['text', 'integer', 'integer', 'text', 'integer'],
+            [ilDBConstants::T_TEXT, ilDBConstants::T_INTEGER, ilDBConstants::T_INTEGER, ilDBConstants::T_TEXT, ilDBConstants::T_INTEGER],
             ['y', 1, $this->recoveryFolderId, $actorLanguageCode, $user->getId()]
         );
         // fau.

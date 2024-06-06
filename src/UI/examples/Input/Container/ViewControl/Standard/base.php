@@ -19,7 +19,11 @@ function base()
         $f->input()->viewControl()->pagination()
             ->withAdditionalTransformation(
                 $refinery->custom()->transformation(
+<<<<<<< HEAD
                     fn ($v) => ['vc_range' => $v]
+=======
+                    fn($v) => ['vc_range' => $v]
+>>>>>>> v9.1
                 )
             )
             ->withTotalCount(312)
@@ -32,7 +36,11 @@ function base()
             ])
             ->withAdditionalTransformation(
                 $refinery->custom()->transformation(
+<<<<<<< HEAD
                     fn ($v) => ['vc_sortation' => $v]
+=======
+                    fn($v) => ['vc_sortation' => $v]
+>>>>>>> v9.1
                 )
             )
             ->withValue(['field2', 'ASC']),
@@ -43,7 +51,11 @@ function base()
             ], 'shown columns', 'apply')
             ->withAdditionalTransformation(
                 $refinery->custom()->transformation(
+<<<<<<< HEAD
                     fn ($v) => ['vc_columns' => $v]
+=======
+                    fn($v) => ['vc_columns' => $v]
+>>>>>>> v9.1
                 )
             )
             ->withValue(['field1','field2']),
@@ -52,7 +64,11 @@ function base()
     $vc_container = $f->input()->container()->viewControl()->standard($vcs)
          ->withAdditionalTransformation(
              $refinery->custom()->transformation(
+<<<<<<< HEAD
                  fn ($v) => array_filter(array_values($v)) === [] ? null : array_merge(...array_values($v))
+=======
+                 fn($v) => array_filter(array_values($v)) === [] ? null : array_merge(...array_values($v))
+>>>>>>> v9.1
              )
          )
         ->withRequest($request);

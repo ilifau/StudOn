@@ -125,7 +125,6 @@ class ilSystemStyleOverviewGUI
             case 'view':
                 $this->$cmd();
                 break;
-
         }
         $this->message_stack->sendMessages();
     }
@@ -133,7 +132,44 @@ class ilSystemStyleOverviewGUI
     protected function view(): void
     {
         $table = new ilSystemStylesTableGUI($this, 'edit');
-        $this->tpl->setContent($table->getHTML());
+        $this->tpl->setContent($table->getHTML().$table->getModalsHtml());
+    }
+
+    public function getAssignmentCreationModal(string $style_name = ""): ?\ILIAS\UI\Component\Modal\RoundTrip
+    {
+        $options = [];
+        foreach (ilStyleDefinition::getAllSkinStyles() as $id => $skin_style) {
+            if (!$skin_style['substyle_of'] && $style_name != $skin_style['style_name']) {
+                $options[$id] = $skin_style['title'];
+            }
+        }
+
+        $default = "default:delos";
+        if($style_name == "Delos") {
+            $default = key($options);
+        }
+
+        if(count($options) == 0) {
+            return null;
+        }
+
+        $txt = $this->lng->txt('sty_move_user_styles').' '.$this->lng->txt('sty_to');
+
+        $byline = $this->lng->txt('sty_move_user_styles') . ' ' .
+            $this->lng->txt('sty_from')  . ' ' . $style_name;
+
+        $select = $this->ui_factory->input()->field()
+                                            ->select($txt, $options, $byline)
+                                            ->withValue($default)
+                                            ->withAdditionalTransformation($this->refinery->string()->splitString(':'))
+                                            ->withRequired(true);
+
+        return $this->ui_factory->modal()->roundtrip(
+            $this->lng->txt('change_assignment'),
+            [],
+            ["new_style" => $select],
+            $this->ctrl->getLinkTargetByClass(ilSystemStyleOverviewGUI::class, 'moveUserStyles')
+        );
     }
 
     protected function cancel(): void
@@ -159,44 +195,26 @@ class ilSystemStyleOverviewGUI
                 $add_sub = $add_sub->withUnavailableAction();
             }
             $this->toolbar->addComponent($add_sub);
-            $this->toolbar->addSeparator();
         }
-
-        // from styles selector
-        $si = new ilSelectInputGUI(
-            $this->lng->txt('sty_move_user_styles') . ': ' . $this->lng->txt('sty_from'),
-            'from_style'
-        );
-
-        $options = [];
-        foreach (ilStyleDefinition::getAllSkinStyles() as $id => $skin_style) {
-            if (!$skin_style['substyle_of']) {
-                $options[$id] = $skin_style['title'];
-            }
-        }
-        $si->setOptions($options + ['other' => $this->lng->txt('other')]);
-
-        $this->toolbar->addInputItem($si, true);
-
-        $si = new ilSelectInputGUI($this->lng->txt('sty_to'), 'to_style');
-        $si->setOptions($options);
-        $this->toolbar->addInputItem($si, true);
-        $this->toolbar->addComponent($this->ui_factory->button()->standard($this->lng->txt('sty_move_style'), ''));
-
-        $this->toolbar->setFormAction($this->ctrl->getLinkTarget($this, 'moveUserStyles'));
 
         $table = new ilSystemStylesTableGUI($this, 'edit');
         $table->addActions($this->isManagementEnabled());
-        $this->tpl->setContent($table->getHTML());
+        $this->tpl->setContent($table->getHTML().$table->getModalsHtml());
     }
 
     public function moveUserStyles(): void
     {
-        $to = $this->request_wrapper->post()->retrieve('to_style', $this->refinery->string()->splitString(':'));
+        global $DIC;
 
-        $from_style = $this->request_wrapper->post()->retrieve('from_style', $this->refinery->kindlyTo()->string());
+        $request = $DIC->http()->request();
 
-        if ($from_style == 'other') {
+        $modal = $this->getAssignmentCreationModal()->withRequest($request);
+        [$new_skin, $new_style] = $modal->getData()["new_style"];
+
+        $old_skin = $this->request_wrapper->query()->retrieve('old_skin_id', $this->refinery->kindlyTo()->string());
+        $old_style = $this->request_wrapper->query()->retrieve('old_style_id', $this->refinery->kindlyTo()->string());
+
+        if ($old_style == 'other') {
             // get all user assigned styles
             $all_user_styles = ilObjUser::_getAllUserAssignedStyles();
 
@@ -204,17 +222,16 @@ class ilSystemStyleOverviewGUI
             // currently existing style
             foreach ($all_user_styles as $style) {
                 if (!ilStyleDefinition::styleExists($style)) {
-                    $style_arr = explode(':', $style);
-                    ilObjUser::_moveUsersToStyle($style_arr[0], $style_arr[1], $to[0], $to[1]);
+                    [$old_skin, $old_style] = explode(':', $style);
+                    ilObjUser::_moveUsersToStyle($old_skin, $old_style, $new_skin, $new_style);
                 }
             }
         } else {
-            $from = explode(':', $from_style);
-            ilObjUser::_moveUsersToStyle($from[0], $from[1], $to[0], $to[1]);
+            ilObjUser::_moveUsersToStyle($old_skin, $old_style, $new_skin, $new_style);
         }
 
         $this->message_stack->addMessage(new ilSystemStyleMessage($this->lng->txt('msg_obj_modified')));
-        $this->edit();
+        $this->ctrl->redirect($this, 'edit');
     }
 
     public function saveStyleSettings(): void
@@ -319,11 +336,11 @@ class ilSystemStyleOverviewGUI
                     $skin->addStyle($style);
                     $container = new ilSkinStyleContainer($this->lng, $skin, $this->message_stack);
                     $container->create($this->message_stack);
-                    $this->ctrl->setParameterByClass('ilSystemStyleSettingsGUI', 'skin_id', $skin->getId());
-                    $this->ctrl->setParameterByClass('ilSystemStyleSettingsGUI', 'style_id', $style->getId());
+                    $this->ctrl->setParameterByClass(ilSystemStyleConfigGUI::class, 'skin_id', $skin->getId());
+                    $this->ctrl->setParameterByClass(ilSystemStyleConfigGUI::class, 'style_id', $style->getId());
                     $this->message_stack->addMessage(new ilSystemStyleMessage($this->lng->txt('msg_sys_style_created')));
                     $this->message_stack->sendMessages();
-                    $this->ctrl->redirectByClass('ilSystemStyleSettingsGUI');
+                    $this->ctrl->redirectByClass(ilSystemStyleConfigGUI::class);
                 } catch (ilSystemStyleException $e) {
                     $this->message_stack->addMessage(new ilSystemStyleMessage(
                         $e->getMessage(),
@@ -500,9 +517,9 @@ class ilSystemStyleOverviewGUI
                 $this->lng->txt('style_copied'),
                 ilSystemStyleMessage::TYPE_SUCCESS
             ));
-            $this->ctrl->setParameterByClass('ilSystemStyleSettingsGUI', 'skin_id', $new_container->getSkin()->getId());
+            $this->ctrl->setParameterByClass('ilsystemstyleconfiggui', 'skin_id', $new_container->getSkin()->getId());
             $this->ctrl->setParameterByClass(
-                'ilSystemStyleSettingsGUI',
+                'ilsystemstyleconfiggui',
                 'style_id',
                 $new_container->getSkin()->getStyle($style_id)->getId()
             );
@@ -517,7 +534,7 @@ class ilSystemStyleOverviewGUI
             ));
         }
         $this->message_stack->sendMessages();
-        $this->ctrl->redirectByClass('ilSystemStyleSettingsGUI');
+        $this->ctrl->redirectByClass('ilsystemstyleconfiggui');
     }
 
     protected function deleteStyle(): void
@@ -531,7 +548,7 @@ class ilSystemStyleOverviewGUI
             $delete_form_table->addStyle(
                 $container->getSkin(),
                 $container->getSkin()->getStyle($style_id),
-                $container->getImagesSkinPath($style_id) . '/icon_stys.svg'
+                $container->getImagesStylePath($style_id) . '/standard/icon_stys.svg'
             );
             $this->tpl->setContent($delete_form_table->getDeleteStyleFormHTML());
         } else {
@@ -567,7 +584,7 @@ class ilSystemStyleOverviewGUI
                 $delete_form_table->addStyle(
                     $container->getSkin(),
                     $container->getSkin()->getStyle($style_id),
-                    $container->getImagesSkinPath($style_id) . '/icon_stys.svg'
+                    $container->getImagesStylePath($style_id) . '/standard/icon_stys.svg'
                 );
             }
             $this->tpl->setContent($delete_form_table->getDeleteStyleFormHTML());
@@ -667,12 +684,12 @@ class ilSystemStyleOverviewGUI
                 $this->message_stack
             );
             $this->ctrl->setParameterByClass(
-                'ilSystemStyleSettingsGUI',
+                'ilsystemstyleconfiggui',
                 'skin_id',
                 $imported_container->getSkin()->getId()
             );
             $this->ctrl->setParameterByClass(
-                'ilSystemStyleSettingsGUI',
+                'ilsystemstyleconfiggui',
                 'style_id',
                 $imported_container->getSkin()->getDefaultStyle()->getId()
             );
@@ -681,7 +698,7 @@ class ilSystemStyleOverviewGUI
                 ilSystemStyleMessage::TYPE_SUCCESS
             ));
             $this->message_stack->sendMessages();
-            $this->ctrl->redirectByClass('ilSystemStyleSettingsGUI');
+            $this->ctrl->redirectByClass('ilsystemstyleconfiggui');
         }
         // display only this form to correct input
         $form->setValuesByPost();
@@ -690,9 +707,8 @@ class ilSystemStyleOverviewGUI
 
     protected function export(): void
     {
-        $container = $this->skin_factory->skinStyleContainerFromId($this->style_container->getSkin()->getId(), $this->message_stack);
         try {
-            $container->export();
+            $this->style_container->export();
         } catch (Exception $e) {
             $this->message_stack->addMessage(new ilSystemStyleMessage(
                 $this->lng->txt('zip_export_failed') . ' ' . $e->getMessage(),
@@ -799,12 +815,11 @@ class ilSystemStyleOverviewGUI
                 $style = new ilSkinStyle($sub_style_id, $sub_style_name);
                 $style->setSubstyleOf($parent_style_id);
                 $container->addStyle($style);
-
-                $this->ctrl->setParameterByClass('ilSystemStyleSettingsGUI', 'skin_id', $parent_skin_id);
-                $this->ctrl->setParameterByClass('ilSystemStyleSettingsGUI', 'style_id', $sub_style_id);
+                $this->ctrl->setParameterByClass('ilsystemstyleconfiggui', 'skin_id', $parent_skin_id);
+                $this->ctrl->setParameterByClass('ilsystemstyleconfiggui', 'style_id', $sub_style_id);
                 $this->message_stack->addMessage(new ilSystemStyleMessage($this->lng->txt('msg_sub_style_created')));
                 $this->message_stack->sendMessages();
-                $this->ctrl->redirectByClass('ilSystemStyleSettingsGUI');
+                $this->ctrl->redirectByClass('ilsystemstyleconfiggui');
             } catch (ilSystemStyleException $e) {
                 $this->message_stack->addMessage(new ilSystemStyleMessage(
                     $e->getMessage(),

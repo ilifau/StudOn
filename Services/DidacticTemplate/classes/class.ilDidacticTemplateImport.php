@@ -1,7 +1,27 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+use ILIAS\Export\ImportHandler\ilFactory as ilImportHandlerFactory;
+use ILIAS\Export\ImportStatus\ilFactory as ilImportStatusFactory;
+use ILIAS\Export\ImportStatus\I\ilCollectionInterface as ilImportStatusCollectionInterface;
+use ILIAS\Export\Schema\ilXmlSchemaFactory as ilXMLSchemaFactory;
 
 /**
  * Description of ilDidacticTemplateImport
@@ -10,19 +30,21 @@ declare(strict_types=1);
  */
 class ilDidacticTemplateImport
 {
+    protected const XML_ELEMENT_NAME_LOCAL_ROLE_ACTION = 'localRoleAction';
+    protected const XML_ELEMENT_NAME_BLOCK_ROLE_ACIONE = 'blockRoleAction';
+    protected const XML_ELEMENT_NAME_LOCAL_POLICY_ACTION = 'localPolicyAction';
     public const IMPORT_FILE = 1;
+    protected const SCHEMA_TYPE = 'otpl';
 
-    private int $type = 0;
-    private string $xmlfile = '';
-
-    private ilLogger $logger;
+    protected int $type = 0;
+    protected string $xmlfile = '';
+    protected ilLogger $logger;
     protected ilObjectDefinition $objDefinition;
     protected ilSetting $settings;
 
     public function __construct(int $a_type)
     {
         global $DIC;
-
         $this->logger = $DIC->logger()->otpl();
         $this->type = $a_type;
         $this->objDefinition = $DIC['objDefinition'];
@@ -65,6 +87,24 @@ class ilDidacticTemplateImport
         $settings = $this->parseSettings($root);
         $this->parseActions($settings, $root->didacticTemplate->actions);
         return $settings;
+    }
+
+    public function validateImportFile(): ilImportStatusCollectionInterface
+    {
+        $status = new ilImportStatusFactory();
+        if ($this->getInputType() !== self::IMPORT_FILE) {
+            return $status->collection()->withAddedStatus($status->handler()
+                ->withType(ImportStatus\StatusType::FAILED)
+                ->withContent($status->content()->builder()->string()
+                    ->withString("Invalid import status, import status 'IMPORT_FILE' expected.")));
+        }
+        $schema = new ilXMLSchemaFactory();
+        $import = new ilImportHandlerFactory();
+        $xml_spl_info = new SplFileInfo($this->getInputFile());
+        $xsd_spl_info = $schema->getLatest(self::SCHEMA_TYPE);
+        $xml_file_handler = $import->file()->xml()->withFileInfo($xml_spl_info);
+        $xsd_file_handler = $import->file()->xsd()->withFileInfo($xsd_spl_info);
+        return $import->file()->validation()->handler()->validateXMLFile($xml_file_handler, $xsd_file_handler);
     }
 
     /**
@@ -137,6 +177,133 @@ class ilDidacticTemplateImport
         return true;
     }
 
+    protected function parseLocalRoleAction(
+        ilDidacticTemplateSetting $didactic_template_setting,
+        SimpleXMLElement $local_role_action
+    ): void {
+        $act = new ilDidacticTemplateLocalRoleAction();
+        $act->setTemplateId($didactic_template_setting->getId());
+
+        foreach ($local_role_action->roleTemplate as $tpl) {
+            // extract role
+            foreach ($tpl->role as $roleDef) {
+                $rimporter = new ilRoleXmlImporter(ROLE_FOLDER_ID);
+                $role_id = $rimporter->importSimpleXml($roleDef);
+                $act->setRoleTemplateId($role_id);
+            }
+            $act->save();
+        }
+    }
+
+    protected function parseBlockRoleAction(
+        ilDidacticTemplateSetting $didactic_template_setting,
+        SimpleXMLElement $block_role_action
+    ): void {
+        $act = new ilDidacticTemplateBlockRoleAction();
+        $act->setTemplateId($didactic_template_setting->getId());
+        // Role filter
+        foreach ($block_role_action->roleFilter as $rfi) {
+            switch ((string) $rfi->attributes()->source) {
+                case 'title':
+                    $act->setFilterType(\ilDidacticTemplateAction::FILTER_SOURCE_TITLE);
+                    break;
+
+                case 'objId':
+                    $act->setFilterType(\ilDidacticTemplateAction::FILTER_SOURCE_OBJ_ID);
+                    break;
+                case 'parentRoles':
+                    $act->setFilterType(\ilDidacticTemplateAction::FILTER_PARENT_ROLES);
+                    break;
+            }
+            foreach ($rfi->includePattern as $pat) {
+                // @TODO other subtypes
+                $pattern = new ilDidacticTemplateIncludeFilterPattern();
+                $pattern->setPatternSubType(ilDidacticTemplateFilterPattern::PATTERN_SUBTYPE_REGEX);
+                $pattern->setPattern((string) $pat->attributes()->preg);
+                $act->addFilterPattern($pattern);
+            }
+            foreach ($rfi->excludePattern as $pat) {
+                // @TODO other subtypes
+                $pattern = new ilDidacticTemplateExcludeFilterPattern();
+                $pattern->setPatternSubType(ilDidacticTemplateFilterPattern::PATTERN_SUBTYPE_REGEX);
+                $pattern->setPattern((string) $pat->attributes()->preg);
+                $act->addFilterPattern($pattern);
+            }
+        }
+        $act->save();
+    }
+
+    protected function parseLocalPolicyAction(
+        ilDidacticTemplateSetting $didactic_template_setting,
+        SimpleXMLElement $local_policy_action
+    ): void {
+        $act = new ilDidacticTemplateLocalPolicyAction();
+        $act->setTemplateId($didactic_template_setting->getId());
+        // Role filter
+        foreach ($local_policy_action->roleFilter as $rfi) {
+            $this->logger->dump($rfi->attributes(), \ilLogLevel::DEBUG);
+            $this->logger->debug(
+                'Current filter source: ' . $rfi->attributes()->source
+            );
+            switch ((string) $rfi->attributes()->source) {
+                case 'title':
+                    $act->setFilterType(\ilDidacticTemplateAction::FILTER_SOURCE_TITLE);
+                    break;
+                case 'objId':
+                    $act->setFilterType(\ilDidacticTemplateAction::FILTER_SOURCE_OBJ_ID);
+                    break;
+                case 'parentRoles':
+                    $act->setFilterType(\ilDidacticTemplateAction::FILTER_PARENT_ROLES);
+                    break;
+                case 'localRoles':
+                    $act->setFilterType(\ilDidacticTemplateAction::FILTER_LOCAL_ROLES);
+                    break;
+            }
+            foreach ($rfi->includePattern as $pat) {
+                // @TODO other subtypes
+                $pattern = new ilDidacticTemplateIncludeFilterPattern();
+                $pattern->setPatternSubType(ilDidacticTemplateFilterPattern::PATTERN_SUBTYPE_REGEX);
+                $pattern->setPattern((string) $pat->attributes()->preg);
+                $act->addFilterPattern($pattern);
+            }
+            foreach ($rfi->excludePattern as $pat) {
+                // @TODO other subtypes
+                $pattern = new ilDidacticTemplateExcludeFilterPattern();
+                $pattern->setPatternSubType(ilDidacticTemplateFilterPattern::PATTERN_SUBTYPE_REGEX);
+                $pattern->setPattern((string) $pat->attributes()->preg);
+                $act->addFilterPattern($pattern);
+            }
+        }
+        // role template assignment
+        foreach ($local_policy_action->localPolicyTemplate as $lpo) {
+            switch ((string) $lpo->attributes()->type) {
+                case 'overwrite':
+                    $act->setRoleTemplateType(ilDidacticTemplateLocalPolicyAction::TPL_ACTION_OVERWRITE);
+                    break;
+                case 'union':
+                    $act->setRoleTemplateType(ilDidacticTemplateLocalPolicyAction::TPL_ACTION_UNION);
+                    break;
+                case 'intersect':
+                    $act->setRoleTemplateType(ilDidacticTemplateLocalPolicyAction::TPL_ACTION_INTERSECT);
+                    break;
+            }
+            // extract role
+            foreach ($lpo->role as $roleDef) {
+                try {
+                    $rimporter = new ilRoleXmlImporter(ROLE_FOLDER_ID);
+                    $role_id = $rimporter->importSimpleXml($roleDef);
+                    $act->setRoleTemplateId($role_id);
+                } catch (ilRoleImporterException $e) {
+                    // delete half-imported template
+                    $didactic_template_setting->delete();
+                    throw new ilDidacticTemplateImportException($e->getMessage());
+                }
+            }
+        }
+        // Save action including all filter patterns
+        $act->save();
+    }
+
     /**
      * Parse template action from xml
      */
@@ -145,148 +312,19 @@ class ilDidacticTemplateImport
         if ($actions === null) {
             return;
         }
-        ////////////////////////////////////////////////
-        // Local role action
-        ///////////////////////////////////////////////
-        foreach ($actions->localRoleAction as $ele) {
-            $act = new ilDidacticTemplateLocalRoleAction();
-            $act->setTemplateId($set->getId());
-
-            foreach ($ele->roleTemplate as $tpl) {
-                // extract role
-                foreach ($tpl->role as $roleDef) {
-                    $rimporter = new ilRoleXmlImporter(ROLE_FOLDER_ID);
-                    $role_id = $rimporter->importSimpleXml($roleDef);
-                    $act->setRoleTemplateId($role_id);
-                }
-                $act->save();
+        foreach ($actions->children() as $action) {
+            if ($action->getName() === self::XML_ELEMENT_NAME_LOCAL_ROLE_ACTION) {
+                $this->parseLocalRoleAction($set, $action);
+                continue;
             }
-        }
-
-        ////////////////////////////////////////////////
-        // Block role action
-        //////////////////////////////////////////////
-        foreach ($actions->blockRoleAction as $ele) {
-            $act = new ilDidacticTemplateBlockRoleAction();
-            $act->setTemplateId($set->getId());
-
-            // Role filter
-            foreach ($ele->roleFilter as $rfi) {
-                switch ((string) $rfi->attributes()->source) {
-                    case 'title':
-                        $act->setFilterType(\ilDidacticTemplateAction::FILTER_SOURCE_TITLE);
-                        break;
-
-                    case 'objId':
-                        $act->setFilterType(\ilDidacticTemplateAction::FILTER_SOURCE_OBJ_ID);
-                        break;
-
-                    case 'parentRoles':
-                        $act->setFilterType(\ilDidacticTemplateAction::FILTER_PARENT_ROLES);
-                        break;
-                }
-                foreach ($rfi->includePattern as $pat) {
-                    // @TODO other subtypes
-
-                    $pattern = new ilDidacticTemplateIncludeFilterPattern();
-                    $pattern->setPatternSubType(ilDidacticTemplateFilterPattern::PATTERN_SUBTYPE_REGEX);
-                    $pattern->setPattern((string) $pat->attributes()->preg);
-                    $act->addFilterPattern($pattern);
-                }
-                foreach ($rfi->excludePattern as $pat) {
-                    // @TODO other subtypes
-
-                    $pattern = new ilDidacticTemplateExcludeFilterPattern();
-                    $pattern->setPatternSubType(ilDidacticTemplateFilterPattern::PATTERN_SUBTYPE_REGEX);
-                    $pattern->setPattern((string) $pat->attributes()->preg);
-                    $act->addFilterPattern($pattern);
-                }
+            if ($action->getName() === self::XML_ELEMENT_NAME_BLOCK_ROLE_ACIONE) {
+                $this->parseBlockRoleAction($set, $action);
+                continue;
             }
-
-            $act->save();
-        }
-
-        ////////////////////////////////////////////
-        // Local policy action
-        /////////////////////////////////////////////
-        foreach ($actions->localPolicyAction as $ele) {
-            $act = new ilDidacticTemplateLocalPolicyAction();
-            $act->setTemplateId($set->getId());
-
-            // Role filter
-            foreach ($ele->roleFilter as $rfi) {
-                $this->logger->dump($rfi->attributes(), \ilLogLevel::DEBUG);
-                $this->logger->debug(
-                    'Current filter source: ' . $rfi->attributes()->source
-                );
-
-                switch ((string) $rfi->attributes()->source) {
-                    case 'title':
-                        $act->setFilterType(\ilDidacticTemplateAction::FILTER_SOURCE_TITLE);
-                        break;
-
-                    case 'objId':
-                        $act->setFilterType(\ilDidacticTemplateAction::FILTER_SOURCE_OBJ_ID);
-                        break;
-
-                    case 'parentRoles':
-                        $act->setFilterType(\ilDidacticTemplateAction::FILTER_PARENT_ROLES);
-                        break;
-
-                    case 'localRoles':
-                        $act->setFilterType(\ilDidacticTemplateAction::FILTER_LOCAL_ROLES);
-                        break;
-                }
-                foreach ($rfi->includePattern as $pat) {
-                    // @TODO other subtypes
-
-                    $pattern = new ilDidacticTemplateIncludeFilterPattern();
-                    $pattern->setPatternSubType(ilDidacticTemplateFilterPattern::PATTERN_SUBTYPE_REGEX);
-                    $pattern->setPattern((string) $pat->attributes()->preg);
-                    $act->addFilterPattern($pattern);
-                }
-                foreach ($rfi->excludePattern as $pat) {
-                    // @TODO other subtypes
-
-                    $pattern = new ilDidacticTemplateExcludeFilterPattern();
-                    $pattern->setPatternSubType(ilDidacticTemplateFilterPattern::PATTERN_SUBTYPE_REGEX);
-                    $pattern->setPattern((string) $pat->attributes()->preg);
-                    $act->addFilterPattern($pattern);
-                }
+            if ($action->getName() === self::XML_ELEMENT_NAME_LOCAL_POLICY_ACTION) {
+                $this->parseLocalPolicyAction($set, $action);
+                continue;
             }
-
-            // role template assignment
-            foreach ($ele->localPolicyTemplate as $lpo) {
-                switch ((string) $lpo->attributes()->type) {
-                    case 'overwrite':
-                        $act->setRoleTemplateType(ilDidacticTemplateLocalPolicyAction::TPL_ACTION_OVERWRITE);
-                        break;
-
-                    case 'union':
-                        $act->setRoleTemplateType(ilDidacticTemplateLocalPolicyAction::TPL_ACTION_UNION);
-                        break;
-
-                    case 'intersect':
-                        $act->setRoleTemplateType(ilDidacticTemplateLocalPolicyAction::TPL_ACTION_INTERSECT);
-                        break;
-                }
-
-                // extract role
-                foreach ($lpo->role as $roleDef) {
-                    try {
-                        $rimporter = new ilRoleXmlImporter(ROLE_FOLDER_ID);
-                        $role_id = $rimporter->importSimpleXml($roleDef);
-                        $act->setRoleTemplateId($role_id);
-                    } catch (ilRoleImporterException $e) {
-                        // delete half-imported template
-                        $set->delete();
-                        throw new ilDidacticTemplateImportException($e->getMessage());
-                    }
-                }
-            }
-
-            // Save action including all filter patterns
-            $act->save();
         }
     }
 

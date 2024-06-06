@@ -20,7 +20,11 @@ declare(strict_types=1);
 
 class ilForumXMLParser extends ilSaxParser
 {
-    private ilObjForum $forum;
+    /**
+     * @var array<int, list<int>>
+     */
+    public static array $style_map = [];
+
     private string $entity = '';
     private array $mapping = [
         'frm' => [],
@@ -30,7 +34,7 @@ class ilForumXMLParser extends ilSaxParser
     private ilDBInterface $db;
     private ilObjUser $aobject;
     /** @var null|string|int  */
-    private $import_install_id = null;
+    private $import_install_id;
     private ?string $importDirectory = null;
     private ?string $schema_version = null;
     private string $cdata = '';
@@ -42,6 +46,7 @@ class ilForumXMLParser extends ilSaxParser
     private ?int $lastHandledForumId = null;
     private ?int $lastHandledThreadId = null;
     private ?int $lastHandledPostId = null;
+    private ?int $last_handled_style_id = null;
     private array $forumArray = [];
     private array $postArray = [];
     private array $threadArray = [];
@@ -50,19 +55,21 @@ class ilForumXMLParser extends ilSaxParser
     ];
     private array $user_id_mapping = [];
     private array $mediaObjects = [];
-    private ilImportMapping $importMapping;
 
-    public function __construct(ilObjForum $forum, string $a_xml_data, ilImportMapping $importMapping)
+    protected \ILIAS\Style\Content\DomainService $content_style_domain;
+
+    public function __construct(private ilObjForum $forum, string $a_xml_data, private ilImportMapping $importMapping)
     {
         global $DIC;
 
         $this->db = $DIC->database();
         $this->aobject = new ilObjUser(ANONYMOUS_USER_ID);
 
-        $this->forum = $forum;
-        $this->importMapping = $importMapping;
-
         parent::__construct();
+
+        $this->content_style_domain = $DIC
+            ->contentStyle()
+            ->domain();
 
         $this->setXMLContent('<?xml version="1.0" encoding="utf-8"?>' . $a_xml_data);
     }
@@ -90,17 +97,17 @@ class ilForumXMLParser extends ilSaxParser
     public function setHandlers($a_xml_parser): void
     {
         xml_set_object($a_xml_parser, $this);
-        xml_set_element_handler($a_xml_parser, [$this, 'handlerBeginTag'], [$this, 'handlerEndTag']);
-        xml_set_character_data_handler($a_xml_parser, [$this, 'handlerCharacterData']);
+        xml_set_element_handler($a_xml_parser, function (XMLParser $a_xml_parser, string $a_name, array $a_attribs): void {
+            $this->handlerBeginTag($a_xml_parser, $a_name, $a_attribs);
+        }, function (XMLParser $a_xml_parser, string $a_name): void {
+            $this->handlerEndTag($a_xml_parser, $a_name);
+        });
+        xml_set_character_data_handler($a_xml_parser, function (XMLParser $a_xml_parser, string $a_data): void {
+            $this->handlerCharacterData($a_xml_parser, $a_data);
+        });
     }
 
-    /**
-     * @param XMLParser|resource $a_xml_parser
-     * @param string $a_name
-     * @param array  $a_attribs
-     * @return void
-     */
-    public function handlerBeginTag($a_xml_parser, string $a_name, array $a_attribs): void
+    public function handlerBeginTag(XMLParser $a_xml_parser, string $a_name, array $a_attribs): void
     {
         switch ($a_name) {
             case 'Forum':
@@ -130,14 +137,13 @@ class ilForumXMLParser extends ilSaxParser
                 $this->mediaObjects[] = $a_attribs;
                 break;
         }
+
+        if (isset($a_attribs['Style'])) {
+            $this->last_handled_style_id = (int) $a_attribs['Style'];
+        }
     }
 
-    /**
-     * @param XMLParser|resource $a_xml_parser
-     * @param string $a_name
-     * @return void
-     */
-    public function handlerEndTag($a_xml_parser, string $a_name): void
+    public function handlerEndTag(XMLParser $a_xml_parser, string $a_name): void
     {
         $this->cdata = trim($this->cdata);
         $property = strtolower($this->entity) . 'Array';
@@ -191,10 +197,6 @@ class ilForumXMLParser extends ilSaxParser
 
             case 'Id':
                 $propertyValue['Id'] = $this->cdata;
-                break;
-
-            case 'StyleId':
-                $x['StyleId'] = $this->cdata;
                 break;
 
             case 'ObjId':
@@ -309,7 +311,7 @@ class ilForumXMLParser extends ilSaxParser
                     $this->forum->setTitle(ilUtil::stripSlashes((string) ($this->forumArray["Title"] ?? '')));
                     $this->forum->setDescription(ilUtil::stripSlashes((string) ($this->forumArray["Description"] ?? '')));
                     $this->forum->update();
-                    $this->forum->updateMoficationUserId($update_forum_array['usr_id']);
+                    $this->forum->updateModificationUserId($update_forum_array['usr_id']);
 
                     $newObjProp = ilForumProperties::getInstance($this->forum->getId());
                     $newObjProp->setDefaultView((int) ($this->forumArray['DefaultView'] ?? ilForumProperties::VIEW_TREE));
@@ -324,7 +326,6 @@ class ilForumXMLParser extends ilSaxParser
                     $newObjProp->setAdminForceNoti((bool) ($this->forumArray['ForceNotification'] ?? false));
                     $newObjProp->setUserToggleNoti((bool) ($this->forumArray['ToggleNotification'] ?? false));
                     $newObjProp->setFileUploadAllowed((bool) ($this->forumArray['FileUpload'] ?? false));
-                    $newObjProp->setThreadSorting((int) ($this->forumArray['Sorting'] ?? ilForumProperties::THREAD_SORTING_DEFAULT));
                     $newObjProp->setMarkModeratorPosts((bool) ($this->forumArray['MarkModeratorPosts'] ?? false));
                     $newObjProp->update();
 
@@ -339,6 +340,11 @@ class ilForumXMLParser extends ilSaxParser
                         'frm:' . $this->forumArray['ObjId'],
                         'frm:' . $this->forum->getId()
                     );
+
+                    if ($this->last_handled_style_id) {
+                        self::$style_map[$this->last_handled_style_id][] = $newObjProp->getObjId();
+                        $this->last_handled_style_id = null;
+                    }
 
                     $this->forumArray = [];
                 }
@@ -371,14 +377,6 @@ class ilForumXMLParser extends ilSaxParser
 
             case 'Sticky':
                 $propertyValue['Sticky'] = $this->cdata;
-                break;
-
-            case 'OrderSequenceIndex':
-                $propertyValue['OrderSequenceIndex'] = $this->cdata;
-                break;
-
-            case 'Sorting':
-                $propertyValue['Sorting'] = $this->cdata;
                 break;
 
             case 'MarkModeratorPosts':
@@ -599,19 +597,10 @@ class ilForumXMLParser extends ilSaxParser
             case 'Attachment':
                 $filedata = new ilFileDataForum($this->forum->getId(), $this->lastHandledPostId);
 
-                $importPath = $this->contentArray['content'];
-
-                if ($importPath !== '') {
-                    $importPath = $this->getImportDirectory() . '/' . $importPath;
-
-                    $newFilename = preg_replace(
-                        "/^\d+_\d+(_.*)/ms",
-                        $this->forum->getId() . "_" . $this->lastHandledPostId . "$1",
-                        basename($importPath)
-                    );
-                    $path = $filedata->getForumPath();
-                    $newPath = $path . '/' . $newFilename;
-                    @copy($importPath, $newPath);
+                $import_path = $this->contentArray['content'];
+                if ($import_path !== '') {
+                    $import_path = $this->getImportDirectory() . '/' . $import_path;
+                    $filedata->importPath($import_path, (int)$this->lastHandledPostId);
                 }
                 break;
         }
@@ -620,8 +609,6 @@ class ilForumXMLParser extends ilSaxParser
     }
 
     /**
-     * @param int $imp_usr_id
-     * @param string $param
      * @return array|array{usr_id: int, usr_alias: string}
      */
     private function getIdAndAliasArray(int $imp_usr_id, string $param = 'import'): array
@@ -670,13 +657,11 @@ class ilForumXMLParser extends ilSaxParser
     }
 
     /**
-     * @param int $imp_usr_id
-     * @param string $imp_usr_alias
      * @return array{usr_id: int, usr_alias: string}
      */
     private function getUserIdAndAlias(int $imp_usr_id, string $imp_usr_alias = ''): array
     {
-        if (!($imp_usr_id > 0)) {
+        if ($imp_usr_id <= 0) {
             return [
                 'usr_id' => $imp_usr_id,
                 'usr_alias' => $imp_usr_alias
@@ -766,12 +751,7 @@ class ilForumXMLParser extends ilSaxParser
         return (int) $data['top_pk'];
     }
 
-    /**
-     * handler for character data
-     * @param XMLParser|resource $a_xml_parser xml parser
-     * @param string $a_data character data
-     */
-    public function handlerCharacterData($a_xml_parser, string $a_data): void
+    public function handlerCharacterData(XMLParser $a_xml_parser, string $a_data): void
     {
         if ($a_data !== "\n") {
             // Replace multiple tabs with one space

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -127,7 +129,7 @@ class SkillAdminGUIRequest extends SkillGUIRequest
      */
     public function getResourceIds(): array
     {
-        return $this->getIds();
+        return $this->getInterruptiveItemIds();
     }
 
     /**
@@ -167,7 +169,7 @@ class SkillAdminGUIRequest extends SkillGUIRequest
      */
     public function getProfileIds(): array
     {
-        return $this->getIds();
+        return $this->getInterruptiveItemIds();
     }
 
     public function getUserLogin(): string
@@ -188,7 +190,7 @@ class SkillAdminGUIRequest extends SkillGUIRequest
      */
     public function getUserIds(): array
     {
-        return $this->getIds();
+        return $this->getInterruptiveItemIds();
     }
 
     /**
@@ -197,5 +199,70 @@ class SkillAdminGUIRequest extends SkillGUIRequest
     public function getSelectedIds(string $post_var): array
     {
         return $this->strArray($post_var);
+    }
+
+    public function getTableTreeAction(): string
+    {
+        return $this->getTableAction("skl_tree_table_action");
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTableTreeIds(): array
+    {
+        return $this->getTableIds("skl_tree_table_tree_ids");
+    }
+
+    public function getTableProfileAction(): string
+    {
+        return $this->getTableAction("skl_profile_table_action");
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTableProfileIds(): array
+    {
+        return $this->getTableIds("skl_profile_table_profile_ids");
+    }
+
+    public function getTableProfileLevelAssignmentAction(): string
+    {
+        return $this->getTableAction("skl_profile_level_assignment_table_action");
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTableProfileLevelAssignmentIds(): array
+    {
+        return $this->getTableIds("skl_profile_level_assignment_table_level_ids");
+    }
+
+    public function getTableProfileUserAssignmentAction(): string
+    {
+        return $this->getTableAction("skl_profile_user_assignment_table_action");
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTableProfileUserAssignmentIds(): array
+    {
+        return $this->getTableIds("skl_profile_user_assignment_table_ass_ids");
+    }
+
+    public function getTableLevelResourcesAction(): string
+    {
+        return $this->getTableAction("skl_level_resources_table_action");
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTableRepoRefIds(): array
+    {
+        return $this->getTableIds("skl_level_resources_table_rep_ref_ids");
     }
 }

@@ -18,17 +18,26 @@
 
 declare(strict_types=1);
 
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\Filesystem\Util\Archive\Archives;
+use ILIAS\Filesystem\Util\Archive\ZipOptions;
+use ILIAS\Filesystem\Util\Archive\UnzipOptions;
+use ILIAS\Filesystem\Util\Archive\ZipDirectoryHandling;
+
 /**
  * Factory to create Skin classes holds an manages the basic data of a skin as provide by the template of the skin.
  */
 class ilSkinFactory
 {
+    private Archives $archives;
     protected ilSystemStyleConfig $config;
     protected ilLanguage $lng;
 
     public function __construct(ilLanguage $lng, ?ilSystemStyleConfig $config = null)
     {
+        global $DIC;
         $this->lng = $lng;
+        $this->archives = new Archives();
 
         if ($config) {
             $this->config = $config;
@@ -123,15 +132,18 @@ class ilSkinFactory
         }
 
         $skin_path = $this->config->getCustomizingSkinPath() . $skin_id;
+        $zip_path = $skin_path . ".zip";
+        rename($import_zip_path, $zip_path);
 
-        mkdir($skin_path, 0775, true);
+        $this->archives->unzip(
+            Streams::ofResource(fopen($zip_path, 'rb')),
+            $this->archives->unzipOptions()
+             ->withZipOutputPath($skin_path)
+             ->withOverwrite(false)
+             ->withDirectoryHandling(ZipDirectoryHandling::KEEP_STRUCTURE)
+        )->extract();
 
-        $temp_zip_path = $skin_path . '/' . $name;
-        rename($import_zip_path, $temp_zip_path);
-
-        ilFileUtils::unzip($temp_zip_path);
-        unlink($temp_zip_path);
-
+        unlink($zip_path);
         return $this->skinStyleContainerFromId($skin_id, $message_stack);
     }
 

@@ -29,9 +29,16 @@ use ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
  * Class LinkItem
  * @author Fabian Schmid <fs@studer-raimann.ch>
  */
-class LinkItem extends AbstractChildItem implements isItem, hasTitle, hasSymbol, isChild
+class LinkItem extends AbstractChildItem implements isItem, hasTitle, hasSymbol, isChild, hasContentLanguage, hasLanguageForTargetedResource
 {
+<<<<<<< HEAD
     use SymbolDecoratorTrait;
+=======
+    use ContentLanguage;
+    use LanguageForTargetedResource;
+    use \ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
+
+>>>>>>> v9.1
     protected ?Symbol $symbol = null;
     protected string $title = "";
     protected string $action = "";

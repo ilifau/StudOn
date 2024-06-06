@@ -14,14 +14,10 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
-/**
- * Class ilDclMobRecordRepresentation
- * @author  Michael Herren <mh@studer-raimann.ch>
- * @version 1.0.0
- */
+declare(strict_types=1);
+
 class ilDclRatingRecordRepresentation extends ilDclBaseRecordRepresentation
 {
     public function getHTML(bool $link = true, array $options = []): string
@@ -30,17 +26,15 @@ class ilDclRatingRecordRepresentation extends ilDclBaseRecordRepresentation
         $rgui->setObject(
             $this->getRecordField()->getRecord()->getId(),
             "dcl_record",
-            $this->getRecordField()->getField()->getId(),
+            (int)$this->getRecordField()->getField()->getId(),
             "dcl_field"
         );
-
         $this->ctrl->setParameterByClass(ilRatingGUI::class, "field_id", $this->getRecordField()->getField()->getId());
         $this->ctrl->setParameterByClass(ilRatingGUI::class, "record_id", $this->getRecordField()->getRecord()->getId());
-        if (isset($options['tableview_id'])) {
+        if(array_key_exists("tableview_id", $options)) {
             $this->ctrl->setParameterByClass(ilObjDataCollectionGUI::class, 'tableview_id', $options['tableview_id']);
         }
         return $rgui->getHTML();
-
     }
 
     /**

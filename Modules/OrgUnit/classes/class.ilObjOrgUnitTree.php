@@ -40,6 +40,8 @@ class ilObjOrgUnitTree
     private ilDBInterface $db;
     private ilObjUser $ilUser;
     private \ilTree $tree;
+    protected \ilOrgUnitPositionDBRepository $positionRepo;
+    protected \ilOrgUnitUserAssignmentDBRepository $assignmentRepo;
 
     private function __construct()
     {
@@ -60,39 +62,64 @@ class ilObjOrgUnitTree
         return static::$instance;
     }
 
+    protected function getPositionRepo(): \ilOrgUnitPositionDBRepository
+    {
+        if (!isset($this->positionRepo)) {
+            $dic = \ilOrgUnitLocalDIC::dic();
+            $this->positionRepo = $dic["repo.Positions"];
+        }
+
+        return $this->positionRepo;
+    }
+
+    protected function getAssignmentRepo(): \ilOrgUnitUserAssignmentDBRepository
+    {
+        if (!isset($this->assignmentRepo)) {
+            $dic = \ilOrgUnitLocalDIC::dic();
+            $this->assignmentRepo = $dic["repo.UserAssignments"];
+        }
+
+        return $this->assignmentRepo;
+    }
+
+    /**
+     * @deprecated Please use getAssignedUsers()
+     */
+    public function getAssignements(int $ref_id, ilOrgUnitPosition $ilOrgUnitPosition): array
+    {
+        return $this->getAssignedUsers([$ref_id], $ilOrgUnitPosition->getId());
+    }
+
+    /**
+     * @param int[] $orgu_ids
+     * @return int[]
+     */
+    public function getAssignedUsers(array $orgu_ids, int $position_id): array
+    {
+        return $this->getAssignmentRepo()->getUsersByOrgUnitsAndPosition($orgu_ids, $position_id);
+    }
+
     /**
      * @param int  $ref_id    the reference id of the organisational unit.
      * @param bool $recursive if true you get the ids of the subsequent orgunits employees too
      */
     public function getEmployees(int $ref_id, bool $recursive = false): array
     {
-        $arr_usr_ids = [];
+        $employee_position = $this->getPositionRepo()
+            ->getSingle(ilOrgUnitPosition::CORE_POSITION_EMPLOYEE, 'core_identifier')
+            ->getId();
 
-        switch ($recursive) {
-            case false:
-                $arr_usr_ids = $this->getAssignements(
-                    $ref_id,
-                    ilOrgUnitPosition::getCorePosition(ilOrgUnitPosition::CORE_POSITION_EMPLOYEE)
-                );
-                break;
-            case true:
-                $assignment_query = ilOrgUnitUserAssignmentQueries::getInstance();
-                $arr_usr_ids = $assignment_query->getUserIdsOfOrgUnitsInPosition(
-                    $this->getAllChildren($ref_id),
-                    ilOrgUnitPosition::CORE_POSITION_EMPLOYEE
-                );
-                break;
+        if ($recursive === false) {
+            return $this->getAssignedUsers(
+                [$ref_id],
+                $employee_position
+            );
         }
 
-        return $arr_usr_ids;
-    }
-
-    public function getAssignements(int $ref_id, ilOrgUnitPosition $ilOrgUnitPosition): array
-    {
-        return ilOrgUnitUserAssignment::where(array(
-            'orgu_id' => $ref_id,
-            'position_id' => $ilOrgUnitPosition->getId(),
-        ))->getArray('id', 'user_id');
+        return $this->getAssignedUsers(
+            $this->getAllChildren($ref_id),
+            $employee_position
+        );
     }
 
     /**
@@ -102,21 +129,21 @@ class ilObjOrgUnitTree
      */
     public function getSuperiors(int $ref_id, bool $recursive = false): array
     {
+        $superior_position = $this->getPositionRepo()
+            ->getSingle(ilOrgUnitPosition::CORE_POSITION_SUPERIOR, 'core_identifier')
+            ->getId();
+
         if ($recursive === false) {
-            return $this->getAssignements(
-                $ref_id,
-                ilOrgUnitPosition::getCorePosition(ilOrgUnitPosition::CORE_POSITION_SUPERIOR)
+            return $this->getAssignedUsers(
+                [$ref_id],
+                $superior_position
             );
         }
 
-        $arr_usr_ids = [];
-        foreach ($this->getAllChildren($ref_id) as $ref_id_child) {
-            $arr_usr_ids += $this->getAssignements(
-                $ref_id_child,
-                ilOrgUnitPosition::getCorePosition(ilOrgUnitPosition::CORE_POSITION_SUPERIOR)
-            );
-        }
-        return $arr_usr_ids;
+        return $this->getAssignedUsers(
+            $this->getAllChildren($ref_id),
+            $superior_position
+        );
     }
 
     /**
@@ -180,7 +207,6 @@ class ilObjOrgUnitTree
      */
     public function getOrgusWhereUserHasPermissionForOperation($operation): array
     {
-
         /*$q = "SELECT object_data.obj_id, object_reference.ref_id, object_data.title, object_data.type, rbac_pa.ops_id, rbac_operations.ops_id as op_id FROM object_data
         INNER JOIN rbac_operations ON rbac_operations.operation = ".$this->db->quote($operation, "text")."
         INNER JOIN rbac_ua ON rbac_ua.usr_id = ".$this->db->quote($ilUser->getId(), "integer")."
@@ -289,28 +315,20 @@ class ilObjOrgUnitTree
      */
     public function getEmployeesUnderUser(int $user_id, bool $recursive = true): array
     {
-        $assignment_query = ilOrgUnitUserAssignmentQueries::getInstance();
-        $orgu_ref_ids = $assignment_query->getOrgUnitIdsOfUsersPosition(
-            ilOrgUnitPosition::CORE_POSITION_SUPERIOR,
-            $user_id
-        );
+        $superior_position = $this->getPositionRepo()
+            ->getSingle(ilOrgUnitPosition::CORE_POSITION_SUPERIOR, 'core_identifier')
+            ->getId();
+        $employee_position = $this->getPositionRepo()
+            ->getSingle(ilOrgUnitPosition::CORE_POSITION_EMPLOYEE, 'core_identifier')
+            ->getId();
 
-        switch ($recursive) {
-            case true:
-                $orgu_ref_id_with_children = [];
-                foreach ($orgu_ref_ids as $orgu_ref_id) {
-                    $orgu_ref_id_with_children = array_merge($orgu_ref_ids, $this->getAllChildren($orgu_ref_id));
-                }
-                return $assignment_query->getUserIdsOfOrgUnitsInPosition(
-                    $orgu_ref_id_with_children,
-                    ilOrgUnitPosition::CORE_POSITION_EMPLOYEE
-                );
-            default:
-                return $assignment_query->getUserIdsOfOrgUnitsInPosition(
-                    $orgu_ref_ids,
-                    ilOrgUnitPosition::CORE_POSITION_EMPLOYEE
-                );
-        }
+        $orgu_ids = $this->getAssignmentRepo()
+            ->getOrgUnitsByUserAndPosition($user_id, $superior_position, $recursive);
+
+        return $this->getAssignedUsers(
+            $orgu_ids,
+            $employee_position
+        );
     }
 
     /**
@@ -371,19 +389,11 @@ class ilObjOrgUnitTree
     }
 
     /**
-     * @param int $ref_id if given, only OrgUnits under this ID are returned (including $ref_id)
      * @return int[]
      */
     public function getOrgUnitOfUser(int $user_id): array
     {
-        $orgu_ref_ids = [];
-        $orgu_query = ilOrgUnitUserAssignmentQueries::getInstance();
-
-        $orgus = $orgu_query->getAssignmentsOfUserId($user_id);
-        foreach ($orgus as $orgu) {
-            $orgu_ref_ids[] = $orgu->getOrguId();
-        }
-        return $orgu_ref_ids;
+        return $this->getAssignmentRepo()->getOrgUnitsByUser($user_id);
     }
 
     /**

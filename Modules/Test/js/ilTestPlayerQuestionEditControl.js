@@ -1,4 +1,18 @@
-/* Copyright (c) 1998-2016 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /* fau: testNav - new script for test player control of editable questions. */
 
@@ -50,7 +64,8 @@ il.TestPlayerQuestionEditControl = new function() {
         withBackgroundChangeDetection: false,   // background changes should be polled from ILIAS
         backgroundDetectorUrl: '',              // url called by the background detector
         forcedInstantFeedback: false,            // forced feedback will change the submit command
-        nextQuestionLocks: false
+        nextQuestionLocks: false,
+        questionLocked: false
     };
 
     /**
@@ -135,7 +150,7 @@ il.TestPlayerQuestionEditControl = new function() {
 
         // check for changed answer when user wants to navigate
         // this creates a form submit with hidden redirection url
-        $('a').click(checkNavigation);
+        $('a').not('.il-maincontrols-metabar > li > a').click(self.checkNavigation);
 
         // add the current answering status when form is submitted
         // this is needed for marking questions and requesting hints
@@ -150,15 +165,26 @@ il.TestPlayerQuestionEditControl = new function() {
         $('#tst_discard_solution_action').click(showDiscardSolutionModal);
         $('#tst_cancel_discard_button').click(hideDiscardSolutionModal);
 
-        if( config.nextQuestionLocks )
-        {
-            // handle the buttons in next locks current answer confirmation modal
-            $('#tst_nav_next_changed_answer_button').click(saveWithNavigation);
-            $('#tst_cancel_next_changed_answer_button').click(hideFollowupQuestionLocksCurrentAnswerModal);
+        if (config.nextQuestionLocks) {
+          // handle the buttons in next locks current answer confirmation modal
+          let first_child_changed = document.querySelector('#tst_next_locks_changed_modal .tstModalConfirmationButtons :nth-child(1)');
+          if (first_child_changed !== null) {
+              first_child_changed.addEventListener('click', saveWithNavigation);
+          }
+          let second_child_changed = document.querySelector('#tst_next_locks_changed_modal .tstModalConfirmationButtons :nth-child(2)');
+          if (second_child_changed !== null) {
+            second_child_changed.addEventListener('click', hideFollowupQuestionLocksCurrentAnswerModal);
+          }
 
-            // handle the buttons in next locks empty answer confirmation modal
-            $('#tst_nav_next_empty_answer_button').click(saveWithNavigationEmptyAnswer);
-            $('#tst_cancel_next_empty_answer_button').click(hideFollowupQuestionLocksEmptyAnswerModal);
+          // handle the buttons in next locks empty answer confirmation modal
+          let first_child_unchanged = document.querySelector('#tst_next_locks_unchanged_modal .tstModalConfirmationButtons :nth-child(1)');
+          if (first_child_unchanged !== null) {
+            first_child_unchanged.addEventListener('click', saveWithNavigationEmptyAnswer);
+          }
+          let second_child_unchanged = document.querySelector('#tst_next_locks_unchanged_modal .tstModalConfirmationButtons :nth-child(2)');
+          if (second_child_unchanged !== null) {
+            second_child_unchanged.addEventListener('click', hideFollowupQuestionLocksEmptyAnswerModal);
+          }
         }
 
         // the checkbox 'use unchanged answer' is only needed for initial empty answers
@@ -234,7 +260,7 @@ il.TestPlayerQuestionEditControl = new function() {
         }
 
         // activate the autosave function if required
-        if (config.autosaveUrl != '' && config.autosaveInterval > 0) {
+        if (config.autosaveUrl !== '' && config.autosaveInterval > 0) {
             autoSaver = window.setInterval(autoSave, config.autosaveInterval);
         }
 
@@ -384,17 +410,23 @@ il.TestPlayerQuestionEditControl = new function() {
      * Event handler for clicked links on the test page
      * @returns {boolean}
      */
-    function checkNavigation() {
+    this.checkNavigation = (href, cmd, e) => {
 
         // attributes of the clicked link
         var id = $(this).attr('id');
-        var href = $(this).attr('href');
+        if (href === undefined) {
+          href = $(this).attr('href');
+        }
         var target = $(this).attr('target');
 
         // keep default behavior for links that open in another window
         // (fullscreen view of media objects)
-        if (target && target !== '_self' && target !== '_parent' && target !== '_top')
-        {
+        if (target && target !== '_self' && target !== '_parent' && target !== '_top') {
+           return true;
+        }
+
+        // ignore JavaScript links
+        if (href.indexOf("javascript:") === 0) {
            return true;
         }
 
@@ -406,30 +438,29 @@ il.TestPlayerQuestionEditControl = new function() {
         // check explictly again at navigation
        detectFormChange();
 
-        if (id == 'tst_mark_question_action')           // marking the question is always possible
-        {
+        if (href.indexOf('markQuestion') !== -1) {
             navUrl = href;
             toggleQuestionMark();
             return false;
-        }
-        else if( config.nextQuestionLocks && $(this).attr('data-nextcmd') == 'nextQuestion' )
-        {
+        } else if ( config.nextQuestionLocks && cmd == 'nextQuestion' ) {
             // remember the url for saveWithNavigation()
             navUrl = href;
 
-            if( !answerChanged && !answered )
-            {
-                showFollowupQuestionLocksEmptyAnswerModal();
-            }
-            else if( $('#tst_next_locks_changed_modal').length > 0 )
-            {
-                showFollowupQuestionLocksCurrentAnswerModal();
-            }
-            else
-            {
-                saveWithNavigation();
+            if (config.questionLocked) {
+              e.target.name = 'cmd[nextQuestion]';
+              e.target.form.requestSubmit(e.target);
+              e.preventDefault();
+              return false;
             }
 
+            if (!answerChanged && !answered) {
+                showFollowupQuestionLocksEmptyAnswerModal();
+            } else if( $('#tst_next_locks_changed_modal').length > 0 ) {
+                showFollowupQuestionLocksCurrentAnswerModal();
+            } else {
+                saveWithNavigation();
+            }
+            e.preventDefault();
             return false; // prevent the default event handler
         }
 
@@ -437,7 +468,6 @@ il.TestPlayerQuestionEditControl = new function() {
             && href                                     // link is not an anchor
             && href.charAt(0) != '#'                    // link is not a fragment
             && id != 'tst_discard_answer_action'        // link is not the 'discard answer' button
-
             && id != 'tst_revert_changes_action'        // link is not the 'revert changes' action
             && id != 'tst_discard_solution_action'      // link is not the 'discard solution' action
         ) {
@@ -446,20 +476,19 @@ il.TestPlayerQuestionEditControl = new function() {
 
             if ($('#tst_save_on_navigation_modal').length > 0) {
                 showNavigationModal();
-            }
-            else {
+            } else {
                 saveWithNavigation();
             }
 
             // prevent the default event handler
+            e.preventDefault();
             return false;
+        } else {
+          e.preventDefault();
+          window.location.replace(href);
+          return false;
         }
-        else
-        {
-            // apply the default event handler (go to href)
-            return true;
-        }
-    }
+    };
 
     /**
      * Show the navigation modal
@@ -629,8 +658,6 @@ il.TestPlayerQuestionEditControl = new function() {
      * Handle the form submission
      */
     function handleFormSubmit() {
-        //var submitBtn = $(this).find("input[type=submit]:focus"); // perhaps neccessary anytime
-
         // add the 'answer changed' parameter to the url
         // this keeps the answering status for mark and feedback functions
         if (answerChanged) {
@@ -660,7 +687,7 @@ il.TestPlayerQuestionEditControl = new function() {
         }
 
         // force a copy of edited richtext to its textarea
-        if (typeof tinyMCE != 'undefined') {
+        if (typeof tinyMCE !== 'undefined') {
             tinyMCE.triggerSave();
         }
 
@@ -707,12 +734,16 @@ il.TestPlayerQuestionEditControl = new function() {
      * @param jqXHR
      */
     function autoSaveFailure(jqXHR) {
+      let responseText = 'Autosafe Timeout'
+      if (typeof jqXHR.responseText !== 'undefined') {
+        responseText = jqXHR.responseText ;
+      }
 
-        $('#autosavemessage').text(jqXHR.responseText)
-            .fadeIn(500, function(){
-                $('#autosavemessage').fadeOut(5000)
-        });
-        autoSavedData = '';
+      $('#autosavemessage').text(responseText)
+        .fadeIn(500, function(){
+            $('#autosavemessage').fadeOut(5000);
+      });
+      autoSavedData = '';
     }
 };
 

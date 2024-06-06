@@ -32,11 +32,11 @@ use ILIAS\Refinery\Factory as Refinery;
  */
 class ilAccountMail
 {
-    private GlobalHttpState $http;
-    private ilSetting $settings;
-    private Refinery $refinery;
-    private ilTree $repositoryTree;
-    private ilMailMimeSenderFactory $senderFactory;
+    private readonly GlobalHttpState $http;
+    private readonly ilSetting $settings;
+    private readonly Refinery $refinery;
+    private readonly ilTree $repositoryTree;
+    private readonly ilMailMimeSenderFactory $senderFactory;
     public string $u_password = '';
     public ?ilObjUser $user = null;
     public string $target = '';
@@ -53,7 +53,7 @@ class ilAccountMail
         $this->refinery = $DIC->refinery();
         $this->settings = $DIC->settings();
         $this->repositoryTree = $DIC->repositoryTree();
-        $this->senderFactory = $DIC['mail.mime.sender.factory'];
+        $this->senderFactory = $DIC->mail()->mime()->senderFactory();
     }
 
     public function useLangVariablesAsFallback(bool $a_status): void
@@ -149,7 +149,6 @@ class ilAccountMail
 
     /**
      * @param array{lang?: string, subject?: string, body?: string, sal_f?: string, sal_g?: string, sal_m?: string, type?: string, att_file?: string} $mailData
-     * @return void
      * @throws \ILIAS\Filesystem\Exception\IOException
      */
     private function addAttachments(array $mailData): void
@@ -174,17 +173,16 @@ class ilAccountMail
      * It first tries to read the mail body, subject and sender address from posted named formular fields.
      * If no field values found the defaults are used.
      * Placehoders will be replaced by the appropriate data.
-     * @return bool
      * @throws RuntimeException
      */
     public function send(): bool
     {
         $user = $this->getUser();
-        if (null === $user) {
+        if (!$user instanceof ilObjUser) {
             throw new RuntimeException('A user instance must be passed when sending emails');
         }
 
-        if (!$user->getEmail()) {
+        if ($user->getEmail() === '') {
             return false;
         }
 
@@ -251,131 +249,70 @@ class ilAccountMail
 
     public function replacePlaceholders(string $a_string, ilObjUser $a_user, array $a_amail, string $a_lang): string
     {
+        global $DIC;
+        $tree = $DIC->repositoryTree();
+        $ilSetting = $DIC->settings();
+        $mustache_factory = $DIC->mail()->mustacheFactory();
+
+        $replacements = [];
+
+        // determine salutation
         switch ($a_user->getGender()) {
-            case 'f':
-                $gender_salut = $a_amail['sal_f'];
+            case "f":
+                $replacements["MAIL_SALUTATION"] = trim($a_amail["sal_f"]);
                 break;
-            case 'm':
-                $gender_salut = $a_amail['sal_m'];
+            case "m":
+                $replacements["MAIL_SALUTATION"] = trim($a_amail["sal_m"]);
                 break;
             default:
-                $gender_salut = $a_amail['sal_g'];
+                $replacements["MAIL_SALUTATION"] = trim($a_amail["sal_g"]);
         }
-        $gender_salut = trim($gender_salut);
-
-        $a_string = str_replace(
-            [
-                '[MAIL_SALUTATION]',
-                '[LOGIN]',
-                '[FIRST_NAME]',
-                '[LAST_NAME]',
-                '[EMAIL]',
-                '[PASSWORD]',
-                '[ILIAS_URL]',
-                '[INSTALLATION_NAME]',
-                '[ADMIN_MAIL]',
-            ],
-            [
-                $gender_salut,
-                $a_user->getLogin(),
-                $a_user->getFirstname(),
-                $a_user->getLastname(),
-                $a_user->getEmail(),
-                $this->getUserPassword(),
-                ILIAS_HTTP_PATH . '/login.php?client_id=' . CLIENT_ID,
-                CLIENT_NAME,
-                $this->settings->get('admin_email', ''),
-            ],
-            $a_string
-        );
-
-        // (no) password sections
-        if ($this->getUserPassword() === '') {
-            // #12232
-            $a_string = preg_replace(
-                "/\[IF_PASSWORD\].*\[\/IF_PASSWORD\]/imsU",
-                "",
-                $a_string
-            );
-            $a_string = preg_replace(
-                "/\[IF_NO_PASSWORD\](.*)\[\/IF_NO_PASSWORD\]/imsU",
-                "$1",
-                $a_string
-            );
-        } else {
-            $a_string = preg_replace(
-                "/\[IF_NO_PASSWORD\].*\[\/IF_NO_PASSWORD\]/imsU",
-                "",
-                $a_string
-            );
-            $a_string = preg_replace(
-                "/\[IF_PASSWORD\](.*)\[\/IF_PASSWORD\]/imsU",
-                "$1",
-                $a_string
-            );
-        }
+        $replacements["LOGIN"] = $a_user->getLogin();
+        $replacements["FIRST_NAME"] = $a_user->getFirstname();
+        $replacements["LAST_NAME"] = $a_user->getLastname();
+        // BEGIN Mail Include E-Mail Address in account mail
+        $replacements["EMAIL"] = $a_user->getEmail();
+        // END Mail Include E-Mail Address in account mail
+        $replacements["PASSWORD"] = $this->getUserPassword();
+        $replacements["ILIAS_URL"] = ILIAS_HTTP_PATH . "/login.php?client_id=" . CLIENT_ID;
+        $replacements["CLIENT_NAME"] = CLIENT_NAME;
+        $replacements["ADMIN_MAIL"] = $ilSetting->get("admin_email");
+        $replacements["IF_PASSWORD"] = $this->getUserPassword() != "";
+        $replacements["IF_NO_PASSWORD"] = $this->getUserPassword() == "";
 
         // #13346
         if (!$a_user->getTimeLimitUnlimited()) {
             // #6098
-            $a_string = preg_replace(
-                "/\[IF_TIMELIMIT\](.*)\[\/IF_TIMELIMIT\]/imsU",
-                "$1",
-                $a_string
-            );
+            $replacements["IF_TIMELIMIT"] = !$a_user->getTimeLimitUnlimited();
             $timelimit_from = new ilDateTime($a_user->getTimeLimitFrom(), IL_CAL_UNIX);
             $timelimit_until = new ilDateTime($a_user->getTimeLimitUntil(), IL_CAL_UNIX);
             $timelimit = ilDatePresentation::formatPeriod($timelimit_from, $timelimit_until);
-            $a_string = str_replace("[TIMELIMIT]", $timelimit, $a_string);
-        } else {
-            $a_string = preg_replace(
-                "/\[IF_TIMELIMIT\](.*)\[\/IF_TIMELIMIT\]/imsU",
-                "",
-                $a_string
-            );
+            $replacements["TIMELIMIT"] = $timelimit;
         }
 
         // target
-        $tar = false;
+        $replacements["IF_TARGET"] = false;
         if ($this->http->wrapper()->query()->has('target') &&
             $this->http->wrapper()->query()->retrieve('target', $this->refinery->kindlyTo()->string()) !== ''
         ) {
             $target = $this->http->wrapper()->query()->retrieve('target', $this->refinery->kindlyTo()->string());
-            $tarr = explode('_', $target);
+            $tarr = explode('_', (string) $target);
             if ($this->repositoryTree->isInTree((int) $tarr[1])) {
                 $obj_id = ilObject::_lookupObjId((int) $tarr[1]);
                 $type = ilObject::_lookupType($obj_id);
                 if ($type === $tarr[0]) {
-                    $a_string = str_replace(
-                        ['[TARGET_TITLE]', '[TARGET]'],
-                        [
-                            ilObject::_lookupTitle($obj_id),
-                            ILIAS_HTTP_PATH . '/goto.php?client_id=' . CLIENT_ID . '&target=' . $target
-                        ],
-                        $a_string
-                    );
+                    $replacements["TARGET_TITLE"] = ilObject::_lookupTitle($obj_id);
+                    $replacements["TARGET"] = ILIAS_HTTP_PATH . '/goto.php?client_id=' . CLIENT_ID . '&target=' . $target;
 
-                    // this looks complicated, but we may have no initiliased $lng object here
+                    // this looks complicated, but we may have no initilised $lng object here
                     // if mail is send during user creation in authentication
-                    $a_string = str_replace(
-                        '[TARGET_TYPE]',
-                        ilLanguage::_lookupEntry($a_lang, 'common', 'obj_' . $tarr[0]),
-                        $a_string
-                    );
-
-                    $tar = true;
+                    $replacements["TARGET_TYPE"] = ilLanguage::_lookupEntry($a_lang, "common", "obj_" . $tarr[0]);
+                    $replacements["IF_TARGET"] = true;
                 }
             }
         }
 
-        // (no) target section
-        if (!$tar) {
-            $a_string = preg_replace("/\[IF_TARGET\].*\[\/IF_TARGET\]/imsU", '', $a_string);
-        } else {
-            $a_string = preg_replace("/\[IF_TARGET\](.*)\[\/IF_TARGET\]/imsU", "$1", $a_string);
-        }
-
-        return $a_string;
+        return $mustache_factory->getBasicEngine()->render($a_string, $replacements);
     }
 
     public function addAttachment(string $a_filename, string $a_display_name): void

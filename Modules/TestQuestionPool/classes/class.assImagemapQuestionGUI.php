@@ -16,7 +16,7 @@
  *
  *********************************************************************/
 
-include_once './Modules/Test/classes/inc.AssessmentConstants.php';
+require_once './Modules/Test/classes/inc.AssessmentConstants.php';
 
 
 /**
@@ -51,8 +51,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         if ($id >= 0) {
             $this->object->loadFromDb($id);
         }
-        $assessmentSetting = new ilSetting("assessment");
-        $this->linecolor = (strlen($assessmentSetting->get("imap_line_color"))) ? "#" . $assessmentSetting->get("imap_line_color") : "#FF0000";
+        $this->linecolor = '#' . (new ilSetting('assessment'))->get('imap_line_color') ?? 'FF0000';
     }
 
     public function getCommand($cmd)
@@ -398,7 +397,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         $info = $this->object->getTestOutputSolutions($active_id, $pass);
 
         if (count($info)) {
-            if (strcmp($info[0]["value1"], "") != 0) {
+            if ($info[0]["value1"] !== "") {
                 $formAction .= "&selImage=" . $info[0]["value1"];
             }
         }
@@ -465,7 +464,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
             foreach ($solutions as $idx => $solution_value) {
                 $value1 = $solution_value["value1"];
                 if (
-                    strcmp($value1, '') === 0 ||
+                    $value1 === '' ||
                     !isset($this->object->answers[$value1])
                 ) {
                     continue;
@@ -546,7 +545,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
             );
 
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
-            $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
+            $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
         }
         $solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
 
@@ -569,7 +568,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 
             $preview = new ilImagemapPreview($this->object->getImagePath() . $this->object->getImageFilename());
             foreach ($user_solution as $idx => $solution_value) {
-                if (strcmp($solution_value, "") != 0) {
+                if ($solution_value !== '') {
                     $preview->addArea($solution_value, $this->object->answers[$solution_value]->getArea(), $this->object->answers[$solution_value]->getCoords(), $this->object->answers[$solution_value]->getAnswertext(), "", "", true, $this->linecolor);
                 }
             }
@@ -634,7 +633,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
             $preview = new ilImagemapPreview($this->object->getImagePath() . $this->object->getImageFilename());
 
             foreach ($solutions as $idx => $solution_value) {
-                if (strlen($solution_value["value1"])) {
+                if ($solution_value["value1"] !== null) {
                     $preview->addArea($solution_value["value1"], $this->object->answers[$solution_value["value1"]]->getArea(), $this->object->answers[$solution_value["value1"]]->getCoords(), $this->object->answers[$solution_value["value1"]]->getAnswertext(), "", "", true, $this->linecolor);
                     $userSelection[$selectionIndex] = $solution_value["value1"];
 
@@ -652,7 +651,6 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         // generate the question output
         $template = new ilTemplate("tpl.il_as_qpl_imagemap_question_output.html", true, true, "Modules/TestQuestionPool");
         $this->ctrl->setParameterByClass($this->getTargetGuiClass(), "formtimestamp", time());
-        $hrefArea = $this->ctrl->getLinkTargetByClass($this->getTargetGuiClass(), $this->getQuestionActionCmd());
         foreach ($this->object->answers as $answer_id => $answer) {
             $template->setCurrentBlock("imagemap_area");
             $template->setVariable("HREF_AREA", $this->buildAreaLinkTarget($userSelection, $answer_id));
@@ -668,7 +666,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
                         0,
                         $answer_id
                     );
-                    if (strlen($feedback)) {
+                    if ($feedback !== '') {
                         $template->setCurrentBlock("feedback");
                         $template->setVariable("FEEDBACK", $feedback);
                         $template->parseCurrentBlock();
@@ -758,7 +756,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 
         $output .= '</tbody></table>';
 
-        return $this->object->prepareTextareaOutput($output, true);
+        return ilLegacyFormElementsUtil::prepareTextareaOutput($output, true);
     }
 
     /**
@@ -845,16 +843,17 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
             return '';
         }
 
-        $button = ilLinkButton::getInstance();
-        $button->setCaption('use_previous_solution');
-
-        $button->setUrl(ilUtil::appendUrlParameterString(
-            $this->ctrl->getLinkTargetByClass($this->getTargetGuiClass(), $this->getQuestionActionCmd()),
-            $this->buildSelectionParameter($this->object->currentSolution, null)
-        ));
+        global $DIC;
+        $button = $DIC->ui()->factory()->link()->standard(
+            $this->lng->txt('use_previous_solution'),
+            ilUtil::appendUrlParameterString(
+                $this->ctrl->getLinkTargetByClass($this->getTargetGuiClass(), $this->getQuestionActionCmd()),
+                $this->buildSelectionParameter($this->object->currentSolution, null)
+            )
+        );
 
         $tpl = new ilTemplate('tpl.tst_question_additional_behaviour_checkbox.html', true, true, 'Modules/TestQuestionPool');
-        $tpl->setVariable('BUTTON', $button->render());
+        $tpl->setVariable('BUTTON', $DIC->ui()->renderer()->render($button));
 
         return $tpl->get();
     }

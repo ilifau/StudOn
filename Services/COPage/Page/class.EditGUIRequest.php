@@ -102,5 +102,4 @@ class EditGUIRequest
     {
         return $this->str("pg_type");
     }
-
 }

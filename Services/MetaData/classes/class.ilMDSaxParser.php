@@ -634,7 +634,6 @@ class ilMDSaxParser extends ilSaxParser
                 $par = $this->__getParent();
                 $par->setSource($this->__getCharacterData());
                 break;
-
         }
         $this->md_chr_data = '';
     }

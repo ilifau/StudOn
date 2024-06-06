@@ -34,9 +34,20 @@ class ilForumXMLWriter extends ilXmlWriter
     private ?string $target_dir_relative;
     private ?string $target_dir_absolute;
 
-    public function __construct()
-    {
-        parent::__construct();
+    private \ILIAS\Style\Content\DomainService $content_style_domain;
+
+    public function __construct(
+        string $version = '1.0',
+        string $outEnc = 'utf-8',
+        string $inEnc = 'utf-8'
+    ) {
+        global $DIC;
+
+        parent::__construct($version, $outEnc, $inEnc);
+
+        $this->content_style_domain = $DIC
+            ->contentStyle()
+            ->domain();
     }
 
     public function setForumId(int $id): void
@@ -69,7 +80,12 @@ class ilForumXMLWriter extends ilXmlWriter
         $res = $ilDB->query($query_frm);
         $row = $ilDB->fetchObject($res);
 
-        $this->xmlStartTag("Forum", null);
+        $style = $this->content_style_domain->styleForObjId((int) (int) $row->obj_id);
+        $attributes = [
+            'Style' => $style->getStyleId()
+        ];
+
+        $this->xmlStartTag("Forum", $attributes);
 
         $this->xmlElement("Id", null, (int) $row->top_pk);
         $this->xmlElement("ObjId", null, (int) $row->obj_id);
@@ -79,7 +95,6 @@ class ilForumXMLWriter extends ilXmlWriter
         $this->xmlElement("Pseudonyms", null, (int) $row->anonymized);
         $this->xmlElement("Statistics", null, (int) $row->statistics_enabled);
         $this->xmlElement("ThreadRatings", null, (int) $row->thread_rating);
-        $this->xmlElement("Sorting", null, (int) $row->thread_sorting);
         $this->xmlElement("MarkModeratorPosts", null, (int) $row->mark_mod_posts);
         $this->xmlElement("PostingActivation", null, (int) $row->post_activation);
         $this->xmlElement("PresetSubject", null, (int) $row->preset_subject);
@@ -188,16 +203,13 @@ class ilForumXMLWriter extends ilXmlWriter
                     (int) $rowPost->pos_pk
                 );
 
-                if (count($tmp_file_obj->getFilesOfPost())) {
-                    foreach ($tmp_file_obj->getFilesOfPost() as $file) {
-                        $this->xmlStartTag("Attachment");
+                foreach ($tmp_file_obj->getFilesOfPost() as $file) {
+                    $this->xmlStartTag("Attachment");
+                    copy($file['path'], $this->target_dir_absolute . "/" . basename($file['name']));
+                    $content = $this->target_dir_relative . "/" . basename($file['name']);
+                    $this->xmlElement("Content", null, $content);
 
-                        copy($file['path'], $this->target_dir_absolute . "/" . basename($file['path']));
-                        $content = $this->target_dir_relative . "/" . basename($file['path']);
-                        $this->xmlElement("Content", null, $content);
-
-                        $this->xmlEndTag("Attachment");
-                    }
+                    $this->xmlEndTag("Attachment");
                 }
 
                 $this->xmlEndTag("Post");

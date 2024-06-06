@@ -33,19 +33,15 @@ class Notifier
     private const NOTIFICATION_MARKER_PING_THRESHOLD = 250;
     private const MAIL_DELIVERY_PING_THRESHOLD = 25;
 
-    private ilMailCronOrphanedMails $job;
-    private NotificationsCollector $collector;
-    private ilDBInterface $db;
-    private ClockInterface $clock;
-    private int $mail_expiration_days;
-    private int $mail_expiration_warning_days;
-    private ilDBStatement $mark_as_notified_stmt;
+    private readonly ilDBInterface $db;
+    private readonly ClockInterface $clock;
+    private readonly ilDBStatement $mark_as_notified_stmt;
 
     public function __construct(
-        ilMailCronOrphanedMails $job,
-        NotificationsCollector $collector,
-        int $mail_expiration_days,
-        int $mail_expiration_warning_days,
+        private readonly ilMailCronOrphanedMails $job,
+        private readonly NotificationsCollector $collector,
+        private readonly int $mail_expiration_days,
+        private readonly int $mail_expiration_warning_days,
         ?ilDBInterface $db = null,
         ?ClockInterface $clock = null
     ) {
@@ -53,11 +49,6 @@ class Notifier
 
         $this->db = $db ?? $DIC->database();
         $this->clock = $clock ?? (new Factory())->clock()->system();
-
-        $this->job = $job;
-        $this->collector = $collector;
-        $this->mail_expiration_days = $mail_expiration_days;
-        $this->mail_expiration_warning_days = $mail_expiration_warning_days;
 
         $this->mark_as_notified_stmt = $this->db->prepareManip(
             'INSERT INTO mail_cron_orphaned (mail_id, folder_id, ts_do_delete) VALUES (?, ?, ?)',

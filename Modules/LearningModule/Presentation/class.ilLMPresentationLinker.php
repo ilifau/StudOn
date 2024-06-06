@@ -145,7 +145,7 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
                     return $base . "&cmd=displayMediaFullscreen";
             }
             return "";
-        // handle online links
+            // handle online links
         } elseif (!$this->offline) {
             if ($this->from_page == "") {
                 // added if due to #23216 (from page has been set in lots of usual navigation links)
@@ -186,7 +186,7 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
                     if ($a_frame != "") {
                         $this->ctrl->setParameterByClass(self::TARGET_GUI, "frame", $a_frame);
                     }
-                    if ($a_obj_id !== 0) {
+                    if ($a_obj_id > 0) {
                         switch ($a_type) {
                             case "MediaObject":
                                 $this->ctrl->setParameterByClass(self::TARGET_GUI, "mob_id", $a_obj_id);
@@ -211,7 +211,7 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
                         false,
                         true
                     );
-//					$link = str_replace("&", "&amp;", $link);
+                    //					$link = str_replace("&", "&amp;", $link);
 
                     $this->ctrl->setParameterByClass(self::TARGET_GUI, "frame", null);
                     $this->ctrl->setParameterByClass(self::TARGET_GUI, "obj_id", null);
@@ -227,7 +227,6 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
             }
 
             switch ($a_cmd) {
-
                 case "fullscreen":
                     $link = "fullscreen.html";		// id is handled by xslt
                     break;
@@ -273,7 +272,6 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
             }
         }
         $this->ctrl->clearParametersByClass(self::TARGET_GUI);
-
         return $link;
     }
 
@@ -519,7 +517,6 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
                             $lcontent = ilUserUtil::getNamePresentation($target_id, false, false);
                         }
                         break;
-
                 }
 
                 $anc_par = 'Anchor="' . $anc . '"';

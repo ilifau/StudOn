@@ -39,24 +39,38 @@ abstract class FormInput extends Input implements FormInputInternal
     protected bool $is_disabled = false;
     protected bool $is_required = false;
     protected ?Constraint $requirement_constraint = null;
+<<<<<<< HEAD
     protected string $label;
     protected ?string $byline = null;
+=======
+>>>>>>> v9.1
 
     public function __construct(
         DataFactory $data_factory,
         Refinery $refinery,
+<<<<<<< HEAD
         string $label,
         ?string $byline = null
     ) {
         parent::__construct($data_factory, $refinery);
         $this->label = $label;
         $this->byline = $byline;
+=======
+        protected string $label,
+        protected ?string $byline = null,
+    ) {
+        parent::__construct($data_factory, $refinery);
+>>>>>>> v9.1
     }
 
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function withInput(InputData $input)
+=======
+    public function withInput(InputData $input): self
+>>>>>>> v9.1
     {
         if (!$this->isDisabled()) {
             return parent::withInput($input);
@@ -85,7 +99,11 @@ abstract class FormInput extends Input implements FormInputInternal
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withLabel(string $label)
+=======
+    public function withLabel(string $label): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->label = $label;
@@ -103,7 +121,11 @@ abstract class FormInput extends Input implements FormInputInternal
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withByline(string $byline)
+=======
+    public function withByline(string $byline): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->byline = $byline;
@@ -121,7 +143,11 @@ abstract class FormInput extends Input implements FormInputInternal
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withRequired(bool $is_required, ?Constraint $requirement_constraint = null)
+=======
+    public function withRequired(bool $is_required, ?Constraint $requirement_constraint = null): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->is_required = $is_required;
@@ -140,7 +166,11 @@ abstract class FormInput extends Input implements FormInputInternal
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withDisabled(bool $is_disabled)
+=======
+    public function withDisabled(bool $is_disabled): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->is_disabled = $is_disabled;
@@ -150,7 +180,11 @@ abstract class FormInput extends Input implements FormInputInternal
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withOnUpdate(Signal $signal)
+=======
+    public function withOnUpdate(Signal $signal): self
+>>>>>>> v9.1
     {
         return $this->withTriggeredSignal($signal, 'update');
     }

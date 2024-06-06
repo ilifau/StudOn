@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Class ilTestRandomQuestionSetQuestionCollectionTest
@@ -70,21 +70,6 @@ class ilTestRandomQuestionSetQuestionCollectionTest extends ilTestBaseTestCase
         $this->testObj->setQuestions($questions);
 
         $this->assertEquals($questions[0], $this->testObj->current());
-    }
-
-    public function testNext(): void
-    {
-        $questions = [];
-        $ids = [125, 112, 10];
-        foreach ($ids as $id) {
-            $question = new ilTestRandomQuestionSetQuestion();
-            $question->setQuestionId($id);
-            $questions[] = $question;
-        }
-
-        $this->testObj->setQuestions($questions);
-
-        $this->assertEquals($questions[1], $this->testObj->next());
     }
 
     public function testKey(): void

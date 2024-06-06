@@ -70,6 +70,7 @@ class ilDatabaseUpdatedObjective implements Setup\Objective
         $GLOBALS["ilDB"] = $db;
         $GLOBALS["DIC"]["ilBench"] = null;
         $GLOBALS["DIC"]["ilLog"] = new class ($io) {
+            protected $io;
             public function __construct($io)
             {
                 $this->io = $io;
@@ -138,9 +139,6 @@ class ilDatabaseUpdatedObjective implements Setup\Objective
         }
 
         $db_update = new ilDBUpdate($db);
-
-        $db_update->applyUpdate();
-        $db_update->applyHotfix();
         $db_update->applyCustomUpdates();
 
         $GLOBALS["DIC"] = $DIC;

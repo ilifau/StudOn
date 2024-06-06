@@ -124,6 +124,25 @@ class ilCourseAppEventListener
         return true;
     }
 
+    protected static function awardCertificate(int $a_obj_id, int $a_usr_id): void
+    {
+        global $DIC;
+
+        $logger = $DIC->logger('crs');
+        if (!$DIC->certificate()->userCertificates()->isActiveCertificateTemplateAvailableFor($a_obj_id)) {
+            return;
+        }
+        try {
+            $DIC->certificate()->userCertificates()->certificateCriteriaMet(
+                $a_usr_id,
+                $a_obj_id
+            );
+        } catch (Exception $e) {
+            $logger->warning($e->getMessage());
+            $logger->logStack(ilLogLevel::DEBUG);
+        }
+    }
+
     public static function handleEvent(string $a_component, string $a_event, array $a_parameter): void
     {
         if ($a_component == 'Services/AccessControl') {
@@ -147,6 +166,9 @@ class ilCourseAppEventListener
                 if ($a_event == 'deleteParticipant') {
                     self::destroyTimings($a_parameter['obj_id'], $a_parameter['usr_id']);
                     return;
+                }
+                if ($a_event === 'participantHasPassedCourse' && !ilObjUserTracking::_enabledLearningProgress()) {
+                    self::awardCertificate($a_parameter['obj_id'], $a_parameter['usr_id']);
                 }
                 break;
         }

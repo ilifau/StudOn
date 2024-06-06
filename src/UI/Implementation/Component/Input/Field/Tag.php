@@ -82,7 +82,7 @@ class Tag extends FormInput implements C\Input\Field\Tag
     public function getConfiguration(): stdClass
     {
         $options = array_map(
-            fn ($tag) => [
+            fn($tag) => [
                 'value' => urlencode(trim($tag)),
                 'display' => $tag,
                 'searchBy' => $tag
@@ -125,7 +125,7 @@ class Tag extends FormInput implements C\Input\Field\Tag
             $this->refinery->logical()->not($this->refinery->null()),
             $this->refinery->string()->hasMinLength(1)
         ])->withProblemBuilder(function ($txt) {
-            return $txt('ui_tag_required');
+            return $txt('tag_required');
         });
     }
 
@@ -137,7 +137,7 @@ class Tag extends FormInput implements C\Input\Field\Tag
         if ($this->getMaxTags() > 0) {
             $max_tags = $this->getMaxTags();
             $max_tags_ok = $this->refinery->custom()->constraint(
-                fn ($value) => is_array($value) && count($value) <= $max_tags,
+                fn($value) => is_array($value) && count($value) <= $max_tags,
                 'Too many Tags'
             );
             if (!$max_tags_ok->accepts($value)) {
@@ -229,7 +229,11 @@ class Tag extends FormInput implements C\Input\Field\Tag
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function withTagMaxLength(int $max_length): C\Input\Field\Tag
+=======
+    public function withTagMaxLength(int $max_length): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->tag_max_length = $max_length;
@@ -248,7 +252,11 @@ class Tag extends FormInput implements C\Input\Field\Tag
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function withMaxTags(int $max_tags): C\Input\Field\Tag
+=======
+    public function withMaxTags(int $max_tags): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->max_tags = $max_tags;
@@ -267,7 +275,11 @@ class Tag extends FormInput implements C\Input\Field\Tag
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function withInput(InputData $input): C\Input\Field\Input
+=======
+    public function withInput(InputData $input): self
+>>>>>>> v9.1
     {
         // ATTENTION: This is a slightly modified copy of parent::withInput, which
         // fixes #27909 but makes the Tag Input unusable in Filter Containers.
@@ -291,12 +303,20 @@ class Tag extends FormInput implements C\Input\Field\Tag
     }
 
     // Events
+<<<<<<< HEAD
     public function withAdditionalOnTagAdded(Signal $signal): C\Input\Field\Tag
+=======
+    public function withAdditionalOnTagAdded(Signal $signal): self
+>>>>>>> v9.1
     {
         return $this->appendTriggeredSignal($signal, self::EVENT_ITEM_ADDED);
     }
 
+<<<<<<< HEAD
     public function withAdditionalOnTagRemoved(Signal $signal): C\Input\Field\Tag
+=======
+    public function withAdditionalOnTagRemoved(Signal $signal): self
+>>>>>>> v9.1
     {
         return $this->appendTriggeredSignal($signal, self::EVENT_ITEM_REMOVED);
     }
@@ -306,7 +326,7 @@ class Tag extends FormInput implements C\Input\Field\Tag
      */
     public function getUpdateOnLoadCode(): Closure
     {
-        return fn ($id) => "$('#$id').on('add', function(event) {
+        return fn($id) => "$('#$id').on('add', function(event) {
 				il.UI.input.onFieldUpdate(event, '$id', $('#$id').val());
 			});
 			$('#$id').on('remove', function(event) {

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,10 +16,15 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Blog;
 
 use ILIAS\DI\Container;
 use ILIAS\Repository\GlobalDICDomainServices;
+use ILIAS\Blog\Exercise\BlogExercise;
+use ILIAS\Blog\Access\BlogAccess;
+use ILIAS\Blog\ReadingTime\ReadingTimeManager;
 
 /**
  * @author Alexander Killing <killing@leifos.de>
@@ -43,21 +46,34 @@ class InternalDomainService
         $this->initDomainServices($DIC);
     }
 
-    /*
-    public function access(int $ref_id, int $user_id) : Access\AccessManager
+    public function exercise(int $a_node_id): BlogExercise
     {
-        return new Access\AccessManager(
-            $this,
-            $this->access,
-            $ref_id,
-            $user_id
+        return new BlogExercise(
+            $a_node_id,
+            $this->repositoryTree(),
+            $this->user()
         );
-    }*/
+    }
 
-    /*public function clipboard() : ClipboardManager
-    {
-        return new ClipboardManager(
-            $this->repo_service->clipboard()
+    public function blogAccess(
+        $access_handler,
+        ?int $node_id,
+        int $id_type,
+        int $user_id,
+        int $owner
+    ): BlogAccess {
+        return new BlogAccess(
+            $access_handler,
+            $node_id,
+            $id_type,
+            $user_id,
+            $owner
         );
-    }*/
+    }
+
+    public function readingTime(): ReadingTimeManager
+    {
+        return new ReadingTimeManager();
+    }
+
 }

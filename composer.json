@@ -9,7 +9,7 @@
 		"allow-plugins": {
 			"simplesamlphp/composer-module-installer": true,
 			"cweagans/composer-patches": true,
-			"captainhook/plugin-composer": false
+			"captainhook/plugin-composer": true
 		}
 	},
 	"scripts": {
@@ -33,7 +33,7 @@
 		]
 	},
 	"require": {
-		"php": ">=7.4 <8.1",
+		"php": ">=8.1 <8.3",
 		"ext-gd": "*",
 		"ext-dom": "*",
 		"ext-xsl": "*",
@@ -41,44 +41,49 @@
 		"ext-json": "*",
 		"ext-simplexml": "*",
 		"ext-libxml": "*",
+		"ext-xml": "*",
+		"ext-zip": "*",
+		"ext-imagick": "*",
 		"cweagans/composer-patches": "^1.7",
-		"filp/whoops": "^2.1.13",
+		"filp/whoops": "^2.15.1",
 		"monolog/monolog": "^2.3.5",
 		"technosophos/libris": "^2.0.2",
 		"ezyang/htmlpurifier": "^4.16",
 		"phpmailer/phpmailer": "^6.8",
 		"geshi/geshi": "^1.0.9.1",
-		"tecnickcom/tcpdf": "^6.3",
 		"pimple/pimple" : "^3.0",
 		"symfony/yaml": "^5.3",
-		"guzzlehttp/psr7": "1.9.1",
+		"guzzlehttp/psr7": "^2.5",
 		"psr/http-message": "^1.0",
 		"dflydev/fig-cookies": "^1.0",
-		"ralouphie/getallheaders": "^2.0",
-		"league/flysystem": "^1.0",
-		"james-heinrich/getid3": "^1.9",
-		"phpoffice/phpspreadsheet": "^1.18.0",
-		"jumbojett/openid-connect-php": "^0.9.5",
+		"ralouphie/getallheaders": "^3.0",
+		"league/flysystem": "^3.0",
+		"james-heinrich/getid3": "^1.9.23",
+		"phpoffice/phpspreadsheet": "^1.29.0",
+		"jumbojett/openid-connect-php": "^1.0.0",
 		"sabre/dav": "^4.1",
 		"symfony/console" : "^5.0",
 		"slim/slim": "^3.11",
-		"ramsey/uuid": "^3.8",
-		"enshrined/svg-sanitize": "^0.15.0",
+		"ramsey/uuid": "4.4.0",
+		"enshrined/svg-sanitize": "^0.16.0",
+		"guzzlehttp/guzzle": "^7.0",
+		"simplesamlphp/simplesamlphp": "^2.0",
 		"seld/jsonlint": "^1.8",
-		"ext-xml": "*",
 		"jasig/phpcas": "^1.4",
-		"simplesamlphp/simplesamlphp": "^1.19",
-		"guzzlehttp/guzzle": "^7.4"
+		"league/commonmark": "^2.3",
+		"ifsnop/mysqldump-php": "2.10",
+		"mustache/mustache": "^2.14"
 	},
 	"require-dev": {
 		"mikey179/vfsstream": "^1.6",
 		"phpunit/phpunit": "^9.5",
 		"mockery/mockery": "^1.4",
-		"friendsofphp/php-cs-fixer": "^3.5",
+		"friendsofphp/php-cs-fixer": "^3.15",
 		"sebastian/environment": "^5.0",
-		"captainhook/captainhook": "^5.3",
-		"rector/rector": "^0.12.12",
-		"phpstan/phpstan": "^1.9"
+		"captainhook/captainhook": "^5.16",
+		"captainhook/plugin-composer": "^5.3",
+		"phpstan/phpstan": "^1.10",
+		"rector/rector": "^0.15.17"
 	},
 	"autoload": {
 		"psr-4" : {
@@ -210,20 +215,20 @@
 		},
 		"phpmailer/phpmailer" : {
 			"source" : "https://github.com/PHPMailer/PHPMailer",
-			"used_version" : "v6.8.0",
+			"used_version" : "v6.8.1",
 			"wrapped_by" : "Services/Mail",
 			"added_by" : "Maximilian Becker <mbecker@databay.de>",
-			"last_update" : "2023-03-13",
+			"last_update" : "2023-09-05",
 			"last_update_by" : "Michael Jansen <mjansen@databay.de>",
 			"approved-by": "Jour Fixe",
 			"approved-date": "YYYY-MM-DD"
 		},
 		"james-heinrich/getid3" : {
 			"source" : "https://github.com/JamesHeinrich/getID3",
-			"used_version" : "v1.9.19",
+			"used_version" : "v1.9.12",
 			"wrapped_by" : "Services/MediaObjects",
 			"added_by" : "Alexander Killing <killing@leifos.de>",
-			"last_update" : "2020-01-27",
+			"last_update" : "2023-10-26",
 			"last_update_by" : "Alexander Killing <killing@leifos.de>",
 			"approved-by": "Jour Fixe (prior to 5.0)",
 			"approved-date": "YYYY-MM-DD",
@@ -392,10 +397,10 @@
 		},
 		"phpoffice/phpspreadsheet" : {
 			"source" : "https://github.com/PHPOffice/PhpSpreadsheet",
-			"used_version" : "v1.18.0",
+			"used_version" : "v1.29.0",
 			"wrapped_by" : "Services/Excel",
 			"added_by" : "Jesús López <lopez@leifos.com>",
-			"last_update" : "2021-06-19",
+			"last_update" : "2023-10-26",
 			"last_update_by" : "Alex Killing <killing@leifos.com>",
 			"approved-by": "Jour Fixe",
 			"approved-date": "2018-01-22"
@@ -422,21 +427,21 @@
 		},
 		"friendsofphp/php-cs-fixer": {
 			"source": "https://github.com/FriendsOfPHP/PHP-CS-Fixer",
-			"used_version": "2.15",
+			"used_version": "3.15",
 			"added_by": "Guido Vollbach <gvollbach@databaay.de",
 			"wrapped_by": null,
-			"last_update": "2019-07-11",
-			"last_update_by": "Guido Vollbach <gvollbach@databaay.de",
+			"last_update": "2023-03-13",
+			"last_update_by": "Michael Jansen <mjansen@databay.de>",
 			"approved-by": "Jour Fixe",
 			"approved-date": "YYYY-MM-DD"
 		},
 		"phpstan/phpstan": {
-			"source": "https://github.com/phpstan/phpstanr",
-			"used_version": "1.9.8",
+			"source": "https://github.com/phpstan/phpstan",
+			"used_version": "1.10.23",
 			"added_by": "Michael Jansen <mjansen@databay.de>",
 			"wrapped_by": null,
-			"last_update": "2023-01-09",
-			"last_update_by": "",
+			"last_update": "2023-09-05",
+			"last_update_by": "Michael Jansen <mjansen@databay.de>",
 			"approved-by": "TB",
 			"approved-date": "2022-05-03"
 		},
@@ -451,20 +456,20 @@
 		},
 		"ramsey/uuid": {
 			"source": "https://github.com/ramsey/uuid",
-			"used_version": "v3.8",
+			"used_version": "v4.4.0",
 			"added_by": "Theodor Truffer <tt@studer-raimann.ch>",
-			"wrapped_by": null,
-			"last_update": "2019-07-10",
-			"last_update_by": "Theodor Truffer <tt@studer-raimann.ch>",
+			"wrapped_by": "\\ILIAS\\Data\\UUID\\Uuid",
+			"last_update": "2022-08-30",
+			"last_update_by": "Fabian Schmid <fabian@sr.solutions>",
 			"approved-by": "Jour Fixe",
 			"approved-date": "2019-07-15"
 		},
 		"enshrined/svg-sanitize" : {
 			"source" : "https://github.com/darylldoyle/svg-sanitizer",
-			"used_version" : "v0.13.3",
+			"used_version" : "v0.16.0",
 			"wrapped_by" : "Services/MediaObject",
 			"added_by" : "Alex Killing <killing@leifos.de>",
-			"last_update" : "2020-01-27",
+			"last_update" : "2023-10-26",
 			"last_update_by" : "Alex Killing <killing@leifos.de>",
 			"approved-by": "see security issue 20339",
 			"approved-date": "2017-04-05"
@@ -489,15 +494,49 @@
 			"approved-by" : "In Codebase since 2006",
 			"approved-date" : "YYYY-MM-DD"
 		},
+		"captainhook/captainhook": {
+			"source": "https://github.com/captainhookphp/captainhook",
+			"used_version": "5.16.1",
+			"added_by": "Michael Jansen <mjansen@databay.de>",
+			"wrapped_by": null,
+			"last_update": "2023-09-05",
+			"last_update_by": "Michael Jansen <mjansen@databay.de>",
+			"approved-by": "JF",
+			"approved-date": "2021-11-21"
+		},
+		"captainhook/plugin-composer": {
+			"source": "https://github.com/captainhookphp/plugin-composer",
+			"used_version": "5.3",
+			"added_by": "Michael Jansen <mjansen@databay.de>",
+			"wrapped_by": null,
+			"last_update": "2022-08-12",
+			"last_update_by": "",
+			"approved-by": "JF",
+			"approved-date": "2021-11-21"
+		},
+		"league/commonmark": {
+			"source": "https://github.com/thephpleague/commonmark",
+			"used_version": "2.3.9",
+			"added_by": "Thibeau Fuhrer <thibeau@sr.solutions>",
+			"wrapped_by": "ILIAS\\UI\\Component\\Input\\Field\\MarkdownRenderer",
+			"last_update": "2023-03-14",
+			"last_update_by": "Thibeau Fuhrer <thibeau@sr.solutions>",
+			"approved-by": "JF",
+			"approved-date": "2023-03-20"
+		},
+		"ifsnop/mysqldump-php": {
+			"source": "https://github.com/ifsnop/mysqldump-php",
+			"used_version": "2.10",
+			"added_by": "Richard Klees <richard.klees@conceptsandtraining.de>, Fabian Schmid <fabian@sr.solutions>",
+			"wrapped_by": null,
+			"last_update": "2023-02-06",
+			"last_update_by": "",
+			"approved-by": "Jour Fixe",
+			"approved-date": "2023-10-30"
+		},
 		"patches": {
-			"tecnickcom/tcpdf": {
-				"ILIAS TCPDF Patches": "./libs/composer/patches/tcpdf.patch"
-			},
 			"phpmailer/phpmailer": {
 				"ILIAS PhpMailer Patches": "./libs/composer/patches/phpmailer.patch"
-			},
-			"simplesamlphp/simplesamlphp": {
-				"ILIAS SimpleSAMLphp Patches": "./libs/composer/patches/simplesamlphp.patch"
 			},
 			"imsglobal/lti": {
 				"ILIAS LTI Patches": "./libs/composer/patches/lti.patch"

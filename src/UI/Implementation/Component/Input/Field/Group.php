@@ -33,8 +33,11 @@ use Closure;
 use ILIAS\Data\Result\Ok;
 use Generator;
 use ILIAS\UI\Implementation\Component\Input\NameSource;
+<<<<<<< HEAD
 use ILIAS\UI\Implementation\Component\Input\InputData;
 use ILIAS\UI\Component\Input\Field\Input as LegacyInputInterface;
+=======
+>>>>>>> v9.1
 
 /**
  * This implements the group input.
@@ -42,7 +45,10 @@ use ILIAS\UI\Component\Input\Field\Input as LegacyInputInterface;
 class Group extends FormInput implements C\Input\Field\Group, GroupInternal
 {
     use GroupInternals;
+<<<<<<< HEAD
     protected ilLanguage $lng;
+=======
+>>>>>>> v9.1
 
     /**
      * @param \ILIAS\UI\Component\Input\Input[] $inputs
@@ -50,7 +56,7 @@ class Group extends FormInput implements C\Input\Field\Group, GroupInternal
     public function __construct(
         DataFactory $data_factory,
         \ILIAS\Refinery\Factory $refinery,
-        ilLanguage $lng,
+        protected ilLanguage $lng,
         array $inputs,
         string $label,
         ?string $byline = null
@@ -58,6 +64,7 @@ class Group extends FormInput implements C\Input\Field\Group, GroupInternal
         parent::__construct($data_factory, $refinery, $label, $byline);
         $this->checkInputListElements('inputs', $inputs, [C\Input\Container\Form\FormInput::class]);
         $this->setInputs($inputs);
+<<<<<<< HEAD
         $this->lng = $lng;
     }
 
@@ -72,6 +79,21 @@ class Group extends FormInput implements C\Input\Field\Group, GroupInternal
     {
         $clone = parent::withRequired($is_required, $requirement_constraint);
         $clone->setInputs(array_map(fn ($i) => $i->withRequired($is_required, $requirement_constraint), $this->getInputs()));
+=======
+    }
+
+    public function withDisabled(bool $is_disabled): self
+    {
+        $clone = parent::withDisabled($is_disabled);
+        $clone->setInputs(array_map(fn($i) => $i->withDisabled($is_disabled), $this->getInputs()));
+        return $clone;
+    }
+
+    public function withRequired(bool $is_required, ?Constraint $requirement_constraint = null): self
+    {
+        $clone = parent::withRequired($is_required, $requirement_constraint);
+        $clone->setInputs(array_map(fn($i) => $i->withRequired($is_required, $requirement_constraint), $this->getInputs()));
+>>>>>>> v9.1
         return $clone;
     }
 
@@ -88,10 +110,17 @@ class Group extends FormInput implements C\Input\Field\Group, GroupInternal
         return false;
     }
 
+<<<<<<< HEAD
     public function withOnUpdate(Signal $signal)
     {
         $clone = parent::withOnUpdate($signal);
         $clone->setInputs(array_map(fn ($i) => $i->withOnUpdate($signal), $this->getInputs()));
+=======
+    public function withOnUpdate(Signal $signal): self
+    {
+        $clone = parent::withOnUpdate($signal);
+        $clone->setInputs(array_map(fn($i) => $i->withOnUpdate($signal), $this->getInputs()));
+>>>>>>> v9.1
         return $clone;
     }
 
@@ -119,7 +148,11 @@ class Group extends FormInput implements C\Input\Field\Group, GroupInternal
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withNameFrom(NameSource $source, ?string $parent_name = null): LegacyInputInterface
+=======
+    public function withNameFrom(NameSource $source, ?string $parent_name = null): self
+>>>>>>> v9.1
     {
         /** @var $clone self */
         $clone = parent::withNameFrom($source, $parent_name);

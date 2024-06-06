@@ -27,15 +27,12 @@ use ILIAS\Filesystem\Exception\FileNotFoundException;
  */
 class ilCertificateSettingsTestFormRepository implements ilCertificateFormRepository
 {
-    private ilCertificateSettingsFormRepository $settingsFormFactory;
-    private ilLanguage $language;
-    private ilObjTest $testObject;
+    private readonly ilCertificateSettingsFormRepository $settingsFormFactory;
 
     public function __construct(
         int $objectId,
         string $certificatePath,
         bool $hasAdditionalElements,
-        ilObjTest $testObject,
         ilLanguage $language,
         ilCtrlInterface $ctrl,
         ilAccess $access,
@@ -43,27 +40,23 @@ class ilCertificateSettingsTestFormRepository implements ilCertificateFormReposi
         ilCertificatePlaceholderDescription $placeholderDescriptionObject,
         ?ilCertificateSettingsFormRepository $settingsFormRepository = null
     ) {
-        $this->testObject = $testObject;
-        $this->language = $language;
+        global $DIC;
 
-        if (null === $settingsFormRepository) {
-            $settingsFormRepository = new ilCertificateSettingsFormRepository(
-                $objectId,
-                $certificatePath,
-                $hasAdditionalElements,
-                $language,
-                $ctrl,
-                $access,
-                $toolbar,
-                $placeholderDescriptionObject
-            );
-        }
-        $this->settingsFormFactory = $settingsFormRepository;
+        $this->settingsFormFactory = $settingsFormRepository ?? new ilCertificateSettingsFormRepository(
+            $objectId,
+            $certificatePath,
+            $hasAdditionalElements,
+            $language,
+            $ctrl,
+            $access,
+            $toolbar,
+            $placeholderDescriptionObject,
+            $DIC->ui()->factory(),
+            $DIC->ui()->renderer()
+        );
     }
 
     /**
-     * @param ilCertificateGUI $certificateGUI
-     * @return ilPropertyFormGUI
      * @throws FileAlreadyExistsException
      * @throws FileNotFoundException
      * @throws IOException
@@ -80,6 +73,9 @@ class ilCertificateSettingsTestFormRepository implements ilCertificateFormReposi
     {
     }
 
+    /**
+     * @return array{pageformat: string, pagewidth: mixed, pageheight: mixed, margin_body_top: mixed, margin_body_right: mixed, margin_body_bottom: mixed, margin_body_left: mixed, certificate_text: string}
+     */
     public function fetchFormFieldData(string $content): array
     {
         return $this->settingsFormFactory->fetchFormFieldData($content);

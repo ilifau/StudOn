@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 use ILIAS\Setup;
 use ILIAS\DI;
+use ILIAS\Services\Logging\NullLogger;
 
 class ilPluginLanguageUpdatedObjective implements Setup\Objective
 {
@@ -115,58 +116,7 @@ class ilPluginLanguageUpdatedObjective implements Setup\Objective
         $GLOBALS["ilDB"] = $db;
         $GLOBALS["DIC"]["ilIliasIniFile"] = $ini;
         $GLOBALS["DIC"]["ilClientIniFile"] = $client_ini;
-        $GLOBALS["DIC"]["component.factory"] = $component_factory;
-        $GLOBALS["DIC"]["ilLog"] = new class () extends ilLogger {
-            public function __construct()
-            {
-            }
-            public function isHandling(int $a_level): bool
-            {
-                return true;
-            }
-            public function log(string $a_message, int $a_level = ilLogLevel::INFO): void
-            {
-            }
-            public function dump($a_variable, int $a_level = ilLogLevel::INFO): void
-            {
-            }
-            public function debug(string $a_message, array $a_context = array()): void
-            {
-            }
-            public function info(string $a_message): void
-            {
-            }
-            public function notice(string $a_message): void
-            {
-            }
-            public function warning(string $a_message): void
-            {
-            }
-            public function error(string $a_message): void
-            {
-            }
-            public function critical(string $a_message): void
-            {
-            }
-            public function alert(string $a_message): void
-            {
-            }
-            public function emergency(string $a_message): void
-            {
-            }
-            public function write(string $a_message, $a_level = ilLogLevel::INFO): void
-            {
-            }
-            public function writeLanguageLog(string $a_topic, string $a_lang_key): void
-            {
-            }
-            public function logStack(?int $a_level = null, string $a_message = ''): void
-            {
-            }
-            public function writeMemoryPeakUsage(int $a_level): void
-            {
-            }
-        };
+        $GLOBALS["DIC"]["ilLog"] = new NullLogger();
         $GLOBALS["DIC"]["ilLoggerFactory"] = new class () extends ilLoggerFactory {
             public function __construct()
             {
@@ -202,6 +152,7 @@ class ilPluginLanguageUpdatedObjective implements Setup\Objective
         $GLOBALS["DIC"]["ilObjDataCache"] = new ilObjectDataCache();
         $GLOBALS["DIC"]["ilSetting"] = new ilSetting();
         $GLOBALS["DIC"]["component.repository"] = $component_repository;
+        $GLOBALS["DIC"]["component.factory"] = $component_factory;
         $GLOBALS["DIC"]["objDefinition"] = new ilObjectDefinition();
         $GLOBALS["DIC"]["rbacadmin"] = new class () extends ilRbacAdmin {
             public function __construct()

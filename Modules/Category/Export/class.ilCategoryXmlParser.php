@@ -181,7 +181,6 @@ class ilCategoryXmlParser extends ilContainerBaseXmlParser
 
     protected function save(): bool
     {
-
         /**
          * mode can be create or update
          */

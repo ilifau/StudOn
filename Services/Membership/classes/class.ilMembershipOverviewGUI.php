@@ -1,11 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 // fau: filterMyMem - use Filter\Standard
 use ILIAS\UI\Implementation\Component\Input\Container\Filter\Standard;
 // fau.
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -22,9 +19,11 @@ use ILIAS\UI\Implementation\Component\Input\Container\Filter\Standard;
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Membership overview
- * @ilCtrl_Calls ilMembershipOverviewGUI: ilPDMembershipBlockGUI
+ * @ilCtrl_Calls ilMembershipOverviewGUI: ilMembershipBlockGUI
  * @author       killing@leifos.de
  */
 class ilMembershipOverviewGUI implements ilCtrlBaseClassInterface
@@ -50,9 +49,9 @@ class ilMembershipOverviewGUI implements ilCtrlBaseClassInterface
         $this->main_tpl->setTitleIcon(ilUtil::getImagePath('icon_crgr.svg'));
         $this->main_tpl->setTitle($this->lng->txt("my_courses_groups"));
         switch ($next_class) {
-            case "ilpdmembershipblockgui":
+            case strtolower(ilMembershipBlockGUI::class):
                 $ctrl->setReturn($this, "show");
-                $block = new ilPDMembershipBlockGUI(true);
+                $block = new ilMembershipBlockGUI();
                 $ret = $this->ctrl->forwardCommand($block);
                 if ($ret != "") {
                     $this->main_tpl->setContent($ret);

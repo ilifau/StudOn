@@ -39,19 +39,20 @@ use ILIAS\HTTP\GlobalHttpState;
  * @ilCtrl_Calls      ilObjContentPageGUI: ilObjectContentStyleSettingsGUI
  * @ilCtrl_Calls      ilObjContentPageGUI: ilObjectTranslationGUI
  * @ilCtrl_Calls      ilObjContentPageGUI: ilPageMultiLangGUI
+ * @ilCtrl_Calls      ilObjContentPageGUI: ilMDEditorGUI
  */
 class ilObjContentPageGUI extends ilObject2GUI implements ilContentPageObjectConstants, ilDesktopItemHandling
 {
     protected GlobalHttpState $http;
     protected \ILIAS\Style\Content\Object\ObjectFacade $content_style_domain;
     protected \ILIAS\Style\Content\GUIService $content_style_gui;
-    private ilNavigationHistory $navHistory;
-    private Container $dic;
+    private readonly ilNavigationHistory $navHistory;
+    private readonly Container $dic;
     private bool $infoScreenEnabled = false;
     private PageMetricsService $pageMetricsService;
     private ilHelpGUI $help;
     private \ILIAS\DI\UIServices $uiServices;
-    private bool $in_page_editor_style_context = false;
+    private readonly bool $in_page_editor_style_context;
 
     public function __construct(int $a_id = 0, int $a_id_type = self::REPOSITORY_NODE_ID, int $a_parent_node_id = 0)
     {
@@ -172,6 +173,14 @@ class ilObjContentPageGUI extends ilObject2GUI implements ilContentPageObjectCon
                 self::UI_TAB_ID_LP,
                 $this->lng->txt('learning_progress'),
                 $this->ctrl->getLinkTargetByClass(ilLearningProgressGUI::class)
+            );
+        }
+
+        if ($this->checkPermissionBool('write')) {
+            $this->tabs_gui->addTab(
+                self::UI_TAB_ID_MD,
+                $this->lng->txt('meta_data'),
+                $this->ctrl->getLinkTargetByClass(ilMDEditorGUI::class)
             );
         }
 
@@ -309,6 +318,18 @@ class ilObjContentPageGUI extends ilObject2GUI implements ilContentPageObjectCon
                 $this->ctrl->forwardCommand(new ilPermissionGUI($this));
                 break;
 
+            case strtolower(ilMDEditorGUI::class):
+                $this->checkPermission('write');
+
+                $this->prepareOutput();
+                $this->tabs_gui->activateTab(self::UI_TAB_ID_MD);
+
+
+                $md_gui = new ilMDEditorGUI($this->object->getId(), 0, $this->object->getType());
+                $md_gui->addObserver($this->object, 'MDUpdateListener', 'General');
+                $this->ctrl->forwardCommand($md_gui);
+                break;
+
             case strtolower(ilLearningProgressGUI::class):
                 if (!ilLearningProgressAccess::checkAccess($this->object->getRefId())) {
                     $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
@@ -360,12 +381,18 @@ class ilObjContentPageGUI extends ilObject2GUI implements ilContentPageObjectCon
                         break;
                 }
 
-                if (in_array(strtolower($cmd), array_map('strtolower', ['addToDesk', 'removeFromDesk']), true)) {
-                    $this->ctrl->setCmd($cmd . 'Object');
-                }
-
                 parent::executeCommand();
         }
+    }
+
+    protected function addToDesk(): void
+    {
+        $this->addToDeskObject();
+    }
+
+    protected function removeFromDesk(): void
+    {
+        $this->removeFromDeskObject();
     }
 
     public function addToNavigationHistory(): void
@@ -479,7 +506,6 @@ class ilObjContentPageGUI extends ilObject2GUI implements ilContentPageObjectCon
 
     /**
      * @param string $ctrlLink A link which describes the target controller for all page object links/actions
-     * @return string
      * @throws ilException
      */
     public function getContent(string $ctrlLink = ''): string

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -202,7 +204,6 @@ class BlogHtmlExport
 
         // month list
         $has_index = false;
-
         foreach (array_keys($this->items) as $month) {
             $list = $this->blog_gui->renderList($this->items[$month], "render", $a_link_template, false, $this->target_dir);
 
@@ -263,7 +264,7 @@ class BlogHtmlExport
                     $this->keywords
                 );
 
-                $file = self::buildExportLink($a_link_template, "posting", $page["id"], $this->keywords);
+                $file = self::buildExportLink($a_link_template, "posting", (string) $page["id"], $this->keywords);
 
                 if (!$a_tpl_callback) {
                     $tpl = $this->getInitialisedTemplate();
@@ -284,10 +285,19 @@ class BlogHtmlExport
                     $page["id"]
                 );
 
-                $this->writeExportFile($file, $tpl, $page_content, $nav, $back, $comments);
+                $this->writeExportFile($file, $tpl, $page_content, $nav, (bool) $back, $comments);
 
                 $this->co_page_html_export->collectPageElements("blp:pg", $page["id"]);
             }
+        }
+
+        if (!$has_index) {
+            if (!$a_tpl_callback) {
+                $tpl = $this->getInitialisedTemplate();
+            } else {
+                $tpl = $a_tpl_callback();
+            }
+            $file = $this->writeExportFile($a_index_name, $tpl, "", $nav);
         }
     }
 
@@ -378,9 +388,9 @@ class BlogHtmlExport
         return $tpl;
     }
 
-
     /**
      * Write HTML to file
+     * @throws \ilTemplateException
      */
     protected function writeExportFile(
         string $a_file,

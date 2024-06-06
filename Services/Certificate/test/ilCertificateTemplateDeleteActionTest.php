@@ -25,7 +25,9 @@ class ilCertificateTemplateDeleteActionTest extends ilCertificateBaseTestCase
 {
     public function testDeleteTemplateAndUseOldThumbnail(): void
     {
-        $templateRepositoryMock = $this->getMockBuilder(ilCertificateTemplateRepository::class)->getMock();
+        $templateRepositoryMock = $this->getMockBuilder(ilCertificateTemplateRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $templateRepositoryMock
             ->method('deleteTemplate')
@@ -41,7 +43,7 @@ class ilCertificateTemplateDeleteActionTest extends ilCertificateBaseTestCase
                 '[]',
                 1,
                 'v5.4.0',
-                1234567890,
+                1_234_567_890,
                 true,
                 'samples/background.jpg'
             ));
@@ -50,6 +52,7 @@ class ilCertificateTemplateDeleteActionTest extends ilCertificateBaseTestCase
         $templateRepositoryMock->expects($this->once())->method("save");
 
         $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
+            ->disableOriginalConstructor()
             ->getMock();
 
         $objectHelper = $this->getMockBuilder(ilCertificateObjectHelper::class)
@@ -61,9 +64,9 @@ class ilCertificateTemplateDeleteActionTest extends ilCertificateBaseTestCase
         $action = new ilCertificateTemplateDeleteAction(
             $templateRepositoryMock,
             __DIR__,
+            'v5.4.0',
             $utilHelper,
-            $objectHelper,
-            'v5.4.0'
+            $objectHelper
         );
 
         $action->delete(100, 2000);

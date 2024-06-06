@@ -1,4 +1,21 @@
 <?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -42,13 +59,11 @@ class assLongmenuTest extends assBaseTestCase
 
         parent::setUp();
 
-        require_once './Services/UICore/classes/class.ilCtrl.php';
         $ilCtrl_mock = $this->createMock('ilCtrl');
         $ilCtrl_mock->expects($this->any())->method('saveParameter');
         $ilCtrl_mock->expects($this->any())->method('saveParameterByClass');
         $this->setGlobalVariable('ilCtrl', $ilCtrl_mock);
 
-        require_once './Services/Language/classes/class.ilLanguage.php';
         $lng_mock = $this->createMock('ilLanguage', array('txt'), array(), '', false);
         //$lng_mock->expects( $this->once() )->method( 'txt' )->will( $this->returnValue('Test') );
         $this->setGlobalVariable('lng', $lng_mock);
@@ -218,8 +233,8 @@ class assLongmenuTest extends assBaseTestCase
     public function test_setAnswerType_shouldReturnGetAnswerType(): void
     {
         $obj = new assLongMenu();
-        $obj->setAnswerType(0);
-        $this->assertEquals(0, $obj->getAnswerType());
+        $obj->setAnswerType([]);
+        $this->assertEquals([], $obj->getAnswerType());
     }
 
     /* Removed by @kergomard 17 NOV 2022, we should introduce this again

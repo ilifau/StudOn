@@ -38,6 +38,8 @@ class ilObjTestSettingsResultSummary extends TestSettings
      * see ilObjTestSettingsResultDetails
      */
     protected bool $show_pass_details = false;
+    protected bool $show_grading_status = false;
+    protected bool $show_grading_mark = false;
 
     public function __construct(int $test_id)
     {
@@ -62,13 +64,6 @@ class ilObjTestSettingsResultSummary extends TestSettings
             }
         );
 
-        $reporting_date = $this->getReportingDate();
-        if ($reporting_date !== null) {
-            $reporting_date = $reporting_date->setTimezone(
-                new DateTimeZone($environment['user_time_zone'])
-            )->format($environment['user_date_format']->toString() . ' H:m');
-        }
-
         $results_time_group = $f->switchableGroup(
             [
                 self::SCORE_REPORTING_IMMIDIATLY => $f->group([], $lng->txt('tst_results_access_always'), $lng->txt('tst_results_access_always_desc')),
@@ -78,10 +73,12 @@ class ilObjTestSettingsResultSummary extends TestSettings
                     [
                     $f->dateTime($lng->txt('tst_reporting_date'), "")
                         ->withTimezone($environment['user_time_zone'])
-                        ->withUseTime(true)
                         ->withFormat($environment['user_date_format'])
+                        ->withUseTime(true)
                         ->withValue(
-                            $reporting_date
+                            $this->getReportingDate()?->setTimezone(
+                                new DateTimeZone($environment['user_time_zone'])
+                            )
                         )
                         ->withRequired(true)
                     ],
@@ -98,6 +95,7 @@ class ilObjTestSettingsResultSummary extends TestSettings
         if ($this->getScoreReporting() > 0) {
             $results_time_group = $results_time_group->withValue($this->getScoreReporting());
         }
+
 
         $optional_group = $f->optionalGroup(
             [

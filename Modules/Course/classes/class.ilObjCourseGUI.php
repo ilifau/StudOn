@@ -24,6 +24,7 @@ use FAU\Ilias\Helper\ObjCourseGUIHelper;
 use FAU\Ilias\Helper\CourseConstantsHelper;
 use FAU\Ilias\Helper\WaitingListHelper;
 //fau.
+use ILIAS\News\Service as News;
 
 /**
  * Class ilObjCourseGUI
@@ -63,7 +64,7 @@ class ilObjCourseGUI extends ilContainerGUI
     public const BREADCRUMB_DEFAULT = 0;
     public const BREADCRUMB_CRS_ONLY = 1;
     public const BREADCRUMB_FULL_PATH = 2;
-    protected ilNewsService $news;
+    protected News $news;
 
     private ?ilAdvancedMDRecordGUI $record_gui = null;
     private ?ilContainerStartObjects $start_obj = null;
@@ -102,9 +103,6 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->viewObject();
     }
 
-    /**
-     * @inheritDoc
-     */
     protected function afterImport(ilObject $new_object): void
     {
         $part = ilCourseParticipants::_getInstanceByObjId($new_object->getId());
@@ -131,9 +129,14 @@ class ilObjCourseGUI extends ilContainerGUI
 
         $this->tabs_gui->setTabActive('view_content');
         $this->checkPermission('read', 'view');
-        if ($this->view_manager->isAdminView()) {
-            parent::renderObject();
+
+        if (strtolower($this->std_request->getBaseClass()) === "iladministrationgui") {
+            parent::viewObject();
             return;
+        }
+
+        if ($this->isActiveAdministrationPanel()) {
+            $this->addAdoptContentLinkToToolbar();
         }
 
         // Fill meta header tags
@@ -299,7 +302,7 @@ class ilObjCourseGUI extends ilContainerGUI
             }
             // fau.
         }
-        if (strlen($this->object->getTargetGroup())) {
+        if (strlen((string) $this->object->getTargetGroup())) {
             $info->addProperty(
                 $this->lng->txt('crs_target_group'),
                 nl2br(
@@ -942,9 +945,6 @@ class ilObjCourseGUI extends ilContainerGUI
             $crs_period->getEnd()
         );
 
-        // activation/online
-        $this->object->setOfflineStatus(!$form->getInput('activation_online'));
-
         // activation period
         $period = $form->getItemByPostVar("access_period");
         if ($period->getStart() && $period->getEnd()) {
@@ -962,10 +962,15 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->setSubscriptionEnd(0);
 
         $sub_type = (int) $form->getInput('subscription_type');
+        $sub_reg_type = (int) $form->getInput('subscription_limitation_type');
         $sub_period = $form->getItemByPostVar('subscription_period');
 
-        $this->object->setSubscriptionType($sub_type);
-        if ($sub_type != ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+        $this->object->setSubscriptionType(
+            $sub_reg_type !== ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED
+                ? $sub_type
+                : ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED
+        );
+        if ($sub_reg_type !== ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             if ($sub_period->getStart() && $sub_period->getEnd()) {
                 $this->object->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_LIMITED);
                 $this->object->setSubscriptionStart($sub_period->getStart()->get(IL_CAL_UNIX));
@@ -1031,6 +1036,10 @@ class ilObjCourseGUI extends ilContainerGUI
         }
         // fau.
         $this->object->handleAutoFill();
+
+        $property_online = $this->object->getObjectProperties()->getPropertyIsOnline();
+        $online = $form->getInput('activation_online') ? $property_online->withOnline() : $property_online->withOffline();
+        $this->object->getObjectProperties()->storePropertyIsOnline($online);
 
         $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTitleIconVisibility();
         $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTopActionsVisibility();
@@ -1167,7 +1176,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
         // Update ecs export settings
         $ecs = new ilECSCourseSettings($this->object);
-        if (!$ecs->handleSettingsUpdate()) {
+        if (!$ecs->handleSettingsUpdate($form)) {
             $form->setValuesByPost();
             $this->tpl->setOnScreenMessage('failure', $GLOBALS['DIC']->language()->txt('err_check_input'));
             $this->editObject($form);
@@ -1216,7 +1225,6 @@ class ilObjCourseGUI extends ilContainerGUI
         return $subs;
     }
 
-    
     // fau: studyCond - new function updateForMemcond
     public function updateForMemcondObject()
     {
@@ -1225,7 +1233,7 @@ class ilObjCourseGUI extends ilContainerGUI
     }
     // fau.
 
-    protected function confirmLPSync()
+    protected function confirmLPSync(): void
     {
         $cgui = new ilConfirmationGUI();
         $cgui->setFormAction($this->ctrl->getFormAction($this, "setLPSync"));
@@ -1333,11 +1341,21 @@ class ilObjCourseGUI extends ilContainerGUI
         // fau.
         $form->addItem($section);
 
-        $reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'), 'subscription_type');
+        // time limit
+        $sdur = new ilDateDurationInputGUI($this->lng->txt('crs_registration_limited'), "subscription_period");
+        $sdur->setShowTime(true);
+        if ($this->object->getSubscriptionStart()) {
+            $sdur->setStart(new ilDateTime($this->object->getSubscriptionStart(), IL_CAL_UNIX));
+        }
+        if ($this->object->getSubscriptionEnd()) {
+            $sdur->setEnd(new ilDateTime($this->object->getSubscriptionEnd(), IL_CAL_UNIX));
+        }
+
+        $reg_proc = new ilRadioGroupInputGUI('', 'subscription_type');
         $reg_proc->setValue(
             ($this->object->getSubscriptionLimitationType() != ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED)
                 ? (string) $this->object->getSubscriptionType()
-                : (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED
+                : (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT
         );
         // $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
@@ -1396,14 +1414,29 @@ class ilObjCourseGUI extends ilContainerGUI
         $opt->setInfo($this->lng->txt('crs_registration_confirmation_info'));
         $reg_proc->addOption($opt);
 
-        $opt = new ilRadioOption(
+        $opt_self_enrollment_enabled = new ilRadioOption(
+            $this->lng->txt('crs_reg_selfreg'),
+            (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_UNLIMITED
+        );
+        $opt_self_enrollment_enabled->addSubItem($reg_proc);
+        $opt_self_enrollment_enabled->addSubItem($sdur);
+        $opt_self_enrollment_disabled = new ilRadioOption(
             $this->lng->txt('crs_reg_no_selfreg'),
             (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED
         );
-        $opt->setInfo($this->lng->txt('crs_registration_deactivated'));
-        $reg_proc->addOption($opt);
-
-        $form->addItem($reg_proc);
+        $opt_self_enrollment_disabled->setInfo($this->lng->txt('crs_registration_deactivated'));
+        $reg_proc_subscription_reg_type = new ilRadioGroupInputGUI(
+            $this->lng->txt('crs_registration_type'),
+            'subscription_limitation_type'
+        );
+        $reg_proc_subscription_reg_type->setValue(
+            $this->object->getSubscriptionLimitationType() !== ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED
+                ? (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_UNLIMITED
+                : (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED
+        );
+        $reg_proc_subscription_reg_type->addOption($opt_self_enrollment_enabled);
+        $reg_proc_subscription_reg_type->addOption($opt_self_enrollment_disabled);
+        $form->addItem($reg_proc_subscription_reg_type);
 
         // Registration codes
         $reg_code = new ilCheckboxInputGUI($this->lng->txt('crs_reg_code'), 'reg_code_enabled');
@@ -1424,23 +1457,12 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->getRefId(),
             $this->object->getType(),
             array(),
-            '_rcode' . $this->object->getRegistrationAccessCode()
+            'rcode' . $this->object->getRegistrationAccessCode()
         );
         $link->setHtml('<span class="small">' . $val . '</span>');
         $reg_code->addSubItem($link);
 
         $form->addItem($reg_code);
-
-        // time limit
-        $sdur = new ilDateDurationInputGUI($this->lng->txt('crs_registration_limited'), "subscription_period");
-        $sdur->setShowTime(true);
-        if ($this->object->getSubscriptionStart()) {
-            $sdur->setStart(new ilDateTime($this->object->getSubscriptionStart(), IL_CAL_UNIX));
-        }
-        if ($this->object->getSubscriptionEnd()) {
-            $sdur->setEnd(new ilDateTime($this->object->getSubscriptionEnd(), IL_CAL_UNIX));
-        }
-        $form->addItem($sdur);
 
         // cancellation limit
         $cancel = new ilDateTimeInputGUI($this->lng->txt('crs_cancellation_end'), 'cancel_end');
@@ -3036,7 +3058,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $location = [];
         if ($this->http->wrapper()->post()->has('location')) {
             $custom_transformer = $this->refinery->custom()->transformation(
-                fn ($array) => $array
+                fn($array) => $array
             );
             $location = $this->http->wrapper()->post()->retrieve(
                 'location',
@@ -3243,7 +3265,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
                 $lg->addHeaderIcon(
                     "cert_icon",
-                    ilUtil::getImagePath("icon_cert.svg"),
+                    ilUtil::getImagePath("standard/icon_cert.svg"),
                     $this->lng->txt("download_certificate"),
                     null,
                     null,
@@ -3257,7 +3279,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 if (!$noti->isCurrentUserActive()) {
                     $lg->addHeaderIcon(
                         "not_icon",
-                        ilUtil::getImagePath("notification_off.svg"),
+                        ilUtil::getImagePath("object/notification_off.svg"),
                         $this->lng->txt("crs_notification_deactivated")
                     );
 
@@ -3266,7 +3288,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 } else {
                     $lg->addHeaderIcon(
                         "not_icon",
-                        ilUtil::getImagePath("notification_on.svg"),
+                        ilUtil::getImagePath("object/notification_on.svg"),
                         $this->lng->txt("crs_notification_activated")
                     );
 
@@ -3293,8 +3315,6 @@ class ilObjCourseGUI extends ilContainerGUI
      */
     public function deliverCertificateObject(): void
     {
-        global $DIC;
-
         $user_id = null;
         if ($this->access->checkAccess('manage_members', '', $this->ref_id)) {
             $user_id = 0;
@@ -3320,11 +3340,9 @@ class ilObjCourseGUI extends ilContainerGUI
 
         $repository = new ilUserCertificateRepository();
 
-        $certLogger = $DIC->logger()->cert();
-        $pdfGenerator = new ilPdfGenerator($repository, $certLogger);
+        $pdfGenerator = new ilPdfGenerator($repository);
 
         $pdfAction = new ilCertificatePdfAction(
-            $certLogger,
             $pdfGenerator,
             new ilCertificateUtilHelper(),
             $this->lng->txt('error_creating_certificate_pdf')

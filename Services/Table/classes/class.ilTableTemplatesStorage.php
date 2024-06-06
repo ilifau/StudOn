@@ -19,6 +19,9 @@
 /**
  * Saves (mostly asynchronously) user properties of tables (e.g. filter on/off)
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
+ *
+ * @deprecated 10
+ *
  */
 class ilTableTemplatesStorage
 {
@@ -78,7 +81,7 @@ class ilTableTemplatesStorage
             " AND context = " . $ilDB->quote($a_context, "text")
         );
         $rec = $ilDB->fetchAssoc($set);
-        return unserialize($rec["value"]);
+        return unserialize((string) $rec["value"]);
     }
 
     /**

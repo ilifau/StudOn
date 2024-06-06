@@ -19,6 +19,7 @@ function base()
 
     $columns = [
         'i1' => $f->table()->column()->statusIcon("icon"),
+<<<<<<< HEAD
         'i2' => $f->table()->column()->statusIcon("chart")
     ];
 
@@ -35,6 +36,17 @@ function base()
             $this->ui_factory = $ui_factory;
             $this->ui_renderer = $ui_renderer;
             $this->records = $records;
+=======
+        'i2' => $f->table()->column()->statusIcon("check")
+    ];
+
+    $data_retrieval = new class ($f, $r, $dummy_records) implements I\DataRetrieval {
+        public function __construct(
+            protected \ILIAS\UI\Factory $ui_factory,
+            protected \ILIAS\UI\Renderer $ui_renderer,
+            protected array $records
+        ) {
+>>>>>>> v9.1
         }
 
         public function getRows(

@@ -25,14 +25,12 @@ declare(strict_types=1);
  */
 class ilMailFormAttachmentPropertyGUI extends ilFormPropertyGUI
 {
-    public string $buttonLabel;
     /** @var string[] */
-    public array $items = [];
+    private array $items = [];
 
-    public function __construct(string $buttonLabel)
+    public function __construct(private readonly string $buttonLabel, string $http_post_param_name)
     {
-        $this->buttonLabel = $buttonLabel;
-        parent::__construct();
+        parent::__construct('', $http_post_param_name);
         $this->setTitle($this->lng->txt('attachments'));
     }
 

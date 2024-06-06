@@ -21,7 +21,7 @@ use ILIAS\Filesystem\Util\LegacyPathHelper;
 use ILIAS\Filesystem\Filesystem;
 
 /**
- * @deprecated
+ * @deprecated Will be removed in ILIAS 10. Use ILIAS ResourceStorageService as replacement.
  */
 abstract class ilFileSystemAbstractionStorage
 {
@@ -199,7 +199,7 @@ abstract class ilFileSystemAbstractionStorage
             case self::STORAGE_WEB:
                 break;
             case self::STORAGE_SECURED:
-                $this->path = rtrim($this->path, '/') . '/' . self::SECURED_DIRECTORY . '/';
+                $this->path = rtrim($this->path ?? '', '/') . '/' . self::SECURED_DIRECTORY . '/';
                 break;
         }
 

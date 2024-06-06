@@ -28,25 +28,19 @@ use ILIAS\Refinery\Factory as Refinery;
 */
 class ilMailSearchGUI
 {
-    private ilGlobalTemplateInterface $tpl;
-    private ilCtrlInterface $ctrl;
+    private readonly ilGlobalTemplateInterface $tpl;
+    private readonly ilCtrlInterface $ctrl;
     protected ilRbacReview $rbacreview;
     protected ilObjectDataCache $object_data_cache;
-    private ilLanguage $lng;
-    private ilFormatMail $umail;
-    private bool $errorDelete = false;
-    /**
-     * @var ilWorkspaceAccessHandler|null|ilPortfolioAccessHandler
-     */
-    private $wsp_access_handler = null;
-    private ?int $wsp_node_id = null;
-    private GlobalHttpState $http;
-    private Refinery $refinery;
+    private readonly ilLanguage $lng;
+    private readonly ilFormatMail $umail;
+    private readonly GlobalHttpState $http;
+    private readonly Refinery $refinery;
 
     /**
      * @param ilWorkspaceAccessHandler|null|ilPortfolioAccessHandler $wsp_access_handler
      */
-    public function __construct($wsp_access_handler = null, ?int $wsp_node_id = null)
+    public function __construct(private $wsp_access_handler = null, private readonly ?int $wsp_node_id = null)
     {
         /** @var $DIC \ILIAS\DI\Container */
         global $DIC;
@@ -59,9 +53,6 @@ class ilMailSearchGUI
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
 
-        $this->wsp_access_handler = $wsp_access_handler;
-        $this->wsp_node_id = $wsp_node_id;
-
         $this->ctrl->saveParameter($this, 'mobj_id');
         $this->ctrl->saveParameter($this, 'ref');
 
@@ -70,16 +61,11 @@ class ilMailSearchGUI
 
     public function executeCommand(): bool
     {
-        $forward_class = $this->ctrl->getNextClass($this);
-        switch ($forward_class) {
-            default:
-                if (!($cmd = $this->ctrl->getCmd())) {
-                    $cmd = "showResults";
-                }
-
-                $this->$cmd();
-                break;
+        if (!($cmd = $this->ctrl->getCmd())) {
+            $cmd = "showResults";
         }
+
+        $this->$cmd();
 
         return true;
     }
@@ -161,7 +147,7 @@ class ilMailSearchGUI
 
         if (ilSession::get('mail_search_search') === '') {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_insert_query'));
-        } elseif (strlen(ilSession::get('mail_search_search')) < 3) {
+        } elseif (strlen((string) ilSession::get('mail_search_search')) < 3) {
             $this->lng->loadLanguageModule('search');
             $this->tpl->setOnScreenMessage('info', $this->lng->txt('search_minimum_three'));
         }
@@ -291,7 +277,7 @@ class ilMailSearchGUI
         }
 
         $relations = ilBuddyList::getInstanceByGlobalUser()->getLinkedRelations();
-        if (count($relations)) {
+        if (count($relations) > 0) {
             $contacts_search_result = new ilSearchResult();
 
             $query_parser = new ilQueryParser(addcslashes(ilSession::get('mail_search_search'), '%_'));
@@ -371,7 +357,7 @@ class ilMailSearchGUI
             $tbl_contacts->addColumn($this->lng->txt('lastname'), 'lastname', '15%');
             if ($has_mail_addr) {
                 foreach ($result as $key => $val) {
-                    if (!isset($val['email']) || (string) $val['email'] === '') {
+                    if (!isset($val['email']) || $val['email'] === '') {
                         $result[$key]['email'] = '&nbsp;';
                     }
                 }
@@ -464,9 +450,9 @@ class ilMailSearchGUI
             $tbl_users->addColumn($this->lng->txt('login'), 'login', '15%');
             $tbl_users->addColumn($this->lng->txt('firstname'), 'firstname', '15%');
             $tbl_users->addColumn($this->lng->txt('lastname'), 'lastname', '15%');
-            if ($has_mail_usr === true) {
+            if ($has_mail_usr) {
                 foreach ($result as $key => $val) {
-                    if (!isset($val['email']) || (string) $val['email'] === '') {
+                    if (!isset($val['email']) || $val['email'] === '') {
                         $result[$key]['email'] = '&nbsp;';
                     }
                 }
@@ -521,8 +507,8 @@ class ilMailSearchGUI
                     $roles = $this->rbacreview->getAssignableChildRoles($grp['ref_id']);
                     foreach ($roles as $role) {
                         if (
-                            strpos($role['title'], 'il_grp_member_') === 0 ||
-                            strpos($role['title'], 'il_grp_admin_') === 0
+                            str_starts_with($role['title'], 'il_grp_member_') ||
+                            str_starts_with($role['title'], 'il_grp_admin_')
                         ) {
                             // FIX for Mantis: 7523
                             $members[] = '#' . $role['title'];
@@ -543,7 +529,7 @@ class ilMailSearchGUI
                 $visible_groups[] = $grp;
             }
 
-            if ($visible_groups) {
+            if ($visible_groups !== []) {
                 $tbl_grp->setData($result);
 
                 if ($this->isDefaultRequestContext()) {
@@ -568,9 +554,9 @@ class ilMailSearchGUI
         }
 
         if (count($users) || count($visible_groups) || count($relations)) {
-            $this->tpl->setVariable("IMG_ARROW", ilUtil::getImagePath("arrow_downright.svg"));
+            $this->tpl->setVariable("IMG_ARROW", ilUtil::getImagePath("nav/arrow_downright.svg"));
             $this->tpl->setVariable("ALT_ARROW", '');
-            $this->tpl->setVariable("IMG_ARROW_UP", ilUtil::getImagePath("arrow_upright.svg"));
+            $this->tpl->setVariable("IMG_ARROW_UP", ilUtil::getImagePath("nav/arrow_upright.svg"));
             $this->tpl->setVariable("ALT_ARROW_UP", '');
 
             if ($this->isDefaultRequestContext()) {
@@ -597,13 +583,7 @@ class ilMailSearchGUI
             $a_obj_ids = [$a_obj_ids];
         }
 
-        $existing = $this->wsp_access_handler->getPermissions($this->wsp_node_id);
-        $added = false;
-        foreach ($a_obj_ids as $object_id) {
-            if (!in_array($object_id, $existing, true)) {
-                $added = $this->wsp_access_handler->addPermission($this->wsp_node_id, $object_id);
-            }
-        }
+        $added = $this->wsp_access_handler->addMissingPermissionForObjects($this->wsp_node_id, $a_obj_ids);
 
         if ($added) {
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('wsp_share_success'), true);

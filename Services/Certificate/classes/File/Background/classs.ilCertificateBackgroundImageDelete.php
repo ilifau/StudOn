@@ -23,13 +23,10 @@ declare(strict_types=1);
  */
 class ilCertificateBackgroundImageDelete
 {
-    private string $certificatePath;
-    private ilCertificateBackgroundImageFileService $fileService;
-
-    public function __construct(string $certificatePath, ilCertificateBackgroundImageFileService $fileService)
-    {
-        $this->certificatePath = $certificatePath;
-        $this->fileService = $fileService;
+    public function __construct(
+        private readonly string $certificatePath,
+        private readonly ilCertificateBackgroundImageFileService $fileService
+    ) {
     }
 
     public function deleteBackgroundImage(?int $version): void

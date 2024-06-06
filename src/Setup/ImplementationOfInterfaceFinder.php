@@ -25,53 +25,14 @@ namespace ILIAS\Setup;
  *
  * @package ILIAS\ArtifactBuilder\Generators
  */
-class ImplementationOfInterfaceFinder
+class ImplementationOfInterfaceFinder extends AbstractOfFinder
 {
-    protected string $root;
-
-    /**
-     * @var string[]
-     */
-    protected array $ignore = [
-        '.*/src/',
-        '.*/libs/',
-        '.*/test/',
-        '.*/tests/',
-        '.*/setup/',
-        // Classes using removed Auth-class from PEAR
-        '.*ilSOAPAuth.*',
-        // Classes using unknown
-        '.*ilPDExternalFeedBlockGUI.*',
-    ];
-
-    /**
-     * @var string[]|null
-     */
-    protected ?array $classmap = null;
-
-    public function __construct()
-    {
-        $this->root = substr(__FILE__, 0, strpos(__FILE__, DIRECTORY_SEPARATOR . "src"));
-        $external_classmap = include "./libs/composer/vendor/composer/autoload_classmap.php";
-        $this->classmap = $external_classmap ?: null;
-    }
-
-    /**
-     * The matcher finds the class names implementing the given interface, while
-     * ignoring paths in self::$ignore and and the additional patterns provided.
-     *
-     * Patterns are regexps (without delimiters) to define complete paths on the
-     * filesystem to be ignored or selected.
-     *
-     * @param   string $interface
-     * @param   string[] $additional_ignore
-     * @param   string|null $matching_path
-     */
     public function getMatchingClassNames(
         string $interface,
         array $additional_ignore = [],
         string $matching_path = null
     ): \Iterator {
+<<<<<<< HEAD
         foreach ($this->getAllClassNames($additional_ignore, $matching_path) as $class_name) {
             try {
                 $r = new \ReflectionClass($class_name);
@@ -127,5 +88,17 @@ class ImplementationOfInterfaceFinder
                 yield $class_name;
             }
         }
+=======
+        yield from $this->genericGetMatchingClassNames(
+            fn (\ReflectionClass $r) => $this->isClassMatching($interface, $r),
+            $additional_ignore,
+            $matching_path
+        );
+    }
+
+    public function isClassMatching(string $interface, \ReflectionClass $r): bool
+    {
+        return ($r->isInstantiable() && $r->implementsInterface($interface));
+>>>>>>> v9.1
     }
 }

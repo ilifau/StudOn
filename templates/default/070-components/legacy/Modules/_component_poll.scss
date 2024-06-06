@@ -1,0 +1,66 @@
+@use "../../../010-settings/" as *;
+
+/* Modules/Poll */
+
+.ilPollAlert {
+	margin: 5px;
+	font-size: $il-font-size-small;
+	color: $il-warning-color;
+}
+
+.ilPollDescription {
+	margin: 5px;
+	font-size: $il-font-size-small;
+	color: $il-text-light-color;
+}
+
+.ilPollQuestion {
+	display: inline-block;
+	width: 97%;
+	margin: 1.5%;
+	font-size: $il-font-size-small;
+	font-style: italic;
+}
+
+.ilPollModeInfo {
+	display: inline-block;
+	width: 97%;
+	margin: 1.5%;
+	font-size: $il-font-size-small;
+	color: $il-text-light-color;
+}
+
+img.ilPollQuestionImage {
+	margin: 1.5% 0%;
+	max-width: 100%;
+}
+
+.ilPollQuestionAnswers {
+	margin: 5px;
+	font-size: $il-font-size-small;
+}
+
+.ilPollQuestionAnswer {
+	margin-bottom: 5px;
+}
+
+.ilPollQuestionResults {
+	margin: 10px;
+	font-size: $il-font-size-small;
+}
+
+.ilPollQuestionResult {
+	margin-bottom: 5px;
+}
+
+.ilPollQuestionResult .progress .progress-bar {
+	background-color: $il-main-color;
+}
+
+.ilPollLegend {
+	margin-bottom: 5px;
+}
+
+.ilPollLegend td.legendLabel {
+	font-size: $il-font-size-large;
+}

@@ -18,21 +18,32 @@
 
 declare(strict_types=1);
 
+use ILIAS\UI\Component\Component;
+use ILIAS\TermsOfService\Consumer;
+use ILIAS\TermsOfService\Settings;
+use ILIAS\LegalDocuments\Config;
+use ILIAS\LegalDocuments\Legacy\Confirmation;
+use ILIAS\LegalDocuments\ConsumerToolbox\UI;
+use ILIAS\LegalDocuments\ConsumerToolbox\Blocks;
+use ILIAS\Data\Factory as DataFactory;
+
 /**
  * @author            Michael Jansen <mjansen@databay.de>
  * @ilCtrl_Calls      ilObjTermsOfServiceGUI: ilPermissionGUI
  * @ilCtrl_Calls      ilObjTermsOfServiceGUI: ilTermsOfServiceDocumentGUI
  * @ilCtrl_Calls      ilObjTermsOfServiceGUI: ilTermsOfServiceAcceptanceHistoryGUI
+ * @ilCtrl_Calls      ilObjTermsOfServiceGUI: ilLegalDocumentsAdministrationGUI
  * @ilCtrl_isCalledBy ilObjTermsOfServiceGUI: ilAdministrationGUI
  */
-class ilObjTermsOfServiceGUI extends ilObject2GUI implements ilTermsOfServiceControllerEnabled
+class ilObjTermsOfServiceGUI extends ilObject2GUI
 {
     protected ILIAS\DI\Container $dic;
     protected ilErrorHandling $error;
+    private readonly ilLegalDocumentsAdministrationGUI $legal_documents;
+    private readonly Config $config;
+    private readonly UI $ui;
+    private readonly Settings $tos_settings;
 
-    /**
-     * @inheritdoc
-     */
     public function __construct($a_id = 0, $a_id_type = self::REPOSITORY_NODE_ID, $a_parent_node_id = 0)
     {
         global $DIC;
@@ -45,6 +56,14 @@ class ilObjTermsOfServiceGUI extends ilObject2GUI implements ilTermsOfServiceCon
 
         $this->lng->loadLanguageModule('tos');
         $this->lng->loadLanguageModule('meta');
+        $config = new Config($this->dic['legalDocuments']->provide(Consumer::ID));
+        if ($this->rbac_system->checkAccess('write', $this->object->getRefId())) {
+            $config = $config->allowEditing();
+        }
+        $this->config = $config;
+        $this->legal_documents = new ilLegalDocumentsAdministrationGUI(self::class, $this->config, $this->afterDocumentDeletion(...));
+        $this->ui = new UI(Consumer::ID, $this->dic->ui()->factory(), $this->dic->ui()->mainTemplate(), $this->dic->language());
+        $this->tos_settings = $this->createSettings();
     }
 
     public function getType(): string
@@ -54,162 +73,98 @@ class ilObjTermsOfServiceGUI extends ilObject2GUI implements ilTermsOfServiceCon
 
     public function executeCommand(): void
     {
+        if (!$this->rbac_system->checkAccess('read', $this->object->getRefId())) {
+            $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
+        }
         $this->prepareOutput();
-
-        $nextClass = $this->ctrl->getNextClass($this);
+        $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
 
-        $tableDataProviderFactory = new ilTermsOfServiceTableDataProviderFactory();
-        $tableDataProviderFactory->setDatabaseAdapter($this->dic->database());
-
-        switch (strtolower($nextClass)) {
-            case strtolower(ilTermsOfServiceDocumentGUI::class):
-                /** @var ilObjTermsOfService $obj */
-                $obj = $this->object;
-                $documentGui = new ilTermsOfServiceDocumentGUI(
-                    $obj,
-                    $this->dic['tos.criteria.type.factory'],
-                    $this->dic->ui()->mainTemplate(),
-                    $this->dic->user(),
-                    $this->dic->ctrl(),
-                    $this->dic->language(),
-                    $this->dic->rbac()->system(),
-                    $this->dic['ilErr'],
-                    $this->dic->logger()->tos(),
-                    $this->dic->toolbar(),
-                    $this->dic->http(),
-                    $this->dic->ui()->factory(),
-                    $this->dic->ui()->renderer(),
-                    $this->dic->filesystem(),
-                    $this->dic->upload(),
-                    $tableDataProviderFactory,
-                    new ilTermsOfServiceTrimmedDocumentPurifier(new ilTermsOfServiceDocumentHtmlPurifier()),
-                    $this->dic->refinery()
-                );
-                $this->ctrl->forwardCommand($documentGui);
-                break;
-
-            case strtolower(ilTermsOfServiceAcceptanceHistoryGUI::class):
-                /** @var ilObjTermsOfService $obj */
-                $obj = $this->object;
-                $documentGui = new ilTermsOfServiceAcceptanceHistoryGUI(
-                    $obj,
-                    $this->dic['tos.criteria.type.factory'],
-                    $this->dic->ui()->mainTemplate(),
-                    $this->dic->ctrl(),
-                    $this->dic->language(),
-                    $this->dic->rbac()->system(),
-                    $this->dic['ilErr'],
-                    $this->dic->http(),
-                    $this->dic->refinery(),
-                    $this->dic->ui()->factory(),
-                    $this->dic->ui()->renderer(),
-                    $tableDataProviderFactory,
-                );
-                $this->ctrl->forwardCommand($documentGui);
-                break;
-
-            case strtolower(ilPermissionGUI::class):
-                $perm_gui = new ilPermissionGUI($this);
-                $this->ctrl->forwardCommand($perm_gui);
-                break;
-
-            default:
-                if ($cmd === null || $cmd === '' || $cmd === 'view' || !method_exists($this, $cmd)) {
-                    $cmd = 'settings';
+        switch (strtolower($next_class)) {
+            case strtolower(ilLegalDocumentsAdministrationGUI::class):
+                switch ($cmd) {
+                    case 'documents': $this->documents();
+                        // no break.
+                    default: $this->ctrl->forwardCommand($this->legal_documents);
                 }
-                $this->$cmd();
-                break;
+                return;
+            case strtolower(ilPermissionGUI::class):
+                $this->tabs_gui->activateTab('permissions');
+                $this->ctrl->forwardCommand(new ilPermissionGUI($this));
+                return;
+            default:
+                switch ($cmd) {
+                    case 'confirmReset': $this->confirmReset();
+                        return;
+                    case 'resetNow': $this->resetNow();
+                        return;
+                    default: $this->settings();
+                        return;
+                }
         }
     }
 
     public function getAdminTabs(): void
     {
-        if ($this->rbac_system->checkAccess('read', $this->object->getRefId())) {
-            $this->tabs_gui->addTarget(
-                'tos_agreement_documents_tab_label',
-                $this->ctrl->getLinkTargetByClass(ilTermsOfServiceDocumentGUI::class),
-                '',
-                [strtolower(ilTermsOfServiceDocumentGUI::class)]
-            );
-        }
+        $can_edit_permissions = $this->rbac_system->checkAccess('edit_permission', $this->object->getRefId());
 
-        if ($this->rbac_system->checkAccess('read', $this->object->getRefId())) {
-            $this->tabs_gui->addTarget(
-                'settings',
-                $this->ctrl->getLinkTarget($this, 'settings'),
-                '',
-                [strtolower(self::class)]
-            );
-        }
+        // Read right is already required by self::executeCommand.
+        $this->legal_documents->tabs([
+            'documents' => fn() => $this->tabs_gui->addTab('settings', $this->lng->txt('settings'), $this->ctrl->getLinkTarget($this, 'settings')),
+        ]);
 
-        if (
-            (defined('USER_FOLDER_ID') && $this->rbac_system->checkAccess('read', USER_FOLDER_ID)) &&
-            $this->rbac_system->checkAccess('read', $this->object->getRefId())
-        ) {
-            $this->tabs_gui->addTarget(
-                'tos_acceptance_history',
-                $this->ctrl->getLinkTargetByClass(ilTermsOfServiceAcceptanceHistoryGUI::class),
-                '',
-                [strtolower(ilTermsOfServiceAcceptanceHistoryGUI::class)]
-            );
-        }
-
-        if ($this->rbac_system->checkAccess('edit_permission', $this->object->getRefId())) {
-            $this->tabs_gui->addTarget(
-                'perm_settings',
-                $this->ctrl->getLinkTargetByClass([self::class, ilPermissionGUI::class], 'perm'),
-                '',
-                [strtolower(ilPermissionGUI::class), strtolower(ilObjectPermissionStatusGUI::class)]
+        if ($can_edit_permissions) {
+            $this->tabs_gui->addTab(
+                'permissions',
+                $this->lng->txt('perm_settings'),
+                $this->ctrl->getLinkTargetByClass([self::class, ilPermissionGUI::class], 'perm')
             );
         }
     }
 
-    protected function getSettingsForm(): ilTermsOfServiceSettingsFormGUI
+    public function form(): ILIAS\UI\Component\Input\Container\Form\Standard
     {
-        /** @var ilObjTermsOfService $obj */
-        $obj = $this->object;
-        $form = new ilTermsOfServiceSettingsFormGUI(
-            $obj,
+        $read_only = !$this->rbac_system->checkAccess('write', $this->object->getRefId());
+
+        $enabled = $this->dic->ui()->factory()->input()->field()->optionalGroup(
+            [
+                'reeval_on_login' => $this->dic->ui()->factory()->input()->field()->checkbox(
+                    $this->ui->txt('reevaluate_on_login'),
+                    $this->ui->txt('reevaluate_on_login_desc')
+                )
+            ],
+            $this->lng->txt('tos_status_enable'),
+            $this->lng->txt('tos_status_desc')
+        );
+        $enabled = $enabled->withValue($this->tos_settings->enabled()->value() ? ['reeval_on_login' => $this->tos_settings->validateOnLogin()->value()] : null);
+        $enabled = $enabled->withDisabled($read_only);
+
+        $form = $this->dic->ui()->factory()->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, 'saveSettings'),
-            'saveSettings',
-            $this->rbac_system->checkAccess('write', $this->object->getRefId())
+            ['enabled' => $enabled]
         );
 
-        ilAdministrationSettingsFormHandler::addFieldsToForm(
-            ilAdministrationSettingsFormHandler::FORM_TOS,
-            $form,
-            $this
-        );
-
-        return $form;
-    }
-
-    protected function saveSettings(): void
-    {
-        if (!$this->rbac_system->checkAccess('write', $this->object->getRefId())) {
-            $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
+        if ($read_only) {
+            return $form;
         }
 
-        $form = $this->getSettingsForm();
-        if ($form->saveObject()) {
-            $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);
+        return $this->legal_documents->admin()->withFormData($form, function (array $data): void {
+            $no_documents = $this->config->legalDocuments()->document()->repository()->countAll() === 0;
+            if ($no_documents && $data['enabled']) {
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('tos_no_documents_exist_cant_save'), true);
+                $this->ctrl->redirect($this, 'settings');
+            }
+            $this->tos_settings->enabled()->update(isset($data['enabled']));
+            $this->tos_settings->validateOnLogin()->update($data['enabled']['reeval_on_login'] ?? false);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('msg_obj_modified'), true);
             $this->ctrl->redirect($this, 'settings');
-        } elseif ($form->hasTranslatedError()) {
-            $this->tpl->setOnScreenMessage('failure', $form->getTranslatedError());
-        }
-
-        $this->tpl->setContent($form->getHTML());
+        });
     }
 
-    protected function showMissingDocuments(): void
+    public function afterDocumentDeletion(): void
     {
-        if ($this->object->getStatus()) {
-            return;
-        }
-
-        if (0 === ilTermsOfServiceDocument::where([])->count()) {
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt('tos_no_documents_exist'));
+        if ($this->config->legalDocuments()->document()->repository()->countAll() === 0) {
+            $this->tos_settings->enabled()->update(false);
         }
     }
 
@@ -219,9 +174,58 @@ class ilObjTermsOfServiceGUI extends ilObject2GUI implements ilTermsOfServiceCon
             $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
         }
 
-        $this->showMissingDocuments();
+        $this->tabs_gui->activateTab('settings');
 
-        $form = $this->getSettingsForm();
-        $this->tpl->setContent($form->getHTML());
+        $components = [];
+
+        if ($this->tos_settings->enabled()->value() && $this->config->legalDocuments()->document()->repository()->countAll() === 0) {
+            $components[] = $this->ui->create()->messageBox()->info(
+                $this->ui->txt('no_documents_exist')
+            );
+        }
+
+        $components[] = $this->legal_documents->admin()->externalSettingsMessage($this->tos_settings->deleteUserOnWithdrawal()->value());
+
+        $components[] = $this->form();
+        $this->tpl->setContent($this->dic->ui()->renderer()->render($components));
+    }
+
+    private function documents(): void
+    {
+        $buttons = $this->config->editable() ?
+                 [$this->legal_documents->admin()->resetButton($this->dic->ctrl()->getLinkTarget($this, 'confirmReset'))] :
+                 [];
+
+        $reset_date = new DateTimeImmutable('@' . $this->dic->settings()->get('tos_last_reset', '0'));
+
+        $this->tpl->setCurrentBlock('mess');
+        $this->legal_documents->admin()->setVariable('MESSAGE', $this->legal_documents->admin()->resetBox($reset_date, $buttons));
+        $this->tpl->parseCurrentBlock('mess');
+    }
+
+    private function confirmReset(): void
+    {
+        $this->legal_documents->admin()->requireEditable();
+        $this->legal_documents->admin()->setContent((new Confirmation($this->dic->language()))->render(
+            $this->dic->ctrl()->getFormAction($this, 'resetNow'),
+            'resetNow',
+            'documents',
+            $this->dic->language()->txt('tos_sure_reset_tos')
+        ));
+    }
+
+    private function resetNow(): void
+    {
+        $this->legal_documents->admin()->requireEditable();
+        $in = $this->dic->database()->in('usr_id', [ANONYMOUS_USER_ID, SYSTEM_USER_ID], true, 'integer');
+        $this->dic->database()->manipulate("UPDATE usr_data SET agree_date = NULL WHERE $in");
+        $this->tos_settings->lastResetDate()->update((new DataFactory())->clock()->system()->now());
+        $this->dic->ctrl()->redirectByClass([self::class, get_class($this->legal_documents)], 'documents');
+    }
+
+    private function createSettings(): Settings
+    {
+        $blocks = new Blocks($this->config->legalDocuments()->id(), $this->dic, $this->config->legalDocuments());
+        return new Settings($blocks->selectSettingsFrom($blocks->globalStore()));
     }
 }

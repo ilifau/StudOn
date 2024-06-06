@@ -23,48 +23,68 @@ namespace ILIAS\ResourceStorage\Stakeholder;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 /**
- * Class AbstractResourceStakeholder
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 abstract class AbstractResourceStakeholder implements ResourceStakeholder
 {
     private string $provider_name_cache = '';
 
+<<<<<<< HEAD
     /**
      * @inheritDoc
      */
+=======
+>>>>>>> v9.1
     public function getFullyQualifiedClassName(): string
     {
         return static::class;
     }
 
+<<<<<<< HEAD
     /**
      * @inheritDoc
      */
+=======
+>>>>>>> v9.1
     public function isResourceInUse(ResourceIdentification $identification): bool
     {
         return false;
     }
 
+<<<<<<< HEAD
     /**
      * @inheritDoc
      */
+    public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
+=======
+    public function canBeAccessedByCurrentUser(ResourceIdentification $identification): bool
+>>>>>>> v9.1
+    {
+        return true;
+    }
+
+<<<<<<< HEAD
+    /**
+     * @inheritDoc
+     */
+=======
     public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
     {
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+>>>>>>> v9.1
     public function getOwnerOfResource(ResourceIdentification $identification): int
     {
         return 6;
     }
 
+<<<<<<< HEAD
     /**
      * @inheritDoc
      */
+=======
+>>>>>>> v9.1
     public function getConsumerNameForPresentation(): string
     {
         if ($this->provider_name_cache !== '' && is_string($this->provider_name_cache)) {
@@ -72,14 +92,24 @@ abstract class AbstractResourceStakeholder implements ResourceStakeholder
         }
         $reflector = new \ReflectionClass($this);
 
-        $re = "/.*[\\\|\\/](?P<provider>(Services|Modules)[\\\|\\/].*)[\\\|\\/]classes/m";
+        $parts = explode(DIRECTORY_SEPARATOR, str_replace(ILIAS_ABSOLUTE_PATH, '', dirname($reflector->getFileName())));
+        $parts = array_filter($parts, static function ($part) {
+            return $part !== '' && $part !== 'classes';
+        });
 
-        preg_match($re, str_replace("\\", "/", $reflector->getFileName()), $matches);
+        return $this->provider_name_cache = implode('/', $parts);
+    }
 
+<<<<<<< HEAD
         $this->provider_name_cache = isset($matches[1]) ? is_string(
             $matches[1]
         ) ? $matches[1] : self::class : self::class;
 
         return $this->provider_name_cache;
+=======
+    public function getLocationURIForResourceUsage(ResourceIdentification $identification): ?string
+    {
+        return null;
+>>>>>>> v9.1
     }
 }

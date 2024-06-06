@@ -22,6 +22,8 @@ use ILIAS\Filesystem\Filesystem;
 
 class ilObjStudyProgramme extends ilContainer
 {
+    public const CP_TYPE = 'cont';
+
     protected static ?ilObjStudyProgrammeCache $study_programme_cache = null;
 
     /**
@@ -300,6 +302,17 @@ class ilObjStudyProgramme extends ilContainer
         return !is_null($type) && count($this->type_repository->getAssignedAMDRecordIdsByType($type->getId(), true)) > 0;
     }
 
+    public function cloneObject(int $target_ref_id, int $copy_id = 0, bool $omit_tree = false): ?ilObject
+    {
+        $new_obj = parent::cloneObject($target_ref_id, $copy_id, $omit_tree);
+        $settings = $this->getSettings()->withObjId($new_obj->getId());
+        $settings = $settings->withAssessmentSettings(
+            $settings->getAssessmentSettings()->withStatus(ilStudyProgrammeSettings::STATUS_DRAFT)
+        );
+        $new_obj->updateSettings($settings);
+        return $new_obj;
+    }
+
     ////////////////////////////////////
     // GETTERS AND SETTERS
     ////////////////////////////////////
@@ -410,6 +423,18 @@ class ilObjStudyProgramme extends ilContainer
         }
 
         return null;
+    }
+
+    public function isCertificateActive(): bool
+    {
+        $global_settings = new ilSetting('certificate');
+        $global_active = (bool) $global_settings->get('active', '0');
+        if(!$global_active) {
+            return false;
+        }
+        $certificate_template_repository = new ilCertificateTemplateDatabaseRepository($this->db);
+        $certificate_template = $certificate_template_repository->fetchCurrentlyUsedCertificate($this->getId());
+        return $certificate_template->isCurrentlyActive();
     }
 
 
@@ -752,6 +777,7 @@ class ilObjStudyProgramme extends ilContainer
                     $completed_crss[] = [
                         "crs_id" => $crs_id
                         , "prg_ref_id" => (int) $ref["parent"]
+                        , "prg_obj_id" => $containing_prg->getId()
                         , "crsr_ref_id" => (int) $ref["child"]
                         , "crsr_id" => (int) $ref["obj_id"]
                         , "title" => ilContainerReference::_lookupTitle((int) $ref["obj_id"])
@@ -986,7 +1012,7 @@ class ilObjStudyProgramme extends ilContainer
 
         $this->assignment_repository->delete($assignment);
 
-        $affected_node_ids = array_map(fn ($pgs) => $pgs->getNodeId(), $assignment->getProgresses());
+        $affected_node_ids = array_map(fn($pgs) => $pgs->getNodeId(), $assignment->getProgresses());
         foreach ($affected_node_ids as $node_obj_id) {
             $this->refreshLPStatus($assignment->getUserId(), $node_obj_id);
         }
@@ -1155,7 +1181,7 @@ class ilObjStudyProgramme extends ilContainer
     {
         $filter = new ilPRGAssignmentFilter($this->lng);
         $filter = $filter->withValues([
-            'prg_status_hide_irrelevant'=> true
+            'prg_status_hide_irrelevant' => true
         ]);
         $count = $this->assignment_repository->countAllForNodeIsContained(
             $this->getId(),
@@ -1168,7 +1194,7 @@ class ilObjStudyProgramme extends ilContainer
     public function getIdsOfUsersWithRelevantProgress(): array
     {
         return array_map(
-            fn ($ass) => $ass->getUserId(),
+            fn($ass) => $ass->getUserId(),
             $this->getAssignments()
         );
     }
@@ -1488,26 +1514,17 @@ class ilObjStudyProgramme extends ilContainer
     }
 
     /**
-     * Set all progresses to completed where the object with given id is a leaf
-     * and that belong to the user.
-     *
+     * Succeed all StudyProgramme(Nodes) where the object with the given id (a CRSR)
+     * is in a Programme with MODE_LP_COMPLETED.
      * This is exclusively called via event "Services/Tracking, updateStatus" (onServiceTrackingUpdateStatus)
-     */
-    public static function setProgressesCompletedFor(int $obj_id, int $user_id): void
-    {
-        // We only use courses via crs_refs
-        $type = ilObject::_lookupType($obj_id);
-        if ($type === "crsr") {
-            foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
-                self::setProgressesCompletedIfParentIsProgrammeInLPCompletedMode($ref_id, $obj_id, $user_id);
-            }
-        }
-    }
-
-    /**
+     *
+     * @param int $ref_id the RefId of the CRSR; used to find the PRG it's in
+     * @param int $obj_id the ObjId of the CRS; used as "triggering object"
+     * @param int $user_id the user's id to succeed for; all assignments are affected
+     *
      * @throws ilException
      */
-    protected static function setProgressesCompletedIfParentIsProgrammeInLPCompletedMode(
+    public static function setProgressesCompletedIfParentIsProgrammeInLPCompletedMode(
         int $ref_id,
         int $obj_id,
         int $user_id
@@ -1546,34 +1563,19 @@ class ilObjStudyProgramme extends ilContainer
         }
     }
 
-    /**
-     * Get the obj id of the parent object for the given object. Returns null if
-     * object is not in the tree currently.
-     */
-    protected static function getParentId(ilObjCourseReference $leaf): ?int
-    {
-        global $DIC;
-        $tree = $DIC['tree'];
-        if (!$tree->isInTree($leaf->getRefId())) {
-            return null;
-        }
-
-        $nd = $tree->getParentNodeData($leaf->getRefId());
-        return $nd["obj_id"];
-    }
-
-
     public function updateCustomIcon(): void
     {
         $customIcon = $this->custom_icon_factory->getByObjId($this->getId(), $this->getType());
         $subtype = $this->getSubType();
 
-        if ($subtype
-                && $this->webdir->has($subtype->getIconPath(true))
-                && $subtype->getIconPath(true) !== $subtype->getIconPath(false)
-        ) {
-            $icon = $subtype->getIconPath(true);
-            $customIcon->saveFromSourceFile($icon);
+        if ($subtype && $subtype->getIconIdentifier()) {
+            $src = $this->type_repository->getIconPathFS($subtype);
+
+            //This is a horrible hack to allow Flysystem/LocalFilesystem to read the file.
+            $tmp = 'ico_' . $this->getId();
+            copy($src, \ilFileUtils::getDataDir() . '/temp/' . $tmp);
+
+            $customIcon->saveFromTempFileName($tmp);
         } else {
             $customIcon->remove();
         }
@@ -1645,28 +1647,6 @@ class ilObjStudyProgramme extends ilContainer
     protected function getNow(): DateTimeImmutable
     {
         return new DateTimeImmutable();
-    }
-
-    protected function getObjIdsOfChildren(int $node_obj_id): array
-    {
-        $node_ref_id = self::getRefIdFor($node_obj_id);
-
-        $prgs = $this->tree->getChildsByType($node_ref_id, "prg");
-        $prg_ids = array_map(
-            static function ($nd) {
-                return (int) $nd['obj_id'];
-            },
-            $prgs
-        );
-
-        $prg_ref_ids = [];
-        $prg_refs = $this->tree->getChildsByType($node_ref_id, "prgr");
-        foreach ($prg_refs as $ref) {
-            $ref_obj = new ilObjStudyProgrammeReference((int) $ref['ref_id']);
-            $prg_ref_ids[] = $ref_obj->getReferencedObject()->getId();
-        }
-
-        return array_merge($prg_ids, $prg_ref_ids);
     }
 
     protected function refreshLPStatus(int $usr_id, int $node_obj_id = null): void
@@ -1826,6 +1806,33 @@ class ilObjStudyProgramme extends ilContainer
         $this->refreshLPStatus($assignment->getUserId());
     }
 
+    public function acknowledgeCourses(
+        int $assignment_id,
+        array $nodes,
+        ilPRGMessageCollection $err_collection = null
+    ): void {
+        $acting_usr_id = $this->getLoggedInUserId();
+        $assignment = $this->assignment_repository->get($assignment_id);
+        foreach($nodes as $nodeinfo) {
+            [$node_obj_id, $courseref_obj_id] = $nodeinfo;
+            $assignment = $assignment->succeed(
+                $this->settings_repository,
+                $node_obj_id,
+                $courseref_obj_id
+            );
+
+            $msg = sprintf(
+                '%s, progress-id (%s/%s)',
+                $assignment->getUserInformation()->getFullname(),
+                $assignment->getId(),
+                (string) $node_obj_id
+            );
+            $err_collection->add(true, 'acknowledged_course', $msg);
+        }
+        $this->assignment_repository->store($assignment);
+        $this->refreshLPStatus($assignment->getUserId());
+    }
+
     public function canBeCompleted(ilPRGProgress $progress): bool
     {
         if ($this->getLPMode() == ilStudyProgrammeSettings::MODE_LP_COMPLETED) {
@@ -1860,14 +1867,18 @@ class ilObjStudyProgramme extends ilContainer
         throw new ilException("Unknown status: '$status'");
     }
 
-    protected function getProgressIdString(ilPRGAssignment $assignment, ilPRGProgress $progress): string
+    public function hasContentPage(): bool
     {
-        $username = ilObjUser::_lookupFullname($assignment->getUserId());
-        return sprintf(
-            '%s, progress-id (%s/%s)',
-            $username,
-            $assignment->getId(),
-            $progress->getNodeId()
-        );
+        return \ilContainerPage::_exists(self::CP_TYPE, $this->getId());
+    }
+    public function createContentPage(): void
+    {
+        if ($this->hasContentPage()) {
+            throw new \LogicException('will not create content page - it already exists.');
+        }
+        $new_page_object = new \ilContainerPage();
+        $new_page_object->setId($this->getId());
+        $new_page_object->setParentId($this->getId());
+        $new_page_object->createFromXML();
     }
 }

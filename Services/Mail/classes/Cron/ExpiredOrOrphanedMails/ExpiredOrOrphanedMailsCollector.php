@@ -31,15 +31,14 @@ class ExpiredOrOrphanedMailsCollector
 {
     private const PING_THRESHOLD = 500;
 
-    private ilMailCronOrphanedMails $job;
-    private ilDBInterface $db;
-    private ilSetting $settings;
-    private ClockInterface $clock;
+    private readonly ilDBInterface $db;
+    private readonly ilSetting $settings;
+    private readonly ClockInterface $clock;
     /** @var int[] */
     private array $mail_ids = [];
 
     public function __construct(
-        ilMailCronOrphanedMails $job,
+        private readonly ilMailCronOrphanedMails $job,
         ?ilDBInterface $db = null,
         ?ilSetting $setting = null,
         ?ClockInterface $clock = null
@@ -49,8 +48,6 @@ class ExpiredOrOrphanedMailsCollector
         $this->db = $db ?? $DIC->database();
         $this->settings = $setting ?? $DIC->settings();
         $this->clock = $clock ?? (new Factory())->clock()->system();
-
-        $this->job = $job;
 
         $this->collect();
     }
@@ -97,8 +94,10 @@ class ExpiredOrOrphanedMailsCollector
 
             if ($mail_only_inbox_trash) {
                 $mails_query .= " AND ((mdata.m_type = %s OR mdata.m_type = %s) OR mdata.obj_id IS NULL)";
-                array_push($types, ilDBConstants::T_TEXT, ilDBConstants::T_TEXT);
-                array_push($data, 'inbox', 'trash');
+                $types[] = ilDBConstants::T_TEXT;
+                $types[] = ilDBConstants::T_TEXT;
+                $data[] = 'inbox';
+                $data[] = 'trash';
             }
 
             $res = $this->db->queryF($mails_query, $types, $data);

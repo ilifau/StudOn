@@ -21,6 +21,8 @@ namespace OrgUnit\User;
 use Exception;
 use function PHPUnit\Framework\throwException;
 
+use function PHPUnit\Framework\throwException;
+
 class ilOrgUnitUser
 {
     /** @var self[] */
@@ -69,7 +71,7 @@ class ilOrgUnitUser
         if (!isset(static::$instances) ||
             !array_key_exists($user_id, static::$instances) ||
             is_null(static::$instances[$user_id])
-            ) {
+        ) {
             static::$instances[$user_id] = new self($user_id, $login, $email, $second_email);
         }
 

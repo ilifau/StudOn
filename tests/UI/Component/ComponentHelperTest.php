@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 use PHPUnit\Framework\TestCase;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
 use ILIAS\UI\Component\Test\TestComponent;
@@ -95,7 +103,11 @@ class ComponentHelperTest extends TestCase
         $this->mock = new ComponentMock();
     }
 
+<<<<<<< HEAD
     public function test_getCanonicalName(): void
+=======
+    public function testGetCanonicalName(): void
+>>>>>>> v9.1
     {
         $c = new TestComponent("foo");
         $this->assertEquals("Test Component Test", $c->getCanonicalName());
@@ -104,12 +116,20 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_arg_ok(): void
+=======
+    public function testCheckArgOk(): void
+>>>>>>> v9.1
     {
         $this->mock->_checkArg("some_arg", true, "some message");
     }
 
+<<<<<<< HEAD
     public function test_check_arg_not_ok(): void
+=======
+    public function testCheckArgNotOk(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument 'some_arg': some message");
@@ -119,12 +139,20 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_string_arg_ok(): void
+=======
+    public function testCheckStringArgOk(): void
+>>>>>>> v9.1
     {
         $this->mock->_checkStringArg("some_arg", "bar");
     }
 
+<<<<<<< HEAD
     public function test_check_string_arg_not_ok(): void
+=======
+    public function testCheckStringArgNotOk(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument 'some_arg': expected string, got integer '1'");
@@ -134,12 +162,20 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_bool_arg_ok(): void
+=======
+    public function testCheckBoolArgOk(): void
+>>>>>>> v9.1
     {
         $this->mock->_checkBoolArg("some_arg", true);
     }
 
+<<<<<<< HEAD
     public function test_check_bool_arg_not_ok(): void
+=======
+    public function testCheckBoolArgNotOk(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument 'some_arg': expected bool, got integer '1'");
@@ -149,12 +185,20 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_arg_instanceof_ok(): void
+=======
+    public function testCheckArgInstanceofOk(): void
+>>>>>>> v9.1
     {
         $this->mock->_checkArgInstanceOf("some_arg", $this->mock, ComponentMock::class);
     }
 
+<<<<<<< HEAD
     public function test_check_arg_instanceof_not_ok(): void
+=======
+    public function testCheckArgInstanceofNotOk(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument 'some_arg': expected ComponentMock, got ComponentHelperTest");
@@ -165,19 +209,31 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_arg_is_element_ok(): void
+=======
+    public function testCheckArgIsElementOk(): void
+>>>>>>> v9.1
     {
         $this->mock->_checkArgIsElement("some_arg", "bar", array("foo", "bar"), "foobar");
     }
 
+<<<<<<< HEAD
     public function test_check_string_arg_is_element_not_ok(): void
+=======
+    public function testCheckStringArgIsElementNotOk(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument 'some_arg': expected foobar, got 'baz'");
         $this->mock->_checkArgIsElement("some_arg", "baz", array("foo", "bar"), "foobar");
     }
 
+<<<<<<< HEAD
     public function test_to_array_with_array(): void
+=======
+    public function testToArrayWithArray(): void
+>>>>>>> v9.1
     {
         $foo = array("foo", "bar");
         $res = $this->mock->_toArray($foo);
@@ -185,7 +241,11 @@ class ComponentHelperTest extends TestCase
         $this->assertEquals($foo, $res);
     }
 
+<<<<<<< HEAD
     public function test_to_array_with_int(): void
+=======
+    public function testToArrayWithInt(): void
+>>>>>>> v9.1
     {
         $foo = 1;
         $res = $this->mock->_toArray($foo);
@@ -195,13 +255,21 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_arg_list_elements_ok(): void
+=======
+    public function testCheckArgListElementsOk(): void
+>>>>>>> v9.1
     {
         $l = array(new Class1(), new Class1(), new Class1());
         $this->mock->_checkArgListElements("some_arg", $l, array("Class1"));
     }
 
+<<<<<<< HEAD
     public function test_check_arg_list_elements_no_ok(): void
+=======
+    public function testCheckArgListElementsNoOk(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument 'some_arg': expected Class1, got Class2");
@@ -212,13 +280,21 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_arg_list_elements_multi_class_ok(): void
+=======
+    public function testCheckArgListElementsMultiClassOk(): void
+>>>>>>> v9.1
     {
         $l = array(new Class1(), new Class2(), new Class1());
         $this->mock->_checkArgListElements("some_arg", $l, array("Class1", "Class2"));
     }
 
+<<<<<<< HEAD
     public function test_check_arg_list_elements_multi_class_not_ok(): void
+=======
+    public function testCheckArgListElementsMultiClassNotOk(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument 'some_arg': expected Class1, Class2, got Class3");
@@ -229,13 +305,21 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_arg_list_elements_string_or_int_ok(): void
+=======
+    public function testCheckArgListElementsStringOrIntOk(): void
+>>>>>>> v9.1
     {
         $l = array(1, "foo");
         $this->mock->_checkArgListElements("some_arg", $l, array("string", "int"));
     }
 
+<<<<<<< HEAD
     public function test_check_arg_list_elements_string_or_int_not_ok(): void
+=======
+    public function testCheckArgListElementsStringOrIntNotOk(): void
+>>>>>>> v9.1
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument 'some_arg': expected string, int, got Class1");
@@ -246,7 +330,11 @@ class ComponentHelperTest extends TestCase
     /**
      * @doesNotPerformAssertions
      */
+<<<<<<< HEAD
     public function test_check_arg_list_ok(): void
+=======
+    public function testCheckArgListOk(): void
+>>>>>>> v9.1
     {
         $l = array("a" => 1, "b" => 2, "c" => 3);
         $this->mock->_checkArgList("some_arg", $l, function ($k, $v) {
@@ -256,7 +344,11 @@ class ComponentHelperTest extends TestCase
         });
     }
 
+<<<<<<< HEAD
     public function test_check_arg_list_not_ok_1(): void
+=======
+    public function testCheckArgListNotOk1(): void
+>>>>>>> v9.1
     {
         $m = "expected keys of type string and integer values, got (4 => 3)";
         $this->expectException(InvalidArgumentException::class);
@@ -269,7 +361,11 @@ class ComponentHelperTest extends TestCase
         });
     }
 
+<<<<<<< HEAD
     public function test_check_arg_list_not_ok_2(): void
+=======
+    public function testCheckArgListNotOk2(): void
+>>>>>>> v9.1
     {
         $m = "expected keys of type string and integer values, got (c => d)";
         $this->expectException(InvalidArgumentException::class);

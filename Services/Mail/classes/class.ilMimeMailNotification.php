@@ -32,7 +32,7 @@ abstract class ilMimeMailNotification extends ilMailNotification
     public function __construct(bool $a_is_personal_workspace = false)
     {
         global $DIC;
-        $this->senderFactory = $DIC["mail.mime.sender.factory"];
+        $this->senderFactory = $DIC->mail()->mime()->senderFactory();
         parent::__construct($a_is_personal_workspace);
     }
 
@@ -76,9 +76,9 @@ abstract class ilMimeMailNotification extends ilMailNotification
     protected function handleCurrentRecipient($rcp): void
     {
         if (is_numeric($rcp)) {
-            /** @var ilObjUser $rcp */
+            /** @var ilObjUser|null $rcp */
             $rcp = ilObjectFactory::getInstanceByObjId((int) $rcp, false);
-            if (!($rcp instanceof ilObjUser)) {
+            if (!$rcp instanceof ilObjUser) {
                 throw new ilMailException('no_recipient_found');
             }
             $this->setCurrentRecipient($rcp->getEmail());

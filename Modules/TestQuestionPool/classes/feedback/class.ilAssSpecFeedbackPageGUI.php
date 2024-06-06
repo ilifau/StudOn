@@ -22,8 +22,9 @@
  * @author Alex Killing <alex.killing@gmx.de>
  *
  * @ilCtrl_Calls ilAssSpecFeedbackPageGUI: ilPageEditorGUI, ilEditClipboardGUI, ilMDEditorGUI
- * @ilCtrl_Calls ilAssSpecFeedbackPageGUI: ilPublicUserProfileGUI, ilNoteGUI
+ * @ilCtrl_Calls ilAssSpecFeedbackPageGUI: ilPublicUserProfileGUI, ilCommentGUI
  * @ilCtrl_Calls ilAssSpecFeedbackPageGUI: ilPropertyFormGUI, ilInternalLinkGUI
+ * @ilCtrl_IsCalledBy ilAssSpecFeedbackPageGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilRepositoryGUI, ilCommonActionDispatcherGUI
  *
  * @ingroup ModulesTestQuestionPool
  */
@@ -44,8 +45,7 @@ class ilAssSpecFeedbackPageGUI extends ilPageObjectGUI
         }
 
         parent::__construct("qfbs", $a_id, $a_old_nr);
-        $this->setTemplateTargetVar('ADM_CONTENT');
-        $this->setTemplateOutput(true);
+        $this->setTemplateOutput(false);
         if (strtolower($cmd_class) === 'ilassquestionpreviewgui') {
             $this->setFileDownloadLink($this->ctrl->getLinkTargetByClass(ilObjQuestionPoolGUI::class, 'downloadFile'));
         } else {

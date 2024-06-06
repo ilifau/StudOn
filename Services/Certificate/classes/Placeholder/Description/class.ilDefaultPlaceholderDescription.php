@@ -25,7 +25,7 @@ declare(strict_types=1);
 class ilDefaultPlaceholderDescription implements ilCertificatePlaceholderDescription
 {
     private array $placeholder;
-    private ilLanguage $language;
+    private readonly ilLanguage $language;
 
     public function __construct(
         ilLanguage $language,
@@ -65,8 +65,6 @@ class ilDefaultPlaceholderDescription implements ilCertificatePlaceholderDescrip
      * This method is different then the 'getPlaceholderValues' method, this
      * method is used to create a placeholder value array containing dummy values
      * that is used to create a preview certificate.
-     * @param ilTemplate|null $template
-     * @return string
      */
     public function createPlaceholderHtmlDescription(?ilTemplate $template = null): string
     {

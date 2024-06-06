@@ -24,6 +24,10 @@ use ILIAS\Data\Factory;
 use ilLanguage;
 use ILIAS\Refinery\Constraint;
 use ILIAS\Refinery\Transformation;
+<<<<<<< HEAD
+=======
+use ILIAS\Refinery\String\Encoding\Group as EncodingGroup;
+>>>>>>> v9.1
 
 class Group
 {
@@ -136,4 +140,24 @@ class Group
     {
         return new UTFNormal();
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * This method returns an instance of the MarkdownFormattingToHTML class which can be used to tranform a markdown
+     * formatted string to HTML.
+     */
+    public function markdown(bool $escape = true): MarkdownFormattingToHTML
+    {
+        return new MarkdownFormattingToHTML($escape);
+    }
+
+    /**
+     * This method returns a group of string encoding transformations.
+     */
+    public function encoding(): EncodingGroup
+    {
+        return new EncodingGroup();
+    }
+>>>>>>> v9.1
 }

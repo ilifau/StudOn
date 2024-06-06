@@ -173,7 +173,6 @@ class ilMediaPoolDataSet extends ilDataSet
                         $this->data[] = $rec;
                     }
                     break;
-
             }
         }
 
@@ -331,7 +330,6 @@ class ilMediaPoolDataSet extends ilDataSet
                                 $this->current_obj->insertInTree($item->getId(), $parent);
                             }
                             break;
-
                     }
                 } elseif ($a_rec["Type"] === "pg") {
                     $imp_id = explode("_", $a_rec["ImportId"]);

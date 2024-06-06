@@ -23,27 +23,26 @@ namespace ILIAS\Modules\Test;
 use ILIAS\Data\Result;
 use ILIAS\Data\Result\Ok;
 use ILIAS\Data\Result\Error;
-use ILIAS\DI\Container;
 use ilObjTest;
 use ilObject;
 use ilSession;
 use ilTestSession;
 use ilTestAccess;
+use ilDBInterface;
+use ilObjUser;
 use Closure;
 
 class AccessFileUploadAnswer implements SimpleAccess
 {
-    private Container $container;
-    private Readable $readable;
     /** @var callable(int): int */
-    private Closure $object_id_of_test_id;
+    private readonly Closure $object_id_of_test_id;
     /** @var callable(int): string[] */
-    private Closure $references_of;
+    private readonly Closure $references_of;
     /** @var callable(string): mixed */
-    private Closure $session;
+    private readonly Closure $session;
     /** @var callable(int, int, int): bool */
-    private Closure $checkResultsAccess;
-    private Incident $incident;
+    private readonly Closure $checkResultsAccess;
+    private readonly Incident $incident;
 
     /**
      * @param callable(int): int $object_id_of_test_id
@@ -52,16 +51,15 @@ class AccessFileUploadAnswer implements SimpleAccess
      * @param callable(int, int, int): bool $checkResultsAccess
      */
     public function __construct(
-        Container $container,
-        Readable $readable,
+        private readonly ilObjUser $user,
+        private readonly ilDBInterface $database,
+        private readonly Readable $readable,
         $object_id_of_test_id = [ilObjTest::class, '_getObjectIDFromTestID'],
         $references_of = [ilObject::class, '_getAllReferences'],
         $session = [ilSession::class, 'get'],
         callable $checkResultsAccess = null,
         Incident $incident = null
     ) {
-        $this->container = $container;
-        $this->readable = $readable;
         $this->incident = $incident ?? new Incident();
         $this->object_id_of_test_id = Closure::fromCallable($object_id_of_test_id);
         $this->references_of = Closure::fromCallable($references_of);
@@ -96,7 +94,7 @@ class AccessFileUploadAnswer implements SimpleAccess
 
     private function isAnonymous(): bool
     {
-        return $this->container->user()->isAnonymous() || !$this->container->user()->getId();
+        return $this->user->isAnonymous() || !$this->user->getId();
     }
 
     private function accessCodeOk(string $file, int $test_id): bool
@@ -116,13 +114,13 @@ class AccessFileUploadAnswer implements SimpleAccess
             'test_fi = %s',
         ];
 
-        $result = $this->container->database()->queryF(
+        $result = $this->database->queryF(
             'SELECT 1 FROM tst_solutions WHERE EXISTS (SELECT 1 FROM tst_active WHERE ' . implode(' AND ', $where) . ')',
             ['integer', 'text', 'text', 'integer'],
-            [$this->container->user()->getId(), $file, $code, $test_id]
+            [$this->user->getId(), $file, $code, $test_id]
         );
 
-        return (bool) $this->container->database()->numRows($result);
+        return (bool) $this->database->numRows($result);
     }
 
     private function activeIdOfFile(string $file, int $test): ?int
@@ -130,13 +128,13 @@ class AccessFileUploadAnswer implements SimpleAccess
         $is_upload_question = 'EXISTS (SELECT 1 FROM qpl_qst_type INNER JOIN qpl_questions ON question_type_id = question_type_fi WHERE type_tag = %s AND tst_solutions.question_fi = qpl_questions.question_id)';
         $is_in_test = 'EXISTS (SELECT 1 FROM tst_active WHERE test_fi = %s AND active_id = active_fi)';
 
-        $result = $this->container->database()->queryF(
+        $result = $this->database->queryF(
             "SELECT active_fi, value1 FROM tst_solutions WHERE $is_upload_question AND $is_in_test",
             ['text', 'integer'],
             ['assFileUpload', $test]
         );
 
-        while (($row = $this->container->database()->fetchAssoc($result))) {
+        while (($row = $this->database->fetchAssoc($result))) {
             if ($row['value1'] === $file) {
                 return (int) $row['active_fi'];
             }
@@ -171,7 +169,7 @@ class AccessFileUploadAnswer implements SimpleAccess
             return false;
         }
 
-        return $this->incident->any(fn (int $reference): bool => (
+        return $this->incident->any(fn(int $reference): bool => (
             ($this->checkResultsAccess)($reference, $test_id, $active_id)
         ), $references);
     }

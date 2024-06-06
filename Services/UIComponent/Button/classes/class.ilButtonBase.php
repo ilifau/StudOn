@@ -20,7 +20,7 @@
  * Button GUI
  *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
- * @deprecated use KS Buttons instead
+ * @deprecated 10 Use KS Buttons instead
  */
 abstract class ilButtonBase implements ilToolbarItem
 {
@@ -178,7 +178,7 @@ abstract class ilButtonBase implements ilToolbarItem
         $res = array();
 
         foreach ($a_attr as $id => $value) {
-            if (trim($value)) {
+            if (trim((string) $value)) {
                 $res[] = strtolower(trim($id)) . '="' . $value . '"';
             }
         }

@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,10 +21,16 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\Button;
 
 use ILIAS\UI\Component as C;
 use ILIAS\UI\Component\Signal;
+use ILIAS\UI\Implementation\Component\HasHelpTopics;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\Triggerer;
@@ -35,6 +44,7 @@ abstract class Button implements C\Button\Button
     use JavaScriptBindable;
     use Triggerer;
     use Engageable;
+    use HasHelpTopics;
 
     protected string $label;
     protected ?string $action;
@@ -95,10 +105,14 @@ abstract class Button implements C\Button\Button
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withUnavailableAction(): C\Button\Button
+=======
+    public function withUnavailableAction(bool $flag = true): C\Button\Button
+>>>>>>> v9.1
     {
         $clone = clone $this;
-        $clone->active = false;
+        $clone->active = !$flag;
         return $clone;
     }
 

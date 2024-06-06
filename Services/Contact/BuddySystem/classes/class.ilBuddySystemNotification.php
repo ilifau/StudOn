@@ -18,7 +18,6 @@
 
 declare(strict_types=1);
 
-
 use ILIAS\Notifications\Identification\NotificationIdentification;
 use ILIAS\Notifications\Model\ilNotificationConfig;
 use ILIAS\Notifications\Model\ilNotificationLink;
@@ -32,19 +31,11 @@ use ILIAS\Contact\Provider\ContactNotificationProvider;
 class ilBuddySystemNotification
 {
     public const CONTACT_REQUEST_KEY = 'contact_requested_by';
-    protected ilObjUser $sender;
-    protected ilSetting $settings;
     /** @var int[] */
     protected array $recipientIds = [];
 
-    /**
-     * @param ilObjUser $user
-     * @param ilSetting $settings
-     */
-    public function __construct(ilObjUser $user, ilSetting $settings)
+    public function __construct(protected ilObjUser $sender, protected ilSetting $settings)
     {
-        $this->sender = $user;
-        $this->settings = $settings;
     }
 
     /**
@@ -121,7 +112,7 @@ class ilBuddySystemNotification
             $notification->setLinks($links);
             $notification->setValidForSeconds(ilNotificationConfig::TTL_LONG);
             $notification->setVisibleForSeconds(ilNotificationConfig::DEFAULT_TTS);
-            $notification->setIconPath('templates/default/images/icon_usr.svg');
+            $notification->setIconPath('templates/default/images/standard/icon_usr.svg');
             $notification->setHandlerParam('mail.sender', (string) ANONYMOUS_USER_ID);
             $notification->setIdentification(new NotificationIdentification(
                 ContactNotificationProvider::NOTIFICATION_TYPE,

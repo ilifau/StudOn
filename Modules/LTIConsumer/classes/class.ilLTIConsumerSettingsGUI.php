@@ -127,48 +127,41 @@ class ilLTIConsumerSettingsGUI
     public function executeCommand(): void
     {
         global $DIC; /* @var \ILIAS\DI\Container $DIC */
-        $access = $DIC->access();
 
-        if (!$access->checkAccess('write', '', $this->object->getRefId())) {
-            $DIC->ui()->mainTemplate()->setOnScreenMessage('failure', $DIC->language()->txt('permission_denied'), true);
-        } else {
+        $this->initSubTabs();
 
-            $this->initSubTabs();
+        $nc = $DIC->ctrl()->getNextClass();
 
-            $nc = $DIC->ctrl()->getNextClass();
-
-            switch ($nc) {
-                case strtolower(ilCertificateGUI::class):
+        switch ($nc) {
+            case strtolower(ilCertificateGUI::class):
 
                     $validator = new ilCertificateActiveValidator();
 
-                    if (!$validator->validate()) {
-                        throw new ilCmiXapiException('access denied!');
-                    }
+                if (!$validator->validate()) {
+                    throw new ilCmiXapiException('access denied!');
+                }
 
-                    $DIC->tabs()->activateSubTab(self::SUBTAB_ID_CERTIFICATE);
+                $DIC->tabs()->activateSubTab(self::SUBTAB_ID_CERTIFICATE);
 
                     $guiFactory = new ilCertificateGUIFactory();
                     $gui = $guiFactory->create($this->object);
 
-                    $DIC->ctrl()->forwardCommand($gui);
+                $DIC->ctrl()->forwardCommand($gui);
 
-                    break;
+                break;
 
-                case strtolower(ilLTIConsumeProviderSettingsGUI::class):
+            case strtolower(ilLTIConsumeProviderSettingsGUI::class):
 
-                    $DIC->tabs()->activateSubTab(self::SUBTAB_ID_PROVIDER_SETTINGS);
+                $DIC->tabs()->activateSubTab(self::SUBTAB_ID_PROVIDER_SETTINGS);
 
-                    $gui = new ilLTIConsumeProviderSettingsGUI($this->object, $this->access);
-                    $DIC->ctrl()->forwardCommand($gui);
-                    break;
+                $gui = new ilLTIConsumeProviderSettingsGUI($this->object, $this->access);
+                $DIC->ctrl()->forwardCommand($gui);
+                break;
 
-                default:
-                    $DIC->tabs()->activateSubTab(self::SUBTAB_ID_OBJECT_SETTINGS);
-                    $command = $DIC->ctrl()->getCmd(self::CMD_SHOW_SETTINGS) . 'Cmd';
-                    $this->{$command}();
-
-            }
+            default:
+                $DIC->tabs()->activateSubTab(self::SUBTAB_ID_OBJECT_SETTINGS);
+                $command = $DIC->ctrl()->getCmd(self::CMD_SHOW_SETTINGS) . 'Cmd';
+                $this->{$command}();
         }
     }
 
@@ -234,10 +227,9 @@ class ilLTIConsumerSettingsGUI
         $repository = new ilUserCertificateRepository();
 
         $certLogger = $DIC->logger()->cert();
-        $pdfGenerator = new ilPdfGenerator($repository, $certLogger);
+        $pdfGenerator = new ilPdfGenerator($repository);
 
         $pdfAction = new ilCertificatePdfAction(
-            $certLogger,
             $pdfGenerator,
             new ilCertificateUtilHelper(),
             $DIC->language()->txt('error_creating_certificate_pdf')

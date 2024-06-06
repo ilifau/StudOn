@@ -30,7 +30,7 @@ use ILIAS\LTIOAuth;
  */
 class ilLTIConsumerLaunch
 {
-    // protected $context = null;
+    private ?array $context = null;
     protected int $ref_id;
 
     /**
@@ -66,7 +66,7 @@ class ilLTIConsumerLaunch
                         break;
                     }
 
-                    $this->context['id'] = $row['child'];
+                    $this->context['id'] = (string) $row['child'];
                     $this->context['title'] = $row['title'];
                     $this->context['type'] = $row['type'];
 
@@ -119,9 +119,9 @@ class ilLTIConsumerLaunch
             case "PLAINTEXT":
                 $method = new ILIAS\LTIOAuth\OAuthSignatureMethod_PLAINTEXT();
                 break;
-//            case "RSA_SHA1":
-//                $method = new ILIAS\LTIOAuth\OAuthSignatureMethod_RSA_SHA1();
-//                break;
+                //            case "RSA_SHA1":
+                //                $method = new ILIAS\LTIOAuth\OAuthSignatureMethod_RSA_SHA1();
+                //                break;
 
             default:
                 return "ERROR: unsupported signature method!";
@@ -131,7 +131,7 @@ class ilLTIConsumerLaunch
         $request->sign_request($method, $consumer, $a_params["token"]);
 
         // Pass this back up "out of band" for debugging
-//        self::$last_oauth_base_string = $request->get_signature_base_string();
+        //        self::$last_oauth_base_string = $request->get_signature_base_string();
         // die(self::$last_oauth_base_string);
 
         return $request->get_parameters();

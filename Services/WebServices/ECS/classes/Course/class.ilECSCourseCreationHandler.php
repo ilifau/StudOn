@@ -200,7 +200,7 @@ class ilECSCourseCreationHandler
         foreach ($matching_rules as $matching_rule) {
             $this->logger->debug('Handling matching rule: ' . $matching_rule);
             $parent_refs = ilECSCourseMappingRule::doMappings(
-                $course,
+                (int) $course,
                 $this->getServer()->getServerId(),
                 $this->getMid(),
                 $matching_rule
@@ -219,7 +219,7 @@ class ilECSCourseCreationHandler
         foreach ($all_parent_refs as $category_ref) {
             if ($first) {
                 $this->logger->debug('Creating new course instance in: ' . $category_ref);
-                $this->doSync($a_content_id, $course, ilObject::_lookupObjId($category_ref));
+                $this->doSync($a_content_id, $course, ilObject::_lookupObjId((int) $category_ref));
                 $first = false;
                 continue;
             }
@@ -232,7 +232,7 @@ class ilECSCourseCreationHandler
     /**
      * Create course reference objects
      */
-    protected function createCourseReferenceObjects(int $a_parent_ref_id): void
+    protected function createCourseReferenceObjects($a_parent_ref_id): void
     {
         $this->logger->debug('Created new course reference in : ' . ilObject::_lookupTitle(ilObject::_lookupObjId($a_parent_ref_id)));
         foreach ($this->getCreatedCourses() as $ref_id) {
@@ -389,7 +389,6 @@ class ilECSCourseCreationHandler
                 default:
                     // nothing to do
                     break;
-
             }
 
             // do update
@@ -430,8 +429,6 @@ class ilECSCourseCreationHandler
                     $this->createCourseReference($crs, $a_parent_obj_id);
                     $this->setImported((int) $course_id, $crs, $a_content_id);
                     break;
-
-
             }
         }
         // finally update course urls

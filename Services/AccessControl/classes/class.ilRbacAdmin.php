@@ -16,7 +16,7 @@
  *
  *********************************************************************/
 declare(strict_types=1);
-use FAU\Ilias\Helper\RbacAdminHelper;
+
 /**
  * Class ilRbacAdmin
  *  Core functions for role based access control.
@@ -215,12 +215,12 @@ class ilRbacAdmin
             $GLOBALS['DIC']['ilAppEventHandler']->raise(
                 'Services/AccessControl',
                 'assignUser',
-                array(
+                [
                     'obj_id' => $obj_id,
                     'usr_id' => $a_usr_id,
                     'role_id' => $a_rol_id,
                     'type' => $type
-                )
+                ]
             );
         }
     }
@@ -246,12 +246,12 @@ class ilRbacAdmin
             $type = ilObject::_lookupType($obj_id);
 
             ilLoggerFactory::getInstance()->getLogger('ac')->debug('Raise event deassign user');
-            $GLOBALS['DIC']['ilAppEventHandler']->raise('Services/AccessControl', 'deassignUser', array(
+            $GLOBALS['DIC']['ilAppEventHandler']->raise('Services/AccessControl', 'deassignUser', [
                 'obj_id' => $obj_id,
                 'usr_id' => $a_usr_id,
                 'role_id' => $a_rol_id,
                 'type' => $type,
-            ));
+            ]);
         }
     }
 
@@ -278,8 +278,8 @@ class ilRbacAdmin
             'AND ref_id = %s';
         $res = $this->db->queryF(
             $query,
-            array('integer', 'integer'),
-            array($a_rol_id, $a_ref_id)
+            ['integer', 'integer'],
+            [$a_rol_id, $a_ref_id]
         );
 
         if ($a_ops === []) {
@@ -367,7 +367,7 @@ class ilRbacAdmin
     {
         $query = 'DELETE FROM rbac_pa ' .
             'WHERE ref_id IN ' .
-            '( ' . $GLOBALS['DIC']['tree']->getSubTreeQuery($a_ref_id, array('child')) . ' ) ' .
+            '( ' . $GLOBALS['DIC']['tree']->getSubTreeQuery($a_ref_id, ['child']) . ' ) ' .
             'AND rol_id = ' . $this->db->quote($a_role_id, 'integer');
 
         $this->db->manipulate($query);
@@ -380,14 +380,14 @@ class ilRbacAdmin
     {
         $query = 'DELETE FROM rbac_templates ' .
             'WHERE parent IN ( ' .
-            $GLOBALS['DIC']['tree']->getSubTreeQuery($a_ref_id, array('child')) . ' ) ' .
+            $GLOBALS['DIC']['tree']->getSubTreeQuery($a_ref_id, ['child']) . ' ) ' .
             'AND rol_id = ' . $this->db->quote($a_rol_id, 'integer');
 
         $this->db->manipulate($query);
 
         $query = 'DELETE FROM rbac_fa ' .
             'WHERE parent IN ( ' .
-            $GLOBALS['DIC']['tree']->getSubTreeQuery($a_ref_id, array('child')) . ' ) ' .
+            $GLOBALS['DIC']['tree']->getSubTreeQuery($a_ref_id, ['child']) . ' ) ' .
             'AND rol_id = ' . $this->db->quote($a_rol_id, 'integer');
 
         $this->db->manipulate($query);
@@ -529,14 +529,14 @@ class ilRbacAdmin
 
         $query = 'INSERT INTO rbac_templates (rol_id,type,ops_id,parent) ' .
             'VALUES (?,?,?,?)';
-        $sta = $this->db->prepareManip($query, array('integer', 'text', 'integer', 'integer'));
+        $sta = $this->db->prepareManip($query, ['integer', 'text', 'integer', 'integer']);
         foreach ($operations as $set) {
-            $this->db->execute($sta, array(
+            $this->db->execute($sta, [
                 $a_dest_id,
                 $set['type'],
                 $set['ops_id'],
                 $a_dest_parent
-            ));
+            ]);
         }
     }
 
@@ -548,7 +548,6 @@ class ilRbacAdmin
         int $a_dest_id,
         int $a_dest_parent
     ): void {
-
         // exclude system role from rbac
         if ($a_dest_id == SYSTEM_ROLE_ID) {
             $this->logger->logStack(ilLogLevel::DEBUG);
@@ -962,7 +961,6 @@ class ilRbacAdmin
                             $node_id
                         );
                         break;
-
                 }
             }
 

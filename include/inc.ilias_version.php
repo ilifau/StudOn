@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 1998-2020 ILIAS open source e-Learning e.V., Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
 * sets ILIAS version (this file shouldn't be merged between cvs branches)
@@ -10,5 +26,5 @@
 *
 * @package ilias-core
 */
-define("ILIAS_VERSION", "8.12 2024-05-28");
-define("ILIAS_VERSION_NUMERIC", "8.12");			// since version ILIAS 6 this must be always x.y: x and y are numbers
+const ILIAS_VERSION = "9.1 2024-05-17";
+const ILIAS_VERSION_NUMERIC = "9.1";            // since version ILIAS 6 this must be always x.y: x and y are numbers

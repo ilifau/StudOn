@@ -92,17 +92,11 @@ class ilMailQuickFilterInputGUI extends ilTextInputGUI
             $tpl->touchBlock('submit_form_on_enter');
         }
 
-        switch ($this->getInputType()) {
-            case 'password':
-                $tpl->setVariable('PROP_INPUT_TYPE', 'password');
-                break;
-            case 'hidden':
-                $tpl->setVariable('PROP_INPUT_TYPE', 'hidden');
-                break;
-            case 'text':
-            default:
-                $tpl->setVariable('PROP_INPUT_TYPE', 'text');
-        }
+        match ($this->getInputType()) {
+            'password' => $tpl->setVariable('PROP_INPUT_TYPE', 'password'),
+            'hidden' => $tpl->setVariable('PROP_INPUT_TYPE', 'hidden'),
+            default => $tpl->setVariable('PROP_INPUT_TYPE', 'text'),
+        };
         $tpl->setVariable('ID', $this->getFieldId());
         $tpl->setVariable('ARIA_LABEL', $this->getTitle());
         $tpl->setVariable('SIZE', $this->getSize());
@@ -114,14 +108,14 @@ class ilMailQuickFilterInputGUI extends ilTextInputGUI
         }
 
         $postvar = $this->getPostVar();
-        if ($this->getMulti() && substr($postvar, -2) !== '[]') {
+        if ($this->getMulti() && !str_ends_with($postvar, '[]')) {
             $postvar .= '[]';
         }
 
         if ($this->getDisabled()) {
+            $hidden = '';
             if ($this->getMulti()) {
                 $value = $this->getMultiValues();
-                $hidden = '';
                 if (is_array($value)) {
                     foreach ($value as $item) {
                         $hidden .= $this->getHiddenTag($postvar, $item);
@@ -130,7 +124,7 @@ class ilMailQuickFilterInputGUI extends ilTextInputGUI
             } else {
                 $hidden = $this->getHiddenTag($postvar, $this->getValue());
             }
-            if ($hidden) {
+            if ($hidden !== '') {
                 $tpl->setVariable('DISABLED', ' disabled=\'disabled\'');
                 $tpl->setVariable('HIDDEN_INPUT', $hidden);
             }

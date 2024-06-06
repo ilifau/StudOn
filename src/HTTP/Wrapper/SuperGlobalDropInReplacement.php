@@ -1,6 +1,25 @@
 <?php
 
 declare(strict_types=1);
+<<<<<<< HEAD
+=======
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+>>>>>>> v9.1
 
 namespace ILIAS\HTTP\Wrapper;
 
@@ -9,19 +28,6 @@ use ILIAS\Refinery\KeyValueAccess;
 use LogicException;
 use OutOfBoundsException;
 
-/******************************************************************************
- *
- * This file is part of ILIAS, a powerful learning management system.
- *
- * ILIAS is licensed with the GPL-3.0, you should have received a copy
- * of said license along with the source code.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- *      https://www.ilias.de
- *      https://github.com/ILIAS-eLearning
- *
- *****************************************************************************/
 /**
  * Class SuperGlobalDropInReplacement
  * This Class wraps SuperGlobals such as $_GET and $_POST to prevent modifying them in a future version.
@@ -37,10 +43,14 @@ class SuperGlobalDropInReplacement extends KeyValueAccess
         parent::__construct($raw_values, $factory->kindlyTo()->string());
     }
 
+<<<<<<< HEAD
     /**
      * @inheritDoc
      */
     public function offsetSet($offset, $value): void
+=======
+    public function offsetSet(mixed $offset, mixed $value): void
+>>>>>>> v9.1
     {
         if ($this->throwOnValueAssignment) {
             throw new OutOfBoundsException("Modifying global Request-Array such as \$_GET is not allowed!");
@@ -49,10 +59,14 @@ class SuperGlobalDropInReplacement extends KeyValueAccess
         parent::offsetSet($offset, $value);
     }
 
+<<<<<<< HEAD
     /**
      * @inheritDoc
      */
     public function offsetUnset($offset): void
+=======
+    public function offsetUnset(mixed $offset): void
+>>>>>>> v9.1
     {
         throw new LogicException("Modifying global Request-Array such as \$_GET is not allowed!");
     }

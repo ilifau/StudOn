@@ -18,19 +18,10 @@
 
 declare(strict_types=1);
 
-/**
- * Auth provider factory
- *
- * @author Stefan Meyer <smeyer.ilias@gmx.de>
- *
- */
 class ilAuthProviderFactory
 {
     private ilLogger $logger;
 
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         global $DIC;
@@ -38,22 +29,22 @@ class ilAuthProviderFactory
     }
 
     /**
-     * Get provider
+     * @return list<ilAuthProviderInterface>
      */
     public function getProviders(ilAuthCredentials $credentials): array
     {
         // Fixed provider selection;
         if ($credentials->getAuthMode() !== '') {
             $this->logger->debug('Returning fixed provider for auth mode: ' . $credentials->getAuthMode());
-            return array(
+            return [
                 $this->getProviderByAuthMode($credentials, $credentials->getAuthMode())
-            );
+            ];
         }
 
         $auth_determination = ilAuthModeDetermination::_getInstance();
         $sequence = $auth_determination->getAuthModeSequence($credentials->getUsername());
 
-        $providers = array();
+        $providers = [];
         foreach ($sequence as $position => $authmode) {
             $provider = $this->getProviderByAuthMode($credentials, $authmode);
             if ($provider instanceof ilAuthProviderInterface) {
@@ -64,7 +55,7 @@ class ilAuthProviderFactory
     }
 
     /**
-     * Get provider by auth mode
+     * @param string|int $a_authmode
      */
     public function getProviderByAuthMode(ilAuthCredentials $credentials, $a_authmode): ?ilAuthProviderInterface
     {
@@ -120,6 +111,7 @@ class ilAuthProviderFactory
                 }
                 break;
         }
+
         return null;
     }
 }

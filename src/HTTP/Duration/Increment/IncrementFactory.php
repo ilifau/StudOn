@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 <?php declare(strict_types=1);
+=======
+<?php
+
+declare(strict_types=1);
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -22,12 +28,20 @@ namespace ILIAS\HTTP\Duration\Increment;
  */
 class IncrementFactory
 {
+<<<<<<< HEAD
     public function multiplier(float $multiplier) : MultiplierStrategy
+=======
+    public function multiplier(float $multiplier): MultiplierStrategy
+>>>>>>> v9.1
     {
         return new MultiplierStrategy($multiplier);
     }
 
+<<<<<<< HEAD
     public function constant(int $increment_in_ms) : StaticStrategy
+=======
+    public function constant(int $increment_in_ms): StaticStrategy
+>>>>>>> v9.1
     {
         return new StaticStrategy($increment_in_ms);
     }

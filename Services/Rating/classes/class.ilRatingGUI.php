@@ -104,7 +104,7 @@ class ilRatingGUI
     ): void {
         $ilUser = $this->user;
 
-        if (!trim($a_sub_obj_type)) {
+        if (!trim((string) $a_sub_obj_type)) {
             $a_sub_obj_type = "-";
         }
 
@@ -200,13 +200,13 @@ class ilRatingGUI
                         $ttpl->setCurrentBlock("rating_mark_simple");
                         $ttpl->setVariable(
                             "SRC_MARK_SIMPLE",
-                            ilUtil::getImagePath("icon_rate_marker.svg")
+                            ilUtil::getImagePath("standard/icon_rate_marker.svg")
                         );
                         $ttpl->parseCurrentBlock();
                     }
 
                     $ttpl->setCurrentBlock("rating_link_simple");
-                    if (stristr($a_onclick, "%rating%")) {
+                    if (stristr((string) $a_onclick, "%rating%")) {
                         $url_save = "#";
                     } else {
                         $ilCtrl->setParameter($this, "rating", $i);
@@ -232,12 +232,12 @@ class ilRatingGUI
                     if ($ref_rating >= $i) {
                         $ttpl->setVariable(
                             "SRC_ICON",
-                            ilUtil::getImagePath("icon_rate_on.svg")
+                            ilUtil::getImagePath("standard/icon_rate_on.svg")
                         );
                     } else {
                         $ttpl->setVariable(
                             "SRC_ICON",
-                            ilUtil::getImagePath("icon_rate_off.svg")
+                            ilUtil::getImagePath("standard/icon_rate_off.svg")
                         );
                     }
                     $ttpl->setVariable(
@@ -252,7 +252,7 @@ class ilRatingGUI
                     $ttpl->setCurrentBlock("rating_simple_del_bl");
                     $ttpl->setVariable("CAPTION_RATING_DEL", $lng->txt("rating_remove"));
 
-                    if (stristr($a_onclick, "%rating%")) {
+                    if (stristr((string) $a_onclick, "%rating%")) {
                         $url_save = "#";
                     } else {
                         $ilCtrl->setParameter($this, "rating", 0);
@@ -333,7 +333,7 @@ class ilRatingGUI
                         $ttpl->setCurrentBlock("rating_mark");
                         $ttpl->setVariable(
                             "SRC_MARK",
-                            ilUtil::getImagePath("icon_rate_marker.svg")
+                            ilUtil::getImagePath("standard/icon_rate_marker.svg")
                         );
                         $ttpl->parseCurrentBlock();
                     }
@@ -342,18 +342,18 @@ class ilRatingGUI
                     if ($overall_rating["avg"] >= $i) {
                         $ttpl->setVariable(
                             "SRC_ICON",
-                            ilUtil::getImagePath("icon_rate_on.svg")
+                            ilUtil::getImagePath("standard/icon_rate_on.svg")
                         );
                     } elseif ($overall_rating["avg"] + 1 <= $i) {
                         $ttpl->setVariable(
                             "SRC_ICON",
-                            ilUtil::getImagePath("icon_rate_off.svg")
+                            ilUtil::getImagePath("standard/icon_rate_off.svg")
                         );
                     } else {
                         $nr = round(($overall_rating["avg"] + 1 - $i) * 10);
                         $ttpl->setVariable(
                             "SRC_ICON",
-                            ilUtil::getImagePath("icon_rate_$nr.svg")
+                            ilUtil::getImagePath("standard/icon_rate_$nr.svg")
                         );
                     }
                     $ttpl->setVariable(
@@ -443,6 +443,8 @@ class ilRatingGUI
         string $a_onclick = null,
         string $a_additional_id = null
     ): string {
+        $f = $this->ui->factory();
+        $r = $this->ui->renderer();
         $lng = $this->lng;
         $unique_id = $this->id;
         if ($a_additional_id) {
@@ -496,7 +498,7 @@ class ilRatingGUI
                 $ttpl->setCurrentBlock("rating_mark");
                 $ttpl->setVariable(
                     "SRC_MARK",
-                    ilUtil::getImagePath("icon_rate_marker.svg")
+                    ilUtil::getImagePath("standard/icon_rate_marker.svg")
                 );
                 $ttpl->parseCurrentBlock();
             }
@@ -505,18 +507,18 @@ class ilRatingGUI
             if ($rating["avg"] >= $i) {
                 $ttpl->setVariable(
                     "SRC_ICON",
-                    ilUtil::getImagePath("icon_rate_on.svg")
+                    ilUtil::getImagePath("standard/icon_rate_on.svg")
                 );
             } elseif ($rating["avg"] + 1 <= $i) {
                 $ttpl->setVariable(
                     "SRC_ICON",
-                    ilUtil::getImagePath("icon_rate_off.svg")
+                    ilUtil::getImagePath("standard/icon_rate_off.svg")
                 );
             } else {
                 $nr = round(($rating["avg"] + 1 - $i) * 10);
                 $ttpl->setVariable(
                     "SRC_ICON",
-                    ilUtil::getImagePath("icon_rate_$nr.svg")
+                    ilUtil::getImagePath("standard/icon_rate_$nr.svg")
                 );
             }
             $ttpl->setVariable("ALT_ICON", "");
@@ -541,9 +543,10 @@ class ilRatingGUI
 
         // add overlay (trigger)
         if ($has_overlay) {
+            /*
             $ov = new ilOverlayGUI($unique_id);
             $ov->setTrigger("tr_" . $unique_id, "click", "tr_" . $unique_id);
-            $ov->add();
+            $ov->add();*/
 
             $ttpl->setCurrentBlock("act_rat_start");
             $ttpl->setVariable("ID", $unique_id);
@@ -558,20 +561,32 @@ class ilRatingGUI
 
         // (2) user rating
 
+        $ttpl->setVariable("TTID", $unique_id);
+        $rating_html = $ttpl->get();
+
         if ($has_overlay) {
             $ttpl->setVariable(
                 "RATING_DETAILS",
                 $this->renderDetails("rtov_", $may_rate, $categories, $a_onclick)
             );
 
+            $popover = $f->popover()->standard(
+                $f->legacy($this->renderDetails("rtov_", $may_rate, $categories, $a_onclick))
+            );
+            $button = $f->button()->shy('###button###', '#')
+                              ->withOnClick($popover->getShowSignal());
+
+            /*
             $ttpl->setCurrentBlock("user_rating");
             $ttpl->setVariable("ID", $unique_id);
-            $ttpl->parseCurrentBlock();
+            $ttpl->parseCurrentBlock();*/
+            $popover_html = $r->render([$popover, $button]);
+            $rating_html = str_replace("###button###", $rating_html, $popover_html);
         }
 
-        $ttpl->setVariable("TTID", $unique_id);
 
-        return $ttpl->get();
+
+        return $rating_html;
     }
 
     protected function addTooltip(

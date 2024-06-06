@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -37,5 +37,15 @@ class Service
     public function internal(): InternalService
     {
         return new InternalService($this->DIC);
+    }
+
+    public function questionInfo(): QuestionInfoService
+    {
+        return new QuestionInfoService($this->DIC->database(), $this->DIC['component.factory'], $this->DIC->language());
+    }
+
+    public function questionFiles(): QuestionFilesService
+    {
+        return new QuestionFilesService();
     }
 }

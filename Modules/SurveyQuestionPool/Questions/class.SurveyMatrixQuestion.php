@@ -203,29 +203,6 @@ class SurveyMatrixQuestion extends SurveyQuestion
     }
 
     /**
-     * Adds a phrase to the question
-     */
-    public function addPhrase(int $phrase_id): void
-    {
-        $ilUser = $this->user;
-        $ilDB = $this->db;
-
-        $result = $ilDB->queryF(
-            "SELECT svy_category.* FROM svy_category, svy_phrase_cat WHERE svy_phrase_cat.category_fi = svy_category.category_id AND svy_phrase_cat.phrase_fi = %s AND (svy_category.owner_fi = %s OR svy_category.owner_fi = %s) ORDER BY svy_phrase_cat.sequence",
-            array('integer', 'integer', 'integer'),
-            array($phrase_id, 0, $ilUser->getId())
-        );
-        while ($row = $ilDB->fetchAssoc($result)) {
-            $neutral = $row["neutral"];
-            if ((int) $row["defaultvalue"] === 1 && (int) $row["owner_fi"] === 0) {
-                $this->columns->addCategory($this->lng->txt($row["title"]), 0, $neutral);
-            } else {
-                $this->columns->addCategory($row["title"], 0, $neutral);
-            }
-        }
-    }
-
-    /**
      * Returns the question data fields from the database
      */
     public function getQuestionDataArray(int $id): array
@@ -350,9 +327,6 @@ class SurveyMatrixQuestion extends SurveyQuestion
                     time()
                 )
             );
-
-            // saving material uris in the database
-            $this->saveMaterial();
 
             $this->saveColumnsToDb();
             $this->saveRowsToDb();
@@ -518,7 +492,7 @@ class SurveyMatrixQuestion extends SurveyQuestion
             $attrs = array(
                 "id" => $i
             );
-            if (strlen($this->getRow($i)->label)) {
+            if (strlen($this->getRow($i)->label ?? "")) {
                 $attrs['label'] = $this->getRow($i)->label;
             }
             if ($this->getRow($i)->other) {
@@ -634,43 +608,6 @@ class SurveyMatrixQuestion extends SurveyQuestion
         }
     }
 
-    /**
-     * Saves a set of columns to a default phrase
-     * (data currently comes from session)
-     */
-    public function savePhrase(
-        string $title
-    ): void {
-        $ilUser = $this->user;
-        $ilDB = $this->db;
-
-        $next_id = $ilDB->nextId('svy_phrase');
-        $ilDB->manipulateF(
-            "INSERT INTO svy_phrase (phrase_id, title, defaultvalue, owner_fi, tstamp) VALUES (%s, %s, %s, %s, %s)",
-            array('integer','text','text','integer','integer'),
-            array($next_id, $title, 1, $ilUser->getId(), time())
-        );
-        $phrase_id = $next_id;
-
-        $counter = 1;
-        $phrase_data = $this->edit_manager->getPhraseData();
-        foreach ($phrase_data as $data) {
-            $next_id = $ilDB->nextId('svy_category');
-            $affectedRows = $ilDB->manipulateF(
-                "INSERT INTO svy_category (category_id, title, defaultvalue, owner_fi, tstamp, neutral) VALUES (%s, %s, %s, %s, %s, %s)",
-                array('integer','text','text','integer','integer','text'),
-                array($next_id, $data['answer'], 1, $ilUser->getId(), time(), $data['neutral'])
-            );
-            $category_id = $next_id;
-            $next_id = $ilDB->nextId('svy_phrase_cat');
-            $affectedRows = $ilDB->manipulateF(
-                "INSERT INTO svy_phrase_cat (phrase_category_id, phrase_fi, category_fi, sequence, other, scale) VALUES (%s, %s, %s, %s, %s, %s)",
-                array('integer', 'integer', 'integer','integer', 'integer', 'integer'),
-                array($next_id, $phrase_id, $category_id, $counter, ($data['other']) ? 1 : 0, $data['scale'])
-            );
-            $counter++;
-        }
-    }
 
     public function getQuestionType(): string
     {
@@ -732,7 +669,7 @@ class SurveyMatrixQuestion extends SurveyQuestion
                 $counter = 0;
                 foreach ($post_data as $key => $value) {
                     if (preg_match("/matrix_" . $this->getId() . "_(\d+)/", $key, $matches)) {
-                        if (array_key_exists('matrix_other_' . $this->getId() . "_" . $matches[1], $post_data) && strlen($post_data['matrix_other_' . $this->getId() . "_" . $matches[1]]) == 0) {
+                        if (array_key_exists('matrix_other_' . $this->getId() . "_" . $matches[1], $post_data) && strlen($post_data['matrix_other_' . $this->getId() . "_" . $matches[1]] ?? "") == 0) {
                             return $this->lng->txt("question_mr_no_other_answer");
                         }
                         $counter++;
@@ -746,7 +683,7 @@ class SurveyMatrixQuestion extends SurveyQuestion
                 $counter = 0;
                 foreach ($post_data as $key => $value) {
                     if (preg_match("/matrix_" . $this->getId() . "_(\d+)/", $key, $matches)) {
-                        if (array_key_exists('matrix_other_' . $this->getId() . "_" . $matches[1], $post_data) && strlen($post_data['matrix_other_' . $this->getId() . "_" . $matches[1]]) == 0) {
+                        if (array_key_exists('matrix_other_' . $this->getId() . "_" . $matches[1], $post_data) && strlen($post_data['matrix_other_' . $this->getId() . "_" . $matches[1]] ?? "") == 0) {
                             return $this->lng->txt("question_mr_no_other_answer");
                         }
                         $counter++;
@@ -777,7 +714,7 @@ class SurveyMatrixQuestion extends SurveyQuestion
             case 0:
                 foreach ($post_data as $key => $value) {
                     if (preg_match("/matrix_" . $this->getId() . "_(\d+)/", $key, $matches)) {
-                        if (strlen($value)) {
+                        if (strlen($value ?? "")) {
                             $other_value = (array_key_exists('matrix_other_' . $this->getId() . '_' . $matches[1], $post_data))
                                 ? $this->stripSlashesAddSpaceFallback($post_data['matrix_other_' . $this->getId() . '_' . $matches[1]])
                                 : null;
@@ -1086,7 +1023,7 @@ class SurveyMatrixQuestion extends SurveyQuestion
         if (is_array($layout)) {
             $this->layout = $layout;
         } else {
-            $this->layout = unserialize($layout, ['allowed_classes' => false]) ?: [];
+            $this->layout = unserialize((string) $layout, ['allowed_classes' => false]) ?: [];
         }
     }
 
@@ -1105,7 +1042,7 @@ class SurveyMatrixQuestion extends SurveyQuestion
     {
         for ($i = 0; $i < $this->getColumnCount(); $i++) {
             $column = $this->getColumn($i);
-            if ($column->neutral && strlen($column->title)) {
+            if ($column->neutral && strlen($column->title ?? "")) {
                 return true;
             }
         }

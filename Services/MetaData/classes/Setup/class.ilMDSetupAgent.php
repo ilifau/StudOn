@@ -28,17 +28,23 @@ class ilMDSetupAgent extends Setup\Agent\NullAgent
         return new Setup\ObjectiveCollection(
             'MetaData',
             false,
+            new ilDatabaseUpdateStepsExecutedObjective(new ilMDLOMUpdateSteps()),
             new ilDatabaseUpdateStepsExecutedObjective(new ilMDCopyrightUpdateSteps())
         );
     }
 
     public function getStatusObjective(Setup\Metrics\Storage $storage): Setup\Objective
     {
-        return new Setup\Objective\NullObjective();
+        return new Setup\ObjectiveCollection(
+            'Component MetaData',
+            true,
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMDCopyrightUpdateSteps()),
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMDLOMUpdateSteps())
+        );
     }
 
     public function getMigrations(): array
     {
-        return [new ilMDCopyrightMigration()];
+        return [new ilMDCopyrightMigration(), new ilMDLOMConformanceMigration()];
     }
 }

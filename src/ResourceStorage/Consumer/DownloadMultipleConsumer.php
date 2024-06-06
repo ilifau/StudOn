@@ -79,7 +79,11 @@ class DownloadMultipleConsumer implements DeliveryConsumer
                 );
             }
 
+<<<<<<< HEAD
             $zip->addFile($revision->maybeGetToken()->resolveStream()->getMetadata('uri'), $file_name);
+=======
+            $zip->addFile($revision->maybeStreamResolver()->getStream()->getMetadata('uri'), $file_name);
+>>>>>>> v9.1
         }
 
         $zip->close();

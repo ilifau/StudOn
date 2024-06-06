@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Class ilTestEvaluationGUITest
  * @author Marvin Beym <mbeym@databay.de>
@@ -32,16 +32,30 @@ class ilTestEvaluationGUITest extends ilTestBaseTestCase
 
         $this->addGlobal_lng();
         $this->addGlobal_tpl();
+        $this->addGlobal_ilToolbar();
         $this->addGlobal_ilCtrl();
         $this->addGlobal_ilias();
-        $this->addGlobal_tree();
-        $this->addGlobal_ilDB();
+        $this->addGlobal_ilUser();
+        $this->addGlobal_ilLoggerFactory();
         $this->addGlobal_ilComponentRepository();
         $this->addGlobal_ilTabs();
         $this->addGlobal_ilObjDataCache();
+        $this->addGlobal_http();
+        $this->addGlobal_ilErr();
+        $this->addGlobal_GlobalScreenService();
         $this->addGlobal_ilUser();
+        $this->addGlobal_ilHelp();
+        $this->addGlobal_ilLog();
+        $this->addGlobal_rbacsystem();
+        $this->addGlobal_ilAccess();
+        $this->addGlobal_ilSetting();
+        $this->addGlobal_ilNavigationHistory();
+        $this->addGlobal_uiFactory();
+        $this->addGlobal_uiRenderer();
 
-        $this->testObj = new ilTestEvaluationGUI($this->createMock(ilObjTest::class));
+        $this->testObj = new ilTestEvaluationGUI(
+            $this->getTestObjMock()
+        );
     }
 
     public function test_instantiateObject_shouldReturnInstance(): void

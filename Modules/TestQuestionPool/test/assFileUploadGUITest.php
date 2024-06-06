@@ -31,6 +31,8 @@ class assFileUploadGUITest extends assBaseTestCase
     {
         parent::setUp();
 
+        $this->setGlobalVariable('ilLog', $this->createMock(ilLogger::class));
+
         $ilCtrl_mock = $this->getMockBuilder(ilCtrl::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -48,13 +50,12 @@ class assFileUploadGUITest extends assBaseTestCase
         $this->setGlobalVariable('ilias', $this->getIliasMock());
         $this->setGlobalVariable('tpl', $this->getGlobalTemplateMock());
         $this->setGlobalVariable('ilDB', $this->getDatabaseMock());
+        $this->setGlobalVariable('resource_storage', $this->getIRSSMock());
+        $this->setGlobalVariable('file_delivery', $this->getFileDeliveryMock());
     }
 
     public function test_instantiateObject_shouldReturnInstance(): void
     {
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assFileUploadGUI.php';
-
         // Act
         $instance = new assFileUploadGUI();
 

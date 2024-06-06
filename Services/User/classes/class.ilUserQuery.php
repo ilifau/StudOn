@@ -41,14 +41,14 @@ class ilUserQuery
     private int $crs_grp = 0;
     private int $role = 0;
     private ?array $user_folder = null; // Missing array type.
-    private array $additional_fields = array(); // Missing array type.
-    private array $users = array(); // Missing array type.
+    private array $additional_fields = []; // Missing array type.
+    private array $users = []; // Missing array type.
     private string $first_letter = '';
     private bool $has_access = false;
     private string $authentication_method = '';
-    protected array $udf_filter = array(); // Missing array type.
+    protected array $udf_filter = []; // Missing array type.
     /** @var string[] */
-    private array $default_fields = array(
+    private array $default_fields = [
         "usr_id",
         "login",
         "firstname",
@@ -60,7 +60,7 @@ class ilUserQuery
         "time_limit_owner",
         "last_login",
         "active"
-    );
+    ];
 
     public function __construct()
     {
@@ -244,7 +244,7 @@ class ilUserQuery
         $ilDB = $DIC['ilDB'];
 
 
-        $udf_fields = array();
+        $udf_fields = [];
         $usr_ids = [];
 
         $join = "";
@@ -265,7 +265,7 @@ class ilUserQuery
         }
 
         // if udf fields are involved we need the definitions
-        $udf_def = array();
+        $udf_def = [];
         if (count($udf_fields) > 0) {
             $udf_def = ilUserDefinedFields::_getInstance()->getDefinitions();
         }
@@ -282,10 +282,10 @@ class ilUserQuery
         $count_query = "SELECT count(usr_data.usr_id) cnt" .
             " FROM usr_data";
 
-        $all_multi_fields = array("interests_general", "interests_help_offered", "interests_help_looking");
-        $multi_fields = array();
+        $all_multi_fields = ["interests_general", "interests_help_offered", "interests_help_looking"];
+        $multi_fields = [];
 
-        $sql_fields = array();
+        $sql_fields = [];
         foreach ($this->default_fields as $idx => $field) {
             if (!$field) {
                 continue;
@@ -330,7 +330,7 @@ class ilUserQuery
         // User filter
         $count_query .= " WHERE 1 = 1 ";
         $count_user_filter = "usr_data.usr_id != " . $ilDB->quote(ANONYMOUS_USER_ID, "integer");
-        if ($this->users and is_array(($this->users))) {
+        if ($this->users && is_array(($this->users))) {
             $query .= ' AND ' . $ilDB->in('usr_data.usr_id', $this->users, false, 'integer');
             $count_user_filter = $ilDB->in('usr_data.usr_id', $this->users, false, 'integer');
         }
@@ -526,12 +526,12 @@ class ilUserQuery
         $ilDB->setLimit($limit, $offset);
 
         if (count($multi_fields)) {
-            $usr_ids = array();
+            $usr_ids = [];
         }
 
         // set query
         $set = $ilDB->query($query);
-        $result = array();
+        $result = [];
 
         while ($rec = $ilDB->fetchAssoc($set)) {
             // fau: userData - optionally add the studydata and educations
@@ -550,7 +550,7 @@ class ilUserQuery
 
         // add multi-field-values to user-data
         if (count($multi_fields) && count($usr_ids)) {
-            $usr_multi = array();
+            $usr_multi = [];
             $set = $ilDB->query("SELECT * FROM usr_data_multi" .
                 " WHERE " . $ilDB->in("usr_id", $usr_ids, "", "integer"));
             while ($row = $ilDB->fetchAssoc($set)) {
@@ -562,6 +562,49 @@ class ilUserQuery
                 }
             }
         }
-        return array("cnt" => $cnt, "set" => $result);
+        return ["cnt" => $cnt, "set" => $result];
+    }
+
+
+    /**
+     * Get data for user administration list.
+     * @deprecated
+     */
+    public static function getUserListData(
+        string $a_order_field,
+        string $a_order_dir,
+        int $a_offset,
+        int $a_limit,
+        string $a_string_filter = "",
+        string $a_activation_filter = "",
+        ?ilDateTime $a_last_login_filter = null,
+        bool $a_limited_access_filter = false,
+        bool $a_no_courses_filter = false,
+        int $a_course_group_filter = 0,
+        int $a_role_filter = 0,
+        array $a_user_folder_filter = null,
+        array $a_additional_fields = null,
+        array $a_user_filter = null,
+        string $a_first_letter = "",
+        string $a_authentication_filter = ""
+    ): array {
+        $query = new ilUserQuery();
+        $query->setOrderField($a_order_field);
+        $query->setOrderDirection($a_order_dir);
+        $query->setOffset($a_offset);
+        $query->setLimit($a_limit);
+        $query->setTextFilter($a_string_filter);
+        $query->setActionFilter($a_activation_filter);
+        $query->setLastLogin($a_last_login_filter);
+        $query->setLimitedAccessFilter($a_limited_access_filter);
+        $query->setNoCourseFilter($a_no_courses_filter);
+        $query->setCourseGroupFilter($a_course_group_filter);
+        $query->setRoleFilter($a_role_filter);
+        $query->setUserFolder($a_user_folder_filter);
+        $query->setAdditionalFields($a_additional_fields ?? []);
+        $query->setUserFilter($a_user_filter ?? []);
+        $query->setFirstLetterLastname($a_first_letter);
+        $query->setAuthenticationFilter($a_authentication_filter);
+        return $query->query();
     }
 }

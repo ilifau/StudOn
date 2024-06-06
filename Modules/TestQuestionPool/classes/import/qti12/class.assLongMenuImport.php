@@ -1,4 +1,19 @@
 <?php
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -27,13 +42,13 @@ class assLongMenuImport extends assQuestionImport
         ilSession::clear('import_mob_xhtml');
 
         $presentation = $item->getPresentation();
-        $questiontext = array();
+        $questiontext = [];
         $seperate_question_field = $item->getMetadataEntry("question");
-        $clozetext = array();
+        $clozetext = [];
         $now = getdate();
         $created = sprintf("%04d%02d%02d%02d%02d%02d", $now['year'], $now['mon'], $now['mday'], $now['hours'], $now['minutes'], $now['seconds']);
-        $answers = array();
-        $correct_answers = array();
+        $answers = [];
+        $correct_answers = [];
         $presentation = $item->getPresentation();
         $gap_types = json_decode($item->getMetadataEntry("gapTypes"));
         foreach ($presentation->order as $entry) {
@@ -41,10 +56,10 @@ class assLongMenuImport extends assQuestionImport
                 case "material":
 
                     $material = $presentation->material[$entry["index"]];
-                    if (preg_match('/\[Longmenu \d\]/', $this->object->QTIMaterialToString($material))) {
-                        $this->object->setLongMenuTextValue($this->object->QTIMaterialToString($material));
+                    if (preg_match('/\[Longmenu \d\]/', $this->QTIMaterialToString($material))) {
+                        $this->object->setLongMenuTextValue($this->QTIMaterialToString($material));
                     } else {
-                        $this->object->setQuestion($this->object->QTIMaterialToString($material));
+                        $this->object->setQuestion($this->QTIMaterialToString($material));
                     }
 
 
@@ -171,13 +186,13 @@ class assLongMenuImport extends assQuestionImport
         // handle the import of media objects in XHTML code
         if (isset($feedbacks) && count($feedbacks) > 0) {
             foreach ($feedbacks as $ident => $material) {
-                $m = $this->object->QTIMaterialToString($material);
+                $m = $this->QTIMaterialToString($material);
                 $feedbacks[$ident] = $m;
             }
         }
         if (isset($feedbacksgeneric) && is_array($feedbacksgeneric) && count($feedbacksgeneric) > 0) {
             foreach ($feedbacksgeneric as $correctness => $material) {
-                $m = $this->object->QTIMaterialToString($material);
+                $m = $this->QTIMaterialToString($material);
                 $feedbacksgeneric[$correctness] = $m;
             }
         }
@@ -228,11 +243,11 @@ class assLongMenuImport extends assQuestionImport
 
         if ($tst_id > 0) {
             $q_1_id = $this->object->getId();
-            $question_id = $this->object->duplicate(true, "", "", "", $tst_id);
+            $question_id = $this->object->duplicate(true, "", "", -1, $tst_id);
             $tst_object->questions[$question_counter++] = $question_id;
-            $import_mapping[$item->getIdent()] = array("pool" => $q_1_id, "test" => $question_id);
+            $import_mapping[$item->getIdent()] = ["pool" => $q_1_id, "test" => $question_id];
         } else {
-            $import_mapping[$item->getIdent()] = array("pool" => $this->object->getId(), "test" => 0);
+            $import_mapping[$item->getIdent()] = ["pool" => $this->object->getId(), "test" => 0];
         }
         return $import_mapping;
     }

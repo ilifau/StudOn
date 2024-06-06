@@ -115,25 +115,42 @@ class ilColorPickerInputGUI extends ilTextInputGUI
         // handle standard color names (no leading (!))
         switch ($a_value) {
             // html4 colors
-            case "black": $a_value = "000000"; break;
-            case "maroon": $a_value = "800000"; break;
-            case "green": $a_value = "008000"; break;
-            case "olive": $a_value = "808000"; break;
-            case "navy": $a_value = "000080"; break;
-            case "purple": $a_value = "800080"; break;
-            case "teal": $a_value = "008080"; break;
-            case "silver": $a_value = "C0C0C0"; break;
-            case "gray": $a_value = "808080"; break;
-            case "red": $a_value = "ff0000"; break;
-            case "lime": $a_value = "00ff00"; break;
-            case "yellow": $a_value = "ffff00"; break;
-            case "blue": $a_value = "0000ff"; break;
-            case "fuchsia": $a_value = "ff00ff"; break;
-            case "aqua": $a_value = "00ffff"; break;
-            case "white": $a_value = "ffffff"; break;
+            case "black": $a_value = "000000";
+                break;
+            case "maroon": $a_value = "800000";
+                break;
+            case "green": $a_value = "008000";
+                break;
+            case "olive": $a_value = "808000";
+                break;
+            case "navy": $a_value = "000080";
+                break;
+            case "purple": $a_value = "800080";
+                break;
+            case "teal": $a_value = "008080";
+                break;
+            case "silver": $a_value = "C0C0C0";
+                break;
+            case "gray": $a_value = "808080";
+                break;
+            case "red": $a_value = "ff0000";
+                break;
+            case "lime": $a_value = "00ff00";
+                break;
+            case "yellow": $a_value = "ffff00";
+                break;
+            case "blue": $a_value = "0000ff";
+                break;
+            case "fuchsia": $a_value = "ff00ff";
+                break;
+            case "aqua": $a_value = "00ffff";
+                break;
+            case "white": $a_value = "ffffff";
+                break;
 
-            // other colors used by ILIAS, supported by modern browsers
-            case "brown": $a_value = "a52a2a"; break;
+                // other colors used by ILIAS, supported by modern browsers
+            case "brown": $a_value = "a52a2a";
+                break;
         }
 
         // handle rgb values
@@ -141,9 +158,9 @@ class ilColorPickerInputGUI extends ilTextInputGUI
             $pos1 = strpos($a_value, "(");
             $pos2 = strpos($a_value, ")");
             $rgb = explode(",", substr($a_value, $pos1 + 1, $pos2 - $pos1 - 1));
-            $r = str_pad(dechex($rgb[0]), 2, "0", STR_PAD_LEFT);
-            $g = str_pad(dechex($rgb[1]), 2, "0", STR_PAD_LEFT);
-            $b = str_pad(dechex($rgb[2]), 2, "0", STR_PAD_LEFT);
+            $r = str_pad(dechex((int) $rgb[0]), 2, "0", STR_PAD_LEFT);
+            $g = str_pad(dechex((int) $rgb[1]), 2, "0", STR_PAD_LEFT);
+            $b = str_pad(dechex((int) $rgb[2]), 2, "0", STR_PAD_LEFT);
             $a_value = $r . $g . $b;
         }
 

@@ -41,7 +41,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
     public function __construct(ilObject $a_container)
     {
         parent::__construct($a_container);
-
         // fau: studyCond - call adjustSubType
         $this->adjustSubType();
         // fau.
@@ -59,10 +58,16 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         }
     }
     // fau.    
+        
 
-    public function executeCommand(): void
+    public function executeCommand() : void
     {
+        $next_class = $this->ctrl->getNextClass($this);
 
+        if (!$this->access->checkAccess('join', '', $this->getRefId())) {
+            $this->ctrl->redirectByClass(ilObjGroupGUI::class, 'infoScreen');
+        }
+        
         if ($this->getWaitingList()->isOnList($this->user->getId())) {
             $this->tabs->activateTab('leave');
         }
@@ -280,15 +285,15 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 $this->enableRegistration(false);
                 $alert = $this->lng->txt('mem_alert_no_places');
             } elseif (
-                    $this->container->isWaitingListEnabled() and
-                    $this->container->isMembershipLimited() and
-                    $waiting_list->isOnList($this->user->getId())) {
+                $this->container->isWaitingListEnabled() and
+                $this->container->isMembershipLimited() and
+                $waiting_list->isOnList($this->user->getId())) {
                 // Disable registration
                 $this->enableRegistration(false);
             } elseif (
-                    !$free and
-                    $this->container->isWaitingListEnabled() and
-                    $this->container->isMembershipLimited()) {
+                !$free and
+                $this->container->isWaitingListEnabled() and
+                $this->container->isMembershipLimited()) {
                 $alert = $this->lng->txt('grp_warn_no_max_set_on_waiting_list');
             } 
             // fau: fairSub - add to waiting list if free places are needed for already waiting users (see also add() function)
@@ -417,7 +422,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
                 $this->form->addItem($txt);
                 break;
-
         }
     }
 
@@ -491,7 +495,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
      * @param
      * @return
      */
-    protected function add()
+    protected function add(): void
     {
         global $DIC;
 

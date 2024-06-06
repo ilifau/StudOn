@@ -24,12 +24,16 @@
 class ilGlossaryExporter extends ilXmlExporter
 {
     private ilGlossaryDataSet $ds;
+    protected \ILIAS\Glossary\Metadata\MetadataManager $metadata;
 
     public function init(): void
     {
+        global $DIC;
+
         $this->ds = new ilGlossaryDataSet();
         $this->ds->setExportDirectories($this->dir_relative, $this->dir_absolute);
         $this->ds->setDSPrefix("ds");
+        $this->metadata = $DIC->glossary()->internal()->domain()->metadata();
     }
 
     public function getXmlExportTailDependencies(
@@ -65,11 +69,8 @@ class ilGlossaryExporter extends ilXmlExporter
                 );
 
                 foreach ($terms as $t) {
-                    $defs = ilGlossaryDefinition::getDefinitionList($t["id"]);
-                    foreach ($defs as $d) {
-                        $page_ids[] = "gdf:" . $d["id"];
-                        $md_ids[] = $id . ":" . $d["id"] . ":gdf";
-                    }
+                    $page_ids[] = "term:" . $t["id"];
+                    $md_ids[] = $id . ":" . $t["id"] . ":term";
                 }
             }
             // definition pages and their metadat
@@ -106,7 +107,7 @@ class ilGlossaryExporter extends ilXmlExporter
                 $rec_ids = $this->getActiveAdvMDRecords($id);
                 if (count($rec_ids)) {
                     foreach ($rec_ids as $rec_id) {
-                        $advmd_ids[] = $id . ":" . $rec_id;
+                        $advmd_ids[] = $id . ":" . $rec_id->getRecordId();
                     }
                 }
             }
@@ -141,6 +142,14 @@ class ilGlossaryExporter extends ilXmlExporter
 
     protected function getActiveAdvMDRecords(int $a_id): array
     {
+        $active = [];
+        foreach (ilObject::_getAllReferences($a_id) as $ref_id) {
+            foreach ($this->metadata->getActiveAdvMDRecords($ref_id) as $rec) {
+                $active[$rec->getRecordId()] = $rec;
+            }
+        }
+        return $active;
+
         $active = array();
         // selected globals
         $sel_globals = ilAdvancedMDRecord::getObjRecSelection($a_id, "term");
@@ -166,6 +175,12 @@ class ilGlossaryExporter extends ilXmlExporter
     public function getValidSchemaVersions(string $a_entity): array
     {
         return array(
+            "9.0.0" => array(
+                "namespace" => "https://www.ilias.de/Modules/Glossary/htlm/9_0",
+                "xsd_file" => "ilias_glo_9_0.xsd",
+                "uses_dataset" => true,
+                "min" => "9.0.0",
+                "max" => ""),
             "5.4.0" => array(
                 "namespace" => "https://www.ilias.de/Modules/Glossary/htlm/5_4",
                 "xsd_file" => "ilias_glo_5_4.xsd",

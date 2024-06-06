@@ -34,10 +34,10 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
 {
     protected static bool $frontend_initialized = false;
 
-    private ILIAS\DI\Container $dic;
-    private ILIAS\HTTP\Services $http;
-    private ilCtrlInterface $ctrl;
-    private ilObjUser $actor;
+    private readonly ILIAS\DI\Container $dic;
+    private readonly ILIAS\HTTP\Services $http;
+    private readonly ilCtrlInterface $ctrl;
+    private readonly ilObjUser $actor;
 
     public function __construct()
     {
@@ -63,42 +63,6 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
             $chatSettings->get('enable_osc', '0') &&
             $DIC->user() && !$DIC->user()->isAnonymous()
         );
-    }
-
-    /**
-     * @param ilChatroomServerSettings $chatSettings
-     * @return array<string, string>
-     */
-    protected static function getEmoticons(ilChatroomServerSettings $chatSettings): array
-    {
-        $smileys = [];
-
-        if ($chatSettings->getSmiliesEnabled()) {
-            $smileys_array = ilChatroomSmilies::_getSmilies();
-            foreach ($smileys_array as $smiley_array) {
-                $new_keys = [];
-                $new_val = '';
-                foreach ($smiley_array as $key => $value) {
-                    if ($key === 'smiley_keywords') {
-                        $new_keys = explode("\n", $value);
-                    }
-
-                    if ($key === 'smiley_fullpath') {
-                        $new_val = $value;
-                    }
-                }
-
-                if (!$new_keys || !$new_val) {
-                    continue;
-                }
-
-                foreach ($new_keys as $new_key) {
-                    $smileys[$new_key] = $new_val;
-                }
-            }
-        }
-
-        return $smileys;
     }
 
     public function executeCommand(): void
@@ -222,7 +186,7 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
             $chatWindowTemplate->setVariable('MINIMIZE_ACTION', $renderer->render(
                 $factory->button()->minimize()
             ));
-            $chatWindowTemplate->setVariable('CONVERSATION_ICON', ilUtil::img(ilUtil::getImagePath('icon_pcht.svg')));
+            $chatWindowTemplate->setVariable('CONVERSATION_ICON', ilUtil::img(ilUtil::getImagePath('standard/icon_pcht.svg')));
 
             $subscriberRepo = new Subscriber($DIC->database(), $DIC->user());
 
@@ -270,8 +234,7 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
                     true,
                     false
                 ),
-                'loaderImg' => ilUtil::getImagePath('loader.svg'),
-                'emoticons' => self::getEmoticons($settings),
+                'loaderImg' => ilUtil::getImagePath('media/loader.svg'),
                 'locale' => $DIC->language()->getLangKey(),
                 'initialUserData' => $subscriberRepo->getInitialUserProfileData(),
                 'enabledBrowserNotifications' => (
@@ -281,7 +244,7 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
                 'broadcast_typing' => (
                     ilUtil::yn2tf((string) $DIC->user()->getPref('chat_broadcast_typing'))
                 ),
-                'notificationIconPath' => ilUtil::getImagePath('icon_chta.png'),
+                'notificationIconPath' => ilUtil::getImagePath('standard/icon_chta.png'),
             ];
 
             $chatConfig = [
@@ -293,7 +256,6 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
 
             $DIC->language()->toJS([
                 'chat_osc_no_usr_found',
-                'chat_osc_emoticons',
                 'chat_osc_write_a_msg',
                 'autocomplete_more',
                 'chat_osc_minimize',

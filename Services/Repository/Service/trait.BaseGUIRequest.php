@@ -123,7 +123,7 @@ trait BaseGUIRequest
                 // keep keys(!), transform all values to string
                 return array_column(
                     array_map(
-                        function ($k, $v): array {
+                        static function ($k, $v): array {
                             if (is_array($v)) {
                                 $v = "";
                             }

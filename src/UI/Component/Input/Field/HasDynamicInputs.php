@@ -28,10 +28,14 @@ use ILIAS\UI\Component\Input\Container\Form\FormInput;
 interface HasDynamicInputs extends FormInput
 {
     /**
-     * Returns the instance of Input which should be used to generate
+     * Returns the instance of Field which should be used to generate
      * dynamic inputs on clientside.
      */
+<<<<<<< HEAD
     public function getTemplateForDynamicInputs(): Input;
+=======
+    public function getTemplateForDynamicInputs(): FormInput;
+>>>>>>> v9.1
 
     /**
      * Returns serverside generated dynamic Inputs, which happens when

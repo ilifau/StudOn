@@ -16,7 +16,10 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\Notes\Service;
+use ILIAS\Blog\ReadingTime\ReadingTimeManager;
 
 /**
  * Blog Data set class
@@ -27,6 +30,7 @@ use ILIAS\Notes\Service;
  */
 class ilBlogDataSet extends ilDataSet
 {
+    protected ReadingTimeManager $reading_time;
     protected Service $notes;
     protected ilObjBlog $current_blog;
     public static array $style_map = array();
@@ -40,18 +44,24 @@ class ilBlogDataSet extends ilDataSet
             ->contentStyle()
             ->domain();
         $this->notes = $DIC->notes();
+        $this->reading_time = $DIC->blog()->internal()->domain()->readingTime();
     }
 
     public function getSupportedVersions(): array
     {
-        return array("4.3.0", "5.0.0", "5.3.0");
+        return array("4.3.0", "5.0.0", "5.3.0", "8.0");
     }
 
     protected function getXmlNamespace(
         string $a_entity,
         string $a_schema_version
     ): string {
-        return "https://www.ilias.de/xml/Modules/Blog/" . $a_entity;
+
+        if ($a_entity === 'blog' || $a_entity == 'blog_posting') {
+            // they share the same xsd, therfore the same namespace
+            return "http://www.ilias.de/xml/Modules/Blog/blog";
+        }
+        return "http://www.ilias.de/xml/Modules/Blog/" . $a_entity;
     }
 
     protected function getTypes(
@@ -131,6 +141,34 @@ class ilBlogDataSet extends ilDataSet
                         "Style" => "integer"
                     );
 
+                case "8.0":
+                    return array(
+                        "Id" => "integer",
+                        "Title" => "text",
+                        "Description" => "text",
+                        "Notes" => "integer",
+                        "BgColor" => "text",
+                        "FontColor" => "text",
+                        "Img" => "text",
+                        "Ppic" => "integer",
+                        "RssActive" => "integer",
+                        "Approval" => "integer",
+                        "Dir" => "directory",
+                        "AbsShorten" => "integer",
+                        "AbsShortenLen" => "integer",
+                        "AbsImage" => "integer",
+                        "AbsImgWidth" => "integer",
+                        "AbsImgHeight" => "integer",
+                        "NavMode" => "integer",
+                        "NavListMonWithPost" => "integer",
+                        "NavListMon" => "integer",
+                        "Keywords" => "integer",
+                        "Authors" => "integer",
+                        "NavOrder" => "text",
+                        "OvPost" => "integer",
+                        "Style" => "integer",
+                        "ReadingTime" => "integer"
+                    );
             }
         }
 
@@ -139,6 +177,7 @@ class ilBlogDataSet extends ilDataSet
                 case "4.3.0":
                 case "5.0.0":
                 case "5.3.0":
+                case "8.0":
                     return array(
                         "Id" => "integer",
                         "BlogId" => "integer",
@@ -200,6 +239,23 @@ class ilBlogDataSet extends ilDataSet
                         " AND od.type = " . $ilDB->quote("blog", "text")
                     );
                     break;
+
+                case "8.0":
+                    $this->getDirectDataFromQuery(
+                        "SELECT bl.id,od.title,od.description," .
+                        "bl.bg_color,bl.font_color,bl.img,bl.ppic,bl.rss_active,bl.approval," .
+                        "bl.abs_shorten,bl.abs_shorten_len,bl.abs_image,bl.abs_img_width,bl.abs_img_height," .
+                        "bl.nav_mode,bl.nav_list_mon_with_post,bl.nav_list_mon,bl.keywords,bl.authors,bl.nav_order," .
+                        "bl.ov_post" .
+                        " FROM il_blog bl" .
+                        " JOIN object_data od ON (od.obj_id = bl.id)" .
+                        " WHERE " . $ilDB->in("bl.id", $a_ids, false, "integer") .
+                        " AND od.type = " . $ilDB->quote("blog", "text")
+                    );
+                    foreach ($this->data as $idx => $item) {
+                        $this->data[$idx]["ReadingTime"] = (int) $this->reading_time->isActivated((int) $item["Id"]);
+                    }
+                    break;
             }
         }
 
@@ -208,6 +264,7 @@ class ilBlogDataSet extends ilDataSet
                 case "4.3.0":
                 case "5.0.0":
                 case "5.3.0":
+                case "8.0":
                     $this->getDirectDataFromQuery(
                         "SELECT id,blog_id,title,created,author,approved,last_withdrawn" .
                         " FROM il_blog_posting WHERE " .
@@ -215,7 +272,7 @@ class ilBlogDataSet extends ilDataSet
                     );
                     foreach ($this->data as $idx => $item) {
                         // create full export id
-                        $this->data[$idx]["Author"] = $this->createObjectExportId("usr", $item["Author"]);
+                        $this->data[$idx]["Author"] = $this->createObjectExportId("usr", (string) $item["Author"]);
                     }
                     break;
             }
@@ -280,7 +337,7 @@ class ilBlogDataSet extends ilDataSet
 
                 // container copy
                 if ($new_id = $a_mapping->getMapping("Services/Container", "objs", $a_rec["Id"])) {
-                    $newObj = ilObjectFactory::getInstanceByObjId($new_id, false);
+                    $newObj = ilObjectFactory::getInstanceByObjId((int) $new_id, false);
                 } else {
                     $newObj = new ilObjBlog();
                     $newObj->create();
@@ -298,7 +355,7 @@ class ilBlogDataSet extends ilDataSet
 
                 $newObj->setAbstractShorten((bool) ($a_rec["AbsShorten"] ?? false));
                 $newObj->setAbstractShortenLength((int) ($a_rec["AbsShortenLen"] ?? 0));
-                $newObj->setAbstractImage((int) ($a_rec["AbsImage"] ?? 0));
+                $newObj->setAbstractImage((bool) ($a_rec["AbsImage"] ?? 0));
                 $newObj->setAbstractImageWidth((int) ($a_rec["AbsImgWidth"] ?? 0));
                 $newObj->setAbstractImageHeight((int) ($a_rec["AbsImgHeight"] ?? 0));
                 $newObj->setNavMode((int) ($a_rec["NavMode"] ?? 0));
@@ -339,7 +396,11 @@ class ilBlogDataSet extends ilDataSet
                 if ($a_rec["Style"] ?? false) {
                     self::$style_map[$a_rec["Style"]][] = $newObj->getId();
                 }
-                $a_mapping->addMapping("Modules/Blog", "blog", $a_rec["Id"], $newObj->getId());
+
+                // reading time
+                $this->reading_time->activate($newObj->getId(), (bool) ($a_rec["ReadingTime"] ?? false));
+
+                $a_mapping->addMapping("Modules/Blog", "blog", $a_rec["Id"], (string) $newObj->getId());
                 break;
 
             case "blog_posting":
@@ -349,11 +410,11 @@ class ilBlogDataSet extends ilDataSet
                     $newObj->setBlogId($blog_id);
                     $newObj->setTitle($a_rec["Title"] ?? "");
                     $newObj->setCreated(new ilDateTime($a_rec["Created"] ?? null, IL_CAL_DATETIME));
-                    $newObj->setApproved($a_rec["Approved"] ?? null);
+                    $newObj->setApproved((bool) ($a_rec["Approved"] ?? null));
                     $newObj->setWithdrawn(new ilDateTime($a_rec["LastWithdrawn"] ?? null, IL_CAL_DATETIME));
 
                     // parse export id into local id (if possible)
-                    $author = $this->parseObjectExportId($a_rec["Author"] ?? "", -1);
+                    $author = $this->parseObjectExportId($a_rec["Author"] ?? "", "-1");
                     $newObj->setAuthor((int) $author["id"]);
 
                     $newObj->create(true);

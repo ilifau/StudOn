@@ -96,7 +96,6 @@ abstract class ilWaitingList
         return $this->obj_id;
     }
 
-    
     public function addToList(int $a_usr_id): bool
     {
         if ($this->isOnList($a_usr_id)) {
@@ -361,13 +360,14 @@ abstract class ilWaitingList
             "WHERE obj_id = " . $ilDB->quote($this->getObjId(), 'integer');
 
         $res = $this->db->query($query);
-
+        $counter = 0;
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
-            $this->users[$row->usr_id]['time'] = $row->sub_time;
-            $this->users[$row->usr_id]['usr_id'] = $row->usr_id;
+            $this->users[(int) $row->usr_id]['position'] = $counter;
+            $this->users[(int) $row->usr_id]['time'] = (int) $row->sub_time;
+            $this->users[(int) $row->usr_id]['usr_id'] = (int) $row->usr_id;
             $this->users[$row->usr_id]['subject'] = $row->subject;
             $this->users[$row->usr_id]['to_confirm'] = $row->to_confirm;
-            $this->users[$row->usr_id]['module_id'] = $row->module_id;
+            $this->users[$row->usr_id]['module_id'] = (int) $row->module_id;
         }
         $this->recalculate();
         // fau.

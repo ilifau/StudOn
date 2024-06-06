@@ -96,7 +96,7 @@ abstract class ilCmiXapiAbstractRequest
         }
 
         if ($encoding === false) {
-            $encoder = fn ($str) => $str;
+            $encoder = fn($str) => $str;
         } elseif ($encoding === PHP_QUERY_RFC3986) {
             $encoder = 'rawurlencode';
         } elseif ($encoding === PHP_QUERY_RFC1738) {

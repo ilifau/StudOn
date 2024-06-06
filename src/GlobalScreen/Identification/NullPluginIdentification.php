@@ -83,9 +83,12 @@ class NullPluginIdentification implements IdentificationInterface
         return $this->plugin_id;
     }
 
+<<<<<<< HEAD
     /**
      * @return array{data: string}
      */
+=======
+>>>>>>> v9.1
     public function __serialize(): array
     {
         return ['data' => $this->serialize()];

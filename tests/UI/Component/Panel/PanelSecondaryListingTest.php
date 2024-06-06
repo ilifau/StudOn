@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -71,7 +79,11 @@ class PanelSecondaryListingTest extends ILIAS_UI_TestBase
         return trim($html);
     }
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $secondary_panel = $this->getUIFactory()->panelSecondary()->listing("List Title", array(
 
@@ -87,7 +99,11 @@ class PanelSecondaryListingTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Panel\\Secondary\\Listing", $secondary_panel);
     }
 
+<<<<<<< HEAD
     public function test_get_title(): void
+=======
+    public function testGetTitle(): void
+>>>>>>> v9.1
     {
         $groups = array(
             new I\Component\Item\Group("Subtitle 1", array(
@@ -104,7 +120,11 @@ class PanelSecondaryListingTest extends ILIAS_UI_TestBase
         $this->assertEquals("title", $c->getTitle());
     }
 
+<<<<<<< HEAD
     public function test_get_item_groups(): void
+=======
+    public function testGetItemGroups(): void
+>>>>>>> v9.1
     {
         $groups = array(
             new I\Component\Item\Group("Subtitle 1", array(
@@ -121,7 +141,11 @@ class PanelSecondaryListingTest extends ILIAS_UI_TestBase
         $this->assertEquals($c->getItemGroups(), $groups);
     }
 
+<<<<<<< HEAD
     public function test_with_actions(): void
+=======
+    public function testWithActions(): void
+>>>>>>> v9.1
     {
         $actions = new I\Component\Dropdown\Standard(array(
             new I\Component\Button\Shy("ILIAS", "https://www.ilias.de"),
@@ -138,7 +162,11 @@ class PanelSecondaryListingTest extends ILIAS_UI_TestBase
 
     //RENDER
 
+<<<<<<< HEAD
     public function test_render_with_actions(): void
+=======
+    public function testRenderWithActions(): void
+>>>>>>> v9.1
     {
         $actions = $this->getUIFactory()->dropdown()->standard(array(
             $this->getUIFactory()->button()->shy("ILIAS", "https://www.ilias.de"),
@@ -151,6 +179,7 @@ class PanelSecondaryListingTest extends ILIAS_UI_TestBase
 
         $expected_html = <<<EOT
 <div class="panel panel-secondary panel-flex">
+<<<<<<< HEAD
 	<div class="panel-heading ilHeader">
 		<h2>Title</h2>
 		<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"> <span class="caret"></span></button>
@@ -162,15 +191,34 @@ class PanelSecondaryListingTest extends ILIAS_UI_TestBase
 	</div>
 	<div class="panel-body">
 	</div>
+=======
+    <div class="panel-heading ilHeader">
+        <div class="panel-title"><h2>Title</h2></div>
+        <div class="panel-controls">
+            <div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"><span class="caret"></span></button>
+                <ul id="id_3_menu" class="dropdown-menu">
+                    <li><button class="btn btn-link" data-action="https://www.ilias.de" id="id_1">ILIAS</button></li>
+                    <li><button class="btn btn-link" data-action="https://www.github.com" id="id_2">Github</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+    </div>
+>>>>>>> v9.1
 </div>
 EOT;
-        $this->assertHTMLEquals(
-            $this->cleanHTML($expected_html),
-            $this->cleanHTML($html)
+        $this->assertEquals(
+            $this->brutallyTrimHTML($expected_html),
+            $this->brutallyTrimHTML($html)
         );
     }
 
+<<<<<<< HEAD
     public function test_render_with_sortation(): void
+=======
+    public function testRenderWithSortation(): void
+>>>>>>> v9.1
     {
         $sort_options = array(
             'a' => 'A',
@@ -184,6 +232,7 @@ EOT;
 
         $expected_html = <<<EOT
 <div class="panel panel-secondary panel-flex">
+<<<<<<< HEAD
 	<div class="panel-heading ilHeader">
 		<h2>Title</h2>
 		<div class="il-viewcontrol-sortation" id="id_1">
@@ -200,15 +249,40 @@ EOT;
 	</div>
 	<div class="panel-body">
 	</div>
+=======
+    <div class="panel-heading ilHeader">
+        <div class="panel-title"><h2>Title</h2></div>
+        <div class="panel-viewcontrols l-bar__space-keeper">
+            <div class="il-viewcontrol-sortation l-bar__element" id="id_1">
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_4" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_4_menu">
+                        <span class="caret"></span>
+                    </button>
+                    <ul id="id_4_menu" class="dropdown-menu">
+                        <li><button class="btn btn-link" data-action="?sortation=a" id="id_2">A</button></li>
+                        <li><button class="btn btn-link" data-action="?sortation=b" id="id_3">B</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="panel-controls"></div>
+    </div>
+    <div class="panel-body">
+    </div>
+>>>>>>> v9.1
 </div>
 EOT;
-        $this->assertHTMLEquals(
-            $this->cleanHTML($expected_html),
-            $this->cleanHTML($html)
+        $this->assertEquals(
+            $this->brutallyTrimHTML($expected_html),
+            $this->brutallyTrimHTML($html)
         );
     }
 
+<<<<<<< HEAD
     public function test_render_with_pagination(): void
+=======
+    public function testRenderWithPagination(): void
+>>>>>>> v9.1
     {
         $pagination = $this->getUIFactory()->viewControl()->pagination()
             ->withTargetURL('http://ilias.de', 'page')
@@ -223,6 +297,7 @@ EOT;
 
         $expected_html = <<<EOT
 <div class="panel panel-secondary panel-flex">
+<<<<<<< HEAD
 	<div class="panel-heading ilHeader">
 		<h2>Title</h2>
 		<div class="il-viewcontrol-pagination">
@@ -245,15 +320,46 @@ EOT;
 	</div>
 	<div class="panel-body">
 	</div>
+=======
+    <div class="panel-heading ilHeader">
+        <div class="panel-title"><h2>Title</h2></div>
+        <div class="panel-viewcontrols l-bar__space-keeper">
+            <div class="il-viewcontrol-pagination l-bar__element">
+                <span class="btn btn-ctrl browse previous">
+                    <a tabindex="0" class="glyph" href="http://ilias.de?page=0" aria-label="back">
+                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    </a>
+                </span>
+                <button class="btn btn-link" data-action="http://ilias.de?page=0" id="id_1">1</button>
+                <button class="btn btn-link engaged" aria-pressed="true" data-action="http://ilias.de?page=1" id="id_2">2</button>
+                <button class="btn btn-link" data-action="http://ilias.de?page=2" id="id_3">3</button>
+                <button class="btn btn-link" data-action="http://ilias.de?page=3" id="id_4">4</button>
+                <button class="btn btn-link" data-action="http://ilias.de?page=4" id="id_5">5</button>
+                <span class="btn btn-ctrl browse next">
+                    <a tabindex="0" class="glyph" href="http://ilias.de?page=2" aria-label="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="panel-controls"></div>
+    </div>
+    <div class="panel-body">
+    </div>
+>>>>>>> v9.1
 </div>
 EOT;
-        $this->assertHTMLEquals(
-            $this->cleanHTML($expected_html),
-            $this->cleanHTML($html)
+        $this->assertEquals(
+            $this->brutallyTrimHTML($expected_html),
+            $this->brutallyTrimHTML($html)
         );
     }
 
+<<<<<<< HEAD
     public function test_render_with_section(): void
+=======
+    public function testRenderWithSection(): void
+>>>>>>> v9.1
     {
         $back = $this->getUIFactory()->button()->standard("previous", "http://www.ilias.de");
         $next = $this->getUIFactory()->button()->standard("next", "http://www.github.com");
@@ -267,30 +373,35 @@ EOT;
 
         $expected_html = <<<EOT
 <div class="panel panel-secondary panel-flex">
-	<div class="panel-heading ilHeader">
-		<h2>Title</h2>
-		<div class="il-viewcontrol-section">
-			<a class="btn btn-default " href="http://www.ilias.de" aria-label="previous" data-action="http://www.ilias.de" id="id_1">
-				<span class="glyphicon glyphicon-chevron-left"></span>
-			</a>
-			<button class="btn btn-default" data-action="">
-				current
-			</button>
-			<a class="btn btn-default " href="http://www.github.com" aria-label="next" data-action="http://www.github.com" id="id_2">
-				<span class="glyphicon glyphicon-chevron-right"></span>
-			</a>
-		</div>
-	</div>
-	<div class="panel-body">
-	</div>
+    <div class="panel-heading ilHeader">
+        <div class="panel-title"><h2>Title</h2></div>
+        <div class="panel-viewcontrols l-bar__space-keeper">
+            <div class="il-viewcontrol-section l-bar__element">
+                <a class="btn btn-ctrl browse previous" href="http://www.ilias.de" aria-label="previous" data-action="http://www.ilias.de" id="id_1">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                </a>
+                <button class="btn btn-default" data-action="">current</button>
+                <a class="btn btn-ctrl browse next" href="http://www.github.com" aria-label="next" data-action="http://www.github.com" id="id_2">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </a>
+            </div>
+        </div>
+        <div class="panel-controls"></div>
+    </div>
+    <div class="panel-body">
+    </div>
 </div>
 EOT;
-        $this->assertHTMLEquals(
-            $this->cleanHTML($expected_html),
-            $this->cleanHTML($html)
+        $this->assertEquals(
+            $this->brutallyTrimHTML($expected_html),
+            $this->brutallyTrimHTML($html)
         );
     }
+<<<<<<< HEAD
     public function test_render_with_footer(): void
+=======
+    public function testRenderWithFooter(): void
+>>>>>>> v9.1
     {
         $footer_shy_button = $this->getUIFactory()->button()->shy("Action", "");
         $secondary_panel = $this->getUIFactory()->panelSecondary()->listing("", array())->withFooter($footer_shy_button);
@@ -310,7 +421,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_with_no_header_but_content(): void
+=======
+    public function testRenderWithNoHeaderButContent(): void
+>>>>>>> v9.1
     {
         $group = new I\Component\Item\Group(
             "Subtitle 1",
@@ -332,12 +447,20 @@ EOT;
         <ul>
             <li class="il-std-item-container">
               <div class="il-item il-std-item ">
+<<<<<<< HEAD
                 <div class="il-item-title">title1</div>
+=======
+                <h4 class="il-item-title">title1</h4>
+>>>>>>> v9.1
               </div>
             </li>
             <li class="il-std-item-container">
               <div class="il-item il-std-item ">
+<<<<<<< HEAD
                 <div class="il-item-title">title2</div>
+=======
+                <h4 class="il-item-title">title2</h4>
+>>>>>>> v9.1
               </div>
             </li>
         </ul>
@@ -352,7 +475,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_with_no_header_no_content_no_footer(): void
+=======
+    public function testRenderWithNoHeaderNoContentNoFooter(): void
+>>>>>>> v9.1
     {
         $secondary_panel = $this->getUIFactory()->panelSecondary()->listing("", array());
 

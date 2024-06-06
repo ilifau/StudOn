@@ -20,8 +20,6 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestSuite;
 
-require_once __DIR__ . '/bootstrap.php';
-
 /**
  * Class ilServicesCronSuite
  * @author Michael Jansen <mjansen@databay.de>
@@ -29,7 +27,6 @@ require_once __DIR__ . '/bootstrap.php';
 class ilServicesCronSuite extends TestSuite
 {
     /**
-     * @return self
      * @throws ReflectionException
      */
     public static function suite(): self

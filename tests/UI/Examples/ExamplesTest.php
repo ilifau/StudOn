@@ -37,6 +37,9 @@ class ExamplesTest extends ILIAS_UI_TestBase
     public function setUp(): void
     {
         //This avoids various index not set warnings, which are only relevant in test context.
+        $_SERVER["REQUEST_SCHEME"] = "http";
+        $_SERVER["SERVER_NAME"] = "localhost";
+        $_SERVER["SERVER_PORT"] = "80";
         $_SERVER["REQUEST_URI"] = "";
         $_SERVER['SCRIPT_NAME'] = "";
         $_SERVER['QUERY_STRING'] = "param=1";
@@ -87,6 +90,8 @@ class ExamplesTest extends ILIAS_UI_TestBase
         $component_factory->method("getActivePluginsInSlot")->willReturn(new ArrayIterator());
         $this->dic["component.factory"] = $component_factory;
 
+        $this->dic["help.text_retriever"] = new ILIAS\UI\Help\TextRetriever\Echoing();
+
         (new InitHttpServices())->init($this->dic);
     }
 
@@ -99,6 +104,9 @@ class ExamplesTest extends ILIAS_UI_TestBase
         $DIC = $this->dic;
 
         foreach ($this->getEntriesFromCrawler() as $entry) {
+            if ($entry->getNamespace() === "\ILIAS\UI\Help\Topic[]") {
+                continue;
+            }
             if (!$entry->isAbstract()) {
                 $this->assertGreaterThan(
                     0,
@@ -111,7 +119,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider provideExampleFullFunctionNamesAndPath
+     * @dataProvider getFullFunctionNamesAndPathExample
      */
     public function testAllExamplesRenderAString(string $example_function_name, string $example_path): void
     {
@@ -135,7 +143,11 @@ class ExamplesTest extends ILIAS_UI_TestBase
         return $crawler->crawlFactory($this->path_to_base_factory);
     }
 
+<<<<<<< HEAD
     public function provideExampleFullFunctionNamesAndPath(): array
+=======
+    public function getFullFunctionNamesAndPathExample(): array
+>>>>>>> v9.1
     {
         $function_names = [];
         foreach ($this->getEntriesFromCrawler() as $entry) {
@@ -150,7 +162,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider provideListOfFullscreenExamples
+     * @dataProvider getListOfFullscreenExamples
      */
     public function testFullscreenModeExamples(string $example_function_name, string $example_path): void
     {
@@ -165,7 +177,11 @@ class ExamplesTest extends ILIAS_UI_TestBase
         }
     }
 
+<<<<<<< HEAD
     public function provideListOfFullscreenExamples(): array
+=======
+    public function getListOfFullscreenExamples(): array
+>>>>>>> v9.1
     {
         return [
             ['ILIAS\UI\examples\MainControls\Footer\renderFooterInFullscreenMode', "src/UI/examples/MainControls/Footer/footer.php"],
@@ -173,7 +189,8 @@ class ExamplesTest extends ILIAS_UI_TestBase
             ['ILIAS\UI\examples\MainControls\MetaBar\renderMetaBarInFullscreenMode', "src/UI/examples/MainControls/MetaBar/base_metabar.php"],
             ['ILIAS\UI\examples\Layout\Page\Standard\getUIMainbarExampleCondensed', "src/UI/examples/Layout/Page/Standard/ui_mainbar.php"],
             ['ILIAS\UI\examples\Layout\Page\Standard\getUIMainbarExampleFull', "src/UI/examples/Layout/Page/Standard/ui_mainbar.php"],
-            ['ILIAS\UI\examples\Layout\Page\Standard\renderFooterInFullscreenMode', "src/UI/examples/Layout/Page/Standard/ui.php"]
+            ['ILIAS\UI\examples\Layout\Page\Standard\ui', "src/UI/examples/Layout/Page/Standard/ui.php"],
+            ['ILIAS\UI\examples\MainControls\ModeInfo\renderModeInfoFullscreenMode', "src/UI/examples/MainControls/ModeInfo/modeinfo.php"]
         ];
     }
 }

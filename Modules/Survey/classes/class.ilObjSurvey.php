@@ -18,6 +18,7 @@
 
 use ILIAS\Survey\Participants;
 use ILIAS\Survey\Mode;
+use ILIAS\Survey\InternalDomainService;
 
 /**
  * @author		Helmut Schottmüller <helmut.schottmueller@mac.com>
@@ -60,7 +61,7 @@ class ilObjSurvey extends ilObject
     public const NOTIFICATION_APPRAISEES = 3;
     public const NOTIFICATION_RATERS = 4;
     public const NOTIFICATION_APPRAISEES_AND_RATERS = 5;
-
+    protected InternalDomainService $domain;
 
     protected ilLogger $svy_log;
     protected bool $activation_limited = false;
@@ -139,6 +140,7 @@ class ilObjSurvey extends ilObject
     protected \ILIAS\Survey\InternalDataService $data_manager;
     protected ?Mode\FeatureConfig $feature_config;
     protected \ILIAS\SurveyQuestionPool\Export\ImportManager $import_manager;
+    protected ilMailTemplatePlaceholderResolver $placeholder_resolver;
 
     public function __construct(
         int $a_id = 0,
@@ -181,10 +183,12 @@ class ilObjSurvey extends ilObject
             ->internal()
             ->domain()
             ->import();
+        $this->placeholder_resolver = $DIC->mail()->placeholderResolver();
 
         parent::__construct($a_id, $a_call_by_reference);
         $this->svy_log = ilLoggerFactory::getLogger("svy");
         $this->initServices();
+        $this->domain = $DIC->survey()->internal()->domain();
     }
 
     protected function initServices(): void
@@ -319,7 +323,9 @@ class ilObjSurvey extends ilObject
         );
         $this->deleteAllUserData(false);
 
-        $this->code_manager->deleteAll(true);
+        if (isset($this->code_manager)) {
+            $this->code_manager->deleteAll(true);
+        }
 
         // delete export files
         $svy_data_dir = ilFileUtils::getDataDir() . "/svy_data";
@@ -496,6 +502,11 @@ class ilObjSurvey extends ilObject
         return ($this->getTitle() && count($this->questions));
     }
 
+    public function hasQuestions(): bool
+    {
+        return count($this->questions);
+    }
+
     /**
      * Saves the completion status of the survey
      * @todo move to survey manager/repo
@@ -604,7 +615,6 @@ class ilObjSurvey extends ilObject
             $this
         );
 
-
         $ilDB = $this->db;
         $result = $ilDB->queryF(
             "SELECT svy_qblk.title, svy_qblk.show_questiontext, svy_qblk.show_blocktitle," .
@@ -622,13 +632,10 @@ class ilObjSurvey extends ilObject
         $title = "";
         $this->svy_log->debug("insert block, original id: " . $questionblock_id);
         while ($row = $ilDB->fetchAssoc($result)) {
-            $this->svy_log->debug("question: " . $row["question_fi"]);
-            $duplicate_id = $sequence_manager->appendQuestion($row["question_fi"], true);
             //$duplicate_id = $this->duplicateQuestionForSurvey($row["question_fi"]);
-            $this->svy_log->debug("question copy: " . $duplicate_id);
+            $duplicate_id = $sequence_manager->appendQuestion($row["question_fi"], true);
             $questions[] = $duplicate_id;
             $title = (string) $row["title"];
-            $this->svy_log->debug("title: " . $title);
             $show_questiontext = (bool) $row["show_questiontext"];
             $show_blocktitle = (bool) $row["show_blocktitle"];
         }
@@ -1022,10 +1029,10 @@ class ilObjSurvey extends ilObject
             $this->setReminderLastSent((string) $data["reminder_last_sent"]);
             $this->setReminderTemplate((int) $data["reminder_tmpl"]);
             $this->setTutorNotificationStatus($data["tutor_ntf_status"]);
-            $this->setTutorNotificationRecipients(explode(";", $data["tutor_ntf_reci"]));
+            $this->setTutorNotificationRecipients(explode(";", $data["tutor_ntf_reci"] ?? ""));
             $this->setTutorNotificationTarget($data["tutor_ntf_target"]);
             $this->setTutorResultsStatus((bool) $data["tutor_res_status"]);
-            $this->setTutorResultsRecipients(explode(";", $data["tutor_res_reci"]));
+            $this->setTutorResultsRecipients(explode(";", $data["tutor_res_reci"] ?? ""));
 
             $this->setViewOwnResults((bool) $data["own_results_view"]);
             $this->setMailOwnResults((bool) $data["own_results_mail"]);
@@ -1832,9 +1839,7 @@ class ilObjSurvey extends ilObject
         while ($row = $ilDB->fetchAssoc($result)) {
             $add = true;
             if ($row["plugin"]) {
-                if (!$this->isPluginActive($row["type_tag"])) {
-                    $add = false;
-                }
+                $add = false;
             }
             if ($add) {
                 $question = self::_instanciateQuestion($row["question_id"]);
@@ -2353,7 +2358,6 @@ class ilObjSurvey extends ilObject
 
         // self eval writes skills on finishing
         if ($this->getMode() === self::MODE_IND_FEEDB) {
-
             // we use a rater id like "a27" for anonymous or
             // "123" for non anonymous user
             // @todo: move this e.g. to participant manager
@@ -2422,7 +2426,7 @@ class ilObjSurvey extends ilObject
 
         //mailaddresses is just text split by commas.
         //sendMail can send emails if it gets an user id or an email as first parameter.
-        $recipients = explode(",", $this->mailaddresses);
+        $recipients = explode(",", $this->mailaddresses ?? "");
         foreach ($recipients as $recipient) {
             // #11298
             $ntf = new ilSystemNotification();
@@ -2432,7 +2436,7 @@ class ilObjSurvey extends ilObject
 
             $messagetext = $this->mailparticipantdata;
             $data = [];
-            if (trim($messagetext)) {
+            if (trim($messagetext ?? "")) {
                 if (!$this->hasAnonymizedResults()) {
                     $data = ilObjUser::_getUserData(array($a_user_id));
                     $data = $data[0];
@@ -2441,7 +2445,7 @@ class ilObjSurvey extends ilObject
                     if ($this->hasAnonymizedResults()) { // #16480
                         $messagetext = str_replace('[' . $key . ']', '', $messagetext);
                     } else {
-                        $messagetext = str_replace('[' . $key . ']', trim($data[$mapping]), $messagetext);
+                        $messagetext = str_replace('[' . $key . ']', trim($data[$mapping] ?? ""), $messagetext);
                     }
                 }
                 $ntf->setIntroductionDirect($messagetext);
@@ -2467,7 +2471,7 @@ class ilObjSurvey extends ilObject
             $ntf->setGotoLangId('survey_notification_tutor_link');
             $ntf->setReasonLangId('survey_notification_finished_reason');
 
-            $recipient = trim($recipient);
+            $recipient = trim($recipient ?? "");
             $user_id = (int) ilObjUser::_lookupId($recipient);
             if ($user_id > 0) {
                 $ntf->sendMailAndReturnRecipients([$user_id]);
@@ -2880,9 +2884,7 @@ class ilObjSurvey extends ilObject
 
                 $row['ttype'] = $trans[$row['type_tag']];
                 if ($row["plugin"]) {
-                    if ($this->isPluginActive($row["type_tag"])) {
-                        $rows[] = $row;
-                    }
+                    continue;
                 } else {
                     $rows[] = $row;
                 }
@@ -3092,7 +3094,7 @@ class ilObjSurvey extends ilObject
                 }
             }
             foreach ($question_array as $question) {
-                if (strlen($question["heading"])) {
+                if (strlen($question["heading"] ?? "")) {
                     $a_xml_writer->xmlElement("textblock", null, $question["heading"]);
                 }
                 $questionObject = self::_instanciateQuestion($question["question_id"]);
@@ -3226,7 +3228,7 @@ class ilObjSurvey extends ilObject
             if ($isZip) {
                 $importfile = $import_dir . "/" . $file_info["name"];
                 ilFileUtils::moveUploadedFile($source, $file_info["name"], $importfile);
-                ilFileUtils::unzip($importfile);
+                $this->domain->resources()->zip()->unzipFile($importfile);
                 $found = $this->locateImportFiles($import_dir);
                 if (!((strlen($found["dir"]) > 0) && (strlen($found["xml"]) > 0))) {
                     $error = $this->lng->txt("wrong_import_file_structure");
@@ -3642,7 +3644,7 @@ class ilObjSurvey extends ilObject
             $item[] = $row["survey_key"];
 
             if ($row["externaldata"]) {
-                $ext = unserialize($row["externaldata"], ['allowed_classes' => false]);
+                $ext = unserialize((string) $row["externaldata"], ['allowed_classes' => false]);
                 $item[] = $ext["email"];
                 $item[] = $ext["lastname"];
                 $item[] = $ext["firstname"];
@@ -3723,7 +3725,7 @@ class ilObjSurvey extends ilObject
                 );
 
                 if ($row["externaldata"]) {
-                    $ext = unserialize($row["externaldata"], ['allowed_classes' => false]);
+                    $ext = unserialize((string) $row["externaldata"], ['allowed_classes' => false]);
                     $item['email'] = $ext['email'];
                     $item['last_name'] = $ext['lastname'];
                     $item['first_name'] = $ext['firstname'];
@@ -3879,7 +3881,7 @@ class ilObjSurvey extends ilObject
                 continue;
             }
 
-            $externaldata = unserialize($row['externaldata'], ['allowed_classes' => false]);
+            $externaldata = unserialize((string) $row['externaldata'], ['allowed_classes' => false]);
             if (!$externaldata['email']) {
                 continue;
             }
@@ -4090,19 +4092,6 @@ class ilObjSurvey extends ilObject
             }
         }
         return false;
-    }
-
-    /**
-     * @todo deprecate / abandon
-     */
-    public function isPluginActive(string $a_pname): bool
-    {
-        $ilPluginAdmin = $this->plugin_admin;
-        if ($ilPluginAdmin->isActive(ilComponentInfo::TYPE_MODULES, "SurveyQuestionPool", "svyq", $a_pname)) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public function setSurveyId(int $survey_id): void
@@ -4539,7 +4528,10 @@ class ilObjSurvey extends ilObject
 
             // send notification and add to desktop
             if ($access->checkAccessOfUser($a_user_id, "read", "", $this->getRefId())) {
-                $this->sendRaterNotification($a_user_id, $a_appraisee_id);
+                // out-commented, since adding raters will end in a mail
+                // form to send the mail "manually"
+                // otherwise two mails would be sent (tested in individual feedback)
+                //$this->sendRaterNotification($a_user_id, $a_appraisee_id);
             }
         }
     }
@@ -5165,7 +5157,6 @@ class ilObjSurvey extends ilObject
         $ilDB = $this->db;
 
         if ($this->getTutorNotificationStatus()) {
-
             // get target users, either parent course/group members or
             // user with the survey on the dashboard
             $user_ids = $this->getNotificationTargetUserIds(($this->getTutorNotificationTarget() === self::NOTIFICATION_INVITED_USERS));
@@ -5462,7 +5453,7 @@ class ilObjSurvey extends ilObject
         if ($this->getReminderTemplate() &&
             array_key_exists($this->getReminderTemplate(), $this->getReminderMailTemplates())) {
             /** @var \ilMailTemplateService $templateService */
-            $templateService = $DIC['mail.texttemplates.service'];
+            $templateService = $DIC->mail()->textTemplates();
             $tmpl = $templateService->loadTemplateForId($this->getReminderTemplate());
 
             $tmpl_params = array(
@@ -5592,8 +5583,7 @@ class ilObjSurvey extends ilObject
 
         $res = array();
 
-        /** @var \ilMailTemplateService $templateService */
-        $templateService = $DIC['mail.texttemplates.service'];
+        $templateService = $DIC->mail()->textTemplates();
         foreach ($templateService->loadTemplatesForContextId(ilSurveyMailTemplateReminderContext::ID) as $tmpl) {
             $res[$tmpl->getTplId()] = $tmpl->getTitle();
             if (null !== $defaultTemplateId && $tmpl->isDefault()) {
@@ -5615,8 +5605,7 @@ class ilObjSurvey extends ilObject
 
             $user = new \ilObjUser($a_user_id);
 
-            $processor = new \ilMailTemplatePlaceholderResolver($context, $a_message);
-            $a_message = $processor->resolve($user, $a_context_params);
+            $a_message = $this->placeholder_resolver->resolve($context, $a_message, $user, $a_context_params);
         } catch (\Exception $e) {
             ilLoggerFactory::getLogger('mail')->error(__METHOD__ . ' has been called with invalid context.');
         }

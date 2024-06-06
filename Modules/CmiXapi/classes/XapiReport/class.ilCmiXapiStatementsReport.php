@@ -148,9 +148,9 @@ class ilCmiXapiStatementsReport
 
     protected function fetchVerbDisplay(array $statement): string
     {
-        if (isset($statement['verb']['display']['en-US'])) {
+        try {
             return $statement['verb']['display']['en-US'];
-        } else {
+        } catch (Exception $e) {
             return $statement['verb']['id'];
         }
     }

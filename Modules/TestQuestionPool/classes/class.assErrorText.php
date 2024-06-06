@@ -30,7 +30,7 @@ require_once './Modules/Test/classes/inc.AssessmentConstants.php';
  *
  * @ingroup		ModulesTestQuestionPool
  */
-class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable, ilObjAnswerScoringAdjustable, iQuestionCondition
+class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable, ilObjAnswerScoringAdjustable, iQuestionCondition, ilAssQuestionLMExportable, ilAssQuestionAutosaveable
 {
     protected const ERROR_TYPE_WORD = 1;
     protected const ERROR_TYPE_PASSAGE = 2;
@@ -186,7 +186,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
             $this->setOwner($data["owner"]);
             $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc((string) $data["question_text"], 1));
             $this->setErrorText((string) $data["errortext"]);
-            $this->setParsedErrorText(json_decode($data['parsed_errortext'], true) ?? []);
+            $this->setParsedErrorText(json_decode($data['parsed_errortext'] ?? json_encode([]), true));
             $this->setTextSize($data["textsize"]);
             $this->setPointsWrong($data["points_wrong"]);
 
@@ -207,6 +207,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
             ['integer'],
             [$question_id]
         );
+
         if ($db_error_text->numRows() > 0) {
             while ($data = $this->db->fetchAssoc($db_error_text)) {
                 $this->errordata[] = new assAnswerErrorText(
@@ -251,7 +252,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
     /**
     * Duplicates the object
     */
-    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", int $owner = -1, $testObjId = null): int
     {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
@@ -262,7 +263,8 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
         $thisObjId = $this->getObjId();
 
         $clone = $this;
-        $original_id = assQuestion::_getOriginalId($this->id);
+
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->id = -1;
 
         if ((int) $testObjId > 0) {
@@ -308,7 +310,8 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
         $thisObjId = $this->getObjId();
 
         $clone = $this;
-        $original_id = assQuestion::_getOriginalId($this->id);
+
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->id = -1;
         $clone->setObjId($target_questionpool_id);
         if ($title) {
@@ -484,9 +487,9 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
     /**
      * {@inheritdoc}
      */
-    public function setExportDetailsXLS(ilAssExcelFormatHelper $worksheet, int $startrow, int $active_id, int $pass): int
+    public function setExportDetailsXLSX(ilAssExcelFormatHelper $worksheet, int $startrow, int $col, int $active_id, int $pass): int
     {
-        parent::setExportDetailsXLS($worksheet, $startrow, $active_id, $pass);
+        parent::setExportDetailsXLSX($worksheet, $startrow, $col, $active_id, $pass);
 
         $i = 0;
         $selections = [];
@@ -498,7 +501,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
         }
         $errortext = $this->createErrorTextExport($selections);
         $i++;
-        $worksheet->setCell($startrow + $i, 2, $errortext);
+        $worksheet->setCell($startrow + $i, $col + 2, $errortext);
         $i++;
 
         return $startrow + $i + 1;
@@ -562,7 +565,6 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
                 ) {
                     return $error->withPosition($position);
                 }
-
             }
         }
 
@@ -639,7 +641,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
     ): string {
         $output_array = [];
         foreach ($this->getParsedErrorText() as $paragraph) {
-            $array_reduce_function = fn (?string $carry, int $position)
+            $array_reduce_function = fn(?string $carry, int $position)
                 => $carry . $this->generateOutputStringFromPosition(
                     $position,
                     $selections,
@@ -768,7 +770,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
 
             $selections[] = $position;
             if ($position_data['length'] > 1) {
-                for ($i=1;$i<$position_data['length'];$i++) {
+                for ($i = 1;$i < $position_data['length'];$i++) {
                     $selections[] = $position + $i;
                 }
             }
@@ -799,7 +801,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
             }
 
             $passage_complete = true;
-            for ($i=1;$i<$correct_position_data['length'];$i++) {
+            for ($i = 1;$i < $correct_position_data['length'];$i++) {
                 $selected_passage_element_key = array_search($correct_position + $i, $selected_word_positions);
                 if ($selected_passage_element_key === false) {
                     $passage_complete = false;
@@ -809,7 +811,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
             }
 
             if ($passage_complete) {
-                $points +=  $correct_position_data['points'];
+                $points += $correct_position_data['points'];
                 unset($selected_word_positions[$selected_word_key]);
             }
         }
@@ -1028,10 +1030,9 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
         foreach ($paragraph as $position => $word) {
             $actual_position = $position + $offset;
             if ($passage_start !== null
-                && (mb_strrpos($word, self::ERROR_PARAGRAPH_DELIMITERS['end'])  === mb_strlen($word) - 2
-                || mb_strrpos($word, self::ERROR_PARAGRAPH_DELIMITERS['end'])  === mb_strlen($word) - 3
+                && (mb_strrpos($word, self::ERROR_PARAGRAPH_DELIMITERS['end']) === mb_strlen($word) - 2
+                || mb_strrpos($word, self::ERROR_PARAGRAPH_DELIMITERS['end']) === mb_strlen($word) - 3
                     && preg_match(self::FIND_PUNCTUATION_REGEXP, mb_substr($word, -1)) === 1)) {
-
                 $actual_word = $this->parsePassageEndWord($word);
 
                 $paragraph_with_error_info[$passage_start]['text_wrong'] .=
@@ -1100,7 +1101,7 @@ class assErrorText extends assQuestion implements ilObjQuestionScoringAdjustable
     {
         $error_text_array = array_reduce(
             $this->parsed_errortext,
-            fn ($c, $v) => $c + $v
+            fn($c, $v) => $c + $v
         );
 
         if ($index === null) {

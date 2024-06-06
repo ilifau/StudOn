@@ -16,13 +16,21 @@
  *
  *********************************************************************/
 
-use ILIAS\FileUpload\MimeType;
+use ILIAS\File\Icon\IconDatabaseRepository;
+use ILIAS\ResourceStorage\Flavour\Definition\CropToRectangle;
+use ILIAS\ResourceStorage\Flavour\Definition\FlavourDefinition;
+use ILIAS\ResourceStorage\Flavour\Definition\PagesToExtract;
+use ILIAS\ResourceStorage\Services;
+use ILIAS\Data\DataSize;
+use ILIAS\Services\WOPI\Discovery\ActionDBRepository;
+use ILIAS\Services\WOPI\Discovery\ActionTarget;
 
 /**
  * Class ilObjFileListGUI
  * @author        Alex Killing <alex.killing@gmx.de>
  * @author        Stefan Born <stefan.born@phzh.ch>
  * @author        Fabian Schmid <fs@studer-raimann.ch>
+ * @author        Thibeau Fuhrer <thibeau@sr.solutions>
  */
 class ilObjFileListGUI extends ilObjectListGUI
 {
@@ -30,10 +38,17 @@ class ilObjFileListGUI extends ilObjectListGUI
 
     private ilObjFileInfoRepository $file_info;
     protected string $title;
+    private IconDatabaseRepository $icon_repo;
+    private ActionDBRepository $action_repo;
+    private Services $irss;
 
     public function __construct(int $context = self::CONTEXT_REPOSITORY)
     {
         parent::__construct($context);
+
+        global $DIC;
+        $DIC->language()->loadLanguageModule('wopi');
+        $this->action_repo = new ActionDBRepository($DIC->database());
         $this->file_info = new ilObjFileInfoRepository();
     }
 
@@ -50,7 +65,24 @@ class ilObjFileListGUI extends ilObjectListGUI
         $this->info_screen_enabled = true;
         $this->type = ilObjFile::OBJECT_TYPE;
         $this->gui_class_name = ilObjFileGUI::class;
+        $this->icon_repo = new IconDatabaseRepository();
+
+        $this->substitutions = ilAdvancedMDSubstitution::_getInstanceByObjectType($this->type);
+        if ($this->substitutions->isActive()) {
+            $this->substitutions_enabled = true;
+        }
+
         $this->commands = ilObjFileAccess::_getCommands();
+    }
+
+    public function getTitle(): string
+    {
+        return $this->file_info->getByObjectId($this->obj_id)->getListTitle();
+    }
+
+    public function stripTitleOfFileExtension(string $a_title): string
+    {
+        return $this->secure(preg_replace('/\.[^.]*$/', '', $a_title));
     }
 
     /**
@@ -77,8 +109,6 @@ class ilObjFileListGUI extends ilObjectListGUI
         return $frame;
     }
 
-
-
     /**
      * Returns the icon image type.
      * For most objects, this is same as the object type, e.g. 'cat','fold'.
@@ -93,15 +123,6 @@ class ilObjFileListGUI extends ilObjectListGUI
             : $this->type;
     }
 
-
-    public function getTitle(): string
-    {
-        // Remove filename extension from title
-        return $this->file_info->getByObjectId($this->obj_id)->getListTitle();
-
-        return $this->secure(preg_replace('/\\.[a-z0-9]+\\z/i', '', $this->title));
-
-    }
 
     /**
      * Get item properties
@@ -120,19 +141,19 @@ class ilObjFileListGUI extends ilObjectListGUI
 
         $revision = $info->getVersion();
 
-        $props[] = array(
+        $props[] = [
             "alert" => false,
             "property" => $DIC->language()->txt("type"),
             "value" => $info->getSuffix(),
             'propertyNameVisible' => false,
-        );
+        ];
 
-        $props[] = array(
+        $props[] = [
             "alert" => false,
             "property" => $DIC->language()->txt("size"),
             "value" => (string) $info->getFileSize(),
             'propertyNameVisible' => false,
-        );
+        ];
 
         $version = $info->getVersion();
         if ($version > 1) {
@@ -143,30 +164,30 @@ class ilObjFileListGUI extends ilObjectListGUI
             } else {
                 $value = $DIC->language()->txt("version") . ": $version";
             }
-            $props[] = array(
+            $props[] = [
                 "alert" => false,
                 "property" => $DIC->language()->txt("version"),
                 "value" => $value,
-                "propertyNameVisible" => false,
-            );
+                "propertyNameVisible" => false
+            ];
         }
 
-        $props[] = array(
+        $props[] = [
             "alert" => false,
             "property" => $DIC->language()->txt("last_update"),
             "value" => ilDatePresentation::formatDate(
                 new ilDateTime($info->getCreationDate()->format('U'), IL_CAL_UNIX)
             ),
             'propertyNameVisible' => false,
-        );
+        ];
 
         if ($info->getPageCount() !== null && $info->getPageCount() > 0) {
-            $props[] = array(
+            $props[] = [
                 "alert" => false,
                 "property" => $DIC->language()->txt("page_count"),
                 "value" => $info->getPageCount(),
                 'propertyNameVisible' => true,
-            );
+            ];
         }
 
         return $props;
@@ -187,19 +208,20 @@ class ilObjFileListGUI extends ilObjectListGUI
         string $type,
         ?int $obj_id = null
     ): bool {
-        if (ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION === $cmd) {
-            $info = $this->file_info->getByObjectId($this->obj_id);
 
-            return $info->isZip() && parent::checkCommandAccess(
-                $permission,
-                $cmd,
-                $ref_id,
-                $type,
-                $obj_id
-            );
+        // LP settings only in repository
+        if ($this->context !== self::CONTEXT_REPOSITORY && $permission === "edit_learning_progress") {
+            return false;
         }
+        $info = $this->file_info->getByObjectId($this->obj_id);
 
-        return parent::checkCommandAccess(
+        $additional_check = match ($cmd) {
+            ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION => $info->isZip(),
+            'editExternal' => $this->action_repo->hasEditActionForSuffix($info->getSuffix()),
+            default => true,
+        };
+
+        return $additional_check && parent::checkCommandAccess(
             $permission,
             $cmd,
             $ref_id,
@@ -210,27 +232,50 @@ class ilObjFileListGUI extends ilObjectListGUI
 
     public function getCommandLink(string $cmd): string
     {
-        // only create permalink for repository
-        if ($cmd === "sendfile" && $this->context === self::CONTEXT_REPOSITORY) {
-            // return the perma link for downloads
-            return ilObjFileAccess::_getPermanentDownloadLink($this->ref_id);
+        $info = $this->file_info->getByObjectId($this->obj_id);
+        $infoscreen = function (): string {
+            $this->ctrl->setParameterByClass(ilRepositoryGUI::class, 'ref_id', $this->ref_id);
+            return $this->ctrl->getLinkTargetByClass(
+                ilRepositoryGUI::class,
+                'infoScreen'
+            );
+        };
+
+        switch ($this->context) {
+            case self::CONTEXT_REPOSITORY:
+                // only create permalink for repository
+                if ($cmd === "sendfile") {
+                    if (ilObjFileAccess::_shouldDownloadDirectly($this->obj_id)) {
+                        // return the perma link for downloads
+                        return ilObjFileAccess::_getPermanentDownloadLink($this->ref_id);
+                    }
+
+                    return $infoscreen();
+                }
+                if (ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION === $cmd) {
+                    if ($info->isZip()) {
+                        $this->ctrl->setParameterByClass(ilRepositoryGUI::class, 'ref_id', $this->ref_id);
+                        $cmd_link = $this->ctrl->getLinkTargetByClass(
+                            ilRepositoryGUI::class,
+                            ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION
+                        );
+                        $this->ctrl->setParameterByClass(ilRepositoryGUI::class, 'ref_id', $this->requested_ref_id);
+                    } else {
+                        $access_granted = false;
+                    }
+                }
+                return parent::getCommandLink($cmd);
+            case self::CONTEXT_WORKSPACE:
+                $this->ctrl->setParameterByClass(ilObjFileGUI::class, 'wsp_id', $this->ref_id);
+                if ($cmd === "sendfile" && !ilObjFileAccess::_shouldDownloadDirectly($this->obj_id)) {
+                    return $this->ctrl->getLinkTargetByClass(
+                        ilObjFileGUI::class,
+                        'infoScreen'
+                    );
+                }
+                break;
+
         }
-
-        if (ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION === $cmd) {
-            $info = $this->file_info->getByObjectId($this->obj_id);
-
-            if ($info->isZip()) {
-                $this->ctrl->setParameterByClass(ilRepositoryGUI::class, 'ref_id', $this->ref_id);
-                $cmd_link = $this->ctrl->getLinkTargetByClass(
-                    ilRepositoryGUI::class,
-                    ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION
-                );
-                $this->ctrl->setParameterByClass(ilRepositoryGUI::class, 'ref_id', $this->requested_ref_id);
-            } else {
-                $access_granted = false;
-            }
-        }
-
 
         return parent::getCommandLink($cmd);
     }

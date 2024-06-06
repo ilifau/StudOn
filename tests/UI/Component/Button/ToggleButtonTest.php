@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -35,7 +43,11 @@ class ToggleButtonTest extends ILIAS_UI_TestBase
         return new Factory();
     }
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -45,7 +57,11 @@ class ToggleButtonTest extends ILIAS_UI_TestBase
         );
     }
 
+<<<<<<< HEAD
     public function test_construction_action_on_type_wrong(): void
+=======
+    public function testConstructionActionOnTypeWrong(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         try {
@@ -56,7 +72,11 @@ class ToggleButtonTest extends ILIAS_UI_TestBase
         }
     }
 
+<<<<<<< HEAD
     public function test_construction_action_off_type_wrong(): void
+=======
+    public function testConstructionActionOffTypeWrong(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         try {
@@ -67,7 +87,11 @@ class ToggleButtonTest extends ILIAS_UI_TestBase
         }
     }
 
+<<<<<<< HEAD
     public function test_setOn_on_default(): void
+=======
+    public function testSetOnOnDefault(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $button = $f->toggle("label", "action_on_string", "action_off_string", true);
@@ -75,7 +99,11 @@ class ToggleButtonTest extends ILIAS_UI_TestBase
         $this->assertTrue($button->isEngaged());
     }
 
+<<<<<<< HEAD
     public function test_append_OnAction(): void
+=======
+    public function testAppendOnAction(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $signal_on1 = $this->createMock(Signal::class);
@@ -88,7 +116,11 @@ class ToggleButtonTest extends ILIAS_UI_TestBase
         $this->assertEquals([$signal_on1, $signal_on2], $button->getActionOn());
     }
 
+<<<<<<< HEAD
     public function test_append_OffAction(): void
+=======
+    public function testAppendOffAction(): void
+>>>>>>> v9.1
     {
         $f = $this->getFactory();
         $signal_off1 = $this->createMock(Signal::class);
@@ -100,40 +132,56 @@ class ToggleButtonTest extends ILIAS_UI_TestBase
         $this->assertEquals([$signal_off1, $signal_off2], $button->getActionOff());
     }
 
+<<<<<<< HEAD
     public function test_render_with_label(): void
+=======
+    public function testRenderWithLabel(): void
+>>>>>>> v9.1
     {
         $r = $this->getDefaultRenderer();
         $button = $this->getFactory()->toggle("label", "action_on_string", "action_off_string");
 
         $expected = <<<EOT
-		<label>label</label>
-<button class="il-toggle-button off" id="id_1" aria-pressed="false">
-    <span class="il-toggle-label-on">toggle_on</span>
-    <span class="il-toggle-label-off">toggle_off</span>
-    <span class="il-toggle-switch"></span>
-</button>
-EOT;
+        <div class="il-toggle-item">
+        <label>label</label>
+            <button class="il-toggle-button off" id="id_1" aria-pressed="false">
+                <span class="il-toggle-label-on">toggle_on</span>
+                <span class="il-toggle-label-off">toggle_off</span>
+                <span class="il-toggle-switch"></span>
+            </button>
+        </div>
+        EOT;
 
         $this->assertHTMLEquals("<div>" . $expected . "</div>", "<div>" . $r->render($button) . "</div>");
     }
 
+<<<<<<< HEAD
     public function test_render_setOn_on_default(): Toggle
+=======
+    public function testRenderSetOnOnDefault(): Toggle
+>>>>>>> v9.1
     {
         $r = $this->getDefaultRenderer();
         $button = $this->getFactory()->toggle("", "action_on_string", "action_off_string", true);
 
         $expected = ''
-            . '<button class="il-toggle-button on" id="id_1" aria-pressed="false">'    //aria-pressed is set to "true" by JS
-            . '    <span class="il-toggle-label-on">toggle_on</span>'
-            . '    <span class="il-toggle-label-off">toggle_off</span>'
-            . '    <span class="il-toggle-switch"></span>'
-            . '</button>';
+            . '<div class="il-toggle-item">'
+            . '   <button class="il-toggle-button on" id="id_1" aria-pressed="false">'    //aria-pressed is set to "true" by JS
+            . '     <span class="il-toggle-label-on">toggle_on</span>'
+            . '       <span class="il-toggle-label-off">toggle_off</span>'
+            . '     <span class="il-toggle-switch"></span>'
+            . '  </button>'
+            . '</div>';
 
         $this->assertHTMLEquals($expected, $r->render($button));
         return $button;
     }
 
+<<<<<<< HEAD
     public function test_render_with_signals(): void
+=======
+    public function testRenderWithSignals(): void
+>>>>>>> v9.1
     {
         $r = $this->getDefaultRenderer();
         $signal_on = $this->createMock(Signal::class);
@@ -145,21 +193,27 @@ EOT;
         $button = $this->getFactory()->toggle("label", $signal_on, $signal_off);
 
         $expected = <<<EOT
-		<label>label</label>
-<button class="il-toggle-button off" id="id_1" aria-pressed="false">
-    <span class="il-toggle-label-on">toggle_on</span>
-    <span class="il-toggle-label-off">toggle_off</span>
-    <span class="il-toggle-switch"></span>
-</button>
+        <div class="il-toggle-item">
+            <label>label</label>
+            <button class="il-toggle-button off" id="id_1" aria-pressed="false">
+                <span class="il-toggle-label-on">toggle_on</span>
+                <span class="il-toggle-label-off">toggle_off</span>
+                <span class="il-toggle-switch"></span>
+            </button>
+        </div>
 EOT;
 
         $this->assertHTMLEquals("<div>" . $expected . "</div>", "<div>" . $r->render($button) . "</div>");
     }
 
     /**
-     * @depends test_render_setOn_on_default
+     * @depends testRenderSetOnOnDefault
      */
+<<<<<<< HEAD
     public function test_append_UnavailAction(Toggle $button): void
+=======
+    public function testAppendUnavailAction(Toggle $button): void
+>>>>>>> v9.1
     {
         $r = $this->getDefaultRenderer();
         $button = $button->withUnavailableAction();
@@ -167,9 +221,11 @@ EOT;
         $html = $r->render($button);
 
         $expected = ''
-            . '<button class="il-toggle-button unavailable" aria-pressed="false" disabled="disabled">'
-            . '    <span class="il-toggle-switch"></span>'
-            . '</button>';
+            . '<div class="il-toggle-item">'
+            . '   <button class="il-toggle-button unavailable" aria-pressed="false" disabled="disabled">'
+            . '      <span class="il-toggle-switch"></span>'
+            . '   </button>'
+            . '</div>';
 
         $this->assertHTMLEquals(
             $expected,

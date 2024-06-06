@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\HTTP\Wrapper\RequestWrapper;
@@ -54,7 +54,6 @@ abstract class ilObject2GUI extends ilObjectGUI
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
     protected ilTabsGUI $tabs_gui;
-    protected ilObjectService $object_service;
     protected ilFavouritesManager $favourites;
     protected ilErrorHandling $error;
     protected ilLocatorGUI $locator;
@@ -76,7 +75,7 @@ abstract class ilObject2GUI extends ilObjectGUI
 
     protected int $object_id;
     protected ?int $node_id = null;
-    protected array $creation_forms = array();
+    protected array $creation_forms = [];
     /**
      * @var ilDummyAccessHandler|ilPortfolioAccessHandler|ilWorkspaceAccessHandler|mixed
      */
@@ -132,7 +131,7 @@ abstract class ilObject2GUI extends ilObjectGUI
             );
         }
 
-        $params = array();
+        $params = [];
         switch ($this->id_type) {
             case self::REPOSITORY_NODE_ID:
                 $this->node_id = $id;
@@ -315,8 +314,8 @@ abstract class ilObject2GUI extends ilObjectGUI
                     );
                     $this->locator->addItem(
                         $this->lng->txt("role"),
-                        $this->ctrl->getLinkTargetByClass(array("ilpermissiongui",
-                            "ilobjrolegui"), "perm")
+                        $this->ctrl->getLinkTargetByClass(["ilpermissiongui",
+                            "ilobjrolegui"], "perm")
                     );
                 }
 
@@ -404,7 +403,7 @@ abstract class ilObject2GUI extends ilObjectGUI
         }
 
         // #18797 - because of parent/child relations gather all nodes first
-        $del_nodes = array();
+        $del_nodes = [];
         foreach ($ids as $node_id) {
             $del_nodes[$node_id] = $this->tree->getNodeData($node_id);
         }
@@ -495,17 +494,10 @@ abstract class ilObject2GUI extends ilObjectGUI
     {
         parent::showPossibleSubObjects();
     }
-    final public function cancelDelete(): void
-    {
-        parent::cancelDeleteObject();
-    }
+
     final protected function redirectToRefId(int $ref_id, string $cmd = ""): void
     {
         parent::redirectToRefId($ref_id, $cmd);
-    }
-    final protected function fillCloneTemplate(?string $tpl_varname, string $type): ?ilPropertyFormGUI
-    {
-        return parent::fillCloneTemplate($tpl_varname, $type);
     }
 
     //	private function setAdminTabs() { return parent::setAdminTabs(); }
@@ -552,7 +544,7 @@ abstract class ilObject2GUI extends ilObjectGUI
                     $this->tabs_gui->addTab(
                         "id_permissions",
                         $this->lng->txt("perm_settings"),
-                        $this->ctrl->getLinkTargetByClass(array(get_class($this), "ilpermissiongui"), "perm")
+                        $this->ctrl->getLinkTargetByClass([get_class($this), "ilpermissiongui"], "perm")
                     );
                 }
                 break;
@@ -562,13 +554,13 @@ abstract class ilObject2GUI extends ilObjectGUI
                 // only files and blogs can be shared for now
                 if (
                     $this->checkPermissionBool("edit_permission") &&
-                    in_array($this->type, array("file", "blog")) &&
+                    in_array($this->type, ["file", "blog"]) &&
                     $this->node_id
                 ) {
                     $this->tabs_gui->addTab(
                         "id_permissions",
                         $this->lng->txt("wsp_permissions"),
-                        $this->ctrl->getLinkTargetByClass(array(get_class($this), "ilworkspaceaccessgui"), "share")
+                        $this->ctrl->getLinkTargetByClass([get_class($this), "ilworkspaceaccessgui"], "share")
                     );
                 }
                 break;
@@ -814,16 +806,5 @@ abstract class ilObject2GUI extends ilObjectGUI
     protected function redrawHeaderAction(): void
     {
         parent::redrawHeaderActionObject();
-    }
-
-    protected function getPermanentLinkWidget(string $append = null, bool $center = false): string
-    {
-        if ($this->id_type == self::WORKSPACE_NODE_ID) {
-            $append .= "_wsp";
-        }
-
-        $plink = new ilPermanentLinkGUI($this->getType(), $this->node_id, $append);
-        $plink->setIncludePermanentLinkText(false);
-        return $plink->getHTML();
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -19,10 +21,15 @@
 
 namespace ILIAS\Skill\Service;
 
-use ILIAS\Skill\Access\SkillManagementAccess;
-use ILIAS\Skill\Access\SkillTreeAccess;
+use ILIAS\Skill\Access;
 use ILIAS\Skill\Tree;
+use ILIAS\Skill\Node;
 use ILIAS\Skill\Profile;
+use ILIAS\Skill\Personal;
+use ILIAS\Skill\Resource;
+use ILIAS\Skill\Level;
+use ILIAS\Skill\Table;
+use ILIAS\Skill\Usage;
 
 /**
  * Skill internal manager service
@@ -53,14 +60,14 @@ class SkillInternalManagerService
         $this->usr_id = $usr_id;
     }
 
-    public function getLevelManager(): SkillLevelManager
+    public function getLevelManager(): Level\SkillLevelManager
     {
-        return new SkillLevelManager();
+        return new Level\SkillLevelManager();
     }
 
-    public function getUserLevelManager(): SkillUserLevelManager
+    public function getUserLevelManager(): Level\SkillUserLevelManager
     {
-        return new SkillUserLevelManager();
+        return new Level\SkillUserLevelManager();
     }
 
     public function getTreeManager(): Tree\SkillTreeManager
@@ -75,22 +82,22 @@ class SkillInternalManagerService
     /**
      * Manages nodes in a skill tree
      */
-    public function getTreeNodeManager(int $tree_id): Tree\SkillTreeNodeManager
+    public function getTreeNodeManager(int $tree_id): Node\SkillTreeNodeManager
     {
-        return new Tree\SkillTreeNodeManager(
+        return new Node\SkillTreeNodeManager(
             $tree_id,
             $this->skill_tree_factory
         );
     }
 
-    public function getTreeAccessManager(int $obj_ref_id): SkillTreeAccess
+    public function getTreeAccessManager(int $obj_ref_id): Access\SkillTreeAccess
     {
-        return new SkillTreeAccess($this->rbac_system, $obj_ref_id, $this->usr_id);
+        return new Access\SkillTreeAccess($this->rbac_system, $obj_ref_id, $this->usr_id);
     }
 
-    public function getManagementAccessManager(int $skmg_ref_id): SkillManagementAccess
+    public function getManagementAccessManager(int $skmg_ref_id): Access\SkillManagementAccess
     {
-        return new SkillManagementAccess($this->rbac_system, $skmg_ref_id, $this->usr_id);
+        return new Access\SkillManagementAccess($this->rbac_system, $skmg_ref_id, $this->usr_id);
     }
 
     public function getProfileManager(): Profile\SkillProfileManager
@@ -101,5 +108,40 @@ class SkillInternalManagerService
     public function getProfileCompletionManager(): Profile\SkillProfileCompletionManager
     {
         return new Profile\SkillProfileCompletionManager($this->getProfileManager());
+    }
+
+    public function getPersonalSkillManager(): Personal\PersonalSkillManager
+    {
+        return new Personal\PersonalSkillManager();
+    }
+
+    public function getAssignedMaterialManager(): Personal\AssignedMaterialManager
+    {
+        return new Personal\AssignedMaterialManager();
+    }
+
+    public function getSelfEvaluationManager(): Personal\SelfEvaluationManager
+    {
+        return new Personal\SelfEvaluationManager();
+    }
+
+    public function getResourceManager(): Resource\SkillResourcesManager
+    {
+        return new Resource\SkillResourcesManager();
+    }
+
+    public function getTableManager(): Table\TableManager
+    {
+        return new Table\TableManager();
+    }
+
+    public function getDeletionManager(): Node\SkillDeletionManager
+    {
+        return new Node\SkillDeletionManager();
+    }
+
+    public function getUsageManager(): Usage\SkillUsageManager
+    {
+        return new Usage\SkillUsageManager();
     }
 }

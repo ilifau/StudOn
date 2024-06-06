@@ -329,7 +329,7 @@ class ilCourseMembershipMailNotification extends ilMailNotification
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
                     $this->appendBody("\n\n");
-                    $this->appendBody($this->createPermanentLink(array(), '_mem'));
+                    $this->appendBody($this->createPermanentLink(array(), 'mem'));
 
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('crs_notification_explanation_admin'));
@@ -361,7 +361,7 @@ class ilCourseMembershipMailNotification extends ilMailNotification
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('crs_new_subscription_request_body2'));
                     $this->appendBody("\n");
-                    $this->appendBody($this->createPermanentLink(array(), '_mem'));
+                    $this->appendBody($this->createPermanentLink(array(), 'mem'));
 
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('crs_notification_explanation_admin'));
@@ -393,7 +393,7 @@ class ilCourseMembershipMailNotification extends ilMailNotification
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('crs_cancel_subscription_body2'));
                     $this->appendBody("\n\n");
-                    $this->appendBody($this->createPermanentLink(array(), '_mem'));
+                    $this->appendBody($this->createPermanentLink(array(), 'mem'));
 
                     $this->appendBody("\n\n");
                     $this->appendBody($this->getLanguageText('crs_notification_explanation_admin'));
@@ -573,13 +573,8 @@ class ilCourseMembershipMailNotification extends ilMailNotification
         $this->getLanguage()->loadLanguageModule('common');
         // fau.
     }
-    
-    /**
-     * Get course status body
-     * @param int $a_usr_id
-     * @return string
-     */
-    protected function createCourseStatus($a_usr_id)
+
+    protected function createCourseStatus(int $a_usr_id) : string
     {
         $part = ilCourseParticipants::_getInstanceByObjId($this->getObjId());
 

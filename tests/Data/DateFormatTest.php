@@ -24,6 +24,11 @@ use PHPUnit\Framework\TestCase;
 
 class DateFormatTest extends TestCase
 {
+<<<<<<< HEAD
+=======
+    protected DateFormat\Factory $df;
+
+>>>>>>> v9.1
     public function setUp(): void
     {
         $f = new ILIAS\Data\Factory();
@@ -35,6 +40,7 @@ class DateFormatTest extends TestCase
         $this->assertInstanceOf(DateFormat\DateFormat::class, $this->df->standard());
         $this->assertInstanceOf(DateFormat\DateFormat::class, $this->df->germanShort());
         $this->assertInstanceOf(DateFormat\DateFormat::class, $this->df->germanLong());
+        $this->assertInstanceOf(DateFormat\DateFormat::class, $this->df->americanShort());
         $this->assertInstanceOf(DateFormat\FormatBuilder::class, $this->df->custom());
     }
 

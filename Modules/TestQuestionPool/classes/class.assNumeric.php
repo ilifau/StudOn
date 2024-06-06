@@ -33,7 +33,7 @@ require_once './Modules/Test/classes/inc.AssessmentConstants.php';
  *
  * @ingroup		ModulesTestQuestionPool
  */
-class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, ilObjAnswerScoringAdjustable, iQuestionCondition
+class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, ilObjAnswerScoringAdjustable, iQuestionCondition, ilAssQuestionAutosaveable
 {
     protected $lower_limit;
     protected $upper_limit;
@@ -126,7 +126,6 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
             $this->setAuthor($data["author"]);
             $this->setPoints($data["points"]);
             $this->setOwner($data["owner"]);
-            require_once './Services/RTE/classes/class.ilRTE.php';
             $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc((string) $data["question_text"], 1));
             $this->setMaxChars($data["maxnumofchars"]);
 
@@ -148,7 +147,6 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
             array($question_id)
         );
 
-        require_once './Modules/TestQuestionPool/classes/class.assNumericRange.php';
         if ($result->numRows() > 0) {
             /** @noinspection PhpAssignmentInConditionInspection */
             while ($data = $ilDB->fetchAssoc($result)) {
@@ -172,7 +170,7 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
      *
      * @return void|integer Id of the clone or nothing.
      */
-    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", int $owner = -1, $testObjId = null): int
     {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
@@ -183,8 +181,8 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
         $thisObjId = $this->getObjId();
 
         $clone = $this;
-        require_once './Modules/TestQuestionPool/classes/class.assQuestion.php';
-        $original_id = assQuestion::_getOriginalId($this->id);
+
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->id = -1;
 
         if ((int) $testObjId > 0) {
@@ -234,8 +232,8 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
         }
         // duplicate the question in database
         $clone = $this;
-        include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
-        $original_id = assQuestion::_getOriginalId($this->id);
+
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->id = -1;
         $source_questionpool_id = $this->getObjId();
         $clone->setObjId($target_questionpool_id);
@@ -259,8 +257,6 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
         if ($this->getId() <= 0) {
             throw new RuntimeException('The question has not been saved. It cannot be duplicated');
         }
-
-        include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
 
         $sourceQuestionId = $this->id;
         $sourceParentId = $this->getObjId();
@@ -342,7 +338,7 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
      *
      * @return integer|array $points/$details (array $details is deprecated !!)
      */
-    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false)
+    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false): float
     {
         if ($returndetails) {
             throw new ilTestException('return details not implemented for ' . __METHOD__);
@@ -368,7 +364,7 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
             $points = $this->getPoints();
         }
 
-        return $points;
+        return (float)$points;
     }
 
     /**
@@ -383,7 +379,6 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
      */
     public function contains($value): bool
     {
-        require_once './Services/Math/classes/class.EvalMath.php';
         $eval = new EvalMath();
         $eval->suppress_errors = true;
         $result = $eval->e($value);
@@ -427,7 +422,6 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
 
     public function isValidSolutionSubmit($numeric_solution): bool
     {
-        require_once './Services/Math/classes/class.EvalMath.php';
         $math = new EvalMath();
         $math->suppress_errors = true;
         $result = $math->evaluate($numeric_solution);
@@ -452,7 +446,6 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
         $ilDB = $DIC['ilDB'];
 
         if (is_null($pass)) {
-            require_once './Modules/Test/classes/class.ilObjTest.php';
             $pass = ilObjTest::_getPass($active_id);
         }
 
@@ -487,7 +480,6 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
         });
 
         if ($entered_values) {
-            require_once './Modules/Test/classes/class.ilObjAssessmentFolder.php';
             if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
                 assQuestion::logAction(
                     $this->lng->txtlng(
@@ -500,7 +492,6 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
                 );
             }
         } else {
-            include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
             if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
                 assQuestion::logAction(
                     $this->lng->txtlng(
@@ -622,21 +613,21 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
     /**
      * {@inheritdoc}
      */
-    public function setExportDetailsXLS(ilAssExcelFormatHelper $worksheet, int $startrow, int $active_id, int $pass): int
+    public function setExportDetailsXLSX(ilAssExcelFormatHelper $worksheet, int $startrow, int $col, int $active_id, int $pass): int
     {
-        parent::setExportDetailsXLS($worksheet, $startrow, $active_id, $pass);
+        parent::setExportDetailsXLSX($worksheet, $startrow, $col, $active_id, $pass);
 
         $solutions = $this->getSolutionValues($active_id, $pass);
 
         $i = 1;
-        $worksheet->setCell($startrow + $i, 0, $this->lng->txt("result"));
-        $worksheet->setBold($worksheet->getColumnCoord(0) . ($startrow + $i));
+        $worksheet->setCell($startrow + $i, $col, $this->lng->txt("result"));
+        $worksheet->setBold($worksheet->getColumnCoord($col) . ($startrow + $i));
 
-        $worksheet->setBold($worksheet->getColumnCoord(0) . ($startrow + $i));
+        $worksheet->setBold($worksheet->getColumnCoord($col) . ($startrow + $i));
         if (array_key_exists(0, $solutions) &&
             array_key_exists('value1', $solutions[0]) &&
             strlen($solutions[0]["value1"])) {
-            $worksheet->setCell($startrow + $i, 2, $solutions[0]["value1"]);
+            $worksheet->setCell($startrow + $i, $col + 2, $solutions[0]["value1"]);
         }
         $i++;
 
@@ -686,7 +677,7 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
 
         $maxStep = $this->lookupMaxStep($active_id, $pass);
 
-        if ($maxStep !== null) {
+        if ($maxStep > 0) {
             $data = $ilDB->queryF(
                 "SELECT value1 FROM tst_solutions WHERE active_fi = %s AND pass = %s AND question_fi = %s AND step = %s",
                 array("integer", "integer", "integer","integer"),
@@ -727,4 +718,10 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
             "upper" => $this->getUpperLimit()
         );
     }
+
+    public function getAnswerTableName()
+    {
+        return '';
+    }
+
 }

@@ -46,9 +46,9 @@ class ilObjMediaObjectAccess implements ilWACCheckingClass
     protected function checkAccessMob(
         int $obj_id
     ): bool {
+
         foreach (ilObjMediaObject::lookupUsages($obj_id) as $usage) {
             $oid = ilObjMediaObject::getParentObjectIdForUsage($usage, true);
-
             // for content snippets we must get their usages and check them
             switch ($usage["type"]) {
                 case "auth:pg":
@@ -143,7 +143,7 @@ class ilObjMediaObjectAccess implements ilWACCheckingClass
                 }
                 break;
 
-            case 'gdf:pg':
+            case 'term:pg':
                 // special check for glossary terms
                 if ($this->checkAccessGlossaryTerm($oid, $usage['id'])) {
                     return true;
@@ -268,7 +268,7 @@ class ilObjMediaObjectAccess implements ilWACCheckingClass
             return true;
         }
 
-        $term_id = ilGlossaryDefinition::_lookupTermId($page_id);
+        $term_id = $page_id;
 
         $sources = ilInternalLink::_getSourcesOfTarget('git', $term_id, 0);
 
@@ -284,18 +284,18 @@ class ilObjMediaObjectAccess implements ilWACCheckingClass
                         }
                         break;
 
-                    // Don't yet give access if the term is linked by another glossary
-                    // The link will lead to the origin glossary which is already checked
-                    /*
-                    case 'gdf:pg':
-                        $src_term_id = ilGlossaryDefinition::_lookupTermId($src['id']);
-                        $src_obj_id = ilGlossaryTerm::_lookGlossaryID($src_term_id);
-                        if ($this->checkAccessObject($src_obj_id, 'glo'))
-                        {
-                            return true;
-                        }
-                        break;
-                    */
+                        // Don't yet give access if the term is linked by another glossary
+                        // The link will lead to the origin glossary which is already checked
+                        /*
+                        case 'gdf:pg':
+                            $src_term_id = ilGlossaryDefinition::_lookupTermId($src['id']);
+                            $src_obj_id = ilGlossaryTerm::_lookGlossaryID($src_term_id);
+                            if ($this->checkAccessObject($src_obj_id, 'glo'))
+                            {
+                                return true;
+                            }
+                            break;
+                        */
                 }
             }
         }

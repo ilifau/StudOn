@@ -35,7 +35,6 @@ class ilMStListCoursesGUI extends ilPropertyFormGUI
     protected ilTable2GUI $table;
     protected ilMyStaffAccess $access;
     private \ilGlobalTemplateInterface $main_tpl;
-    private \ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper $queryWrapper;
     private ilHelpGUI $help;
 
     public function __construct()
@@ -46,7 +45,6 @@ class ilMStListCoursesGUI extends ilPropertyFormGUI
         $this->main_tpl = $DIC->ui()->mainTemplate();
         $this->access = ilMyStaffAccess::getInstance();
         $this->help = $DIC->help();
-        $this->queryWrapper = $DIC->http()->wrapper()->query();
         $this->help->setScreenIdComponent('msta');
     }
 
@@ -75,7 +73,6 @@ class ilMStListCoursesGUI extends ilPropertyFormGUI
                 break;
             default:
                 switch ($cmd) {
-
                     case self::CMD_RESET_FILTER:
                     case self::CMD_APPLY_FILTER:
                     case self::CMD_INDEX:
@@ -104,7 +101,7 @@ class ilMStListCoursesGUI extends ilPropertyFormGUI
 
         $this->table = new ilMStListCoursesTableGUI($this, self::CMD_INDEX);
         $DIC->ui()->mainTemplate()->setTitle($DIC->language()->txt('mst_list_courses'));
-        $DIC->ui()->mainTemplate()->setTitleIcon(ilUtil::getImagePath('icon_enrl.svg'));
+        $DIC->ui()->mainTemplate()->setTitleIcon(ilUtil::getImagePath('standard/icon_enrl.svg'));
         $DIC->ui()->mainTemplate()->setContent($this->table->getHTML());
     }
 

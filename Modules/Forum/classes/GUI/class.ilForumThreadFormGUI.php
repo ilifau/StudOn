@@ -28,32 +28,20 @@ class ilForumThreadFormGUI extends ilPropertyFormGUI
     public const MESSAGE_INPUT = 'message';
     public const FILE_UPLOAD_INPUT = 'file_upload';
     public const ALLOW_NOTIFICATION_INPUT = 'allow_notification';
+    public const AUTOSAVE_INFO = 'autosave_info';
 
     /** @var string[] */
     private array $input_items = [];
-    private ilObjForumGUI $delegatingGui;
-    private ilForumProperties $properties;
-    private bool $allowPseudonyms;
-    private bool $allowNotification;
-    private bool $isDraftContext;
-    private int $draftId;
 
     public function __construct(
-        ilObjForumGUI $delegatingGui,
-        ilForumProperties $properties,
-        bool $allowPseudonyms,
-        bool $allowNotification,
-        bool $isDraftContext,
-        int $draftId
+        private ilObjForumGUI $delegatingGui,
+        private ilForumProperties $properties,
+        private bool $allowPseudonyms,
+        private bool $allowNotification,
+        private bool $isDraftContext,
+        private int $draftId
     ) {
         parent::__construct();
-
-        $this->delegatingGui = $delegatingGui;
-        $this->properties = $properties;
-        $this->allowPseudonyms = $allowPseudonyms;
-        $this->allowNotification = $allowNotification;
-        $this->isDraftContext = $isDraftContext;
-        $this->draftId = $draftId;
     }
 
     private function addAliasInput(): void
@@ -113,6 +101,20 @@ class ilForumThreadFormGUI extends ilPropertyFormGUI
         $this->addItem($message);
     }
 
+    private function addAutosaveInfo(): void
+    {
+        if (ilForumPostDraft::isAutoSavePostDraftAllowed()) {
+            $draftInfoGUI = new ilNonEditableValueGUI('', 'autosave_info', true);
+            $draftInfoGUI->setValue(
+                sprintf(
+                    $this->lng->txt('autosave_draft_info'),
+                    ilForumPostDraft::lookupAutosaveInterval()
+                )
+            );
+            $this->addItem($draftInfoGUI);
+        }
+    }
+
     private function addFileUploadInput(): void
     {
         if ($this->properties->isFileUploadAllowed()) {
@@ -124,7 +126,7 @@ class ilForumThreadFormGUI extends ilPropertyFormGUI
                 $threadDraft = ilForumPostDraft::newInstanceByDraftId($this->draftId);
                 if ($threadDraft->getDraftId() > 0) {
                     $draftFileData = new ilFileDataForumDrafts(0, $threadDraft->getDraftId());
-                    if (count($draftFileData->getFilesOfPost()) > 0) {
+                    if ($draftFileData->getFilesOfPost() !== []) {
                         $existingFileSelection = new ilCheckboxGroupInputGUI(
                             $this->lng->txt('forums_delete_file'),
                             'del_file'
@@ -151,7 +153,7 @@ class ilForumThreadFormGUI extends ilPropertyFormGUI
 
     private function generateInputItems(): void
     {
-        $this->setTitleIcon(ilUtil::getImagePath('icon_frm.svg'));
+        $this->setTitleIcon(ilUtil::getImagePath('standard/icon_frm.svg'));
         $this->setTableWidth('100%');
         $this->setTitle($this->lng->txt('forums_new_thread'));
         if ($this->isDraftContext) {
@@ -178,6 +180,10 @@ class ilForumThreadFormGUI extends ilPropertyFormGUI
 
                 case self::ALLOW_NOTIFICATION_INPUT:
                     $this->addAllowNotificationInput();
+                    break;
+
+                case self::AUTOSAVE_INFO:
+                    $this->addAutosaveInfo();
                     break;
             }
         }

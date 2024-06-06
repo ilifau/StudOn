@@ -493,7 +493,7 @@ class ilObjSCORMTracking
     //not correct because of assets!
     /**
      * Get info about
-     * @return array<string, mixed[]>
+     * @return array<string, array>
      */
     public static function _getProgressInfo(array $sco_item_ids, int $a_obj_id): array
     {
@@ -536,10 +536,9 @@ class ilObjSCORMTracking
     }
 
     /**
-     * @param array|int  $scorm_item_id
      * @return array<int|string, mixed[]>
      */
-    public static function _getInProgress($scorm_item_id, int $a_obj_id, ?array $a_blocked_user_ids = null): array
+    public static function _getInProgress(array|int $scorm_item_id, int $a_obj_id, ?array $a_blocked_user_ids = null): array
     {
         global $DIC;
         $ilDB = $DIC->database();

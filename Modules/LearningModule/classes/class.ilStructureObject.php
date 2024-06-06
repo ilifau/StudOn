@@ -23,6 +23,7 @@
  */
 class ilStructureObject extends ilLMObject
 {
+    protected \ILIAS\Help\Map\MapManager $help_map;
     public string $origin_id;
     public ilLMTree $tree;
 
@@ -30,15 +31,18 @@ class ilStructureObject extends ilLMObject
         ilObjLearningModule $a_content_obj,
         int $a_id = 0
     ) {
+        global $DIC;
+
         $this->setType("st");
         parent::__construct($a_content_obj, $a_id);
         $this->tree = new ilLMTree($this->getLMId());
+        $this->help_map = $DIC->help()->internal()->domain()->map();
     }
 
     public function delete(bool $a_delete_meta_data = true): void
     {
         // only relevant for online help authoring
-        ilHelpMapping::removeScreenIdsOfChapter($this->getId());
+        $this->help_map->removeScreenIdsOfChapter($this->getId());
 
         $node_data = $this->tree->getNodeData($this->getId());
         $this->delete_rec($this->tree, $a_delete_meta_data);
@@ -261,34 +265,6 @@ class ilStructureObject extends ilLMObject
         }
     }
 
-    public function exportFO(
-        ilXmlWriter $a_xml_writer
-    ): void {
-
-        // fo:block (complete)
-        $attrs = array();
-        $attrs["font-family"] = "Times";
-        $attrs["font-size"] = "14pt";
-        $a_xml_writer->xmlElement("fo:block", $attrs, $this->getTitle());
-
-        // page objects
-        $this->exportFOPageObjects($a_xml_writer);
-    }
-
-    public function exportFOPageObjects(
-        ilXmlWriter $a_xml_writer
-    ): void {
-        $childs = $this->tree->getChilds($this->getId());
-        foreach ($childs as $child) {
-            if ($child["type"] != "pg") {
-                continue;
-            }
-
-            // export xml to writer object
-            $page_obj = new ilLMPageObject($this->getContentObject(), $child["obj_id"]);
-            $page_obj->exportFO($a_xml_writer);
-        }
-    }
 
     public static function getChapterList(
         int $a_lm_id

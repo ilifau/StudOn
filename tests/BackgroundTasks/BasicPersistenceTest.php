@@ -44,7 +44,6 @@ require_once("./Services/ActiveRecord/Connector/class.arConnectorMap.php");
 /**
  * Class BackgroundTaskTest
  *
- * @runTestsInSeparateProcesses
  * @preserveGlobalState    disabled
  * @backupGlobals          disabled
  * @backupStaticAttributes disabled

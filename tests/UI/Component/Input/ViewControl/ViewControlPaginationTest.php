@@ -225,7 +225,13 @@ class ViewControlPaginationTest extends ViewControlBaseTest
             $this->getJavaScriptBinding(),
             $this->getRefinery(),
             $this->getImagePathResolver(),
+<<<<<<< HEAD
             $this->getDataFactory()
+=======
+            $this->getDataFactory(),
+            $this->getHelpTextRetriever(),
+            $this->getUploadLimitResolver()
+>>>>>>> v9.1
         );
     }
 

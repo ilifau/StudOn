@@ -385,6 +385,7 @@ abstract class ilObjPortfolioBase extends ilObject2
 
         $lng = $DIC->language();
         $ilUser = $DIC->user();
+        $skill_personal_service = $DIC->skills()->personal();
 
         $source_id = $a_source->getId();
         $target_id = $a_target->getId();
@@ -445,7 +446,7 @@ abstract class ilObjPortfolioBase extends ilObject2
         }
 
         // personal skills
-        $pskills = array_keys(ilPersonalSkill::getSelectedUserSkills($ilUser->getId()));
+        $pskills = array_keys($skill_personal_service->getSelectedUserSkills($ilUser->getId()));
 
         // copy pages
         $blog_count = 0;
@@ -485,7 +486,7 @@ abstract class ilObjPortfolioBase extends ilObject2
                     }
                     break;
 
-                // blog template => blog (needs recipe)
+                    // blog template => blog (needs recipe)
                 case ilPortfolioTemplatePage::TYPE_BLOG_TEMPLATE:
                     if ($direction === "t2p" && (is_array($page_recipe) || $copy_all)) {
                         $page_type = ilPortfolioPage::TYPE_BLOG;
@@ -512,7 +513,7 @@ abstract class ilObjPortfolioBase extends ilObject2
                     }
                     break;
 
-                // page editor
+                    // page editor
                 default:
                     $target_page->setXMLContent(
                         $source_page->copyXmlContent(
@@ -526,10 +527,7 @@ abstract class ilObjPortfolioBase extends ilObject2
                     // parse content / blocks
 
                     if ($direction === "t2p") {
-                        $dom = $target_page->getDom();
-                        if ($dom instanceof php4DOMDocument) {
-                            $dom = $dom->myDOMDocument;
-                        }
+                        $dom = $target_page->getDomDoc();
 
                         // update profile/consultation hours user id
                         self::updateDomNodes($dom, "//PageContent/Profile", "User", $ilUser->getId());
@@ -548,7 +546,7 @@ abstract class ilObjPortfolioBase extends ilObject2
                             }
                             // new skill
                             elseif ($copy_all || in_array($skill_id, $a_recipe["skills"])) {
-                                ilPersonalSkill::addPersonalSkill($ilUser->getId(), $skill_id);
+                                $skill_personal_service->addPersonalSkill($ilUser->getId(), $skill_id);
 
                                 $node->setAttribute("User", $ilUser->getId());
                             }

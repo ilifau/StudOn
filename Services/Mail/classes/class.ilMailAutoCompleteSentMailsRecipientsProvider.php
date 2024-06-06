@@ -81,7 +81,7 @@ class ilMailAutoCompleteSentMailsRecipientsProvider extends ilMailAutoCompleteRe
             );
 
             foreach ($parts as $part) {
-                if (ilStr::strPos(ilStr::strToLower($part), ilStr::strToLower($this->term)) !== false) {
+                if (ilStr::strPos(ilStr::strToLower($part), ilStr::strToLower($this->term), 0) !== false) {
                     $this->users_stack[] = $part;
                 }
             }
@@ -96,7 +96,7 @@ class ilMailAutoCompleteSentMailsRecipientsProvider extends ilMailAutoCompleteRe
 
     public function rewind(): void
     {
-        if ($this->res) {
+        if ($this->res !== null) {
             $this->db->free($this->res);
             $this->res = null;
         }

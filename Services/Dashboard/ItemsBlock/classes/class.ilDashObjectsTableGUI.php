@@ -16,11 +16,8 @@
  *
  *********************************************************************/
 
-/**
- * Classic table for rep object lists, including checkbox
- *
- * @author Alexander Killing <killing@leifos.de>
- */
+declare(strict_types=1);
+
 class ilDashObjectsTableGUI extends ilTable2GUI
 {
     public function __construct(
@@ -30,32 +27,29 @@ class ilDashObjectsTableGUI extends ilTable2GUI
     ) {
         global $DIC;
 
-        $this->id = "dash_obj_" . $sub_id;
+        $this->id = 'dash_obj_' . $sub_id;
         $this->lng = $DIC->language();
         $this->ctrl = $DIC->ctrl();
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
-        $this->setTitle($this->lng->txt(""));
+        $this->setTitle($this->lng->txt(''));
 
-        $this->addColumn("", "", "", true);
+        $this->addColumn('', '', '', true);
 
         $this->setEnableNumInfo(false);
         $this->setEnableHeader(false);
 
-        $this->setRowTemplate("tpl.dash_obj_row.html", "Services/Dashboard");
+        $this->setRowTemplate('tpl.dash_obj_row.html', 'Services/Dashboard');
 
         $this->setLimit(9999);
     }
 
-    /**
-     * Fill table row
-     */
     protected function fillRow(array $a_set): void
     {
         $tpl = $this->tpl;
-        $tpl->setVariable("ID", $a_set["ref_id"]);
-        $tpl->setVariable("ICON", ilObject::_getIcon((int) $a_set["obj_id"]));
-        $tpl->setVariable("TITLE", $a_set["title"]);
+        $tpl->setVariable('ID', $a_set['ref_id']);
+        $tpl->setVariable('ICON', ilObject::_getIcon((int) $a_set['obj_id']));
+        $tpl->setVariable('TITLE', $a_set['title']);
     }
 }

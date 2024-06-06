@@ -100,4 +100,84 @@ class ilMDCopyrightUpdateSteps implements ilDatabaseUpdateSteps
             );
         }
     }
+
+    /**
+     * Add a column to il_md_cpr_selections for the string identifier for the licence's image,
+     * if it is saved as a file.
+     */
+    public function step_6(): void
+    {
+        if (!$this->db->tableColumnExists('il_md_cpr_selections', 'image_file')) {
+            $this->db->addTableColumn(
+                'il_md_cpr_selections',
+                'image_file',
+                ['type' => ilDBConstants::T_CLOB]
+            );
+        }
+    }
+
+    /**
+     * Add CC0 to the available copyrights
+     */
+    public function step_7(): void
+    {
+        $title = "Public Domain";
+        $full_name = "This work is free of known copyright restrictions.";
+        $link = "http://creativecommons.org/publicdomain/zero/1.0/";
+        $image_link = "https://licensebuttons.net/p/zero/1.0/88x31.png";
+        $alt_text = "CC0";
+
+        $next_id = $this->db->nextId('il_md_cpr_selections');
+
+        $res = $this->db->query(
+            'SELECT MAX(position) AS max FROM il_md_cpr_selections WHERE is_default = 0'
+        );
+        $row = $this->db->fetchAssoc($res);
+        $position = isset($row['max']) ? $row['max'] + 1 : 0;
+
+        $this->db->insert(
+            'il_md_cpr_selections',
+            [
+                'entry_id' => [\ilDBConstants::T_INTEGER, $next_id],
+                'title' => [\ilDBConstants::T_TEXT, $title],
+                'description' => [\ilDBConstants::T_TEXT, ''],
+                'is_default' => [\ilDBConstants::T_INTEGER, 0],
+                'outdated' => [\ilDBConstants::T_INTEGER, 0],
+                'position' => [\ilDBConstants::T_INTEGER, $position],
+                'full_name' => [\ilDBConstants::T_TEXT, $full_name],
+                'link' => [\ilDBConstants::T_TEXT, $link],
+                'image_link' => [\ilDBConstants::T_TEXT, $image_link],
+                'image_file' => [\ilDBConstants::T_TEXT, ''],
+                'alt_text' => [\ilDBConstants::T_TEXT, $alt_text],
+                'migrated' => [\ilDBConstants::T_INTEGER, 1]
+            ]
+        );
+    }
+
+    /**
+     * Replace CC0 image link by svg
+     */
+    public function step_8(): void
+    {
+        $title = "Public Domain";
+        $full_name = "This work is free of known copyright restrictions.";
+        $old_image_link = "https://licensebuttons.net/p/zero/1.0/88x31.png";
+        $new_image_link = "https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/cc-zero.svg";
+
+        $next_id = $this->db->nextId('il_md_cpr_selections');
+
+        $res = $this->db->query(
+            'SELECT entry_id FROM il_md_cpr_selections WHERE title = ' .
+            $this->db->quote($title, ilDBConstants::T_TEXT) . ' AND full_name = ' .
+            $this->db->quote($full_name, ilDBConstants::T_TEXT) . ' AND image_link = ' .
+            $this->db->quote($old_image_link, ilDBConstants::T_TEXT)
+        );
+        if (($row = $this->db->fetchAssoc($res)) && isset($row['entry_id'])) {
+            $this->db->update(
+                'il_md_cpr_selections',
+                ['image_link' => [\ilDBConstants::T_TEXT, $new_image_link]],
+                ['entry_id' => [\ilDBConstants::T_INTEGER, $row['entry_id']]]
+            );
+        }
+    }
 }

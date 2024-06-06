@@ -24,15 +24,16 @@
 class ilBadgeUserTableGUI extends ilTable2GUI
 {
     protected ilTree $tree;
-    protected ?ilBadge $award_badge = null;
     protected bool $do_parent = false;
     protected array $filter = [];
+    private \ILIAS\UI\Factory $ui_factory;
+    private \ILIAS\UI\Renderer $ui_renderer;
 
     public function __construct(
         object $a_parent_obj,
         string $a_parent_cmd,
         int $a_parent_ref_id,
-        ilBadge $a_award_bagde = null,
+        protected ?\ilBadge $award_badge = null,
         int $a_parent_obj_id = null,
         int $a_restrict_badge_id = 0
     ) {
@@ -43,9 +44,10 @@ class ilBadgeUserTableGUI extends ilTable2GUI
         $this->tree = $DIC->repositoryTree();
         $ilCtrl = $DIC->ctrl();
         $lng = $DIC->language();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
 
         $this->setId("bdgusr");
-        $this->award_badge = $a_award_bagde;
         $this->do_parent = false;
 
         $parent_type = ilObject::_lookupType($a_parent_ref_id, true);
@@ -58,8 +60,8 @@ class ilBadgeUserTableGUI extends ilTable2GUI
         $this->setLimit(9999);
 
         if ($this->award_badge) {
-            $this->setTitle($lng->txt("badge_award_badge") . ": " . $a_award_bagde->getTitle());
-            $this->setDescription($a_award_bagde->getDescription());
+            $this->setTitle($lng->txt("badge_award_badge") . ": " . $award_badge->getTitle());
+            $this->setDescription($award_badge->getDescription());
 
             $this->addColumn("", "", 1);
 
@@ -232,24 +234,29 @@ class ilBadgeUserTableGUI extends ilTable2GUI
         $lng = $this->lng;
 
         if ($this->award_badge) {
-            $this->tpl->setVariable("VAL_ID", $a_set["user_id"]);
+            $this->tpl->setVariable('VAL_ID', $a_set['user_id']);
         }
 
-        $this->tpl->setVariable("TXT_NAME", $a_set["name"]);
-        $this->tpl->setVariable("TXT_LOGIN", $a_set["login"]);
-        $this->tpl->setVariable("TXT_TYPE", $a_set["type"]);
-        $this->tpl->setVariable("TXT_TITLE", $a_set["title"]);
-        $this->tpl->setVariable("TXT_ISSUED", $a_set["issued"]
-            ? ilDatePresentation::formatDate(new ilDateTime($a_set["issued"], IL_CAL_UNIX))
-            : "");
+        $this->tpl->setVariable('TXT_NAME', $a_set['name']);
+        $this->tpl->setVariable('TXT_LOGIN', $a_set['login']);
+        $this->tpl->setVariable('TXT_TYPE', $a_set['type']);
+        $this->tpl->setVariable('TXT_TITLE', $a_set['title']);
+        $this->tpl->setVariable('TXT_ISSUED', $a_set['issued']
+            ? ilDatePresentation::formatDate(new ilDateTime($a_set['issued'], IL_CAL_UNIX))
+            : '');
 
-        if ($a_set["parent_id"]) {
-            $parent = $a_set["parent_meta"];
-            $this->tpl->setVariable("PARENT", $parent["title"]);
-            $this->tpl->setVariable("PARENT_TYPE", $lng->txt("obj_" . $parent["type"]));
+        if ($a_set['parent_id']) {
+            $parent = $a_set['parent_meta'];
+            $this->tpl->setVariable('PARENT_TITLE', $parent['title']);
+
+            $icon = $this->ui_factory->symbol()->icon()->custom(
+                ilObject::_getIcon((int) $parent['id'], 'big', $parent['type']),
+                $lng->txt('obj_' . $parent['type'])
+            );
+
             $this->tpl->setVariable(
-                "PARENT_ICON",
-                ilObject::_getIcon((int) $parent["id"], "big", $parent["type"])
+                'PARENT_ICON',
+                $this->ui_renderer->render($icon)
             );
         }
     }

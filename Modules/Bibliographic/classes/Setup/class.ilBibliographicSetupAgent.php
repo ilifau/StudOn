@@ -84,7 +84,7 @@ final class ilBibliographicSetupAgent implements Setup\Agent
      */
     public function getStatusObjective(Setup\Metrics\Storage $storage): Setup\Objective
     {
-        return new Setup\Objective\NullObjective();
+        return new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilBibliograficDB80());
     }
 
     /**
@@ -92,8 +92,6 @@ final class ilBibliographicSetupAgent implements Setup\Agent
      */
     public function getMigrations(): array
     {
-        return [
-            new ilBibliographicStorageMigration(),
-        ];
+        return [];
     }
 }

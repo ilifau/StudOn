@@ -449,9 +449,9 @@ class ilHierarchyFormGUI extends ilFormGUI
                         $ttpl->setCurrentBlock("multi_cmds" . $sec);
                         $ttpl->setVariable("MCMD_ALT", $lng->txt("commands"));
                         if ($sec == "1") {
-                            $ttpl->setVariable("MCMD_IMG", ilUtil::getImagePath("arrow_downright.svg"));
+                            $ttpl->setVariable("MCMD_IMG", ilUtil::getImagePath("nav/arrow_downright.svg"));
                         } else {
-                            $ttpl->setVariable("MCMD_IMG", ilUtil::getImagePath("arrow_upright.svg"));
+                            $ttpl->setVariable("MCMD_IMG", ilUtil::getImagePath("nav/arrow_upright.svg"));
                         }
                         $ttpl->parseCurrentBlock();
                     }
@@ -477,12 +477,12 @@ class ilHierarchyFormGUI extends ilFormGUI
 
         // drag and drop initialisation
         foreach ($this->drag_target as $drag_target) {
-            $this->main_tpl->addOnLoadCode('d = new ilDragTarget("droparea_" + "'.($drag_target["id"] ?? "").
-            '", "'.($drag_target["group"] ?? "").'");');
+            $this->main_tpl->addOnLoadCode('d = new ilDragTarget("droparea_" + "' . ($drag_target["id"] ?? "") .
+            '", "' . ($drag_target["group"] ?? "") . '");');
         }
         foreach ($this->drag_content as $drag_content) {
-            $this->main_tpl->addOnLoadCode('d = new ilDragContent("il_img_" + "'.($drag_content["id"] ?? "").
-                '", "'.($drag_content["group"] ?? "").'");');
+            $this->main_tpl->addOnLoadCode('d = new ilDragContent("il_img_" + "' . ($drag_content["id"] ?? "") .
+                '", "' . ($drag_content["group"] ?? "") . '");');
         }
 
         // disambiguation menues and "insert as first child" flags
@@ -503,7 +503,7 @@ class ilHierarchyFormGUI extends ilFormGUI
                         $ttpl->parseCurrentBlock();
                     } elseif (count($menu) == 1) {
                         // set first child flag
-                        $this->main_tpl->addOnLoadCode('as_subitem["'.$node_id.'" + "_" + "'.$group.'"] = "'.(int) $menu[0]["subitem"].'";');
+                        $this->main_tpl->addOnLoadCode('as_subitem["' . $node_id . '" + "_" + "' . $group . '"] = "' . (int) $menu[0]["subitem"] . '";');
                     }
                 }
             }
@@ -535,7 +535,7 @@ class ilHierarchyFormGUI extends ilFormGUI
                         $ttpl->parseCurrentBlock();
                     } elseif (count($menu) == 1) {
                         // set first child flag
-                        $this->main_tpl->addOnLoadCode('as_subitem["'.$node_id.'" + "_" + "'.$group.'"] = "'.(int) $menu[0]["subitem"].'";');
+                        $this->main_tpl->addOnLoadCode('as_subitem["' . $node_id . '" + "_" + "' . $group . '"] = "' . (int) $menu[0]["subitem"] . '";');
                     }
                 }
             }
@@ -613,7 +613,7 @@ class ilHierarchyFormGUI extends ilFormGUI
         if ($this->nodeAllowsChilds($a_par_node) && (count($childs) > 0 || $a_depth == 0)) {
             $ttpl->setCurrentBlock("drop_area");
             $ttpl->setVariable("DNODE_ID", $a_par_node["node_id"] . "fc");		// fc means "first child"
-            $ttpl->setVariable("IMG_BLANK", ilUtil::getImagePath("spacer.png"));
+            $ttpl->setVariable("IMG_BLANK", ilUtil::getImagePath("media/spacer.png"));
             if (count($childs) == 0) {
                 $ttpl->setVariable("NO_CONTENT_CLASS", "ilCOPGNoPageContent");
                 $ttpl->setVariable("NO_CONTENT_TXT", " &nbsp;" . $lng->txt("form_hier_click_to_add"));
@@ -746,7 +746,7 @@ class ilHierarchyFormGUI extends ilFormGUI
 
         // focus
         if ($this->getFocusId() == $a_child["node_id"]) {
-            $this->main_tpl->addOnLoadCode('document.getElementById("inp'.$a_child["node_id"].'").focus();');
+            $this->main_tpl->addOnLoadCode('document.getElementById("inp' . $a_child["node_id"] . '").focus();');
         }
 
         // expander
@@ -773,7 +773,7 @@ class ilHierarchyFormGUI extends ilFormGUI
                 }
                 $ilCtrl->setParameter($this->getParentObject(), $this->getExpandVariable(), "");
             } else {
-                $a_tpl->setVariable("IMG_EXPAND", ilUtil::getImagePath("spacer.png"));
+                $a_tpl->setVariable("IMG_EXPAND", ilUtil::getImagePath("media/spacer.png"));
             }
             $a_tpl->parseCurrentBlock();
         }
@@ -789,7 +789,7 @@ class ilHierarchyFormGUI extends ilFormGUI
         // drop area after child
         $a_tpl->setCurrentBlock("drop_area");
         $a_tpl->setVariable("DNODE_ID", $a_child["node_id"]);
-        $a_tpl->setVariable("IMG_BLANK", ilUtil::getImagePath("spacer.png"));
+        $a_tpl->setVariable("IMG_BLANK", ilUtil::getImagePath("media/spacer.png"));
         $a_tpl->parseCurrentBlock();
 
         // manage drag and drop areas
@@ -858,7 +858,7 @@ class ilHierarchyFormGUI extends ilFormGUI
 
     public function getChildIcon(array $a_item): string
     {
-        return ilUtil::getImagePath("icon_" . $a_item["type"] . ".svg");
+        return ilUtil::getImagePath("standard/icon_" . $a_item["type"] . ".svg");
     }
 
     public function getChildIconAlt(array $a_item): string

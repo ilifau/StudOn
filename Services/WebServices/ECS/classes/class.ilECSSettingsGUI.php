@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -546,7 +547,6 @@ class ilECSSettingsGUI
     {
         $servers = ilECSServerSettings::getInstance();
         foreach ($servers->getServers(ilECSServerSettings::ALL_SERVER) as $server) {
-
             // read community
             try {
                 $creader = ilECSCommunityReader::getInstanceByServerId($server->getServerId());

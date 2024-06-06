@@ -19,6 +19,10 @@
 namespace ILIAS\DI;
 
 use ILIAS\BackgroundTasks\BackgroundTaskServices;
+use ILIAS\Filesystem\Util\Archive\Archives;
+use ILIAS\Filesystem\Util\Archive\LegacyArchives;
+use ILIAS\Cache\Services;
+use ILIAS\Filesystem\Util\Convert\Converters;
 use ILIAS\Repository;
 use ILIAS\Skill\Service\SkillService;
 
@@ -31,6 +35,7 @@ use ILIAS\Skill\Service\SkillService;
 class Container extends \Pimple\Container
 {
     private ?\ilFileServicesSettings $file_service_settings = null;
+<<<<<<< HEAD
     
     // fau: fauService
     /**
@@ -41,6 +46,8 @@ class Container extends \Pimple\Container
     }
     // fau.
 
+=======
+>>>>>>> v9.1
 
     /**
      * Get interface to the Database.
@@ -48,6 +55,11 @@ class Container extends \Pimple\Container
     public function database(): \ilDBInterface
     {
         return $this["ilDB"];
+    }
+
+    public function globalCache(): Services
+    {
+        return $this["global_cache"] ?? new Services(null);
     }
 
     /**
@@ -225,14 +237,18 @@ class Container extends \Pimple\Container
         );
     }
 
+<<<<<<< HEAD
     public function news(): \ilNewsService
+=======
+    public function news(): \ILIAS\News\Service
+>>>>>>> v9.1
     {
-        return new \ilNewsService($this->language(), $this->settings(), $this->user());
+        return new \ILIAS\News\Service($this);
     }
 
     public function object(): \ilObjectService
     {
-        return new \ilObjectService($this->language(), $this->settings(), $this->filesystem(), $this->upload());
+        return new \ilObjectService();
     }
 
     public function exercise(): \ILIAS\Exercise\Service
@@ -393,6 +409,7 @@ class Container extends \Pimple\Container
         return new \ILIAS\Awareness\Service($this);
     }
 
+<<<<<<< HEAD
     public function fileServiceSettings(): \ilFileServicesSettings
     {
         if ($this->file_service_settings === null) {
@@ -405,6 +422,59 @@ class Container extends \Pimple\Container
         return $this->file_service_settings;
     }
 
+=======
+    public function export(): \ILIAS\Export\Service
+    {
+        return new \ILIAS\Export\Service();
+    }
+
+    public function personalWorkspace(): \ILIAS\PersonalWorkspace\Service
+    {
+        return new \ILIAS\PersonalWorkspace\Service();
+    }
+
+    public function taxonomy(): \ILIAS\Taxonomy\Service
+    {
+        return new \ILIAS\Taxonomy\Service($this);
+    }
+
+    public function infoScreen(): \ILIAS\InfoScreen\Service
+    {
+        return new \ILIAS\InfoScreen\Service($this);
+    }
+
+    public function fileServiceSettings(): \ilFileServicesSettings
+    {
+        if ($this->file_service_settings === null) {
+            $this->file_service_settings = new \ilFileServicesSettings(
+                $this->settings(),
+                $this->clientIni(),
+                $this->database()
+            );
+        }
+        return $this->file_service_settings;
+    }
+
+
+    public function archives(): Archives
+    {
+        return new Archives();
+    }
+
+    /**
+     * @deprecated Use archives() instead
+     */
+    public function legacyArchives(): LegacyArchives
+    {
+        return new LegacyArchives();
+    }
+
+    public function fileConverters(): Converters
+    {
+        return new Converters();
+    }
+
+>>>>>>> v9.1
     public function contentStyle(): \ILIAS\Style\Content\Service
     {
         return new \ILIAS\Style\Content\Service($this);
@@ -418,6 +488,26 @@ class Container extends \Pimple\Container
     public function cron(): \ilCronServices
     {
         return new \ilCronServicesImpl($this);
+    }
+
+    public function mail(): \ILIAS\Mail\Service\MailService
+    {
+        return new \ILIAS\Mail\Service\MailService($this);
+    }
+
+    public function certificate(): \ILIAS\Certificate\Service\CertificateService
+    {
+        return new \ILIAS\Certificate\Service\CertificateService($this);
+    }
+
+    public function fileDelivery(): \ILIAS\FileDelivery\Services
+    {
+        return $this['file_delivery'];
+    }
+
+    public function learningObjectMetadata(): \ILIAS\MetaData\Services\ServicesInterface
+    {
+        return new \ILIAS\MetaData\Services\Services($this);
     }
 
     /**

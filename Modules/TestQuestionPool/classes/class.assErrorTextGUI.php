@@ -44,7 +44,6 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
         $this->tabs = $DIC->tabs();
 
         parent::__construct();
-        include_once "./Modules/TestQuestionPool/classes/class.assErrorText.php";
         $this->object = new assErrorText();
         $this->setErrorMessage($this->lng->txt("msg_form_save_error"));
         if ($id >= 0) {
@@ -59,7 +58,6 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
     {
         $hasErrors = (!$always) ? $this->editQuestion(true) : false;
         if (!$hasErrors) {
-            require_once 'Services/Form/classes/class.ilPropertyFormGUI.php';
             $this->writeQuestionGenericPostData();
             $this->writeQuestionSpecificPostData(new ilPropertyFormGUI());
             $this->writeAnswerSpecificPostData(new ilPropertyFormGUI());
@@ -109,7 +107,9 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
         $this->object->setPointsWrong((float) $points_wrong);
 
         if (!$this->object->getSelfAssessmentEditingMode()) {
-            $this->object->setTextSize($this->request->int('textsize'));
+            $this->object->setTextSize(
+                (float) str_replace(',', '.', $this->request->raw('textsize'))
+            );
         }
     }
 
@@ -126,7 +126,6 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
         $save = $this->isSaveCommand();
         $this->getQuestionTemplate();
 
-        include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
         $this->editForm = $form;
 
@@ -176,7 +175,6 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
         $header->setTitle($this->lng->txt("errors_section"));
         $form->addItem($header);
 
-        include_once "./Modules/TestQuestionPool/classes/class.ilErrorTextWizardInputGUI.php";
         $errordata = new ilErrorTextWizardInputGUI($this->lng->txt("errors"), "errordata");
         $errordata->setKeyName($this->lng->txt('text_wrong'));
         $errordata->setValueName($this->lng->txt('text_correct'));
@@ -214,7 +212,7 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
         if (!$this->object->getSelfAssessmentEditingMode()) {
             // textsize
             $textsize = new ilNumberInputGUI($this->lng->txt("textsize"), "textsize");
-            $textsize->setValue(mb_strlen($this->object->getTextSize()) ? $this->object->getTextSize() : 100.0);
+            $textsize->setValue($this->object->getTextSize() ?? 100.0);
             $textsize->setInfo($this->lng->txt("textsize_errortext_info"));
             $textsize->setSize(6);
             $textsize->setSuffix("%");
@@ -267,7 +265,7 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
 
 
         $selections = [
-            'user' => $this->getUsersSolutionFromPreviewOrDatabase($active_id, $pass)
+            'user' => $this->getUsersSolutionFromPreviewOrDatabase((int) $active_id, $pass)
         ];
         $selections['best'] = $this->object->getBestSelection();
 
@@ -317,7 +315,7 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
             );
 
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
-            $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
+            $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
         }
 
         $solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
@@ -424,7 +422,7 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
         }
         $feedback .= '</tbody></table>';
 
-        return $this->object->prepareTextareaOutput($feedback, true);
+        return ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true);
     }
 
     /**
@@ -513,8 +511,6 @@ class assErrorTextGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
 
     public function populateCorrectionsFormProperties(ilPropertyFormGUI $form): void
     {
-        // error terms
-        include_once "./Modules/TestQuestionPool/classes/forms/class.ilAssErrorTextCorrectionsInputGUI.php";
         $errordata = new ilAssErrorTextCorrectionsInputGUI($this->lng->txt('errors'), 'errordata');
         $errordata->setKeyName($this->lng->txt('text_wrong'));
         $errordata->setValueName($this->lng->txt('text_correct'));

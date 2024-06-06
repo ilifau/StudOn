@@ -1,14 +1,14 @@
 /*globals longMenuQuestionGapBuilder, alert, performance, JSON */
 var longMenuQuestion = (function () {
 	'use strict';
-	
+
 	let scrollable_page_element_class = 'il-layout-page-content';
-	
+
 	var pub = {},
 	    pro = {},
 	    pri = {};
 	var temp_answers = [];
-	pub.questionParts = []; 
+	pub.questionParts = [];
 	pub.answers = [];
 	pri.ignoreCallbackItemOnRedraw = true;
 	pri.gapTypeText = 1;
@@ -35,7 +35,7 @@ var longMenuQuestion = (function () {
 		{
 			pro.checkDataConsistency(existing_gaps);
 		};
-		
+
 		gap_builder.Init();
 	};
 
@@ -67,7 +67,7 @@ var longMenuQuestion = (function () {
 		pro.redrawFormParts();
 		pro.syncWithHiddenTextField();
 	};
-	
+
 	pro.appendFormParts = function()  {
 		var footer_class 	= $('.ilFormFooter').last();
 		var new_title 		= $('.gap_title').find('.ilFormHeader').clone().addClass('longmenu_head longmenu');
@@ -170,7 +170,7 @@ var longMenuQuestion = (function () {
 	};
 
 	pro.addAutocompleteListener = function()  {
-		$( '#min_auto_complete' ).on( 'blur', function() 
+		$( '#min_auto_complete' ).on( 'blur', function()
 		{
 			pro.ensureAutoCompleteIsPossibleWithTextInput();
 		});
@@ -205,13 +205,13 @@ var longMenuQuestion = (function () {
 			$('#' +'error_answer_' + gap_index).find('.autocomplete_error').removeClass('prototype_long_menu');
 		}
 	};
-	
+
 	pro.selectChangeFunction = function (that)
 	{
 		var question_id = parseInt(that.attr('data-id'), 10);
 		pub.questionParts.list[question_id][2] = that.val();
 	};
-	
+
 	pro.answerOptionsClickFunction = function (that)
 	{
 		var gap_id = that.attr('data-id');
@@ -262,17 +262,18 @@ var longMenuQuestion = (function () {
 			pri.ignoreCallbackItemOnRedraw = false;
 		});
 	};
-	
+
 	pro.appendErrorHandlerHtml = function(footer_class, index)
 	{
 		footer_class.parent().append($('#error_answer').clone().attr({'id': 'error_answer_' + index}).addClass('longmenu'));
 		pro.displayErrors(index);
 	};
-	
+
 	pro.displayErrors = function(index)
 	{
 		var value_error = false;
-		if(parseFloat(pub.questionParts.list[index][1]) <= 0)
+    let points = parseFloat(pub.questionParts.list[index][1]);
+		if( isNaN(points) || points <= 0)
 		{
 			$('#' +'error_answer_' + index).find('.points_error').removeClass('prototype_long_menu');
 		}
@@ -298,7 +299,7 @@ var longMenuQuestion = (function () {
 			$('#' +'error_answer_' + index).find('.value_error').addClass('prototype_long_menu');
 		}
 	};
-	
+
 	pri.saveTagInputsToHiddenFieldsOnCallback = function()
 	{
 		if(pri.ignoreCallbackItemOnRedraw === false)
@@ -310,7 +311,7 @@ var longMenuQuestion = (function () {
 			});
 		}
 	};
-	
+
 	pro.saveCorrectAnswersToHiddenField = function(question_id)
 	{
 		var elements    =   $('#tagsinput_' + question_id).tagsinput('items');
@@ -322,7 +323,7 @@ var longMenuQuestion = (function () {
 		pro.syncWithCorrectAnswers(question_id);
 		pro.syncWithHiddenTextField();
 	};
-	
+
 	pro.appendUploadButtons = function()
 	{
 		var html = $('#layout_dummy_upload').clone().html();
@@ -330,7 +331,7 @@ var longMenuQuestion = (function () {
 		html += $('#layout_dummy_buttons').clone().attr('id', '').html();
 		return html;
 	};
-	
+
 	pro.appendModalTitle = function(text, question_id)
 	{
 		var modal_title = $('#ilGapModal .modal-title');
@@ -389,7 +390,7 @@ var longMenuQuestion = (function () {
 		pro.appendAnswerCloneButtonEvents();
 		pro.redrawFormParts();
 	};
-	
+
 	pro.redrawAnswerListFast = function(gap_id, answer_id, addRow)
 	{
 		var answerList_object = $('.answerlist');
@@ -412,7 +413,7 @@ var longMenuQuestion = (function () {
 		}
 		pro.redrawFormParts();
 	};
-	
+
 	pro.recalculateAnswerListDataIds = function()
 	{
 		var t0 = pro.benchmarkCallsDummyNotForUsage('recalculateAnswerListDataIds');
@@ -454,10 +455,10 @@ var longMenuQuestion = (function () {
 	};
 	pro.appendAbstractCloneButtonEvent = function(classElement, eventCallback)
 	{
-		var button 	= $(classElement);
+		var button 	= $(classElement + ' a');
 		button.off( 'click');
 		button.on( 'click', function() {
-			var gap_id 		= $(this).parent().prev().attr('data-id');
+			var gap_id = $(this).parent().parent().prev().attr('data-id');
 			var question_id = $('#ilGapModal .modal-title').attr('data-id');
 			if (typeof eventCallback === 'function') {
 				eventCallback(gap_id, question_id);
@@ -490,7 +491,7 @@ var longMenuQuestion = (function () {
 		pub.answers[gap_id] = answers;
 		pro.checkAnswersArray(gap_id);
 	};
-	
+
 	pro.appendCancelModalButtonEvent = function()
 	{
 		pro.appendAbstractModalButtonEvent( '.cancel-modal' , function (){});
@@ -538,7 +539,7 @@ var longMenuQuestion = (function () {
 			pub.questionParts.list[question_id][0].splice(position, 1);
 		});
 	};
-	
+
 	pro.checkAnswersArray = function (question_id)
 	{
 		var result = [];
@@ -560,7 +561,7 @@ var longMenuQuestion = (function () {
 		pro.syncWithHiddenTextField();
 	};
 
-	pro.syncWithHiddenTextField = function() 
+	pro.syncWithHiddenTextField = function()
 	{
 		$('#hidden_text_files').val(JSON.stringify(pub.answers));
 		$('#hidden_correct_answers').val(JSON.stringify(pub.questionParts.list));
@@ -578,13 +579,13 @@ var longMenuQuestion = (function () {
 		if ( pub.filereader_usable )
 		{
 			var file = evt.target.files[0];
-			if (file) 
+			if (file)
 			{
 				var reader = new FileReader();
 				var textType = /text.*/;
-				if (file.type.match(textType)) 
+				if (file.type.match(textType))
 				{
-					reader.onload = function(e) 
+					reader.onload = function(e)
 					{
 						var contents 	= e.target.result;
 						var gap_id	= $('#ilGapModal .modal-title').attr('data-id');
@@ -598,8 +599,8 @@ var longMenuQuestion = (function () {
 				{
 					alert('Filetype not supported');
 				}
-			} 
-			else 
+			}
+			else
 			{
 				alert('Failed to load file');
 			}
@@ -609,7 +610,7 @@ var longMenuQuestion = (function () {
 			alert('The File APIs are not fully supported by your browser.');
 		}
 	};
-	
+
 	pro.scrollToPageObject = function(object)
 	{
 		let scrollable_page_element;
@@ -622,13 +623,13 @@ var longMenuQuestion = (function () {
 		let target = document.getElementById(object);
 		if (target) {
 			let scroll_position = target.getBoundingClientRect().y - scrollable_page_element.getBoundingClientRect().y;
-			scrollable_page_element.scrollTo({ 
+			scrollable_page_element.scrollTo({
 				top: scroll_position,
 				behavior: 'smooth'
 			});
 		}
 	};
-	
+
 	pro.benchmarkCallsDummyNotForUsage = function(function_caller, t0)
 	{
 		if(t0 === undefined)
@@ -649,7 +650,7 @@ var longMenuQuestion = (function () {
 		}
 		pub.questionParts.list[gap_id] = [[], '0', '1'];
 	};
-	
+
 	//Public property
 
 	pub.Init = function(language, questionParts, answers)
@@ -673,7 +674,7 @@ var longMenuQuestion = (function () {
 		}
 		pro.ensureAutoCompleteIsPossibleWithTextInput();
 	};
-	
+
 	//Return just the public parts
 	pub.protect = pro;
 	return pub;

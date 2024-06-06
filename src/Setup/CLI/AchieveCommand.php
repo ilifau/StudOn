@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\Setup\CLI;
 
 use ILIAS\Setup\ArrayEnvironment;
@@ -136,7 +144,6 @@ class AchieveCommand extends Command
         $io->title("Achieve objective: $objective_name");
 
         $config = null;
-
         if ($input->getArgument("config")) {
             $config = $this->readAgentConfig($agent, $input);
         }

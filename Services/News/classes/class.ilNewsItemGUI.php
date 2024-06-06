@@ -71,10 +71,10 @@ class ilNewsItemGUI
         $this->add_mode = (string) ($params["add_mode"] ?? "");
         $this->news_access = new NewsAccess($this->requested_ref_id);
 
-        $this->std_request = new StandardGUIRequest(
-            $DIC->http(),
-            $DIC->refinery()
-        );
+        $this->std_request = $DIC->news()
+            ->internal()
+            ->gui()
+            ->standardRequest();
 
         if ($this->requested_news_item_id > 0) {
             $this->news_item = new ilNewsItem($this->requested_news_item_id);
@@ -238,7 +238,7 @@ class ilNewsItemGUI
 
         // media
         $media = new ilFileInputGUI($lng->txt('news_media'), 'media');
-        $media->setSuffixes(["jpeg", "jpg", "png", "gif", "mp4", "mp3"]);
+        $media->setSuffixes(["jpeg", "jpg", "png", "gif", "mp4", "mp3", "pdf"]);
         $media->setRequired(false);
         $media->setAllowDeletion(true);
         $media->setValue(" ");

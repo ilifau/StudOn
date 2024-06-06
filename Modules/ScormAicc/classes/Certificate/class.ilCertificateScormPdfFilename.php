@@ -20,15 +20,11 @@ declare(strict_types=1);
 
 class ilCertificateScormPdfFilename implements ilCertificateFilename
 {
-    private ilSetting $scormSetting;
-    private ilCertificateFilename $origin;
-    private ilLanguage $lng;
-
-    public function __construct(ilCertificateFilename $origin, ilLanguage $lng, ilSetting $scormSetting)
-    {
-        $this->scormSetting = $scormSetting;
-        $this->origin = $origin;
-        $this->lng = $lng;
+    public function __construct(
+        private readonly ilCertificateFilename $origin,
+        private readonly ilLanguage $lng,
+        private readonly ilSetting $scormSetting
+    ) {
     }
 
     public function createFileName(ilUserCertificatePresentation $presentation): string
@@ -49,7 +45,7 @@ class ilCertificateScormPdfFilename implements ilCertificateFilename
         }
 
         return implode('_', array_filter([
-            strftime('%y%m%d', time()),
+            date('ymd'),
             $fileNameParts,
             $fileName
         ]));

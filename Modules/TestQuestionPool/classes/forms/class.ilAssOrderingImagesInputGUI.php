@@ -18,8 +18,15 @@
 class ilAssOrderingImagesInputGUI extends ilMultipleImagesInputGUI
 {
     public const POST_VARIABLE_NAME = 'ordering';
+    private string $pending;
 
-    public function __construct(ilAssOrderingFormValuesObjectsConverter $converter, string $postVar)
+    /**
+     * ilAssOrderingImagesInputGUI constructor.
+     *
+     * @param assOrderingQuestion $questionOBJ
+     * @param string $postVar
+     */
+    public function __construct(ilAssOrderingFormValuesObjectsConverter $converter, $postVar)
     {
         $manipulator = new ilAssOrderingDefaultElementFallback();
         $this->addFormValuesManipulator($manipulator);
@@ -33,15 +40,28 @@ class ilAssOrderingImagesInputGUI extends ilMultipleImagesInputGUI
 
     public static $instanceCounter = 0;
 
+    /**
+     * FOR COMPATIBILITY ONLY
+     *
+     * @param $stylingDisabled
+     */
     public function setStylingDisabled($stylingDisabled): void
     {
     }
 
+    /**
+     * FOR COMPATIBILITY ONLY
+     *
+     * @return bool
+     */
     public function getStylingDisabled(): bool
     {
         return false;
     }
 
+    /**
+     * @param ilAssOrderingElementList $elementList
+     */
     public function setElementList(ilAssOrderingElementList $elementList): void
     {
         $this->setIdentifiedMultiValues($elementList->getRandomIdentifierIndexedElements());
@@ -53,6 +73,16 @@ class ilAssOrderingImagesInputGUI extends ilMultipleImagesInputGUI
     public function getElementList($questionId): ilAssOrderingElementList
     {
         return ilAssOrderingElementList::buildInstance($questionId, $this->getIdentifiedMultiValues());
+    }
+
+    /**
+     * @param string $filenameInput
+     * @return bool
+     */
+    protected function isValidFilenameInput($filenameInput): bool
+    {
+        /* @var ilAssOrderingElement $filenameInput */
+        return (bool) strlen($filenameInput->getContent());
     }
 
     public function setPending(string $a_val): void

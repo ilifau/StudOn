@@ -45,7 +45,6 @@ class ilObjSAHSLearningModuleAccess extends ilObjectAccess implements ilConditio
         int $a_usr_id
     ): bool {
         switch ($a_operator) {
-
             case ilConditionHandler::OPERATOR_FAILED:
                 return ilLPStatus::_lookupStatus($a_trigger_obj_id, $a_usr_id) == ilLPStatus::LP_STATUS_FAILED_NUM;
                 break;
@@ -53,7 +52,6 @@ class ilObjSAHSLearningModuleAccess extends ilObjectAccess implements ilConditio
             case ilConditionHandler::OPERATOR_FINISHED:
             default:
                 return ilLPStatus::_hasUserCompleted($a_trigger_obj_id, $a_usr_id);
-
         }
     }
 
@@ -102,7 +100,7 @@ class ilObjSAHSLearningModuleAccess extends ilObjectAccess implements ilConditio
     /**
      * Returns the number of bytes used on the harddisk by the learning module
      * with the specified object id.
-     * @param int object id of a file object.
+     * @param int $a_id object id of a file object.
      */
     public static function _lookupDiskUsage(int $a_id): int
     {

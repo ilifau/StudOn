@@ -23,27 +23,28 @@ declare(strict_types=1);
  */
 class ilPdfGenerator
 {
-    private ilUserCertificateRepository $certificateRepository;
-    private ilLogger $logger;
-    private ilCertificateRpcClientFactoryHelper $rpcHelper;
-    private ilCertificatePdfFileNameFactory $pdfFilenameFactory;
+    private readonly ilCertificateRpcClientFactoryHelper $rpcHelper;
+    private readonly ilCertificateMathJaxHelper $mathJaxHelper;
+    private readonly ilCertificatePdfFileNameFactory $pdfFilenameFactory;
 
     public function __construct(
-        ilUserCertificateRepository $userCertificateRepository,
-        ilLogger $logger,
+        private readonly ilUserCertificateRepository $certificateRepository,
         ?ilCertificateRpcClientFactoryHelper $rpcHelper = null,
         ?ilCertificatePdfFileNameFactory $pdfFileNameFactory = null,
-        ?ilLanguage $lng = null
+        ?ilLanguage $lng = null,
+        ?ilCertificateMathJaxHelper $mathJaxHelper = null
     ) {
         global $DIC;
-
-        $this->certificateRepository = $userCertificateRepository;
-        $this->logger = $logger;
 
         if (null === $rpcHelper) {
             $rpcHelper = new ilCertificateRpcClientFactoryHelper();
         }
         $this->rpcHelper = $rpcHelper;
+
+        if (null === $mathJaxHelper) {
+            $mathJaxHelper = new ilCertificateMathJaxHelper();
+        }
+        $this->mathJaxHelper = $mathJaxHelper;
 
         if (null === $lng) {
             $lng = $DIC->language();
@@ -56,8 +57,6 @@ class ilPdfGenerator
     }
 
     /**
-     * @param int $userCertificateId
-     * @return string
      * @throws ilException
      */
     public function generate(int $userCertificateId): string
@@ -68,9 +67,6 @@ class ilPdfGenerator
     }
 
     /**
-     * @param int $userId
-     * @param int $objId
-     * @return string
      * @throws ilException
      */
     public function generateCurrentActiveCertificate(int $userId, int $objId): string
@@ -81,9 +77,6 @@ class ilPdfGenerator
     }
 
     /**
-     * @param int $userId
-     * @param int $objId
-     * @return string
      * @throws ilDatabaseException
      * @throws ilException
      * @throws ilObjectNotFoundException
@@ -109,6 +102,8 @@ class ilPdfGenerator
             ['[CLIENT_WEB_DIR]' . $certificate->getBackgroundImagePath(), 'file://' . CLIENT_WEB_DIR],
             $certificateContent
         );
+        
+        $certificateContent = $this->mathJaxHelper->fillXlsFoContent($certificateContent);
 
         $pdf_base64 = $this->rpcHelper->ilFO2PDF('RPCTransformationHandler', $certificateContent);
 

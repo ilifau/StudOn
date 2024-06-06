@@ -158,7 +158,7 @@ class ilAuthProviderOpenIdConnect extends ilAuthProvider
             $sync->updateUser();
 
             $user_id = $sync->getUserId();
-            ilSession::set('used_external_auth', true);
+            ilSession::set('used_external_auth_mode', ilAuthUtils::AUTH_OPENID_CONNECT);
             $status->setAuthenticatedUserId($user_id);
             $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);
 

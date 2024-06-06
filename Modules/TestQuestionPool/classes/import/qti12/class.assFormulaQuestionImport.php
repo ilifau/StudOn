@@ -52,13 +52,13 @@ class assFormulaQuestionImport extends assQuestionImport
         $now = getdate();
         $created = sprintf("%04d%02d%02d%02d%02d%02d", $now['year'], $now['mon'], $now['mday'], $now['hours'], $now['minutes'], $now['seconds']);
 
-        $feedbacksgeneric = array();
+        $feedbacksgeneric = [];
 
         $this->object->setTitle($item->getTitle());
         $this->object->setComment($item->getComment());
         $this->object->setAuthor($item->getAuthor());
         $this->object->setOwner($ilUser->getId());
-        $this->object->setQuestion($this->object->QTIMaterialToString($item->getQuestiontext()));
+        $this->object->setQuestion($this->QTIMaterialToString($item->getQuestiontext()));
         $this->object->setObjId($questionpool_id);
         if (preg_match_all("/(\\\$v\\d+)/ims", $this->object->getQuestion(), $matches)) {
             foreach ($matches[1] as $variable) {
@@ -136,17 +136,20 @@ class assFormulaQuestionImport extends assQuestionImport
         $this->object->saveToDb();
         if (count($item->suggested_solutions)) {
             foreach ($item->suggested_solutions as $suggested_solution) {
-                $this->object->setSuggestedSolution($suggested_solution["solution"]->getContent(), $suggested_solution["gap_index"], true);
+                $this->importSuggestedSolution(
+                    $this->object->getId(),
+                    $suggested_solution["solution"]->getContent(),
+                    $suggested_solution["gap_index"]
+                );
             }
-            $this->object->saveToDb();
         }
         if ($tst_id > 0) {
             $q_1_id = $this->object->getId();
             $question_id = $this->object->duplicate();
             $tst_object->questions[$question_counter++] = $question_id;
-            $import_mapping[$item->getIdent()] = array("pool" => $q_1_id, "test" => $question_id);
+            $import_mapping[$item->getIdent()] = ["pool" => $q_1_id, "test" => $question_id];
         } else {
-            $import_mapping[$item->getIdent()] = array("pool" => $this->object->getId(), "test" => 0);
+            $import_mapping[$item->getIdent()] = ["pool" => $this->object->getId(), "test" => 0];
         }
         return $import_mapping;
     }

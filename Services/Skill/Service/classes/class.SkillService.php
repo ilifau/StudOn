@@ -14,10 +14,16 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Skill\Service;
+
+use ILIAS\Container;
+use ILIAS\Survey;
+use ILIAS\Test;
+use ILIAS\TestQuestionPool;
 
 /**
  * Skill service
@@ -79,6 +85,22 @@ class SkillService implements SkillServiceInterface
     }
 
     /**
+     * External personal service facade
+     */
+    public function personal(): SkillPersonalService
+    {
+        return new SkillPersonalService($this->internal());
+    }
+
+    /**
+     * External usage service facade
+     */
+    public function usage(): SkillUsageService
+    {
+        return new SkillUsageService($this->internal());
+    }
+
+    /**
      * @inheritDoc
      */
     public function internal(): SkillInternalService
@@ -89,5 +111,21 @@ class SkillService implements SkillServiceInterface
             $this->rbac_system,
             $this->usr_id
         );
+    }
+
+    /**
+     * Internal service for Skill classes in Container Service
+     */
+    public function internalContainer(): Container\Skills\SkillInternalService
+    {
+        return new Container\Skills\SkillInternalService();
+    }
+
+    /**
+     * Internal service for Skill classes in Survey Module
+     */
+    public function internalSurvey(): Survey\Skills\SkillInternalService
+    {
+        return new Survey\Skills\SkillInternalService();
     }
 }

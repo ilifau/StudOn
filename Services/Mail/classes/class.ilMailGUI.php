@@ -30,14 +30,14 @@ use ILIAS\Mail\Provider\MailGlobalScreenToolProvider;
  */
 class ilMailGUI implements ilCtrlBaseClassInterface
 {
-    private ilGlobalTemplateInterface $tpl;
-    private ilCtrlInterface $ctrl;
-    private ilLanguage $lng;
+    private readonly ilGlobalTemplateInterface $tpl;
+    private readonly ilCtrlInterface $ctrl;
+    private readonly ilLanguage $lng;
     private string $forwardClass = '';
-    private GlobalHttpState $http;
-    private Refinery $refinery;
+    private readonly GlobalHttpState $http;
+    private readonly Refinery $refinery;
     private int $currentFolderId = 0;
-    private ilObjUser $user;
+    private readonly ilObjUser $user;
     public ilMail $umail;
     public ilMailbox $mbox;
 
@@ -285,7 +285,7 @@ class ilMailGUI implements ilCtrlBaseClassInterface
         $DIC['ilHelp']->setScreenIdComponent("mail");
 
         $this->tpl->loadStandardTemplate();
-        $this->tpl->setTitleIcon(ilUtil::getImagePath("icon_mail.svg"));
+        $this->tpl->setTitleIcon(ilUtil::getImagePath("standard/icon_mail.svg"));
 
         $this->ctrl->setParameterByClass(ilMailFolderGUI::class, 'mobj_id', $this->currentFolderId);
         $DIC->tabs()->addTarget('fold', $this->ctrl->getLinkTargetByClass(ilMailFolderGUI::class));
@@ -316,24 +316,12 @@ class ilMailGUI implements ilCtrlBaseClassInterface
             $this->ctrl->clearParametersByClass(ilMailOptionsGUI::class);
         }
 
-        switch (strtolower($this->forwardClass)) {
-            case strtolower(ilMailFormGUI::class):
-                $DIC->tabs()->setTabActive('compose');
-                break;
-
-            case strtolower(ilContactGUI::class):
-                $DIC->tabs()->setTabActive('mail_addressbook');
-                break;
-
-            case strtolower(ilMailOptionsGUI::class):
-                $DIC->tabs()->setTabActive('options');
-                break;
-
-            case strtolower(ilMailFolderGUI::class):
-            default:
-                $DIC->tabs()->setTabActive('fold');
-                break;
-        }
+        match (strtolower($this->forwardClass)) {
+            strtolower(ilMailFormGUI::class) => $DIC->tabs()->setTabActive('compose'),
+            strtolower(ilContactGUI::class) => $DIC->tabs()->setTabActive('mail_addressbook'),
+            strtolower(ilMailOptionsGUI::class) => $DIC->tabs()->setTabActive('options'),
+            default => $DIC->tabs()->setTabActive('fold'),
+        };
 
         if ($this->http->wrapper()->query()->has('message_sent')) {
             $DIC->tabs()->setTabActive('fold');

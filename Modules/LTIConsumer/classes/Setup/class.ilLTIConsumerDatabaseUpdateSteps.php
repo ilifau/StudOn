@@ -185,7 +185,7 @@ class ilLTIConsumerDatabaseUpdateSteps implements ilDatabaseUpdateSteps
 
     public function step_15(): void
     {
-        if(!$this->db->tableExists('lti_consumer_grades')) {
+        if (!$this->db->tableExists('lti_consumer_grades')) {
             $values = array(
                 'id' => array(
                     'type' => 'integer',

@@ -24,55 +24,29 @@ use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Expr\Variable;
 use Rector\PostRector\Collector\NodesToAddCollector;
-use Rector\Transform\Rector\StaticCall\StaticCallToMethodCallRector;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Comment\Doc;
 use Rector\Core\Exception\ShouldNotHappenException;
 
 final class DICDependencyManipulator
 {
     public const DIC = 'DIC';
-    private \Rector\Core\PhpParser\Node\NodeFactory $nodeFactory;
-    private \Rector\Core\NodeManipulator\StmtsManipulator $stmtsManipulator;
-    private \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver;
-    private \Rector\Core\PhpParser\Comparing\NodeComparator $nodeComparator;
-    private NodesToAddCollector $nodesToAddCollector;
-    private \Rector\Core\NodeDecorator\CreatedByRuleDecorator $createdByRuleDecorator;
     private array $duplicate_checker = [];
-    private \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder;
     private array $added_constructors = [];
-    private \Rector\Core\Contract\Console\OutputStyleInterface $outputStyle;
 
     public function __construct(
-        \Rector\Core\PhpParser\Node\NodeFactory $nodeFactory,
-        \Rector\Core\NodeManipulator\StmtsManipulator $stmtsManipulator,
-        \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver,
-        \Rector\Core\PhpParser\Comparing\NodeComparator $nodeComparator,
-        NodesToAddCollector $nodesToAddCollector,
-        \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder,
-        \Rector\Core\Contract\Console\OutputStyleInterface $outputStyle
+        private \Rector\Core\PhpParser\Node\NodeFactory $nodeFactory,
+        private \Rector\Core\NodeManipulator\StmtsManipulator $stmtsManipulator,
+        private \Rector\Core\PhpParser\Comparing\NodeComparator $nodeComparator,
+        private NodesToAddCollector $nodesToAddCollector,
+        private \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder,
+        private \Rector\Core\Contract\Console\OutputStyleInterface $outputStyle
     ) {
-        $this->nodeFactory = $nodeFactory;
-        $this->stmtsManipulator = $stmtsManipulator;
-        $this->nodeNameResolver = $nodeNameResolver;
-        $this->nodeComparator = $nodeComparator;
-        $this->nodesToAddCollector = $nodesToAddCollector;
-        $this->betterNodeFinder = $betterNodeFinder;
-        $this->outputStyle = $outputStyle;
     }
 
-    /**
-     * @return Variable
-     */
     private function getDICVariable(): Variable
     {
         return new Variable(self::DIC);
     }
 
-    /**
-     * @return Stmt\Global_
-     */
     private function getGlobalDIC(): Stmt\Global_
     {
         return new Stmt\Global_([$this->getDICVariable()]);
@@ -131,8 +105,8 @@ final class DICDependencyManipulator
                 \Rector\Core\ValueObject\MethodName::CONSTRUCT
             );
         }
-        $first_class_method = array_filter($class->stmts, function (\PhpParser\Node $n): bool {
-            return $n instanceof ClassMethod;
+        $first_class_method = array_filter($class->stmts, function (\PhpParser\Node $node): bool {
+            return $node instanceof ClassMethod;
         });
         $first_class_method = array_shift($first_class_method);
         if ($first_class_method !== null) {
@@ -145,7 +119,6 @@ final class DICDependencyManipulator
             'created constructor for ' . $class->name->name . '. Please check the parent-call for missing parameters!'
         );
         $this->outputStyle->newline();
-
 
         $this->added_constructors[$class->name->name] = $classMethod;
 
@@ -193,7 +166,7 @@ final class DICDependencyManipulator
         ClassMethod $classMethod,
         Stmt\Class_ $class,
         Stmt $stmt
-    ) {
+    ): void {
         $class_method_string = $class->name->name . '::' . $classMethod->name->name;
         $statement_string = $this->nodeComparator->printWithoutComments($stmt);
         if (isset($this->duplicate_checker[$class_method_string][$statement_string])
@@ -209,21 +182,25 @@ final class DICDependencyManipulator
             return;
         }
 
-        $existing_dic = $this->betterNodeFinder->findFirst($classMethod->stmts, function (\PhpParser\Node $n): bool {
-            if (!$n instanceof Stmt\Global_) {
+        $node = $this->betterNodeFinder->findFirst($classMethod->stmts, function (\PhpParser\Node $node): bool {
+            if (!$node instanceof Stmt\Global_) {
                 return false;
             }
-            foreach ($n->vars as $var) {
-                if (isset($var->name) && $var->name === self::DIC) {
-                    return true;
+            foreach ($node->vars as $var) {
+                if (!(property_exists($var, 'name') && $var->name !== null)) {
+                    continue;
                 }
+                if ($var->name !== self::DIC) {
+                    continue;
+                }
+                return true;
             }
             return false;
         });
         $dic_statement_string = $this->nodeComparator->printWithoutComments($this->getGlobalDIC());
-        if ($existing_dic === null
+        if (!$node instanceof \PhpParser\Node
             && !isset($this->duplicate_checker[$class_method_string][$dic_statement_string]) // we already added global $DIC in this run
-            && !$this->duplicate_checker[$class_method_string][$dic_statement_string] === true
+            && !$this->duplicate_checker[$class_method_string][$dic_statement_string]
         ) {
             throw new ShouldNotHappenException(
                 'no dic found: ' . $class_method_string . ' (' . $statement_string . ') '
@@ -231,11 +208,11 @@ final class DICDependencyManipulator
         }
 
         // get first existing statement
-        $first_existing = array_filter($classMethod->stmts, function (\PhpParser\Node $n): bool {
-            if ($n->getAttributes() === []) {
+        $first_existing = array_filter($classMethod->stmts, function (\PhpParser\Node $node): bool {
+            if ($node->getAttributes() === []) {
                 return false;
             }
-            return !$n instanceof Stmt\Global_;
+            return !$node instanceof Stmt\Global_;
         });
         $first_existing = array_shift($first_existing);
         if ($first_existing !== null) {
@@ -300,37 +277,6 @@ final class DICDependencyManipulator
 
         // append arguments
 
-
         return new \PhpParser\Node\Stmt\Expression($staticCall);
-    }
-
-    private function isParamInConstructor(
-        \PhpParser\Node\Stmt\Class_ $class,
-        string $propertyName
-    ): bool {
-        $constructClassMethod = $class->getMethod(
-            \Rector\Core\ValueObject\MethodName::CONSTRUCT
-        );
-        if (!$constructClassMethod instanceof \PhpParser\Node\Stmt\ClassMethod) {
-            return \false;
-        }
-        foreach ($constructClassMethod->params as $param) {
-            if ($this->nodeNameResolver->isName($param, $propertyName)) {
-                return \true;
-            }
-        }
-        return \false;
-    }
-
-    private function hasMethodParameter(
-        \PhpParser\Node\Stmt\ClassMethod $classMethod,
-        string $name
-    ): bool {
-        foreach ($classMethod->params as $param) {
-            if ($this->nodeNameResolver->isName($param->var, $name)) {
-                return \true;
-            }
-        }
-        return \false;
     }
 }

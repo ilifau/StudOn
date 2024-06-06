@@ -198,10 +198,9 @@ abstract class ilParticipants
     /**
      * This method was introduced as a band-aid fix for #22764.
      * Please do not use this anywhere else.
-     * @param int|ilObject  $ref_id_or_instance
      */
     public static function canSendMailToMembers(
-        $ref_id_or_instance,
+        int|ilObject $ref_id_or_instance,
         ?int $usr_id = null,
         ?int $mail_obj_ref_id = null
     ): bool {
@@ -866,7 +865,6 @@ abstract class ilParticipants
             case self::IL_CRS_MEMBER:
                 $this->members[] = $a_usr_id;
                 break;
-
         }
 
         $this->participants[] = $a_usr_id;

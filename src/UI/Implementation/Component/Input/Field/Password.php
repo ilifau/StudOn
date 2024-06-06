@@ -87,7 +87,11 @@ class Password extends FormInput implements C\Input\Field\Password, Triggerable
         bool $upper = true,
         bool $numbers = true,
         bool $special = true
+<<<<<<< HEAD
     ): C\Input\Field\Input {
+=======
+    ): self {
+>>>>>>> v9.1
         $pw_validation = $this->refinery->password();
         $constraints = [
             $this->refinery->string()->hasMinLength($min_length),
@@ -168,7 +172,7 @@ class Password extends FormInput implements C\Input\Field\Password, Triggerable
      */
     public function getUpdateOnLoadCode(): Closure
     {
-        return fn ($id) => "$('#$id').on('input', function(event) {
+        return fn($id) => "$('#$id').on('input', function(event) {
 				il.UI.input.onFieldUpdate(event, '$id', $('#$id').find('input').val().replace(/./g, '*'));
 			});
 			il.UI.input.onFieldUpdate(event, '$id', $('#$id').find('input').val().replace(/./g, '*'));";

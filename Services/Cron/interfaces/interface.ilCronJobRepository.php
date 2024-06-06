@@ -18,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\Cron\Schedule\CronJobScheduleType;
+
 interface ilCronJobRepository
 {
     public function getJobInstanceById(string $id): ?ilCronJob;
@@ -31,9 +33,8 @@ interface ilCronJobRepository
 
     /**
      * Get cron job configuration/execution data
-     * @param array|string|null $id
-     * @param bool $withInactiveJobsIncluded
-     * @return array<int, array<string, mixed>>
+     * @param list<string>|string|null $id
+     * @return list<array<string, mixed>>
      */
     public function getCronJobData($id = null, bool $withInactiveJobsIncluded = true): array;
 
@@ -44,7 +45,6 @@ interface ilCronJobRepository
     public function createDefaultEntry(ilCronJob $job, string $component, string $class, ?string $path): void;
 
     /**
-     * @param bool $withOnlyActive
      * @return array<int, array{0: ilCronJob, 1: array<string, mixed>}>
      */
     public function getPluginJobs(bool $withOnlyActive = false): array;
@@ -61,7 +61,7 @@ interface ilCronJobRepository
 
     public function updateRunInformation(string $jobId, int $runningTimestamp, int $aliveTimestamp): void;
 
-    public function updateJobSchedule(ilCronJob $job, ?int $scheduleType, ?int $scheduleValue): void;
+    public function updateJobSchedule(ilCronJob $job, ?CronJobScheduleType $scheduleType, ?int $scheduleValue): void;
 
     public function activateJob(ilCronJob $job, DateTimeImmutable $when, ilObjUser $actor, bool $wasManuallyExecuted = false): void;
 

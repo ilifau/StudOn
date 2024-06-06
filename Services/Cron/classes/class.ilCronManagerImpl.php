@@ -18,28 +18,18 @@
 
 declare(strict_types=1);
 
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 use ILIAS\Data\Clock\ClockFactory;
 
 class ilCronManagerImpl implements ilCronManager
 {
-    private ilCronJobRepository $cronRepository;
-    private ilDBInterface $db;
-    private ilSetting $settings;
-    private ilLogger $logger;
-    private ClockFactory $clock_factory;
-
     public function __construct(
-        ilCronJobRepository $cronRepository,
-        ilDBInterface $db,
-        ilSetting $settings,
-        ilLogger $logger,
-        ClockFactory $clock_factory
+        private readonly ilCronJobRepository $cronRepository,
+        private readonly ilDBInterface $db,
+        private readonly ilSetting $settings,
+        private readonly ilLogger $logger,
+        private readonly ClockFactory $clock_factory
     ) {
-        $this->cronRepository = $cronRepository;
-        $this->db = $db;
-        $this->settings = $settings;
-        $this->logger = $logger;
-        $this->clock_factory = $clock_factory;
     }
 
     private function getMicrotime(): float
@@ -115,11 +105,6 @@ class ilCronManagerImpl implements ilCronManager
 
     /**
      * Run single cron job (internal)
-     * @param ilCronJob $job
-     * @param ilObjUser $actor
-     * @param array|null $jobData
-     * @param bool $isManualExecution
-     * @return bool
      * @internal
      */
     private function runJob(ilCronJob $job, ilObjUser $actor, ?array $jobData = null, bool $isManualExecution = false): bool
@@ -167,7 +152,7 @@ class ilCronManagerImpl implements ilCronManager
             $jobData['job_result_ts'] ? (new DateTimeImmutable(
                 '@' . $jobData['job_result_ts']
             ))->setTimezone($this->clock_factory->system()->now()->getTimezone()) : null,
-            $jobData['schedule_type'] ? (int) $jobData['schedule_type'] : null,
+            is_numeric($jobData['schedule_type']) ? CronJobScheduleType::tryFrom((int) $jobData['schedule_type']) : null,
             $jobData['schedule_value'] ? (int) $jobData['schedule_value'] : null,
             $isManualExecution
         )) {

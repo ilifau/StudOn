@@ -16,13 +16,18 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Exercise;
 
-use ILIAS\DI\UIServices;
-use ILIAS\HTTP;
 use ILIAS\Refinery;
-use ILIAS\Repository\GlobalDICGUIServices;
 use ILIAS\DI\Container;
+use ILIAS\Repository\GlobalDICGUIServices;
+use ILIAS\Exercise\InternalDataService;
+use ILIAS\Exercise\InternalDomainService;
+use ILIAS\Exercise\Assignment;
+use ILIAS\Exercise\PeerReview;
+use ILIAS\Exercise\PermanentLink\PermanentLinkManager;
 
 /**
  * Exercise UI frontend presentation service class
@@ -32,13 +37,10 @@ use ILIAS\DI\Container;
 class InternalGUIService
 {
     use GlobalDICGUIServices;
+
     protected \ILIAS\Exercise\InternalDataService $data_service;
     protected \ILIAS\Exercise\InternalDomainService $domain_service;
     protected \ilLanguage $lng;
-    protected \ilCtrl $ctrl;
-    protected \ilToolbarGUI $toolbar;
-    protected UIServices $ui;
-    protected HTTP\Services $http;
     protected Refinery\Factory $refinery;
 
     protected InternalService $service;
@@ -56,6 +58,31 @@ class InternalGUIService
         $this->domain_service = $domain_service;
         $this->initGUIServices($DIC);
     }
+
+    public function assignment(): Assignment\GUIService
+    {
+        return new Assignment\GUIService(
+            $this->domain_service,
+            $this
+        );
+    }
+
+    public function peerReview(): PeerReview\GUIService
+    {
+        return new PeerReview\GUIService(
+            $this->domain_service,
+            $this
+        );
+    }
+
+    public function permanentLink(): PermanentLinkManager
+    {
+        return new PermanentLinkManager(
+            $this->domain_service,
+            $this
+        );
+    }
+
 
     /**
      * Get request wrapper. If dummy data is provided the usual http wrapper will
@@ -98,11 +125,11 @@ class InternalGUIService
             $exc = $this->request()->getExercise();
         }
         return new \ilExcRandomAssignmentGUI(
-            $this->ui,
-            $this->toolbar,
-            $this->lng,
-            $this->ctrl,
-            $this->service->domain()->assignment()->randomAssignments($exc)
+            $this->ui(),
+            $this->toolbar(),
+            $this->domain_service->lng(),
+            $this->ctrl(),
+            $this->domain_service->assignment()->randomAssignments($exc)
         );
     }
 
@@ -125,5 +152,12 @@ class InternalGUIService
             $ass,
             $member_id
         );
+    }
+
+    public function getTeamSubmissionGUI(
+        \ilObjExercise $exc,
+        \ilExSubmission $submission
+    ): \ilExSubmissionTeamGUI {
+        return new \ilExSubmissionTeamGUI($exc, $submission);
     }
 }

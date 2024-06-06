@@ -21,6 +21,8 @@ declare(strict_types=1);
 namespace ILIAS\ResourceStorage\StorageHandler;
 
 use ILIAS\Filesystem\Stream\FileStream;
+use ILIAS\ResourceStorage\Flavour\Flavour;
+use ILIAS\ResourceStorage\Flavour\StorableFlavourDecorator;
 use ILIAS\ResourceStorage\Identification\IdentificationGenerator;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Resource\StorableResource;
@@ -28,10 +30,12 @@ use ILIAS\ResourceStorage\Revision\CloneRevision;
 use ILIAS\ResourceStorage\Revision\FileStreamRevision;
 use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\Revision\UploadedFileRevision;
+use ILIAS\ResourceStorage\StorageHandler\PathGenerator\PathGenerator;
+use ILIAS\ResourceStorage\Revision\StreamReplacementRevision;
 
 /**
  * Class FileResourceHandler
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  * @internal
  */
 interface StorageHandler
@@ -47,6 +51,7 @@ interface StorageHandler
 
     public function has(ResourceIdentification $identification): bool;
 
+<<<<<<< HEAD
     public function getStream(Revision $revision): FileStream;
 
     public function storeUpload(UploadedFileRevision $revision): bool;
@@ -54,6 +59,35 @@ interface StorageHandler
     public function storeStream(FileStreamRevision $revision): bool;
 
     public function cloneRevision(CloneRevision $revision): bool;
+=======
+    // STREAMS
+
+    public function getStream(Revision $revision): FileStream;
+
+    public function storeUpload(UploadedFileRevision $revision): bool;
+
+    public function storeStream(FileStreamRevision $revision): bool;
+
+
+    // FLAVOURS
+
+    public function hasFlavour(Revision $revision, Flavour $flavour): bool;
+
+    public function storeFlavour(Revision $revision, StorableFlavourDecorator $storabel_flavour): bool;
+
+    public function deleteFlavour(Revision $revision, Flavour $flavour): bool;
+
+    public function getFlavourStreams(Revision $revision, Flavour $flavour): \Generator;
+
+
+    public function getFlavourPath(Revision $revision, Flavour $flavour): string;
+
+    // REVISIONS
+
+    public function cloneRevision(CloneRevision $revision): bool;
+
+    public function streamReplacement(StreamReplacementRevision $revision): bool;
+>>>>>>> v9.1
 
     /**
      * This only delets a revision of a Resource
@@ -97,4 +131,9 @@ interface StorageHandler
      * @return string "link" or "rename"
      */
     public function movementImplementation(): string;
+<<<<<<< HEAD
+=======
+
+    public function getPathGenerator(): PathGenerator;
+>>>>>>> v9.1
 }

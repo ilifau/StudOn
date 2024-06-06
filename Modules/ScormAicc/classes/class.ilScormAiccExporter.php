@@ -65,5 +65,4 @@ class ilScormAiccExporter extends ilXmlExporter
     //                    "ids" => $md_ids)
     //                );
     //        }
-
 }

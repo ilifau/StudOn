@@ -59,26 +59,53 @@ class Renderer extends AbstractComponentRenderer
     ): string {
         $tpl = $this->getTemplate("tpl.presentationtable.html", true, true);
         $tpl->setVariable("TITLE", $component->getTitle());
+        $expcollapsebtns = [];
+        if ($sig_ta = $component->getExpandCollapseAllSignal()) {
+            $sig_ta_expand = clone $sig_ta;
+            $sig_ta_expand->addOption('expand', true);
+            $expcollapsebtns[] = $this->getUIFactory()->button()
+                ->standard($this->txt('presentation_table_expand'), '')
+                ->withOnClick($sig_ta_expand);
+            $sig_ta_collapse = clone $sig_ta;
+            $sig_ta_collapse->addOption('expand', false);
+            $expcollapsebtns[] = $this->getUIFactory()->button()
+                ->standard($this->txt('presentation_table_collapse'), '')
+                ->withOnClick($sig_ta_collapse);
+            $component = $component->withAdditionalOnLoadCode(
+                static fn($id) => "
+                    il.UI.table.presentation.init('{$id}');
+                    $(document).on('$sig_ta', function(event, signal_data) { il.UI.table.presentation.get('$id').expandAll(signal_data); return false; });
+                    "
+            );
+        }
+
+        $tpl->setVariable("EXPANDCOLLAPSEALL", $default_renderer->render($expcollapsebtns));
 
         $vcs = $component->getViewControls();
         if ($vcs) {
-            $tpl->touchBlock("viewcontrols");
-            foreach ($vcs as $vc) {
-                $tpl->setCurrentBlock("vc");
-                $tpl->setVariable("VC", $default_renderer->render($vc));
-                $tpl->parseCurrentBlock();
-            }
+            $tpl->setVariable("VC", $default_renderer->render($vcs));
         }
 
+<<<<<<< HEAD
         $component = $component->withAdditionalOnLoadCode(
             static fn ($id) => "il.UI.table.presentation.init('{$id}');"
         );
+=======
+>>>>>>> v9.1
         $id = $this->bindJavaScript($component);
         $tpl->setVariable("ID", $id);
 
         $row_mapping = $component->getRowMapping();
         $data = $component->getData();
         $component_id = $id;
+<<<<<<< HEAD
+=======
+
+        if (empty($data)) {
+            $this->renderEmptyPresentationRow($tpl, $default_renderer, $this->txt('ui_table_no_records'));
+            return $tpl->get();
+        }
+>>>>>>> v9.1
 
         foreach ($data as $record) {
             $row = $row_mapping(
@@ -121,6 +148,9 @@ class Renderer extends AbstractComponentRenderer
         $tpl->setVariable("COLLAPSER", $default_renderer->render($collapser));
         $tpl->setVariable("SHY_EXPANDER", $default_renderer->render($shy_expander));
 
+        if ($symbol = $component->getLeadingSymbol()) {
+            $tpl->setVariable("SYMBOL", $default_renderer->render($symbol));
+        }
         $tpl->setVariable("HEADLINE", $component->getHeadline());
         $tpl->setVariable("TOGGLE_SIGNAL", $sig_toggle);
         $subheadline = $component->getSubheadline();
@@ -177,7 +207,11 @@ class Renderer extends AbstractComponentRenderer
         $opt_row_id = Action::OPT_ROWID;
         $component = $component
             ->withAdditionalOnLoadCode(
+<<<<<<< HEAD
                 static fn ($id): string =>
+=======
+                static fn($id): string =>
+>>>>>>> v9.1
                     "il.UI.table.data.init('{$id}','{$opt_action_id}','{$opt_row_id}');"
             )
             ->withAdditionalOnLoadCode($this->getAsyncActionHandler($component->getAsyncActionSignal()))
@@ -198,7 +232,11 @@ class Renderer extends AbstractComponentRenderer
 
         if ($component->hasMultiActions()) {
             $component = $component->withAdditionalOnLoadCode(
+<<<<<<< HEAD
                 static fn ($id): string => "il.UI.table.data.get('{$id}').selectAll(false);"
+=======
+                static fn($id): string => "il.UI.table.data.get('{$id}').selectAll(false);"
+>>>>>>> v9.1
             );
         }
 
@@ -241,6 +279,11 @@ class Renderer extends AbstractComponentRenderer
                     $component->getMultiActionSignal(),
                     $modal->getShowSignal()
                 );
+<<<<<<< HEAD
+=======
+                $total_number_of_cols = count($component->getVisibleColumns()) + 2; // + selection column and action dropdown column
+                $tpl->setVariable('COLUMN_COUNT', (string) $total_number_of_cols);
+>>>>>>> v9.1
                 $tpl->setVariable('MULTI_ACTION_TRIGGERER', $default_renderer->render($multi_actions_dropdown));
                 $tpl->setVariable('MULTI_ACTION_ALL_MODAL', $default_renderer->render($modal));
             }
@@ -248,7 +291,11 @@ class Renderer extends AbstractComponentRenderer
             $sortation_signal = null;
             $sortation_view_control = array_filter(
                 $view_controls->getInputs(),
+<<<<<<< HEAD
                 static fn ($i): bool => $i instanceof Component\Input\ViewControl\Sortation
+=======
+                static fn($i): bool => $i instanceof Component\Input\ViewControl\Sortation
+>>>>>>> v9.1
             );
             if($sortation_view_control) {
                 $sortation_signal = array_shift($sortation_view_control)->getInternalSignal();
@@ -314,6 +361,10 @@ class Renderer extends AbstractComponentRenderer
             $tpl->setVariable('COL_TITLE_ACTION', $this->txt('actions'));
 
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> v9.1
         if ($component->hasMultiActions()) {
             $signal = $component->getSelectionSignal();
             $sig_all = clone $signal;
@@ -383,6 +434,7 @@ class Renderer extends AbstractComponentRenderer
         $select = $f->input()->field()->select(
             $this->txt('datatable_multiactionmodal_actionlabel'),
             array_map(
+<<<<<<< HEAD
                 static fn ($action): string => $action->getLabel(),
                 $actions
             ),
@@ -391,6 +443,16 @@ class Renderer extends AbstractComponentRenderer
         $submit = $f->button()->primary($this->txt('datatable_multiactionmodal_buttonlabel'), '')
             ->withOnLoadCode(
                 static fn ($id): string => "$('#{$id}').click(function() { il.UI.table.data.get('{$table_id}').doActionForAll(this); return false; });"
+=======
+                static fn($action): string => $action->getLabel(),
+                $actions
+            ),
+            ""
+        )->withRequired(true);
+        $submit = $f->button()->primary($this->txt('datatable_multiactionmodal_buttonlabel'), '')
+            ->withOnLoadCode(
+                static fn($id): string => "$('#{$id}').click(function() { il.UI.table.data.get('{$table_id}').doActionForAll(this); return false; });"
+>>>>>>> v9.1
             );
         $modal = $f->modal()
             ->roundtrip($this->txt('datatable_multiactionmodal_title'), [$msg, $select])
@@ -404,7 +466,11 @@ class Renderer extends AbstractComponentRenderer
     protected function buildMultiActionsDropdown(
         array $actions,
         Component\Signal $action_signal,
+<<<<<<< HEAD
         Component\Signal $modal_signal
+=======
+        Component\Signal $modal_signal,
+>>>>>>> v9.1
     ): ?\ILIAS\UI\Component\Dropdown\Dropdown {
         if ($actions === []) {
             return null;
@@ -422,7 +488,11 @@ class Renderer extends AbstractComponentRenderer
         $buttons[] = $f->divider()->horizontal();
         $buttons[] = $f->button()->shy($this->txt('datatable_multiactionmodal_listentry'), '#')->withOnClick($modal_signal);
 
+<<<<<<< HEAD
         return $f->dropdown()->standard($buttons);
+=======
+        return $f->dropdown()->standard($buttons)->withLabel($this->txt('datatable_multiaction_label'));
+>>>>>>> v9.1
     }
 
     protected function getAsyncActionHandler(Component\Signal $action_signal): \Closure
@@ -543,7 +613,11 @@ class Renderer extends AbstractComponentRenderer
         $toggle = $component->getToggleSignal();
         $table_id = $component->getTableId();
         return $component->withAdditionalOnLoadCode(
+<<<<<<< HEAD
             static fn ($id): string =>
+=======
+            static fn($id): string =>
+>>>>>>> v9.1
             "$(document).on('$show', function() { il.UI.table.presentation.get('$table_id').expandRow('$id'); return false; });" .
             "$(document).on('$close', function() { il.UI.table.presentation.get('$table_id').collapseRow('$id'); return false; });" .
             "$(document).on('$toggle', function() { il.UI.table.presentation.get('$table_id').toggleRow('$id'); return false; });"

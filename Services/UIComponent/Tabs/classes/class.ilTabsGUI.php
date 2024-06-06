@@ -19,6 +19,8 @@
 /**
  * Tabs GUI
  * @author Alexander Killing <killing@leifos.de>
+ *
+ * @deprecated 10
  */
 class ilTabsGUI
 {
@@ -62,6 +64,12 @@ class ilTabsGUI
         $this->back_target = "";
         $this->back_2_target = "";
         $this->back_2_title = "";
+    }
+
+    protected function symbol(): \ILIAS\Repository\Symbol\SymbolAdapterGUI
+    {
+        global $DIC;
+        return $DIC->repository()->internal()->gui()->symbol();
     }
 
     public function setSetupMode(bool $a_val): void
@@ -375,7 +383,7 @@ class ilTabsGUI
             // back 2 tab
             if ($this->back_2_title !== "") {
                 $tpl->setCurrentBlock("back_2_tab");
-                $tpl->setVariable("BACK_2_ICON", ilGlyphGUI::get(ilGlyphGUI::PREVIOUS, ilGlyphGUI::NO_TEXT));
+                $tpl->setVariable("BACK_2_ICON", $this->symbol()->glyph("back")->render());
                 $tpl->setVariable("BACK_2_TAB_LINK", ilUtil::secureUrl($this->back_2_target));
                 $tpl->setVariable("BACK_2_TAB_TEXT", $this->back_2_title);
                 if ($this->back_2_frame !== "") {
@@ -388,7 +396,7 @@ class ilTabsGUI
             // back tab
             if ($this->back_title !== "") {
                 $tpl->setCurrentBlock("back_tab");
-                $tpl->setVariable("BACK_ICON", ilGlyphGUI::get(ilGlyphGUI::PREVIOUS, ilGlyphGUI::NO_TEXT));
+                $tpl->setVariable("BACK_ICON", $this->symbol()->glyph("back")->render());
                 $tpl->setVariable("BACK_TAB_LINK", ilUtil::secureUrl($this->back_target));
                 $tpl->setVariable("BACK_TAB_TEXT", $this->back_title);
                 if ($this->back_frame !== "") {
@@ -489,7 +497,7 @@ class ilTabsGUI
                 foreach ($this->non_tabbed_link as $link) {
                     $tpl->setCurrentBlock("tab");
                     $tpl->setVariable("TAB_TYPE", "nontabbed");
-                    $tpl->setVariable("TAB_ICON", " " . ilGlyphGUI::get(ilGlyphGUI::NEXT, ilGlyphGUI::NO_TEXT));
+                    $tpl->setVariable("TAB_ICON", " " . $this->symbol()->glyph("next")->render());
                     $tpl->setVariable("TAB_TEXT", $link["text"]);
                     $tpl->setVariable("TAB_LINK", $link["link"]);
                     $tpl->setVariable("TAB_TARGET", $link["frame"]);

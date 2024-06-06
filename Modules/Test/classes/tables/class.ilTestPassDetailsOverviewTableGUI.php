@@ -16,6 +16,11 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\UI\Renderer as UIRenderer;
+
 /**
  * @author	Björn Heyser <bheyser@databay.de>
  * @version	$Id$
@@ -26,22 +31,13 @@
  */
 class ilTestPassDetailsOverviewTableGUI extends ilTable2GUI
 {
-    private ?string $singleAnswerScreenCmd = null;
-
     private bool $answerListAnchorEnabled = false;
-
     private bool $showHintCount = false;
-
     private bool $showSuggestedSolution = false;
-
-    private $activeId = null;
-
+    private ?int $active_id = null;
     private bool $is_pdf_generation_request = false;
-
-    private bool $objectiveOrientedPresentationEnabled = false;
-
+    private bool $objective_oriented_presentation_enabled = false;
     private bool $multipleObjectivesInvolved = true;
-
     private bool $passColumnEnabled = false;
 
     private array $tableIdsByParentClasses = array(
@@ -50,9 +46,14 @@ class ilTestPassDetailsOverviewTableGUI extends ilTable2GUI
     );
 
     private ?ilTestQuestionRelatedObjectivesList $questionRelatedObjectivesList = null;
+    private UIFactory $ui_factory;
+    private UIRenderer $ui_renderer;
 
-    public function __construct(ilCtrl $ctrl, $parent, $cmd)
-    {
+    public function __construct(
+        ilCtrl $ctrl,
+        ilTestServiceGUI|ilParticipantsTestResultsGUI $parent,
+        string $cmd
+    ) {
         $tableId = 0;
         if (isset($this->tableIdsByParentClasses[get_class($parent)])) {
             $tableId = $this->tableIdsByParentClasses[get_class($parent)];
@@ -78,6 +79,10 @@ class ilTestPassDetailsOverviewTableGUI extends ilTable2GUI
         $this->disable('linkbar');
         $this->disable('hits');
         $this->disable('sort');
+
+        global $DIC;
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
 
         //$this->disable('numinfo');
         //$this->disable('numinfo_header');
@@ -122,22 +127,6 @@ class ilTestPassDetailsOverviewTableGUI extends ilTable2GUI
 
         if ($this->areActionListsRequired()) {
             $this->addColumn($this->lng->txt('actions'), '', '1');
-        }
-    }
-
-    public function initFilter(): void
-    {
-        if (count($this->parent_obj->object->getResultFilterTaxIds())) {
-            require_once 'Services/Taxonomy/classes/class.ilTaxSelectInputGUI.php';
-
-            foreach ($this->parent_obj->object->getResultFilterTaxIds() as $taxId) {
-                $postvar = "tax_$taxId";
-
-                $inp = new ilTaxSelectInputGUI($taxId, $postvar, true);
-                $this->addFilterItem($inp);
-                $inp->readFromSession();
-                $this->filter[$postvar] = $inp->getValue();
-            }
         }
     }
 
@@ -215,20 +204,12 @@ class ilTestPassDetailsOverviewTableGUI extends ilTable2GUI
             return $this->getAnswerListAnchor($questionId);
         }
 
-        if (strlen($this->getSingleAnswerScreenCmd())) {
-            return $this->ctrl->getLinkTarget($this->parent_obj, $this->getSingleAnswerScreenCmd());
-        }
-
         return '';
     }
 
     private function isQuestionTitleLinkPossible(): bool
     {
         if ($this->getAnswerListAnchorEnabled()) {
-            return true;
-        }
-
-        if (strlen($this->getSingleAnswerScreenCmd())) {
             return true;
         }
 
@@ -245,46 +226,18 @@ class ilTestPassDetailsOverviewTableGUI extends ilTable2GUI
             return false;
         }
 
-        if (!strlen($this->getSingleAnswerScreenCmd())) {
-            return false;
-        }
-
         return true;
     }
 
     private function getActionList($questionId): string
     {
-        $aslGUI = new ilAdvancedSelectionListGUI();
-        $aslGUI->setListTitle($this->lng->txt('tst_answer_details'));
-        $aslGUI->setId("act{$this->getActiveId()}_qst{$questionId}");
-
+        $actions = [];
         if ($this->getAnswerListAnchorEnabled()) {
-            $aslGUI->addItem(
-                $this->lng->txt('tst_list_answer_details'),
-                'tst_pass_details',
-                $this->getAnswerListAnchor($questionId)
-            );
+            $actions[] = $this->ui_factory->link()->standard($this->lng->txt('tst_list_answer_details'), $this->getAnswerListAnchor($questionId));
         }
 
-        if (strlen($this->getSingleAnswerScreenCmd())) {
-            $aslGUI->addItem(
-                $this->lng->txt('tst_single_answer_details'),
-                'tst_pass_details',
-                $this->ctrl->getLinkTarget($this->parent_obj, $this->getSingleAnswerScreenCmd())
-            );
-        }
-
-        return $aslGUI->getHTML();
-    }
-
-    public function setSingleAnswerScreenCmd($singleAnswerScreenCmd): void
-    {
-        $this->singleAnswerScreenCmd = $singleAnswerScreenCmd;
-    }
-
-    public function getSingleAnswerScreenCmd(): ?string
-    {
-        return $this->singleAnswerScreenCmd;
+        $dropdown = $this->ui_factory->dropdown()->standard($actions)->withLabel($this->lng->txt('tst_answer_details'));
+        return $this->ui_renderer->render($dropdown);
     }
 
     public function setAnswerListAnchorEnabled($answerListAnchorEnabled): void
@@ -323,24 +276,24 @@ class ilTestPassDetailsOverviewTableGUI extends ilTable2GUI
         return $this->showSuggestedSolution;
     }
 
-    public function setActiveId($activeId): void
+    public function setActiveId(int $active_id): void
     {
-        $this->activeId = $activeId;
+        $this->active_id = $active_id;
     }
 
-    public function getActiveId()
+    public function getActiveId(): ?int
     {
-        return $this->activeId;
+        return $this->active_id;
     }
 
     public function isObjectiveOrientedPresentationEnabled(): bool
     {
-        return $this->objectiveOrientedPresentationEnabled;
+        return $this->objective_oriented_presentation_enabled;
     }
 
-    public function setObjectiveOrientedPresentationEnabled(bool $objectiveOrientedPresentationEnabled): void
+    public function setObjectiveOrientedPresentationEnabled(bool $objective_oriented_presentation_enabled): void
     {
-        $this->objectiveOrientedPresentationEnabled = $objectiveOrientedPresentationEnabled;
+        $this->objective_oriented_presentation_enabled = $objective_oriented_presentation_enabled;
     }
 
     public function areMultipleObjectivesInvolved(): bool

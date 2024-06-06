@@ -16,6 +16,10 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\Cron\Schedule\CronJobScheduleType;
+
 /**
  * Class ilCronFinishUnfinishedTestPasses
  * @author Guido Vollbach <gvollbach@databay.de>
@@ -29,6 +33,7 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
 
     protected ilLanguage $lng;
     protected ilDBInterface $db;
+    protected ilObjUser $user;
     protected ilObjectDataCache $obj_data_cache;
     protected int $now;
     protected array $unfinished_passes;
@@ -38,19 +43,20 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
 
     public function __construct()
     {
+        /** @var ILIAS\DI\Container $DIC */
         global $DIC;
 
         $this->log = ilLoggerFactory::getLogger('tst');
         $this->lng = $DIC['lng'];
+        $this->user = $DIC['ilUser'];
         $this->lng->loadLanguageModule('assessment');
         $this->db = $DIC->database();
         $this->obj_data_cache = $DIC['ilObjDataCache'];
         $this->now = time();
-        $this->unfinished_passes = array();
-        $this->test_ids = array();
-        $this->test_ending_times = array();
+        $this->unfinished_passes = [];
+        $this->test_ids = [];
+        $this->test_ending_times = [];
 
-        require_once 'Modules/Test/classes/class.ilTestProcessLockerFactory.php';
         $this->processLockerFactory = new ilTestProcessLockerFactory(
             new ilSetting('assessment'),
             $this->db
@@ -64,23 +70,17 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
 
     public function getTitle(): string
     {
-        global $DIC;
-        $lng = $DIC['lng'];
-
-        return $lng->txt("finish_unfinished_passes");
+        return $this->lng->txt('finish_unfinished_passes');
     }
 
     public function getDescription(): string
     {
-        global $DIC;
-        $lng = $DIC['lng'];
-
-        return $lng->txt("finish_unfinished_passes_desc");
+        return $this->lng->txt('finish_unfinished_passes_desc');
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_DAILY;
+        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
     }
 
     public function getDefaultScheduleValue(): int
@@ -127,23 +127,24 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
 
     protected function gatherUsersWithUnfinishedPasses(): void
     {
-        $query = "SELECT	tst_active.active_id,
-						tst_active.tries,
-						tst_active.user_fi usr_id,
-						tst_active.test_fi test_fi,
-						usr_data.login,
-						usr_data.lastname,
-						usr_data.firstname,
-						tst_active.submitted test_finished,
-						usr_data.matriculation,
-						usr_data.active,
-						tst_active.lastindex,
-						tst_active.last_started_pass last_started
-				FROM tst_active
-				LEFT JOIN usr_data
-				ON tst_active.user_fi = usr_data.usr_id
-				WHERE IFNULL(tst_active.last_finished_pass, -1) <> tst_active.last_started_pass
-			";
+        $query = '
+            SELECT	tst_active.active_id,
+                    tst_active.tries,
+                    tst_active.user_fi usr_id,
+                    tst_active.test_fi test_fi,
+                    usr_data.login,
+                    usr_data.lastname,
+                    usr_data.firstname,
+                    tst_active.submitted test_finished,
+                    usr_data.matriculation,
+                    usr_data.active,
+                    tst_active.lastindex,
+                    tst_active.last_started_pass last_started
+            FROM tst_active
+            LEFT JOIN usr_data
+            ON tst_active.user_fi = usr_data.usr_id
+            WHERE IFNULL(tst_active.last_finished_pass, -1) <> tst_active.last_started_pass
+        ';
         $result = $this->db->query($query);
         while ($row = $this->db->fetchAssoc($result)) {
             $this->unfinished_passes[] = $row;
@@ -213,21 +214,21 @@ class ilCronFinishUnfinishedTestPasses extends ilCronJob
     {
         $processLocker = $this->processLockerFactory->withContextId((int) $active_id)->getLocker();
 
-        $testSession = new ilTestSession();
-        $testSession->loadFromDb($active_id);
+        $test_session = new ilTestSession($this->db, $this->user);
+        $test_session->loadFromDb($active_id);
 
         if(ilObject::_exists($obj_id)) {
             $test = new ilObjTest($obj_id, false);
 
-            assQuestion::_updateTestPassResults(
+            $test->updateTestPassResults(
                 $active_id,
-                $testSession->getPass(),
+                $test_session->getPass(),
                 $test->areObligationsEnabled(),
                 null,
                 $obj_id
             );
 
-            $pass_finisher = new ilTestPassFinishTasks($active_id, $obj_id);
+            $pass_finisher = new ilTestPassFinishTasks($test_session, $obj_id);
             $pass_finisher->performFinishTasks($processLocker);
 
             $this->log->info('Test session with active id (' . $active_id . ') and obj_id (' . $obj_id . ') is now finished.');

@@ -1,0 +1,59 @@
+@use "../../../010-settings/"as *;
+@use "../../../010-settings/legacy-settings/legacy-settings_dropzone" as *;
+@use "../../../050-layout/basics"as *;
+
+//== Dropzones
+//
+//## Customizes the Drozpones component
+
+// Dropzone Styles
+// $author Thibeau Fuhrer <thibeau$sr.solutions>
+.ui-dropzone {
+	border: $il-dropzone-border-width $il-dropzone-border-style $il-dropzone-filelist-border-color;
+	border-radius: $il-dropzone-border-radius;
+	background: $il-dropzone-bg;
+	display: inline-block;
+	margin-bottom: $il-margin-xs-horizontal;
+	width: 100%;
+	&.ui-dropzone-bulky {
+		border: $il-dropzone-bulky-border-width $il-dropzone-bulky-border-style $il-dropzone-bulky-border-color;
+		border-radius: $il-dropzone-bulky-border-radius;
+		background-color: $il-main-dark-bg;
+		padding-top: $il-padding-xxlarge-horizontal;
+		padding-bottom: $il-padding-xxlarge-horizontal;
+	}
+	.btn {
+		margin-left: $il-padding-large-horizontal;
+	}
+}
+
+.ui-dropzone-wrapper {
+	background: none;
+	border: none;
+}
+
+.ui-dropzone.highlight {
+	border: $il-dropzone-border-width $il-dropzone-border-style $il-dropzone-border-color;
+	background: $il-dropzone-highlight-bg;
+}
+
+.ui-dropzone.highlight-current {
+	border: $il-dropzone-border-width $il-dropzone-border-style $il-dropzone-border-color-hover;
+	background-color: $il-dropzone-hover-bg;
+}
+
+.ui-dropzone-message {
+	font-size: $il-font-size-base;
+	float: right;
+	margin-right: $il-padding-large-horizontal;
+}
+
+.ui-dropzone .form-group {
+	width: 100%;
+}
+
+// fix to enlarge inputs if they are in an ilXYListGUI.
+.ui-dropzone .form-group input,
+.ui-dropzone .form-group textarea {
+	width: 100%;
+}

@@ -34,23 +34,20 @@ class ilManualPlaceholderInputGUI extends ilSubEnabledFormPropertyGUI
     protected array $placeholders = [];
     protected string $rerenderUrl = '';
     protected string $rerenderTriggerElementName = '';
-    protected string $dependencyElementId;
     protected string $instructionText = '';
     protected string $adviseText = '';
     protected ilGlobalTemplateInterface $tpl;
     /** @var mixed */
     protected $value;
 
-    public function __construct(string $label, string $dependencyElementId)
+    public function __construct(string $label, string $http_post_param_name, protected string $dependencyElementId)
     {
         global $DIC;
 
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->httpState = $DIC->http();
 
-        $this->dependencyElementId = $dependencyElementId;
-
-        parent::__construct($label);
+        parent::__construct($label, $http_post_param_name);
 
         $this->tpl->addJavaScript('Services/Mail/js/ilMailComposeFunctions.js');
     }
@@ -116,26 +113,25 @@ class ilManualPlaceholderInputGUI extends ilSubEnabledFormPropertyGUI
         );
         $subtpl->setVariable('TXT_USE_PLACEHOLDERS', $this->lng->txt('mail_nacc_use_placeholder'));
         $subtpl->setVariable('DEPENDENCY_ELM_ID_OUTER', $this->dependencyElementId);
-        if ($this->getAdviseText()) {
+        if ($this->getAdviseText() !== '') {
             $subtpl->setVariable('TXT_PLACEHOLDERS_ADVISE', $this->getAdviseText());
         }
 
-        if (count($this->placeholders) > 0) {
-            foreach ($this->placeholders as $placeholder) {
-                $subtpl->setCurrentBlock('man_placeholder');
-                $subtpl->setVariable('DEPENDENCY_ELM_ID', $this->dependencyElementId);
-                $subtpl->setVariable('PLACEHOLDER', '[' . $placeholder['placeholder'] . ']');
-                $subtpl->setVariable('PLACEHOLDER_INTERACTION_INFO', sprintf(
-                    $this->lng->txt('mail_hint_add_placeholder_x'),
-                    '[' . $placeholder['placeholder'] . ']'
-                ));
-                $subtpl->setVariable('PLACEHOLDER_DESCRIPTION', $placeholder['title']);
-                $subtpl->parseCurrentBlock();
-            }
+        foreach ($this->placeholders as $placeholder) {
+            $subtpl->setCurrentBlock('man_placeholder');
+            $subtpl->setVariable('DEPENDENCY_ELM_ID', $this->dependencyElementId);
+            $subtpl->setVariable('PLACEHOLDER', '&lbrace;&lbrace;' . $placeholder['placeholder'] . '&rbrace;&rbrace;');
+            $subtpl->setVariable('PLACEHOLDER_INTERACTION_INFO', sprintf(
+                $this->lng->txt('mail_hint_add_placeholder_x'),
+                '&lbrace;&lbrace;' . $placeholder['placeholder'] . '&rbrace;&rbrace;'
+            ));
+            $subtpl->setVariable('PLACEHOLDER_DESCRIPTION', $placeholder['title']);
+            $subtpl->parseCurrentBlock();
         }
 
         if ($this->getRerenderTriggerElementName() && $this->getRerenderUrl()) {
             $subtpl->setVariable('RERENDER_URL', $this->getRerenderUrl());
+            $subtpl->setVariable('RERENDER_DEPENDENCY_ELM_ID_OUTER', $this->dependencyElementId);
             $subtpl->setVariable('RERENDER_TRIGGER_ELM_NAME', $this->getRerenderTriggerElementName());
         }
 

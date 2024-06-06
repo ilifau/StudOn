@@ -26,19 +26,25 @@ class CopyrightData implements CopyrightDataInterface
 {
     protected string $full_name;
     protected ?URI $link;
-    protected ?URI $image_link;
+    protected ?URI $image_link = null;
+    protected string $image_file = '';
     protected string $alt_text;
+    protected bool $fall_back_to_default_image;
 
     public function __construct(
         string $full_name,
         ?URI $link,
         ?URI $image_link,
-        string $alt_text
+        string $image_file,
+        string $alt_text,
+        bool $fall_back_to_default_image
     ) {
         $this->full_name = $full_name;
         $this->link = $link;
         $this->alt_text = $alt_text;
         $this->image_link = $image_link;
+        $this->image_file = $image_file;
+        $this->fall_back_to_default_image = $fall_back_to_default_image;
     }
 
     public function fullName(): string
@@ -51,13 +57,33 @@ class CopyrightData implements CopyrightDataInterface
         return $this->link;
     }
 
+    public function hasImage(): bool
+    {
+        return $this->isImageLink() || $this->imageFile() !== '';
+    }
+
+    public function isImageLink(): bool
+    {
+        return !is_null($this->imageLink());
+    }
+
     public function imageLink(): ?URI
     {
         return $this->image_link;
     }
 
+    public function imageFile(): string
+    {
+        return $this->image_file;
+    }
+
     public function altText(): string
     {
         return $this->alt_text;
+    }
+
+    public function fallBackToDefaultImage(): bool
+    {
+        return $this->fall_back_to_default_image;
     }
 }

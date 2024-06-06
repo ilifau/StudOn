@@ -92,16 +92,16 @@ class ilUser8DBUpdateSteps implements ilDatabaseUpdateSteps
                 'usr_change_email_token',
                 [
                     'token' => [
-                        'type'     => 'text',
-                        'length'   => 32
+                        'type' => 'text',
+                        'length' => 32
                     ],
                     'new_email' => [
-                        'type'     => 'text',
-                        'length'   => 256
+                        'type' => 'text',
+                        'length' => 256
                     ],
                     'valid_until' => [
-                        'type'     => 'integer',
-                        'length'   => 8
+                        'type' => 'integer',
+                        'length' => 8
                     ]
                 ]
             );

@@ -21,10 +21,7 @@ declare(strict_types=1);
 interface ilPDSelectedItemsBlockMembershipsObjectRepository
 {
     /**
-     * @param ilObjUser $user
      * @param string[] $objTypes
-     * @param string $actorLanguageCode
-     * @return Generator|ilPDSelectedItemBlockMembershipsDTO[]|Generator<ilPDSelectedItemBlockMembershipsDTO>
      */
     public function getForUser(ilObjUser $user, array $objTypes, string $actorLanguageCode): Generator;
 }

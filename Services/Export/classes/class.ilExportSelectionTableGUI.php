@@ -80,7 +80,7 @@ class ilExportSelectionTableGUI extends ilTable2GUI
         if ($a_set['perm_export'] and $a_set['last_export']) {
             $selected = "EXPORT_E";
         }
-        if (is_array($this->post_data["cp_options"] ?? null)) {
+        if (isset($this->post_data["cp_options"])) {
             if (isset($a_set['ref_id']) && isset($this->post_data["cp_options"][$a_set['ref_id']]["type"])) {
                 switch ($this->post_data["cp_options"][$a_set['ref_id']]["type"]) {
                     case "2":

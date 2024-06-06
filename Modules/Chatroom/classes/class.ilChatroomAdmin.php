@@ -28,13 +28,8 @@ class ilChatroomAdmin
 {
     private static string $settingsTable = 'chatroom_admconfig';
 
-    private int $config_id;
-    private ?stdClass $settings;
-
-    public function __construct(int $config_id, stdClass $settings = null)
+    public function __construct(private readonly int $config_id, private readonly ?stdClass $settings = null)
     {
-        $this->config_id = $config_id;
-        $this->settings = $settings;
     }
 
     /**
@@ -113,7 +108,6 @@ class ilChatroomAdmin
 
     /**
      * Saves given client $settings into settingsTable.
-     * @param stdClass $settings
      */
     public function saveClientSettings(stdClass $settings): void
     {
@@ -193,10 +187,10 @@ class ilChatroomAdmin
                 $settings['client'] = CLIENT_ID;
             }
 
-            if (isset($settings['name']) && is_string($settings['name']) && !$settings['name'] === '') {
-                $settings['client_name'] = (string) $settings['name'];
+            if (is_string($settings['name'] ?? null) && $settings['name']) {
+                $settings['client_name'] = $settings['name'];
             } else {
-		$settings['client_name'] = CLIENT_ID;
+                $settings['client_name'] = CLIENT_ID;
             }
 
             if (isset($settings['conversation_idle_state_in_minutes']) && is_numeric($settings['conversation_idle_state_in_minutes'])) {

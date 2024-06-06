@@ -45,8 +45,15 @@ class ilForumSetupAgent implements Setup\Agent
 
     public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
     {
-        return new ilDatabaseUpdateStepsExecutedObjective(
-            new ilForumDatabaseUpdateSteps()
+        return new Setup\ObjectiveCollection(
+            'Forum',
+            true,
+            new ilDatabaseUpdateStepsExecutedObjective(
+                new ilForumDatabaseUpdateSteps()
+            ),
+            new ilDatabaseUpdateStepsExecutedObjective(
+                new ilForumDatabaseUpdateSteps9()
+            )
         );
     }
 
@@ -57,11 +64,19 @@ class ilForumSetupAgent implements Setup\Agent
 
     public function getStatusObjective(Setup\Metrics\Storage $storage): Setup\Objective
     {
-        return new Setup\Objective\NullObjective();
+        return new Setup\ObjectiveCollection(
+            'Component Forum',
+            true,
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilForumDatabaseUpdateSteps()),
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilForumDatabaseUpdateSteps9())
+        );
     }
 
     public function getMigrations(): array
     {
-        return [];
+        return [
+            new ilForumPostingFilesMigration(),
+            new ilForumDraftsFilesMigration()
+        ];
     }
 }

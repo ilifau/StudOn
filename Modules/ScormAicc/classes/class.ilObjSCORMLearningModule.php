@@ -30,8 +30,8 @@ class ilObjSCORMLearningModule extends ilObjSAHSLearningModule
 {
     /**
     * Constructor
-    * @param	integer	reference_id or object_id
-    * @param	boolean	treat the id as reference_id (true) or object_id (false)
+    * @param	integer $a_id                reference_id or object_id
+    * @param	boolean $a_call_by_reference treat the id as reference_id (true) or object_id (false)
     */
     public function __construct(int $a_id = 0, bool $a_call_by_reference = true)
     {
@@ -113,7 +113,6 @@ class ilObjSCORMLearningModule extends ilObjSAHSLearningModule
         if ($needs_convert) {
             // if file exists and enough space left on device
             if ($check_for_manifest_file && ($check_disc_free > 1)) {
-
                 // create backup from original
                 if (!copy($manifest_file, $manifest_file . ".old")) {
                     echo "Failed to copy $manifest_file...<br>\n";
@@ -126,7 +125,7 @@ class ilObjSCORMLearningModule extends ilObjSAHSLearningModule
                 while (!feof($f_read_handler)) {
                     $zeile = fgets($f_read_handler);
                     //echo mb_detect_encoding($zeile);
-                    fwrite($f_write_handler, utf8_encode($zeile));
+                    fwrite($f_write_handler, mb_convert_encoding($zeile, "UTF-8", mb_detect_encoding($zeile)));
                 }
                 fclose($f_read_handler);
                 fclose($f_write_handler);

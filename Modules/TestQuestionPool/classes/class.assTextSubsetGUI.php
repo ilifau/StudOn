@@ -229,7 +229,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             );
 
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
-            $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
+            $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
         }
         $solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
 
@@ -302,12 +302,12 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
     public function getSpecificFeedbackOutput(array $userSolution): string
     {
         $output = "";
-        return $this->object->prepareTextareaOutput($output, true);
+        return ilLegacyFormElementsUtil::prepareTextareaOutput($output, true);
     }
 
     public function writeQuestionSpecificPostData(ilPropertyFormGUI $form): void
     {
-        $this->object->setCorrectAnswers($_POST["correctanswers"]);
+        $this->object->setCorrectAnswers((int) $_POST["correctanswers"]);
         $this->object->setTextRating($_POST["text_rating"]);
     }
 

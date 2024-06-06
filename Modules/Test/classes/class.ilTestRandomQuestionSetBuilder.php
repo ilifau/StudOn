@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
@@ -24,54 +26,17 @@
  */
 abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolDefinitionQuestionCollectionProvider
 {
-    /**
-     * @var ilDBInterface
-     */
-    protected $db = null;
+    protected $checkMessages = [];
 
-    /**
-     * @var ilObjTest
-     */
-    protected $testOBJ = null;
-
-    /**
-     * @var ilTestRandomQuestionSetConfig
-     */
-    protected $questionSetConfig = null;
-
-    /**
-     * @var ilTestRandomQuestionSetSourcePoolDefinitionList
-     */
-    protected $sourcePoolDefinitionList = null;
-
-    /**
-     * @var ilTestRandomQuestionSetStagingPoolQuestionList
-     */
-    protected $stagingPoolQuestionList = null;
-
-    //fau: fixRandomTestBuildable - variable for messages
-    protected $checkMessages = array();
-    // fau.
-
-    /**
-     * @param ilDBInterface $db
-     * @param ilObjTest $testOBJ
-     * @param ilTestRandomQuestionSetConfig $questionSetConfig
-     * @param ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList
-     * @param ilTestRandomQuestionSetStagingPoolQuestionList $stagingPoolQuestionList
-     */
     protected function __construct(
-        ilDBInterface $db,
-        ilObjTest $testOBJ,
-        ilTestRandomQuestionSetConfig $questionSetConfig,
-        ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList,
-        ilTestRandomQuestionSetStagingPoolQuestionList $stagingPoolQuestionList
+        protected ilDBInterface $db,
+        protected ilLanguage $lng,
+        protected ilLogger $log,
+        protected ilObjTest $testOBJ,
+        protected ilTestRandomQuestionSetConfig $questionSetConfig,
+        protected ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList,
+        protected ilTestRandomQuestionSetStagingPoolQuestionList $stagingPoolQuestionList
     ) {
-        $this->db = $db;
-        $this->testOBJ = $testOBJ;
-        $this->questionSetConfig = $questionSetConfig;
-        $this->sourcePoolDefinitionList = $sourcePoolDefinitionList;
-        $this->stagingPoolQuestionList = $stagingPoolQuestionList;
     }
 
     abstract public function checkBuildable();
@@ -81,7 +46,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 
     // hey: fixRandomTestBuildable - rename/public-access to be aware for building interface
     public function getSrcPoolDefListRelatedQuestCombinationCollection(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList): ilTestRandomQuestionSetQuestionCollection
-        // hey.
+    // hey.
     {
         $questionStage = new ilTestRandomQuestionSetQuestionCollection();
 
@@ -103,7 +68,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
      * @return ilTestRandomQuestionSetQuestionCollection
      */
     public function getSrcPoolDefRelatedQuestCollection(ilTestRandomQuestionSetSourcePoolDefinition $definition): ilTestRandomQuestionSetQuestionCollection
-        // hey.
+    // hey.
     {
         $questionIds = $this->getQuestionIdsForSourcePoolDefinitionIds($definition);
         $questionStage = $this->buildSetQuestionCollection($definition, $questionIds);
@@ -249,16 +214,18 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 
     final public static function getInstance(
         ilDBInterface $db,
+        ilLanguage $lng,
+        ilLogger $log,
         ilObjTest $testOBJ,
         ilTestRandomQuestionSetConfig $questionSetConfig,
         ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList,
         ilTestRandomQuestionSetStagingPoolQuestionList $stagingPoolQuestionList
     ) {
         if ($questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
-            require_once 'Modules/Test/classes/class.ilTestRandomQuestionSetBuilderWithAmountPerPool.php';
-
             return new ilTestRandomQuestionSetBuilderWithAmountPerPool(
                 $db,
+                $lng,
+                $log,
                 $testOBJ,
                 $questionSetConfig,
                 $sourcePoolDefinitionList,
@@ -266,10 +233,10 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
             );
         }
 
-        require_once 'Modules/Test/classes/class.ilTestRandomQuestionSetBuilderWithAmountPerTest.php';
-
         return new ilTestRandomQuestionSetBuilderWithAmountPerTest(
             $db,
+            $lng,
+            $log,
             $testOBJ,
             $questionSetConfig,
             $sourcePoolDefinitionList,

@@ -14,17 +14,51 @@
  *
  ********************************************************************
  */
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:Modules/DataCollection/classes/Ports/Access/class.ilDataCollectionAccessPort.php
+/**
+ * @author martin@fluxlabs.ch
+ */
+interface ilDataCollectionAccessPort
+{
+    public function hasVisibleOrReadPermission(int $refId): bool;
+
+    public function hasReadPermission(int $refId): bool;
+
+    public function hasWritePermission(int $refId): bool;
+
+    public function hasEditPermissionPermission(int $refId): bool;
+
+    public function hasVisiblePermission(int $refId): bool;
+}
+========
+>>>>>>> v9.1
 
 import il from 'il';
 import $ from 'jquery';
 import replaceContent from './core.replaceContent';
+<<<<<<< HEAD
 import URLBuilder from './core.URLBuilder';
 import URLBuilderToken from './core.URLBuilderToken';
 
 il = il || {};
+=======
+import Tooltip from './core.Tooltip';
+import URLBuilder from './core.URLBuilder';
+import URLBuilderToken from './core.URLBuilderToken';
+
+>>>>>>> v9.1
 il.UI = il.UI || {};
 il.UI.core = il.UI.core || {};
 
 il.UI.core.replaceContent = replaceContent($);
+<<<<<<< HEAD
 il.UI.core.URLBuilder = URLBuilder;
 il.UI.core.URLBuilderToken = URLBuilderToken;
+=======
+il.UI.core.Tooltip = Tooltip;
+il.UI.core.URLBuilder = URLBuilder;
+il.UI.core.URLBuilderToken = URLBuilderToken;
+>>>>>>>> v9.1:src/UI/templates/js/Core/src/core.js
+>>>>>>> v9.1

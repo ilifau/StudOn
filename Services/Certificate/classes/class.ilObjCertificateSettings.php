@@ -18,6 +18,7 @@
 
 declare(strict_types=1);
 
+use ILIAS\Filesystem\Util\Convert\ImageOutputOptions;
 use ILIAS\Data\UUID\Factory;
 use ILIAS\FileUpload\DTO\UploadResult;
 
@@ -30,6 +31,7 @@ use ILIAS\FileUpload\DTO\UploadResult;
 class ilObjCertificateSettings extends ilObject
 {
     private ilLogger $cert_logger;
+    private \ILIAS\Filesystem\Util\Convert\LegacyImages $file_converter;
     private Factory $uuid_factory;
     private ilSetting $certificate_settings;
     private ilCertificateTemplateDatabaseRepository $certificate_repo;
@@ -42,6 +44,7 @@ class ilObjCertificateSettings extends ilObject
         parent::__construct($a_id, $a_reference);
         $this->type = 'cert';
         $this->cert_logger = $DIC->logger()->cert();
+        $this->file_converter = $DIC->fileConverters()->legacyImages();
         $this->uuid_factory = new Factory();
         $this->certificate_settings = new ilSetting('certificate');
         $this->certificate_repo = new ilCertificateTemplateDatabaseRepository($DIC->database());
@@ -90,16 +93,17 @@ class ilObjCertificateSettings extends ilObject
             }
 
             // convert the uploaded file to JPEG
-            ilShellUtil::convertImage(
+            $this->file_converter->convertToFormat(
                 $this->getDefaultBackgroundImageTempFilePath($extension),
                 $new_image_path,
-                'JPEG'
+                ImageOutputOptions::FORMAT_JPG
             );
-            ilShellUtil::convertImage(
+
+            $this->file_converter->croppedSquare(
                 $this->getDefaultBackgroundImageTempFilePath($extension),
                 $new_image_path . ilCertificateBackgroundImageFileService::BACKGROUND_THUMBNAIL_FILE_ENDING,
-                'JPEG',
-                '100'
+                100,
+                ImageOutputOptions::FORMAT_JPG
             );
 
             if (!is_file($new_image_path) || !file_exists($new_image_path)) {

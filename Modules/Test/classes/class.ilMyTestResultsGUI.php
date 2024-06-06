@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Class ilMyTestResultsGUI
  *
@@ -80,7 +82,8 @@ class ilMyTestResultsGUI
 
     public function executeCommand(): void
     {
-        global $DIC; /* @var ILIAS\DI\Container $DIC */
+        /* @var ILIAS\DI\Container $DIC */
+        global $DIC;
 
         if (!$DIC->ctrl()->getCmd()) {
             $DIC->ctrl()->setCmd(self::EVALGUI_CMD_SHOW_PASS_OVERVIEW);
@@ -88,7 +91,6 @@ class ilMyTestResultsGUI
 
         switch ($DIC->ctrl()->getNextClass()) {
             case "iltestevaluationgui":
-                require_once 'Modules/Test/classes/class.ilTestEvaluationGUI.php';
                 $gui = new ilTestEvaluationGUI($this->getTestObj());
                 $gui->setObjectiveOrientedContainer($this->getObjectiveParent());
                 $gui->setTestAccess($this->getTestAccess());
@@ -96,7 +98,6 @@ class ilMyTestResultsGUI
                 break;
 
             case 'ilassquestionpagegui':
-                require_once 'Modules/Test/classes/class.ilAssQuestionPageCommandForwarder.php';
                 $forwarder = new ilAssQuestionPageCommandForwarder();
                 $forwarder->setTestObj($this->getTestObj());
                 $forwarder->forward();

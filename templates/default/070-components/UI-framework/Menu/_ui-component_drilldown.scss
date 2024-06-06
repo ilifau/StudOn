@@ -1,0 +1,105 @@
+@use "sass:math";
+@use "../../../010-settings/" as *;
+@use "../../../010-settings/legacy-settings/legacy-settings_symbol" as s-symbol;
+@use "../../../010-settings/legacy-settings/legacy-settings_form" as *;
+@use "../../../050-layout/basics" as l;
+@use "../../../050-layout/standardpage/" as l-spage;
+@use "../../../030-tools/tool_focus-outline" as f;
+
+//== Drilldown Menu
+//
+//##
+$il-drilldown-header-height: 80px;
+$il-drilldown-spacing-vertical: l.$il-padding-large-vertical;
+$il-drilldown-spacing-horizontal: l.$il-padding-large-horizontal;
+$il-drilldown-menulevel-bg: $il-bulky-bg-color;
+$il-drilldown-bulky-bg: transparent;
+$il-drilldown-item-hover-bg: $il-bulky-bg-color-engaged;
+$il-drilldown-item-font-size: $il-bulky-label-size;
+$il-drilldown-item-spacing: l-spage.$il-slate-content-spacing;
+$il-drilldown-item-font-line-height: $il-bulky-label-size * 1.133333333333333; // line-height of slate bulky btn/link
+$il-drilldown-left-indent: l.$il-padding-large-horizontal + s-symbol.$il-icon-size-small + math.div(l.$il-padding-large-horizontal, 2);
+
+.il-drilldown {
+	// reset user agent CSS for lists
+	ul, li {
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
+
+	header {
+		position: relative; // so backnav can be positioned on top
+		display: flex;
+		align-items: center;
+		min-height: $il-drilldown-header-height; // content is centered by flex-box, not through padding
+		margin-bottom: $il-drilldown-item-spacing;
+		padding: l.$il-padding-xlarge-vertical l.$il-padding-xlarge-horizontal l.$il-padding-xlarge-vertical $il-drilldown-left-indent;
+		z-index: initial; // so slate can cover up this specific header
+		h2 {
+			font-size: $il-font-size-xlarge;
+			margin: 0;
+			padding: 0;
+		}
+		.backnav {
+			display: none;
+			position: absolute;
+			// overlay that spans over entire header size
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			.btn-bulky {
+				height: 100%;
+				background-color: transparent;
+    			border: none;
+				@include f.il-focus-border-only();
+			}
+		}
+	}
+	header.show-backnav {
+		padding-left: $il-drilldown-left-indent;
+		.backnav {
+			display: block;
+		}
+	}
+
+	// visibility of menu items
+	li > .menulevel,
+	li > .btn-bulky,
+	li > .link-bulky,
+	li > hr {
+    	display: none;
+	}
+	.engaged ~ ul > li > .menulevel,
+	.engaged ~ ul > li > .btn-bulky,
+	.engaged ~ ul > li > .link-bulky {
+    	display: flex;
+	}
+	.engaged ~ ul > li > hr {
+		display: block;
+	}
+	// styling for individual menu items (parts taken from slate.scss)
+	hr {
+		margin: $il-drilldown-spacing-vertical 0;
+	}
+	.btn-bulky,
+	.link-bulky,
+	.menulevel {
+		background-color: $il-drilldown-bulky-bg;
+		border-color: $il-drilldown-bulky-bg;
+		&:hover {
+			background-color: $il-drilldown-item-hover-bg; // has to be a color with transparency so h2 can be seen underneath backnav
+		    color: inherit;
+		}
+		.icon {
+			filter: invert(50%);
+		}
+	}
+	.menulevel {
+		justify-content: space-between;
+		text-align: left;
+		padding-left: $il-drilldown-left-indent; // bulky-btn left padding + space for small icon + gap 
+		margin-bottom: l-spage.$il-slate-content-spacing;
+	}
+}

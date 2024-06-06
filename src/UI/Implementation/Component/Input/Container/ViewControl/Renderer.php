@@ -70,7 +70,11 @@ class Renderer extends AbstractComponentRenderer
 
         $submission_signal = $component->getSubmissionSignal();
         $component = $component->withAdditionalOnLoadCode(
+<<<<<<< HEAD
             fn ($id) => "$(document).on('{$submission_signal}',
+=======
+            fn($id) => "$(document).on('{$submission_signal}',
+>>>>>>> v9.1
                 function(event, signalData) { 
                     document.getElementById('{$id}').submit();
                     return false;
@@ -81,10 +85,20 @@ class Renderer extends AbstractComponentRenderer
         $input_names = array_keys($component->getComponentInternalValues());
 
         $query_params = array_filter(
+<<<<<<< HEAD
             $component->getRequest()->getQueryParams(),
             fn ($k) => ! in_array($k, $input_names),
             ARRAY_FILTER_USE_KEY
         );
+=======
+            $component->getRequest()?->getQueryParams(),
+            fn($k) => ! in_array($k, $input_names),
+            ARRAY_FILTER_USE_KEY
+        );
+        // The remaining parameters for the view controls need to be stuffed into
+        // hidden fields, so the browser passes them as query parameters once the
+        // form is submitted.
+>>>>>>> v9.1
         foreach ($query_params as $k => $v) {
             if (is_array($v)) {
                 foreach (array_values($v) as $arrv) {
@@ -102,7 +116,11 @@ class Renderer extends AbstractComponentRenderer
         }
 
         $inputs = array_map(
+<<<<<<< HEAD
             fn ($input) => $input->withOnChange($submission_signal),
+=======
+            fn($input) => $input->withOnChange($submission_signal),
+>>>>>>> v9.1
             $component->getInputs()
         );
 

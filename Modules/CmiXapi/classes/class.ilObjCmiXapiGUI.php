@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Class ilObjCmiXapiGUI
@@ -276,7 +276,7 @@ class ilObjCmiXapiGUI extends ilObject2GUI
 
             $return->addHeaderIcon(
                 'cert_icon',
-                ilUtil::getImagePath('icon_cert.svg'),
+                ilUtil::getImagePath('standard/icon_cert.svg'),
                 $this->lng->txt('download_certificate'),
                 null,
                 null,
@@ -445,8 +445,15 @@ class ilObjCmiXapiGUI extends ilObject2GUI
 
             default:
 
-                $command = $DIC->ctrl()->getCmd(self::DEFAULT_CMD);
-                $this->{$command}();
+                if($DIC->ctrl()->getCmd() == "settings") {
+                    $DIC->tabs()->activateTab(self::TAB_ID_SETTINGS);
+                    $DIC->ctrl()->setCmd('show');
+                    $gui = new ilCmiXapiSettingsGUI($obj);
+                    $DIC->ctrl()->forwardCommand($gui);
+                } else {
+                    $command = $DIC->ctrl()->getCmd(self::DEFAULT_CMD);
+                    $this->{$command}();
+                }
         }
     }
 
@@ -614,7 +621,7 @@ class ilObjCmiXapiGUI extends ilObject2GUI
         /* @var ilErrorHandling $ilErr */
 
         if (!$this->checkPermissionBool("visible") && !$this->checkPermissionBool("read")) {
-            $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"));
+            $ilErr->raiseError($DIC->language()->txt("msg_no_perm_read"), $ilErr->MESSAGE);
         }
 
         $this->handleAvailablityMessage();
@@ -707,7 +714,7 @@ class ilObjCmiXapiGUI extends ilObject2GUI
         global $DIC;
         /* @var \ILIAS\DI\Container $DIC */
 
-        if (!$this->object->getOfflineStatus() && $this->object->getLrsType()->isAvailable()) {
+        if (!$this->object->getOfflineStatus() && $this->object->getLrsType()->isAvailable() && $this->checkPermissionBool("read")) {
             // TODO : check if this is the correct query
             // p.e. switched to another privacyIdent before: user exists but not with the new privacyIdent
             // re_check for isSourceTypeExternal
@@ -715,20 +722,32 @@ class ilObjCmiXapiGUI extends ilObject2GUI
 
             if ($this->object->isSourceTypeExternal()) {
                 $extCmiUserExists = ilCmiXapiUser::exists($this->object->getId(), $DIC->user()->getId());
-                $registerButton = ilLinkButton::getInstance();
+                //                $registerButton = ilLinkButton::getInstance();
+                //
+                //                if ($extCmiUserExists) {
+                //                    $registerButton->setCaption('change_registration');
+                //                } else {
+                //                    $registerButton->setPrimary(true);
+                //                    $registerButton->setCaption('create_registration');
+                //                }
+                //
+                //                $registerButton->setUrl($DIC->ctrl()->getLinkTargetByClass(
+                //                    ilCmiXapiRegistrationGUI::class
+                //                ));
+                //
+                //                $DIC->toolbar()->addButtonInstance($registerButton);
 
                 if ($extCmiUserExists) {
-                    $registerButton->setCaption('change_registration');
+                    $label = $this->lng->txt('change_registration');
                 } else {
-                    $registerButton->setPrimary(true);
-                    $registerButton->setCaption('create_registration');
+                    //                    $registerButton->setPrimary(true);
+                    $label = $this->lng->txt('create_registration');
                 }
-
-                $registerButton->setUrl($DIC->ctrl()->getLinkTargetByClass(
-                    ilCmiXapiRegistrationGUI::class
-                ));
-
-                $DIC->toolbar()->addButtonInstance($registerButton);
+                $button = $DIC->ui()->factory()->button()->primary(
+                    $label,
+                    $DIC->ctrl()->getLinkTargetByClass(ilCmiXapiRegistrationGUI::class)
+                );
+                $DIC->toolbar()->addComponent($button);
             } else {
                 $launchButton = ilLinkButton::getInstance();
                 $launchButton->setPrimary(true);
@@ -743,6 +762,16 @@ class ilObjCmiXapiGUI extends ilObject2GUI
                 ));
 
                 $DIC->toolbar()->addButtonInstance($launchButton);
+
+                //todo
+                //                if ($this->object->getLaunchMethod() == ilObjCmiXapi::LAUNCH_METHOD_NEW_WIN) {
+                //                    setTarget('_blank');
+                //                }
+                //                $button = $DIC->ui()->factory()->button()->primary(
+                //                    $this->lng->txt('launch'),
+                //                    $DIC->ctrl()->getLinkTargetByClass(ilCmiXapiLaunchGUI::class)
+                //                );
+                //                $DIC->toolbar()->addComponent($button);
             }
 
             /**
@@ -764,16 +793,14 @@ class ilObjCmiXapiGUI extends ilObject2GUI
                 );
 
                 if ($this->isFetchXapiStatementsRequired($cmixUser)) {
-                    $fetchButton = ilLinkButton::getInstance();
-                    $fetchButton->setCaption('fetch_xapi_statements');
-
-                    $fetchButton->setUrl($DIC->ctrl()->getLinkTarget(
-                        $this,
-                        self::CMD_FETCH_XAPI_STATEMENTS
-                    ));
-
-                    $DIC->toolbar()->addButtonInstance($fetchButton);
-
+                    $button = $DIC->ui()->factory()->button()->primary(
+                        $this->lng->txt('fetch_xapi_statements'),
+                        $DIC->ctrl()->getLinkTarget(
+                            $this,
+                            self::CMD_FETCH_XAPI_STATEMENTS
+                        )
+                    );
+                    $DIC->toolbar()->addComponent($button);
                     $this->sendLastFetchInfo($cmixUser);
                 }
             }

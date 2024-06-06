@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 
@@ -28,7 +36,16 @@ use ILIAS\UI\Component\Chart\Bar\BarConfig;
  */
 class BarConfigTest extends ILIAS_UI_TestBase
 {
+<<<<<<< HEAD
     public function test_with_color(): void
+=======
+    public function getDataFactory(): ILIAS\Data\Factory
+    {
+        return new ILIAS\Data\Factory();
+    }
+
+    public function testWithColor(): void
+>>>>>>> v9.1
     {
         $df = $this->getDataFactory();
 
@@ -40,7 +57,11 @@ class BarConfigTest extends ILIAS_UI_TestBase
         $this->assertEquals($color, $bc1->getColor());
     }
 
+<<<<<<< HEAD
     public function test_with_width(): void
+=======
+    public function testWithWidth(): void
+>>>>>>> v9.1
     {
         $df = $this->getDataFactory();
 

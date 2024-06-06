@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -20,6 +22,8 @@
 use ILIAS\Skill\Service\SkillTreeService;
 use ILIAS\Skill\Access\SkillTreeAccess;
 use ILIAS\Skill\Service\SkillProfileService;
+use ILIAS\Container\Skills as ContainerSkills;
+use ILIAS\Skill\Service\SkillUsageService;
 
 /**
  * Container skills administration
@@ -29,24 +33,25 @@ use ILIAS\Skill\Service\SkillProfileService;
  */
 class ilContSkillAdminGUI
 {
+    protected \ILIAS\Container\InternalGUIService $gui;
     protected ilCtrl $ctrl;
     protected ilTabsGUI $tabs;
     protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
     protected ilContainerGUI $container_gui;
     protected ilContainer $container;
-    protected ilContainerSkills $container_skills;
-    protected ilContainerGlobalProfiles $container_global_profiles;
-    protected ilContainerLocalProfiles $container_local_profiles;
     protected ilSkillManagementSettings $skmg_settings;
     protected ilToolbarGUI $toolbar;
     protected ilAccessHandler $access;
     protected int $ref_id = 0;
+    protected int $cont_member_role_id = 0;
     protected SkillTreeService $tree_service;
     protected SkillTreeAccess $tree_access_manager;
     protected SkillProfileService $profile_service;
+    protected ContainerSkills\ContainerSkillManager $cont_skill_manager;
+    protected SkillUsageService $usage_service;
     protected array $params = [];
-    protected ilSkillContainerGUIRequest $container_gui_request;
+    protected ContainerSkills\SkillContainerGUIRequest $container_gui_request;
     protected int $requested_usr_id = 0;
     protected array $requested_usr_ids = [];
     protected string $requested_selected_skill = "";
@@ -70,16 +75,19 @@ class ilContSkillAdminGUI
         $obj = $this->container_gui->getObject();
         $this->container = $obj;
         $this->ref_id = $this->container->getRefId();
+        $this->cont_member_role_id = ilParticipants::getDefaultMemberRole($this->ref_id);
 
         $this->tree_service = $DIC->skills()->tree();
         $this->tree_access_manager = $DIC->skills()->internal()->manager()->getTreeAccessManager($this->ref_id);
         $this->profile_service = $DIC->skills()->profile();
+        $this->cont_skill_manager = $DIC->skills()->internalContainer()->manager()->getSkillManager(
+            $this->container->getId(),
+            $this->container->getRefId()
+        );
+        $this->usage_service = $DIC->skills()->usage();
 
-        $this->container_skills = new ilContainerSkills($this->container->getId());
-        $this->container_global_profiles = new ilContainerGlobalProfiles($this->container->getId());
-        $this->container_local_profiles = new ilContainerLocalProfiles($this->container->getId());
         $this->skmg_settings = new ilSkillManagementSettings();
-        $this->container_gui_request = new ilSkillContainerGUIRequest();
+        $this->container_gui_request = $DIC->skills()->internalContainer()->gui()->request();
 
         $this->ctrl->saveParameter($this, "profile_id");
         $this->params = $this->ctrl->getParameterArray($this);
@@ -93,6 +101,7 @@ class ilContSkillAdminGUI
 
         $this->lng->loadLanguageModule("skmg");
         $this->lng->loadLanguageModule("error");
+        $this->gui = $DIC->container()->internal()->gui();
     }
 
     public function executeCommand(): void
@@ -143,7 +152,7 @@ class ilContSkillAdminGUI
         $tabs->activateSubTab("members");
 
         // table
-        $tab = new ilContSkillMemberTableGUI($this, "listMembers", $this->container_skills);
+        $tab = new ilContSkillMemberTableGUI($this, "listMembers", $this->container);
 
         $tpl->setContent($tab->getHTML());
     }
@@ -169,22 +178,19 @@ class ilContSkillAdminGUI
 
         $form = new ilPropertyFormGUI();
 
-        $mem_skills = new ilContainerMemberSkills($this->container_skills->getId(), $this->requested_usr_id);
-        $mem_levels = $mem_skills->getSkillLevels();
-
         // user name
         $name = ilObjUser::_lookupName($this->requested_usr_id);
         $ne = new ilNonEditableValueGUI($this->lng->txt("obj_user"), "");
         $ne->setValue($name["lastname"] . ", " . $name["firstname"] . " [" . $name["login"] . "]");
         $form->addItem($ne);
 
-        if (empty($this->container_skills->getOrderedSkills())) {
+        if (empty($this->cont_skill_manager->getSkillsForContainerOrdered())) {
             $tpl->setOnScreenMessage('info', $lng->txt("cont_skill_no_skills_selected"), true);
             $ctrl->redirect($this, "listMembers");
         }
 
-        foreach ($this->container_skills->getOrderedSkills() as $sk) {
-            $skill = new ilBasicSkill($sk["skill_id"]);
+        foreach ($this->cont_skill_manager->getSkillsForContainerOrdered() as $sk) {
+            $skill = new ilBasicSkill($sk->getBaseSkillId());
 
             // skill level options
             $options = [
@@ -193,11 +199,19 @@ class ilContSkillAdminGUI
             foreach ($skill->getLevelData() as $l) {
                 $options[$l["id"]] = $l["title"];
             }
-            $si = new ilSelectInputGUI(ilBasicSkill::_lookupTitle($sk["skill_id"], $sk["tref_id"]), "skill_" . $sk["skill_id"] . "_" . $sk["tref_id"]);
+            $si = new ilSelectInputGUI(
+                ilBasicSkill::_lookupTitle($sk->getBaseSkillId(), $sk->getTrefId()),
+                "skill_" . $sk->getBaseSkillId() . "_" . $sk->getTrefId()
+            );
             $si->setOptions($options);
-            $si->setInfo($this->getPathString($sk["skill_id"], $sk["tref_id"]));
-            if (isset($mem_levels[$sk["skill_id"] . ":" . $sk["tref_id"]])) {
-                $si->setValue($mem_levels[$sk["skill_id"] . ":" . $sk["tref_id"]]);
+            $si->setInfo($this->getPathString($sk->getBaseSkillId(), $sk->getTrefId()));
+            $mem_level = $this->cont_skill_manager->getMemberSkillLevel(
+                $this->requested_usr_id,
+                $sk->getBaseSkillId(),
+                $sk->getTrefId()
+            );
+            if ($mem_level) {
+                $si->setValue($mem_level);
             }
             $form->addItem($si);
         }
@@ -233,19 +247,26 @@ class ilContSkillAdminGUI
         $form = $this->initCompetenceAssignmentForm();
         $form->checkInput();
 
-        $levels = [];
-        foreach ($this->container_skills->getSkills() as $sk) {
-            $l = $form->getInput("skill_" . $sk["skill_id"] . "_" . $sk["tref_id"]);
-            if ($l != -1) {
-                $levels[$sk["skill_id"] . ":" . $sk["tref_id"]] = $l;
+        foreach ($this->cont_skill_manager->getSkillsForContainer() as $sk) {
+            $l = (int) $form->getInput("skill_" . $sk->getBaseSkillId() . "_" . $sk->getTrefId());
+            if ($l === -1) {
+                $this->cont_skill_manager->removeMemberSkillFromContainer(
+                    $this->requested_usr_id,
+                    $sk->getBaseSkillId(),
+                    $sk->getTrefId()
+                );
+            } else {
+                $this->cont_skill_manager->addMemberSkillForContainer(
+                    $this->requested_usr_id,
+                    $sk->getBaseSkillId(),
+                    $sk->getTrefId(),
+                    $l
+                );
             }
         }
 
-        $mem_skills = new ilContainerMemberSkills($this->container_skills->getId(), $this->requested_usr_id);
-        $mem_skills->saveLevelForSkills($levels);
-
         if (!ilContainer::_lookupContainerSetting($this->container->getId(), "cont_skill_publish", '0')) {
-            $mem_skills->publish($this->container->getRefId());
+            $this->cont_skill_manager->publishMemberSkills($this->requested_usr_id);
         }
 
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
@@ -264,8 +285,7 @@ class ilContSkillAdminGUI
 
         $not_changed = [];
         foreach ($user_ids as $user_id) {
-            $mem_skills = new ilContainerMemberSkills($this->container_skills->getId(), $user_id);
-            if (!$mem_skills->publish($this->container->getRefId())) {
+            if (!$this->cont_skill_manager->publishMemberSkills($user_id)) {
                 $not_changed[] = $user_id;
             }
         }
@@ -273,7 +293,7 @@ class ilContSkillAdminGUI
         if (count($not_changed) === 0) {
             $this->tpl->setOnScreenMessage('success', $lng->txt("cont_skll_published"), true);
         } else {
-            $names = array_map(static function ($id) {
+            $names = array_map(static function (int $id) {
                 return ilUserUtil::getNamePresentation($id, false, false, "", true);
             }, $not_changed);
             $this->tpl->setOnScreenMessage('info', $lng->txt("cont_skll_published_some_not") . " (" . implode("; ", $names) . ")", true);
@@ -321,8 +341,7 @@ class ilContSkillAdminGUI
         $lng = $this->lng;
 
         foreach ($this->requested_usr_ids as $user_id) {
-            $mem_skills = new ilContainerMemberSkills($this->container_skills->getId(), $user_id);
-            $mem_skills->removeAllSkillLevels();
+            $this->cont_skill_manager->removeAllMemberSkillsFromContainer($user_id);
         }
 
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
@@ -351,9 +370,7 @@ class ilContSkillAdminGUI
         $tab = new ilContSkillTableGUI(
             $this,
             "listCompetences",
-            $this->container_skills,
-            $this->container_global_profiles,
-            $this->container_local_profiles
+            $this->container
         );
 
         $tpl->setContent($tab->getHTML());
@@ -379,9 +396,8 @@ class ilContSkillAdminGUI
 
         $s = explode(":", ($this->requested_selected_skill));
 
-        $this->container_skills->addSkill((int) $s[0], (int) $s[1]);
-        $this->container_skills->save();
-        ilSkillUsage::setUsage($this->container->getId(), (int) $s[0], (int) $s[1]);
+        $this->cont_skill_manager->addSkillForContainer((int) $s[0], (int) $s[1]);
+        $this->usage_service->addUsage($this->container->getId(), (int) $s[0], (int) $s[1]);
 
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
 
@@ -424,10 +440,9 @@ class ilContSkillAdminGUI
         if (!empty($this->requested_combined_skill_ids)) {
             foreach ($this->requested_combined_skill_ids as $id) {
                 $s = explode(":", $id);
-                $this->container_skills->removeSkill($s[0], $s[1]);
-                ilSkillUsage::setUsage($this->container->getId(), (int) $s[0], (int) $s[1], false);
+                $this->cont_skill_manager->removeSkillFromContainer((int) $s[0], (int) $s[1]);
+                $this->usage_service->removeUsage($this->container->getId(), (int) $s[0], (int) $s[1]);
             }
-            $this->container_skills->save();
         }
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
 
@@ -452,16 +467,16 @@ class ilContSkillAdminGUI
 
         $selectable_profiles = [];
         $all_profiles = $this->profile_service->getAllGlobalProfiles();
-        $selected_profiles = $this->container_global_profiles->getProfiles();
-        foreach ($all_profiles as $id => $profile) {
-            if (!array_key_exists($id, $selected_profiles)) {
-                $selectable_profiles[$id] = $profile;
+        $selected_profiles = $this->profile_service->getGlobalProfilesOfRole($this->cont_member_role_id);
+        foreach ($all_profiles as $profile) {
+            if (!array_key_exists($profile->getId(), $selected_profiles)) {
+                $selectable_profiles[$profile->getId()] = $profile;
             }
         }
 
         foreach ($selectable_profiles as $profile) {
-            $tree = $this->tree_service->getObjSkillTreeById($profile["skill_tree_id"]);
-            $options[$profile["id"]] = $tree->getTitle() . ": " . $profile["title"];
+            $tree = $this->tree_service->getObjSkillTreeById($profile->getSkillTreeId());
+            $options[$profile->getId()] = $tree->getTitle() . ": " . $profile->getTitle();
         }
 
         if ($this->skmg_settings->getLocalAssignmentOfProfiles()) {
@@ -470,10 +485,10 @@ class ilContSkillAdminGUI
             $select->setValue(0);
             $toolbar->addInputItem($select, true);
 
-            $button = ilSubmitButton::getInstance();
-            $button->setCaption("cont_add_global_profile");
-            $button->setCommand("saveSelectedProfile");
-            $toolbar->addButtonInstance($button);
+            $this->gui->button(
+                $this->lng->txt("cont_add_global_profile"),
+                "saveSelectedProfile"
+            )->submit()->toToolbar();
         }
 
         if ($this->skmg_settings->getLocalAssignmentOfProfiles()
@@ -482,10 +497,10 @@ class ilContSkillAdminGUI
         }
 
         if ($this->skmg_settings->getAllowLocalProfiles()) {
-            $button = ilLinkButton::getInstance();
-            $button->setCaption("cont_add_local_profile");
-            $button->setUrl($ctrl->getLinkTargetByClass("ilskillprofilegui", "createLocal"));
-            $toolbar->addButtonInstance($button);
+            $this->gui->link(
+                $this->lng->txt("cont_add_local_profile"),
+                $ctrl->getLinkTargetByClass("ilskillprofilegui", "createLocal")
+            )->emphasised()->toToolbar();
         }
 
         $toolbar->setFormAction($ctrl->getFormAction($this));
@@ -494,8 +509,7 @@ class ilContSkillAdminGUI
         $tab = new ilContProfileTableGUI(
             $this,
             "listProfiles",
-            $this->container_global_profiles,
-            $this->container_local_profiles
+            $this->container->getRefId()
         );
 
         $tpl->setContent($tab->getHTML());
@@ -513,8 +527,7 @@ class ilContSkillAdminGUI
             $ctrl->redirect($this, "listProfiles");
         }
 
-        $this->container_global_profiles->addProfile($profile_id);
-        $this->container_global_profiles->save();
+        $this->profile_service->addRoleToProfile($profile_id, $this->cont_member_role_id);
 
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
 
@@ -541,11 +554,11 @@ class ilContSkillAdminGUI
             $cgui->setConfirm($lng->txt("remove"), "removeSelectedGlobalProfiles");
 
             foreach ($this->requested_profile_ids as $i) {
-                if ($this->profile_service->lookupRefId($i) > 0) {
+                if ($this->profile_service->lookupProfileRefId($i) > 0) {
                     $this->tpl->setOnScreenMessage('info', $lng->txt("cont_skill_removal_not_possible"), true);
                     $ctrl->redirect($this, "listProfiles");
                 }
-                $cgui->addItem("id[]", (string) $i, $this->profile_service->lookupTitle($i));
+                $cgui->addItem("id[]", (string) $i, $this->profile_service->lookupProfileTitle($i));
             }
 
             $tpl->setContent($cgui->getHTML());
@@ -557,12 +570,10 @@ class ilContSkillAdminGUI
         $lng = $this->lng;
         $ctrl = $this->ctrl;
 
-        if (!empty($this->requested_profile_ids)) {
-            foreach ($this->requested_profile_ids as $id) {
-                $this->container_global_profiles->removeProfile($id);
-            }
-            $this->container_global_profiles->save();
+        foreach ($this->requested_profile_ids as $id) {
+            $this->profile_service->removeRoleFromProfile($id, $this->cont_member_role_id);
         }
+
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
 
         $ctrl->redirect($this, "listProfiles");
@@ -588,7 +599,7 @@ class ilContSkillAdminGUI
             $cgui->setHeaderText($lng->txt("cont_skill_really_remove_profile_from_list"));
             $cgui->setCancel($lng->txt("cancel"), "listProfiles");
             $cgui->setConfirm($lng->txt("remove"), "removeSingleGlobalProfile");
-            $cgui->addItem("", (string) $profile_id, $this->profile_service->lookupTitle($profile_id));
+            $cgui->addItem("", (string) $profile_id, $this->profile_service->lookupProfileTitle($profile_id));
 
             $tpl->setContent($cgui->getHTML());
         }
@@ -602,8 +613,7 @@ class ilContSkillAdminGUI
         $profile_id = (int) $this->params["profile_id"];
 
         if ($profile_id > 0) {
-            $this->container_global_profiles->removeProfile($profile_id);
-            $this->container_global_profiles->save();
+            $this->profile_service->removeRoleFromProfile($profile_id, $this->cont_member_role_id);
         }
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
 
@@ -630,11 +640,11 @@ class ilContSkillAdminGUI
             $cgui->setConfirm($lng->txt("delete"), "deleteSelectedLocalProfiles");
 
             foreach ($this->requested_profile_ids as $i) {
-                if (!($this->profile_service->lookupRefId($i) > 0)) {
+                if (!($this->profile_service->lookupProfileRefId($i) > 0)) {
                     $this->tpl->setOnScreenMessage('info', $lng->txt("cont_skill_deletion_not_possible"), true);
                     $ctrl->redirect($this, "listProfiles");
                 }
-                $cgui->addItem("id[]", (string) $i, $this->profile_service->lookupTitle($i));
+                $cgui->addItem("id[]", (string) $i, $this->profile_service->lookupProfileTitle($i));
             }
 
             $tpl->setContent($cgui->getHTML());
@@ -648,8 +658,8 @@ class ilContSkillAdminGUI
 
         if (!empty($this->requested_profile_ids)) {
             foreach ($this->requested_profile_ids as $id) {
-                if ($this->profile_service->lookupRefId($id) > 0) {
-                    $this->profile_service->delete($id);
+                if ($this->profile_service->lookupProfileRefId($id) > 0) {
+                    $this->profile_service->deleteProfile($id);
                 }
             }
         }
@@ -678,7 +688,7 @@ class ilContSkillAdminGUI
             $cgui->setHeaderText($lng->txt("cont_skill_really_delete_profile_from_list"));
             $cgui->setCancel($lng->txt("cancel"), "listProfiles");
             $cgui->setConfirm($lng->txt("delete"), "deleteSingleLocalProfile");
-            $cgui->addItem("", (string) $profile_id, $this->profile_service->lookupTitle($profile_id));
+            $cgui->addItem("", (string) $profile_id, $this->profile_service->lookupProfileTitle($profile_id));
 
             $tpl->setContent($cgui->getHTML());
         }
@@ -692,7 +702,7 @@ class ilContSkillAdminGUI
         $profile_id = (int) $this->params["profile_id"];
 
         if ($profile_id > 0) {
-            $this->profile_service->delete($profile_id);
+            $this->profile_service->deleteProfile($profile_id);
         }
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"), true);
 

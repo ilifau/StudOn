@@ -28,6 +28,12 @@ use Symfony\Component\Console\Input\InputInterface;
 
 class HasAgentTest extends TestCase
 {
+<<<<<<< HEAD
+=======
+    protected AgentFinder $agent_finder;
+    protected $has_agent;
+
+>>>>>>> v9.1
     public function setUp(): void
     {
         $this->agent_finder = $this->createMock(AgentFinder::class);

@@ -16,25 +16,14 @@
  *
  *********************************************************************/
 
-/**
- * Class ilTestTopList
- */
+declare(strict_types=1);
+
 class ilTestTopList
 {
-    /** @var $object ilObjTest */
-    private $object;
-    /** @var \ilDBInterface */
-    private $db;
-
-    /**
-     * @param ilObjTest $a_object
-     */
-    public function __construct(ilObjTest $a_object)
-    {
-        global $DIC;
-
-        $this->object = $a_object;
-        $this->db = $DIC->database();
+    public function __construct(
+        private ilObjTest $object,
+        private ilDBInterface $db
+    ) {
     }
 
     /**
@@ -452,14 +441,13 @@ class ilTestTopList
      */
     private function formatTime(int $seconds): string
     {
-        $retval = '';
-        $hours = intval($seconds / 3600);
-        $retval .= str_pad($hours, 2, "0", STR_PAD_LEFT) . ":";
-        $minutes = ($seconds / 60) % 60;
-        $retval .= str_pad($minutes, 2, "0", STR_PAD_LEFT) . ":";
-        $seconds = $seconds % 60;
-        $retval .= str_pad($seconds, 2, "0", STR_PAD_LEFT);
+        $hours = floor($seconds / 3600);
+        $seconds -= $hours * 3600;
+        $minutes = floor($seconds / 60);
+        $seconds -= $minutes * 60;
 
-        return $retval;
+        return str_pad(number_format($hours, 0, '.', ''), 2, '0', STR_PAD_LEFT) . ":"
+            . str_pad(number_format($minutes, 0, '.', ''), 2, '0', STR_PAD_LEFT) . ":"
+            . str_pad(number_format($seconds, 0, '.', ''), 2, '0', STR_PAD_LEFT);
     }
 }

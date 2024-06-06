@@ -1,8 +1,22 @@
 <?php
 
-declare(strict_types=1);
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
-/* Copyright (c) 2021 Thibeau Fuhrer <thf@studer-raimann.ch> Extended GPL, see docs/LICENSE */
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use ILIAS\HTTP\Response\Sender\ResponseSenderStrategy;
@@ -45,7 +59,8 @@ class ilCtrlTest extends TestCase
             $this->createMock(RequestWrapper::class),
             $this->createMock(Refinery::class),
             $this->createMock(ilComponentFactory::class),
-            $this->createMock(ilCtrlQueryParserInterface::class)
+            new ilCtrlSubject(),
+            $this->createMock(ilCtrlQueryParserInterface::class),
         );
 
         $invalid_baseclass = ilCtrlInvalidGuiClass::class;
@@ -128,7 +143,8 @@ class ilCtrlTest extends TestCase
             $this->createMock(RequestWrapper::class),
             $this->createMock(Refinery::class),
             $this->createMock(ilComponentFactory::class),
-            $this->createMock(ilCtrlQueryParserInterface::class)
+            new ilCtrlSubject(),
+            $this->createMock(ilCtrlQueryParserInterface::class),
         );
 
         $fallback_cmd = 'fallback_cmd_test';
@@ -217,7 +233,8 @@ class ilCtrlTest extends TestCase
             $this->createMock(RequestWrapper::class),
             $this->createMock(Refinery::class),
             $this->createMock(ilComponentFactory::class),
-            $this->createMock(ilCtrlQueryParserInterface::class)
+            new ilCtrlSubject(),
+            $this->createMock(ilCtrlQueryParserInterface::class),
         );
     }
 }

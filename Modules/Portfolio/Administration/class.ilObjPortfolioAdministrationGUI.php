@@ -214,7 +214,7 @@ class ilObjPortfolioAdministrationGUI extends ilObjectGUI
             $width->setValue(1370);
             $height->setValue(100);
         }
-        
+
         $mycourses = new ilCheckboxInputGUI($lng->txt("prtf_allow_my_courses"), "mycrs");
         $mycourses->setInfo($lng->txt("prtf_allow_my_courses_info"));
         $mycourses->setChecked($prfa_set->get("mycrs", true));

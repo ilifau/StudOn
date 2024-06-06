@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,7 +19,7 @@
  ********************************************************************
  */
 
-use ILIAS\Skill\Tree;
+use ILIAS\Skill\Node;
 
 /**
  * Skill template category GUI class
@@ -35,7 +37,7 @@ class ilSkillTemplateCategoryGUI extends ilSkillTreeNodeGUI
 
     protected int $tref_id = 0;
 
-    public function __construct(Tree\SkillTreeNodeManager $node_manager, int $a_node_id = 0, int $a_tref_id = 0)
+    public function __construct(Node\SkillTreeNodeManager $node_manager, int $a_node_id = 0, int $a_tref_id = 0)
     {
         global $DIC;
 
@@ -329,13 +331,12 @@ class ilSkillTemplateCategoryGUI extends ilSkillTreeNodeGUI
 
         $this->setTabs("usage");
 
-        $usage_info = new ilSkillUsage();
-        $usages = $usage_info->getAllUsagesOfTemplate($this->requested_node_id);
+        $usages = $this->usage_manager->getAllUsagesOfTemplate($this->requested_node_id);
 
         $html = "";
         foreach ($usages as $k => $usage) {
-            $tab = new ilSkillUsageTableGUI($this, "showUsage", $k, $usage);
-            $html .= $tab->getHTML() . "<br/><br/>";
+            $table = $this->table_manager->getUsageTable($k, $usage)->getComponent();
+            $html .= $this->ui_ren->render($table) . "<br/><br/>";
         }
 
         $tpl->setContent($html);

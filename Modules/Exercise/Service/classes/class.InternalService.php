@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Exercise;
 
 use ILIAS\HTTP;
@@ -30,7 +30,7 @@ use ILIAS\Refinery;
  */
 class InternalService
 {
-    protected \ILIAS\DI\Container $DIC;
+    protected \ILIAS\DI\Container $dic;
     protected InternalDataService $data;
     protected InternalGUIService $gui;
     protected InternalDomainService $domain;
@@ -50,6 +50,7 @@ class InternalService
         /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
 
+        $this->dic = $DIC;
         $this->db = $DIC->database();
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
@@ -62,19 +63,18 @@ class InternalService
             $this->db
         );
         $this->domain = new InternalDomainService(
+            $this->dic,
             $this->data,
             $this->repo
         );
     }
 
     public function gui(
-        array $query_params = null,
-        array $post_data = null
     ): InternalGUIService {
         return new InternalGUIService(
-            $this->DIC,
-            $this->data(),
-            $this->domain()
+            $this->dic,
+            $this->data,
+            $this->domain
         );
     }
 

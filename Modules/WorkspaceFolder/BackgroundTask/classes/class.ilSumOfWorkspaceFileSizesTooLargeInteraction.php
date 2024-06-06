@@ -100,5 +100,4 @@ class ilSumOfWorkspaceFileSizesTooLargeInteraction extends AbstractUserInteracti
     {
         return false;
     }
-
 }

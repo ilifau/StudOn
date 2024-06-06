@@ -1,6 +1,22 @@
 <?php
 
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
  * Trait ilObjFileMetadata
  *
  * @author Fabian Schmid <fs@studer-raimann.ch>
@@ -47,6 +63,16 @@ trait ilObjFileMetadata
             }
         }
         $this->updateFileData();
+
+        //add metadata to database
+        $metadata = [
+            'meta_lifecycle_id' => ['integer', $DIC->database()->nextId('il_meta_lifecycle')],
+            'rbac_id' => ['integer', $this->getId()],
+            'obj_id' => ['integer', $this->getId()],
+            'obj_type' => ['text', "file"],
+            'meta_version' => ['integer', (int) $this->getVersion()],
+        ];
+        $DIC->database()->insert('il_meta_lifecycle', $metadata);
 
         // no meta data handling for file list files
         if ($this->getMode() !== self::MODE_FILELIST) {
@@ -127,7 +153,7 @@ trait ilObjFileMetadata
      */
     protected function doUpdateMetaData(): void
     {
-        return;// add technical section with file size and format
+        global $DIC;
         $md_obj = new ilMD($this->getId(), 0, $this->getType());
         if (!is_object($technical = $md_obj->getTechnical())) {
             $technical = $md_obj->addTechnical();
@@ -146,5 +172,36 @@ trait ilObjFileMetadata
             $format->save();
         }
         $technical->update();
+
+        $meta_version_column = ['meta_version' => ['integer', (int) $this->getVersion()]];
+        $DIC->database()->update('il_meta_lifecycle', $meta_version_column, [
+            'rbac_id' => [
+                'integer',
+                $this->getId(),
+            ],
+        ]);
     }
+
+    /**
+     * update copyright meta data
+     */
+    protected function updateCopyright(): void
+    {
+        $copyright_id = $this->getCopyrightID();
+        if (!ilMDSettings::_getInstance()->isCopyrightSelectionActive() || $copyright_id === null) {
+            return;
+        }
+
+        $md_obj = new ilMD($this->getId(), 0, $this->getType());
+        $rights = $md_obj->getRights();
+        if ($rights === null) {
+            $rights = $md_obj->addRights();
+            $rights->save();
+        }
+
+        $rights->setCopyrightAndOtherRestrictions("Yes");
+        $rights->setDescription('il_copyright_entry__' . IL_INST_ID . '__' . $copyright_id);
+        $rights->update();
+    }
+
 }

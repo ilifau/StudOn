@@ -30,6 +30,7 @@ use ILIAS\UI\Component\Symbol\Icon\Standard;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\TopParentItemDrilldownRenderer;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Information\TypeInformation;
 use ILIAS\GlobalScreen\Helper\BasicAccessCheckClosures;
+use ILIAS\UI\Component\Symbol\Symbol;
 
 /**
  * Class StandardTopItemsProvider
@@ -122,7 +123,7 @@ class StandardTopItemsProvider extends AbstractStaticMainMenuProvider
             ->withPosition(20);
 
         $title = $f("mm_personal_workspace");
-        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_wksp.svg"), $title);
+        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_wksp.svg"), $title);
 
         $personal_workspace = $this->mainmenu->topParentItem($this->getPersonalWorkspaceIdentification())
             ->withVisibilityCallable($this->basic_access_helper->isUserLoggedIn())
@@ -131,7 +132,7 @@ class StandardTopItemsProvider extends AbstractStaticMainMenuProvider
             ->withPosition(30);
 
         $title = $f("mm_achievements");
-        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_achv.svg"), $title);
+        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_achv.svg"), $title);
 
         $achievements = $this->mainmenu->topParentItem($this->getAchievementsIdentification())
             ->withVisibilityCallable($this->basic_access_helper->isUserLoggedIn())
@@ -140,7 +141,7 @@ class StandardTopItemsProvider extends AbstractStaticMainMenuProvider
             ->withPosition(40);
 
         $title = $f("mm_communication");
-        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_comu.svg"), $title);
+        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_comu.svg"), $title);
 
         $communication = $this->mainmenu->topParentItem($this->getCommunicationIdentification())
             ->withVisibilityCallable($this->basic_access_helper->isUserLoggedIn())
@@ -149,7 +150,7 @@ class StandardTopItemsProvider extends AbstractStaticMainMenuProvider
             ->withPosition(50);
 
         $title = $f("mm_organisation");
-        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_orga.svg"), $title);
+        $icon = $this->dic->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_orga.svg"), $title);
 
         $organisation = $this->mainmenu->topParentItem($this->getOrganisationIdentification())
             ->withVisibilityCallable($this->basic_access_helper->isUserLoggedIn())

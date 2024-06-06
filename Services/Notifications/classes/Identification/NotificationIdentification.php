@@ -25,13 +25,8 @@ namespace ILIAS\Notifications\Identification;
  */
 class NotificationIdentification
 {
-    private string $type;
-    private string $key;
-
-    public function __construct(string $type, string $key)
+    public function __construct(private readonly string $type, private readonly string $key)
     {
-        $this->type = $type;
-        $this->key = $key;
     }
 
     public function getType(): string

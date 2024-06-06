@@ -27,6 +27,7 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
 {
     protected array $cust_attr = array();
     protected array $options = array();
+    protected ?\Closure $langresolve = null;
     /**
      * @var string|array
      */
@@ -68,6 +69,16 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     public function getOptions(): array
     {
         return $this->options ?: array();
+    }
+
+    public function setOptionsLangAttribute(\Closure $langresolve): void
+    {
+        $this->langresolve = $langresolve;
+    }
+
+    public function getOptionsLangAttribute($key): string
+    {
+        return $this->langresolve($this->getOptions(), $key);
     }
 
     /**
@@ -201,7 +212,7 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
             if ((string) $sel_value == (string) $option_value) {
                 $tpl->setVariable(
                     "CHK_SEL_OPTION",
-                    'selected="selected"'
+                    ' selected="selected"'
                 );
             }
 
@@ -215,6 +226,13 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
             // fau.
 
             $tpl->setVariable("TXT_SELECT_OPTION", $option_text);
+
+            if ($this->langresolve) {
+                $f = $this->langresolve;
+                $lang = $f($this->getOptions(), $option_value);
+                $tpl->setVariable("OPTION_LANG", ' lang="' . $lang . '"');
+            }
+
             $tpl->parseCurrentBlock();
         }
         $tpl->setVariable("ID", $this->getFieldId());

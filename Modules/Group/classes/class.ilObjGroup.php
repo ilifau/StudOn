@@ -103,6 +103,8 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 
     private string $message = '';
 
+    private array $local_roles = [];
+
 
     /**
      * @inheritDoc
@@ -1599,7 +1601,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         $part->sendNotification(ilGroupMembershipMailNotification::TYPE_NOTIFICATION_REGISTRATION, $a_user_id);
     }
 
-    public function handleAutoFill()
+    public function handleAutoFill(): void
     {
         // fau: fairSub - use extended function for auto fill
         global $DIC;
@@ -1642,6 +1644,12 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         $res = array();
         $before = new ilDateTime(time(), IL_CAL_UNIX);
         $now_date = $before->get(IL_CAL_DATETIME, '', ilTimeZone::UTC);
+        /*
+         * For groups, registration_start and registration_end are currently not
+         * persisted in UTC but the local timezone, so when fetching the current time
+         * here we need to do the same.
+         */
+        $now_date_local = $before->get(IL_CAL_DATETIME);
         $now = $before->get(IL_CAL_UNIX);
 
         $set = $ilDB->query($q = "SELECT obj_id, registration_min_members" .
@@ -1652,7 +1660,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
                 " AND leave_end < " . $ilDB->quote($now, "integer") . ")" .
                 " OR (leave_end IS NULL" .
                 " AND registration_end IS NOT NULL" .
-                " AND registration_end < " . $ilDB->quote($now_date, "text") . "))" .
+                " AND registration_end < " . $ilDB->quote($now_date_local, "text") . "))" .
             " AND (period_start IS NULL OR period_start > " . $ilDB->quote($now_date, ilDBConstants::T_TEXT) . ")");
         while ($row = $ilDB->fetchAssoc($set)) {
             $refs = ilObject::_getAllReferences((int) $row['obj_id']);

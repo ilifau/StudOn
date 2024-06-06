@@ -115,13 +115,6 @@ class ilAssLacOperationManufacturer extends ilAssLacAbstractManufacturer
     }
 
     /**
-     * Private construtor to prevent creating an object of OperationManufacturer
-     */
-    private function __construct()
-    {
-    }
-
-    /**
      * Private clone to prevent cloning an object of OperationManufacturer
      */
     private function __clone()

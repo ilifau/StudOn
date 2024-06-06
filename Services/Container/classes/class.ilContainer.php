@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+use ILIAS\News\Service as News;
+
 /**
  * Class ilContainer
  *
@@ -25,8 +27,8 @@
  */
 class ilContainer extends ilObject
 {
+    protected News $news;
     protected \ILIAS\Style\Content\DomainService $content_style_domain;
-    protected ilNewsService $news;
     // container view constants
     public const VIEW_SESSIONS = 0;
     public const VIEW_OBJECTIVE = 1;
@@ -61,6 +63,7 @@ class ilContainer extends ilObject
     public const TILE_FULL = 4;
 
     public static bool $data_preloaded = false;
+    protected \ILIAS\Container\InternalDomainService $domain;
 
     protected ilAccessHandler $access;
     protected ilRbacSystem $rbacsystem;
@@ -82,6 +85,8 @@ class ilContainer extends ilObject
     protected ?bool $is_parallel_group = null;
     // fau.
     protected ilRecommendedContentManager $recommended_content_manager;
+
+    protected ?array $type_grps = null;
 
     public function __construct(int $a_id = 0, bool $a_reference = true)
     {
@@ -107,6 +112,7 @@ class ilContainer extends ilObject
         }
         $this->recommended_content_manager = new ilRecommendedContentManager();
         $this->content_style_domain = $DIC->contentStyle()->domain();
+        $this->domain = $DIC->container()->internal()->domain();
     }
 
     // fau: paraSub - functions for checking parallel group relationships
@@ -409,7 +415,10 @@ class ilContainer extends ilObject
 
             foreach ($settings as $keyword => $value) {
                 // :TODO: proper custom icon export/import
-                if (stripos($keyword, "icon") !== false) {
+                if (
+                    stripos($keyword, "icon") !== false
+                    && $keyword !== 'hide_header_icon_and_title'
+                ) {
                     continue;
                 }
 
@@ -634,10 +643,10 @@ class ilContainer extends ilObject
     public function isClassificationFilterActive(): bool
     {
         // apply container classification filters
-        $repo = new ilClassificationSessionRepository($this->getRefId());
+        $classification = $this->domain->classification($this->getRefId());
         foreach (ilClassificationProvider::getValidProviders($this->getRefId(), $this->getId(), $this->getType()) as $class_provider) {
             $id = get_class($class_provider);
-            $current = $repo->getValueForProvider($id);
+            $current = $classification->getSelectionOfProvider($id);
             if ($current) {
                 return true;
             }
@@ -657,6 +666,9 @@ class ilContainer extends ilObject
         return false;
     }
 
+    /**
+     * @deprecated
+     */
     protected function getInitialSubitems(): array
     {
         $tree = $this->tree;
@@ -668,6 +680,9 @@ class ilContainer extends ilObject
         return $objects;
     }
 
+    /**
+     * @deprecated
+     */
     public function getSubItems(
         bool $a_admin_panel_enabled = false,
         bool $a_include_side_block = false,
@@ -690,22 +705,16 @@ class ilContainer extends ilObject
         $objects = self::getCompleteDescriptions($objects);
 
         // apply container classification filters
-        $repo = new ilClassificationSessionRepository($this->getRefId());
+        $classification = $this->domain->classification($this->getRefId());
         foreach (ilClassificationProvider::getValidProviders($this->getRefId(), $this->getId(), $this->getType()) as $class_provider) {
             $id = get_class($class_provider);
-            $current = $repo->getValueForProvider($id);
+            $current = $classification->getSelectionOfProvider($id);
             if ($current) {
                 $class_provider->setSelection($current);
                 $filtered = $class_provider->getFilteredObjects();
                 $objects = array_filter($objects, static function (array $i) use ($filtered): bool {
                     return (is_array($filtered) && in_array($i["obj_id"], $filtered));
                 });
-                //if (count($filtered) > 0) {
-                //    var_dump($filtered);
-                //    echo "<br><br>";
-                //    var_dump($objects);
-                //    exit;
-                //}
             }
         }
 
@@ -759,6 +768,7 @@ class ilContainer extends ilObject
             }
             // END WebDAV: Don't display hidden Files, Folders and Categories
 
+            // including event items!
             if (!self::$data_preloaded) {
                 $preloader->addItem((int) $object["obj_id"], $object["type"], $object["child"]);
             }
@@ -807,7 +817,9 @@ class ilContainer extends ilObject
         return $this->items[(int) $a_admin_panel_enabled][(int) $a_include_side_block];
     }
 
-    // Check whether we got any items
+    /**
+     * @deprecated
+     */
     public function gotItems(): bool
     {
         if (isset($this->items["_all"]) && is_array($this->items["_all"]) && count($this->items["_all"]) > 0) {
@@ -1068,306 +1080,15 @@ class ilContainer extends ilObject
         $this->obj_trans->save();
     }
 
-    /**
-     * Apply container user filter on objects
-     *
-     * @todo this deserves a decentralized general concept (consumers provide object filter types)
-     * @todo move selects to respective components
-     * @throws ilException
-     */
     protected function applyContainerUserFilter(
         array $objects,
         ilContainerUserFilter $container_user_filter = null
     ): array {
-        global $DIC;
-        $db = $DIC->database();
-
-        if (is_null($container_user_filter)) {
-            return $objects;
-        }
-
-        if ($container_user_filter->isEmpty() && !self::_lookupContainerSetting($this->getId(), "filter_show_empty", '0')) {
-            return [];
-        }
-
-        $result = null;
-
-        $obj_ids = array_map(static function (array $i): int {
-            return (int) $i["obj_id"];
-        }, $objects);
-        $filter_data = $container_user_filter->getData();
-        if (is_array($filter_data)) {
-            foreach ($filter_data as $key => $val) {
-                if (count($obj_ids) === 0) {    // stop if no object ids are left
-                    continue;
-                }
-                if (!in_array(substr($key, 0, 4), ["adv_", "std_"], true)) {
-                    continue;
-                }
-                if ($val == "") {
-                    continue;
-                }
-                $field_id = substr($key, 4);
-                $val = ilUtil::stripSlashes($val);
-                $query_parser = new ilQueryParser($val);
-                if (strpos($key, "std_") === 0) {
-                    // object type
-                    if ((int) $field_id === ilContainerFilterField::STD_FIELD_OBJECT_TYPE) {
-                        $result = null;
-                        $set = $db->queryF(
-                            "SELECT obj_id FROM object_data " .
-                            " WHERE  " . $db->in("obj_id", $obj_ids, false, "integer") .
-                            " AND type = %s",
-                            ["text"],
-                            [$val]
-                        );
-                        $result_obj_ids = [];
-                        while ($rec = $db->fetchAssoc($set)) {
-                            $result_obj_ids[] = $rec["obj_id"];
-                        }
-                        $obj_ids = array_intersect($obj_ids, $result_obj_ids);
-                    } elseif ((int) $field_id === ilContainerFilterField::STD_FIELD_ONLINE) {
-                        if (in_array($val, [1, 2])) {
-                            $online_where = ($val == 1)
-                                ? " (offline <> " . $db->quote(1, "integer") . " OR offline IS NULL) "
-                                : " offline = " . $db->quote(1, "integer") . " ";
-                            $result = null;
-                            $set = $db->queryF(
-                                "SELECT obj_id FROM object_data " .
-                                " WHERE  " . $db->in("obj_id", $obj_ids, false, "integer") .
-                                " AND " . $online_where,
-                                [],
-                                []
-                            );
-                            $result_obj_ids = [];
-                            while ($rec = $db->fetchAssoc($set)) {
-                                $result_obj_ids[] = $rec["obj_id"];
-                            }
-                            $obj_ids = array_intersect($obj_ids, $result_obj_ids);
-                            $obj_ids = $this->legacyOnlineFilter($obj_ids, $objects, (int) $val);
-                        }
-                    } elseif ((int) $field_id === ilContainerFilterField::STD_FIELD_TUTORIAL_SUPPORT) {
-                        $result = null;
-                        $set = $db->queryF(
-                            "SELECT DISTINCT(obj_id) FROM obj_members m JOIN usr_data u ON (u.usr_id = m.usr_id) " .
-                            " WHERE  " . $db->in("m.obj_id", $obj_ids, false, "integer") .
-                            " AND " . $db->like("u.lastname", "text", $val) .
-                            " AND m.contact = %s",
-                            ["integer"],
-                            [1]
-                        );
-                        $result_obj_ids = [];
-                        while ($rec = $db->fetchAssoc($set)) {
-                            $result_obj_ids[] = $rec["obj_id"];
-                        }
-                        $obj_ids = array_intersect($obj_ids, $result_obj_ids);
-                    } elseif ((int) $field_id === ilContainerFilterField::STD_FIELD_COPYRIGHT) {
-                        $obj_ids = $this->filterObjIdsByCopyright($obj_ids, $val);
-                    } else {
-                        #$query_parser->setCombination($this->options['title_ao']);
-                        $query_parser->setCombination(ilQueryParser::QP_COMBINATION_OR);
-                        $query_parser->parse();
-                        $meta_search = ilObjectSearchFactory::_getAdvancedSearchInstance($query_parser);
-
-                        //$meta_search->setFilter($this->filter);		// object types ['lm', ...]
-                        switch ($field_id) {
-                            case ilContainerFilterField::STD_FIELD_TITLE_DESCRIPTION:
-                                $meta_search->setMode('title_description');
-                                break;
-                            case ilContainerFilterField::STD_FIELD_DESCRIPTION:
-                                $meta_search->setMode('description');
-                                break;
-                            case ilContainerFilterField::STD_FIELD_TITLE:
-                                $meta_search->setMode('title');
-                                break;
-                            case ilContainerFilterField::STD_FIELD_KEYWORD:
-                                $meta_search->setMode('keyword_all');
-                                break;
-                            case ilContainerFilterField::STD_FIELD_AUTHOR:
-                                $meta_search->setMode('contribute');
-                                break;
-
-                        }
-                        //$meta_search->setOptions($this->options);
-                        $result = $meta_search->performSearch();
-                    }
-                } else {        // advanced metadata search
-                    $field = ilAdvancedMDFieldDefinition::getInstance((int) $field_id);
-
-                    $field_form = ilADTFactory::getInstance()->getSearchBridgeForDefinitionInstance(
-                        $field->getADTDefinition(),
-                        true,
-                        false
-                    );
-                    $field_form->setElementId("query[" . $key . "]");
-                    $field_form->validate();
-
-                    /**
-                     * Workaround:
-                     * Only text fields take care of $parser_value being passed through
-                     * new ilQueryParser($parser_value), thus other fields pass values by setting
-                     * directly in the ADT objects. This could go to a new bridge.
-                     */
-                    if ($field instanceof ilAdvancedMDFieldDefinitionSelectMulti) {
-                        $field_form->getADT()->setSelections([$val]);
-                    }
-                    if ($field instanceof ilAdvancedMDFieldDefinitionSelect) {
-                        $adt = $field_form->getADT();
-                        if ($adt instanceof ilADTMultiEnumText) {
-                            $field_form->getADT()->setSelections([$val]);
-                        } else {
-                            $field_form->getADT()->setSelection($val);
-                        }
-                    }
-                    if ($field instanceof ilAdvancedMDFieldDefinitionInteger) {
-                        $field_form->getADT()->setNumber((int) $val);
-                    }
-
-                    $query_parser->setCombination(ilQueryParser::QP_COMBINATION_OR);
-                    $adv_md_search = ilObjectSearchFactory::_getAdvancedMDSearchInstance($query_parser);
-                    //$adv_md_search->setFilter($this->filter);	// this could be set to an array of object types
-                    $adv_md_search->setDefinition($field);            // e.g. ilAdvancedMDFieldDefinitionSelectMulti
-                    $adv_md_search->setIdFilter([0]);
-                    $adv_md_search->setSearchElement($field_form);    // e.g. ilADTEnumSearchBridgeMulti
-                    $result = $adv_md_search->performSearch();
-                }
-
-                // intersect results
-                if ($result instanceof ilSearchResult) {
-                    $result_obj_ids = array_map(
-                        static function (array $i): int {
-                            return (int) $i["obj_id"];
-                        },
-                        $result->getEntries()
-                    );
-                    $obj_ids = array_intersect($obj_ids, $result_obj_ids);
-                }
-            }
-        }
-        $objects = array_filter($objects, static function (array $o) use ($obj_ids): bool {
-            return in_array($o["obj_id"], $obj_ids);
-        });
-
-        return $objects;
-    }
-
-    protected function filterObjIdsByCopyright(array $obj_ids, string $copyright_id): array
-    {
-        $identifier = \ilMDCopyrightSelectionEntry::createIdentifier($copyright_id);
-        $default_identifier = \ilMDCopyrightSelectionEntry::createIdentifier(
-            \ilMDCopyrightSelectionEntry::getDefault()
+        $filter = $this->domain->content()->filter(
+            $objects,
+            $container_user_filter,
+            !self::_lookupContainerSetting($this->getId(), "filter_show_empty", false)
         );
-
-        if ($identifier === $default_identifier) {
-            return $this->filterObjIdsByDefaultCopyright($obj_ids, $default_identifier);
-        }
-
-        $db = $this->db;
-        $set = $db->queryF(
-            "SELECT DISTINCT(rbac_id) FROM il_meta_rights " .
-            " WHERE  " . $db->in("rbac_id", $obj_ids, false, "integer") .
-            " AND description = %s ",
-            array("text"),
-            array($identifier)
-        );
-        $result_obj_ids = [];
-        while ($rec = $db->fetchAssoc($set)) {
-            $result_obj_ids[] = $rec["rbac_id"];
-        }
-        return array_intersect($obj_ids, $result_obj_ids);
-    }
-
-    protected function filterObjIdsByDefaultCopyright(
-        array $obj_ids,
-        string $default_identifier
-    ): array {
-        /*
-         * Objects with no entry in il_meta_rights need to be treated like they
-         * have the default copyright.
-         */
-        $db = $this->db;
-        $set = $db->queryF(
-            "SELECT DISTINCT(rbac_id) FROM il_meta_rights " .
-            " WHERE  " . $db->in("rbac_id", $obj_ids, false, "integer") .
-            " AND NOT description = %s ",
-            array("text"),
-            array($default_identifier)
-        );
-        $filtered_out_obj_ids = [];
-        while ($rec = $db->fetchAssoc($set)) {
-            $filtered_out_obj_ids[] = $rec["rbac_id"];
-        }
-        return array_diff($obj_ids, $filtered_out_obj_ids);
-    }
-
-    /**
-     * Legacy online filter
-     *
-     * This can be removed, once all objects use the central online/offline property
-     * @param int[] $obj_ids
-     * @param array $objects
-     * @param int   $val
-     * @return int[]
-     */
-    protected function legacyOnlineFilter(
-        array $obj_ids,
-        array $objects,
-        int $val
-    ): array {
-        $legacy_types = ["glo", "wiki", "qpl", "book", "dcl", "prtt", "mcst", "spl"];
-        foreach ($legacy_types as $type) {
-            $lobjects = array_filter($objects, static function (array $o) use ($type): bool {
-                return ($o["type"] === $type);
-            });
-            $lobj_ids = array_map(static function (array $i): int {
-                return (int) $i["obj_id"];
-            }, $lobjects);
-            $status = [];
-            switch ($type) {
-                case "glo":
-                    $status = ilObjGlossaryAccess::_lookupOnlineStatus($lobj_ids);
-                    break;
-                case "wiki":
-                    $status = ilObjWikiAccess::_lookupOnlineStatus($lobj_ids);
-                    break;
-                case "book":
-                    $status = ilObjBookingPoolAccess::_lookupOnlineStatus($lobj_ids);
-                    break;
-                case "qpl":
-                    $status = [];
-                    foreach ($lobj_ids as $lid) {
-                        $status[$lid] = ilObjQuestionPoolAccess::isOnline($lid);
-                    }
-                    break;
-                case "dcl":
-                    $status = [];
-                    foreach ($lobj_ids as $lid) {
-                        $status[$lid] = ilObjDataCollectionAccess::_lookupOnline($lid);
-                    }
-                    break;
-                case "prtt":
-                    $status = ilObjPortfolioTemplateAccess::_lookupOnlineStatus($lobj_ids);
-                    break;
-                case "mcst":
-                    foreach ($lobj_ids as $lid) {
-                        $status[$lid] = \ilObjMediaCastAccess::_lookupOnline($lid);
-                    }
-                    break;
-                case "spl":
-                    foreach ($lobj_ids as $lid) {
-                        $status[$lid] = \ilObjSurveyQuestionPool::_lookupOnline($lid);
-                    }
-            }
-            foreach ($status as $obj_id => $online) {
-                if (($val == 1 && !$online) || ($val == 2 && $online)) {
-                    if (($key = array_search($obj_id, $obj_ids)) !== false) {
-                        unset($obj_ids[$key]);
-                    }
-                } elseif (!in_array($obj_id, $obj_ids)) {
-                    $obj_ids[] = $obj_id;
-                }
-            }
-        }
-        return $obj_ids;
+        return $filter->apply();
     }
 }

@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -81,7 +89,11 @@ class PanelTest extends ILIAS_UI_TestBase
         );
     }
 
+<<<<<<< HEAD
     public function test_implements_factory_interface(): void
+=======
+    public function testImplementsFactoryInterface(): void
+>>>>>>> v9.1
     {
         $f = $this->getPanelFactory();
 
@@ -100,7 +112,11 @@ class PanelTest extends ILIAS_UI_TestBase
         );
     }
 
+<<<<<<< HEAD
     public function test_standard_get_title(): void
+=======
+    public function testStandardGetTitle(): void
+>>>>>>> v9.1
     {
         $f = $this->getPanelFactory();
         $p = $f->standard("Title", array(new ComponentDummy()));
@@ -108,7 +124,11 @@ class PanelTest extends ILIAS_UI_TestBase
         $this->assertEquals("Title", $p->getTitle());
     }
 
+<<<<<<< HEAD
     public function test_standard_get_content(): void
+=======
+    public function testStandardGetContent(): void
+>>>>>>> v9.1
     {
         $f = $this->getPanelFactory();
         $c = new ComponentDummy();
@@ -117,7 +137,11 @@ class PanelTest extends ILIAS_UI_TestBase
         $this->assertEquals($p->getContent(), array($c));
     }
 
+<<<<<<< HEAD
     public function test_standard_with_actions(): void
+=======
+    public function testStandardWithActions(): void
+>>>>>>> v9.1
     {
         $fp = $this->getPanelFactory();
 
@@ -133,7 +157,11 @@ class PanelTest extends ILIAS_UI_TestBase
         $this->assertEquals($p->getActions(), $actions);
     }
 
+<<<<<<< HEAD
     public function test_sub_with_actions(): void
+=======
+    public function testSubWithActions(): void
+>>>>>>> v9.1
     {
         $fp = $this->getPanelFactory();
 
@@ -149,7 +177,11 @@ class PanelTest extends ILIAS_UI_TestBase
         $this->assertEquals($p->getActions(), $actions);
     }
 
+<<<<<<< HEAD
     public function test_sub_with_card(): void
+=======
+    public function testSubWithCard(): void
+>>>>>>> v9.1
     {
         $fp = $this->getPanelFactory();
 
@@ -162,7 +194,11 @@ class PanelTest extends ILIAS_UI_TestBase
         $this->assertEquals($p->getFurtherInformation(), $card);
     }
 
+<<<<<<< HEAD
     public function test_sub_with_secondary_panel(): void
+=======
+    public function testSubWithSecondaryPanel(): void
+>>>>>>> v9.1
     {
         $fp = $this->getPanelFactory();
 
@@ -176,7 +212,11 @@ class PanelTest extends ILIAS_UI_TestBase
         $this->assertEquals($p->getFurtherInformation(), $secondary);
     }
 
+<<<<<<< HEAD
     public function test_report_get_title(): void
+=======
+    public function testReportGetTitle(): void
+>>>>>>> v9.1
     {
         $f = $this->getPanelFactory();
         $sub = $f->sub("Title", array(new ComponentDummy()));
@@ -185,7 +225,11 @@ class PanelTest extends ILIAS_UI_TestBase
         $this->assertEquals("Title", $p->getTitle());
     }
 
+<<<<<<< HEAD
     public function test_report_get_content(): void
+=======
+    public function testReportGetContent(): void
+>>>>>>> v9.1
     {
         $f = $this->getPanelFactory();
         $sub = $f->sub("Title", array(new ComponentDummy()));
@@ -193,7 +237,11 @@ class PanelTest extends ILIAS_UI_TestBase
 
         $this->assertEquals($p->getContent(), array($sub));
     }
+<<<<<<< HEAD
     public function test_render_standard(): void
+=======
+    public function testRenderStandard(): void
+>>>>>>> v9.1
     {
         $f = $this->getPanelFactory();
         $r = $this->getDefaultRenderer();
@@ -209,6 +257,7 @@ class PanelTest extends ILIAS_UI_TestBase
 
         $expected_html = <<<EOT
 <div class="panel panel-primary panel-flex">
+<<<<<<< HEAD
 	<div class="panel-heading ilHeader">
 		<h2>Title</h2>
 		<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"> <span class="caret"></span></button>
@@ -219,12 +268,30 @@ class PanelTest extends ILIAS_UI_TestBase
 		</div>
 	</div>
 	<div class="panel-body"></div>
+=======
+    <div class="panel-heading ilHeader">
+        <div class="panel-title"><h2>Title</h2></div>
+        <div class="panel-controls">
+            <div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"><span class="caret"></span></button>
+                <ul id="id_3_menu" class="dropdown-menu">
+                    <li><button class="btn btn-link" data-action="https://www.ilias.de" id="id_1">ILIAS</button></li>
+                    <li><button class="btn btn-link" data-action="https://www.github.com" id="id_2">GitHub</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body"></div>
+>>>>>>> v9.1
 </div>
 EOT;
         $this->assertHTMLEquals($expected_html, $html);
     }
 
+<<<<<<< HEAD
     public function test_render_sub(): void
+=======
+    public function testRenderSub(): void
+>>>>>>> v9.1
     {
         $fp = $this->getPanelFactory();
         $r = $this->getDefaultRenderer();
@@ -242,6 +309,7 @@ EOT;
 
         $expected_html = <<<EOT
 <div class="panel panel-sub panel-flex">
+<<<<<<< HEAD
 	<div class="panel-heading ilBlockHeader">
 		<h3>Title</h3>
 		<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"> <span class="caret"></span></button>
@@ -257,18 +325,41 @@ EOT;
 			<div class="col-sm-4">
 				<div class="il-card thumbnail">
 				    <div class="card-no-highlight"></div>
+=======
+    <div class="panel-heading ilBlockHeader">
+        <h3>Title</h3>
+        <div class="panel-controls">
+            <div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"><span class="caret"></span></button>
+                <ul id="id_3_menu" class="dropdown-menu">
+                    <li><button class="btn btn-link" data-action="https://www.ilias.de" id="id_1">ILIAS</button></li>
+                    <li><button class="btn btn-link" data-action="https://www.github.com" id="id_2">GitHub</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-4">
+                <div class="il-card thumbnail">
+                    <div class="card-no-highlight"></div>
+>>>>>>> v9.1
                     <div class="caption card-title">Card Title</div>
                 </div>
-			</div>
-		</div>
-	</div>
+            </div>
+        </div>
+    </div>
 </div>
 EOT;
 
         $this->assertHTMLEquals($this->brutallyTrimHTML($expected_html), $html);
     }
 
+<<<<<<< HEAD
     public function test_render_sub_with_secondary_panel(): void
+=======
+    public function testRenderSubWithSecondaryPanel(): void
+>>>>>>> v9.1
     {
         $fp = $this->getPanelFactory();
         $r = $this->getDefaultRenderer();
@@ -281,22 +372,24 @@ EOT;
 
         $expected_html = <<<EOT
 <div class="panel panel-sub panel-flex">
-	<div class="panel-heading ilBlockHeader">
-		<h3>Title</h3>
-	</div>
-	<div class="panel-body">
-		<div class="row">
-			<div class="col-sm-8"></div>
-			<div class="col-sm-4">
-				<div class="panel panel-secondary panel-flex">
-					<div class="panel-heading ilHeader">
-					    <h2>Legacy panel title</h2>
+    <div class="panel-heading ilBlockHeader">
+        <h3>Title</h3>
+        <div class="panel-controls"></div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-4">
+                <div class="panel panel-secondary panel-flex">
+                    <div class="panel-heading ilHeader">
+                        <div class="panel-title"><h2>Legacy panel title</h2></div>
+                        <div class="panel-controls"></div>
                     </div>
                     <div class="panel-body">Legacy content</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 EOT;
 
@@ -306,7 +399,11 @@ EOT;
         );
     }
 
+<<<<<<< HEAD
     public function test_render_report(): void
+=======
+    public function testRenderReport(): void
+>>>>>>> v9.1
     {
         $fp = $this->getPanelFactory();
         $r = $this->getDefaultRenderer();
@@ -326,6 +423,7 @@ EOT;
         <div class="panel panel-sub panel-flex">
             <div class="panel-heading ilBlockHeader">
                 <h3>Title</h3>
+                <div class="panel-controls"></div>
             </div>
             <div class="panel-body"><div class="row">
                 <div class="col-sm-8"></div>
@@ -345,7 +443,11 @@ EOT;
         $this->assertHTMLEquals($this->brutallyTrimHTML($expected_html), $html);
     }
 
+<<<<<<< HEAD
     public function test_with_view_controls(): void
+=======
+    public function testWithViewControls(): void
+>>>>>>> v9.1
     {
         $sort_options = [
             'a' => 'A',
@@ -360,7 +462,11 @@ EOT;
         $this->assertEquals($p->getViewControls(), [$sortation]);
     }
 
+<<<<<<< HEAD
     public function test_render_with_sortation(): void
+=======
+    public function testRenderWithSortation(): void
+>>>>>>> v9.1
     {
         $sort_options = [
             'a' => 'A',
@@ -374,12 +480,12 @@ EOT;
 
         $p = $f->standard("Title", [])
             ->withViewControls([$sortation]);
-        ;
 
         $html = $r->render($p);
 
         $expected_html = <<<EOT
 <div class="panel panel-primary panel-flex">
+<<<<<<< HEAD
 	<div class="panel-heading ilHeader">
 		<h2>Title</h2> 
 		<div class="il-viewcontrol-sortation" id="id_1">
@@ -394,12 +500,36 @@ EOT;
 </div>
 	</div>
 	<div class="panel-body"></div>
+=======
+    <div class="panel-heading ilHeader">
+        <div class="panel-title"><h2>Title</h2></div>
+        <div class="panel-viewcontrols l-bar__space-keeper">
+            <div class="il-viewcontrol-sortation l-bar__element" id="id_1">
+                <div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_4"  aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_4_menu"><span class="caret"></span></button>
+                    <ul id="id_4_menu" class="dropdown-menu">
+                       <li><button class="btn btn-link" data-action="?sortation=a" id="id_2">A</button></li>
+                       <li><button class="btn btn-link" data-action="?sortation=b" id="id_3">B</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="panel-controls"></div>
+    </div>
+    <div class="panel-body"></div>
+>>>>>>> v9.1
 </div>
 EOT;
-        $this->assertHTMLEquals($expected_html, $html);
+        $this->assertEquals(
+            $this->brutallyTrimHTML($expected_html),
+            $this->brutallyTrimHTML($html)
+        );
     }
 
+<<<<<<< HEAD
     public function test_render_with_pagination(): void
+=======
+    public function testRenderWithPagination(): void
+>>>>>>> v9.1
     {
         $pagination = $this->getUIFactory()->viewControl()->pagination()
             ->withTargetURL('http://ilias.de', 'page')
@@ -418,6 +548,7 @@ EOT;
 
         $expected_html = <<<EOT
 <div class="panel panel-primary panel-flex">
+<<<<<<< HEAD
 	<div class="panel-heading ilHeader">
 		<h2>Title</h2> 
 		<div class="il-viewcontrol-pagination">
@@ -442,5 +573,37 @@ EOT;
 </div>
 EOT;
         $this->assertHTMLEquals($this->brutallyTrimHTML($expected_html), $this->brutallyTrimHTML($html));
+=======
+    <div class="panel-heading ilHeader">
+        <div class="panel-title"><h2>Title</h2></div>
+        <div class="panel-viewcontrols l-bar__space-keeper">
+            <div class="il-viewcontrol-pagination l-bar__element">
+                    <span class="btn btn-ctrl browse previous">
+                        <a tabindex="0" class="glyph" href="http://ilias.de?page=0" aria-label="back">
+                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        </a>
+                    </span>
+                    <button class="btn btn-link" data-action="http://ilias.de?page=0" id="id_1">1</button>
+                    <button class="btn btn-link engaged" aria-pressed="true" data-action="http://ilias.de?page=1" id="id_2">2</button>
+                    <button class="btn btn-link" data-action="http://ilias.de?page=2" id="id_3">3</button>
+                    <button class="btn btn-link" data-action="http://ilias.de?page=3" id="id_4">4</button>
+                    <button class="btn btn-link" data-action="http://ilias.de?page=4" id="id_5">5</button>
+                    <span class="btn btn-ctrl browse next">
+                    <a tabindex="0" class="glyph" href="http://ilias.de?page=2" aria-label="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="panel-controls"></div>
+    </div>
+    <div class="panel-body"></div>
+</div>
+EOT;
+        $this->assertEquals(
+            $this->brutallyTrimHTML($expected_html),
+            $this->brutallyTrimHTML($html)
+        );
+>>>>>>> v9.1
     }
 }

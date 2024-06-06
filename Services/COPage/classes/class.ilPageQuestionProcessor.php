@@ -189,7 +189,7 @@ class ilPageQuestionProcessor
                                 }
                             }
                             $points += $gappoints;
-//$ilLog->write("ct: ".$gappoints);
+                            //$ilLog->write("ct: ".$gappoints);
                             break;
 
                         case CLOZE_NUMERIC:
@@ -208,7 +208,7 @@ class ilPageQuestionProcessor
                                 }
                             }
                             $points += $gappoints;
-//$ilLog->write("cn: ".$gappoints);
+                            //$ilLog->write("cn: ".$gappoints);
                             break;
 
                         case CLOZE_SELECT:
@@ -268,7 +268,6 @@ class ilPageQuestionProcessor
                     }
                 }
                 break;
-
         }
 
         if ($points < 0) {
@@ -318,7 +317,7 @@ class ilPageQuestionProcessor
             return $rec;
         }
         return [
-            "try" =>  0,
+            "try" => 0,
             "passed" => false
         ];
     }

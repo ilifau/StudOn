@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -78,7 +80,7 @@ class ilSkillTemplateTreeExplorerGUI extends ilTreeExplorerGUI
             if ($this->draft[$c["parent"]]) {
                 $this->draft[$c["child"]] = true;
             } else {
-                $this->draft[$c["child"]] = (ilSkillTreeNode::_lookupStatus($c["child"]) == ilSkillTreeNode::STATUS_DRAFT);
+                $this->draft[$c["child"]] = (ilSkillTreeNode::_lookupStatus((int) $c["child"]) == ilSkillTreeNode::STATUS_DRAFT);
             }
         }
         return $childs;
@@ -99,10 +101,10 @@ class ilSkillTemplateTreeExplorerGUI extends ilTreeExplorerGUI
             $title = $lng->txt("skmg_skill_templates");
         } else {
             if ($a_node["type"] == "sktr") {
-                $tid = ilSkillTemplateReference::_lookupTemplateId($a_node["child"]);
+                $tid = ilSkillTemplateReference::_lookupTemplateId((int) $a_node["child"]);
                 $title .= " (" . ilSkillTreeNode::_lookupTitle($tid) . ")";
             }
-            if (ilSkillTreeNode::_lookupSelfEvaluation($a_node["child"])) {
+            if (ilSkillTreeNode::_lookupSelfEvaluation((int) $a_node["child"])) {
                 $title = "<u>" . $title . "</u>";
             }
         }
@@ -117,16 +119,16 @@ class ilSkillTemplateTreeExplorerGUI extends ilTreeExplorerGUI
     {
         // root?
         if ($a_node["type"] == "skrt") {
-            $icon = ilUtil::getImagePath("icon_sctp.svg");
+            $icon = ilUtil::getImagePath("standard/icon_sctp.svg");
         } elseif (in_array($a_node["type"], array("skll", "scat", "sctr", "sktr"))) {
             $icon = ilSkillTreeNode::getIconPath(
                 $a_node["child"],
                 $a_node["type"],
                 "",
-                $this->draft[$a_node["child"]]
+                (int) $this->draft[$a_node["child"]]
             );
         } else {
-            $icon = ilUtil::getImagePath("icon_" . $a_node["type"] . ".svg");
+            $icon = ilUtil::getImagePath("standard/icon_" . $a_node["type"] . ".svg");
         }
 
         return $icon;
@@ -164,7 +166,7 @@ class ilSkillTemplateTreeExplorerGUI extends ilTreeExplorerGUI
                 $ilCtrl->setParameterByClass("ilskillrootgui", "node_id", $this->requested_skill_node_id);
                 return $ret;
 
-            // template
+                // template
             case "sktp":
                 $ilCtrl->setParameterByClass("ilbasicskilltemplategui", "node_id", $a_node["child"]);
                 $ret = $ilCtrl->getLinkTargetByClass(["ilAdministrationGUI",
@@ -176,7 +178,7 @@ class ilSkillTemplateTreeExplorerGUI extends ilTreeExplorerGUI
                 $ilCtrl->setParameterByClass("ilbasicskilltemplategui", "node_id", $this->requested_skill_node_id);
                 return $ret;
 
-            // template category
+                // template category
             case "sctp":
                 $ilCtrl->setParameterByClass("ilskilltemplatecategorygui", "node_id", $a_node["child"]);
                 $ret = $ilCtrl->getLinkTargetByClass(["ilAdministrationGUI",

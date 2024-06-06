@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once 'tests/UI/AbstractFactoryTest.php';
 
 class ListingFactoryTest extends AbstractFactoryTest
@@ -42,7 +50,15 @@ class ListingFactoryTest extends AbstractFactoryTest
         "characteristicValue" => [
             "context" => false,
             "rules" => false
-        ]
+        ],
+        "entity" => [
+            "context" => false,
+            "rules" => false
+        ],
+        "property" => [
+            "rules" => false
+        ],
+
     ];
 
 

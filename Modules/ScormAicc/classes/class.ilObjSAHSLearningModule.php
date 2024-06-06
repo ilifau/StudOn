@@ -32,8 +32,7 @@ declare(strict_types=1);
 class ilObjSAHSLearningModule extends ilObject
 {
     private string $api_func_prefix = 'LMS';
-    private string $credit_mode = 'credit';
-    private string $lesson_mode ='normal';
+    private string $lesson_mode = 'normal';
     private int $style_id = 0;
     private string $auto_review = 'n';
     private int $max_attempt = 0;
@@ -70,13 +69,17 @@ class ilObjSAHSLearningModule extends ilObject
 
     protected string $api_adapter = 'API';
 
+    protected \ILIAS\DI\UIServices $ui;
+
     /**
     * Constructor
-    * @param	integer	reference_id or object_id
-    * @param	boolean	treat the id as reference_id (true) or object_id (false)
+    * @param	integer $a_id                reference_id or object_id
+    * @param	boolean $a_call_by_reference treat the id as reference_id (true) or object_id (false)
     */
     public function __construct(int $a_id = 0, bool $a_call_by_reference = true)
     {
+        global $DIC;
+        $this->ui = $DIC->ui();
         $this->type = "sahs";
         parent::__construct($a_id, $a_call_by_reference);
     }
@@ -131,7 +134,6 @@ class ilObjSAHSLearningModule extends ilObject
             $this->setAPIAdapterName((string) $lm_rec["api_adapter"]);
             $this->setDefaultLessonMode((string) $lm_rec["default_lesson_mode"]);
             $this->setAPIFunctionsPrefix((string) $lm_rec["api_func_prefix"]);
-            $this->setCreditMode((string) $lm_rec["credit"]);
             $this->setSubType((string) $lm_rec["c_type"]);
             //            $this->setEditable(false);
             $this->setStyleSheetId((int) $lm_rec["stylesheet"]);
@@ -337,15 +339,13 @@ class ilObjSAHSLearningModule extends ilObject
      */
     public function getCreditMode(): string
     {
-        return $this->credit_mode;
-    }
-
-    /**
-     * set credit mode
-     */
-    public function setCreditMode(string $a_credit_mode): void
-    {
-        $this->credit_mode = $a_credit_mode;
+        $learningProgress = ilObjectLP::getInstance($this->getID());
+        $currentMode = $learningProgress->getCurrentMode();
+        if ($currentMode === ilLPObjSettings::LP_MODE_SCORM || $currentMode === ilLPObjSettings::LP_MODE_SCORM_PACKAGE) {
+            return "credit";
+        } else {
+            return "no-credit";
+        }
     }
 
     /**
@@ -1200,7 +1200,7 @@ class ilObjSAHSLearningModule extends ilObject
             $new_obj->setMaxAttempt($this->getMaxAttempt());
             $new_obj->setModuleVersion($this->getModuleVersion());
             $new_obj->setModuleVersion(1);
-            $new_obj->setCreditMode($this->getCreditMode());
+            //            $new_obj->setCreditMode($this->getCreditMode());
             $new_obj->setAssignedGlossary($this->getAssignedGlossary());
             $new_obj->setTries($this->getTries());
             $new_obj->setSession($this->getSession());
@@ -1345,12 +1345,10 @@ class ilObjSAHSLearningModule extends ilObject
         return $studentName;
     }
 
-    //todo : replace LinkButton
-
     /**
      * get button for view
      */
-    public function getViewButton(): ilLinkButton
+    public function getViewButton(): ilLinkButton //\ILIAS\UI\Component\Button\Primary
     {
         $setUrl = "ilias.php?baseClass=ilSAHSPresentationGUI&amp;ref_id=" . $this->getRefID();
         // $setUrl = $this->getLinkTargetByClass("ilsahspresentationgui", "")."&amp;ref_id=".$this->getRefID();
@@ -1365,8 +1363,16 @@ class ilObjSAHSLearningModule extends ilObject
             $setUrl = "javascript:void(0); onclick=startSAHS('" . $setUrl . "','ilContObj" . $this->getId() . "'," . $om . "," . $width . "," . $height . ");";
             $setTarget = "";
         }
+
+
+        //todo : replace LinkButton - but target needed
+        //        $button = $this->ui->factory()->button()->primary(
+        //            $this->lng->txt("view"),
+        //            $setUrl
+        //        );
+
         $button = ilLinkButton::getInstance();
-        $button->setCaption("view");
+        $button->setCaption("start_lm");//view
         $button->setPrimary(true);
         $button->setUrl($setUrl);
         $button->setTarget($setTarget);

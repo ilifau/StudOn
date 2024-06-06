@@ -362,7 +362,6 @@ class ilSessionParticipantsTableGUI extends ilTable2GUI
                 $part = ilParticipants::getInstance($this->member_ref_id);
                 // no break
             default:
-
         }
         if (!$part instanceof ilParticipants) {
             return [];

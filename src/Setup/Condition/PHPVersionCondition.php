@@ -26,9 +26,13 @@ class PHPVersionCondition extends ExternalConditionObjective
 {
     public function __construct(string $which)
     {
-        return parent::__construct(
+        parent::__construct(
             "PHP version >= $which",
+<<<<<<< HEAD
             fn (Setup\Environment $env): bool => version_compare(phpversion(), $which, ">="),
+=======
+            static fn (Setup\Environment $env): bool => version_compare(PHP_VERSION, $which, ">="),
+>>>>>>> v9.1
             "ILIAS " . ILIAS_VERSION_NUMERIC . " requires PHP $which or later."
         );
     }

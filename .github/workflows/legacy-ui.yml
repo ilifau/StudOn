@@ -12,6 +12,7 @@ on:
         type: choice
         options:
           - trunk
+          - release_8
 permissions:
   contents: read
   pull-requests: read
@@ -32,11 +33,11 @@ jobs:
       - name: 'Install Dependencies'
         uses: php-actions/composer@v6
         with:
-          php_version: 8.0
+          php_version: 8.1
           args: --no-interaction --no-progress --ignore-platform-reqs --no-scripts
 
       - name: 'PHStan Custom Rules'
-        run: scripts/PHPStan/run_legacy_ui_report.sh
+        run: CI/PHPStan/run_legacy_ui_report.sh
 
       - name: 'Store Report'
         uses: actions/upload-artifact@v3

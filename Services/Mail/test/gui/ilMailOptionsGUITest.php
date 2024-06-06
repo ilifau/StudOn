@@ -82,6 +82,7 @@ class ilMailOptionsGUITest extends ilMailBaseTest
         $options = new ilMailOptions(
             0,
             null,
+            $this->createMock(\ILIAS\Data\Clock\ClockInterface::class),
             $settings,
             $this->createMock(ilDBInterface::class)
         );
@@ -122,6 +123,7 @@ class ilMailOptionsGUITest extends ilMailBaseTest
         $options = new ilMailOptions(
             0,
             null,
+            $this->createMock(\ILIAS\Data\Clock\ClockInterface::class),
             $settings,
             $this->createMock(ilDBInterface::class)
         );
@@ -169,6 +171,7 @@ class ilMailOptionsGUITest extends ilMailBaseTest
         $options = new ilMailOptions(
             0,
             null,
+            $this->createMock(\ILIAS\Data\Clock\ClockInterface::class),
             $settings,
             $this->createMock(ilDBInterface::class)
         );

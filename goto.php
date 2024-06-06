@@ -17,8 +17,10 @@
  *********************************************************************/
 
 /** @noRector */
-require_once("libs/composer/vendor/autoload.php");
 
+use ILIAS\StaticURL\Services;
+
+require_once("libs/composer/vendor/autoload.php");
 ilInitialisation::initILIAS();
 global $DIC, $ilPluginAdmin;
 
@@ -44,7 +46,6 @@ if (is_object($ilPluginAdmin)) {
         $gui_class->gotoHook();
     }
 }
-
 
 // fau: campoLink - treat course link from campo
 if (substr($_GET['target'], 0, 6) == 'campo_') {
@@ -84,7 +85,7 @@ $r_pos = strpos($requested_target, "_");
 $rest = substr($requested_target, $r_pos + 1);
 $target_arr = explode("_", $requested_target);
 $target_type = $target_arr[0];
-$target_id = $target_arr[1] ?? ''; // optional for plugins
+$target_id = $target_arr[1];
 $additional = $target_arr[2] ?? '';		// optional for pages
 
 // imprint has no ref id...
@@ -96,37 +97,20 @@ if ($target_type === "impr") {
 if (!ilStartUpGUI::_checkGoto($requested_target)) {
     // if anonymous: go to login page
     if ($DIC->user()->getId() === 0 || $DIC->user()->isAnonymous()) {
-        $url = "login.php?target="
+        $DIC->ctrl()->redirectToURL(
+            "login.php?target="
             . $orig_target . "&cmd=force_login&lang="
-            . $DIC->user()->getCurrentLanguage();
-        if ($DIC->http()->wrapper()->query()->has('soap_pw')) {
-            $url = ilUtil::appendUrlParameterString(
-                $url,
-                'soap_pw=' . $DIC->http()->wrapper()->query()->retrieve(
-                    'soap_pw',
-                    $DIC->refinery()->kindlyTo()->string()
-                )
-            );
-        }
-        if ($DIC->http()->wrapper()->query()->has('ext_uid')) {
-            $url = ilUtil::appendUrlParameterString(
-                $url,
-                'ext_uid=' . $DIC->http()->wrapper()->query()->retrieve(
-                    'ext_uid',
-                    $DIC->refinery()->kindlyTo()->string()
-                )
-            );
-        }
-        $DIC->ctrl()->redirectToURL($url);
+            . $DIC->user()->getCurrentLanguage()
+        );
     } else {
         // message if target given but not accessible
         $tarr = explode("_", $requested_target);
-        if ($tarr[0] !== "pg" && $tarr[0] !== "st" && isset($tarr[1]) && is_numeric($tarr[1]) && $tarr[1] > 0) {
+        if ($tarr[0] != "pg" && $tarr[0] != "st" && $tarr[1] > 0) {
             $DIC->ui()->mainTemplate()->setOnScreenMessage(
                 'failure',
                 sprintf(
                     $DIC->language()->txt("msg_no_perm_read_item"),
-                    ilObject::_lookupTitle(ilObject::_lookupObjId((int) $tarr[1]))
+                    ilObject::_lookupTitle(ilObject::_lookupObjId($tarr[1]))
                 ),
                 true
             );
@@ -159,7 +143,7 @@ switch ($target_type) {
 
     // exception, must be kept for now
     case "git":
-        $target_ref_id = $target_arr[2] ?? 0;
+        $target_ref_id = $target_arr[2];
         ilGlossaryTermGUI::_goto($target_id, $target_ref_id);
         break;
 
@@ -167,7 +151,7 @@ switch ($target_type) {
     case "glo":
         ilObjGlossaryGUI::_goto($target_id);
         break;
-
+        
     // please migrate to default branch implementation
     case "lm":
         ilObjContentObjectGUI::_goto($target_id);
@@ -177,24 +161,24 @@ switch ($target_type) {
     case "htlm":
         ilObjFileBasedLMGUI::_goto($target_id);
         break;
-
+        
     // please migrate to default branch implementation
     case "frm":
         $target_thread = isset($target_arr[2]) ? $target_arr[2] : 0;
         $target_posting = isset($target_arr[3]) ? $target_arr[3] : 0;
         ilObjForumGUI::_goto($target_id, $target_thread, $target_posting);
         break;
-
+        
     // please migrate to default branch implementation
     case "exc":
         ilObjExerciseGUI::_goto($target_id, $rest);
         break;
-
+        
     // please migrate to default branch implementation
     case "tst":
-        ilObjTestGUI::_goto($target_id, $target_arr);
+        ilObjTestGUI::_goto($target_id);
         break;
-
+    
     // please migrate to default branch implementation
     case "qpl":
         ilObjQuestionPoolGUI::_goto($target_id);
@@ -219,7 +203,7 @@ switch ($target_type) {
     case "grp":
         ilObjGroupGUI::_goto($target_id, $additional);
         break;
-
+        
     // please migrate to default branch implementation
     case "file":
         ilObjFileGUI::_goto($target_id, $rest);

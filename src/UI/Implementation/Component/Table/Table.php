@@ -27,7 +27,10 @@ abstract class Table implements T\Table
 {
     use ComponentHelper;
 
-    protected string $title;
+    public function __construct(
+        protected string $title
+    ) {
+    }
 
     public function __construct(
         string $title
@@ -38,7 +41,11 @@ abstract class Table implements T\Table
     /**
      * @inheritdoc
      */
+<<<<<<< HEAD
     public function withTitle(string $title): T\Table
+=======
+    public function withTitle(string $title): self
+>>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->title = $title;

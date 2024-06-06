@@ -48,7 +48,7 @@ class ClientSettings implements JsonSerializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return [
             'hashing' => $this->hashing,

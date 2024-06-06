@@ -86,7 +86,7 @@ class ilSystemStyleIconsGUI
 
         if ($this->ctrl->getCmd() != 'reset') {
             try {
-                $this->setIconFolder(new ilSystemStyleIconFolder($this->getStyleContainer()->getImagesSkinPath($this->style_id)));
+                $this->setIconFolder(new ilSystemStyleIconFolder($this->getStyleContainer()->getImagesStylePath($this->style_id)));
             } catch (ilSystemStyleExceptionBase $e) {
                 $this->message_stack->addMessage(new ilSystemStyleMessage(
                     $e->getMessage(),
@@ -255,7 +255,7 @@ class ilSystemStyleIconsGUI
     {
         $style = $this->getStyleContainer()->getSkin()->getStyle($this->style_id);
         $this->getStyleContainer()->resetImages($style);
-        $this->setIconFolder(new ilSystemStyleIconFolder($this->getStyleContainer()->getImagesSkinPath($style->getId())));
+        $this->setIconFolder(new ilSystemStyleIconFolder($this->getStyleContainer()->getImagesStylePath($style->getId())));
         $message_stack = new ilSystemStyleMessageStack($this->tpl);
         $message_stack->addMessage(new ilSystemStyleMessage(
             $this->lng->txt('color_reset'),
@@ -290,7 +290,7 @@ class ilSystemStyleIconsGUI
                 }
             }
             $this->getIconFolder()->changeIconColors($color_changes);
-            $this->setIconFolder(new ilSystemStyleIconFolder($this->getStyleContainer()->getImagesSkinPath($this->style_id)));
+            $this->setIconFolder(new ilSystemStyleIconFolder($this->getStyleContainer()->getImagesStylePath($this->style_id)));
             $skin = $this->getStyleContainer()->getSkin();
             $skin->getVersionStep($skin->getVersion());
             $this->getStyleContainer()->updateSkin($skin);

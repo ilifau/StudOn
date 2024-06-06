@@ -21,6 +21,8 @@ declare(strict_types=1);
 use ILIAS\Refinery;
 use ILIAS\Setup;
 use ILIAS\UI;
+use ILIAS\Setup\ObjectiveCollection;
+use ILIAS\Chatroom\Setup\UpdateSteps;
 
 class ilChatroomSetupAgent implements Setup\Agent
 {
@@ -50,32 +52,20 @@ class ilChatroomSetupAgent implements Setup\Agent
         'years'
     ];
 
-    protected Refinery\Factory $refinery;
-
-    public function __construct(Refinery\Factory $refinery)
+    public function __construct(protected Refinery\Factory $refinery)
     {
-        $this->refinery = $refinery;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function hasConfig(): bool
     {
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getConfigInput(Setup\Config $config = null): UI\Component\Input\Field\Input
+    public function getConfigInput(Setup\Config $config = null): never
     {
         throw new LogicException("Not yet implemented.");
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getArrayToConfigTransformation(): Refinery\Transformation
     {
         $levels = self::$LOG_LEVELS;
@@ -217,27 +207,10 @@ class ilChatroomSetupAgent implements Setup\Agent
         });
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getInstallObjective(Setup\Config $config = null): Setup\Objective
     {
         // null would not be valid here, because this agents strictly wants to have
         // a config.
-        if ($config instanceof Setup\NullConfig) {
-            return new Setup\Objective\NullObjective();
-        }
-
-        return new ilChatroomServerConfigStoredObjective($config);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
-    {
-        // null would be valid here, because our user might just not have passed
-        // one during update.
         if ($config === null || $config instanceof Setup\NullConfig) {
             return new Setup\Objective\NullObjective();
         }
@@ -245,25 +218,36 @@ class ilChatroomSetupAgent implements Setup\Agent
         return new ilChatroomServerConfigStoredObjective($config);
     }
 
-    /**
-     * @inheritdoc
-     */
+    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
+    {
+        $objectives = [
+            new ilDatabaseUpdateStepsExecutedObjective(new UpdateSteps())
+        ];
+
+        // null would be valid here, because our user might just not have passed
+        // one during update.
+        if ($config !== null && !($config instanceof Setup\NullConfig)) {
+            $objectives[] = new ilChatroomServerConfigStoredObjective($config);
+        }
+
+        return new ObjectiveCollection('Update chatroom database and server config', false, ...$objectives);
+    }
+
     public function getBuildArtifactObjective(): Setup\Objective
     {
         return new Setup\Objective\NullObjective();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getStatusObjective(Setup\Metrics\Storage $storage): Setup\Objective
     {
-        return new ilChatroomMetricsCollectedObjective($storage);
+        return new Setup\ObjectiveCollection(
+            'Component Chatroom',
+            true,
+            new ilChatroomMetricsCollectedObjective($storage),
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new UpdateSteps())
+        );
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getMigrations(): array
     {
         return [];

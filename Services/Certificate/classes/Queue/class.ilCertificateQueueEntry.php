@@ -23,30 +23,15 @@ declare(strict_types=1);
  */
 class ilCertificateQueueEntry
 {
-    private int $objId;
-    private int $userId;
-    private string $adapterClass;
-    private string $state;
-    private ?int $startedTimestamp;
-    private ?int $id;
-    private int $templateId;
-
     public function __construct(
-        int $objId,
-        int $userId,
-        string $adapterClass,
-        string $state,
-        int $templateId,
-        ?int $startedTimestamp = null,
-        ?int $id = null
+        private readonly int $objId,
+        private readonly int $userId,
+        private readonly string $adapterClass,
+        private readonly string $state,
+        private readonly int $templateId,
+        private readonly ?int $startedTimestamp = null,
+        private readonly ?int $id = null
     ) {
-        $this->objId = $objId;
-        $this->userId = $userId;
-        $this->adapterClass = $adapterClass;
-        $this->state = $state;
-        $this->templateId = $templateId;
-        $this->startedTimestamp = $startedTimestamp;
-        $this->id = $id;
     }
 
     public function getObjId(): int

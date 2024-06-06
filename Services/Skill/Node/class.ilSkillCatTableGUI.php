@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -132,9 +134,9 @@ class ilSkillCatTableGUI extends ilTable2GUI
                 $ilCtrl->setParameterByClass("ilskillcategorygui", "node_id", $this->requested_node_id);
                 break;
 
-            // skill template reference
+                // skill template reference
             case "sktr":
-                $tid = ilSkillTemplateReference::_lookupTemplateId($a_set["child"]);
+                $tid = ilSkillTemplateReference::_lookupTemplateId((int) $a_set["child"]);
                 $ilCtrl->setParameterByClass("ilskilltemplatereferencegui", "tref_id", $a_set["child"]);
                 $ilCtrl->setParameterByClass("ilskilltemplatereferencegui", "node_id", $tid);
                 $ret = $ilCtrl->getLinkTargetByClass("ilskilltemplatereferencegui", "listItems");
@@ -142,23 +144,23 @@ class ilSkillCatTableGUI extends ilTable2GUI
                 $ilCtrl->setParameterByClass("ilskilltemplatereferencegui", "tref_id", $this->requested_tref_id);
                 break;
 
-            // skill
+                // skill
             case "skll":
                 $ilCtrl->setParameterByClass("ilbasicskillgui", "node_id", $a_set["child"]);
                 $ret = $ilCtrl->getLinkTargetByClass("ilbasicskillgui", "edit");
                 $ilCtrl->setParameterByClass("ilbasicskillgui", "node_id", $this->requested_node_id);
                 break;
 
-            // --------
+                // --------
 
-            // template
+                // template
             case "sktp":
                 $ilCtrl->setParameterByClass("ilbasicskilltemplategui", "node_id", $a_set["child"]);
                 $ret = $ilCtrl->getLinkTargetByClass("ilbasicskilltemplategui", "edit");
                 $ilCtrl->setParameterByClass("ilbasicskilltemplategui", "node_id", $this->requested_node_id);
                 break;
 
-            // template category
+                // template category
             case "sctp":
                 $ilCtrl->setParameterByClass("ilskilltemplatecategorygui", "node_id", $a_set["child"]);
                 $ret = $ilCtrl->getLinkTargetByClass("ilskilltemplatecategorygui", "listItems");
@@ -186,10 +188,10 @@ class ilSkillCatTableGUI extends ilTable2GUI
 
         $this->tpl->setVariable("TITLE", $a_set["title"]);
         $icon_path = ilSkillTreeNode::getIconPath(
-            $a_set["child"],
+            (int) $a_set["child"],
             $a_set["type"],
             "",
-            ilSkillTreeNode::_lookupStatus($a_set["child"])
+            ilSkillTreeNode::_lookupStatus((int) $a_set["child"])
         );
         $icon = $this->ui_fac->symbol()->icon()->custom(
             $icon_path,

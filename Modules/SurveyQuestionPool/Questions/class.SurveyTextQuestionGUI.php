@@ -86,8 +86,9 @@ class SurveyTextQuestionGUI extends SurveyQuestionGUI
         $a_only_user_anwers = false
     ): array {
         $res = array();
-        if (is_array($a_working_data) && isset($a_working_data[0])) {
-            $res[] = array("textanswer" => trim($a_working_data[0]["textanswer"] ?? ""));
+
+        if (is_array($a_working_data)) {
+            $res[] = array("textanswer" => trim($a_working_data[0]["textanswer"]));
         }
 
         return $res;
@@ -145,9 +146,6 @@ class SurveyTextQuestionGUI extends SurveyQuestionGUI
         bool $compress_view = false
     ): string {
         $template = new ilTemplate("tpl.il_svy_out_text.html", true, true, "Modules/SurveyQuestionPool");
-        $template->setCurrentBlock("material_text");
-        $template->setVariable("TEXT_MATERIAL", $this->getMaterialOutput());
-        $template->parseCurrentBlock();
 
         if ($this->object->getTextHeight() === 1) {
             $template->setCurrentBlock("textinput");

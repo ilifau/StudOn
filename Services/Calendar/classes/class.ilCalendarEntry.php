@@ -49,10 +49,7 @@ class ilCalendarEntry implements ilDatePeriod
     protected int $context_id = 0;
     protected string $context_info = '';
     protected int $translation_type = ilCalendarEntry::TRANSLATION_NONE;
-    protected bool $is_milestone = false;
-    protected int $completion = 0;
     protected bool $notification = false;
-    protected array $responsible_users = [];
 
     public function __construct(int $a_id = 0)
     {
@@ -297,26 +294,6 @@ class ilCalendarEntry implements ilDatePeriod
         $this->is_auto_generated = $a_status;
     }
 
-    public function isMilestone(): bool
-    {
-        return $this->is_milestone;
-    }
-
-    public function setMilestone(bool $a_status): void
-    {
-        $this->is_milestone = $a_status;
-    }
-
-    public function setCompletion(int $a_completion): void
-    {
-        $this->completion = $a_completion;
-    }
-
-    public function getCompletion(): int
-    {
-        return $this->completion;
-    }
-
     public function setContextId(int $a_context_id): void
     {
         $this->context_id = $a_context_id;
@@ -352,7 +329,11 @@ class ilCalendarEntry implements ilDatePeriod
         $now = new ilDateTime(time(), IL_CAL_UNIX);
         $utc_timestamp = $now->get(IL_CAL_DATETIME, '', ilTimeZone::UTC);
         $query = "UPDATE cal_entries " .
-            "SET title = " . $this->db->quote($this->getTitle(), 'text') . ", " .
+            /*
+             * The title needs to be truncated to fit into the table column. This is a pretty
+             * brute force method for doing so, but right now I can't find a better place for it.
+             */
+            "SET title = " . $this->db->quote(substr($this->getTitle(), 0, 128), 'text') . ", " .
             "last_update = " . $this->db->quote($utc_timestamp, 'timestamp') . ", " .
             "subtitle = " . $this->db->quote($this->getSubtitle(), 'text') . ", " .
             "description = " . $this->db->quote($this->getDescription(), 'text') . ", " .
@@ -365,8 +346,6 @@ class ilCalendarEntry implements ilDatePeriod
             "translation_type = " . $this->db->quote($this->getTranslationType(), 'integer') . ", " .
             "context_id = " . $this->db->quote($this->getContextId(), 'integer') . ", " .
             'context_info = ' . $this->db->quote($this->getContextInfo(), 'text') . ', ' .
-            "completion = " . $this->db->quote($this->getCompletion(), 'integer') . ", " .
-            "is_milestone = " . $this->db->quote($this->isMilestone() ? 1 : 0, 'integer') . ", " .
             'notification = ' . $this->db->quote($this->isNotificationEnabled() ? 1 : 0, 'integer') . ' ' .
             "WHERE cal_id = " . $this->db->quote($this->getEntryId(), 'integer') . " ";
         $res = $this->db->manipulate($query);
@@ -379,10 +358,14 @@ class ilCalendarEntry implements ilDatePeriod
         $utc_timestamp = $now->get(IL_CAL_DATETIME, '', ilTimeZone::UTC);
 
         $query = "INSERT INTO cal_entries (cal_id,title,last_update,subtitle,description,location,fullday,starta,enda, " .
-            "informations,auto_generated,context_id,context_info,translation_type, completion, is_milestone, notification) " .
+            "informations,auto_generated,context_id,context_info,translation_type, notification) " .
             "VALUES( " .
             $this->db->quote($next_id, 'integer') . ", " .
-            $this->db->quote($this->getTitle(), 'text') . ", " .
+            /*
+             * The title needs to be truncated to fit into the table column. This is a pretty
+             * brute force method for doing so, but right now I can't find a better place for it.
+             */
+            $this->db->quote(substr($this->getTitle(), 0, 128), 'text') . ", " .
             $this->db->quote($utc_timestamp, 'timestamp') . ", " .
             $this->db->quote($this->getSubtitle(), 'text') . ", " .
             $this->db->quote($this->getDescription(), 'text') . ", " .
@@ -395,8 +378,6 @@ class ilCalendarEntry implements ilDatePeriod
             $this->db->quote($this->getContextId(), 'integer') . ", " .
             $this->db->quote($this->getContextInfo(), 'text') . ', ' .
             $this->db->quote($this->getTranslationType(), 'integer') . ", " .
-            $this->db->quote($this->getCompletion(), 'integer') . ", " .
-            $this->db->quote($this->isMilestone() ? 1 : 0, 'integer') . ", " .
             $this->db->quote($this->isNotificationEnabled() ? 1 : 0, 'integer') . ' ' .
             ")";
         $res = $this->db->manipulate($query);
@@ -448,8 +429,6 @@ class ilCalendarEntry implements ilDatePeriod
             $this->setContextId((int) $row->context_id);
             $this->setContextInfo((string) $row->context_info);
             $this->setTranslationType((int) $row->translation_type);
-            $this->setCompletion((int) $row->completion);
-            $this->setMilestone((bool) $row->is_milestone);
             $this->enableNotification((bool) $row->notification);
 
             if ($this->isFullday()) {
@@ -480,46 +459,5 @@ class ilCalendarEntry implements ilDatePeriod
             $body .= $lng->txt('description') . ': ' . $this->getDescription() . "\n";
         }
         return $body;
-    }
-
-    public function writeResponsibleUsers(array $a_users): void
-    {
-        $this->db->manipulateF(
-            "DELETE FROM cal_entry_responsible WHERE cal_id = %s",
-            array("integer"),
-            array($this->getEntryId())
-        );
-
-        if (is_array($a_users)) {
-            foreach ($a_users as $user_id) {
-                $this->db->manipulateF(
-                    "INSERT INTO cal_entry_responsible (cal_id, user_id) " .
-                    " VALUES (%s,%s)",
-                    array("integer", "integer"),
-                    array($this->getEntryId(), $user_id)
-                );
-            }
-        }
-
-        $this->responsible_users = $a_users;
-    }
-
-    public function readResponsibleUsers(): array
-    {
-        $set = $this->db->queryF(
-            "SELECT * FROM cal_entry_responsible WHERE cal_id = %s",
-            array("integer"),
-            array($this->getEntryId())
-        );
-
-        $return = array();
-        while ($rec = $this->db->fetchAssoc($set)) {
-            $n = ilObjUser::_lookupName((int) $rec["user_id"]);
-            $return[] = array_merge(
-                $n,
-                array("login" => ilObjUser::_lookupLogin((int) $rec["user_id"]))
-            );
-        }
-        return $return;
     }
 }

@@ -134,7 +134,6 @@ class ilExerciseXMLParser extends ilSaxParser
                     $this->status = "failed";
                 }
                 break;
-
         }
     }
 

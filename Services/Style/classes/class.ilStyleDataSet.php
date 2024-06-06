@@ -40,6 +40,7 @@ use ILIAS\Style\Content;
  */
 class ilStyleDataSet extends ilDataSet
 {
+    protected ?ilObjStyleSheet $current_obj = null;
     /**
      * @var ilLogger
      */
@@ -55,12 +56,6 @@ class ilStyleDataSet extends ilDataSet
      */
     protected $user;
 
-    /**
-     * constructor
-     *
-     * @param
-     * @return
-     */
     public function __construct()
     {
         global $DIC;

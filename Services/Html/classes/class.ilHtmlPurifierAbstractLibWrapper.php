@@ -24,6 +24,20 @@ declare(strict_types=1);
  */
 abstract class ilHtmlPurifierAbstractLibWrapper implements ilHtmlPurifierInterface
 {
+    private const HTML_PURIFIER_DIRECTORY = '/HTMLPurifier';
+    private const NOT_SUPPORTED_TAGS = [
+        'rp',
+        'rt',
+        'rb',
+        'rtc',
+        'rbc',
+        'ruby',
+        'u',
+        'strike',
+        'param',
+        'object'
+    ];
+
     protected HTMLPurifier $purifier;
 
     /**
@@ -71,11 +85,11 @@ abstract class ilHtmlPurifierAbstractLibWrapper implements ilHtmlPurifierInterfa
 
     final public static function _getCacheDirectory(): string
     {
-        if (!is_dir(ilFileUtils::getDataDir() . '/HTMLPurifier')) {
-            ilFileUtils::makeDirParents(ilFileUtils::getDataDir() . '/HTMLPurifier');
+        if (!is_dir(ilFileUtils::getDataDir() . self::HTML_PURIFIER_DIRECTORY)) {
+            ilFileUtils::makeDirParents(ilFileUtils::getDataDir() . self::HTML_PURIFIER_DIRECTORY);
         }
 
-        return ilFileUtils::getDataDir() . '/HTMLPurifier';
+        return ilFileUtils::getDataDir() . self::HTML_PURIFIER_DIRECTORY;
     }
 
     /**
@@ -87,21 +101,8 @@ abstract class ilHtmlPurifierAbstractLibWrapper implements ilHtmlPurifierInterfa
     {
         $supportedElements = [];
 
-        $notSupportedTags = [
-            'rp',
-            'rt',
-            'rb',
-            'rtc',
-            'rbc',
-            'ruby',
-            'u',
-            'strike',
-            'param',
-            'object'
-        ];
-
         foreach ($elements as $element) {
-            if (!in_array($element, $notSupportedTags)) {
+            if (!in_array($element, self::NOT_SUPPORTED_TAGS)) {
                 $supportedElements[] = $element;
             }
         }

@@ -24,6 +24,11 @@ use ILIAS\ResourceStorage\Collection\ResourceCollection;
 use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Lock\LockingRepository;
+<<<<<<< HEAD
+=======
+use ILIAS\ResourceStorage\Events\Subject;
+use ILIAS\ResourceStorage\Events\DataContainer;
+>>>>>>> v9.1
 
 /**
  * Interface CollectionRepository
@@ -45,7 +50,11 @@ interface CollectionRepository extends LockingRepository
      */
     public function getResourceIdStrings(ResourceCollectionIdentification $identification): \Generator;
 
+<<<<<<< HEAD
     public function update(ResourceCollection $collection): void;
+=======
+    public function update(ResourceCollection $collection, DataContainer $event_data_container): void;
+>>>>>>> v9.1
 
     public function delete(ResourceCollectionIdentification $identification): void;
 

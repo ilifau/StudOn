@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\Card;
 
 use ILIAS\UI\Component\Card as C;
@@ -53,6 +61,11 @@ class Card implements C\Card
      */
     protected $title_action = '';
     protected bool $highlight = false;
+
+    /**
+     * @var Component[]
+     */
+    protected array $hidden_sections = [];
 
     /**
      * @param string|Shy$title
@@ -128,6 +141,19 @@ class Card implements C\Card
     public function getSections(): array
     {
         return $this->content_sections;
+    }
+
+    public function withHiddenSections(array $sections): Card
+    {
+        $clone = clone $this;
+        $clone->hidden_sections = $sections;
+
+        return $clone;
+    }
+
+    public function getHiddenSections(): array
+    {
+        return $this->hidden_sections;
     }
 
     /**

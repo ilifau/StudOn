@@ -1,0 +1,54 @@
+@use "../../../010-settings/" as *;
+@use "../../../050-layout/basics" as *;
+
+/* Modules/DataCollection */
+
+td.dcl_actions {
+	padding-right: 5px;
+}
+
+.dcl_record_list td, .dcl_field_list td {
+	padding: 10px 7px;
+	font-size: $il-font-size-small;
+}
+
+.ilDclTableDescription {
+	padding: $il-padding-xxxlarge-vertical $il-padding-xxlarge-horizontal;
+	font-size: $il-font-size-base;
+}
+
+.ilDclRecordViewNavWrapper {
+  margin-bottom: 40px;
+}
+
+.ilDclRecordViewNav {
+	font-weight: $il-font-weight-base;
+	padding: 3px;
+	font-size: $il-font-size-small;
+    width: 80%;
+    float: left;
+}
+
+.ilDclEditRecordButtonWrapper {
+  float: right;
+}
+
+.ilDclRecordViewRecordOfTotal {
+	margin-right: 10px;
+}
+
+.ilDclSelectRecord {
+	margin-left: 10px;
+}
+
+.ilDclChangeRecord {
+	display: inline;
+}
+
+.ilDclPermanentLinkWrapper {
+	margin: 20px 0;
+}
+
+tr.dcl_comments_active > td {
+	background-color: #ffffd9;
+}

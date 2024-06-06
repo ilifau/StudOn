@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 namespace ILIAS\UI\Component\Item;
 
 use ILIAS\UI\Component\Symbol\Icon\Icon;
@@ -34,8 +42,9 @@ interface Factory
      *       This is a standard item to be used in lists or similar contexts.
      *   composition: >
      *       A list item consists of a title and the following optional elements:
-     *       description, action drop down, audio player element, properties (name/value),
-     *       a text, image, icon or avatar lead, a progress meter chart and a color.
+     *       description, main action button or main action link, action drop down,
+     *       audio player element, properties (name/value), a text, image, icon or
+     *       avatar lead, a progress meter chart and a color.
      *       Property values MAY be interactive by using a Shy Buttons or a Link.
      * rules:
      *    accessibility:

@@ -31,6 +31,8 @@ class assNumericGUITest extends assBaseTestCase
     {
         parent::setUp();
 
+        $this->setGlobalVariable('ilLog', $this->createMock(ilLogger::class));
+
         $ilCtrl_mock = $this->getMockBuilder(ilCtrl::class)->disableOriginalConstructor()->getMock();
         $ilCtrl_mock->expects($this->any())->method('saveParameter');
         $ilCtrl_mock->expects($this->any())->method('saveParameterByClass');
@@ -46,9 +48,6 @@ class assNumericGUITest extends assBaseTestCase
 
     public function test_instantiateObject_shouldReturnInstance(): void
     {
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assNumericGUI.php';
-
         // Act
         $instance = new assNumericGUI();
 

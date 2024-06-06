@@ -35,14 +35,10 @@ class ilForumMailNotification extends ilMailNotification
     public const TYPE_POST_UNCENSORED = 66;
 
     private bool $is_cronjob = false;
-    private ilForumNotificationMailData $provider;
-    private ilLogger $logger;
 
-    public function __construct(ilForumNotificationMailData $provider, ilLogger $logger)
+    public function __construct(private ilForumNotificationMailData $provider, private ilLogger $logger)
     {
         parent::__construct(false);
-        $this->provider = $provider;
-        $this->logger = $logger;
     }
 
     protected function initMail(): ilMail
@@ -71,7 +67,7 @@ class ilForumMailNotification extends ilMailNotification
 
     protected function appendAttachments(): void
     {
-        if (count($this->provider->getAttachments()) > 0) {
+        if ($this->provider->getAttachments() !== []) {
             $this->logger->debug('Adding attachments ...');
             foreach ($this->provider->getAttachments() as $attachment) {
                 $this->appendBody($this->getLanguageText('attachment') . ": " . $attachment . "\n");

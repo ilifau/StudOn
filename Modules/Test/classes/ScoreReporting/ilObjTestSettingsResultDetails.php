@@ -34,13 +34,10 @@ class ilObjTestSettingsResultDetails extends TestSettings
     public const RESULTPRES_BIT_SOLUTION_LISTCOMPARE = 128;
     public const RESULTPRES_BIT_SOLUTION_LISTOWNANSWERS = 256;
 
-    public const EXPORT_BIT_SINGLECHOICE_SHORT = 1;
-
     protected bool $print_bs_with_res = true;
     protected bool $examid_in_test_res = true;
     protected int $exportsettings = 0;
     protected int $results_presentation = 0;
-    protected array $taxonomy_filter_ids = [];
 
 
     public function __construct(int $test_id)
@@ -54,56 +51,12 @@ class ilObjTestSettingsResultDetails extends TestSettings
         Refinery $refinery,
         array $environment = null
     ): FormInput {
-        $bool_with_optional_addition = $refinery->custom()->transformation(
-            function ($v) {
-                if (!$v) {
-                    return [false, false]; //[enabled, show_best_solution]
-                }
-                return [true, array_shift($v)];
-            }
-        );
-
-        $optgroup_lists = $f->optionalGroup(
-            [
+        $fields = [
+            'solution_best_solution' =>
                 $f->checkbox(
                     $lng->txt('tst_results_print_best_solution'),
                     $lng->txt('tst_results_print_best_solution_info')
-                )->withValue($this->getShowSolutionListComparison())
-            ],
-            $lng->txt('tst_show_solution_details'),
-            $lng->txt('tst_show_solution_details_desc')
-        )->withAdditionalTransformation($bool_with_optional_addition);
-
-        if (!$this->getShowSolutionListOwnAnswers()) {
-            $optgroup_lists = $optgroup_lists->withValue(null);
-        }
-
-        $optgroup_singlepage = $f->optionalGroup(
-            [
-                $f->checkbox(
-                    $lng->txt('tst_results_print_best_solution_singlepage'),
-                    $lng->txt('tst_results_print_best_solution_singlepage_info')
-                )->withValue($this->getPrintBestSolutionWithResult())
-            ],
-            $lng->txt('tst_show_solution_details_singlepage'),
-            $lng->txt('tst_show_solution_details_singlepage_desc')
-        )->withAdditionalTransformation($bool_with_optional_addition);
-        if (!$this->getShowSolutionDetails()) {
-            $optgroup_singlepage = $optgroup_singlepage->withValue(null);
-        }
-
-
-        $taxonomy_options = $environment['taxonomy_options'];
-        $taxonomy_ids = $f->multiselect(
-            $lng->txt('tst_results_tax_filters'),
-            $taxonomy_options,
-            ''
-        );
-
-        $fields = [
-            'solution_details' => $optgroup_lists,
-            'solution_details_singlepage' => $optgroup_singlepage,
-
+                )->withValue($this->getShowSolutionListComparison()),
             'solution_feedback' => $f->checkbox(
                 $lng->txt('tst_show_solution_feedback'),
                 $lng->txt('tst_show_solution_feedback_desc')
@@ -131,34 +84,21 @@ class ilObjTestSettingsResultDetails extends TestSettings
             'examid_in_test_res' => $f->checkbox(
                 $lng->txt('examid_in_test_res'),
                 $lng->txt('examid_in_test_res_desc')
-            )->withValue($this->getShowExamIdInTestResults()),
-            'exp_sc_short' => $f->checkbox(
-                $lng->txt('tst_exp_sc_short'),
-                $lng->txt('tst_exp_sc_short_desc')
-            )->withValue($this->getExportSettingsSingleChoiceShort()),
-            'result_tax_filters' => $taxonomy_ids
-                ->withValue($this->getTaxonomyFilterIds())
+            )->withValue($this->getShowExamIdInTestResults())
         ];
 
         return $f->section($fields, $lng->txt('tst_results_details_options'))
             ->withAdditionalTransformation(
                 $refinery->custom()->transformation(
                     function ($v) {
-                        list($solution_list_details, $solution_list_best_solution) = $v['solution_details'];
-                        list($solution_sp_details, $solution_sp_best_solution) = $v['solution_details_singlepage'];
                         return (clone $this)
-                            ->withShowSolutionListOwnAnswers($solution_list_details)
-                            ->withShowSolutionListComparison($solution_list_best_solution)
-                            ->withShowSolutionDetails($solution_sp_details)
-                            ->withPrintBestSolutionWithResult($solution_sp_best_solution)
+                            ->withShowSolutionListComparison($v['solution_best_solution'])
                             ->withShowSolutionFeedback($v['solution_feedback'])
                             ->withShowSolutionSuggested($v['solution_suggested'])
                             ->withShowSolutionPrintview($v['solution_printview'])
                             ->withShowSolutionAnswersOnly($v['solution_hide_page'])
                             ->withShowSolutionSignature($v['solution_signature'])
-                            ->withShowExamIdInTestResults($v["examid_in_test_res"])
-                            ->withExportSettingsSingleChoiceShort($v["exp_sc_short"])
-                            ->withTaxonomyFilterIds($v["result_tax_filters"] ?? []);
+                            ->withShowExamIdInTestResults($v["examid_in_test_res"]);
                     }
                 )
             );
@@ -167,25 +107,11 @@ class ilObjTestSettingsResultDetails extends TestSettings
     public function toStorage(): array
     {
         return [
-            'print_bs_with_res' => ['integer', (int) $this->getPrintBestSolutionWithResult()],
             'results_presentation' => ['integer', $this->getResultsPresentation()],
             'examid_in_test_res' => ['integer', (int) $this->getShowExamIdInTestResults()],
             'exportsettings' => ['integer', (int) $this->getExportSettings()],
-            'results_presentation' => ['integer', (int) $this->getResultsPresentation()],
-            'result_tax_filters' => ['string', serialize($this->getTaxonomyFilterIds())]
+            'results_presentation' => ['integer', (int) $this->getResultsPresentation()]
         ];
-    }
-
-
-    public function getPrintBestSolutionWithResult(): bool
-    {
-        return $this->print_bs_with_res;
-    }
-    public function withPrintBestSolutionWithResult(bool $print_bs_with_res): self
-    {
-        $clone = clone $this;
-        $clone->print_bs_with_res = $print_bs_with_res;
-        return $clone;
     }
 
     public function getResultsPresentation(): int
@@ -237,15 +163,6 @@ class ilObjTestSettingsResultDetails extends TestSettings
     public function withShowPassDetails(bool $flag): self
     {
         return $this->modifyResultPresentation(self::RESULTPRES_BIT_PASS_DETAILS, $flag);
-    }
-
-    public function getShowSolutionDetails(): bool
-    {
-        return $this->compareResultPresentation(self::RESULTPRES_BIT_SOLUTION_DETAILS);
-    }
-    public function withShowSolutionDetails(bool $flag): self
-    {
-        return $this->modifyResultPresentation(self::RESULTPRES_BIT_SOLUTION_DETAILS, $flag);
     }
 
     public function getShowSolutionPrintview(): bool
@@ -302,15 +219,6 @@ class ilObjTestSettingsResultDetails extends TestSettings
         return $this->modifyResultPresentation(self::RESULTPRES_BIT_SOLUTION_LISTCOMPARE, $flag);
     }
 
-    public function getShowSolutionListOwnAnswers(): bool
-    {
-        return $this->compareResultPresentation(self::RESULTPRES_BIT_SOLUTION_LISTOWNANSWERS);
-    }
-    public function withShowSolutionListOwnAnswers(bool $flag): self
-    {
-        return $this->modifyResultPresentation(self::RESULTPRES_BIT_SOLUTION_LISTOWNANSWERS, $flag);
-    }
-
     public function getExportSettings(): int
     {
         return $this->exportsettings;
@@ -338,25 +246,6 @@ class ilObjTestSettingsResultDetails extends TestSettings
             }
         }
         $clone->exportsettings = $v;
-        return $clone;
-    }
-    public function getExportSettingsSingleChoiceShort(): bool
-    {
-        return $this->compareExportSetting(self::EXPORT_BIT_SINGLECHOICE_SHORT);
-    }
-    public function withExportSettingsSingleChoiceShort(bool $flag): self
-    {
-        return $this->modifyExportSetting(self::EXPORT_BIT_SINGLECHOICE_SHORT, $flag);
-    }
-
-    public function getTaxonomyFilterIds(): array
-    {
-        return $this->taxonomy_filter_ids;
-    }
-    public function withTaxonomyFilterIds(array $taxonomy_filter_ids): self
-    {
-        $clone = clone $this;
-        $clone->taxonomy_filter_ids = $taxonomy_filter_ids;
         return $clone;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -192,5 +194,26 @@ class SkillGUIRequest
     protected function getIds(): array
     {
         return $this->intArray("id");
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getTableIds(string $key): array
+    {
+        return $this->strArray($key);
+    }
+
+    protected function getTableAction(string $key): string
+    {
+        return $this->str($key);
+    }
+
+    /**
+     * @return int[]
+     */
+    protected function getInterruptiveItemIds(): array
+    {
+        return $this->intArray("interruptive_items");
     }
 }

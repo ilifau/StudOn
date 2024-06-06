@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Container\Content\ViewManager;
 use ILIAS\Refinery;
@@ -36,6 +36,12 @@ use ILIAS\HTTP\Wrapper\RequestWrapper;
  * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjectTranslationGUI
  * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilCertificateGUI
  * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjStudyProgrammeAutoCategoriesGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilContainerGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilContainerPageGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjStyleSheetGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjectContentStyleSettingsGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilPRGPageObjectGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilPRGMembersExportGUI
  * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilPropertyFormGUI
  */
 class ilObjStudyProgrammeGUI extends ilContainerGUI
@@ -46,6 +52,7 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
     private const TAB_SETTINGS = "settings";
     private const TAB_MEMBERS = "members";
     private const TAB_METADATA = "edit_advanced_settings";
+    private const SUBTAB_PAGE_EDIT = "page";
 
     protected ilLocatorGUI $ilLocator;
     protected ilComponentLogger $ilLog;
@@ -60,12 +67,14 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
     protected ?ilPRGPermissionsHelper $permissions = null;
     protected Refinery\Factory $refinery;
     protected RequestWrapper $request_wrapper;
+    protected ILIAS\UI\Factory $ui_factory;
 
     /**
      * @var ilObjStudyProgramme
      */
     public ?ilObject $object;
 
+    protected ILIAS\Container\Content\DomainService $internal_domain_service;
     protected ViewManager $container_view_manager;
 
     public function __construct()
@@ -90,20 +99,18 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
         $lng = $DIC['lng'];
         $lng->loadLanguageModule("prg");
 
-        $this->settings_gui = ilStudyProgrammeDIC::dic()['ilObjStudyProgrammeSettingsGUI'];
-        $this->members_gui = ilStudyProgrammeDIC::dic()['ilObjStudyProgrammeMembersGUI'];
-        $this->memberships_gui = ilStudyProgrammeDIC::dic()['ilObjStudyProgrammeAutoMembershipsGUI'];
-        $this->tree_gui = ilStudyProgrammeDIC::dic()['ilObjStudyProgrammeTreeGUI'];
-        $this->type_gui = ilStudyProgrammeDIC::dic()['ilStudyProgrammeTypeGUI'];
-        $this->autocategories_gui = ilStudyProgrammeDIC::dic()['ilObjStudyProgrammeAutoCategoriesGUI'];
-        $this->type_repository = ilStudyProgrammeDIC::dic()['model.Type.ilStudyProgrammeTypeRepository'];
+        $dic = ilStudyProgrammeDIC::dic();
+        $this->settings_gui = $dic['ilObjStudyProgrammeSettingsGUI'];
+        $this->members_gui = $dic['ilObjStudyProgrammeMembersGUI'];
+        $this->memberships_gui = $dic['ilObjStudyProgrammeAutoMembershipsGUI'];
+        $this->tree_gui = $dic['ilObjStudyProgrammeTreeGUI'];
+        $this->type_gui = $dic['ilStudyProgrammeTypeGUI'];
+        $this->autocategories_gui = $dic['ilObjStudyProgrammeAutoCategoriesGUI'];
+        $this->type_repository = $dic['model.Type.ilStudyProgrammeTypeRepository'];
+        $this->ui_factory = $dic['ui.factory'];
 
-        $this->container_view_manager = $DIC
-            ->container()
-            ->internal()
-            ->domain()
-            ->content()
-            ->view();
+        $this->internal_domain_service = $DIC->container()->internal()->domain()->content();
+        $this->container_view_manager = $this->internal_domain_service->view($this->object);
     }
 
     public function executeCommand(): void
@@ -182,6 +189,21 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
                 $this->members_gui->setRefId($this->ref_id);
                 $this->ctrl->forwardCommand($this->members_gui);
                 break;
+            case 'ilprgmembersexportgui':
+                $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_MANAGE_MEMBERS);
+                $this->getSubTabs('members');
+                $this->tabs_gui->activateTab(self::TAB_MEMBERS);
+                $this->tabs_gui->activateSubTab('export_memberships');
+
+                $specific_dic = ilStudyProgrammeDIC::specificDicFor($this->object);
+                $export_gui = new ilPRGMembersExportGUI(
+                    $this->ref_id,
+                    $specific_dic['ilStudyProgrammeUserTable'],
+                    $specific_dic['DataFactory']
+                );
+                $this->ctrl->forwardCommand($export_gui);
+                break;
+
             case "ilobjstudyprogrammeautomembershipsgui":
                 $this->denyAccessIfNot(ilOrgUnitOperation::OP_MANAGE_MEMBERS);
                 $this->getSubTabs('members');
@@ -197,10 +219,6 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
                 $this->setContentSubTabs();
                 $this->tabs_gui->activateTab(self::TAB_VIEW_CONTENT);
                 $this->tabs_gui->activateSubTab(self::SUBTAB_VIEW_TREE);
-
-                // disable admin panel
-                $this->container_view_manager->setContentView();
-
                 $this->tree_gui->setRefId($this->id);
                 $this->ctrl->forwardCommand($this->tree_gui);
                 break;
@@ -230,6 +248,35 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
                 $output_gui = $guiFactory->create($this->object);
                 $this->ctrl->forwardCommand($output_gui);
                 break;
+            case "ilprgpageobjectgui":
+                if (!$this->object->hasContentPage()) {
+                    $this->object->createContentPage();
+                }
+                $gui = new ilPRGPageObjectGUI($this->object->getId());
+                $gui->setItemPresentationManager(
+                    $this->internal_domain_service
+                        ->itemPresentation(
+                            $this->object,
+                            null,
+                            false
+                        )
+                );
+                $this->content_style_gui->addCss($this->tpl, $this->object->getRefId());
+                $this->ctrl->setCmd($cmd);
+                $out = $this->ctrl->forwardCommand($gui);
+                if (!is_null($out)) {
+                    $this->tpl->setContent($out);
+                }
+                break;
+            case "ilobjstylesheetgui":
+                $this->forwardToStyleSheet();
+                break;
+            case "ilobjectcontentstylesettingsgui":
+                $this->tabs_gui->activateTab(self::TAB_VIEW_CONTENT);
+                $settings_gui = $this->content_style_gui
+                    ->objectSettingsGUIForRefId(null, $this->object->getRefId());
+                $this->ctrl->forwardCommand($settings_gui);
+                break;
             case strtolower(ilPropertyFormGUI::class):
                 /*
                  * Only used for async loading of the repository tree in custom md
@@ -253,7 +300,7 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
                 switch ($cmd) {
                     case "cancelDelete":
                         $cmd = "view";
-                    // no break
+                        // no break
                     case "create":
                     case "save":
                     case "view":
@@ -283,6 +330,14 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
                     case 'getAsynchItemList':
                         parent::getAsynchItemListObject();
                         break;
+
+                    case 'editPageFrame':
+                        $this->editPageFrameObject();
+                        break;
+                    case 'editStyleProperties':
+                        $this->editStylePropertiesObject();
+                        break;
+
                     case 'trash':
                     case 'undelete':
                     case 'confirmRemoveFromSystem':
@@ -290,7 +345,6 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
                     case 'deliverCertificate':
                     case 'addToDesk':
                     case 'removeFromDesk':
-
                     case 'cut':
                     case 'paste':
                     case 'clear':
@@ -387,6 +441,14 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
     {
         $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_READ);
         $this->tabs_gui->activateTab(self::TAB_VIEW_CONTENT);
+
+        $this->toolbar->addComponent(
+            $this->ui_factory->link()->standard(
+                $this->lng->txt('cntr_text_media_editor'),
+                $this->getLinkTarget("edit_page")
+            )
+        );
+
         parent::renderObject();
     }
 
@@ -625,6 +687,14 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
                         $this->getLinkTarget('memberships')
                     );
                 }
+
+                if ($this->getPermissionsHelper()->may(ilPRGPermissionsHelper::ROLEPERM_MANAGE_MEMBERS)) {
+                    $this->tabs_gui->addSubTab(
+                        'export_memberships',
+                        $this->lng->txt('export_memberships'),
+                        $this->getLinkTarget('export_memberships')
+                    );
+                }
                 break;
         }
     }
@@ -650,7 +720,6 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
         if ($cmd === "auto_content") {
             return $this->ctrl->getLinkTargetByClass("ilObjStudyProgrammeAutoCategoriesGUI", "view");
         }
-
         if ($cmd === self::SUBTAB_VIEW_TREE) {
             return $this->ctrl->getLinkTargetByClass("ilobjstudyprogrammetreegui", "view");
         }
@@ -659,6 +728,9 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
         }
         if ($cmd === "memberships") {
             return $this->ctrl->getLinkTargetByClass("ilobjstudyprogrammeautomembershipsgui", "view");
+        }
+        if ($cmd == "export_memberships") {
+            return $this->ctrl->getLinkTargetByClass('ilprgmembersexportgui', 'show');
         }
         if ($cmd === "subtypes") {
             return $this->ctrl->getLinkTargetByClass("ilstudyprogrammetypegui", "listTypes");
@@ -670,6 +742,12 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
                     "ilStudyProgrammeCommonSettingsGUI"
                 ],
                 "editSettings"
+            );
+        }
+        if ($cmd == "edit_page") {
+            return $this->ctrl->getLinkTargetByClass(
+                ["ilObjStudyProgrammeGUI", "ilPRGPageObjectGUI"],
+                'edit'
             );
         }
 
@@ -738,7 +816,7 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
             $lg->addCustomCommand($cert_url, "download_certificate");
             $lg->addHeaderIcon(
                 "cert_icon",
-                ilUtil::getImagePath("icon_cert.svg"),
+                ilUtil::getImagePath("standard/icon_cert.svg"),
                 $this->lng->txt("download_certificate"),
                 null,
                 null,
@@ -750,8 +828,6 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
 
     protected function deliverCertificateObject(): void
     {
-        global $DIC;
-
         $this->lng->loadLanguageModule('cert');
 
         $user_id = (int) $this->user->getId();
@@ -763,10 +839,8 @@ class ilObjStudyProgrammeGUI extends ilContainerGUI
             $this->ctrl->redirect($this);
         }
         $repository = new ilUserCertificateRepository();
-        $cert_logger = $DIC->logger()->cert();
         $pdf_action = new ilCertificatePdfAction(
-            $cert_logger,
-            new ilPdfGenerator($repository, $cert_logger),
+            new ilPdfGenerator($repository),
             new ilCertificateUtilHelper(),
             $this->lng->txt('error_creating_certificate_pdf')
         );

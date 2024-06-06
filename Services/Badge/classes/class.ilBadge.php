@@ -50,7 +50,6 @@ class ilBadge
     }
 
     /**
-     * @param int $a_parent_id
      * @param array|null $a_filter
      * @return self[]
      */
@@ -88,7 +87,6 @@ class ilBadge
     }
 
     /**
-     * @param string $a_type_id
      * @return self[]
      */
     public static function getInstancesByType(

@@ -23,23 +23,15 @@ declare(strict_types=1);
  */
 class ilUserCertificateZip
 {
-    private int $objectId;
-    private string $webDirectory;
-    private string $certificatePath;
-    private string $typeInFileName;
-    private string $installionId;
+    private readonly string $typeInFileName;
+    private bool $files_added_to_archive = false;
 
     public function __construct(
-        int $objectId,
-        string $certificatePath,
-        string $webDirectory = CLIENT_WEB_DIR,
-        string $installationId = IL_INST_ID
+        private readonly int $objectId,
+        private readonly string $certificatePath,
+        private readonly string $webDirectory = CLIENT_WEB_DIR,
+        private readonly string $installionId = IL_INST_ID
     ) {
-        $this->objectId = $objectId;
-        $this->certificatePath = $certificatePath;
-        $this->webDirectory = $webDirectory;
-        $this->installionId = $installationId;
-
         // The mapping to types is made to reflect the old behaviour of
         // the adapters
         $iliasType = ilObject::_lookupType($this->objectId);
@@ -80,10 +72,18 @@ class ilUserCertificateZip
         $fh = fopen($dir . $filename, 'wb');
         fwrite($fh, $pdfdata);
         fclose($fh);
+        $this->files_added_to_archive = true;
     }
 
+    /**
+     * @throws \ILIAS\Filesystem\Exception\IOException
+     */
     public function zipCertificatesInArchiveDirectory(string $dir, bool $deliver = true): string
     {
+        if (!$this->files_added_to_archive) {
+            throw new \ILIAS\Filesystem\Exception\IOException('No files added to archive directory');
+        }
+
         $zipFile = time() . '__' . $this->installionId . '__' . $this->typeInFileName . '__' . $this->objectId . '__certificates.zip';
         $zipFilePath = $this->webDirectory . $this->certificatePath . $zipFile;
 

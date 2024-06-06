@@ -23,7 +23,7 @@
  */
 class ilWidthHeightInputGUI extends ilFormPropertyGUI
 {
-    protected $support_constraint_props = false;
+    protected bool $support_constraint_props = false;
     protected bool $constrainproportions = false;
     protected ?int $height = null;
     protected ?int $width = null;
@@ -128,8 +128,8 @@ class ilWidthHeightInputGUI extends ilFormPropertyGUI
             );
         }
 
-        $tpl->setVariable("VAL_WIDTH", strtolower(trim($this->getWidth())));
-        $tpl->setVariable("VAL_HEIGHT", strtolower(trim($this->getHeight())));
+        $tpl->setVariable("VAL_WIDTH", strtolower(trim((string) $this->getWidth())));
+        $tpl->setVariable("VAL_HEIGHT", strtolower(trim((string) $this->getHeight())));
 
         $tpl->setVariable("POST_VAR", $this->getPostVar());
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -15,7 +16,7 @@
  *
  *********************************************************************/
 
-require_once './Modules/TestQuestionPool/classes/class.assAnswerBinaryState.php';
+declare(strict_types=1);
 
 /**
  * Class for answers with a binary state indicator
@@ -34,12 +35,7 @@ require_once './Modules/TestQuestionPool/classes/class.assAnswerBinaryState.php'
  */
 class ASS_AnswerBinaryStateImage extends ASS_AnswerBinaryState
 {
-    /**
-     * Image filename
-     *
-     * @var int|string
-     */
-    protected $image;
+    protected ?string $image = null;
 
     /**
      * ASS_AnswerBinaryStateImage constructor
@@ -51,34 +47,27 @@ class ASS_AnswerBinaryStateImage extends ASS_AnswerBinaryState
      * @param string  $a_image    The image filename
      * @param integer $id         The database id of the answer
      */
-    public function __construct($answertext = "", $points = 0.0, $order = 0, $state = 0, $a_image = "", int $id = -1)
+    public function __construct($answertext = "", $points = 0.0, $order = 0, $state = false, string $a_image = null, int $id = -1)
     {
-        parent::__construct($answertext, (float) $points, $order, $id);
-        $this->image = $a_image;
+        parent::__construct($answertext, (float) $points, $order, $state, $id);
+        $this->setImage($a_image);
     }
 
-    /**
-     * Gets the image filename
-     *
-     * Returns the image filename
-     *
-     * @return string The image filename
-     * @see $image
-     */
-    public function getImage(): string
+    public function getImage(): ?string
     {
         return $this->image ?? '';
     }
 
-    /**
-     * Sets the image filename
-     *
-     * @param int|string $a_image The image filename
-     *
-     * @see $image
-     */
-    public function setImage($a_image = ''): void
+    public function setImage(?string $image = null): void
     {
-        $this->image = $a_image;
+        if($image === '') {
+            throw new \Exception('imagename must not be empty');
+        }
+        $this->image = $image;
+    }
+
+    public function hasImage(): bool
+    {
+        return $this->image !== null;
     }
 }

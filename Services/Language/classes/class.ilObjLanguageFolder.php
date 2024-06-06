@@ -269,9 +269,8 @@ class ilObjLanguageFolder extends ilObject
 
                         if ($num !== 3) {
                             $error_param = true;
-
                             $output .= "<br/><b/>" . $this->lng->txt("err_in_line") . " " . $line . " !</b>&nbsp;&nbsp;";
-
+                            
                             switch ($num) {
                                 case 1:
                                     if (empty($separated[0])) {
@@ -281,13 +280,13 @@ class ilObjLanguageFolder extends ilObject
                                         $output .= "<br/>" . $this->lng->txt("err_1_param") . " " . $this->lng->txt("check_langfile");
                                     }
                                     break;
-
+                                
                                 case 2:
                                     $output .= $this->lng->txt("module") . ": " . $separated[0];
                                     $output .= ", " . $this->lng->txt("identifier") . ": " . $separated[1];
                                     $output .= "<br/>" . $this->lng->txt("err_2_param") . " " . $this->lng->txt("check_langfile");
                                     break;
-
+                                
                                 default:
                                     $output .= $this->lng->txt("module") . ": " . $separated[0];
                                     $output .= ", " . $this->lng->txt("identifier") . ": " . $separated[1];
@@ -307,7 +306,6 @@ class ilObjLanguageFolder extends ilObject
                         }
                         $double_checker[strtolower($separated[0])][strtolower($separated[1])] = $line;
                     }
-
                     if ($error_param || $error_double) {
                         $reason = "";
                         if ($error_param) {

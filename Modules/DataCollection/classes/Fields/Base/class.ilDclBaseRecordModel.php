@@ -16,18 +16,10 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\Notes\Service;
 
-/**
- * Class ilDclBaseRecordModel
- * @author  Martin Studer <ms@studer-raimann.ch>
- * @author  Marcel Raimann <mr@studer-raimann.ch>
- * @author  Fabian Schmid <fs@studer-raimann.ch>
- * @author  Oskar Truffer <ot@studer-raimann.ch>
- * @author  Stefan Wanzenried <sw@studer-raimann.ch>
- * @version $Id:
- * @ingroup ModulesDataCollection
- */
 class ilDclBaseRecordModel
 {
     protected \ILIAS\UI\Factory $ui_factory;
@@ -318,7 +310,7 @@ class ilDclBaseRecordModel
      * Get Field Value
      * @return int|string|array|null
      */
-    public function getRecordFieldValue(?int $field_id)
+    public function getRecordFieldValue(?string $field_id)
     {
         if ($field_id === null) {
             return null;
@@ -537,10 +529,9 @@ class ilDclBaseRecordModel
     {
         switch ($field_id) {
             case "last_edit_by":
-                return $this->getLastEditBy();
+                return ilObjUser::_lookupName($this->getLastEditBy())['login'];
             case 'owner':
-                $usr_data = ilObjUser::_lookupName($this->getOwner());
-                return $usr_data['login'];
+                return ilObjUser::_lookupName($this->getOwner())['login'];
         }
 
         return $this->{$field_id};
@@ -558,7 +549,7 @@ class ilDclBaseRecordModel
     {
         switch ($field_id) {
             case 'id':
-                return $this->getId();
+                return (string)$this->getId();
             case 'owner':
                 return ilUserUtil::getNamePresentation($this->getOwner());
             case 'last_edit_by':
@@ -582,7 +573,6 @@ class ilDclBaseRecordModel
                 );
                 $update_code = "il.UI.counter.getCounterObject($(\".ilc_page_Page\")).incrementStatusCount(1);";
                 $ajax_link = ilNoteGUI::getListCommentsJSCall($ajax_hash, $update_code);
-
                 $nr_comments = $this->getNrOfComments();
 
                 $comment_glyph = $this->ui_factory->symbol()->glyph()->comment()->withCounter(
@@ -643,10 +633,6 @@ class ilDclBaseRecordModel
     {
         $this->loadRecordFields();
         foreach ($this->recordfields as $recordfield) {
-            if ($recordfield->getField()->getDatatypeId() == ilDclDatatype::INPUTFORMAT_FILE) {
-                $this->deleteFile((int)$recordfield->getValue());
-            }
-
             if ($recordfield->getField()->getDatatypeId() == ilDclDatatype::INPUTFORMAT_MOB) {
                 $this->deleteMob((int)$recordfield->getValue());
             }

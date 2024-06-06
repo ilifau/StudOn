@@ -55,7 +55,7 @@ use ILIAS\Administration\AdminGUIRequest;
 * @ilCtrl_Calls ilAdministrationGUI: ilObjBadgeAdministrationGUI, ilMemberExportSettingsGUI
 * @ilCtrl_Calls ilAdministrationGUI: ilObjFileAccessSettingsGUI, ilPermissionGUI, ilObjRemoteTestGUI, ilPropertyFormGUI
 * @ilCtrl_Calls ilAdministrationGUI: ilObjCmiXapiAdministrationGUI, ilObjCmiXapiGUI, ilObjLTIConsumerGUI
-* @ilCtrl_Calls ilAdministrationGUI: ilObjLearningSequenceAdminGUI, ilObjContentPageAdministrationGUI, ilObjPDFGenerationGUI
+* @ilCtrl_Calls ilAdministrationGUI: ilObjLearningSequenceAdminGUI, ilObjContentPageAdministrationGUI
 * @ilCtrl_Calls ilAdministrationGUI: ilObjIndividualAssessmentGUI
 */
 class ilAdministrationGUI implements ilCtrlBaseClassInterface
@@ -185,14 +185,6 @@ class ilAdministrationGUI implements ilCtrlBaseClassInterface
 
                 // forward all other classes to gui commands
                 if ($next_class != "" && $next_class !== "iladministrationgui") {
-                    // check db update
-                    $dbupdate = new ilDBUpdate($ilDB);
-                    if (!$dbupdate->getDBVersionStatus()) {
-                        $this->tpl->setOnScreenMessage('failure', $this->lng->txt("db_need_update"));
-                    } elseif ($dbupdate->hotfixAvailable()) {
-                        $this->tpl->setOnScreenMessage('failure', $this->lng->txt("db_need_hotfix"));
-                    }
-
                     $class_path = $this->ctrl->lookupClassPath($next_class);
                     if (is_file($class_path)) {
                         require_once $class_path;   // note: org unit plugins still need the require
@@ -271,7 +263,6 @@ class ilAdministrationGUI implements ilCtrlBaseClassInterface
                     $this->ctrl->redirectByClass("ilobjuserfoldergui", "view");
                 }
             } else {
-
                 // this code should not be necessary anymore...
                 throw new ilPermissionException("Missing AdmiGUI parameter.");
 

@@ -180,7 +180,7 @@ class ilADTActiveRecordByType
                         }
                     }
 
-                    $element_id = $row[$this->getElementIdColumn()];
+                    $element_id = (string) $row[$this->getElementIdColumn()];
                     if ($this->properties->getADT()->hasElement($element_id)) {
                         $element_row = $this->processTableRowForElement($sub_table, $element_id, $row);
                         if (is_array($element_row)) {
@@ -209,7 +209,7 @@ class ilADTActiveRecordByType
             $set = $this->db->query($sql);
             if ($this->db->numRows($set)) {
                 while ($row = $this->db->fetchAssoc($set)) {
-                    $element_id = $row[$this->getElementIdColumn()];
+                    $element_id = (string) $row[$this->getElementIdColumn()];
                     if (in_array($element_id, $element_ids)) {
                         $has_data = true;
 
@@ -255,7 +255,7 @@ class ilADTActiveRecordByType
                 $id = $row[$this->getElementIdColumn()];
 
                 // leave other records alone
-                if ($this->properties->getADT()->hasElement($id)) {
+                if ($this->properties->getADT()->hasElement((string) $id)) {
                     $existing[$table][$id] = $id;
                 }
             }

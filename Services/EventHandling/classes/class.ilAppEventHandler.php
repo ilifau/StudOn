@@ -50,46 +50,30 @@ declare(strict_types=1);
  */
 class ilAppEventHandler
 {
-    protected ilDBInterface $db;
-    protected array $listener;
+    protected array $listener = [];
     protected ilLogger $logger;
     protected ilComponentRepository $component_repository;
     protected ilComponentFactory $component_factory;
+    private ilArtifactEventHandlingData $event_handling_data;
 
-    public function __construct()
+    public function __construct(?ilLogger $logger = null)
     {
         global $DIC;
 
-        $this->db = $DIC->database();
+        $this->event_handling_data = new ilArtifactEventHandlingData();
         $this->component_repository = $DIC["component.repository"];
         $this->component_factory = $DIC["component.factory"];
         $this->initListeners();
 
-        $this->logger = \ilLoggerFactory::getLogger('evnt');
+        $this->logger = $logger ?? \ilLoggerFactory::getLogger('evnt');
     }
 
     protected function initListeners(): void
     {
-        $ilGlobalCache = ilGlobalCache::getInstance(ilGlobalCache::COMP_EVENTS);
-        $cached_listeners = $ilGlobalCache->get('listeners');
-        if (is_array($cached_listeners)) {
-            $this->listener = $cached_listeners;
-
-            return;
+        $listener_events = $this->event_handling_data->getEventsByType("listen");
+        foreach ($listener_events as $event_key => $event_value) {
+            $this->listener[$event_value["type_specification"]][] = $event_value["component"];
         }
-
-        $ilDB = $this->db;
-
-        $this->listener = array();
-
-        $sql = "SELECT * FROM il_event_handling" .
-            " WHERE type = " . $ilDB->quote("listen", "text");
-        $res = $ilDB->query($sql);
-        while ($row = $ilDB->fetchAssoc($res)) {
-            $this->listener[$row["id"]][] = $row["component"];
-        }
-
-        $ilGlobalCache->set('listeners', $this->listener);
     }
 
     /**

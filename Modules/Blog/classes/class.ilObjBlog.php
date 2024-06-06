@@ -16,6 +16,10 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\Filesystem\Util\Convert\ImageOutputOptions;
+
 /**
  * Class ilObjBlog
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
@@ -36,7 +40,7 @@ class ilObjBlog extends ilObject2
     protected string $bg_color = "";
     protected string $font_color = "";
     protected string $img = "";
-    protected string $ppic = "";
+    protected bool $ppic = false;
     protected bool $rss = false;
     protected bool $approval = false;
     protected bool $style = false;
@@ -52,6 +56,7 @@ class ilObjBlog extends ilObject2
     protected ?int $overview_postings = 5;
     protected bool $authors = true;
     protected array $order = [];
+    private \ILIAS\Filesystem\Util\Convert\LegacyImages $image_conversion;
 
     public function __construct(
         int $a_id = 0,
@@ -62,6 +67,7 @@ class ilObjBlog extends ilObject2
         $this->notes_service = $DIC->notes();
         parent::__construct($a_id, $a_reference);
         $this->rbac_review = $DIC->rbac()->review();
+        $this->image_conversion = $DIC->fileConverters()->legacyImages();
 
         $this->content_style_domain = $DIC
             ->contentStyle()
@@ -84,20 +90,20 @@ class ilObjBlog extends ilObject2
         $this->setBackgroundColor((string) $row["bg_color"]);
         $this->setFontColor((string) $row["font_color"]);
         $this->setImage((string) $row["img"]);
-        $this->setRSS($row["rss_active"]);
-        $this->setApproval($row["approval"]);
-        $this->setAbstractShorten($row["abs_shorten"]);
+        $this->setRSS((bool) $row["rss_active"]);
+        $this->setApproval((bool) $row["approval"]);
+        $this->setAbstractShorten((bool) $row["abs_shorten"]);
         $this->setAbstractShortenLength($row["abs_shorten_len"]);
-        $this->setAbstractImage($row["abs_image"]);
+        $this->setAbstractImage((bool) $row["abs_image"]);
         $this->setAbstractImageWidth($row["abs_img_width"]);
         $this->setAbstractImageHeight($row["abs_img_height"]);
-        $this->setKeywords($row["keywords"]);
-        $this->setAuthors($row["authors"]);
+        $this->setKeywords((bool) $row["keywords"]);
+        $this->setAuthors((bool) $row["authors"]);
         $this->setNavMode($row["nav_mode"]);
         $this->setNavModeListMonthsWithPostings((int) $row["nav_list_mon_with_post"]);
         $this->setNavModeListMonths($row["nav_list_mon"]);
         $this->setOverviewPostings($row["ov_post"]);
-        if (trim($row["nav_order"])) {
+        if (trim((string) $row["nav_order"])) {
             $this->setOrder(explode(";", $row["nav_order"]));
         }
 
@@ -342,20 +348,24 @@ class ilObjBlog extends ilObject2
             chmod($path . $original, 0770);
 
             $blga_set = new ilSetting("blga");
-            /* as banner height should overflow, we only handle width
-            $dimensions = $blga_set->get("banner_width")."x".
-                $blga_set->get("banner_height");
-            */
-            $dimensions = $blga_set->get("banner_width");
 
-            // take quality 100 to avoid jpeg artefacts when uploading jpeg files
-            // taking only frame [0] to avoid problems with animated gifs
-            $original_file = ilShellUtil::escapeShellArg($path . $original);
-            $thumb_file = ilShellUtil::escapeShellArg($path . $thumb);
-            $processed_file = ilShellUtil::escapeShellArg($path . $processed);
-            ilShellUtil::execConvert($original_file . "[0] -geometry 100x100 -quality 100 JPEG:" . $thumb_file);
-            ilShellUtil::execConvert(
-                $original_file . "[0] -geometry " . $dimensions . " -quality 100 JPEG:" . $processed_file
+            // as banner height should overflow, we only handle width (otherwise resizeToFixedSize could be used)
+            $banner_width = (int)$blga_set->get("banner_width");
+            // $banner_height = (int)$blga_set->get("banner_height");
+
+            $this->image_conversion->croppedSquare(
+                $path . $original,
+                $path . $thumb,
+                100,
+                ImageOutputOptions::FORMAT_KEEP
+            );
+
+            $this->image_conversion->resizeByWidth(
+                $path . $original,
+                $path . $processed,
+                $banner_width,
+                ImageOutputOptions::FORMAT_KEEP,
+                100
             );
 
             $this->setImage($processed);
@@ -622,7 +632,7 @@ class ilObjBlog extends ilObject2
         }
 
         // #10827
-        if (substr($a_wsp_id, -4) !== "_cll") {
+        if (!str_ends_with($a_wsp_id, "_cll")) {
             $wsp_id = new ilWorkspaceTree(0);
             $obj_id = $wsp_id->lookupObjectId((int) $a_wsp_id);
             $is_wsp = "_wsp";
@@ -642,7 +652,7 @@ class ilObjBlog extends ilObject2
 
         $feed = new ilFeedWriter();
 
-        $url = ilLink::_getStaticLink($a_wsp_id, "blog", true, (string) $is_wsp);
+        $url = ilLink::_getStaticLink((int) $a_wsp_id, "blog", true, (string) $is_wsp);
         $url = str_replace("&", "&amp;", $url);
 
         // #11870
@@ -667,7 +677,7 @@ class ilObjBlog extends ilObject2
             $snippet = str_replace("&", "&amp;", $snippet);
             $snippet = "<![CDATA[" . $snippet . "]]>";
 
-            $url = ilLink::_getStaticLink($a_wsp_id, "blog", true, "_" . $id . $is_wsp);
+            $url = ilLink::_getStaticLink((int) $a_wsp_id, "blog", true, "_" . $id . $is_wsp);
             $url = str_replace("&", "&amp;", $url);
 
             $feed_item = new ilFeedItem();
@@ -703,7 +713,7 @@ class ilObjBlog extends ilObject2
     public function getLocalContributorRole(int $a_node_id): int
     {
         foreach ($this->rbac_review->getLocalRoles($a_node_id) as $role_id) {
-            if (strpos(ilObject::_lookupTitle($role_id), "il_blog_contributor") === 0) {
+            if (str_starts_with(ilObject::_lookupTitle($role_id), "il_blog_contributor")) {
                 return $role_id;
             }
         }

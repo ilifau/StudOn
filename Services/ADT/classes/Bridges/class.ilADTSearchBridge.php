@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\HTTP\Services as HttpServices;
 
@@ -193,6 +193,16 @@ abstract class ilADTSearchBridge
     abstract public function addToForm(): void;
 
     /**
+     * Add ADT-specific fields to filter. This needs to be
+     * separated from other forms to avoid weird js interactions,
+     * but can probably be dropped when moving to KS (see #39225).
+     */
+    public function addToFilterForm(): void
+    {
+        $this->addToForm();
+    }
+
+    /**
      * Check if incoming values should be imported at all
      * @param string|int $a_post
      * @return bool
@@ -255,6 +265,10 @@ abstract class ilADTSearchBridge
 
     /**
      * Compare directly against ADT
+     *
+     * This is currently only used in ilAdvancedMDValues::queryForRecords,
+     * e.g. in the filter of mediapools. Other filter/search use cases
+     * use instead getSQLCondition.
      */
     public function isInCondition(ilADT $a_adt): bool
     {

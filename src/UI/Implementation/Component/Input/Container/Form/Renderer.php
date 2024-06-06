@@ -59,7 +59,11 @@ class Renderer extends AbstractComponentRenderer
         $this->maybeAddError($component, $tpl);
 
         $submit_button = $this->getUIFactory()->button()->standard(
+<<<<<<< HEAD
             $component->getSubmitCaption() ?? $this->txt("save"),
+=======
+            $component->getSubmitLabel() ?? $this->txt("save"),
+>>>>>>> v9.1
             ""
         );
 
@@ -126,6 +130,10 @@ class Renderer extends AbstractComponentRenderer
     protected function maybeAddRequired(Form\Form $component, Template $tpl): void
     {
         if ($component->hasRequiredInputs()) {
+<<<<<<< HEAD
+=======
+            $tpl->setVariable("TXT_REQUIRED_TOP", $this->txt("required_field"));
+>>>>>>> v9.1
             $tpl->setVariable("TXT_REQUIRED", $this->txt("required_field"));
         }
     }

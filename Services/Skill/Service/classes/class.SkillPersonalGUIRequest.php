@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -76,16 +78,6 @@ class SkillPersonalGUIRequest extends SkillGUIRequest
         return $this->int("level_id");
     }
 
-    public function getSelfEvaluationLevelId(): int
-    {
-        return $this->int("se");
-    }
-
-    public function getWorkspaceId(): int
-    {
-        return $this->int("wsp_id");
-    }
-
     /**
      * @return int[]
      */
@@ -112,5 +104,23 @@ class SkillPersonalGUIRequest extends SkillGUIRequest
     public function getShowMaterialsResources(): bool
     {
         return $this->bool("mat_res");
+    }
+
+    public function getTableAssignMaterialsAction(): string
+    {
+        return $this->getTableAction("skl_assign_materials_table_action");
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTableAssignMaterialsLevelIds(): array
+    {
+        return $this->getTableIds("skl_assign_materials_table_level_ids");
+    }
+
+    public function getTableAssignMaterialsWorkspaceId(): int
+    {
+        return $this->int("skl_assign_materials_table_wsp_id");
     }
 }

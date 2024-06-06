@@ -20,7 +20,7 @@
  * User interface class for advanced drop-down selection lists
  *
  * @author Alexander Killing <killing@leifos.de>
- * @deprecated use KS Dropdowns instead
+ * @deprecated 9 Use KS Dropdowns instead
  */
 class ilAdvancedSelectionListGUI implements ilToolbarItem
 {
@@ -468,7 +468,7 @@ class ilAdvancedSelectionListGUI implements ilToolbarItem
 
         if ($this->getAsynch()) {
             $tpl->setCurrentBlock("asynch_request");
-            $tpl->setVariable("IMG_LOADER", ilUtil::getImagePath("loader.svg"));
+            $tpl->setVariable("IMG_LOADER", ilUtil::getImagePath("media/loader.svg"));
             $tpl->parseCurrentBlock();
         } elseif ($this->getGroupedList() !== null) {
             $tpl->setVariable("GROUPED_LIST_HTML", $this->getGroupedList()->getHTML());
@@ -685,7 +685,9 @@ class ilAdvancedSelectionListGUI implements ilToolbarItem
 
         //echo htmlentities(json_encode($cfg, JSON_THROW_ON_ERROR));
 
-        $tpl->setVariable("TXT_SEL_TOP", $this->getListTitle());
+        if ($this->getListTitle() !== "") {
+            $tpl->setVariable("TXT_SEL_TOP", $this->getListTitle());
+        }
         if ($this->getListTitle() === "" || $this->getAriaListTitle() !== "") {
             $aria_title = ($this->getAriaListTitle() !== "")
                 ? $this->getAriaListTitle()

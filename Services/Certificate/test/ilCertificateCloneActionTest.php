@@ -55,7 +55,7 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
                         '[]',
                         3,
                         'v5.3.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/card_thumb.jpg',
@@ -69,7 +69,7 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
                         '[]',
                         3,
                         'v5.3.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/some/where/background.jpg',
                         '/some/where/card_thumb.jpg',
@@ -83,7 +83,7 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
                         '[]',
                         3,
                         'v5.3.0',
-                        123456789,
+                        123_456_789,
                         true,
                         '/certificates/default/background.jpg',
                         '/some/where/card_thumb.jpg',
@@ -106,10 +106,6 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
             ->expects($this->exactly(7))
             ->method('copy');
 
-        $logger = $this->getMockBuilder(ilLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $objectHelper = $this->getMockBuilder(ilCertificateObjectHelper::class)
             ->getMock();
 
@@ -124,11 +120,10 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
             $database,
             new ilCertificatePathFactory(),
             $templateRepository,
+            'some/web/directory',
             $fileSystem,
-            $logger,
             $objectHelper,
             $global_certificate_settings,
-            'some/web/directory',
             '/certificates/default/background.jpg'
         );
 

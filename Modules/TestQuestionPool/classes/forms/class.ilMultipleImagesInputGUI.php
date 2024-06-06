@@ -16,6 +16,9 @@
  *
  *********************************************************************/
 
+use ILIAS\UI\Renderer;
+use ILIAS\UI\Component\Symbol\Glyph\Factory as GlyphFactory;
+
 /**
  * @author        Björn Heyser <bheyser@databay.de>
  */
@@ -52,6 +55,8 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
 
     protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
+    protected GlyphFactory $glyph_factory;
+    protected Renderer $renderer;
 
     /**
      * @param	string	$a_title	Title
@@ -59,12 +64,13 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
      */
     public function __construct($a_title = "", $a_postvar = "")
     {
-        /** @var ILIAS\DI\Container $DIC */
-        global $DIC;
+        parent::__construct($a_title, $a_postvar);
 
+        global $DIC;
         $this->lng = $DIC->language();
         $this->tpl = $DIC->ui()->mainTemplate();
-        parent::__construct($a_title, $a_postvar);
+        $this->glyph_factory = $DIC->ui()->factory()->symbol()->glyph();
+        $this->renderer = $DIC->ui()->renderer();
 
         $this->setSuffixes(["jpg", "jpeg", "png", "gif"]);
         $this->setSize(25);
@@ -98,11 +104,19 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
         $this->suffixes = $a_suffixes;
     }
 
+    /**
+     * Get Accepted Suffixes.
+     *
+     * @return	array	Accepted Suffixes
+     */
     public function getSuffixes(): array
     {
         return $this->suffixes;
     }
 
+    /**
+     * @return string
+     */
     public function getImageRemovalCommand(): string
     {
         return $this->imageRemovalCommand;
@@ -116,6 +130,9 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
         $this->imageRemovalCommand = $imageRemovalCommand;
     }
 
+    /**
+     * @return string
+     */
     public function getImageUploadCommand(): string
     {
         return $this->imageUploadCommand;
@@ -129,6 +146,9 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
         $this->imageUploadCommand = $imageUploadCommand;
     }
 
+    /**
+     * @return	boolean $editElementOccuranceEnabled
+     */
     public function isEditElementOccuranceEnabled(): bool
     {
         return $this->editElementOccuranceEnabled;
@@ -142,6 +162,9 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
         $this->editElementOccuranceEnabled = $editElementOccuranceEnabled;
     }
 
+    /**
+     * @return boolean
+     */
     public function isEditElementOrderEnabled(): bool
     {
         return $this->editElementOrderEnabled;
@@ -155,6 +178,17 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
         $this->editElementOrderEnabled = $editElementOrderEnabled;
     }
 
+    /**
+     * @param mixed $value
+     * @return bool
+     */
+    abstract protected function isValidFilenameInput($filenameInput): bool;
+
+    /**
+     * Check input, strip slashes etc. set alert, if input is not ok.
+     *
+     * @return	boolean	$validationSuccess
+     */
     public function onCheckInput(): bool
     {
         $F = $_FILES[$this->getPostVar()];
@@ -257,6 +291,10 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
         return $this->checkSubItemsInput();
     }
 
+    /**
+     * @param string $mode
+     * @return string
+     */
     public function render(string $a_mode = ""): string
     {
         $lng = $this->lng;
@@ -296,12 +334,12 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
 
             if ($this->isEditElementOrderEnabled()) {
                 $tpl->setCurrentBlock("move");
-                $tpl->setVariable("ID_UP", $this->getMultiValuePosIndexedSubFieldId($identifier, 'up', $i));
-                $tpl->setVariable("ID_DOWN", $this->getMultiValuePosIndexedSubFieldId($identifier, 'down', $i));
-                $tpl->setVariable("CMD_UP", $this->buildMultiValueSubmitVar($identifier, $i, 'up'));
-                $tpl->setVariable("CMD_DOWN", $this->buildMultiValueSubmitVar($identifier, $i, 'down'));
-                $tpl->setVariable("UP_BUTTON", ilGlyphGUI::get(ilGlyphGUI::UP));
-                $tpl->setVariable("DOWN_BUTTON", ilGlyphGUI::get(ilGlyphGUI::DOWN));
+                $tpl->setVariable("UP_BUTTON", $this->renderer->render(
+                    $this->glyph_factory->up()->withAction('#')
+                ));
+                $tpl->setVariable("DOWN_BUTTON", $this->renderer->render(
+                    $this->glyph_factory->down()->withAction('#')
+                ));
                 $tpl->parseCurrentBlock();
             }
 
@@ -309,10 +347,12 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
                 $tpl->setCurrentBlock("row");
                 $tpl->setVariable("ID_ADD", $this->getMultiValuePosIndexedSubFieldId($identifier, 'add', $i));
                 $tpl->setVariable("ID_REMOVE", $this->getMultiValuePosIndexedSubFieldId($identifier, 'remove', $i));
-                $tpl->setVariable("CMD_ADD", $this->buildMultiValueSubmitVar($identifier, $i, 'add'));
-                $tpl->setVariable("CMD_REMOVE", $this->buildMultiValueSubmitVar($identifier, $i, 'remove'));
-                $tpl->setVariable("ADD_BUTTON", ilGlyphGUI::get(ilGlyphGUI::ADD));
-                $tpl->setVariable("REMOVE_BUTTON", ilGlyphGUI::get(ilGlyphGUI::REMOVE));
+                $tpl->setVariable("ADD_BUTTON", $this->renderer->render(
+                    $this->glyph_factory->add()->withAction('#')
+                ));
+                $tpl->setVariable("REMOVE_BUTTON", $this->renderer->render(
+                    $this->glyph_factory->remove()->withAction('#')
+                ));
                 $tpl->parseCurrentBlock();
             }
 
@@ -344,7 +384,7 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
             $image_upload_subfield_name = self::IMAGE_UPLOAD_SUBFIELD_NAME;
 
             $init_code = <<<JS
-$.extend({}, ilWizardInput, ilIdentifiedWizardInputExtend).init(
+$.extend({}, AnswerWizardInput, IdentifiedWizardInput).init(
     {
         'fieldContainerSelector': '.ilWzdContainerImage',
         'reindexingRequiredElementsSelectors': [
@@ -362,8 +402,8 @@ $.extend({}, ilWizardInput, ilIdentifiedWizardInputExtend).init(
 );
 JS;
 
-            $this->tpl->addJavascript("./Services/Form/js/ServiceFormWizardInput.js");
-            $this->tpl->addJavascript("./Services/Form/js/ServiceFormIdentifiedWizardInputExtend.js");
+            $this->tpl->addJavascript("./Modules/TestQuestionPool/templates/default/answerwizardinput.js");
+            $this->tpl->addJavascript("./Modules/TestQuestionPool/templates/default/identifiedwizardinput.js");
             $this->tpl->addOnLoadCode($init_code);
         }
 
@@ -409,6 +449,9 @@ JS;
         return $this->fetchContentImageSourceFromValue($value);
     }
 
+    /**
+     * @return ilTemplate
+     */
     protected function getTemplate(): ilTemplate
     {
         return new ilTemplate(self::RENDERING_TEMPLATE, true, true, "Modules/TestQuestionPool");

@@ -23,27 +23,14 @@ declare(strict_types=1);
  */
 class ilUserCertificatePresentation
 {
-    private int $objId;
-    private string $objType;
-    private ?ilUserCertificate $userCertificate;
-    private string $objectTitle;
-    private string $objectDescription;
-    private string $userName;
-
     public function __construct(
-        int $objId,
-        string $objType,
-        ?ilUserCertificate $userCertificate,
-        string $objectTitle,
-        string $objectDescription,
-        string $userName = ''
+        private readonly int $objId,
+        private readonly string $objType,
+        private readonly ?ilUserCertificate $userCertificate,
+        private readonly string $objectTitle,
+        private readonly string $objectDescription,
+        private readonly string $userName = ''
     ) {
-        $this->objId = $objId;
-        $this->objType = $objType;
-        $this->userCertificate = $userCertificate;
-        $this->objectTitle = $objectTitle;
-        $this->objectDescription = $objectDescription;
-        $this->userName = $userName;
     }
 
     public function getObjId(): int

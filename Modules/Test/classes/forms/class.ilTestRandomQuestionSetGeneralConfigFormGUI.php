@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * GUI class for random question set general config form
  *
@@ -77,8 +79,6 @@ class ilTestRandomQuestionSetGeneralConfigFormGUI extends ilPropertyFormGUI
             $this->lng->txt('save')
         );
 
-        // Require Pools with Homogeneous Scored Questions
-
         $requirePoolsQuestionsHomoScored = new ilCheckboxInputGUI(
             $this->lng->txt('tst_inp_all_quest_points_equal_per_pool'),
             'quest_points_equal_per_pool'
@@ -138,7 +138,7 @@ class ilTestRandomQuestionSetGeneralConfigFormGUI extends ilPropertyFormGUI
         $questionAmountPerTest->setSize(4);
 
         $questionAmountPerTest->setValue(
-            $this->questionSetConfig->getQuestionAmountPerTest()
+            (string) $this->questionSetConfig->getQuestionAmountPerTest()
         );
 
         $questionAmountConfigModePerTest->addSubItem($questionAmountPerTest);
@@ -176,7 +176,7 @@ class ilTestRandomQuestionSetGeneralConfigFormGUI extends ilPropertyFormGUI
                 );
 
                 $this->questionSetConfig->setQuestionAmountPerTest(
-                    $this->getItemByPostVar('quest_amount_per_test')->getValue()
+                    (int) $this->getItemByPostVar('quest_amount_per_test')->getValue()
                 );
 
                 break;

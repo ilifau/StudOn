@@ -20,7 +20,10 @@ declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Consumer;
 
+<<<<<<< HEAD
 use ILIAS\HTTP\Response\ResponseHeader;
+=======
+>>>>>>> v9.1
 use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
 use ILIAS\ResourceStorage\Policy\FileNamePolicy;
 use ILIAS\ResourceStorage\Resource\StorableResource;
@@ -34,6 +37,10 @@ abstract class BaseHTTPResponseBasedConsumer extends BaseConsumer implements Del
     // Firefox determines the content type from the file content anyway for some content.
     private const NON_VALID_EXTENSION_MIME = \ILIAS\FileUpload\MimeType::APPLICATION__OCTET_STREAM;
     private \ILIAS\HTTP\Services $http;
+<<<<<<< HEAD
+=======
+    private \ILIAS\FileDelivery\Delivery\StreamDelivery $delivery;
+>>>>>>> v9.1
 
     public function __construct(
         \ILIAS\HTTP\Services $http,
@@ -41,7 +48,12 @@ abstract class BaseHTTPResponseBasedConsumer extends BaseConsumer implements Del
         StreamAccess $stream_access,
         FileNamePolicy $file_name_policy
     ) {
+<<<<<<< HEAD
         $this->http = $http;
+=======
+        global $DIC;
+        $this->delivery = $DIC->fileDelivery()->delivery();
+>>>>>>> v9.1
         parent::__construct($resource, $stream_access, $file_name_policy);
     }
 
@@ -54,6 +66,7 @@ abstract class BaseHTTPResponseBasedConsumer extends BaseConsumer implements Del
         $extension = pathinfo($filename_with_extension, PATHINFO_EXTENSION);
         $file_name_for_consumer = $this->file_name_policy->prepareFileNameForConsumer($filename_with_extension);
 
+<<<<<<< HEAD
         // Build Response
         $response = $this->http->response();
         if ($this->file_name_policy->isValidExtension($extension)) {
@@ -79,5 +92,32 @@ abstract class BaseHTTPResponseBasedConsumer extends BaseConsumer implements Del
         $this->http->saveResponse($response);
         $this->http->sendResponse();
         $this->http->close();
+=======
+        $mime_type = $this->file_name_policy->isValidExtension($extension)
+            ? $revision->getInformation()->getMimeType()
+            : self::NON_VALID_EXTENSION_MIME;
+
+        // Build Response
+        $revision = $this->stream_access->populateRevision($revision);
+
+        switch ($this->getDisposition()) {
+            case 'attachment':
+                $this->delivery->attached(
+                    $revision->maybeStreamResolver()?->getStream(),
+                    $file_name_for_consumer,
+                    $mime_type
+                );
+                break;
+            case 'inline':
+                $this->delivery->inline(
+                    $revision->maybeStreamResolver()?->getStream(),
+                    $file_name_for_consumer,
+                    $mime_type
+                );
+                break;
+            default:
+                throw new \InvalidArgumentException('Invalid disposition');
+        }
+>>>>>>> v9.1
     }
 }

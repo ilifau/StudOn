@@ -36,7 +36,6 @@ use ILIAS\UI\Renderer as UIRenderer;
  */
 abstract class ilChatroomGUIHandler
 {
-    protected ilChatroomObjectGUI $gui;
     protected ilObjUser $ilUser;
     protected ilCtrlInterface $ilCtrl;
     protected ilLanguage $ilLng;
@@ -57,12 +56,10 @@ abstract class ilChatroomGUIHandler
     /**
      * @param ilChatroomObjectGUI $gui
      */
-    public function __construct(ilChatroomObjectGUI $gui)
+    public function __construct(protected ilChatroomObjectGUI $gui)
     {
         /** @var $DIC \ILIAS\DI\Container */
         global $DIC;
-
-        $this->gui = $gui;
         $this->ilUser = $DIC->user();
         $this->ilCtrl = $DIC->ctrl();
         $this->ilLng = $DIC->language();
@@ -82,8 +79,6 @@ abstract class ilChatroomGUIHandler
     }
 
     /**
-     * @param string $key
-     * @param Transformation $trafo
      * @param mixed $default
      * @return mixed|null
      */
@@ -158,7 +153,6 @@ abstract class ilChatroomGUIHandler
 
     /**
      * Checks if a ilChatroom exists. If not, it will send a json encoded response with success = false
-     * @param ?ilChatroom $room
      */
     protected function exitIfNoRoomExists(?ilChatroom $room): void
     {
@@ -173,7 +167,6 @@ abstract class ilChatroomGUIHandler
     /**
      * Sends a json encoded response and exits the php process
      * @param mixed $response
-     * @param bool $isJson
      */
     public function sendResponse($response, bool $isJson = false): void
     {
@@ -184,36 +177,6 @@ abstract class ilChatroomGUIHandler
         );
         $this->http->sendResponse();
         $this->http->close();
-    }
-
-    /**
-     * Check if user can moderate a chatroom. If false it send a json decoded response with success = false
-     * @param ilChatroom $room
-     * @param int $subRoom
-     * @param ilChatroomUser $chatUser
-     */
-    protected function exitIfNoRoomModeratePermission(ilChatroom $room, int $subRoom, ilChatroomUser $chatUser): void
-    {
-        if (!$this->canModerate($room, $subRoom, $chatUser->getUserId())) {
-            $this->sendResponse([
-                'success' => false,
-                'reason' => 'not owner of private room',
-            ]);
-        }
-    }
-
-    protected function canModerate(ilChatroom $room, int $subRoom, int $usrId): bool
-    {
-        return (
-            $this->isMainRoom($subRoom) ||
-            $room->isOwnerOfPrivateRoom($usrId, $subRoom) ||
-            $this->hasPermission('moderate')
-        );
-    }
-
-    protected function isMainRoom(int $subRoomId): bool
-    {
-        return $subRoomId === 0;
     }
 
     public function hasPermission(string $permission): bool

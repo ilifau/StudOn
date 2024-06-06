@@ -295,8 +295,8 @@ class ilWebResourceEditableLinkTableGUI extends ilTable2GUI
             $this->tpl->setVariable('DYN_ID', $a_set['id']);
 
             $options = [];
-            foreach(ilWebLinkBaseParameter::VALUES as $name => $identifier) {
-                if($name === ilWebLinkBaseParameter::SESSION_ID_NAME) {
+            foreach (ilWebLinkBaseParameter::VALUES as $name => $identifier) {
+                if ($name === ilWebLinkBaseParameter::SESSION_ID_NAME) {
                     continue;
                 }
                 $options[] = ilWebLinkBaseParameter::VALUES_TEXT[$identifier];

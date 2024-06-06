@@ -1357,7 +1357,7 @@ class ilSoapObjectAdministration extends ilSoapAdministration
         return true;
     }
 
-    private function updateReferences(array $a_object_data) : void
+    private function updateReferences(array $a_object_data): void
     {
         global $DIC;
 
@@ -1403,7 +1403,7 @@ class ilSoapObjectAdministration extends ilSoapAdministration
         }
     }
 
-    private function addReferences(ilObject $source, array $a_object_data) : void
+    private function addReferences(ilObject $source, array $a_object_data): void
     {
         global $DIC;
 

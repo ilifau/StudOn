@@ -121,6 +121,7 @@ xmlns="http://www.w3.org/2000/svg">
         $this->assertSame('SVG OK', $result->getMessage());
     }
 
+<<<<<<< HEAD
     public function provideSomeComplexSaneSVG(): array
     {
         return [
@@ -130,6 +131,17 @@ xmlns="http://www.w3.org/2000/svg">
             ['./templates/default/images/col.svg'],
             ['./templates/default/images/HeaderIcon.svg'],
             ['./templates/default/images/answered_not.svg'],
+=======
+    private function provideSomeComplexSaneSVG(): array
+    {
+        return [
+            ['./templates/default/images/media/bigplay.svg'],
+            ['./templates/default/images/nav/jstree.svg'],
+            ['./templates/default/images/media/loader.svg'],
+            ['./templates/default/images/object/col.svg'],
+            ['./templates/default/images/logo/HeaderIcon.svg'],
+            ['./templates/default/images/object/answered_not.svg'],
+>>>>>>> v9.1
         ];
     }
 
@@ -143,7 +155,11 @@ xmlns="http://www.w3.org/2000/svg">
 
         $preProcessor = $this->getPreProcessor();
         $stream = Streams::ofString($svg);
+<<<<<<< HEAD
         $metadata = new Metadata('bigplay.svg', 100, 'image/svg+xml');
+=======
+        $metadata = new Metadata('media/bigplay.svg', 100, 'image/svg+xml');
+>>>>>>> v9.1
 
         $result = $preProcessor->process($stream, $metadata);
 

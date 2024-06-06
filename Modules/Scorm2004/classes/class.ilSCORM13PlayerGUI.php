@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,9 +18,9 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /** @noinspection ForgottenDebugOutputInspection */
+
+use JetBrains\PhpStorm\NoReturn;
 
 /**
 * @author  Hendrik Holtmann <holtmann@mac.com>, Alfred Kohnert <alfred.kohnert@bigfoot.com>, Uwe Kohnle <kohnle@internetlehrer-gmbh.de>
@@ -133,6 +135,7 @@ class ilSCORM13PlayerGUI
     );
 
     private int $userId;
+    private array $flat_structure;
     public int $packageId;
     public bool $jsMode;
 
@@ -189,7 +192,6 @@ class ilSCORM13PlayerGUI
         //$ilLog->write("SCORM2004 Player cmd: ".$cmd);
 
         switch ($cmd) {
-
             case 'getRTEjs':
                 $this->getRTEjs();
                 break;
@@ -287,10 +289,8 @@ class ilSCORM13PlayerGUI
         $js_data = file_get_contents("./Modules/Scorm2004/scripts/buildrte/rte.js");
         if (self::ENABLE_GZIP == 1) {
             ob_start("ob_gzhandler");
-            header('Content-Type: text/javascript; charset=UTF-8');
-        } else {
-            header('Content-Type: text/javascript; charset=UTF-8');
         }
+        header('Content-Type: text/javascript; charset=UTF-8');
         echo $js_data;
     }
 
@@ -383,7 +383,9 @@ class ilSCORM13PlayerGUI
             if ($session_timeout > $min_idle) {
                 $session_timeout = $min_idle;
             }
-            $session_timeout -= 10; //buffer
+            if ($session_timeout > 10) { //buffer
+                $session_timeout -= 10;
+            }
         } else {
             $session_timeout = 0;
         }
@@ -462,7 +464,6 @@ class ilSCORM13PlayerGUI
             $this->tpl->setVariable($key, $value);
         }
         $this->tpl->setVariable('DOC_TITLE', 'ILIAS: ' . $this->slm->getTitle());
-	$this->tpl->setVariable("LOCATION_FAVICON", ilUtil::getImagePath("favicon.ico", ""));
         $this->tpl->setVariable("LOCATION_STYLESHEET", ilUtil::getStyleSheetLocation());
         $this->tpl->setVariable('INIT_CP_DATA', json_encode(json_decode($this->getCPDataInit())));
         $this->tpl->setVariable('INIT_CMI_DATA', json_encode($this->getCMIData($this->userId, $this->packageId)));
@@ -839,7 +840,6 @@ class ilSCORM13PlayerGUI
         }
 
         if ($dataStores["readPermissions"] != null && array_sum($dataStores["readPermissions"]) != 0) {
-
             //If there exists at least one readSharedData permission, then
             //fill in the existing values (if any) already in the store.
 
@@ -852,8 +852,8 @@ class ilSCORM13PlayerGUI
             //See if readSharedData is set for each datamap.
             //If set to true, then add it to the search query
             foreach ($dataStores["data"] as $key => $val) {
-                if ($dataStores["readPermissions"][$key] == 1
-                    && $dataStores["data"][$key]["store"] !== 'notWritten') {
+                if ($dataStores["readPermissions"][(string) $key] == 1
+                    && $dataStores["data"][(string) $key]["store"] !== 'notWritten') {
                     $params["types"][] = "text";
                     $params["values"][] = $key;
                     $paramTemplate .= '%s, ';
@@ -1155,7 +1155,6 @@ class ilSCORM13PlayerGUI
 						AND sahs_lm.id = %s';
 
                     break;
-
             }
 
             $result['data'][$k] = array();
@@ -1167,7 +1166,7 @@ class ilSCORM13PlayerGUI
                 while ($row = $ilDB->fetchAssoc($res)) {
                     $tmp_result = array();
                     foreach ($row as $key => $value) {
-                        if ($k === "comment" && $key === "c_timestamp" && strpos($value, ' ') == 10) {
+                        if ($k === "comment" && $key === "c_timestamp" && strpos((string) $value, ' ') == 10) {
                             $value = str_replace(' ', 'T', $value);
                         }
                         $tmp_result[] = $value;

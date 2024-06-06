@@ -38,6 +38,10 @@ class ilGlossaryAdvMetaDataAdapter
         $this->glo_ref_id = $a_glo_ref_id;
     }
 
+    public function getActiveRecords(): array
+    {
+        return ilAdvancedMDRecord::_getSelectedRecordsByObject("glo", $this->glo_ref_id, "term");
+    }
 
     /**
      * Get all advanced metadata fields
@@ -79,7 +83,6 @@ class ilGlossaryAdvMetaDataAdapter
         while ($rec = $ilDB->fetchAssoc($set)) {
             $order[$rec["field_id"]] = $rec["order_nr"];
         }
-        //var_dump($order);
         // add term at beginning, if not included
         if (!isset($order[0])) {
             $columns[] = array("id" => 0,
@@ -124,7 +127,6 @@ class ilGlossaryAdvMetaDataAdapter
         $nr = 10;
         $set = array();
         foreach ($a_cols as $c) {
-            //var_dump($c);
             if (!isset($set[$c["id"]])) {
                 $ilDB->manipulate("INSERT INTO glo_advmd_col_order " .
                         "(glo_id, field_id, order_nr) VALUES (" .

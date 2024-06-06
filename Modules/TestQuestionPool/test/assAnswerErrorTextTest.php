@@ -35,9 +35,6 @@ class assAnswerErrorTextTest extends assBaseTestCase
 
     public function test_instantiateObjectSimple(): void
     {
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assAnswerErrorText.php';
-
         // Act
         $instance = new assAnswerErrorText('errortext');
 
@@ -48,9 +45,6 @@ class assAnswerErrorTextTest extends assBaseTestCase
 
     public function test_instantiateObjectFull(): void
     {
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assAnswerErrorText.php';
-
         // Act
         $instance = new assAnswerErrorText(
             'errortext',
@@ -65,7 +59,6 @@ class assAnswerErrorTextTest extends assBaseTestCase
 
     public function test_instantiateObjectFullHasCorrectValues(): void
     {
-
         $instance = new assAnswerErrorText(
             'errortext',
             'correcttext',
@@ -83,9 +76,6 @@ class assAnswerErrorTextTest extends assBaseTestCase
 
     public function test_withPoints_valid(): void
     {
-        //$this->markTestIncomplete('Testing an uncommitted feature.');
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assAnswerErrorText.php';
         $instance = new assAnswerErrorText('errortext');
         $expected = 0.01;
 
@@ -99,9 +89,6 @@ class assAnswerErrorTextTest extends assBaseTestCase
 
     public function test_withPosition_valid(): void
     {
-        //$this->markTestIncomplete('Testing an uncommitted feature.');
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assAnswerErrorText.php';
         $instance = new assAnswerErrorText('errortext');
         $expected = 21;
 

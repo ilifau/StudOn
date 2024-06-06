@@ -16,8 +16,8 @@
  *
  *********************************************************************/
 
-use ILIAS\DI\Container;
 use ILIAS\FileUpload\MimeType;
+use ILIAS\Modules\File\Settings\General;
 
 /**
  * Access class for file objects.
@@ -37,7 +37,6 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
 
     protected static array $preload_list_gui_data = [];
 
-
     protected function checkAccessToObjectId(int $obj_id): bool
     {
         global $DIC;
@@ -56,20 +55,8 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
 
     public function canBeDelivered(ilWACPath $ilWACPath): bool
     {
-        switch ($ilWACPath->getSecurePathId()) {
-            case 'previews':
-                preg_match('/\/previews\/[\d\/]{0,}\/preview_([\d]{0,})\//uU', $ilWACPath->getPath(), $matches);
-                $obj_id = (int) $matches[1];
-                break;
-            default:
-                $obj_id = -1;
-                break;
-        }
-
-        return $this->checkAccessToObjectId($obj_id);
+        return false;
     }
-
-
 
     /**
      * get commands
@@ -84,30 +71,84 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
      */
     public static function _getCommands(): array
     {
-        $commands = array();
-        $commands[] = array(
-            "permission" => "read",
-            "cmd" => "sendfile",
-            "lang_var" => "download",
-            "default" => true,
-        );
-        $commands[] = array(
-            "permission" => "write",
-            "cmd" => ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION,
-            "lang_var" => "unzip",
-        );
-        $commands[] = array(
-            "permission" => "write",
-            "cmd" => "versions",
-            "lang_var" => "versions",
-        );
-        $commands[] = array(
-            "permission" => "write",
-            "cmd" => "edit",
-            "lang_var" => "settings",
-        );
+        return [
+            [
+                "permission" => "read",
+                "cmd" => "sendfile",
+                "lang_var" => "download",
+                "default" => true,
+            ],
+            [
+                "permission" => "write",
+                "cmd" => ilFileVersionsGUI::CMD_UNZIP_CURRENT_REVISION,
+                "lang_var" => "unzip",
+            ],
+            [
+                "permission" => "edit_file",
+                "cmd" => 'editExternal',
+                "lang_var" => "open_external_editor",
+            ],
+            [
+                "permission" => "write",
+                "cmd" => "versions",
+                "lang_var" => "versions",
+            ],
+            [
+                "permission" => "write",
+                "cmd" => "edit",
+                "lang_var" => "settings"
+            ]
+        ];
+    }
 
-        return $commands;
+    /**
+     * checks whether a user may invoke a command or not
+     * (this method is called by ilAccessHandler::checkAccess)
+     */
+    public function _checkAccess(string $cmd, string $permission, int $ref_id, int $obj_id, ?int $user_id = null): bool
+    {
+        global $DIC;
+        $ilUser = $DIC['ilUser'];
+        $lng = $DIC['lng'];
+        $rbacsystem = $DIC['rbacsystem'];
+        $ilAccess = $DIC['ilAccess'];
+        if (is_null($user_id)) {
+            $user_id = $ilUser->getId();
+        }
+
+        switch ($cmd) {
+            case "view":
+                if (!self::_lookupOnline($obj_id)
+                    && !$rbacsystem->checkAccessOfUser($user_id, 'write', $ref_id)
+                ) {
+                    $ilAccess->addInfoItem(ilAccessInfo::IL_NO_OBJECT_ACCESS, $lng->txt("offline"));
+
+                    return false;
+                }
+                break;
+                // for permission query feature
+            case "infoScreen":
+                if (!self::_lookupOnline($obj_id)) {
+                    $ilAccess->addInfoItem(ilAccessInfo::IL_NO_OBJECT_ACCESS, $lng->txt("offline"));
+                } else {
+                    $ilAccess->addInfoItem(ilAccessInfo::IL_STATUS_MESSAGE, $lng->txt("online"));
+                }
+                break;
+        }
+        switch ($permission) {
+            case "read":
+            case "visible":
+                if (!self::_lookupOnline($obj_id)
+                    && (!$rbacsystem->checkAccessOfUser($user_id, 'write', $ref_id))
+                ) {
+                    $ilAccess->addInfoItem(ilAccessInfo::IL_NO_OBJECT_ACCESS, $lng->txt("offline"));
+
+                    return false;
+                }
+                break;
+        }
+
+        return true;
     }
 
     /**
@@ -124,16 +165,38 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
         if (isset($t_arr[2]) && $t_arr[2] == "wsp") {
             return ilSharedResourceGUI::hasAccess($t_arr[1]);
         }
-
-        if ($t_arr[0] != "file" || ((int) $t_arr[1]) <= 0) {
+        if ($t_arr[0] != "file") {
             return false;
         }
-        return $ilAccess->checkAccess("visible", "", $t_arr[1])
-            || $ilAccess->checkAccess("read", "", $t_arr[1]);
+        if (((int) $t_arr[1]) <= 0) {
+            return false;
+        }
+        if ($ilAccess->checkAccess("visible", "", $t_arr[1])) {
+            return true;
+        }
+        return (bool) $ilAccess->checkAccess("read", "", $t_arr[1]);
+    }
+
+    public static function _shouldDownloadDirectly(int $obj_id): bool
+    {
+        global $DIC;
+
+        $result = $DIC->database()->fetchAssoc(
+            $DIC->database()->queryF(
+                "SELECT on_click_mode FROM file_data WHERE file_id = %s;",
+                ['integer'],
+                [$obj_id]
+            )
+        );
+
+        if (empty($result)) {
+            return false;
+        }
+
+        return (((int) $result['on_click_mode']) === ilObjFile::CLICK_MODE_DOWNLOAD);
     }
 
     /**
-     * @param int $a_id
      * @deprecated
      */
     public static function _lookupFileSize(int $a_id, bool $by_reference = true): int
@@ -152,7 +215,6 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
         }
     }
 
-
     /**
      * Gets the file extension of the specified file name.
      * The file name extension is converted to lower case before it is returned.
@@ -164,9 +226,8 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
     {
         if (preg_match('/\.([a-z0-9]+)\z/i', $a_file_name, $matches) == 1) {
             return strtolower($matches[1]);
-        } else {
-            return '';
         }
+        return '';
     }
 
     /**
@@ -179,8 +240,8 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
      */
     public static function _isFileHidden(string $a_file_name): bool
     {
-        return substr($a_file_name, 0, 1) == '.' || substr($a_file_name, -1, 1) == '~'
-            || substr($a_file_name, 0, 2) == '~$'
+        return str_starts_with($a_file_name, '.') || str_ends_with($a_file_name, '~')
+            || str_starts_with($a_file_name, '~$')
             || $a_file_name == 'Thumbs.db';
     }
 
@@ -204,7 +265,7 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
      * - Calling ilObjFileAccess::_appendCopyToTitle('Hello - Copy (3).txt', null)
      *   returns: "Hello - Copy (4).txt".
      */
-    public static function _appendNumberOfCopyToFilename($a_file_name, $nth_copy = null, $a_handle_extension = false): string
+    public static function _appendNumberOfCopyToFilename($a_file_name, $nth_copy = null): string
     {
         global $DIC;
         $lng = $DIC['lng'];
@@ -212,21 +273,17 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
         $filenameWithoutExtension = $a_file_name;
 
         $extension = null;
-        if ($a_handle_extension) {
-            // Get the extension and the filename without the extension
-            $extension = ilObjFileAccess::_getFileExtension($a_file_name);
-            if (strlen($extension) > 0) {
-                $extension = '.' . $extension;
-                $filenameWithoutExtension = substr($a_file_name, 0, -strlen($extension));
-            }
-        }
 
         // create a regular expression from the language text copy_n_of_suffix, so that
         // we can match it against $filenameWithoutExtension, and retrieve the number of the copy.
         // for example, if copy_n_of_suffix is 'Copy (%1s)', this creates the regular
         // expression '/ Copy \\([0-9]+)\\)$/'.
-        $nthCopyRegex = preg_replace('/([\^$.\[\]|()?*+{}])/', '\\\\${1}', ' '
-            . $lng->txt('copy_n_of_suffix'));
+        $nthCopyRegex = preg_replace(
+            '/([\^$.\[\]|()?*+{}])/',
+            '\\\\${1}',
+            ' '
+            . $lng->txt('copy_n_of_suffix')
+        );
         $nthCopyRegex = '/' . preg_replace('/%1\\\\\$s/', '([0-9]+)', $nthCopyRegex) . '$/';
 
         // Get the filename without any previously added number of copy.
@@ -237,37 +294,40 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
             if ($nth_copy == null) {
                 $nth_copy = $matches[1] + 1;
             }
+        } elseif (str_ends_with($filenameWithoutExtension, ' ' . $lng->txt('copy_of_suffix'))) {
+            // this is going to be the second copy of the filename
+            $filenameWithoutCopy = substr(
+                $filenameWithoutExtension,
+                0,
+                -strlen(
+                    ' '
+                    . $lng->txt('copy_of_suffix')
+                )
+            );
+            if ($nth_copy == null) {
+                $nth_copy = 2;
+            }
         } else {
-            if (substr($filenameWithoutExtension, -strlen(' ' . $lng->txt('copy_of_suffix')))
-                == ' ' . $lng->txt('copy_of_suffix')
-            ) {
-                // this is going to be the second copy of the filename
-                $filenameWithoutCopy = substr($filenameWithoutExtension, 0, -strlen(' '
-                    . $lng->txt('copy_of_suffix')));
-                if ($nth_copy == null) {
-                    $nth_copy = 2;
-                }
-            } else {
-                // this is going to be the first copy of the filename
-                $filenameWithoutCopy = $filenameWithoutExtension;
-                if ($nth_copy == null) {
-                    $nth_copy = 1;
-                }
+            // this is going to be the first copy of the filename
+            $filenameWithoutCopy = $filenameWithoutExtension;
+            if ($nth_copy == null) {
+                $nth_copy = 1;
             }
         }
 
         // Construct the new filename
         if ($nth_copy > 1) {
             // this is at least the second copy of the filename, append " - Copy ($nth_copy)"
-            $newFilename = $filenameWithoutCopy . sprintf(' '
-                    . $lng->txt('copy_n_of_suffix'), $nth_copy)
+            return $filenameWithoutCopy . sprintf(
+                ' '
+                    . $lng->txt('copy_n_of_suffix'),
+                $nth_copy
+            )
                 . $extension;
-        } else {
-            // this is the first copy of the filename, append " - Copy"
-            $newFilename = $filenameWithoutCopy . ' ' . $lng->txt('copy_of_suffix') . $extension;
         }
 
-        return $newFilename;
+        // this is the first copy of the filename, append " - Copy"
+        return $filenameWithoutCopy . ' ' . $lng->txt('copy_of_suffix') . $extension;
     }
 
     /**
@@ -275,7 +335,7 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
      */
     public static function _getPermanentDownloadLink(int $ref_id): string
     {
-        return ilLink::_getStaticLink($ref_id, "file", true, "_download");
+        return ilLink::_getStaticLink($ref_id, "file", true, "download");
     }
 
     /**
@@ -288,4 +348,9 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
         $info->preloadData($obj_ids);
     }
 
+    public static function _lookupOnline(int $a_obj_id): bool
+    {
+        $file_obj = new ilObjFile($a_obj_id, false);
+        return $file_obj->getObjectProperties()->getPropertyIsOnline()->getIsOnline();
+    }
 }

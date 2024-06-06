@@ -209,7 +209,7 @@ class ilRbacReview
             'WHERE assign = ' . $this->db->quote('y', 'text') . ' ' .
             'AND obd.type = ' . $this->db->quote('role', 'text') . ' ' .
             'AND t1.child IN (' .
-            $tree->getSubTreeQuery($ref_id, array('child')) . ' ' .
+            $tree->getSubTreeQuery($ref_id, ['child']) . ' ' .
             ') ';
 
         $res = $this->db->query($query);
@@ -250,9 +250,9 @@ class ilRbacReview
     protected function __setTemplateFilter(bool $a_templates): string
     {
         if ($a_templates) {
-            $where = "WHERE " . $this->db->in('object_data.type', array('role', 'rolt'), false, 'text') . " ";
+            $where = "WHERE " . $this->db->in('object_data.type', ['role', 'rolt'], false, 'text') . " ";
         } else {
-            $where = "WHERE " . $this->db->in('object_data.type', array('role'), false, 'text') . " ";
+            $where = "WHERE " . $this->db->in('object_data.type', ['role'], false, 'text') . " ";
         }
         return $where;
     }
@@ -312,9 +312,8 @@ class ilRbacReview
 
     /**
      * get all assigned users to a given role
-     * @access    public
-     * @param int    role_id
-     * @return    array    all users (id) assigned to role
+     * @param int $a_rol_id
+     * @return int[] all users (id) assigned to role
      */
     public function assignedUsers(int $a_rol_id): array
     {
@@ -561,9 +560,9 @@ class ilRbacReview
     {
         $ga = [];
         foreach ($this->getRolesOfRoleFolder(ROLE_FOLDER_ID, false) as $role_id) {
-            $ga[] = array('obj_id' => $role_id,
+            $ga[] = ['obj_id' => $role_id,
                           'role_type' => 'global'
-            );
+            ];
         }
         return $ga;
     }
@@ -576,9 +575,9 @@ class ilRbacReview
         $ga = [];
         foreach ($this->getGlobalRoles() as $role_id) {
             if (ilObjRole::_getAssignUsersStatus($role_id)) {
-                $ga[] = array('obj_id' => $role_id,
+                $ga[] = ['obj_id' => $role_id,
                               'role_type' => 'global'
-                );
+                ];
             }
         }
         return $ga;
@@ -605,10 +604,10 @@ class ilRbacReview
         $res = $this->db->query($query);
         $ops = [];
         while ($row = $this->db->fetchObject($res)) {
-            $ops[] = array('ops_id' => (int) $row->ops_id,
+            $ops[] = ['ops_id' => (int) $row->ops_id,
                            'operation' => $row->operation,
                            'description' => $row->description
-            );
+            ];
         }
         return $ops;
     }
@@ -622,10 +621,10 @@ class ilRbacReview
         $res = $this->db->query($query);
         $ops = [];
         while ($row = $this->db->fetchObject($res)) {
-            $ops = array('ops_id' => (int) $row->ops_id,
+            $ops = ['ops_id' => (int) $row->ops_id,
                          'operation' => $row->operation,
                          'description' => $row->description
-            );
+            ];
         }
         return $ops;
     }
@@ -692,14 +691,16 @@ class ilRbacReview
 
     public function getRoleOperationsOnObject(int $a_role_id, int $a_ref_id): array
     {
-        $query = "SELECT * FROM rbac_pa " .
+        $query = "SELECT ops_id FROM rbac_pa " .
             "WHERE rol_id = " . $this->db->quote($a_role_id, 'integer') . " " .
             "AND ref_id = " . $this->db->quote($a_ref_id, 'integer') . " ";
 
         $res = $this->db->query($query);
         $ops = [];
         while ($row = $this->db->fetchObject($res)) {
-            $ops = (array) unserialize($row->ops_id);
+            if ($row->ops_id !== ':') {
+                $ops = unserialize($row->ops_id);
+            }
         }
         return $ops;
     }
@@ -709,7 +710,7 @@ class ilRbacReview
      */
     public function getOperationsOnType(int $a_typ_id): array
     {
-        $query = 'SELECT * FROM rbac_ta ta JOIN rbac_operations o ON ta.ops_id = o.ops_id ' .
+        $query = 'SELECT ops_id FROM rbac_ta ta JOIN rbac_operations o ON ta.ops_id = o.ops_id ' .
             'WHERE typ_id = ' . $this->db->quote($a_typ_id, 'integer') . ' ' .
             'ORDER BY op_order';
 
@@ -833,6 +834,7 @@ class ilRbacReview
                 $where = 'WHERE ' . $this->db->in('rbac_fa.rol_id', $this->getGlobalRoles(), true, 'integer');
                 break;
 
+                // all role templates
             case self::FILTER_TEMPLATES:
                 $where = "WHERE object_data.type = 'rolt'";
                 $assign = "n";
@@ -1113,13 +1115,13 @@ class ilRbacReview
         }
         $res = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($res)) {
-            $arr[] = array(
+            $arr[] = [
                 "ops_id" => (int) $row['ops_id'],
                 "operation" => $row['operation'],
                 "desc" => $row['description'],
                 "class" => $row['class'],
                 "order" => (int) $row['op_order']
-            );
+            ];
         }
         return $arr;
     }
@@ -1128,9 +1130,9 @@ class ilRbacReview
     {
         $arr = [];
         foreach ($a_ops_arr as $ops) {
-            $arr[$ops['class']][] = array('ops_id' => (int) $ops['ops_id'],
+            $arr[$ops['class']][] = ['ops_id' => (int) $ops['ops_id'],
                                           'name' => $ops['operation']
-            );
+            ];
         }
         return $arr;
     }

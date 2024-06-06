@@ -125,7 +125,6 @@ class ilObjSystemCheckGUI extends ilObjectGUI
                 $handler = ilSCComponentTaskFactory::getComponentTask($this->getTaskIdFromRequest());
                 $this->ctrl->forwardCommand($handler);
                 break;
-
         }
     }
 

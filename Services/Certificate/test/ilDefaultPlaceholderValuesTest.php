@@ -130,6 +130,7 @@ class ilDefaultPlaceholderValuesTest extends ilCertificateBaseTestCase
             ->willReturn('Something');
 
         $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
+            ->disableOriginalConstructor()
             ->getMock();
 
         $utilHelper->method('prepareFormOutput')
@@ -156,6 +157,7 @@ class ilDefaultPlaceholderValuesTest extends ilCertificateBaseTestCase
             $userDefinePlaceholderMock,
             1
         );
+        $placeHolderObject->setUserLanguage($language);
 
         $result = $placeHolderObject->getPlaceholderValues(100, 200);
 
@@ -206,6 +208,7 @@ class ilDefaultPlaceholderValuesTest extends ilCertificateBaseTestCase
             ->willReturn('Something');
 
         $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
+            ->disableOriginalConstructor()
             ->getMock();
 
         $utilHelper->method('prepareFormOutput')

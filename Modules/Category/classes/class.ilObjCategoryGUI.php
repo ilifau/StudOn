@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\Category\StandardGUIRequest;
 
 /**
@@ -29,13 +29,14 @@ use ILIAS\Category\StandardGUIRequest;
  * @ilCtrl_Calls ilObjCategoryGUI: ilPermissionGUI, ilContainerPageGUI, ilObjUserGUI, ilObjUserFolderGUI
  * @ilCtrl_Calls ilObjCategoryGUI: ilInfoScreenGUI, ilObjStyleSheetGUI, ilCommonActionDispatcherGUI, ilObjectTranslationGUI, ilObjectContentStyleSettingsGUI
  * @ilCtrl_Calls ilObjCategoryGUI: ilColumnGUI, ilObjectCopyGUI, ilUserTableGUI, ilDidacticTemplateGUI, ilExportGUI
- * @ilCtrl_Calls ilObjCategoryGUI: ilObjTaxonomyGUI, ilObjectMetaDataGUI, ilContainerNewsSettingsGUI, ilContainerFilterAdminGUI
+ * @ilCtrl_Calls ilObjCategoryGUI: ilTaxonomySettingsGUI, ilObjectMetaDataGUI, ilContainerNewsSettingsGUI, ilContainerFilterAdminGUI
  * @ilCtrl_Calls ilObjCategoryGUI: ilRepositoryTrashGUI
  * @ingroup      ModulesCategory
  */
-class ilObjCategoryGUI extends ilContainerGUI
+class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Settings\ModifierGUIInterface
 {
     public const CONTAINER_SETTING_TAXBLOCK = "tax_sblock_";
+    protected \ILIAS\Taxonomy\Service $taxonomy;
 
     protected ilNavigationHistory $nav_history;
     protected ilHelpGUI $help;
@@ -81,12 +82,14 @@ class ilObjCategoryGUI extends ilContainerGUI
                 ilObjectServiceSettingsGUI::INFO_TAB_VISIBILITY,
                 '1'
             );
+
         }
         $this->cat_request = $DIC
             ->category()
             ->internal()
             ->gui()
             ->standardRequest();
+        $this->taxonomy = $DIC->taxonomy();
     }
 
     public function executeCommand(): void
@@ -101,7 +104,6 @@ class ilObjCategoryGUI extends ilContainerGUI
 
         $header_action = true;
         switch ($next_class) {
-
             case strtolower(ilRepositoryTrashGUI::class):
                 $ru = new ilRepositoryTrashGUI($this);
                 $this->ctrl->setReturn($this, 'trash');
@@ -178,7 +180,7 @@ class ilObjCategoryGUI extends ilContainerGUI
                 }
                 break;
 
-            // container page editing
+                // container page editing
             case "ilcontainerpagegui":
                 $this->prepareOutput(false);
                 $ret = $this->forwardToPageObject();
@@ -245,15 +247,17 @@ class ilObjCategoryGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($transgui);
                 break;
 
-            case 'ilobjtaxonomygui':
+            case strtolower(ilTaxonomySettingsGUI::class):
                 $this->checkPermissionBool("write");
                 $this->prepareOutput();
-                $this->initTaxSubTabs();
-                $tax = new ilObjTaxonomyGUI();
-                $tax->setAssignedObject($this->object->getId());
-                $tax->setMultiple(true);
-                $tax->setListInfo($this->lng->txt("cntr_tax_list_info"));
-                $this->ctrl->forwardCommand($tax);
+                $this->setEditTabs("taxonomy");
+                $tax_gui = $this->taxonomy->gui()->getSettingsGUI(
+                    $this->object->getId(),
+                    $this->lng->txt("cntr_tax_settings_info"),
+                    true,
+                    $this
+                );
+                $this->ctrl->forwardCommand($tax_gui);
                 break;
 
             case 'ilobjectmetadatagui':
@@ -322,15 +326,10 @@ class ilObjCategoryGUI extends ilContainerGUI
     }
 
 
-    protected function addHeaderAction(): void
-    {
-        ilPreviewGUI::initPreview();
-        parent::addHeaderAction();
-    }
-
     public function getObjectMetadataGUI(): ilObjectMetaDataGUI
     {
         $md_gui = new ilObjectMetaDataGUI($this->object);
+        /*
         if (ilContainer::_lookupContainerSetting(
             $this->object->getId(),
             ilObjectServiceSettingsGUI::TAXONOMIES,
@@ -397,9 +396,74 @@ class ilObjCategoryGUI extends ilContainerGUI
                     }
                 });
             }
-        }
+        }*/
         return $md_gui;
     }
+
+    protected function showTaxAsSideBlockObject(): void
+    {
+        $prefix = self::CONTAINER_SETTING_TAXBLOCK;
+        $tax_id = $this->cat_request->getTaxId();
+        ilContainer::_writeContainerSetting(
+            $this->object->getId(),
+            $prefix . $tax_id,
+            '1'
+        );
+        $this->ctrl->redirectByClass(ilTaxonomySettingsGUI::class, "");
+    }
+
+    protected function hideTaxAsSideBlockObject(): void
+    {
+        $prefix = self::CONTAINER_SETTING_TAXBLOCK;
+        $tax_id = $this->cat_request->getTaxId();
+        ilContainer::_deleteContainerSettings(
+            $this->object->getId(),
+            $prefix . $tax_id
+        );
+        $this->ctrl->redirectByClass(ilTaxonomySettingsGUI::class, "");
+    }
+
+    public function getProperties(
+        int $tax_id
+    ): array {
+        $active = in_array($tax_id, $this->getActiveBlocks());
+        $value = $active
+            ? $this->lng->txt("yes")
+            : $this->lng->txt("no");
+
+        return [
+            $this->lng->txt("cntr_taxonomy_show_sideblock") => $value
+        ];
+    }
+
+    public function getActions(
+        int $tax_id
+    ): array {
+        $actions = [];
+        $this->ctrl->setParameterByClass(self::class, "cat_tax_id", $tax_id);
+        $active = in_array($tax_id, $this->getActiveBlocks());
+        if (!$active) {
+            $actions[] = $this->ui->factory()->button()->shy(
+                $this->lng->txt("cat_show_tax_in_side_block"),
+                $this->ctrl->getLinkTargetByClass(
+                    self::class,
+                    "showTaxAsSideBlock"
+                )
+            );
+        } else {
+            $actions[] = $this->ui->factory()->button()->shy(
+                $this->lng->txt("cat_hide_tax_in_side_block"),
+                $this->ctrl->getLinkTargetByClass(
+                    self::class,
+                    "hideTaxAsSideBlock"
+                )
+            );
+        }
+        $this->ctrl->setParameterByClass(self::class, "cat_tax_id", null);
+
+        return $actions;
+    }
+
 
     protected function getTabs(): void
     {
@@ -455,13 +519,13 @@ class ilObjCategoryGUI extends ilContainerGUI
 
             // metadata / taxonomies
             $mdgui = new ilObjectMetaDataGUI($this->object);
-            if (ilContainer::_lookupContainerSetting(
+            /*if (ilContainer::_lookupContainerSetting(
                 $this->object->getId(),
                 ilObjectServiceSettingsGUI::TAXONOMIES,
                 '0'
             )) {
                 $mdgui->enableTaxonomyDefinition(true);
-            }
+            }*/
             $mdtab = $mdgui->getTab();
             if ($mdtab) {
                 $this->tabs_gui->addTab(
@@ -740,6 +804,10 @@ class ilObjCategoryGUI extends ilContainerGUI
             $this->ctrl->getLinkTargetByClass("ilcontainerfilteradmingui", "")
         );
 
+        if ($obj = $this->getObject()) {
+            $this->taxonomy->gui()->addSettingsSubTab($obj->getId());
+        }
+
         $this->tabs_gui->activateTab("settings");
         $this->tabs_gui->activateSubTab($active_tab);
     }
@@ -897,7 +965,7 @@ class ilObjCategoryGUI extends ilContainerGUI
                 }
                 // Update ecs export settings
                 $ecs = new ilECSCategorySettings($this->object);
-                if ($ecs->handleSettingsUpdate()) {
+                if ($ecs->handleSettingsUpdate($form)) {
                     $this->afterUpdate();
                     return;
                 }
@@ -1115,7 +1183,7 @@ class ilObjCategoryGUI extends ilContainerGUI
         $table = new ilCategoryAssignRoleTableGUI($this, "assignRoles");
         $tmp_obj = ilObjectFactory::getInstanceByObjId($this->cat_request->getObjId());
         $title = $this->lng->txt('role_assignment') . ' (' . $tmp_obj->getFullname() . ')';
-        $table->setTitle($title, "icon_role.svg", $this->lng->txt("role_assignment"));
+        $table->setTitle($title, "standard/icon_role.svg", $this->lng->txt("role_assignment"));
         $table->setData($f_result);
         $this->tpl->setContent($table->getHTML());
     }

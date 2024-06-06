@@ -23,7 +23,6 @@ namespace ILIAS\CI\Rector\DIC;
 use Rector\Transform\NodeTypeAnalyzer\TypeProvidingExprFromClassResolver;
 use Rector\Core\NodeManipulator\ClassInsertManipulator;
 use Rector\PostRector\Collector\PropertyToAddCollector;
-use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Expr\PropertyFetch;
 use PHPStan\Type\ObjectType;
 use PhpParser\Node\Expr\Variable;
@@ -41,42 +40,23 @@ final class DICMemberResolver
     public const DIC = 'DIC';
     public const THIS = 'this';
     public const GLOBALS = 'GLOBALS';
-    protected TypeProvidingExprFromClassResolver $typeProvidingExprFromClassResolver;
-    protected DICDependencyManipulator $dicDependencyManipulator;
-    protected PropertyToAddCollector $propertyToAddCollector;
-    protected ClassInsertManipulator $classInsertManipulator;
     protected DICMemberMap $DICMemberMap;
-    protected NodesToAddCollector $nodesToAddCollector;
-    protected \Rector\Core\PhpParser\Node\NodeFactory $nodeFactory;
-    protected ConstructorClassMethodFactory $constructClassMethodFactory;
-    protected \Rector\Core\NodeDecorator\PropertyTypeDecorator $propertyTypeDecorator;
-    protected \Rector\ChangesReporting\Collector\RectorChangeCollector $rectorChangeCollector;
 
     public function __construct(
-        TypeProvidingExprFromClassResolver $typeProvidingExprFromClassResolver,
-        DICDependencyManipulator $classDependencyManipulator,
-        PropertyToAddCollector $propertyToAddCollector,
-        ClassInsertManipulator $classInsertManipulator,
-        NodesToAddCollector $nodesToAddCollector,
-        \Rector\Core\PhpParser\Node\NodeFactory $nodeFactory,
-        ConstructorClassMethodFactory $constructClassMethodFactory,
-        \Rector\Core\NodeDecorator\PropertyTypeDecorator $propertyTypeDecorator,
-        \Rector\ChangesReporting\Collector\RectorChangeCollector $rectorChangeCollector
+        protected TypeProvidingExprFromClassResolver $typeProvidingExprFromClassResolver,
+        protected DICDependencyManipulator $dicDependencyManipulator,
+        protected PropertyToAddCollector $propertyToAddCollector,
+        protected ClassInsertManipulator $classInsertManipulator,
+        protected NodesToAddCollector $nodesToAddCollector,
+        protected \Rector\Core\PhpParser\Node\NodeFactory $nodeFactory,
+        protected ConstructorClassMethodFactory $constructorClassMethodFactory,
+        protected \Rector\Core\NodeDecorator\PropertyTypeDecorator $propertyTypeDecorator,
+        protected \Rector\ChangesReporting\Collector\RectorChangeCollector $rectorChangeCollector
     ) {
-        $this->typeProvidingExprFromClassResolver = $typeProvidingExprFromClassResolver;
-        $this->dicDependencyManipulator = $classDependencyManipulator;
-        $this->propertyToAddCollector = $propertyToAddCollector;
-        $this->classInsertManipulator = $classInsertManipulator;
-        $this->nodesToAddCollector = $nodesToAddCollector;
-        $this->nodeFactory = $nodeFactory;
-        $this->constructClassMethodFactory = $constructClassMethodFactory;
-        $this->propertyTypeDecorator = $propertyTypeDecorator;
-        $this->rectorChangeCollector = $rectorChangeCollector;
         $this->DICMemberMap = new DICMemberMap();
     }
 
     /**
-     * @param DICMember $DICMember
      * @return Expr|MethodCall
      */
     private function getStaticDICCall(
@@ -87,11 +67,11 @@ final class DICMemberResolver
         // $DIC;
         $dic_variable = $this->dicDependencyManipulator->ensureGlobalDICinMethod($classMethod, $class);
         // new variable like $main_tpl;
-        $dic_dependenc_variable = new Variable($DICMember->getPropertyName());
+        $variable = new Variable($DICMember->getPropertyName());
         // MethodCall to get DIC Dependency
-        $property_assign = new Expression(
+        $expression = new Expression(
             new Assign(
-                $dic_dependenc_variable,
+                $variable,
                 $this->appendDICMethods(
                     $DICMember,
                     $dic_variable
@@ -101,10 +81,10 @@ final class DICMemberResolver
         $this->dicDependencyManipulator->addStmtToMethodIfNotThereAfterGlobalDIC(
             $classMethod,
             $class,
-            $property_assign
+            $expression
         );
 
-        return $dic_dependenc_variable;
+        return $variable;
     }
 
     public function ensureDICDependency(
@@ -119,17 +99,19 @@ final class DICMemberResolver
         // constructor itself, since currently we have problems to assign the
         // member then...
         $classMethodName = $classMethod->name->name ?? null;
-        if ($classMethod->isStatic()
-            || $classMethodName === \Rector\Core\ValueObject\MethodName::CONSTRUCT) {
+        if ($classMethod->isStatic()) {
+            return $this->getStaticDICCall($DICMember, $class, $classMethod);
+        }
+        if ($classMethodName === \Rector\Core\ValueObject\MethodName::CONSTRUCT) {
             return $this->getStaticDICCall($DICMember, $class, $classMethod);
         }
 
         // Test primary class
-        $primary = $DICMember->getMainClass();
+        $mainClass = $DICMember->getMainClass();
         $dicPropertyFetch = $this->typeProvidingExprFromClassResolver->resolveTypeProvidingExprFromClass(
             $class,
             $classMethod,
-            $this->getObjectType($primary)
+            $this->getObjectType($mainClass)
         );
         if ($dicPropertyFetch instanceof PropertyFetch) {
             return $dicPropertyFetch;
@@ -151,7 +133,7 @@ final class DICMemberResolver
         // Add property
         $this->propertyToAddCollector->addPropertyWithoutConstructorToClass(
             $DICMember->getPropertyName(),
-            $this->getObjectType($primary),
+            $this->getObjectType($mainClass),
             $class
         );
 
@@ -169,7 +151,7 @@ final class DICMemberResolver
             $class
         );
         // $this->xy = $DIC->xy()
-        $property_assign = new Expression(
+        $expression = new Expression(
             new Assign(
                 $dicPropertyFetch,
                 $methodCall
@@ -177,21 +159,21 @@ final class DICMemberResolver
         );
         $this->dicDependencyManipulator->addStmtToConstructorIfNotThereAfterGlobalDIC(
             $class,
-            $property_assign
+            $expression
         );
 
         return $dicPropertyFetch;
     }
 
-    private function appendDICMethods(DICMember $m, Expr $methodCall)
+    private function appendDICMethods(DICMember $dicMember, Expr $expr): \PhpParser\Node\Expr
     {
-        foreach ($m->getDicServiceMethod() as $call) {
-            $methodCall = new MethodCall(
-                $methodCall,
+        foreach ($dicMember->getDicServiceMethod() as $call) {
+            $expr = new MethodCall(
+                $expr,
                 $call
             );
         }
-        return $methodCall;
+        return $expr;
     }
 
     private function getDICMemberByName(string $name): DICMember

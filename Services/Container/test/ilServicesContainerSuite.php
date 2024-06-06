@@ -31,8 +31,13 @@ class ilServicesContainerSuite extends TestSuite
     {
         $suite = new self();
 
-        require_once("./Services/Container/test/ContentViewManagerTest.php");
-        $suite->addTestSuite("ContentViewManagerTest");
+        /*
+        require_once("./Services/Container/test/ContentModeManagerTest.php");
+        $suite->addTestSuite("ContentModeManagerTest");
+        */
+
+        require_once("./Services/Container/test/Classification/ClassificationSessionRepositoryTest.php");
+        $suite->addTestSuite("ClassificationSessionRepositoryTest");
 
         return $suite;
     }

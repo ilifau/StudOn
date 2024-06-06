@@ -89,10 +89,17 @@ class DataTableDemoRepo implements I\DataRetrieval
     //do the actual reading - note, that e.g. order and range are easily converted to SQL
     protected function doSelect(Order $order, Range $range): array
     {
+<<<<<<< HEAD
         $sql_order_part = $order->join('ORDER BY', fn (...$o) => implode(' ', $o));
         $sql_range_part = sprintf('LIMIT %2$s OFFSET %1$s', ...$range->unpack());
         return array_map(
             fn ($rec) => array_merge($rec, ['sql_order' => $sql_order_part, 'sql_range' => $sql_range_part]),
+=======
+        $sql_order_part = $order->join('ORDER BY', fn(...$o) => implode(' ', $o));
+        $sql_range_part = sprintf('LIMIT %2$s OFFSET %1$s', ...$range->unpack());
+        return array_map(
+            fn($rec) => array_merge($rec, ['sql_order' => $sql_order_part, 'sql_range' => $sql_range_part]),
+>>>>>>> v9.1
             $this->dummyrecords()
         );
     }

@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -42,7 +50,11 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         return new IC\Link\Factory();
     }
 
+<<<<<<< HEAD
     public function messagebox_type_provider(): array
+=======
+    public function getMessageboxTypeProvider(): array
+>>>>>>> v9.1
     {
         return array( array(C\MessageBox\MessageBox::FAILURE)
         , array(C\MessageBox\MessageBox::SUCCESS)
@@ -74,9 +86,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_implements_factory_interface(string $factory_method): void
+=======
+    public function testImplementsFactoryInterface(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
 
@@ -85,9 +101,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_messagebox_types(string $factory_method): void
+=======
+    public function testMessageboxTypes(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $g = $f->$factory_method("Lorem ipsum dolor sit amet.");
@@ -97,9 +117,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_messagebox_messagetext(string $factory_method): void
+=======
+    public function testMessageboxMessagetext(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $g = $f->$factory_method("Lorem ipsum dolor sit amet.");
@@ -109,9 +133,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_with_buttons(string $factory_method): void
+=======
+    public function testWithButtons(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $bf = $this->getButtonFactory();
@@ -125,9 +153,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_with_links(string $factory_method): void
+=======
+    public function testWithLinks(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $lf = $this->getLinkFactory();
@@ -144,9 +176,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_with_buttons_and_links(string $factory_method): void
+=======
+    public function testWithButtonsAndLinks(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $bf = $this->getButtonFactory();
@@ -165,9 +201,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_render_simple(string $factory_method): void
+=======
+    public function testRenderSimple(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $r = $this->getDefaultRenderer();
@@ -177,15 +217,23 @@ class MessageBoxTest extends ILIAS_UI_TestBase
 
         $html = $this->normalizeHTML($r->render($g));
         $expected = "<div class=\"alert $css_classes\" role=\"$role_type\">" .
+<<<<<<< HEAD
                     "<div class=\"ilAccHeadingHidden\"><a id=\"il_message_focus\" name=\"il_message_focus\">" .
+=======
+                    "<div class=\"ilAccHeadingHidden\"><a name=\"il_message_focus\">" .
+>>>>>>> v9.1
                     $g->getType() . "_message</a></div>Lorem ipsum dolor sit amet.</div>";
         $this->assertHTMLEquals($expected, $html);
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_render_with_buttons(string $factory_method): void
+=======
+    public function testRenderWithButtons(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $bf = $this->getButtonFactory();
@@ -199,7 +247,11 @@ class MessageBoxTest extends ILIAS_UI_TestBase
 
         $html = $this->normalizeHTML($r->render($g));
         $expected = "<div class=\"alert $css_classes\" role=\"$role_type\">" .
+<<<<<<< HEAD
                     "<div class=\"ilAccHeadingHidden\"><a id=\"il_message_focus\" name=\"il_message_focus\">" .
+=======
+                    "<div class=\"ilAccHeadingHidden\"><a name=\"il_message_focus\">" .
+>>>>>>> v9.1
                     $g->getType() . "_message</a></div>Lorem ipsum dolor sit amet." .
                     "<div><button class=\"btn btn-default\"   data-action=\"#\" id=\"id_1\">Confirm</button>" .
                     "<button class=\"btn btn-default\"   data-action=\"#\" id=\"id_2\">Cancel</button></div></div>";
@@ -207,9 +259,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_render_with_links(string $factory_method): void
+=======
+    public function testRenderWithLinks(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $lf = $this->getLinkFactory();
@@ -226,7 +282,11 @@ class MessageBoxTest extends ILIAS_UI_TestBase
 
         $html = $this->normalizeHTML($r->render($g));
         $expected = "<div class=\"alert $css_classes\" role=\"$role_type\">" .
+<<<<<<< HEAD
                     "<div class=\"ilAccHeadingHidden\"><a id=\"il_message_focus\" name=\"il_message_focus\">" .
+=======
+                    "<div class=\"ilAccHeadingHidden\"><a name=\"il_message_focus\">" .
+>>>>>>> v9.1
                     $g->getType() . "_message</a></div>Lorem ipsum dolor sit amet." .
                     "<ul><li><a href=\"#\" >Open Exercise Assignment</a></li>" .
                     "<li><a href=\"#\" >Open other screen</a></li></ul></div>";
@@ -234,9 +294,13 @@ class MessageBoxTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider messagebox_type_provider
+     * @dataProvider getMessageboxTypeProvider
      */
+<<<<<<< HEAD
     public function test_render_with_buttons_and_links(string $factory_method): void
+=======
+    public function testRenderWithButtonsAndLinks(string $factory_method): void
+>>>>>>> v9.1
     {
         $f = $this->getMessageBoxFactory();
         $bf = $this->getButtonFactory();
@@ -255,7 +319,11 @@ class MessageBoxTest extends ILIAS_UI_TestBase
 
         $html = $this->normalizeHTML($r->render($g));
         $expected = "<div class=\"alert $css_classes\" role=\"$role_type\">" .
+<<<<<<< HEAD
                     "<div class=\"ilAccHeadingHidden\"><a id=\"il_message_focus\" name=\"il_message_focus\">" .
+=======
+                    "<div class=\"ilAccHeadingHidden\"><a name=\"il_message_focus\">" .
+>>>>>>> v9.1
                     $g->getType() . "_message</a></div>Lorem ipsum dolor sit amet." .
                     "<div><button class=\"btn btn-default\"   data-action=\"#\" id=\"id_1\">Confirm</button>" .
                     "<button class=\"btn btn-default\"   data-action=\"#\" id=\"id_2\">Cancel</button></div>" .

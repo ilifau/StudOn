@@ -227,13 +227,4 @@ class ilMMCustomItemStorage extends CachedActiveRecord
 
         return $this;
     }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function getCache(): ilGlobalCache
-    {
-        return ilGlobalCache::getInstance(ilGlobalCache::COMP_GLOBAL_SCREEN);
-    }
 }

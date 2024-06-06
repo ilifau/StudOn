@@ -25,7 +25,6 @@ declare(strict_types=1);
  */
 class ilForumNotificationTableGUI extends ilTable2GUI
 {
-    private ilGlobalTemplateInterface $mainTemplate;
     private array $notification_modals = [];
     private \ILIAS\UI\Factory $ui_factory;
     private ILIAS\UI\Renderer $ui_renderer;
@@ -39,7 +38,6 @@ class ilForumNotificationTableGUI extends ilTable2GUI
 
         $this->lng = $DIC->language();
         $this->ctrl = $DIC->ctrl();
-        $this->mainTemplate = $DIC->ui()->mainTemplate();
 
         $this->setId('frmev_' . $settings_gui->getRefId() . substr($type, 0, 3));
 
@@ -64,11 +62,11 @@ class ilForumNotificationTableGUI extends ilTable2GUI
     private function getIcon(int $user_toggle_noti): string
     {
         $icon_ok = $this->ui_factory->symbol()->icon()->custom(
-            ilUtil::getImagePath('icon_ok.svg'),
+            ilUtil::getImagePath('standard/icon_ok.svg'),
             $this->lng->txt('enabled')
         );
         $icon_not_ok = $this->ui_factory->symbol()->icon()->custom(
-            ilUtil::getImagePath('icon_not_ok.svg'),
+            ilUtil::getImagePath('standard/icon_not_ok.svg'),
             $this->lng->txt('disabled')
         );
         $icon = $user_toggle_noti === 0 ? $icon_ok : $icon_not_ok;

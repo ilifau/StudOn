@@ -14,15 +14,10 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
-/**
- * Class ilDclBaseFieldModel
- * @author  Stefan Wanzenried <sw@studer-raimann.ch>
- * @author  Fabian Schmid <fs@studer-raimann.ch>
- * @version $Id:
- */
+declare(strict_types=1);
+
 class ilDclDatetimeRecordFieldModel extends ilDclBaseRecordFieldModel
 {
     /**
@@ -37,7 +32,11 @@ class ilDclDatetimeRecordFieldModel extends ilDclBaseRecordFieldModel
     {
         $value = parent::getValueFromExcel($excel, $row, $col);
 
-        return date('Y-m-d', strtotime($value));
+        if($value) {
+            return date('Y-m-d', strtotime($value));
+        } else {
+            return "";
+        }
     }
 
     /**
@@ -46,8 +45,7 @@ class ilDclDatetimeRecordFieldModel extends ilDclBaseRecordFieldModel
      */
     public function parseExportValue($value): ?string
     {
-        $date = new ilDate($value, IL_CAL_DATE);
-        return $date->get(IL_CAL_DATE);
+        return (new ilDate($value, IL_CAL_DATE))->get(IL_CAL_DATE);
     }
 
     /**
@@ -57,5 +55,12 @@ class ilDclDatetimeRecordFieldModel extends ilDclBaseRecordFieldModel
     public function parseSortingValue($value, bool $link = true): ?int
     {
         return strtotime($value);
+    }
+
+    public function getFormulaValue(): string
+    {
+        // getValue returns the field value, but in this case it is formatted. For the calculations in Formelns the value is needed as Unix timestamp (as string).
+        $value = $this->getValue();
+        return (string) strtotime($value ? $value : '');
     }
 }

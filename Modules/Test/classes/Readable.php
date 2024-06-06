@@ -21,22 +21,20 @@ declare(strict_types=1);
 namespace ILIAS\Modules\Test;
 
 use Closure;
-use ILIAS\DI\Container;
+use ilAccessHandler;
 use ilObject;
 
 class Readable
 {
-    private Container $container;
     /** @var Closure(int): int[] */
-    private Closure $references_of;
-    private Incident $incident;
+    private readonly Closure $references_of;
+    private readonly Incident $incident;
 
     public function __construct(
-        Container $container,
+        private readonly ilAccessHandler $access,
         $references_of = [ilObject::class, '_getAllReferences'],
         Incident $incident = null
     ) {
-        $this->container = $container;
         $this->references_of = Closure::fromCallable($references_of);
         $this->incident = $incident ?? new Incident();
     }
@@ -46,8 +44,8 @@ class Readable
      */
     public function references(array $references): bool
     {
-        return $this->incident->any(fn (int $ref_id): bool => (
-            $this->container->access()->checkAccess('read', '', $ref_id)
+        return $this->incident->any(fn(int $ref_id): bool => (
+            $this->access->checkAccess('read', '', $ref_id)
         ), $references);
     }
 

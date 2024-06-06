@@ -15,7 +15,6 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-
 declare(strict_types=1);
 
 class ilObjIndividualAssessmentListGUI extends ilObjectListGUI
@@ -54,12 +53,6 @@ class ilObjIndividualAssessmentListGUI extends ilObjectListGUI
     public function getCommandLink(string $cmd): string
     {
         switch ($cmd) {
-            case 'edit':
-                $return = $this->ctrl->getLinkTargetByClass(
-                    array($this->gui_class_name,'ilIndividualassessmentsettingsgui'),
-                    "edit"
-                );
-                break;
             case 'infoScreen':
                 $return = $this->ctrl->getLinkTargetByClass($this->gui_class_name, "view");
                 break;
@@ -68,18 +61,5 @@ class ilObjIndividualAssessmentListGUI extends ilObjectListGUI
         }
 
         return $return;
-    }
-
-    /**
-    * Get item properties
-    *
-    * @return	array		array of property arrays:
-    *						"alert" (boolean) => display as an alert property (usually in red)
-    *						"property" (string) => property name
-    *						"value" (string) => property value
-    */
-    public function getProperties(): array
-    {
-        return [];
     }
 }

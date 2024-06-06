@@ -84,7 +84,15 @@ trait SymbolDecoratorTrait
             if (!$return_type instanceof \ReflectionType) {
                 return false;
             }
+<<<<<<< HEAD
             return $return_type->getName() === Symbol::class;
+=======
+            if ($return_type->getName() !== Symbol::class) {
+                return false;
+            }
+
+            return true;
+>>>>>>> v9.1
         } catch (Throwable $i) {
             return false;
         }

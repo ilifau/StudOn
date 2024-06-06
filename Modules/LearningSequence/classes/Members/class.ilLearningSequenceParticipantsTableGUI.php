@@ -17,6 +17,8 @@
  *********************************************************************/
 declare(strict_types=1);
 
+declare(strict_types=1);
+
 class ilLearningSequenceParticipantsTableGUI extends ilParticipantTableGUI
 {
     protected ilLearningSequenceMembershipGUI $parent_gui;

@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once("libs/composer/vendor/autoload.php");
 
 require_once(__DIR__ . "/Base.php");
@@ -52,7 +60,7 @@ class UITestHelper
         $this->dic["refinery"] = new RefinaryFactory($data_factory, $this->dic["lng"]);
         (new InitUIFramework())->init($this->dic);
         $this->dic["ui.template_factory"] = new ilIndependentTemplateFactory();
-        ;
+        $this->dic["help.text_retriever"] = new ILIAS\UI\Help\TextRetriever\Echoing();
 
         return $this->dic;
     }

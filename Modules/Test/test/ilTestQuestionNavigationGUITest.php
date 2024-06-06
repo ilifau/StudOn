@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Class ilTestQuestionNavigationGUITest
  * @author Marvin Beym <mbeym@databay.de>
@@ -30,7 +30,15 @@ class ilTestQuestionNavigationGUITest extends ilTestBaseTestCase
     {
         parent::setUp();
 
-        $this->testObj = new ilTestQuestionNavigationGUI($this->createMock(ilLanguage::class));
+        $test_helper = new UITestHelper();
+        $ui_factory = $test_helper->factory();
+        $ui_renderer = $test_helper->renderer();
+
+        $this->testObj = new ilTestQuestionNavigationGUI(
+            $this->createMock(ilLanguage::class),
+            $ui_factory,
+            $ui_renderer
+        );
     }
 
     public function test_instantiateObject_shouldReturnInstance(): void
@@ -146,14 +154,5 @@ class ilTestQuestionNavigationGUITest extends ilTestBaseTestCase
 
         $this->testObj->setAnythingRendered();
         $this->assertTrue($this->testObj->isAnythingRendered());
-    }
-
-    public function testCharSelectorEnabled(): void
-    {
-        $this->testObj->setCharSelectorEnabled(false);
-        $this->assertFalse($this->testObj->isCharSelectorEnabled());
-
-        $this->testObj->setCharSelectorEnabled(true);
-        $this->assertTrue($this->testObj->isCharSelectorEnabled());
     }
 }

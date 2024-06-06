@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/TestComponent.php");
 require_once(__DIR__ . "/../Base.php");
 
@@ -33,7 +41,14 @@ use ILIAS\UI\Renderer;
 
 class DefaultRendererTest extends ILIAS_UI_TestBase
 {
+<<<<<<< HEAD
     public function test_getRenderer_successfully(): void
+=======
+    protected LoggingRegistry $resource_registry;
+    public ComponentRenderer $component_renderer;
+
+    public function testGetRendererSuccessfully(): void
+>>>>>>> v9.1
     {
         // There should be a renderer for Glyph...
         $dr = $this->getDefaultRenderer();
@@ -41,7 +56,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(ComponentRenderer::class, $r);
     }
 
+<<<<<<< HEAD
     public function test_getRenderer_caching(): void
+=======
+    public function testGetRendererCaching(): void
+>>>>>>> v9.1
     {
         $dr = $this->getDefaultRenderer();
         $r1 = $dr->_getRendererFor(new Glyph("up", "up"));
@@ -55,7 +74,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         return $this->resource_registry;
     }
 
+<<<<<<< HEAD
     public function test_invokesRegistry(): void
+=======
+    public function testInvokesRegistry(): void
+>>>>>>> v9.1
     {
         $dr = $this->getDefaultRenderer();
         $component = new TestComponent("foo");
@@ -65,7 +88,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertEquals(array("test.js"), $this->resource_registry->resources);
     }
 
+<<<<<<< HEAD
     public function test_withAdditionalContext_clones(): void
+=======
+    public function testWithAdditionalContextClones(): void
+>>>>>>> v9.1
     {
         $dr = $this->getDefaultRenderer();
         $component = new TestComponent("foo");
@@ -73,7 +100,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertNotSame($dr, $dr2);
     }
 
+<<<<<<< HEAD
     public function test_getContexts(): void
+=======
+    public function testGetContexts(): void
+>>>>>>> v9.1
     {
         $dr = $this->getDefaultRenderer();
         $c1 = new TestComponent("foo");
@@ -85,7 +116,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertEquals([$c1, $c2], $dr2->_getContexts());
     }
 
+<<<<<<< HEAD
     public function test_passesContextsToComponentRendererLoader(): void
+=======
+    public function testPassesContextsToComponentRendererLoader(): void
+>>>>>>> v9.1
     {
         $loader = $this
             ->getMockBuilder(Loader::class)
@@ -109,7 +144,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $renderer->_getRendererFor($c1);
     }
 
+<<<<<<< HEAD
     public function test_render(): void
+=======
+    public function testRender(): void
+>>>>>>> v9.1
     {
         $c1 = new TestComponent("foo");
         $renderer = $this->getDefaultRenderer();
@@ -117,7 +156,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertEquals("foo", $html);
     }
 
+<<<<<<< HEAD
     public function test_render_async_no_js(): void
+=======
+    public function testRenderAsyncNoJs(): void
+>>>>>>> v9.1
     {
         $c1 = new TestComponent("foo");
         $renderer = $this->getDefaultRenderer(
@@ -129,7 +172,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertEquals("foo", $html);
     }
 
+<<<<<<< HEAD
     public function test_render_async_with_js(): void
+=======
+    public function testRenderAsyncWithJs(): void
+>>>>>>> v9.1
     {
         $c1 = new JSTestComponent("foo");
         $renderer = $this->getDefaultRenderer(
@@ -139,7 +186,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertEquals('foo<script data-replace-marker="script">id:foo.id content:foo</script>', $html);
     }
 
+<<<<<<< HEAD
     public function test_render_async_with_js_twice(): void
+=======
+    public function testRenderAsyncWithJsTwice(): void
+>>>>>>> v9.1
     {
         $c1 = new TestComponent("foo");
         $c2 = new JSTestComponent("foo");
@@ -154,7 +205,11 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertEquals('foo<script data-replace-marker="script">id:foo.id content:foo</script>', $html);
     }
 
+<<<<<<< HEAD
     public function test_render_async_array(): void
+=======
+    public function testRenderAsyncArray(): void
+>>>>>>> v9.1
     {
         $c1 = new TestComponent("foo");
 
@@ -166,17 +221,23 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider render_type
+     * @dataProvider getRenderType
      */
-    public function test_passes_self_as_root_if_no_root_exist($render_type)
+    public function testPassesSelfAsRootIfNoRootExist($render_type)
     {
         $this->component_renderer = $this->createMock(ComponentRenderer::class);
         $component = $this->createMock(C\Component::class);
 
         $renderer = new class ($this) extends DefaultRenderer {
+<<<<<<< HEAD
             public function __construct($self)
             {
                 $this->self = $self;
+=======
+            public function __construct(
+                protected DefaultRendererTest $self
+            ) {
+>>>>>>> v9.1
             }
 
             protected function getRendererFor(ILIAS\UI\Component\Component $component): ComponentRenderer
@@ -198,18 +259,24 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
     }
 
     /**
-     * @dataProvider render_type
+     * @dataProvider getRenderType
      */
-    public function test_passes_other_on_as_root($render_type)
+    public function testPassesOtherOnAsRoot($render_type)
     {
         $this->component_renderer = $this->createMock(ComponentRenderer::class);
         $component = $this->createMock(C\Component::class);
         $root = $this->createMock(Renderer::class);
 
         $renderer = new class ($this) extends DefaultRenderer {
+<<<<<<< HEAD
             public function __construct($self)
             {
                 $this->self = $self;
+=======
+            public function __construct(
+                protected DefaultRendererTest $self
+            ) {
+>>>>>>> v9.1
             }
 
             protected function getRendererFor(ILIAS\UI\Component\Component $component): ComponentRenderer
@@ -230,7 +297,7 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $renderer->$render_type($component, $root);
     }
 
-    public function render_type()
+    public function getRenderType()
     {
         return [
             ["render"],
@@ -238,17 +305,21 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         ];
     }
 
-    public function test_component_list_uses_root_to_render()
+    public function testComponentListUsesRootToRender()
     {
         $component = $this->createMock(C\Component::class);
         $root = $this->createMock(Renderer::class);
 
+<<<<<<< HEAD
         $renderer = new class ($this) extends DefaultRenderer {
             public function __construct($self)
             {
                 $this->self = $self;
             }
         };
+=======
+        $renderer = $this->getDefaultRenderer();
+>>>>>>> v9.1
 
         $root->expects($this->exactly(2))
             ->method("render")

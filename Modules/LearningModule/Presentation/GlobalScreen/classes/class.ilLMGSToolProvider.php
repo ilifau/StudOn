@@ -70,7 +70,7 @@ class ilLMGSToolProvider extends AbstractDynamicToolProvider
 
         if ($additional_data->is(self::SHOW_LINK_SLATES, true)) {
             $title = $lng->txt("obj_glo");
-            $icon = $DIC->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_glo.svg"), $title);
+            $icon = $DIC->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_glo.svg"), $title);
             $identification = $iff("lm_glossary");
             $hashed = $this->hash($identification->serialize());
             $tools[] = $this->factory->tool($identification)
@@ -79,7 +79,7 @@ class ilLMGSToolProvider extends AbstractDynamicToolProvider
                         $signal_id = $c->getToggleSignal()->getId();
                         return $c->withAdditionalOnLoadCode(static function ($id) use ($hashed) {
                             return "
-                                                 $('body').on('il-lm-show-glossary-slate', function(){
+                                                 document.addEventListener('il-lm-show-glossary-slate', function(){
                                                      il.UI.maincontrols.mainbar.engageTool('$hashed');
                                                  });";
                         });
@@ -95,7 +95,7 @@ class ilLMGSToolProvider extends AbstractDynamicToolProvider
                 ->withPosition(11);
 
             $title = $lng->txt("cont_tool_media");
-            $icon = $DIC->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_mdia.svg"), $title);
+            $icon = $DIC->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_mdia.svg"), $title);
             $identification = $iff("lm_media");
             $hashed = $this->hash($identification->serialize());
             $tools[] = $this->factory->tool($identification)
@@ -104,7 +104,7 @@ class ilLMGSToolProvider extends AbstractDynamicToolProvider
                         $signal_id = $c->getToggleSignal()->getId();
                         return $c->withAdditionalOnLoadCode(static function ($id) use ($hashed) {
                             return "
-                                                 $('body').on('il-lm-show-media-slate', function(){
+                                                 document.addEventListener('il-lm-show-media-slate', function(){
                                                      il.UI.maincontrols.mainbar.engageTool('$hashed');
                                                  });";
                         });
@@ -120,7 +120,7 @@ class ilLMGSToolProvider extends AbstractDynamicToolProvider
                 ->withPosition(12);
 
             $title = $lng->txt("cont_tool_faq");
-            $icon = $DIC->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_faq.svg"), $title);
+            $icon = $DIC->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_faq.svg"), $title);
             $identification = $iff("lm_faq");
             $hashed = $this->hash($identification->serialize());
             $tools[] = $this->factory->tool($identification)
@@ -129,7 +129,7 @@ class ilLMGSToolProvider extends AbstractDynamicToolProvider
                         $signal_id = $c->getToggleSignal()->getId();
                         return $c->withAdditionalOnLoadCode(static function ($id) use ($hashed) {
                             return "
-                                                 $('body').on('il-lm-show-faq-slate', function(){
+                                                 document.addEventListener('il-lm-show-faq-slate', function(){
                                                      il.UI.maincontrols.mainbar.engageTool('$hashed');
                                                  });";
                         });
@@ -175,7 +175,7 @@ class ilLMGSToolProvider extends AbstractDynamicToolProvider
         };
 
         $title = $lng->txt("cont_toc");
-        $icon = $DIC->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("icon_chp.svg"), $title);
+        $icon = $DIC->ui()->factory()->symbol()->icon()->custom(\ilUtil::getImagePath("standard/icon_chp.svg"), $title);
         return $this->factory->tool($iff("lm_pres_toc"))
             ->withTitle($title)
             ->withContentWrapper(function () use ($l, $additional_data) {

@@ -52,14 +52,16 @@ class ilWikiUtil
     public static function replaceInternalLinks(
         string $s,
         int $a_wiki_id,
-        bool $a_offline = false
+        bool $a_offline = false,
+        string $lang = "-"
     ): string {
         return self::processInternalLinks(
             $s,
             $a_wiki_id,
             IL_WIKI_MODE_REPLACE,
             false,
-            $a_offline
+            $a_offline,
+            $lang
         );
     }
 
@@ -92,13 +94,16 @@ class ilWikiUtil
      * (internal)
      * @return array|false|string
      */
-    public static function processInternalLinks(
+    protected static function processInternalLinks(
         string $s,
         int $a_wiki_id,
         string $a_mode = IL_WIKI_MODE_REPLACE,
         bool $a_collect_non_ex = false,
-        bool $a_offline = false
+        bool $a_offline = false,
+        string $lang = "-"
     ) {
+        global $DIC;
+        $page_repo = $DIC->wiki()->internal()->repo()->page();
 
         include_once("./Modules/Wiki/libs/Sanitizer.php");
         $collect = array();
@@ -192,13 +197,13 @@ class ilWikiUtil
                     $m[1] = str_replace(array('<', '>'), array('&lt;', '&gt;'), urldecode($m[1]));
                 }
                 $trail = $m[3];
-            /*			} elseif( preg_match($e1_img, $line, $m) ) { # Invalid, but might be an image with a link in its caption
-                            $might_be_img = true;
-                            $text = $m[2];
-                            if ( strpos( $m[1], '%' ) !== false ) {
-                                $m[1] = urldecode($m[1]);
-                            }
-                            $trail = "";*/
+                /*			} elseif( preg_match($e1_img, $line, $m) ) { # Invalid, but might be an image with a link in its caption
+                                $might_be_img = true;
+                                $text = $m[2];
+                                if ( strpos( $m[1], '%' ) !== false ) {
+                                    $m[1] = urldecode($m[1]);
+                                }
+                                $trail = "";*/
             } else { # Invalid form; output directly
                 $s .= $prefix . '[[' . $line ;
                 //wfProfileOut( "$fname-e1" );
@@ -252,7 +257,8 @@ class ilWikiUtil
                     '',
                     $trail,
                     $prefix,
-                    $a_offline
+                    $a_offline,
+                    $lang
                 );
             }
             if ($a_mode === IL_WIKI_MODE_EXT_COLLECT) {
@@ -267,7 +273,7 @@ class ilWikiUtil
             } else {
                 $db_title = self::makeDbTitle($nt->mTextform);
 
-                if (($a_collect_non_ex || ilWikiPage::_wikiPageExists($a_wiki_id, $db_title))
+                if (($a_collect_non_ex || $page_repo->existsByTitle($a_wiki_id, $db_title, $lang))
                 &&
                     !in_array($db_title, $collect)) {
                     $collect[] = $db_title;
@@ -285,7 +291,7 @@ class ilWikiUtil
         }
     }
 
-    public static function removeUnsafeCharacters(
+    protected static function removeUnsafeCharacters(
         string $a_str
     ): string {
         return str_replace(array("\x00", "\n", "\r", "\\", "'", '"', "\x1a"), "", $a_str);
@@ -300,23 +306,23 @@ class ilWikiUtil
      * [[Page Title#Anchor|Presentation Text]]
      * [[#Anchor|Presentation Text]] (link to anchor on same wiki page)
      */
-    public static function makeLink(
+    protected static function makeLink(
         object $nt,
         int $a_wiki_id,
         string $text = '',
         string $query = '',
         string $trail = '',
         string $prefix = '',
-        bool $a_offline = false
+        bool $a_offline = false,
+        string $lang = "-"
     ): string {
         global $DIC;
-
         $request = $DIC
             ->wiki()
             ->internal()
             ->gui()
-            ->editing()
             ->request();
+        $page_repo = $DIC->wiki()->internal()->repo()->page();
 
         $ilCtrl = $DIC->ctrl();
 
@@ -324,7 +330,6 @@ class ilWikiUtil
             # Fail gracefully
             $retVal = "<!-- ERROR -->{$prefix}{$text}{$trail}";
         } else {
-
             // remove anchor from text, define anchor
             $anc = "";
             if ($nt->mFragment != "") {
@@ -342,7 +347,7 @@ class ilWikiUtil
             $url_title = self::makeUrlTitle($nt->mTextform);
             $db_title = self::makeDbTitle($nt->mTextform);
             if ($db_title != "") {
-                $pg_exists = ilWikiPage::_wikiPageExists($a_wiki_id, $db_title);
+                $pg_exists = $page_repo->existsByTitle($a_wiki_id, $db_title, $lang);
             } else {
                 // links on same page (only anchor used)
                 $pg_exists = true;
@@ -357,6 +362,8 @@ class ilWikiUtil
 
             if (!$a_offline) {
                 if ($url_title != "") {
+                    $ilCtrl->setParameterByClass("ilobjwikigui", "wpg_id", null);
+                    $ilCtrl->setParameterByClass("ilwikipagegui", "wpg_id", null);
                     $ilCtrl->setParameterByClass("ilobjwikigui", "page", $url_title);
                     $retVal = '<a ' . $wiki_link_class . ' href="' .
                         $ilCtrl->getLinkTargetByClass("ilobjwikigui", "gotoPage") . $anc .

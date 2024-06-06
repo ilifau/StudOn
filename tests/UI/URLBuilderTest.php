@@ -24,7 +24,11 @@ use PHPUnit\Framework\TestCase;
 
 class URLBuilderTest extends TestCase
 {
+<<<<<<< HEAD
     private \ILIAS\Data\URI $URI_COMPLETE;
+=======
+    private readonly \ILIAS\Data\URI $URI_COMPLETE;
+>>>>>>> v9.1
 
     protected function setUp(): void
     {

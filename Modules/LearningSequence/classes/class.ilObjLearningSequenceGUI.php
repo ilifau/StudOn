@@ -120,6 +120,7 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
     protected ILIAS\HTTP\Wrapper\RequestWrapper $request_wrapper;
     protected ArrayBasedRequestWrapper $post_wrapper;
     protected ILIAS\Refinery\Factory $refinery;
+    protected Psr\Http\Message\ServerRequestInterface $request;
 
     public static function _goto(string $target): void
     {
@@ -212,6 +213,7 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
         $this->rbac_review = $DIC['rbacreview'];
         $this->ui_factory = $DIC['ui.factory'];
         $this->ui_renderer = $DIC['ui.renderer'];
+        $this->request = $DIC->http()->request();
 
         $this->log = $DIC["ilLoggerFactory"]->getRootLogger();
         $this->app_event_handler = $DIC['ilAppEventHandler'];
@@ -253,8 +255,8 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
         parent::prepareOutput();
         $this->addToNavigationHistory();
         //showRepTree is from containerGUI;
-        //LSO will attach allowed subitems to whitelist
-        //see: $this::getAdditionalWhitelistTypes
+        //LSO will attach allowed subitems to ok-list
+        //see: $this::getAdditionalOKTypes
 
         $in_player = (
             $next_class === 'ilobjlearningsequencelearnergui'
@@ -316,30 +318,27 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
 
 
             case "ilobjlearningsequenceeditintrogui":
-                $which_page = $this->object::CP_INTRO;
+                $which_page = LSOPageType::INTRO;
                 $which_tab = self::TAB_EDIT_INTRO;
                 $gui_class = 'ilObjLearningSequenceEditIntroGUI';
                 // no break
             case "ilobjlearningsequenceeditextrogui":
-
                 if (!isset($which_page)) {
-                    $which_page = $this->object::CP_EXTRO;
+                    $which_page = LSOPageType::EXTRO;
                     $which_tab = self::TAB_EDIT_EXTRO;
-
                     $gui_class = 'ilObjLearningSequenceEditExtroGUI';
                 }
 
                 $this->addContentStyleCss();
                 $this->addSubTabsForContent($which_tab);
 
-                $page_id = $this->object->getContentPageId($which_page);
                 if (!$this->object->hasContentPage($which_page)) {
                     $this->object->createContentPage($which_page);
                 }
 
                 $gui = new $gui_class(
-                    $this->object::CP_TYPE,
-                    $page_id
+                    $which_page->value,
+                    $this->object->getContentPageId()
                 );
                 $this->ctrl->setCmd($cmd);
                 $out = $this->ctrl->forwardCommand($gui);
@@ -429,8 +428,8 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
                     case self::CMD_REDRAW_HEADER:
                         $this->redrawHeaderActionObject();
                         break;
-                        
-                    // This is a temporary implementation (Mantis Ticket 36631)
+
+                        // This is a temporary implementation (Mantis Ticket 36631)
                     case self::CMD_ENABLE_ADMINISTRATION_PANEL:
                         $tpl->setOnScreenMessage("failure", $this->lng->txt('lso_multidownload_not_available'), false);
                         $this->manageContent();
@@ -500,10 +499,10 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
             $this->ctrl,
             $this->lng,
             $this->tpl,
-            $this->obj_service,
-            $this->post_wrapper,
             $this->refinery,
-            $this->toolbar
+            $this->ui_factory,
+            $this->ui_renderer,
+            $this->request
         );
         $this->ctrl->setCmd($cmd);
         $this->ctrl->forwardCommand($gui);
@@ -540,7 +539,7 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
             $this->post_wrapper,
             $this->refinery,
             $this->ui_factory,
-            $this->ui_renderer,
+            $this->ui_renderer
         );
         $this->ctrl->setCmd($cmd);
         $this->ctrl->forwardCommand($gui);
@@ -583,7 +582,8 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
             $this->toolbar,
             $this->request_wrapper,
             $this->post_wrapper,
-            $this->refinery
+            $this->refinery,
+            $this->ui_factory
         );
 
         $this->ctrl->setCmd($cmd);
@@ -740,9 +740,12 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
         }
     }
 
+    /**
+     * Redirects to Manage Content to make deletion screen work.
+     */
     public function renderObject(): void
     {
-        // disables this method in ilContainerGUI
+        $this->manageContent();
     }
 
 
@@ -836,17 +839,6 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
         return rawurlencode(base64_encode($link));
     }
 
-    public function getObject(): ilObjLearningSequence
-    {
-        if ($this->object === null) {
-            /** @var ilObjLearningSequence $obj */
-            $obj = ilObjLearningSequence::getInstanceByRefId($this->ref_id);
-            $this->object = $obj;
-        }
-
-        return $this->object;
-    }
-
     protected function getTrackingObject(): ilObjUserTracking
     {
         return new ilObjUserTracking();
@@ -874,14 +866,14 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
     }
 
     /**
-     * append additional types to ilRepositoryExplorerGUI's whitelist
+     * append additional types to ilRepositoryExplorerGUI's positive list
      * @return int[]|string[]
      */
-    protected function getAdditionalWhitelistTypes(): array
+    protected function getAdditionalOKTypes(): array
     {
         return array_filter(
             array_keys($this->obj_definition->getSubObjects('lso', false)),
-            fn ($type) => $type !== 'rolf'
+            fn($type) => $type !== 'rolf'
         );
     }
 
@@ -908,26 +900,6 @@ class ilObjLearningSequenceGUI extends ilContainerGUI implements ilCtrlBaseClass
     {
         $gui = new ilObjectAddNewItemGUI($this->object->getRefId());
         $gui->render();
-    }
-
-    /**
-    * ATTENTION: This mostly is a copy of `ilObjectGUI::confirmDeleteObject`, but does not
-    * redirect to parent afterwards, because we are, in fact, the parent.
-    */
-    public function confirmedDeleteObject(): void
-    {
-        if ($this->post_wrapper->has("mref_id")) {
-            $mref_id = $this->post_wrapper->retrieve(
-                "mref_id",
-                $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
-            );
-            $_SESSION["saved_post"] = array_unique(array_merge($_SESSION["saved_post"], $mref_id));
-        }
-
-        $ru = new ilRepositoryTrashGUI($this);
-        $ru->deleteObjects($this->requested_ref_id, ilSession::get("saved_post") ?? []);
-        ilSession::clear("saved_post");
-        $this->ctrl->redirect($this, self::CMD_CONTENT);
     }
 
     protected function enableDragDropFileUpload(): void

@@ -1,11 +1,28 @@
 <?php
 
+<<<<<<< HEAD
+=======
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+>>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Decorator;
 
-use DateTime;
-use ilFileUtils;
 use ILIAS\Data\DataSize;
 use ILIAS\Filesystem\Exception\DirectoryNotFoundException;
 use ILIAS\Filesystem\Exception\IOException;
@@ -15,50 +32,19 @@ use ILIAS\Filesystem\Security\Sanitizing\FilenameSanitizer;
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\Filesystem\Visibility;
 
-/******************************************************************************
- *
- * This file is part of ILIAS, a powerful learning management system.
- *
- * ILIAS is licensed with the GPL-3.0, you should have received a copy
- * of said license along with the source code.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- *      https://www.ilias.de
- *      https://github.com/ILIAS-eLearning
- *
- *****************************************************************************/
 /**
- * Class FilesystemWhitelistDecorator
- *
  * The filesystem white list decorator rewrites forbidden file
  * endings and delegates the rest of the operation to the concrete filesystem
  * implementation which is wrapped by the decorator.
  *
- * @package ILIAS\Filesystem\Decorator
- *
- * @author  Nicolas Schäfli <ns@studer-raimann.ch>
- * @version 1.0.0
- * @since   5.3.4
+ * @author                 Nicolas Schäfli <ns@studer-raimann.ch>
+ * @author                 Fabian Schmid <fabian@sr.solutions>
  */
 final class FilesystemWhitelistDecorator implements Filesystem
 {
-    private Filesystem $filesystem;
-    private FilenameSanitizer $sanitizer;
-
-
-    /**
-     * FilesystemWhitelistDecorator constructor.
-     *
-     * @param Filesystem        $filesystem
-     * @param FilenameSanitizer $sanitizer
-     */
-    public function __construct(Filesystem $filesystem, FilenameSanitizer $sanitizer)
+    public function __construct(private Filesystem $filesystem, private FilenameSanitizer $sanitizer)
     {
-        $this->filesystem = $filesystem;
-        $this->sanitizer = $sanitizer;
     }
-
 
     /**
      * @inheritDoc
@@ -68,7 +54,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         return $this->filesystem->hasDir($path);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -77,7 +62,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         return $this->filesystem->listContents($path, $recursive);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -85,7 +69,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
     {
         $this->filesystem->createDir($path, $visibility);
     }
-
 
     /**
      * @inheritDoc
@@ -99,20 +82,22 @@ final class FilesystemWhitelistDecorator implements Filesystem
 
         //foreach file and dir
         foreach ($contentList as $content) {
-
             //ignore the directories and only copy the files
             if ($content->isFile()) {
-
                 //create destination path
                 $position = strpos($content->getPath(), $source);
                 if ($position !== false) {
-                    $destinationFilePath = substr_replace($content->getPath(), $destination, $position, strlen($source));
+                    $destinationFilePath = substr_replace(
+                        $content->getPath(),
+                        $destination,
+                        $position,
+                        strlen($source)
+                    );
                     $this->copy($content->getPath(), $destinationFilePath);
                 }
             }
         }
     }
-
 
     /**
      * @inheritDoc
@@ -122,7 +107,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         $this->filesystem->deleteDir($path);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -130,7 +114,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
     {
         return $this->filesystem->read($path);
     }
-
 
     /**
      * @inheritDoc
@@ -140,7 +123,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         return $this->filesystem->has($path);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -148,7 +130,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
     {
         return $this->filesystem->getMimeType($path);
     }
-
 
     /**
      * @inheritDoc
@@ -158,18 +139,20 @@ final class FilesystemWhitelistDecorator implements Filesystem
         return $this->filesystem->getTimestamp($path);
     }
 
-
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function getSize(string $path, int $fileSizeUnit): DataSize
+=======
+    public function getSize(string $path, int $unit): DataSize
+>>>>>>> v9.1
     {
         return $this->filesystem->getSize(
             $path,
-            $fileSizeUnit
+            $unit
         );
     }
-
 
     /**
      * @inheritDoc
@@ -182,7 +165,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         );
     }
 
-
     /**
      * @inheritDoc
      */
@@ -190,7 +172,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
     {
         return $this->filesystem->getVisibility($path);
     }
-
 
     /**
      * @inheritDoc
@@ -200,7 +181,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         return $this->filesystem->readStream($path);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -208,7 +188,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
     {
         $this->filesystem->writeStream($this->sanitizer->sanitize($path), $stream);
     }
-
 
     /**
      * @inheritDoc
@@ -218,7 +197,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         $this->filesystem->putStream($this->sanitizer->sanitize($path), $stream);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -226,7 +204,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
     {
         $this->filesystem->updateStream($this->sanitizer->sanitize($path), $stream);
     }
-
 
     /**
      * @inheritDoc
@@ -236,7 +213,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         $this->filesystem->write($this->sanitizer->sanitize($path), $content);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -244,7 +220,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
     {
         $this->filesystem->update($this->sanitizer->sanitize($path), $new_content);
     }
-
 
     /**
      * @inheritDoc
@@ -254,7 +229,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         $this->filesystem->put($this->sanitizer->sanitize($path), $content);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -263,7 +237,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         $this->filesystem->delete($path);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -271,7 +244,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
     {
         return $this->filesystem->readAndDelete($path);
     }
-
 
     /**
      * @inheritDoc
@@ -284,7 +256,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         );
     }
 
-
     /**
      * @inheritDoc
      */
@@ -296,7 +267,6 @@ final class FilesystemWhitelistDecorator implements Filesystem
         );
     }
 
-
     /**
      * Ensures that the given path does not exist or is empty.
      *
@@ -306,18 +276,16 @@ final class FilesystemWhitelistDecorator implements Filesystem
      */
     private function ensureEmptyDirectory(string $path): void
     {
-
         //check if destination dir is empty
         try {
             $destinationContent = $this->listContents($path, true);
-            if (count($destinationContent) !== 0) {
+            if ($destinationContent !== []) {
                 throw new IOException("Destination \"$path\" is not empty can not copy files.");
             }
-        } catch (DirectoryNotFoundException $ex) {
+        } catch (DirectoryNotFoundException) {
             //nothing needs to be done the destination was not found
         }
     }
-
 
     /**
      * Checks if the directory exists.

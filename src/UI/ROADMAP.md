@@ -9,32 +9,9 @@ acts as a notepad for information that comes up during day to day work with the
 framework, discussions, etc. It may act as a source for new tasks. The sections
 are explained in [Usage](#usage).
 
-
 ## Short Term
 
-### All UI-Elements Step 1
-
-The UI-Framework attempts to be the source for all visual elements in ILIAS and
-thus supersede the current templating. The challenge is two-fold: on the one hand
-the required elements need to be implemented in the UI-framework, on the other
-hand the Components need to use the UI-framework for their actual rendering. 
-
-Not all Components have the same priority. Highest on our list are Components that 
-are needed on every screen to render ILIAS with an empty content section (such as Tabs). 
-Next are Components, that are needed in many use cases and therefore have a very high
-grade of re-use (such as the Toolbar). Due to major work done for ILIAS 6, such as the Standard Layout 
-Component, Meta Bar and Main Bar we are now able to promote further Components to our list of short 
-term tasks, see below. Note that the names given here, are only the names of the task and must not necessarily 
-reflect the names of the resulting Components. 
-
-Further note that we desperately search developers and UX designers willing
-to work creating those missing Components. If you are interested, drop a mail to the
-coordinators, so they can get you geared up for the work. For all Components we highly
-recommend starting with a Workshop with the UI Components coordinators to align various visions
-and concepts of the given Component. The following items have the highest priority on 
-our list of short term tasks.
-
-#### Outer Content (advanced, variable)
+### Outer Content (advanced, variable)
 This Component is basically what could be hooked into the [Standard Layout](Component/Layout/Page/Factory.php) as
 content (currently provided as array of Legacy Components). Most Probably it should be able to hold the title section 
 (not yet part of the UI Components, see below), the Tabs (not yet Part of the UI Components, see below) and the
@@ -42,7 +19,7 @@ Inner Content holding the workspace for the current context (not yet Part of the
 
 Note; One important aspect here, will be to clarify at some point the relation to the [Global Screen](../GlobalScreen). 
 
-#### Title Section (advanced, variable)
+### Title Section (advanced, variable)
 This Component will probably hold the Icon, title, description and the actions (maybe along with the used glyphs) of the 
 current context. Note that a major part of the work for this components will be to setup a comprehensive set of rules on 
 when to provide an Icon, restrictions of the Title (lengths, nouns vs verbs etc.), restrictions of the description 
@@ -50,9 +27,11 @@ when to provide an Icon, restrictions of the Title (lengths, nouns vs verbs etc.
 subjects: [Feature Wiki](https://docu.ilias.de/goto_docu_wiki_wpage_6080_1357.html). 
 However, this has not been decided yet and is thus most certainly up for discussion.
 
-Note; One important aspect here, will be to clarify at some point the relation to the [Global Screen](../GlobalScreen). 
+Note; One important aspect here, will be to clarify at some point the relation to the [Global Screen](../GlobalScreen).
 
-#### Tabs and Sub Tabs (advanced, variable)
+The need for a title section component was also discovered while discussing [this PR for the Test & Assessment kiosk mode header](https://github.com/ILIAS-eLearning/ILIAS/pull/7311). This shows that there are use cases beyond the content page title and actions that should be taken into account. Maybe the UI Entity could serve as inspiration for how properties and actions in a title sections could be arranged with effective visual weighting by relevance and semantic grouping.
+
+### Tabs and Sub Tabs (advanced, variable)
 Note that a major part of the work for this Components will be to setup a comprehensive set of rules on the naming of 
 Tabs and Sub Tabs (noun vs verbs, length, amount of words etc.) and rules for the usage of Tabs vs Sub Tabs vs Sections
 in Forms shown in Tabs. Also, one would have to look into the issue that currently "<-- Back" actions are mixed into 
@@ -60,15 +39,15 @@ the Tabs. We will need to decide, whether we will still use this concept in the 
 
 Note; One important aspect here, will be to clarify at some point the relation to the [Global Screen](../GlobalScreen). 
 
-#### Inner Content
+### Inner Content
 This will most probably mainly contain an array of Components used in the Content Section. An interesting 
 point here will be the question, whether this Component should also offer something like withToolbar, to make sure 
 only one or no Toolbar can be provided and whether there would be different types of Inner Content Components (such as 
 one with a Sidebar).
 
-#### Toolbar
-This Component will probably need to be designed as new Input Container. An important part of the work here will be to 
-devise a set of rules of what the toolbar should be used for and what not.
+### Toolbar
+The Toolbar is currently in discussion (link to paper) and it is very plausibel that we find altnerntive places for all elements currently in it.
+Therefore we are not sure, if there will ever be something like the toolbar in the UI Components.
 
 ### Simple usage of demo-page in examples  (beginner, ~4h)
 To show how a UI-Component looks like in the page context (esp. for 
@@ -103,7 +82,7 @@ data in the existing inputs. It should also show a message that says why the dat
 was not processed and that the user should check the input again. A mechanism
 like this will become even more valuable once we want to process forms asynchronously.
 
-### Propose Context Parameter for Escaping on ilTemplate::setVariable (advanced, ~8h)
+### Propose Context Parameter for Escaping on ilTemplate::setVariable (advanced, ~8h to unknown)
 
 Currently there is no generalized way to handle escaping when outputting text.
 In the long-term we would like to switch to a templating engine that is aware
@@ -114,32 +93,7 @@ The contexts should e.g. be "html", "html-attribute", "js-string". Depending on
 feedback from other devs, we could either default to a very strict context that
 escapes a lot, or to a context that does not escape and a dicto-rule.
 
-### Add mutators to Counter (beginner, ~1h)
-
-Currently, counters (for Glyphs, e.g.) are constructed with a numeric value;
-there is a getter for this number, but in order to increase the value, one has
-to construct a new Counter.
-It would be handy to have a "withNumber"-mutator, or something like
-"withIncrease/withDecrease"
-
-### Implement `Input::getUpdateOnLoadCode`, `Input::withOnUpdate` and `Input::appendOnUpdate` for every Input (advanced, ~4h)
-
-When introducing [UI Filters](https://github.com/ILIAS-eLearning/ILIAS/pull/1735)
-some ends have been left open and need to be implemented properly. Currently
-`withOnUpdate` and `appendOnUpdate` do not work on Inputs in the general case and
-only work for `Select Field` and `Text Field` in the context of the filter. To
-let the promise of `OnUpdate` come true, the following things will need to be done:
-
-* Every Input needs to implement `Input::getUpdateOnLoadCode`.
-* Once this is done, the method `Input::getUpdateOnLoadCode` on the base class
-should be removed to force new inputs to implement this method properly.
-* The usage of the method should be moved from the (specific) `Container\Filter\Renderer`
-to the (general) `Field\Renderer` to make `OnUpdate` apply everywhere.
-* `Input::withOnUpdate` and `Input::appendOnUpdate` can then be reinstated on the
-base class and removed on `Field\Select` and `Field\Text`.
-* `Group::withOnUpdate` can use `parent::withOnUpdate` then.
-
-New inputs must already implement the methods.
+Another maybe even better solution might be to exchange to templating engine completely.
 
 ### Create a `Group`-family in `Input\Field` (beginner, ~2h)
 
@@ -148,49 +102,10 @@ are created with methods that share the "group"-suffix. This is a exemplary case
 for the introduction of a new 'Group` family within `Input\Field`, with its own
 description, factory, renderer, directory...
 
-### Improvement of Persistent Node States in `Tree` (advanced)
-
-Currently there is no centralized approach to enhance `TreeRecursion` instances or
-`Node` elements with persistence capabilities for the purpose of storing the state
-(collapsed/expanded) of a `Node`.
-With ILIAS 6 a first low-level approach was introduced in
-[`ilTreeExplorerGUI`](../../Services/UIComponent/Explorer2/classes/class.ilTreeExplorerGUI.php#L444),
-which enables derivatives to
-[specify a `ilCtrl` route](../../Services/Mail/classes/class.ilMailExplorer.php#L87) used
-as action for node state HTTP POST requests. This requests can be processed in the
-client/consumer and delegated to the `ilTreeExplorerGUI` by calling
-[`toggleExplorerNodeState`](../..Services/Mail/classes/class.ilMailGUI.php#L288)
-on the explore instance.
-This should be moved to a centralized position, e.g. Services/UI.
-
 ### Remove Snake Cases Functions for Tests (beginner, ~2h)
 
 There are several tests still using snake cases as function names, remove it.
 See also: https://github.com/ILIAS-eLearning/ILIAS/pull/2299
-
-### Slates only accept string for titles (beginner, ~2h)
-
-In some cases (e.g. see Item Slate aggregates) it would be good for slate titles
-to also accept buttons. We should extend that.
-
-### Footer should not use an input (beginner)
-
-In the footer's template, an input-tag in cconunction with some inline-js is 
-used to display the perma-link. This should be substituted by a non-input 
-block-element, respectively an UI-Component on its own.
-
-### Turn View Controls into View Control Inputs (advanced)
-
-View Controls actually are more like Inputs and should be treated that way.
-They accordingly should be implemented as Input\ViewControl\ViewControl.
-Finally, when consumers are adapted, ViewControl can be removed from UI's root
-entirely.
-
-#### View Control Inputs to be created (moved):
-* Mode View Control Input
-* Pagination View Control Input
-* Section View Control Input
-* Sortation View Control Input
 
 ### Enforce (Aria-)Labels for Icons and Glyphs (beginner)
 In src/GlobalScreen/Scope/MainMenu/Factory/hasSymbolTrait.php, e.g., as well as in
@@ -269,6 +184,57 @@ field. Also, we already have a DateTimeImmutable on many occasions, why cast it
 down to string to later cast it up again? The change should be covered by a lot
 of tests, so little risk there only.
 
+### Restructure Tree Nodes and rename "label" to "title"/"key" (beginner, ~4h)
+
+What is currently the "label" of a tree node should instead be called
+"title" (for simple and bylined nodes) or "key" (for keyValue nodes),
+since the nodes are literally labelled by the sum total of their icon,
+optionally byline or value, and "label", and not just the
+"label" alone.
+
+For this purpose, the inheritance from simple nodes to keyValue and bylined
+nodes should be removed. To avoid unnecessary re-implementations of the
+nodes' icons, links and async loading, it might be preferable to introduce
+these 3 aspects as traits, so that they can be included easily into all
+(present and future) types of nodes without forcing odd inheritances between
+them.
+
+### Revise Modals of DataTable
+
+DataTable allows for asynch Actions and will accept Modals or MessageBoxes as
+response. The response will be opened in a Modal NOT using the Modal-Component's
+template and asynch-mechanisms, but rather inject the HTML/JS in its own template
+(see tpl.datatable.html, datatable.clas.js::asyncAction).
+The DataTable should fully use UI\Component\Modal.
+
+### Revise UploadHandlers (beginner, ~1d)
+
+There is a method `supportsChunckedUpload()` which should be removed and made mandatory
+for all implementations, meaning every implementation should be able to handle chunked
+uploads. This has been avoided due to touching many implementations, of which also many
+are not yet using the IRSS and most likely need special care. However, the concept is rather
+trivial and can be implemented in a generic way, so implementations can reuse it. As long
+as this task is unfinished, there is no guarantee that larger files than the PHP-limit can
+be uploaded, which makes some features like upload-policies unusable.
+
+In addition, the `UploadHandler` interface contains methods which are not required anymore
+and can be safely removed (along with their implementations): `getExistingFileInfoURL()`,
+`getInfoForExistingFiles()`, and `getInfoResult()`.
+
+### Move JS of Input/Container/ViewControls to proper modules [beginner, 8h]
+
+Currently the JS-code of Input/Container/ViewControls is located in the according
+renderer and untested. The code should be moved out of the renderer and be located
+in properly structured JS-modules. And of course it should be tested by automated
+tests as well.
+
+### Add Information of anticipated datatypes to Table/Column
+When applying records to a row, the cells (Columns) expect an input of a certain type;
+however, this cannot be (or currently is not) PHP-typehinted.
+The Column Factory should give information as to which types are to be used with
+the respective Column.
+
+
 ## Long Term
 
 ### Make Constraint in Tag Input Field work again
@@ -297,14 +263,6 @@ used as the only visual means of conveying information"](https://github.com/ILIA
 However, a quick fix seems not to be possible atm, because there also is no other
 means to convey the notion of (in-)activity for a general Glyph, or even only the
 specific Notification Glyph.
-
-### Tooltips and Tooltippable
-
-Tooltips are currently not yet implemented as UI components. Since 
-probably many UI components have or will have tooltips, the introduction
- of a tooltippable interface should be discussed. This interface can
-  easily receive tooltips (either as a UI component or much simpler as
-   text) and can be implemented for all relevant UI components.
 
 ### Remove special case for UI-demo in `Implement\Layout\Page\Renderer::setHeaderVars`
 
@@ -408,6 +366,66 @@ laying (too much) work on the shoulders of Global Screen, Notification Slate and
 However, just building such a UI Component, would not do the trick. This needs
 to go hand in hand with a proper discussion on what a Notification Center should be
 and do for us. Current state, see: [FR: Notification Center](https://docu.ilias.de/goto_docu_wiki_wpage_5118_1357.html).
+
+### Introduce Modal Content component (beginner/advanced)
+
+Currently, Modals combine two things: Presentation of content and opening an
+overlay layer. With the separation of those we will gain several advantages:
+- the content-part could be more specific, as there should be variants for the
+  intended purpose/content
+- content-parts might be used without the modal; e.g., on mobile devices, you might
+  just want to change the page instead of using overlays
+- Modals could allow further Components as content by simply adding the Interface
+  For example, the Message Boxes are a good candidate
+- the content parts might be retrieved via AJAX-calls (and thus be build according 
+  to runtime-parameters)
+Especially (but not only) with the DataTable's async-Actions, this would allow to 
+better control the responses.
+
+### Improve async Modals(beginner/advanced)
+
+Along with the separation of Modal-layer and its contents (see above), the asynch
+abilities of Modals should be improved; it should be possible:
+- to replace the contents only (in order to stay in contexts of ids and JS)
+- alter the target-URL of the RPC-call by a previous response
+- probably alter the Labels and functions of Buttons
+
+### Exchange webui-popover library (advanced)
+
+The current webui-popover library by Sandy Duan wasn't updated for quite a while now, 
+therefore it should get exchanged. 
+
+Following tasks have to be done:
+- researching which library should be used in the future
+- researching wich ILIAS elements will be affected from the changes (e.g. UI popover)
+- exchange the library
+- adjust/customize the code accordingly to make sure that the ILIAS elements are working
+
+Preconditions:
+- if possible a documentary should be available
+- regulary updates from the author(s) are available
+- adjustments from ILIAS developers should be possible
+- there should be no jQuery dependency
+
+Following advantages will be gained:
+- being able to get security fixes, bug fixes and adjustments from the author(s)
+- being able to use modern code
+- getting rid of some jQuery dependencies as it was decided to avoid those
+
+Note: the package can be found in the node_modules directory. With ILIAS 10 it will be found in the public/node_modules directory.
+
+### Add Accessibility for UI Input "Button" > "Month"
+
+The DateTime Input Field was adjusted to HTML5 to make accessibility possible. The UI
+Input field for Duration uses those changes too. The JavaScript Bootstrap DateTimePicker
+files could not be deleted, because the UI Input Button "Month" still uses this library.
+There's currently no HTML5 Picker for that scenario available - the input type "month" in HTML5
+acts like a text type field. We need a accessible Input Button field "Month".
+
+Following tasks have to be done:
+- creating and diskussing a concept
+- implementing the solution after the concept got approved
+
 
 ## Ideas and Food for Thought
 

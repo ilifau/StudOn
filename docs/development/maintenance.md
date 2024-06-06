@@ -20,19 +20,19 @@ in the development guide.
 
 Communication among developers that are working on a specific component needs to be assured. Final decision about
 getting write access to the ILIAS development system (Github) is handled by the product manager.
-
+ 
 ILIAS is currently maintained by two types of maintainerships:
 
 - **Classic Model** with First Maintainer and sometimes Second Maintainer
 - **[Coordinator Model](https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/maintenance-coordinator.md)**
-
-The following rules must be respected for everyone involved in the programming of ILIAS for all components having a
+ 
+The following rules must be respected for everyone involved in the programming of ILIAS for all components having a 
 listed component maintainer (see below):
 
-1. Decisions on new features or feature removals are made by the responsible first maintainer and the product manager
-   in the Jour Fixe meetings after an open discussion.
-2. Components under the Classic Model have a first and sometimes second maintainer. Code changes are usually done by the first maintainer. The first
-   maintainer may forward new implementations to the second maintainer.
+1. Decisions on new features or feature removals are made by the responsible first maintainer and the product manager 
+in the Jour Fixe meetings after an open discussion.
+2. Components under the Classic Model have a first and sometimes second maintainer. Code changes are usually done by the first maintainer. The first 
+maintainer may forward new implementations to the second maintainer.
 
 Responsibilities of a component maintainer:
 
@@ -55,8 +55,8 @@ for a new maintainer by the company of the old maintainer will be preferred, if 
 substantially in the general condition of the component and the proposed maintainer meets the criteria.
 
 ## Implicit Maintainers
-If a component is currently unmaintained, a developer can take responsibility for it without agreeing to give full support.
-An implicit maintainer will get assigned related bugs automatically and will keep the component working through the update cycle.
+If a component is currently unmaintained, a developer can take responsibility for it without agreeing to give full support. 
+An implicit maintainer will get assigned related bugs automatically and will keep the component working through the update cycle. 
 S/he will not implement new features or develop the component further. If enhancements of the component are wanted, an
 explicit maintainer or coordinator must be assigned.
 
@@ -66,7 +66,7 @@ A maintainer can pass certain of her/his competences to other people in the comm
 * The **competence to handle pull requests** including the rights to merge or close them.
 * The **competence to handle issues in Mantis** including the rights to relable, reassign, close, or reopen them.
 
-If nobody is fulfilling the responsibilities of the component maintainer, the Product Manager together with the Technical Board
+If nobody is fulfilling the responsibilities of the component maintainer, the Product Manager together with the Technical Board 
 can look for members of the community and assign these competences to them.
 
 ## Tracking Maintainerships
@@ -100,7 +100,7 @@ file containes the following fields:
 
 * **ActiveRecord**
 	* Maintenance Model: Classic
-	* 1st Maintainer: [fschmid](https://docu.ilias.de/goto_docu_usr_21087.html)
+    * 1st Maintainer: [fschmid](https://docu.ilias.de/goto_docu_usr_21087.html)
 	* 2nd Maintainer: N.A.
 	* Testcases: [AUTHOR MISSING](https://docu.ilias.de/goto_docu_pg_64423_4793.html)
 	* Tester: [TESTER MISSING](https://docu.ilias.de/goto_docu_pg_64423_4793.html)
@@ -359,6 +359,17 @@ file containes the following fields:
 	* Tester: [mona.schliebs](https://docu.ilias.de/goto_docu_usr_60222.html)
 
 [//]: # (END DataCollection)
+
+[//]: # (BEGIN DataProtection)
+
+* **Data Protection**
+	* Maintenance Model: Classic
+	* 1st Maintainer: [mjansen](https://docu.ilias.de/goto_docu_usr_8784.html)
+	* 2nd Maintainer: [lscharmer](https://docu.ilias.de/goto_docu_usr_87863.html)
+	* Testcases: [AUTHOR MISSING](https://docu.ilias.de/goto_docu_pg_64423_4793.html)
+	* Tester: [TESTER MISSING](https://docu.ilias.de/goto_docu_pg_64423_4793.html)
+
+[//]: # (END DataProtection)
 
 [//]: # (BEGIN Database)
 
@@ -646,6 +657,17 @@ file containes the following fields:
 
 [//]: # (END LearningSequence)
 
+[//]: # (BEGIN LegalDocuments)
+
+* **Legal Documents**
+	* Maintenance Model: Classic
+	* 1st Maintainer: [mjansen](https://docu.ilias.de/goto_docu_usr_8784.html)
+	* 2nd Maintainer: [lscharmer](https://docu.ilias.de/goto_docu_usr_87863.html)
+	* Testcases: [AUTHOR MISSING](https://docu.ilias.de/goto_docu_pg_64423_4793.html)
+	* Tester: [TESTER MISSING](https://docu.ilias.de/goto_docu_pg_64423_4793.html)
+
+[//]: # (END LegalDocuments)
+
 [//]: # (BEGIN Like)
 
 * **Like**
@@ -900,17 +922,6 @@ file containes the following fields:
 
 [//]: # (END PersonalAndSharedResources)
 
-[//]: # (BEGIN PersonalProfile)
-
-* **Personal Profile**
-	* Maintenance Model: Classic
-	* 1st Maintainer: [akill](https://docu.ilias.de/goto_docu_usr_149.html)
-	* 2nd Maintainer: N.A.
-	* Testcases: [Fabian](https://docu.ilias.de/goto_docu_usr_27631.html)
-	* Tester: [Fabian](https://docu.ilias.de/goto_docu_usr_27631.html)
-
-[//]: # (END PersonalProfile)
-
 [//]: # (BEGIN Poll)
 
 * **Poll**
@@ -928,7 +939,8 @@ file containes the following fields:
 	* Maintenance Model: Classic
 	* 1st Maintainer: [akill](https://docu.ilias.de/goto_docu_usr_149.html)
 	* 2nd Maintainer: N.A.
-	* Testcases: [ezenzen](https://docu.ilias.de/goto_docu_usr_42910.html)
+	* Testcases Portfolio: [ezenzen](https://docu.ilias.de/goto_docu_usr_42910.html)
+ 	* Testcases Portfolio Template: N.A. 
 	* Tester Portfolio: [KlausVorkauf](https://docu.ilias.de/goto_docu_usr_5890.html)
 	* Tester Portfolio Template: [TESTER MISSING](https://docu.ilias.de/goto_docu_pg_64423_4793.html)
 
@@ -960,7 +972,8 @@ file containes the following fields:
 
 * **RBAC / Access Control**
 	* Maintenance Model: Classic
-	* 1st Maintainer: [fawinike](https://docu.ilias.de/goto_docu_usr_44474.html)
+    * 1st Maintainer: [fawinike](https://docu.ilias.de/goto_docu_usr_44474.html)
+	* Until ILIAS 8: [smeyer](https://docu.ilias.de/goto_docu_usr_191.html)
 	* 2nd Maintainer: N.A.
 	* Testcases: [kunkel](https://docu.ilias.de/goto_docu_usr_115.html)
 	* Tester: [kunkel](https://docu.ilias.de/goto_docu_usr_115.html)
@@ -1131,16 +1144,16 @@ file containes the following fields:
 
 [//]: # (END Taxonomy)
 
-[//]: # (BEGIN TermsOfServices)
+[//]: # (BEGIN TermsOfService)
 
-* **Terms of Services**
+* **Terms of Service**
 	* Maintenance Model: Classic
 	* 1st Maintainer: [mjansen](https://docu.ilias.de/goto_docu_usr_8784.html)
-	* 2nd Maintainer: N.A.
+	* 2nd Maintainer: [lscharmer](https://docu.ilias.de/goto_docu_usr_87863.html)
 	* Testcases: Stefania Akgül (CaT)
 	* Tester: Heinz Winter (CaT)
 
-[//]: # (END TermsOfServices)
+[//]: # (END TermsOfService)
 
 [//]: # (BEGIN TestAndAssessment)
 
@@ -1151,11 +1164,8 @@ file containes the following fields:
 	* Testcases: SIG E-Assessment
 	* Tester: Stefania Akgül (CaT), Stefanie Allmendinger (FAU)
 	  , [dehling](https://docu.ilias.de/goto_docu_usr_12725.html)
-	  , [kderr](https://docu.ilias.de/goto_docu_usr_28900.html)
-	  , [sdittebrand](https://docu.ilias.de/goto_docu_usr_77841.html)
-	  , [ioanna.mitroulaki](https://docu.ilias.de/goto_docu_usr_72564.html)
-	  , [rabah](https://docu.ilias.de/goto_docu_usr_40218.html)
-	  , [vreuschen](https://docu.ilias.de/goto_docu_usr_14382.html)
+          , [simon.lowe](https://docu.ilias.de/goto_docu_usr_79091.html)
+	  , [rabah](https://docu.ilias.de/goto_docu_usr_40218.html)	
 
 [//]: # (END TestAndAssessment)
 

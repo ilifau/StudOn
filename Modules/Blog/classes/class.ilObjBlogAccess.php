@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * Class ilObjBlogAccess
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
@@ -53,7 +55,7 @@ class ilObjBlogAccess extends ilObjectAccess
         $t_arr = explode("_", $target);
 
         if (substr($target, -3) === "wsp") {
-            return ilSharedResourceGUI::hasAccess($t_arr[1]);
+            return ilSharedResourceGUI::hasAccess((int) $t_arr[1]);
         }
 
         if ($t_arr[0] !== "blog" || ((int) $t_arr[1]) <= 0) {
@@ -61,8 +63,8 @@ class ilObjBlogAccess extends ilObjectAccess
         }
 
         // #12648
-        if ($ilAccess->checkAccess("read", "", $t_arr[1]) ||
-            $ilAccess->checkAccess("visible", "", $t_arr[1])) {
+        if ($ilAccess->checkAccess("read", "", (int) $t_arr[1]) ||
+            $ilAccess->checkAccess("visible", "", (int) $t_arr[1])) {
             return true;
         }
         return false;

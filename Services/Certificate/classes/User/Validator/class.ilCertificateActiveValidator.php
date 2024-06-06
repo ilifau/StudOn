@@ -23,8 +23,8 @@ declare(strict_types=1);
  */
 class ilCertificateActiveValidator
 {
-    private ilSetting $setting;
-    private ilRPCServerSettings $rpcSettings;
+    private readonly ilSetting $setting;
+    private readonly ilRPCServerSettings $rpcSettings;
 
     public function __construct(?ilSetting $setting = null, ?ilRPCServerSettings $rpcSettings = null)
     {
@@ -43,16 +43,10 @@ class ilCertificateActiveValidator
     {
         $globalCertificateActive = (bool) $this->setting->get('active', '0');
 
-        if (false === $globalCertificateActive) {
+        if (!$globalCertificateActive) {
             return false;
         }
 
-        $serverActive = $this->rpcSettings->isEnabled();
-
-        if (false === $serverActive) {
-            return false;
-        }
-
-        return true;
+        return $this->rpcSettings->isEnabled();
     }
 }

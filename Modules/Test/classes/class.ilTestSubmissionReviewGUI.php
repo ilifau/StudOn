@@ -16,6 +16,10 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\UI\Component\Modal\Interruptive as InterruptiveModal;
+
 /**
  * Class ilTestSubmissionReviewGUI
  *
@@ -26,17 +30,13 @@
  */
 class ilTestSubmissionReviewGUI extends ilTestServiceGUI
 {
-    /** @var ilTestOutputGUI */
-    protected $testOutputGUI = null;
+    private ?InterruptiveModal $finish_test_modal = null;
 
-    /** @var \ilTestSession */
-    protected $testSession;
-
-    public function __construct(ilTestOutputGUI $testOutputGUI, ilObjTest $testOBJ, ilTestSession $testSession)
-    {
-        $this->testOutputGUI = $testOutputGUI;
-        $this->testSession = $testSession;
-
+    public function __construct(
+        protected ilTestOutputGUI $test_output_gui,
+        ilObjTest $testOBJ,
+        protected ilTestSession $testSession
+    ) {
         parent::__construct($testOBJ);
     }
 
@@ -58,14 +58,6 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
     protected function dispatchCommand()
     {
         switch ($this->ctrl->getCmd()) {
-            case 'pdfDownload':
-
-                if ($this->object->getShowExamviewPdf()) {
-                    $this->pdfDownload();
-                }
-
-                break;
-
             case 'show':
             default:
 
@@ -96,55 +88,36 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
      */
     protected function buildToolbar($toolbarId): ilToolbarGUI
     {
-        require_once 'Modules/Test/classes/class.ilTestPlayerCommands.php';
-        require_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
-        require_once 'Services/UIComponent/Button/classes/class.ilLinkButton.php';
-        require_once 'Services/UIComponent/Button/classes/class.ilButton.php';
-
         $toolbar = new ilToolbarGUI();
         $toolbar->setId($toolbarId);
 
-        $backUrl = $this->ctrl->getLinkTarget(
-            $this->testOutputGUI,
+        $back_url = $this->ctrl->getLinkTarget(
+            $this->test_output_gui,
             $this->object->getListOfQuestionsEnd() ?
             ilTestPlayerCommands::QUESTION_SUMMARY : ilTestPlayerCommands::BACK_FROM_FINISHING
         );
 
-        $button = ilLinkButton::getInstance();
-        $button->setCaption('btn_previous');
-        $button->setUrl($backUrl);
-        $toolbar->addButtonInstance($button);
+        $toolbar->addComponent(
+            $this->ui_factory->button()->standard($this->lng->txt('tst_resume_test'), $back_url)
+        );
 
-        if ($this->object->getShowExamviewPdf()) {
-            $pdfUrl = $this->ctrl->getLinkTarget($this, 'pdfDownload');
-
-            $button = ilLinkButton::getInstance();
-            $button->setCaption('pdf_export');
-            $button->setUrl($pdfUrl);
-            $button->setTarget(ilButton::FORM_TARGET_BLANK);
-            $toolbar->addButtonInstance($button);
+        if ($this->finish_test_modal === null) {
+            $class = get_class($this->test_output_gui);
+            $this->ctrl->setParameterByClass($class, 'reviewed', 1);
+            $this->finish_test_modal = $this->test_output_gui->buildFinishTestModal();
+            $this->ctrl->setParameterByClass($class, 'reviewed', 0);
         }
 
-        $this->ctrl->setParameter($this->testOutputGUI, 'reviewed', 1);
-        $nextUrl = $this->ctrl->getLinkTarget($this->testOutputGUI, ilTestPlayerCommands::FINISH_TEST);
-        $this->ctrl->setParameter($this->testOutputGUI, 'reviewed', 0);
-
-        $button = ilLinkButton::getInstance();
-        $button->setPrimary(true);
-        $button->setCaption('btn_next');
-        $button->setUrl($nextUrl);
-        $toolbar->addButtonInstance($button);
+        $toolbar->addComponent(
+            $this->ui_factory->button()->primary($this->lng->txt('finish_test'), $this->finish_test_modal->getShowSignal())
+        );
 
         return $toolbar;
     }
 
     protected function buildUserReviewOutput(): string
     {
-        global $DIC; /* @var ILIAS\DI\Container $DIC */
-        $ilObjDataCache = $DIC['ilObjDataCache'];
-
-        require_once 'Modules/Test/classes/class.ilTestResultHeaderLabelBuilder.php';
-        $testResultHeaderLabelBuilder = new ilTestResultHeaderLabelBuilder($this->lng, $ilObjDataCache);
+        $testResultHeaderLabelBuilder = new ilTestResultHeaderLabelBuilder($this->lng, $this->obj_cache);
 
         $objectivesList = null;
 
@@ -153,7 +126,6 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
             $testSequence->loadFromDb();
             $testSequence->loadQuestions();
 
-            require_once 'Modules/Course/classes/Objectives/class.ilLOTestQuestionAdapter.php';
             $objectivesAdapter = ilLOTestQuestionAdapter::getInstance($this->testSession);
 
             $objectivesList = $this->buildQuestionRelatedObjectivesList($objectivesAdapter, $testSequence);
@@ -173,7 +145,6 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
             !$this->getObjectiveOrientedContainer()->isObjectiveOrientedPresentationRequired()
         );
 
-        require_once 'class.ilTestEvaluationGUI.php';
         $testevaluationgui = new ilTestEvaluationGUI($this->object);
         $testevaluationgui->setContextResultPresentation(false);
 
@@ -195,9 +166,8 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
 
     protected function show()
     {
-        global $DIC;
-        $DIC->globalScreen()->tool()->context()->current()->getAdditionalData()->replace(
-            ilTestPlayerLayoutProvider::TEST_PLAYER_TITLE,
+        $this->global_screen->tool()->context()->current()->getAdditionalData()->replace(
+            ilTestPlayerLayoutProvider::TEST_PLAYER_VIEW_TITLE,
             $this->object->getTitle() . ' - ' . $this->lng->txt('tst_results_overview')
         );
 
@@ -216,52 +186,11 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
             $html .= $examIdTpl->get();
         }
 
+        $html .= $this->ui_renderer->render($this->finish_test_modal);
+
         $this->tpl->setVariable(
             $this->getContentBlockName(),
             $html
         );
-    }
-
-    protected function pdfDownload()
-    {
-        ilPDFGeneratorUtils::prepareGenerationRequest("Test", PDF_USER_RESULT);
-
-        $reviewOutput = $this->buildUserReviewOutput();
-
-        $filename = $this->testOutputGUI->object->getRefId();
-        $filename .= '-' . $this->testSession->getActiveId() . '-';
-        $filename .= $this->testSession->getPass() . '.pdf';
-
-        ilTestPDFGenerator::generatePDF($reviewOutput, ilTestPDFGenerator::PDF_OUTPUT_DOWNLOAD, $filename, PDF_USER_RESULT);
-
-        exit;
-    }
-
-    /**
-     * not in use, but we keep the code (no archive for every user at end of test !!)
-     *
-     * @return string
-     */
-    protected function buildPdfFilename(): string
-    {
-        global $DIC;
-        $ilSetting = $DIC['ilSetting'];
-
-        $inst_id = $ilSetting->get('inst_id', null);
-
-        require_once 'Services/Utilities/classes/class.ilUtil.php';
-
-        $path = ilFileUtils::getWebspaceDir() . '/assessment/' . $this->testOutputGUI->object->getId() . '/exam_pdf';
-
-        if (!is_dir($path)) {
-            ilFileUtils::makeDirParents($path);
-        }
-
-        $filename = ilFileUtils::removeTrailingPathSeparators(ILIAS_ABSOLUTE_PATH) . '/' . $path . '/exam_N';
-        $filename .= $inst_id . '-' . $this->testOutputGUI->object->getId();
-        $filename .= '-' . $this->testSession->getActiveId() . '-';
-        $filename .= $this->testSession->getPass() . '.pdf';
-
-        return $filename;
     }
 }

@@ -16,11 +16,8 @@
  *
  *********************************************************************/
 
-/**
- * Dashboard settings access
- *
- * @author Alexander Killing <killing@leifos.de>
- */
+declare(strict_types=1);
+
 class ilObjDashboardSettingsAccess extends ilObjectAccess
 {
 }

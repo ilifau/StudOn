@@ -68,17 +68,20 @@ class ilExSubmissionTextGUI extends ilExSubmissionBaseGUI
 
         $lng = $DIC->language();
         $ilCtrl = $DIC->ctrl();
+        $gui = $DIC->exercise()->internal()->gui();
 
-        $button = ilLinkButton::getInstance();
         if ($a_submission->canSubmit()) {
-            $button->setPrimary(true);
-            $button->setCaption("exc_text_assignment_edit");
-            $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTextGUI"), "editAssignmentText"));
+            $link = $gui->link(
+                $lng->txt("exc_text_assignment_edit"),
+                $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTextGUI"), "editAssignmentText")
+            )->primary();
         } else {
-            $button->setCaption("exc_text_assignment_show");
-            $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTextGUI"), "showAssignmentText"));
+            $link = $gui->link(
+                $lng->txt("exc_text_assignment_show"),
+                $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTextGUI"), "showAssignmentText")
+            )->emphasised();
         }
-        $files_str = $button->render();
+        $files_str = $link->render();
 
         $a_info->addProperty($lng->txt("exc_files_returned_text"), $files_str);
     }
@@ -102,7 +105,7 @@ class ilExSubmissionTextGUI extends ilExSubmissionBaseGUI
             $text->setRequired(
                 $this->mandatory_manager->isMandatoryForUser($this->submission->getAssignment()->getId(), $this->user->getId())
             );
-            $text->setRows(40);
+            $text->setRows(15);
             $text->setMaxNumOfChars($this->assignment->getMaxCharLimit());
             $text->setMinNumOfChars($this->assignment->getMinCharLimit());
 
@@ -277,7 +280,6 @@ class ilExSubmissionTextGUI extends ilExSubmissionBaseGUI
                 $text->setValue(nl2br(ilRTE::_replaceMediaObjectImageSrc($files["atext"], 1)));
             }
         }
-
         $this->tpl->setContent($a_form->getHTML());
     }
 }

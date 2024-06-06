@@ -37,6 +37,21 @@ il = il || {};
     });
   };
 
+  methods.initMailPlaceholderSelection = function (elements, target_textarea) {
+    elements.forEach((link_element, i) => {
+      link_element.addEventListener('click', (e) => {
+        e.preventDefault();
+        il.Mail.insertTextIntoTextField(target_textarea, link_element.innerHTML);
+      });
+      link_element.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          il.Mail.insertTextIntoTextField(target_textarea, link_element.innerHTML);
+        }
+      });
+    });
+  };
+
   methods.insertTextIntoTextField = function (elementId, text) {
     const input = document.getElementById(elementId);
 
@@ -126,5 +141,5 @@ il.Util.addOnLoad(
         obj.onblur = getStripCommaCallback(document.getElementById(ar[i]));
       }
     }
-  }
+  },
 );

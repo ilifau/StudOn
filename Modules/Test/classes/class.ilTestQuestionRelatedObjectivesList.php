@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * @author		Björn Heyser <bheyser@databay.de>
  * @version		$Id$
@@ -90,8 +92,10 @@ class ilTestQuestionRelatedObjectivesList
     {
         $titles = array();
 
-        foreach ((array) $this->objectivesByQuestion[$questionId] as $objectiveId) {
-            $titles[] = $this->objectivesTitles[$objectiveId];
+        if (isset($this->objectivesByQuestion[$questionId])) {
+            foreach ((array) $this->objectivesByQuestion[$questionId] as $objectiveId) {
+                $titles[] = $this->objectivesTitles[$objectiveId];
+            }
         }
 
         return implode(', ', $titles);

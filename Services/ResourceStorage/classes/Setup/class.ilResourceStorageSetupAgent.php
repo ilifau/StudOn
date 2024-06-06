@@ -27,7 +27,7 @@ use ILIAS\Setup\ObjectiveCollection;
 
 /**
  * Class ilResourceStorageSetupAgent
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions.ch>
  */
 class ilResourceStorageSetupAgent implements Agent
 {
@@ -63,18 +63,26 @@ class ilResourceStorageSetupAgent implements Agent
             new ilStorageContainersExistingObjective(),
             new ilDatabaseUpdateStepsExecutedObjective(
                 new ilResourceStorageDB80()
+            ),
+            new ilDatabaseUpdateStepsExecutedObjective(
+                new ilResourceStorageDB90()
             )
         );
     }
 
     public function getBuildArtifactObjective(): Objective
     {
-        return new Objective\NullObjective();
+        return new ilResourceStorageFlavourArtifact();
     }
 
     public function getStatusObjective(Metrics\Storage $storage): Objective
     {
-        return new Objective\NullObjective();
+        return new ObjectiveCollection(
+            'Component ResourceStorage',
+            true,
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilResourceStorageDB80()),
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilResourceStorageDB90())
+        );
     }
 
     /**
@@ -82,6 +90,6 @@ class ilResourceStorageSetupAgent implements Agent
      */
     public function getMigrations(): array
     {
-        return [new ilStorageHandlerV1Migration()];
+        return [];
     }
 }

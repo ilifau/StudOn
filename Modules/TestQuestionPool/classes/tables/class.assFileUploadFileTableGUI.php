@@ -20,14 +20,11 @@
 *
 * @author Stefan Meyer <smeyer.ilias@gmx.de>
 * @author Björn Heyser <bheyser@databay.de>
-* @version $Id$
-*
-* @ingroup ModulesGroup
 */
-
 class assFileUploadFileTableGUI extends ilTable2GUI
 {
     // hey: prevPassSolutions - support file reuse with table
+    private \ILIAS\ResourceStorage\Services $irss;
     protected $postVar = '';
     // hey.
 
@@ -39,6 +36,7 @@ class assFileUploadFileTableGUI extends ilTable2GUI
 
         $this->lng = $lng;
         $this->ctrl = $ilCtrl;
+        $this->irss = $DIC->resourceStorage();
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
@@ -48,102 +46,76 @@ class assFileUploadFileTableGUI extends ilTable2GUI
         $this->addColumn($this->lng->txt('filename'), 'filename', '70%');
         $this->addColumn($this->lng->txt('date'), 'date', '29%');
         $this->setDisplayAsBlock(true);
-
-        // hey: prevPassSolutions - configure table with initCommand()
         $this->setPrefix('deletefiles');
         $this->setSelectAllCheckbox('deletefiles');
-        // hey.
 
         $this->setRowTemplate("tpl.il_as_qpl_fileupload_file_row.html", "Modules/TestQuestionPool");
 
         $this->disable('sort');
         $this->disable('linkbar');
         $this->enable('header');
-        // hey: prevPassSolutions - configure table with initCommand()
-        #$this->enable('select_all');
-        // hey.
     }
 
-    // hey: prevPassSolutions - support file reuse with table
-    /**
-     * @return bool
-     */
     protected function hasPostVar(): bool
     {
         return (bool) strlen($this->getPostVar());
     }
 
-    /**
-     * @return string
-     */
     public function getPostVar(): string
     {
         return $this->postVar;
     }
 
-    /**
-     * @param string $postVar
-     */
-    public function setPostVar($postVar): void
+    public function setPostVar(string $postVar): void
     {
         $this->postVar = $postVar;
     }
-    // hey.
 
-    // hey: prevPassSolutions - support file reuse with table
-    public function initCommand(ilAssFileUploadFileTableCommandButton $commandButton, $postVar): void
+    public function initCommand(string $lang_var, string $cmd, string $post_var): void
     {
         if (count($this->getData())) {
             $this->enable('select_all');
 
-            $this->setSelectAllCheckbox($postVar);
-            $this->setPrefix($postVar);
-            $this->setPostVar($postVar);
+            $this->setSelectAllCheckbox($post_var);
+            $this->setPrefix($post_var);
+            $this->setPostVar($post_var);
 
-            $commandButton->setCommand($this->parent_cmd);
-            $this->addCommandButtonInstance($commandButton);
+            $on_click = "return (function(e){ e.name += '[{$cmd}]';})(this);";
+            $this->addCommandButton($this->parent_cmd, $this->lng->txt($lang_var), $on_click);
         }
     }
-    // hey.
 
-    /**
-     * fill row
-     * @access public
-     * @param
-     * @return void
-     */
     public function fillRow(array $a_set): void
     {
-        global $DIC;
-        $ilUser = $DIC['ilUser'];
-        $ilAccess = $DIC['ilAccess'];
-
         $this->tpl->setVariable('VAL_ID', $a_set['solution_id']);
-        // hey: prevPassSolutions - support file reuse with table
         $this->tpl->setVariable('VAL_FILE', $this->buildFileItemContent($a_set));
 
         if ($this->hasPostVar()) {
             $this->tpl->setVariable('VAL_POSTVAR', $this->getPostVar());
         }
-        // hey.
+
         ilDatePresentation::setUseRelativeDates(false);
         $this->tpl->setVariable('VAL_DATE', ilDatePresentation::formatDate(new ilDateTime($a_set["tstamp"], IL_CAL_UNIX)));
     }
 
-    // hey: prevPassSolutions - support file reuse with table
-    /**
-     * @param $a_set
-     */
-    protected function buildFileItemContent($a_set): string
+    protected function buildFileItemContent(array $a_set): string
     {
+        $value = $a_set['value2'];
+        if($value === 'rid') {
+            $rid = $this->irss->manage()->find($a_set['value1']);
+            if($rid === null) {
+                return ilLegacyFormElementsUtil::prepareFormOutput($value);
+            }
+            $value = $this->irss->manage()->getCurrentRevision($rid)->getTitle();
+        }
+
         if (!isset($a_set['webpath']) || !strlen($a_set['webpath'])) {
-            return ilLegacyFormElementsUtil::prepareFormOutput($a_set['value2']);
+            return ilLegacyFormElementsUtil::prepareFormOutput($value);
         }
 
         $link = "<a href='{$a_set['webpath']}{$a_set['value1']}' download target='_blank'>";
-        $link .= ilLegacyFormElementsUtil::prepareFormOutput($a_set['value2']) . '</a>';
+        $link .= ilLegacyFormElementsUtil::prepareFormOutput($value) . '</a>';
 
         return $link;
     }
-    // hey.
 }

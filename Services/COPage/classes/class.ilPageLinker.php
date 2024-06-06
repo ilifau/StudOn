@@ -168,6 +168,7 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                         break;
 
                     case "User":
+                        // target = il__user_329
                         $obj_type = ilObject::_lookupType((int) $target_id);
                         if ($obj_type == "usr") {
                             $back = $this->profile_back_url;
@@ -195,9 +196,8 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                             $lcontent = str_replace("&", "&amp;", htmlentities($lcontent));
                         }
                         break;
-
                 }
-                if ($href != "") {
+                if ($href != "" || $type === "User") {
                     $anc_par = 'Anchor="' . $anc . '"';
                     $link_info .= "<IntLinkInfo Target=\"$target\" Type=\"$type\" " . $anc_par . " " .
                         "TargetFrame=\"$targetframe\" LinkHref=\"$href\" LinkTarget=\"$ltarget\" LinkContent=\"$lcontent\" />";

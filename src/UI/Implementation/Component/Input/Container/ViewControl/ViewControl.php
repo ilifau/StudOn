@@ -94,6 +94,10 @@ abstract class ViewControl extends Container implements I\ViewControl
     protected function extractRequestData(ServerRequestInterface $request): InputData
     {
         $internal_input_data = new Input\ArrayInputData($this->getComponentInternalValues());
+<<<<<<< HEAD
+=======
+
+>>>>>>> v9.1
         return new StackedInputData(
             new QueryParamsFromServerRequest($request),
             $this->stored_input,

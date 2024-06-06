@@ -55,5 +55,4 @@ class GUIService
             $this->domain_service->refinery()
         );
     }
-
 }

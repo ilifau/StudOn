@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,13 +21,12 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Tests\Refinery\Random\Transformation;
 
 use ILIAS\Refinery\Random\Transformation\ShuffleTransformation;
 use ILIAS\Refinery\Random\Seed\Seed;
-use ILIAS\Data\NotOKException;
-use ILIAS\Data\Result\Ok;
-use ILIAS\Data\Result\Error;
 use PHPUnit\Framework\TestCase;
 use ILIAS\Refinery\ConstraintViolationException;
 

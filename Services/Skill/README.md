@@ -1,10 +1,84 @@
 # Skill aka Competence Service
 
-This README is work in progress.
-
 # API
 
-WIP
+The Skill Service can be used by the public interface through `$DIC->skills()`. Currently, the following Services are offered:
+
+## Personal Service
+
+The Personal Service offers methods to work with things that are under the control of a user. Currently, these are personally selected competences and personally assigned materials from the personal resources.
+
+```
+$personal_service = $DIC->skills()->personal();
+
+$skills = $personal_service->getSelectedUserSkills($user_id);
+$personal_service->addPersonalSkill($user_id, $skill_node_id);
+
+$materials = $personal_service->getAssignedMaterials($user_id, $tref_id, $level_id);
+```
+
+## Profile Service
+
+The Profile Service offers methods to work with the competence profiles, profile assignments and profile completions.
+
+```
+$profile_service = $DIC->skills()->profile();
+
+$profiles = $profile_service->getAllGlobalProfiles();
+$profile = $profile_service->getProfile($profile_id);
+$title = $profile_service->lookupProfileTitle($profile_id);
+$ref_id = $profile_service->lookupProfileRefId($profile_id);
+$profile_service->deleteProfile($profile_id)
+$profile_service->updateProfileRefIdAfterImport($profile_id, $new_ref_id);
+
+$profile_levels = $profile_service->getSkillLevels($profile_id);
+
+$user_profiles = $profile_service->getProfilesOfUser($user_id);
+$profile_service->addRoleToProfile($profile_id, $role_id);
+
+$profile_service->writeCompletionEntryForAllProfiles($user_id);
+```
+
+## Tree Service
+
+The Tree Service offers methods to work with the (global) competence trees or the (global) virtual competence trees.
+
+```
+$tree_service = $DIC->skills()->tree();
+
+$global_tree = $tree_service->getGlobalSkillTree();
+$tree = $tree_service->getSkillTreeById($tree_id);
+$tree = $tree_service->getSkillTreeForNodeId($node_id);
+
+$global_virtual_tree = $tree_service->getGlobalVirtualSkillTree();
+$virtual_tree = $tree_service->getVirtualSkillTreeById($tree_id);
+$virtual_tree = $tree_service->getVirtualSkillTreeForNodeId($node_id);
+
+$path = $tree_service->getSkillTreePath($base_skill_id, $tref_id);
+
+$tree_object = $tree_service->getObjSkillTreeById($tree_id);
+$tree_objects = $tree_service->getObjSkillTrees();
+```
+
+## UI Service
+
+Not implemented yet!
+
+```
+$ui_service = $DIC->skills()->ui();
+```
+
+## User Service
+
+Not implemented yet!
+
+```
+$user_service = $DIC->skills()->user();
+```
+
+## Internal Service
+
+Please note that the Internal Service (```$DIC->skills()->internal()```) is, as its name implies, for internal usage within the Skill Service only. Please do not use it in other components!
 
 # General Documentation
 
@@ -360,9 +434,12 @@ There are three different types of user skill levels:
 * Features that reference skills (e.g. local skill profiles) can re-instantiate these references on import by retrieving the new IDs
   through the methods `ilBasicSkill::getCommonSkillIdForImportId()` and/or `ilBasicSkill::getLevelIdForImportIdMatchSkill`. 
 
-##Deleting Competences
+## Deleting Competences
 
-* Competences cannot be deleted, if:
+* Up to ILIAS 8, Competences could not be deleted, if there were in use. Since ILIAS 9, it is possible to delete 
+  Competences, Competence Templates and whole Competence Trees, even when they are in use. Before the deletion is done,
+  there is still a warning message to inform the user about the impact of the deletion. The message contains information
+  about the following usages:
   * Competence is used in a repository object
   * Competence is selected by users as Personal Competence
   * Users assigned material from their personal resources to a competence
@@ -378,7 +455,7 @@ There are three different types of user skill levels:
   * If an entry is written for a user, all Competence Profiles of the user are checked
   * If a user is assigned to a Competence Profile manually or by a role, the Competence Profile for the one user or all users of a role are checked (in future: OrgUnits, too)
   * If a Competence Profile is edited, i.e. a skill level is removed or added, the Competence Profile is checked for all assigned users/roles
-  * The deletion of competences is intercepted by the general prevention of competence deletion when they are assigned to a Competence Profile. This may change in the future and therefore should be mentioned here.
+  * If a competence is fully deleted, the Competence Profile is checked for all assigned users/roles
 * For every time a user fulfills a Competence Profile, an entry in the Learning History is written
 * The fulfillment of a Competence Profile is given, when the completion status changes from <100% to 100%. This can happen multiple times, because Competence Profiles can be edited, and the fulfillment of a Skill Profile for a user can vanish later on.
 

@@ -34,13 +34,11 @@ class assErrorTextTest extends assBaseTestCase
 
         parent::setUp();
 
-        require_once './Services/UICore/classes/class.ilCtrl.php';
         $ilCtrl_mock = $this->createMock('ilCtrl');
         $ilCtrl_mock->expects($this->any())->method('saveParameter');
         $ilCtrl_mock->expects($this->any())->method('saveParameterByClass');
         $this->setGlobalVariable('ilCtrl', $ilCtrl_mock);
 
-        require_once './Services/Language/classes/class.ilLanguage.php';
         $lng_mock = $this->createMock('ilLanguage', array('txt'), array(), '', false);
         //$lng_mock->expects( $this->once() )->method( 'txt' )->will( $this->returnValue('Test') );
         $this->setGlobalVariable('lng', $lng_mock);
@@ -52,9 +50,6 @@ class assErrorTextTest extends assBaseTestCase
 
     public function test_instantiateObjectSimple(): void
     {
-        // Arrange
-        require_once './Modules/TestQuestionPool/classes/class.assErrorText.php';
-
         // Act
         $instance = new assErrorText();
 

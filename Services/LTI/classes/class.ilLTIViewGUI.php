@@ -163,7 +163,7 @@ class ilLTIViewGUI
         }
 
         $this->findEffectiveRefId();
-
+        // ???
         if (
             (
                 $this->wrapper->query()->has('baseClass') &&
@@ -250,6 +250,7 @@ class ilLTIViewGUI
                     }
                 }
             }
+
             if ($ref_id > 0 && $obj_type != '') {
                 if (
                     (

@@ -40,13 +40,11 @@ class ilWebDAVAuthentication
         "gvfs"
     ];
 
-    protected ilObjUser $user;
-    protected ilAuthSession $session;
-
-    public function __construct(ilObjUser $user, ilAuthSession $session)
-    {
-        $this->user = $user;
-        $this->session = $session;
+    public function __construct(
+        protected ilObjUser $user,
+        protected ilAuthSession $session,
+        protected ilLogger $logger
+    ) {
     }
 
     protected function isUserAgentSessionAware(string $user_agent): bool
@@ -70,8 +68,10 @@ class ilWebDAVAuthentication
     public function authenticate(string $a_username, string $a_password): bool
     {
         if ($this->isUserAgentSessionAware($this->getUserAgent())) {
-            if ($this->session->isAuthenticated() && $this->user->getId() != 0) {
-                ilLoggerFactory::getLogger('webdav')->debug('User authenticated through session. UserID = ' . $this->user->getId());
+            if ($this->session->isAuthenticated()
+                && $this->user->getId() !== 0
+                && $this->user->getId() !== ANONYMOUS_USER_ID) {
+                $this->logger->debug('User authenticated through session. UserID = ' . $this->user->getId());
                 return true;
             }
         } else {
@@ -100,15 +100,15 @@ class ilWebDAVAuthentication
 
         switch ($status->getStatus()) {
             case ilAuthStatus::STATUS_AUTHENTICATED:
-                ilLoggerFactory::getLogger('webdav')->debug('User authenticated through basic authentication. UserId = ' . $this->user->getId());
+                $this->logger->debug('User authenticated through basic authentication. UserId = ' . $this->user->getId());
                 return true;
 
             case ilAuthStatus::STATUS_ACCOUNT_MIGRATION_REQUIRED:
-                ilLoggerFactory::getLogger('webdav')->info('Basic authentication failed; Account migration required.');
+                $this->logger->info('Basic authentication failed; Account migration required.');
                 return false;
 
             case ilAuthStatus::STATUS_AUTHENTICATION_FAILED:
-                ilLoggerFactory::getLogger('webdav')->info('Basic authentication failed; Wrong login, password.');
+                $this->logger->info('Basic authentication failed; Wrong login, password.');
                 return false;
         }
 

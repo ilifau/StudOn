@@ -16,22 +16,11 @@
  *
  *********************************************************************/
 
-/**
- * Interface for gui classes (e.g ilLuceneSearchGUI) that offer add/remove to/from desktop
- *
- * @author Stefan Meyer <meyer@leifos.com>
- */
+declare(strict_types=1);
+
 interface ilDesktopItemHandling
 {
-    /**
-     * Add desktop item
-     * @access public
-     */
     public function addToDeskObject(): void;
 
-    /**
-     * Remove from desktop
-     * @access public
-     */
     public function removeFromDeskObject(): void;
 }

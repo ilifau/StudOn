@@ -26,6 +26,9 @@ use PHPStan\Type\ObjectType;
 
 final class RemoveRequiresAndIncludesRector extends AbstractRector
 {
+    /**
+     * @return array<class-string<\PhpParser\Node\Expr>>
+     */
     public function getNodeTypes(): array
     {
         return [\PhpParser\Node\Expr\Include_::class];
@@ -34,7 +37,7 @@ final class RemoveRequiresAndIncludesRector extends AbstractRector
     /**
      * @param Node\Expr\Include_ $node
      */
-    public function refactor(Node $node): ?Node
+    public function refactor(Node $node): \PhpParser\Node\Expr\Include_
     {
         if (!$this->isObjectType($node, new ObjectType(Node\Expr\Assign::class))) {
             $this->nodeRemover->removeNode($node);
@@ -49,7 +52,7 @@ final class RemoveRequiresAndIncludesRector extends AbstractRector
             'Remove requires and includes',
             [
                 new CodeSample(
-                // code before
+                    // code before
                     'require_once "./..."',
                     // code after
                     ''

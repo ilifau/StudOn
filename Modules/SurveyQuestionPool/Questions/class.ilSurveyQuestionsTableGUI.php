@@ -86,7 +86,7 @@ class ilSurveyQuestionsTableGUI extends ilTable2GUI
             }
         }
 
-        $this->addColumn("", "");
+        $this->addColumn($this->lng->txt("actions"), "");
 
         $clip_questions = $this->edit_manager->getQuestionsFromClipboard();
         if ($this->getWriteAccess()) {
@@ -193,6 +193,8 @@ class ilSurveyQuestionsTableGUI extends ilTable2GUI
 
     protected function fillRow(array $a_set): void
     {
+        $ui_factory = $this->ui_factory;
+        $ui_renderer = $this->renderer;
         $class = strtolower(SurveyQuestionGUI::_getGUIClassNameForId($a_set["question_id"]));
         $guiclass = $class . "GUI";
         $this->ctrl->setParameterByClass(strtolower($guiclass), "q_id", $a_set["question_id"]);
@@ -211,7 +213,7 @@ class ilSurveyQuestionsTableGUI extends ilTable2GUI
         $this->tpl->parseCurrentBlock();
 
         if ((int) $a_set["complete"] === 0) {
-            $icon = $this->ui_factory->symbol()->icon()->custom(ilUtil::getImagePath("icon_alert.svg"), $this->lng->txt("warning_question_not_complete"));
+            $icon = $this->ui_factory->symbol()->icon()->custom(ilUtil::getImagePath("standard/icon_alert.svg"), $this->lng->txt("warning_question_not_complete"));
             $this->tpl->setCurrentBlock("qpl_warning");
             $this->tpl->setVariable("ICON_WARNING", $this->renderer->render($icon));
             $this->tpl->parseCurrentBlock();
@@ -246,14 +248,21 @@ class ilSurveyQuestionsTableGUI extends ilTable2GUI
         }
 
         // actions
-        $list = new ilAdvancedSelectionListGUI();
-        $list->setId($a_set["question_id"]);
-        $list->setListTitle($this->lng->txt("actions"));
+        $actions = [];
         if ($url_edit) {
-            $list->addItem($this->lng->txt("edit"), "", $url_edit);
+            $actions[] = $ui_factory->link()->standard(
+                $this->lng->txt("edit"),
+                $url_edit
+            );
         }
-        $list->addItem($this->lng->txt("preview"), "", $this->ctrl->getLinkTargetByClass(strtolower($guiclass), "preview"));
-        $this->tpl->setVariable("ACTION", $list->getHTML());
+        $actions[] = $ui_factory->link()->standard(
+            $this->lng->txt("preview"),
+            $this->ctrl->getLinkTargetByClass(strtolower($guiclass), "preview")
+        );
+
+        $dd = $ui_factory->dropdown()->standard($actions);
+
+        $this->tpl->setVariable("ACTION", $ui_renderer->render($dd));
         $this->tpl->parseCurrentBlock();
 
         // obligatory
@@ -263,7 +272,7 @@ class ilSurveyQuestionsTableGUI extends ilTable2GUI
                 $a_set["question_id"] . "]\" value=\"1\"" . $checked . " />";
         } elseif ($a_set["obligatory"]) {
             $obligatory = $this->ui->renderer()->render(
-                $this->ui->factory()->symbol()->icon()->custom(ilUtil::getImagePath("icon_checked.svg"), $this->lng->txt("question_obligatory"))
+                $this->ui->factory()->symbol()->icon()->custom(ilUtil::getImagePath("standard/icon_checked.svg"), $this->lng->txt("question_obligatory"))
             );
         }
         $this->tpl->setVariable("OBLIGATORY", $obligatory);

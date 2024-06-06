@@ -56,7 +56,9 @@ abstract class ilObjFileAbstractProcessor implements ilObjFileProcessorInterface
     protected function createFileObj(
         ResourceIdentification $rid,
         int $parent_id,
-        array $options = [],
+        string $title = null,
+        string $description = null,
+        int $copyright_id = null,
         bool $create_reference = false
     ): ilObjFile {
         $revision = $this->storage->manage()->getCurrentRevision($rid);
@@ -68,7 +70,7 @@ abstract class ilObjFileAbstractProcessor implements ilObjFileProcessorInterface
 
         $file_name = $revision->getInformation()->getTitle();
         $title = $file_obj->appendSuffixToTitle(
-            empty($options[self::OPTION_FILENAME]) ? $file_name : $options[self::OPTION_FILENAME],
+            $title ?? $file_name,
             $file_name
         );
 
@@ -79,16 +81,14 @@ abstract class ilObjFileAbstractProcessor implements ilObjFileProcessorInterface
             $this->invalid_file_names[] = $title;
         }
         $file_obj->setTitle($title);
-        $file_obj->setFileName($title);
-        $file_obj->setVersion($revision->getVersionNumber());
-
-        if (!empty($options)) {
-            $this->applyOptions($file_obj, $options);
+        if ($description !== null) {
+            $file_obj->setDescription($description);
         }
+        $file_obj->setVersion($revision->getVersionNumber());
+        $file_obj->setCopyrightID($copyright_id);
 
         $file_obj->create();
 
-        ilPreview::createPreview($file_obj, true);
         if ($create_reference) {
             $file_obj->createReference();
         }
@@ -99,21 +99,9 @@ abstract class ilObjFileAbstractProcessor implements ilObjFileProcessorInterface
         return $file_obj;
     }
 
-    /**
-     * Apply provided options to the given object.
-     */
-    protected function applyOptions(ilObject $obj, array $options): void
+    public function getInvalidFileNames(): array
     {
-        foreach ($options as $key => $option) {
-            if (in_array($key, self::OPTIONS, true)) {
-                if (!empty($option)) {
-                    $setter = "set" . ucfirst($key);
-                    $obj->{$setter}($option);
-                }
-            } else {
-                throw new LogicException("Option '$key' is not declared in " . static::class . "::OPTIONS.");
-            }
-        }
+        return $this->invalid_file_names;
     }
 
     public function getInvalidFileNames(): array

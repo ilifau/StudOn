@@ -67,7 +67,6 @@ class ilObjectContentStyleSettingsGUI
         $cmd = $ctrl->getCmd("settings");
 
         switch ($next_class) {
-
             case "ilobjstylesheetgui":
                 $this->gui->tabs()->clearTargets();
                 $ctrl->setReturn($this, "settings");
@@ -216,6 +215,9 @@ class ilObjectContentStyleSettingsGUI
                 $this->setOwnerId($style_id);
             }
             $this->updateStyleId($style_id);
+            if (in_array($cmd, ["save", "copyStyle", "importStyle"])) {
+                $ctrl->redirect($this, "editStyle");
+            }
             $ctrl->redirect($this, "settings");
         }
     }

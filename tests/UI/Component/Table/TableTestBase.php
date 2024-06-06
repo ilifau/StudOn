@@ -89,22 +89,38 @@ abstract class TableTestBase extends ILIAS_UI_TestBase
     {
         return new class () implements ArrayAccess {
             protected array $data = [];
+<<<<<<< HEAD
             public function offsetExists($offset)
             {
                 return isset($this->data[$offset]);
             }
             public function offsetGet($offset)
+=======
+            public function offsetExists(mixed $offset): bool
+            {
+                return isset($this->data[$offset]);
+            }
+            public function offsetGet(mixed $offset): mixed
+>>>>>>> v9.1
             {
                 if(!$this->offsetExists($offset)) {
                     return null;
                 }
                 return $this->data[$offset];
             }
+<<<<<<< HEAD
             public function offsetSet($offset, $value)
             {
                 $this->data[$offset] = $value;
             }
             public function offsetUnset($offset)
+=======
+            public function offsetSet(mixed $offset, mixed $value): void
+            {
+                $this->data[$offset] = $value;
+            }
+            public function offsetUnset(mixed $offset): void
+>>>>>>> v9.1
             {
                 unset($this->data[$offset]);
             }

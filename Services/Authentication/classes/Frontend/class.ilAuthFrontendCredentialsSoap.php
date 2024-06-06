@@ -24,7 +24,7 @@ class ilAuthFrontendCredentialsSoap extends ilAuthFrontendCredentials
 {
     private ServerRequestInterface $httpRequest;
 
-    private ilCtrl $ctrl;
+    private ilCtrlInterface $ctrl;
 
     private ilSetting $settings;
 
@@ -32,13 +32,7 @@ class ilAuthFrontendCredentialsSoap extends ilAuthFrontendCredentials
     private \ilGlobalTemplateInterface $main_tpl;
     private ilLogger $logger;
 
-    /**
-     * ilAuthFrontendCredentialsApache constructor.
-     * @param ServerRequestInterface $httpRequest
-     * @param ilCtrl $ctrl
-     * @param ilSetting $settings
-     */
-    public function __construct(ServerRequestInterface $httpRequest, ilCtrl $ctrl, ilSetting $settings)
+    public function __construct(ServerRequestInterface $httpRequest, ilCtrlInterface $ctrl, ilSetting $settings)
     {
         global $DIC;
         $this->main_tpl = $DIC->ui()->mainTemplate();

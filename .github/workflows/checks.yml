@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.4, 8.0]
+        php: [8.1, 8.2]
+        nodejs: [ 20.x ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -22,15 +23,28 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, gd, json, readline, xsl
+          extensions: dom, curl, libxml, mbstring, zip, gd, json, readline, xsl, imagick
           tools: composer:v2
           coverage: none
 
-      - name: Install dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.nodejs }}
+
+      - name: Install Composer packages
         run: composer install --no-interaction --no-progress
+
+      - name: Install Node.js packages
+        run: npm clean-install --ignore-scripts
 
       - name: PHP Unit Test
         run: CI/PHPUnit/run_tests.sh
+        env:
+          GHRUN: "yes"
+
+      - name: JS Unit Test
+        run: npm test
         env:
           GHRUN: "yes"
 

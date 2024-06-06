@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -13,29 +14,40 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Modules\OrgUnit\ARHelper\DropdownBuilder;
+use ILIAS\ResourceStorage\Services as IRSS;
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\UI\Renderer;
 
 class ilOrgUnitTypeTableGUI extends ilTable2GUI
 {
     private ilTabsGUI $tabs;
-    private array $columns
-        = array(
-            'title',
-            'description',
-            'default_language',
-            'icon',
-        );
+    private array $columns = [
+        'title',
+        'description',
+        'default_language',
+        'icon',
+    ];
+    protected DropdownBuilder $dropdownbuilder;
+    protected IRSS $irss;
+    protected UIFactory $ui_factory;
+    protected Renderer $ui_renderer;
 
     public function __construct(ilOrgUnitTypeGUI $parent_obj, string $parent_cmd)
     {
-        global $DIC;
-        $ilCtrl = $DIC['ilCtrl'];
-        $ilTabs = $DIC['ilTabs'];
-        $lng = $DIC['lng'];
-        $this->ctrl = $ilCtrl;
-        $this->tabs = $ilTabs;
-        $this->lng = $lng;
+        $dic = ilOrgUnitLocalDIC::dic();
+        $this->ctrl = $dic['ctrl'];
+        $this->tabs = $dic['tabs'];
+        $this->lng = $dic['lng'];
+        $this->dropdownbuilder = $dic['dropdownbuilder'];
+        $this->irss = $dic['resource_storage'];
+        $this->ui_factory = $dic['ui.factory'];
+        $this->ui_renderer = $dic['ui.renderer'];
+
         $this->setPrefix('orgu_types_table');
         $this->setId('orgu_types_table');
         parent::__construct($parent_obj, $parent_cmd);
@@ -51,25 +63,33 @@ class ilOrgUnitTypeTableGUI extends ilTable2GUI
      */
     public function fillRow(array $a_set): void
     {
+        $icon = '';
+        if($a_set['icon'] && $icon_id = $this->irss->manage()->find($a_set['icon'])) {
+            $icon = $this->ui_renderer->render(
+                $this->ui_factory->symbol()->icon()->custom(
+                    $this->irss->consume()->src($icon_id)->getSrc(),
+                    ''
+                )
+            );
+        }
+
         $this->tpl->setVariable('TITLE', $a_set['title']);
         $this->tpl->setVariable('DESCRIPTION', $a_set['description']);
         $this->tpl->setVariable('DEFAULT_LANG', $a_set['default_language']);
-        $this->tpl->setVariable('ICON', $a_set['icon']);
+        $this->tpl->setVariable('ICON', $icon);
+
         $this->ctrl->setParameterByClass("ilorgunittypegui", "type_id", $a_set['id']);
-        $selection = new ilAdvancedSelectionListGUI();
-        $selection->setListTitle($this->lng->txt('Actions'));
-        $selection->setId('action_orgu_type' . $a_set['id']);
-        $selection->addItem(
-            $this->lng->txt('edit'),
-            'edit',
-            $this->ctrl->getLinkTargetByClass('ilorgunittypegui', 'edit')
-        );
-        $selection->addItem(
-            $this->lng->txt('delete'),
-            'delete',
-            $this->ctrl->getLinkTargetByClass('ilorgunittypegui', 'delete')
-        );
-        $this->tpl->setVariable('ACTIONS', $selection->getHTML());
+        $dropdownbuilder = $this->dropdownbuilder
+            ->withItem(
+                'edit',
+                $this->ctrl->getLinkTargetByClass('ilorgunittypegui', 'edit')
+            )
+            ->withItem(
+                'delete',
+                $this->ctrl->getLinkTargetByClass('ilorgunittypegui', 'delete')
+            )
+            ->get();
+        $this->tpl->setVariable('ACTIONS', $dropdownbuilder);
     }
 
     protected function initColumns(): void
@@ -90,7 +110,7 @@ class ilOrgUnitTypeTableGUI extends ilTable2GUI
             $row['title'] = $type->getTitle($type->getDefaultLang());
             $row['default_language'] = $type->getDefaultLang();
             $row['description'] = $type->getDescription($type->getDefaultLang());
-            $row['icon'] = $type->getIcon();
+            $row['icon'] = $type->getIconIdentifier();
             $data[] = $row;
         }
         $this->setData($data);

@@ -63,10 +63,6 @@ class ilCertificateBackgroundImageUploadTest extends ilCertificateBaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $logger = $this->getMockBuilder(ilLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $fileSystem = $this->getMockBuilder(Filesystem::class)
             ->getMock();
 
@@ -80,6 +76,7 @@ class ilCertificateBackgroundImageUploadTest extends ilCertificateBaseTestCase
             ->method('delete');
 
         $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
+            ->disableOriginalConstructor()
             ->getMock();
 
         $utilHelper->expects($this->exactly(2))
@@ -98,13 +95,12 @@ class ilCertificateBackgroundImageUploadTest extends ilCertificateBaseTestCase
             $fileUpload,
             'certifcate/path/to/some/where',
             $language,
-            $logger,
+            'Some Root Directory',
+            'someclient',
             $fileSystem,
             $utilHelper,
             $fileUtilsHelper,
             $legacyPathHelper,
-            'Some Root Directory',
-            'someclient',
             $fileSystem
         );
 
@@ -147,10 +143,6 @@ class ilCertificateBackgroundImageUploadTest extends ilCertificateBaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $logger = $this->getMockBuilder(ilLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $fileSystem = $this->getMockBuilder(Filesystem::class)
             ->getMock();
 
@@ -167,6 +159,7 @@ class ilCertificateBackgroundImageUploadTest extends ilCertificateBaseTestCase
             ->method('writeStream');
 
         $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
+            ->disableOriginalConstructor()
             ->getMock();
 
         $utilHelper->expects($this->exactly(2))
@@ -191,13 +184,12 @@ class ilCertificateBackgroundImageUploadTest extends ilCertificateBaseTestCase
             $fileUpload,
             'certifcate/path/to/some/where',
             $language,
-            $logger,
+            'Some Root Directory',
+            'someclient',
             $fileSystem,
             $utilHelper,
             $fileUtilsHelper,
             $legacyPathHelper,
-            'Some Root Directory',
-            'someclient',
             $tmp_file_system
         );
 

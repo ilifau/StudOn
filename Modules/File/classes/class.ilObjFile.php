@@ -16,7 +16,6 @@
  *
  *********************************************************************/
 
-use ILIAS\DI\Container;
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\FileUpload;
@@ -35,17 +34,19 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
 {
     use ilObjFileMetadata;
     use ilObjFileUsages;
-    use ilObjFilePreviewHandler;
     use ilObjFileNews;
     use ilObjFileSecureString;
 
     public const MODE_FILELIST = "filelist";
     public const MODE_OBJECT = "object";
     public const OBJECT_TYPE = "file";
+    public const CLICK_MODE_DOWNLOAD = 1;
+    public const CLICK_MODE_INFOPAGE = 2;
     protected ilObjFileInfo $file_info;
 
     protected ilObjFileImplementationInterface $implementation;
 
+    protected ?string $important_info = null;
     protected int $page_count = 0;
     protected bool $rating = false;
     protected ?ilLogger $log;
@@ -54,12 +55,16 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     protected int $filesize;
     protected int $version = 1;
     protected int $max_version = 1;
+    protected ?int $copyright_id = null;
     protected string $action = '';
     protected ?string $resource_id = null;
     public string $mode = self::MODE_OBJECT;
     protected Manager $manager;
     protected FileUpload $upload;
     protected ilObjFileStakeholder $stakeholder;
+    private ilDBInterface $database;
+    protected int $on_click_mode = self::CLICK_MODE_DOWNLOAD;
+    protected int $amount_of_downloads = 0;
 
     /**
      * ilObjFile constructor.
@@ -69,10 +74,8 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     public function __construct(int $a_id = 0, bool $a_call_by_reference = true)
     {
         global $DIC;
-        /**
-         * @var $DIC Container
-         */
         $this->manager = $DIC->resourceStorage()->manage();
+        $this->database = $DIC->database();
         $this->implementation = new ilObjFileImplementationEmpty();
         $this->stakeholder = new ilObjFileStakeholder($DIC->user()->getId());
         $this->upload = $DIC->upload();
@@ -101,11 +104,13 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
 
     protected function initImplementation(): void
     {
-        if ($this->resource_id && ($id = $this->manager->find($this->resource_id)) !== null) {
+        if ($this->resource_id && ($id = $this->manager->find(
+            $this->resource_id
+        )) instanceof \ILIAS\ResourceStorage\Identification\ResourceIdentification) {
             $resource = $this->manager->getResource($id);
             $this->implementation = new ilObjFileImplementationStorage($resource);
-            $this->max_version = $resource->getMaxRevision();
-            $this->version = $resource->getMaxRevision();
+            $this->max_version = $resource->getMaxRevision(false);
+            $this->version = $resource->getCurrentRevision()->getVersionNumber();
         }
         $this->initFileInfo($this->getId(), false);
     }
@@ -113,12 +118,11 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     public function updateObjectFromCurrentRevision(): void
     {
         $this->updateObjectFromRevision(
-            $this->manager->getCurrentRevision($this->manager->find($this->getResourceId())),
-            false
+            $this->manager->getCurrentRevision($this->manager->find($this->getResourceId()))
         );
     }
 
-    private function updateObjectFromRevision(Revision $r, bool $create_previews = true): void
+    private function updateObjectFromRevision(Revision $r): void
     {
         $this->initFileInfo($this->getId(), false);
         $this->setTitle(
@@ -129,9 +133,6 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         );
         $this->setFileName($r->getInformation()->getTitle());
         $this->update();
-        if ($create_previews) {
-            $this->createPreview(true);
-        }
     }
 
     public function appendSuffixToTitle(string $title, string $filename): string
@@ -160,6 +161,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
             $this->setResourceId($i->serialize());
             $this->initImplementation();
         }
+        $this->enableNotification();
         $this->updateObjectFromRevision($revision);
 
         return $revision->getVersionNumber();
@@ -182,6 +184,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         if ($result->getMetaData()->has(ilCountPDFPagesPreProcessors::PAGE_COUNT)) {
             $this->setPageCount((int) $result->getMetaData()->get(ilCountPDFPagesPreProcessors::PAGE_COUNT));
         }
+        $this->enableNotification();
         $this->updateObjectFromRevision($revision);
 
         return $revision->getVersionNumber();
@@ -197,6 +200,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         } else {
             throw new LogicException('only files with existing resource and revision can be replaced');
         }
+        $this->enableNotification();
         $this->updateObjectFromRevision($revision);
 
         return $revision->getVersionNumber();
@@ -216,6 +220,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         if ($result->getMetaData()->has(ilCountPDFPagesPreProcessors::PAGE_COUNT)) {
             $this->setPageCount((int) $result->getMetaData()->get(ilCountPDFPagesPreProcessors::PAGE_COUNT));
         }
+        $this->enableNotification();
         $this->updateObjectFromRevision($revision);
 
         return $revision->getVersionNumber();
@@ -235,9 +240,24 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         return $this->implementation->getDirectory($a_version);
     }
 
-    public function getVersion(): int
+    public function getDownloadFilename(): string
     {
-        return $this->implementation->getVersion();
+        return $this->implementation->getDownloadFilename();
+    }
+
+    public function getImportantInfo(): ?string
+    {
+        return $this->important_info;
+    }
+
+    public function setImportantInfo(string $a_important_info): void
+    {
+        $this->important_info = empty($a_important_info) ? null : $a_important_info;
+    }
+
+    public function getVersion(bool $inclduing_drafts = false): int
+    {
+        return $this->implementation->getVersion($inclduing_drafts);
     }
 
     public function setVersion(int $a_version): void
@@ -247,7 +267,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
 
     public function getFileName(): string
     {
-        return $this->filename;
+        return $this->implementation->getFileName();
     }
 
     public function setFileName(string $a_name): void
@@ -294,6 +314,9 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         return $this->implementation->getFileSize();
     }
 
+    /**
+     * @return never
+     */
     public function setFileSize(int $a_size): void
     {
         throw new LogicException('cannot change filesize');
@@ -304,6 +327,9 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         return $this->implementation->getFileType();
     }
 
+    /**
+     * @return never
+     */
     public function setFileType(string $a_type): void
     {
         throw new LogicException('cannot change filetype');
@@ -319,9 +345,22 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         return $this->max_version;
     }
 
+    /**
+     * @return never
+     */
     public function setMaxVersion(int $a_max_version): void
     {
         throw new LogicException('cannot change max-version');
+    }
+
+    public function getCopyrightID(): ?int
+    {
+        return $this->copyright_id;
+    }
+
+    public function setCopyrightID(?int $copyright_id): void
+    {
+        $this->copyright_id = $copyright_id;
     }
 
     public function getPageCount(): int
@@ -342,8 +381,43 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         return $this->action;
     }
 
+    public function directDownload(): bool
+    {
+        return $this->on_click_mode === self::CLICK_MODE_DOWNLOAD;
+    }
+
+    public function getOnClickMode(): int
+    {
+        return $this->on_click_mode;
+    }
+
+    public function setOnclickMode(int $on_click_mode): void
+    {
+        $this->on_click_mode = $on_click_mode;
+    }
+
+    public function getAmountOfDownloads(): int
+    {
+        return $this->amount_of_downloads;
+    }
+
+    public function setAmountOfDownloads(int $amount): void
+    {
+        if (0 > $amount) {
+            throw new LogicException("Amount cannot be a negative number.");
+        }
+
+        $this->amount_of_downloads = $amount;
+    }
+
+    public function getLPMode(): int
+    {
+        return ilObjectLP::getInstance($this->getId())->getCurrentMode();
+    }
+
     /**
      * @param $a_action
+     * @return never
      * @deprecated
      */
     public function setAction(string $a_action): void
@@ -358,22 +432,18 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         $this->implementation->handleChangedObjectTitle($new_title);
     }
 
-
     protected function doCreate(bool $clone_mode = false): void
     {
         $this->createProperties(true);
+        $this->updateCopyright();
+        $this->getObjectProperties()->storePropertyIsOnline(new ilObjectPropertyIsOnline(true));
         $this->notifyCreation($this->getId(), $this->getDescription());
     }
 
     protected function doRead(): void
     {
-        global $DIC;
-        /**
-         * @var $DIC Container
-         */
-
         $q = "SELECT * FROM file_data WHERE file_id = %s";
-        $r = $DIC->database()->queryF($q, ['integer'], [$this->getId()]);
+        $r = $this->database->queryF($q, ['integer'], [$this->getId()]);
         $row = $r->fetchObject();
 
         $this->filename = $this->secure($row->file_name ?? '');
@@ -382,9 +452,12 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         $this->version = $row->version ?? 1;
         $this->max_version = $row->max_version ?? 1;
         $this->mode = $row->f_mode ?? self::MODE_OBJECT;
+        $this->important_info = $row->important_info ?? "";
         $this->rating = (bool) ($row->rating ?? false);
         $this->page_count = (int) ($row->page_count ?? 0);
         $this->resource_id = $row->rid ?? null;
+        $this->on_click_mode = (int) ($row->on_click_mode ?? self::CLICK_MODE_DOWNLOAD);
+        $this->amount_of_downloads = (int) ($row->downloads ?? 0);
 
         $this->initImplementation();
     }
@@ -407,10 +480,12 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         $new_current_revision = $this->manager->getCurrentRevision($new_resource_identification);
         $new_obj->setResourceId($new_resource_identification->serialize());
         $new_obj->initImplementation();
-        $new_obj->updateObjectFromRevision($new_current_revision, false); // Previews are already copied in 453
+        $new_obj->updateObjectFromRevision($new_current_revision); // Previews are already copied in 453
         $new_obj->setTitle($cloned_title); // see https://mantis.ilias.de/view.php?id=31375
         $new_obj->setPageCount($this->getPageCount());
         $new_obj->update();
+
+        $new_obj->getObjectProperties()->storePropertyIsOnline(new ilObjectPropertyIsOnline(true));
 
         // Copy learning progress settings
         $obj_settings = new ilLPObjSettings($this->getId());
@@ -420,20 +495,9 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
 
     protected function doUpdate(): void
     {
-        global $DIC;
-
         $a_columns = $this->getArrayForDatabase();
-        $DIC->database()->update('file_data', $a_columns, [
+        $this->database->update('file_data', $a_columns, [
             'file_id' => [
-                'integer',
-                $this->getId(),
-            ],
-        ]);
-
-        // update metadata with the current file version
-        $meta_version_column = ['meta_version' => ['integer', $this->getVersion()]];
-        $DIC->database()->update('il_meta_lifecycle', $meta_version_column, [
-            'rbac_id' => [
                 'integer',
                 $this->getId(),
             ],
@@ -450,6 +514,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         // no meta data handling for file list files
         if ($this->getMode() !== self::MODE_FILELIST) {
             $this->updateMetaData();
+            $this->updateCopyright();
         }
 
         return true;
@@ -464,10 +529,8 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
 
     protected function doDelete(): void
     {
-        global $DIC;
-
         // delete file data entry
-        $DIC->database()->manipulateF("DELETE FROM file_data WHERE file_id = %s", ['integer'], [$this->getId()]);
+        $this->database->manipulateF("DELETE FROM file_data WHERE file_id = %s", ['integer'], [$this->getId()]);
 
         // delete history entries
         ilHistory::_removeEntriesForObject($this->getId());
@@ -476,9 +539,6 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         if ($this->getMode() != self::MODE_FILELIST) {
             $this->deleteMetaData();
         }
-
-        // delete preview
-        $this->deletePreview();
 
         // delete resource
         $identification = $this->getResourceId();
@@ -490,15 +550,21 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         }
     }
 
+    /**
+     * @return array{file_id: int[]|string[], file_name: string[], f_mode: string[], important_info: string[]|null[], page_count: int[]|string[], rating: bool[]|string[], rid: string[], on_click_mode: int[]|string[], downloads: int[]|string[]}
+     */
     private function getArrayForDatabase(): array
     {
         return [
             'file_id' => ['integer', $this->getId()],
             'file_name' => ['text', $this->getFileName()],
             'f_mode' => ['text', $this->getMode()],
+            'important_info' => ['text', $this->getImportantInfo()],
             'page_count' => ['text', $this->getPageCount()],
             'rating' => ['integer', $this->hasRating()],
             'rid' => ['text', $this->resource_id ?? ''],
+            'on_click_mode' => ['integer', $this->getOnClickMode()],
+            'downloads' => ['integer', $this->getAmountOfDownloads()],
         ];
     }
 
@@ -569,12 +635,19 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     public function deleteVersions($a_hist_entry_ids = null): void
     {
         $this->implementation->deleteVersions($a_hist_entry_ids);
+        // update file object as the deletion of versions might affect its attributes (title, max_version etc.)
+        if ($this->getResourceId() && $rid = $this->manager->find($this->getResourceId())) {
+            $latest_revision = $this->manager->getCurrentRevision($rid);
+            $this->updateObjectFromRevision($latest_revision);
+        }
     }
 
     public function sendFile(?int $a_hist_entry_id = null, bool $inline = true): void
     {
+        // increment file download count by one.
+        $this->setAmountOfDownloads($this->getAmountOfDownloads() + 1);
+        $this->update();
         $info = (new ilObjFileInfoRepository())->getByObjectId($this->getId());
-
         $this->implementation->sendFile($a_hist_entry_id, $info->shouldDeliverInline());
     }
 
@@ -585,7 +658,6 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     {
         //
     }
-
 
     /**
      * @param null $version_ids
@@ -619,11 +691,13 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         return $this->appendSuffixToTitle($new_title, $new_filename);
     }
 
-    /**
-     * @deprecated
-     */
     public function getFileExtension(): string
     {
         return $this->implementation->getFileExtension();
+    }
+
+    public function stripTitleOfFileExtension(string $a_title): string
+    {
+        return $this->secure(preg_replace('/\.[^.]*$/', '', $a_title));
     }
 }

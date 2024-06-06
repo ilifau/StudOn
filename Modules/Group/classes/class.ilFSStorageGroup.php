@@ -1,10 +1,9 @@
 <?php
 
 declare(strict_types=1);
-
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
+/******************************************************************************
+ *
+ * This file is part of ILIAS, a powerful learning management system.
  *
  * ILIAS is licensed with the GPL-3.0,
  * see https://www.gnu.org/licenses/gpl-3.0.en.html

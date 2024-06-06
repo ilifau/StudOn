@@ -18,6 +18,9 @@
 
 declare(strict_types=1);
 
+use ILIAS\Services\Database\Integrity\Integrity;
+use ILIAS\Services\Database\PDO\FieldDefinition\ForeignKeyConstraints;
+
 /**
  * Interface ilDBInterface
  * @author Oskar Truffer <ot@studer-raimann.ch>
@@ -295,6 +298,26 @@ interface ilDBInterface
     public function groupConcat(string $a_field_name, string $a_seperator = ",", ?string $a_order = null): string;
 
     public function cast(string $a_field_name, string $a_dest_type): string;
+
+    /**
+     * @param string[] $field_names
+     * @param string[] $reference_field_names
+     */
+    public function addForeignKey(
+        string $foreign_key_name,
+        array $field_names,
+        string $table_name,
+        array $reference_field_names,
+        string $reference_table,
+        ?ForeignKeyConstraints $on_update = null,
+        ?ForeignKeyConstraints $on_delete = null
+    ): bool;
+
+    public function dropForeignKey(string $foreign_key_name, string $table_name): bool;
+
+    public function foreignKeyExists(string $foreign_key_name, string $table_name): bool;
+
+    public function buildIntegrityAnalyser(): Integrity;
 
     public function primaryExistsByFields(string $table_name, array $fields): bool;
 }

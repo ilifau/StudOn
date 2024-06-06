@@ -99,7 +99,7 @@ class ilMyStaffAccess extends ilObjectAccess
             return true;
         }
 
-        if ($this->hasCurrentUserAccessToUser()) {
+        if ($this->hasCurrentUserAccessToStaffList()) {
             return true;
         }
 
@@ -270,7 +270,12 @@ class ilMyStaffAccess extends ilObjectAccess
         return false;
     }
 
-    public function hasCurrentUserAccessToUser(int $usr_id = 0): bool
+    public function hasCurrentUserAccessToStaffList(): bool
+    {
+        return $this->hasCurrentUserAccessToUser(0);
+    }
+
+    public function hasCurrentUserAccessToUser(int $usr_id): bool
     {
         global $DIC;
 

@@ -187,8 +187,12 @@ class ilLMObjectGUI
         $cont_obj_gui->delete($this->obj->getId());
     }
 
+    public function setTabs(): void
+    {
+    }
 
-    /**
+
+        /**
      * cancel deletion of page/structure objects
      */
     public function cancelDelete(): void
@@ -233,7 +237,7 @@ class ilLMObjectGUI
             }
 
             $this->tpl->setCurrentBlock("operation");
-            $this->tpl->setVariable("IMG_ARROW", ilUtil::getImagePath("arrow_downright.svg"));
+            $this->tpl->setVariable("IMG_ARROW", ilUtil::getImagePath("nav/arrow_downright.svg"));
             $this->tpl->parseCurrentBlock();
         }
     }

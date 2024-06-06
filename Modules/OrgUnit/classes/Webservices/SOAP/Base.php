@@ -44,6 +44,19 @@ abstract class Base extends ilSoapAdministration implements ilSoapMethod
     public const POSITION_ID = 'position_id';
     public const USR_IDS = 'usr_ids';
     public const USR_ID = 'usr_id';
+    protected \ilOrgUnitPositionDBRepository $positionRepo;
+    protected \ilOrgUnitUserAssignmentDBRepository $assignmentRepo;
+
+    public function __construct()
+    {
+        if (! isset($_GET["wsdl"])) {
+            $dic = \ilOrgUnitLocalDIC::dic();
+            $this->positionRepo = $dic["repo.Positions"];
+            $this->assignmentRepo = $dic["repo.UserAssignments"];
+        }
+
+        parent::__construct();
+    }
 
     public function getServiceStyle(): string
     {

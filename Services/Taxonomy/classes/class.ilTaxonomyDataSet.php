@@ -232,7 +232,6 @@ class ilTaxonomyDataSet extends ilDataSet
                             $node->getId()
                         );
                         break;
-
                 }
 
                 // no break

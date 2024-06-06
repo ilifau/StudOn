@@ -25,6 +25,8 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
 {
     public static $block_type = "wikiside";
     public static $st_data;
+    protected \ILIAS\Wiki\InternalGUIService $gui;
+    protected int $wpg_id;
     protected int $ref_id;
     protected ilWikiPage $pageob;
     protected ilObjWiki $wiki;
@@ -37,8 +39,11 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
             ->wiki()
             ->internal()
             ->gui()
-            ->editing()
             ->request();
+
+        $this->gui = $DIC->wiki()
+            ->internal()
+            ->gui();
 
         $this->ctrl = $DIC->ctrl();
         $this->lng = $DIC->language();
@@ -55,6 +60,7 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
         $this->allow_moving = false;
 
         $this->ref_id = $request->getRefId();
+        $this->wpg_id = $request->getWikiPageId();
 
         $this->wiki = new ilObjWiki($this->ref_id);
 
@@ -114,10 +120,13 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
         $ilCtrl = $this->ctrl;
         $lng = $this->lng;
         $ilAccess = $this->access;
+        $ui_factory = $this->gui->ui()->factory();
+        $ui_renderer = $this->gui->ui()->renderer();
 
         $tpl = new ilTemplate("tpl.wiki_side_block_content.html", true, true, "Modules/Wiki");
 
         $wp = $this->getPageObject();
+        $ilCtrl->setParameterByClass(ilWikiPageGUI::class, "wpg_id", $this->wpg_id);
 
         // info
         $actions[] = array(
@@ -169,43 +178,34 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
 
 
         // page lists
-        $list = new ilAdvancedSelectionListGUI();
-        $list->setListTitle($lng->txt("wiki_page_lists"));
-        $list->setStyle(ilAdvancedSelectionListGUI::STYLE_LINK);
-        $list->setId("wiki_pglists");
-
+        $dd_actions = [];
         foreach ($actions as $a) {
-            $list->addItem(
+            $dd_actions[] = $ui_factory->link()->standard(
                 $a["txt"],
-                "",
                 $a["href"]
             );
         }
+        $dd = $ui_factory->dropdown()->standard($dd_actions)->withLabel($lng->txt("wiki_page_lists"));
         $tpl->setCurrentBlock("plain");
-        $tpl->setVariable("PLAIN", $list->getHTML());
+        $tpl->setVariable("PLAIN", $ui_renderer->render($dd));
         $tpl->parseCurrentBlock();
         $tpl->touchBlock("item");
 
 
         // page actions
-        $list = new ilAdvancedSelectionListGUI();
-        $list->setStyle(ilAdvancedSelectionListGUI::STYLE_LINK);
-        $list->setListTitle($lng->txt("wiki_page_actions"));
-        $list->setId("wiki_pgactions");
+        $dd_actions = [];
 
         if ($ilAccess->checkAccess("write", "", $this->ref_id)) {
             // rating
             if (ilObjWiki::_lookupRating($this->getPageObject()->getWikiId())) {
                 if (!$this->getPageObject()->getRating()) {
-                    $list->addItem(
+                    $dd_actions[] = $ui_factory->link()->standard(
                         $lng->txt("wiki_activate_page_rating"),
-                        "",
                         $ilCtrl->getLinkTargetByClass("ilwikipagegui", "activateWikiPageRating")
                     );
                 } else {
-                    $list->addItem(
+                    $dd_actions[] = $ui_factory->link()->standard(
                         $lng->txt("wiki_deactivate_page_rating"),
-                        "",
                         $ilCtrl->getLinkTargetByClass("ilwikipagegui", "deactivateWikiPageRating")
                     );
                 }
@@ -217,9 +217,8 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
             // unhide advmd?
             if (count(ilAdvancedMDRecord::_getSelectedRecordsByObject("wiki", $this->ref_id, "wpg")) &&
                 ilWikiPage::lookupAdvancedMetadataHidden($this->getPageObject()->getId())) {
-                $list->addItem(
+                $dd_actions[] = $ui_factory->link()->standard(
                     $lng->txt("wiki_unhide_meta_adv_records"),
-                    "",
                     $ilCtrl->getLinkTargetByClass("ilwikipagegui", "unhideAdvancedMetaData")
                 );
             }
@@ -228,9 +227,8 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
         if (($ilAccess->checkAccess("edit_content", "", $this->ref_id) && !$this->getPageObject()->getBlocked())
             || $ilAccess->checkAccess("write", "", $this->ref_id)) {
             // rename
-            $list->addItem(
+            $dd_actions[] = $ui_factory->link()->standard(
                 $lng->txt("wiki_rename_page"),
-                "",
                 $ilCtrl->getLinkTargetByClass("ilwikipagegui", "renameWikiPage")
             );
         }
@@ -238,15 +236,13 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
         if (ilWikiPerm::check("activate_wiki_protection", $this->ref_id)) {
             // block/unblock
             if ($this->getPageObject()->getBlocked()) {
-                $list->addItem(
+                $dd_actions[] = $ui_factory->link()->standard(
                     $lng->txt("wiki_unblock_page"),
-                    "",
                     $ilCtrl->getLinkTargetByClass("ilwikipagegui", "unblockWikiPage")
                 );
             } else {
-                $list->addItem(
+                $dd_actions[] = $ui_factory->link()->standard(
                     $lng->txt("wiki_block_page"),
-                    "",
                     $ilCtrl->getLinkTargetByClass("ilwikipagegui", "blockWikiPage")
                 );
             }
@@ -256,9 +252,8 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
             // delete page
             $st_page = ilObjWiki::_lookupStartPage($this->getPageObject()->getParentId());
             if ($st_page !== $this->getPageObject()->getTitle()) {
-                $list->addItem(
+                $dd_actions[] = $ui_factory->link()->standard(
                     $lng->txt("wiki_delete_page"),
-                    "",
                     $ilCtrl->getLinkTargetByClass("ilwikipagegui", "deleteWikiPageConfirmationScreen")
                 );
             }
@@ -266,25 +261,26 @@ class ilWikiFunctionsBlockGUI extends ilBlockGUI
 
         if ($ilAccess->checkAccess("write", "", $this->ref_id)) {
             $wpt = new ilWikiPageTemplate($this->getPageObject()->getParentId());
+            $ilCtrl->setParameterByClass(ilWikiPageTemplateGUI::class, "wpg_id", $this->getPageObject()->getId());
             if (!$wpt->isPageTemplate($this->getPageObject()->getId())) {
-                $list->addItem(
+                $dd_actions[] = $ui_factory->link()->standard(
                     $lng->txt("wiki_add_template"),
-                    "",
                     $ilCtrl->getLinkTargetByClass("ilwikipagetemplategui", "addPageTemplateFromPageAction")
                 );
             } else {
-                $list->addItem(
+                $dd_actions[] = $ui_factory->link()->standard(
                     $lng->txt("wiki_remove_template_status"),
-                    "",
                     $ilCtrl->getLinkTargetByClass("ilwikipagetemplategui", "removePageTemplateFromPageAction")
                 );
             }
         }
 
+        $dd = $ui_factory->dropdown()->standard($dd_actions)->withLabel($lng->txt("wiki_page_actions"));
+
         if ($ilAccess->checkAccess("write", "", $this->ref_id) ||
             $ilAccess->checkAccess("read", "", $this->ref_id)) {
             $tpl->setCurrentBlock("plain");
-            $tpl->setVariable("PLAIN", $list->getHTML());
+            $tpl->setVariable("PLAIN", $ui_renderer->render($dd));
             $tpl->parseCurrentBlock();
             $tpl->touchBlock("item");
         }

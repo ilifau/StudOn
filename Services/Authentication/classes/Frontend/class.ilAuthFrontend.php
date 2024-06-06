@@ -41,6 +41,8 @@ class ilAuthFrontend
     private ilAuthSession $auth_session;
     private ilAppEventHandler $ilAppEventHandler;
 
+    private ilUserProfile $user_profile;
+
     private bool $authenticated = false;
 
     /**
@@ -61,6 +63,8 @@ class ilAuthFrontend
         $this->credentials = $credentials;
         $this->status = $status;
         $this->providers = $providers;
+
+        $this->user_profile = new ilUserProfile();
     }
 
     /**
@@ -300,7 +304,7 @@ class ilAuthFrontend
 
         // check if profile is complete
         if (
-            ilUserProfile::isProfileIncomplete($user) &&
+            $this->user_profile->isProfileIncomplete($user) &&
             ilAuthFactory::getContext() !== ilAuthFactory::CONTEXT_ECS &&
             ilContext::getType() !== ilContext::CONTEXT_LTI_PROVIDER
         ) {
@@ -315,9 +319,6 @@ class ilAuthFrontend
 
         // @todo move to event handling
         ilOnlineTracking::addUser($user->getId());
-
-        // @todo move to event handling
-        ilObjForum::_updateOldAccess($user->getId());
 
         $security_settings = ilSecuritySettings::_getInstance();
 
@@ -342,11 +343,10 @@ class ilAuthFrontend
         ilInitialisation::initUserAccount();
 
         ilSession::set('orig_request_target', '');
-        $user->hasToAcceptTermsOfServiceInSession(true);
 
 
         // --- anonymous/registered user
-        if (PHP_SAPI !=="cli") {
+        if (PHP_SAPI !== "cli") {
             $this->logger->info(
                 'logged in as ' . $user->getLogin() .
             ', remote:' . $_SERVER['REMOTE_ADDR'] . ':' . $_SERVER['REMOTE_PORT'] .

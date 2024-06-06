@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Blog;
 
 use ILIAS\COPage;
@@ -122,10 +124,10 @@ class BlogPrintViewProviderGUI extends Export\AbstractPrintViewProvider
             $nl->addListNode(
                 $p["id"],
                 $p["title"],
-                0,
+                "0",
                 false,
                 false,
-                \ilUtil::getImagePath("icon_pg.svg"),
+                \ilUtil::getImagePath("standard/icon_pg.svg"),
                 $lng->txt("blog_posting")
             );
         }

@@ -1,6 +1,9 @@
 <?php
 
+<<<<<<< HEAD
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,14 +20,16 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\GlobalScreen\ScreenContext\Stack;
 
 use ILIAS\GlobalScreen\ScreenContext\ContextRepository;
 use ILIAS\GlobalScreen\ScreenContext\ScreenContext;
 
 /**
- * Class ContextCollection
  * @package ILIAS\GlobalScreen\Scope\Tool\ScreenContext\Stack
+ * @internal
  */
 class ContextCollection
 {
@@ -34,30 +39,42 @@ class ContextCollection
      */
     protected array $stack = [];
 
-    /**
-     * ContextCollection constructor.
-     * @param ContextRepository $context_repository
-     */
     public function __construct(ContextRepository $context_repository)
     {
         $this->repo = $context_repository;
     }
 
+<<<<<<< HEAD
     /**
      * @param ScreenContext $context
      */
+=======
+>>>>>>> v9.1
     public function push(ScreenContext $context): void
     {
+        $current = end($this->stack);
+        if ($current instanceof ScreenContext) {
+            if($current->hasReferenceId()) {
+                $reference_id = $current->getReferenceId();
+                $ref_id = $reference_id->toInt();
+                $context = $context->withReferenceId($reference_id);
+            }
+            $context = $context->withAdditionalData($current->getAdditionalData());
+        }
+
         $this->stack[] = $context;
     }
 
+<<<<<<< HEAD
     /**
      * @return ScreenContext
      */
+=======
+>>>>>>> v9.1
     public function getLast(): ?ScreenContext
     {
         $last = end($this->stack);
-        if ($last) {
+        if ($last instanceof ScreenContext) {
             return $last;
         }
         return null;
@@ -71,9 +88,12 @@ class ContextCollection
         return $this->stack;
     }
 
+<<<<<<< HEAD
     /**
      * @return array
      */
+=======
+>>>>>>> v9.1
     public function getStackAsArray(): array
     {
         $return = [];
@@ -84,6 +104,7 @@ class ContextCollection
         return $return;
     }
 
+<<<<<<< HEAD
     /**
      * @param ContextCollection $other_collection
      * @return bool
@@ -91,6 +112,11 @@ class ContextCollection
     public function hasMatch(ContextCollection $other_collection): bool
     {
         $mapper = function (ScreenContext $c): string {
+=======
+    public function hasMatch(ContextCollection $other_collection): bool
+    {
+        $mapper = static function (ScreenContext $c): string {
+>>>>>>> v9.1
             return $c->getUniqueContextIdentifier();
         };
         $mine = array_map($mapper, $this->getStack());

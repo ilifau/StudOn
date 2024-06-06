@@ -26,12 +26,18 @@ use ILIAS\UI\Component\Symbol\Glyph\Glyph;
 
 class Factory implements I\Factory
 {
+<<<<<<< HEAD
     protected \ilLanguage $lng;
 
     public function __construct(
         \ilLanguage $lng
     ) {
         $this->lng = $lng;
+=======
+    public function __construct(
+        protected \ilLanguage $lng
+    ) {
+>>>>>>> v9.1
     }
 
     public function text(string $title): I\Text
@@ -62,11 +68,17 @@ class Factory implements I\Factory
 
     public function boolean(
         string $title,
+<<<<<<< HEAD
         $true,
         $false
     ): I\Boolean {
         assert(is_string($true) || $true instanceof Icon || $true instanceof Glyph);
         assert(is_string($false) || $false instanceof Icon || $false instanceof Glyph);
+=======
+        string|Icon|Glyph $true,
+        string|Icon|Glyph $false
+    ): I\Boolean {
+>>>>>>> v9.1
         return new Boolean($this->lng, $title, $true, $false);
     }
 

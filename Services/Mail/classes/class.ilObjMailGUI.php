@@ -18,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\Mail\Autoresponder\AutoresponderService;
+
 /**
  * @author       Stefan Meyer <meyer@leifos.com>
  * @author       Michael Jansen <mjansen@databay.de>
@@ -25,10 +27,12 @@ declare(strict_types=1);
  */
 class ilObjMailGUI extends ilObjectGUI
 {
-    public const SETTINGS_SUB_TAB_ID_GENERAL = 'settings_general';
-    public const SETTINGS_SUB_TAB_ID_EXTERNAL = 'settings_external';
-    public const PASSWORD_PLACE_HOLDER = '***********************';
-    protected ilTabsGUI $tabs;
+    private const SETTINGS_SUB_TAB_ID_GENERAL = 'settings_general';
+    private const SETTINGS_SUB_TAB_ID_EXTERNAL = 'settings_external';
+    private const PASSWORD_PLACE_HOLDER = '***********************';
+
+    private readonly ilTabsGUI $tabs;
+    private readonly ilMustacheFactory $mustache_factory;
 
     public function __construct($a_data, int $a_id, bool $a_call_by_reference)
     {
@@ -37,6 +41,7 @@ class ilObjMailGUI extends ilObjectGUI
         parent::__construct($a_data, $a_id, $a_call_by_reference, false);
 
         $this->tabs = $DIC->tabs();
+        $this->mustache_factory = $DIC->mail()->mustacheFactory();
 
         $this->lng->loadLanguageModule('mail');
     }
@@ -124,7 +129,7 @@ class ilObjMailGUI extends ilObjectGUI
         if ($this->isPermissionChangeAllowed()) {
             $this->tabs->addTarget(
                 'perm_settings',
-                $this->ctrl->getLinkTargetByClass([get_class($this), ilPermissionGUI::class], 'perm'),
+                $this->ctrl->getLinkTargetByClass([static::class, ilPermissionGUI::class], 'perm'),
                 ['perm', 'info', 'owner'],
                 ilPermissionGUI::class
             );
@@ -241,6 +246,19 @@ class ilObjMailGUI extends ilObjectGUI
             $this
         );
 
+        $mn = new ilFormSectionHeaderGUI();
+        $mn->setTitle($this->lng->txt('mail_auto_responder'));
+        $form->addItem($mn);
+
+        $input = new ilNumberInputGUI($this->lng->txt('mail_auto_responder_idle_time'), 'mail_auto_responder_idle_time');
+        $input->setMinValue(1);
+        $input->allowDecimals(false);
+        $input->setInfo($this->lng->txt('mail_auto_responder_idle_time_info'));
+        $input->setSuffix($this->lng->txt('days'));
+        $input->setDisabled(!$this->isEditingAllowed());
+        $input->setSize(5);
+        $form->addItem($input);
+
         if ($this->isEditingAllowed()) {
             $form->addCommandButton('save', $this->lng->txt('save'));
         }
@@ -262,6 +280,9 @@ class ilObjMailGUI extends ilObjectGUI
             'show_mail_settings' => (bool) $this->settings->get('show_mail_settings', '1'),
             'mail_maxsize_attach' => $this->settings->get('mail_maxsize_attach', ''),
             'mail_notification' => $this->settings->get('mail_notification', ''),
+            'mail_auto_responder_idle_time' => is_numeric($this->settings->get('mail_auto_responder_idle_time', (string) AutoresponderService::AUTO_RESPONDER_DEFAULT_IDLE_TIME)) ?
+                (string) $this->settings->get('mail_auto_responder_idle_time', '3') :
+                '',
         ]);
     }
 
@@ -288,6 +309,7 @@ class ilObjMailGUI extends ilObjectGUI
             $this->settings->set('mail_address_option', (string) $mail_address_option);
             $this->settings->set('mail_maxsize_attach', (string) $form->getInput('mail_maxsize_attach'));
             $this->settings->set('mail_notification', (string) ((int) $form->getInput('mail_notification')));
+            $this->settings->set('mail_auto_responder_idle_time', (string) $form->getInput('mail_auto_responder_idle_time'));
 
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);
             $this->ctrl->redirect($this);
@@ -311,15 +333,14 @@ class ilObjMailGUI extends ilObjectGUI
         }
 
         if ($this->user->getEmail() !== '') {
-            $btn = ilLinkButton::getInstance();
-            $btn->setUrl($this->ctrl->getLinkTarget($this, 'sendTestUserMail'));
-            $btn->setCaption('mail_external_send_test_usr');
-            $this->toolbar->addButtonInstance($btn);
-
-            $btn = ilLinkButton::getInstance();
-            $btn->setUrl($this->ctrl->getLinkTarget($this, 'sendTestSystemMail'));
-            $btn->setCaption('mail_external_send_test_sys');
-            $this->toolbar->addButtonInstance($btn);
+            $this->toolbar->addComponent($this->ui_factory->button()->standard(
+                $this->lng->txt('mail_external_send_test_usr'),
+                $this->ctrl->getLinkTarget($this, 'sendTestUserMail')
+            ));
+            $this->toolbar->addComponent($this->ui_factory->button()->standard(
+                $this->lng->txt('mail_external_send_test_sys'),
+                $this->ctrl->getLinkTarget($this, 'sendTestSystemMail')
+            ));
         }
 
         $this->tpl->setContent($form->getHTML());
@@ -537,6 +558,7 @@ class ilObjMailGUI extends ilObjectGUI
 
         $placeholders = new ilManualPlaceholderInputGUI(
             $this->lng->txt('mail_form_placeholders_label'),
+            'm_placeholders',
             'mail_system_sys_signature'
         );
         $placeholder_list = [
@@ -615,6 +637,33 @@ class ilObjMailGUI extends ilObjectGUI
             return;
         }
 
+        // If all forms in ILIAS use the UI/KS forms (here and in Services/Mail), we should move this to a proper constraint/trafo
+        $is_valid_template_syntax = $this->refinery->custom()->constraint(function ($value): bool {
+            try {
+                $this->mustache_factory->getBasicEngine()->render((string) $value, []);
+                return true;
+            } catch (Exception) {
+                return false;
+            }
+        }, $this->lng->txt('mail_template_invalid_tpl_syntax'));
+
+        $valid_templates = true;
+        foreach (['mail_system_usr_from_name', 'mail_system_sys_signature'] as $template) {
+            try {
+                $is_valid_template_syntax->check((string) $form->getInput($template));
+            } catch (Exception) {
+                $form->getItemByPostVar($template)->setAlert(
+                    $is_valid_template_syntax->problemWith((string) $form->getInput($template))
+                );
+                $valid_templates = false;
+            }
+        }
+        if (!$valid_templates) {
+            $form->setValuesByPost();
+            $this->showExternalSettingsFormObject($form);
+            return;
+        }
+
         $this->settings->set('mail_smtp_status', (string) ((int) $form->getInput('mail_smtp_status')));
         $this->settings->set('mail_smtp_host', (string) $form->getInput('mail_smtp_host'));
         $this->settings->set('mail_smtp_port', (string) ((int) $form->getInput('mail_smtp_port')));
@@ -658,7 +707,6 @@ class ilObjMailGUI extends ilObjectGUI
         $main_tpl = $DIC->ui()->mainTemplate();
 
         $mail = new ilMail($DIC->user()->getId());
-        $request = $DIC->http()->request();
 
         if ($DIC->rbac()->system()->checkAccess('internal_mail', $mail->getMailObjectReferenceId())) {
             $DIC->ctrl()->redirectToURL('ilias.php?baseClass=ilMailGUI');

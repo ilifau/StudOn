@@ -16,16 +16,20 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\Blog\StandardGUIRequest;
+use ILIAS\Repository\Profile\ProfileGUI;
 
 /**
  * Class ilBlogPosting GUI class
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
  * @ilCtrl_Calls ilBlogPostingGUI: ilPageEditorGUI, ilEditClipboardGUI
- * @ilCtrl_Calls ilBlogPostingGUI: ilRatingGUI, ilPublicUserProfileGUI, ilPageObjectGUI, ilNoteGUI
+ * @ilCtrl_Calls ilBlogPostingGUI: ilRatingGUI, ilPublicUserProfileGUI, ilPageObjectGUI, ilCommentGUI
  */
 class ilBlogPostingGUI extends ilPageObjectGUI
 {
+    protected ProfileGUI $profile_gui;
     protected \ILIAS\Notes\Service $notes;
     protected \ILIAS\Blog\ReadingTime\ReadingTimeManager $reading_time_manager;
     protected StandardGUIRequest $blog_request;
@@ -105,6 +109,7 @@ class ilBlogPostingGUI extends ilPageObjectGUI
 
         $this->reading_time_manager = new \ILIAS\Blog\ReadingTime\ReadingTimeManager();
         $this->notes = $DIC->notes();
+        $this->profile_gui = $DIC->blog()->internal()->gui()->profile();
     }
 
     public function executeCommand(): string
@@ -119,32 +124,30 @@ class ilBlogPostingGUI extends ilPageObjectGUI
         $ilCtrl->setParameter($this, "blpg", $posting->getId());
 
         switch ($next_class) {
-            case "ilnotegui":
+            case "ilcommentgui":
                 // $this->getTabs();
                 // $ilTabs->setTabActive("pg");
                 return $this->previewFullscreen();
 
             default:
-                if ($posting) {
-                    if ($ilCtrl->getCmd() === "deactivatePageToList") {
-                        $this->tpl->setOnScreenMessage('success', $this->lng->txt("blog_draft_info"), true);
-                    } elseif ($ilCtrl->getCmd() === "activatePageToList") {
-                        $this->tpl->setOnScreenMessage('success', $this->lng->txt("blog_new_posting_info"), true);
-                    }
-                    $this->setPresentationTitle($posting->getTitle());
-
-                    $tpl->setTitle(ilObject::_lookupTitle($this->getBlogPosting()->getBlogId()) . ": " . // #15017
-                        $posting->getTitle());
-                    $tpl->setTitleIcon(
-                        ilUtil::getImagePath("icon_blog.svg"),
-                        $this->lng->txt("obj_blog")
-                    ); // #12879
-
-                    $ilLocator->addItem(
-                        $posting->getTitle(),
-                        $ilCtrl->getLinkTarget($this, "preview")
-                    );
+                if ($ilCtrl->getCmd() === "deactivatePageToList") {
+                    $this->tpl->setOnScreenMessage('success', $this->lng->txt("blog_draft_info"), true);
+                } elseif ($ilCtrl->getCmd() === "activatePageToList") {
+                    $this->tpl->setOnScreenMessage('success', $this->lng->txt("blog_new_posting_info"), true);
                 }
+                $this->setPresentationTitle($posting->getTitle());
+
+                $tpl->setTitle(ilObject::_lookupTitle($this->getBlogPosting()->getBlogId()) . ": " . // #15017
+                    $posting->getTitle());
+                $tpl->setTitleIcon(
+                    ilUtil::getImagePath("standard/icon_blog.svg"),
+                    $this->lng->txt("obj_blog")
+                ); // #12879
+
+                $ilLocator->addItem(
+                    $posting->getTitle(),
+                    $ilCtrl->getLinkTarget($this, "preview")
+                );
                 return parent::executeCommand();
         }
     }
@@ -202,7 +205,7 @@ class ilBlogPostingGUI extends ilPageObjectGUI
             $may_delete_comments = ($this->checkAccess("contribute") &&
                 $ilSetting->get("comments_del_tutor", '1'));
 
-            $wtpl->setVariable("TOOLBAR", $toolbar->getHTML());
+            //$wtpl->setVariable("TOOLBAR", $toolbar->getHTML());
 
             $wtpl->setVariable("NOTES", $this->getNotesHTML(
                 $this->getBlogPosting(),
@@ -276,7 +279,7 @@ class ilBlogPostingGUI extends ilPageObjectGUI
             $class = get_class($this->access_handler);
         }
 
-        return stristr($class, "workspace");
+        return (bool) stristr($class, "workspace");
     }
 
     /**
@@ -314,12 +317,12 @@ class ilBlogPostingGUI extends ilPageObjectGUI
             $authors = array();
             $author_id = $this->getBlogPosting()->getAuthor();
             if ($author_id) {
-                $authors[] = ilUserUtil::getNamePresentation($author_id);
+                $authors[] = $this->profile_gui->getNamePresentation($author_id);
             }
 
             foreach (ilBlogPosting::getPageContributors("blp", $this->getBlogPosting()->getId()) as $editor) {
                 if ($editor["user_id"] != $author_id) {
-                    $authors[] = ilUserUtil::getNamePresentation($editor["user_id"]);
+                    $authors[] = $this->profile_gui->getNamePresentation($editor["user_id"]);
                 }
             }
 
@@ -787,7 +790,7 @@ class ilBlogPostingGUI extends ilPageObjectGUI
         $mob_ids = $this->obj->collectMediaObjects();
         if ($mob_ids) {
             foreach ($mob_ids as $mob_id) {
-                $mob_obj = new ilObjMediaObject($mob_id);
+                $mob_obj = new ilObjMediaObject((int) $mob_id);
                 $mob_item = $mob_obj->getMediaItem("Standard");
                 if (stripos($mob_item->getFormat(), "image") !== false) {
                     $mob_size = $mob_item->getOriginalSize();

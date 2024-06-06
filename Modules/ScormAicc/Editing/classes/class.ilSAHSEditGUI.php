@@ -38,10 +38,7 @@ class ilSAHSEditGUI implements ilCtrlBaseClassInterface
     protected ilCtrl $ctrl;
     protected int $refId;
 
-    /**
-     * @var ilObjSCORMLearningModuleGUI|ilObjSCORM2004LearningModuleGUI
-     */
-    protected $slm_gui;
+    protected ilObjSCORMLearningModuleGUI|ilObjSCORM2004LearningModuleGUI $slm_gui;
 
     /**
      * @throws ilCtrlException
@@ -97,7 +94,6 @@ class ilSAHSEditGUI implements ilCtrlBaseClassInterface
         $type = ilObjSAHSLearningModule::_lookupSubType($obj_id);
 
         switch ($type) {
-
             case "scorm":
                 $this->slm_gui = new ilObjSCORMLearningModuleGUI([], $this->refId, true, false);
                 break;
@@ -105,12 +101,10 @@ class ilSAHSEditGUI implements ilCtrlBaseClassInterface
             case "scorm2004":
                 $this->slm_gui = new ilObjSCORM2004LearningModuleGUI([], $this->refId, true, false);
                 break;
-
         }
 
         if ($next_class == "") {
             switch ($type) {
-
                 case "scorm2004":
                     $this->ctrl->setCmdClass("ilobjscorm2004learningmodulegui");
                     break;

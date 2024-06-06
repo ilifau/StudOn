@@ -43,9 +43,9 @@ class ilAdvancedMDRecordTableGUI extends ilTable2GUI
         $this->addColumn('', '', '1');
         $this->addColumn($this->lng->txt('md_adv_col_presentation_ordering'), 'position');
         $this->addColumn($this->lng->txt('title'), 'title');
-        $this->addColumn($this->lng->txt('md_fields'), 'fields');
+        $this->addColumn($this->lng->txt('md_fields'));
         $this->addColumn($this->lng->txt('md_adv_scope'), 'first_scope');
-        $this->addColumn($this->lng->txt('md_obj_types'), 'obj_types');
+        $this->addColumn($this->lng->txt('md_obj_types'));
         $this->addColumn($this->lng->txt('md_adv_active'), 'active');
 
         $this->addColumn($this->lng->txt('actions'));
@@ -103,9 +103,11 @@ class ilAdvancedMDRecordTableGUI extends ilTable2GUI
                 $hidden = true;
             }
 
+            $assigned = false;
             foreach ($a_set['obj_types'] as $t) {
                 if ($obj_type["obj_type"] == $t["obj_type"] &&
                     $obj_type["sub_type"] == $t["sub_type"]) {
+                    $assigned = true;
                     $value = $t["optional"]
                         ? 2
                         : 1;
@@ -133,7 +135,9 @@ class ilAdvancedMDRecordTableGUI extends ilTable2GUI
                 continue;
             }
 
-            if (!$do_select && !$value) {
+            // subtypes where the record is globally disabled should not be displayed at all #38557
+            // (only relevant if there are multiple subtypes, and for only some this record is disabled)
+            if ($this->in_object_type_context !== "" && !$a_set["local"] && !$assigned) {
                 continue;
             }
 

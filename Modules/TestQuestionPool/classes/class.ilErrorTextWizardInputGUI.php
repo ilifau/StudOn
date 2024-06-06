@@ -48,7 +48,6 @@ class ilErrorTextWizardInputGUI extends ilTextInputGUI
     {
         $this->values = array();
         if (is_array($a_value)) {
-            include_once "./Modules/TestQuestionPool/classes/class.assAnswerErrorText.php";
             if (is_array($a_value['key'])) {
                 foreach ($a_value['key'] as $idx => $key) {
                     $this->values[] = new assAnswerErrorText($key, $a_value['value'][$idx], (float) str_replace(",", ".", $a_value['points'][$idx]));

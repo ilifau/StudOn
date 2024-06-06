@@ -127,5 +127,4 @@ class ilDownloadZipInteraction extends AbstractUserInteraction
     {
         return false;
     }
-
 }

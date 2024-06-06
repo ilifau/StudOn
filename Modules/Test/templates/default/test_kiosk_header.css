@@ -1,6 +1,6 @@
- /*
- this is an abomination for release_8!
- proper "kiosk-handling" is _very_ much encouraged for 9.
+/**
+ * this is an abomination for release_8 + release_9!
+ * @todo Implement proper "kiosk-handling" for ILIAS 10.
  */
 
 body .il-layout-page {
@@ -10,10 +10,3 @@ body header .header-inner {
     display:none !important;
 }
 
-body .breadcrumbs {
-    display: none;
-}
-
-main.il-layout-page-content {
-    grid-row: auto;
-}

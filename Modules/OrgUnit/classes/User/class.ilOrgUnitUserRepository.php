@@ -28,6 +28,8 @@ use ilOrgUnitUserAssignment;
 class ilOrgUnitUserRepository
 {
     protected \ILIAS\DI\Container $dic;
+    protected \ilOrgUnitPositionDBRepository $positionRepo;
+
     /**
      * @var self[]
      */
@@ -38,6 +40,7 @@ class ilOrgUnitUserRepository
     protected array $orgu_users;
     protected bool $with_superiors = false;
     protected bool $with_positions = false;
+    protected \ilOrgUnitUserAssignmentDBRepository $assignmentRepo;
 
     /**
      * ilOrgUnitUserRepository constructor.
@@ -46,6 +49,26 @@ class ilOrgUnitUserRepository
     {
         global $DIC;
         $this->dic = $DIC;
+    }
+
+    private function getPositionRepo(): \ilOrgUnitPositionDBRepository
+    {
+        if (!isset($this->positionRepo)) {
+            $dic = \ilOrgUnitLocalDIC::dic();
+            $this->positionRepo = $dic["repo.Positions"];
+        }
+
+        return $this->positionRepo;
+    }
+
+    protected function getAssignmentRepo(): \ilOrgUnitUserAssignmentDBRepository
+    {
+        if (!isset($this->assignmentRepo)) {
+            $dic = \ilOrgUnitLocalDIC::dic();
+            $this->assignmentRepo = $dic["repo.UserAssignments"];
+        }
+
+        return $this->assignmentRepo;
     }
 
     /**
@@ -175,26 +198,14 @@ class ilOrgUnitUserRepository
         return $sql;
     }
 
-    /**
-     * @param array $user_ids
-     * @return array
-     */
-    public function loadPositions(array $user_ids): array
+    public function loadPositions(array $user_ids): void
     {
-        /**
-         * @var ilOrgUnitUserAssignment $assignment
-         */
-        $positions = [];
-
-        $assignments = ilOrgUnitUserAssignment::where(['user_id' => $user_ids])->get();
-        if (count($assignments) > 0) {
-            foreach ($assignments as $assignment) {
-                $org_unit_user = ilOrgUnitUser::getInstanceById($assignment->getUserId());
-                $org_unit_user->addPositions(ilOrgUnitPosition::find($assignment->getPositionId()));
-            }
+        $assignments = $this->getAssignmentRepo()
+            ->getByUsers($user_ids);
+        foreach ($assignments as $assignment) {
+            $org_unit_user = ilOrgUnitUser::getInstanceById($assignment->getUserId());
+            $org_unit_user->addPositions($this->getPositionRepo()->getSingle($assignment->getPositionId(), 'id'));
         }
-
-        return $positions;
     }
 
     /**

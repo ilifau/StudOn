@@ -1,6 +1,9 @@
 <?php
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +21,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 require_once(__DIR__ . "/../../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 
@@ -432,21 +440,21 @@ class SwitchableGroupInputTest extends ILIAS_UI_TestBase
     <div class="col-sm-8 col-md-9 col-lg-10">
         <div id="id_1" class="il-input-radio">
             <div class="form-control form-control-sm il-input-radiooption">
-                <input type="radio" id="id_1_g1_opt" name="" value="g1" /><label for="id_1_g1_opt"></label>
+                <input type="radio" id="id_1_g1_opt" value="g1" /><label for="id_1_g1_opt"></label>
                 <div class="form-group row">
                     <label for="id_2" class="control-label col-sm-4 col-md-3 col-lg-2">f</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_2" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_2" type="text" class="form-control form-control-sm" />
                         <div class="help-block">some field</div>
                     </div>
                 </div>
             </div>
             <div class="form-control form-control-sm il-input-radiooption">
-                <input type="radio" id="id_1_g2_opt" name="" value="g2" /><label for="id_1_g2_opt"></label>
+                <input type="radio" id="id_1_g2_opt" value="g2" /><label for="id_1_g2_opt"></label>
                 <div class="form-group row">
                     <label for="id_3" class="control-label col-sm-4 col-md-3 col-lg-2">f2</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_3" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_3" type="text" class="form-control form-control-sm" />
                         <div class="help-block">some other field</div>
                     </div>
                 </div>
@@ -477,21 +485,21 @@ EOT;
     <div class="col-sm-8 col-md-9 col-lg-10">
         <div id="id_1" class="il-input-radio">
             <div class="form-control form-control-sm il-input-radiooption">
-                <input type="radio" id="id_1_g1_opt" name="" value="g1" /><label for="id_1_g1_opt"></label>
+                <input type="radio" id="id_1_g1_opt" value="g1" /><label for="id_1_g1_opt"></label>
                 <div class="form-group row">
                     <label for="id_2" class="control-label col-sm-4 col-md-3 col-lg-2">f</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_2" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_2" type="text" class="form-control form-control-sm" />
                         <div class="help-block">some field</div>
                     </div>
                 </div>
             </div>
             <div class="form-control form-control-sm il-input-radiooption">
-                <input type="radio" id="id_1_g2_opt" name="" value="g2" checked="checked" /><label for="id_1_g2_opt"></label>
+                <input type="radio" id="id_1_g2_opt" value="g2" checked="checked" /><label for="id_1_g2_opt"></label>
                 <div class="form-group row">
                     <label for="id_3" class="control-label col-sm-4 col-md-3 col-lg-2">f2</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_3" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_3" type="text" class="form-control form-control-sm" />
                         <div class="help-block">some other field</div>
                     </div>
                 </div>
@@ -534,28 +542,32 @@ EOT;
     <div class="col-sm-8 col-md-9 col-lg-10">
         <div id="id_1" class="il-input-radio">
             <div class="form-control form-control-sm il-input-radiooption">
-                <input type="radio" id="id_1_0_opt" name="" value="0" /><label for="id_1_0_opt"></label>
+                <input type="radio" id="id_1_0_opt" value="0" /><label for="id_1_0_opt"></label>
                 <div class="form-group row">
                     <label for="id_2" class="control-label col-sm-4 col-md-3 col-lg-2">f</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_2" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_2" type="text" class="form-control form-control-sm" />
                         <div class="help-block">some field</div>
                     </div>
                 </div>
             </div>
             <div class="form-control form-control-sm il-input-radiooption">
-                <input type="radio" id="id_1_1_opt" name="" value="1" checked="checked" /><label for="id_1_1_opt"></label>
+                <input type="radio" id="id_1_1_opt" value="1" checked="checked" /><label for="id_1_1_opt"></label>
                 <div class="form-group row">
                     <label for="id_3" class="control-label col-sm-4 col-md-3 col-lg-2">f2</label>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        <input id="id_3" type="text" name="" class="form-control form-control-sm" />
+                        <input id="id_3" type="text" class="form-control form-control-sm" />
                         <div class="help-block">some other field</div>
                     </div>
                 </div>
             </div>
 
             <div class="form-control form-control-sm il-input-radiooption">
+<<<<<<< HEAD
                 <input type="radio" id="id_1_2_opt" name="" value="2" /><label for="id_1_2_opt">empty group, the title</label>
+=======
+                <input type="radio" id="id_1_2_opt" value="2" /><label for="id_1_2_opt">empty group, the title</label>
+>>>>>>> v9.1
                 <div class="help-block">empty group, the byline</div>
             </div>
         </div>

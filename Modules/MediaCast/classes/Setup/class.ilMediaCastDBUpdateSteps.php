@@ -92,5 +92,4 @@ class ilMediaCastDBUpdateSteps implements \ilDatabaseUpdateSteps
             "keyword" => array("text", "video_threshold"),
             "value" => array($type, "80")));
     }
-
 }

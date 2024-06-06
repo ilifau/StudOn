@@ -69,7 +69,7 @@ class ilCourseDefinedFieldDefinition
             $cdf->save();
         }
     }
- 
+
     public static function _deleteByContainer(int $a_container_id): void
     {
         global $DIC;

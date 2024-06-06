@@ -24,10 +24,13 @@ use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Factory as RootFactory;
+use ILIAS\UI\HelpTextRetriever;
 use ilLanguage;
+use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
 
 class DefaultRendererFactory implements RendererFactory
 {
+<<<<<<< HEAD
     protected RootFactory $ui_factory;
     protected TemplateFactory $tpl_factory;
     protected ilLanguage $lng;
@@ -52,6 +55,19 @@ class DefaultRendererFactory implements RendererFactory
         $this->refinery = $refinery;
         $this->image_path_resolver = $image_path_resolver;
         $this->data_factory = $data_factory;
+=======
+    public function __construct(
+        protected RootFactory $ui_factory,
+        protected TemplateFactory $tpl_factory,
+        protected ilLanguage $lng,
+        protected JavaScriptBinding $js_binding,
+        protected Refinery $refinery,
+        protected ImagePathResolver $image_path_resolver,
+        protected DataFactory $data_factory,
+        protected HelpTextRetriever $help_text_retriever,
+        protected UploadLimitResolver $upload_limit_resolver,
+    ) {
+>>>>>>> v9.1
     }
 
     /**
@@ -67,7 +83,13 @@ class DefaultRendererFactory implements RendererFactory
             $this->js_binding,
             $this->refinery,
             $this->image_path_resolver,
+<<<<<<< HEAD
             $this->data_factory
+=======
+            $this->data_factory,
+            $this->help_text_retriever,
+            $this->upload_limit_resolver,
+>>>>>>> v9.1
         );
     }
 

@@ -1,5 +1,10 @@
 <?php
 
+<<<<<<< HEAD
+=======
+declare(strict_types=1);
+
+>>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -15,8 +20,11 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+<<<<<<< HEAD
 
 declare(strict_types=1);
+=======
+>>>>>>> v9.1
 
 use PHPUnit\Framework\TestCase;
 
@@ -31,11 +39,13 @@ final class RootFolderTest extends TestCase
         '.eslintrc.json',
         '.gitignore',
         '.htaccess',
+        '.mocharc.json',
         '.phpunit.result.cache',
         'captainhook.local.json',
         'phpstan.local.neon',
         'phpstan-baseline.neon',
         '.php_cs.cache',
+        '.php-cs-fixer.cache',
         'calendar.php',
         'captainhook.json',
         'composer.json',
@@ -99,6 +109,7 @@ final class RootFolderTest extends TestCase
         'test',
         'tests',
         'webservice',
+        'wopi',
         'xml',
         '.settings'
     ];

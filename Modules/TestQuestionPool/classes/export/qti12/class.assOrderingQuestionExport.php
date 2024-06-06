@@ -15,8 +15,6 @@
  *
  *********************************************************************/
 
-include_once "./Modules/TestQuestionPool/classes/export/qti12/class.assQuestionExport.php";
-
 /**
 * Class for ordering question exports
 *
@@ -45,7 +43,6 @@ class assOrderingQuestionExport extends assQuestionExport
         $ilUser = $DIC['ilUser'];
         $ilias = $DIC['ilias'];
 
-        include_once("./Services/Xml/classes/class.ilXmlWriter.php");
         $a_xml_writer = new ilXmlWriter();
         // set xml header
         $a_xml_writer->xmlHeader();
@@ -100,7 +97,7 @@ class assOrderingQuestionExport extends assQuestionExport
         // add flow to presentation
         $a_xml_writer->xmlStartTag("flow");
         // add material with question text to presentation
-        $this->object->addQTIMaterial($a_xml_writer, $this->object->getQuestion());
+        $this->addQTIMaterial($a_xml_writer, $this->object->getQuestion());
         // add answers to presentation
         $attrs = array();
 
@@ -119,24 +116,11 @@ class assOrderingQuestionExport extends assQuestionExport
             "rcardinality" => "Ordered"
         );
 
-        if ($this->object->getOutputType() == OUTPUT_JAVASCRIPT) {
-            $attrs["output"] = "javascript";
-        }
+        $attrs["output"] = "javascript";
         $a_xml_writer->xmlStartTag("response_lid", $attrs);
         $solution = $this->object->getSuggestedSolution(0);
-        if (count($solution)) {
-            if (preg_match("/il_(\d*?)_(\w+)_(\d+)/", $solution["internal_link"], $matches)) {
-                $a_xml_writer->xmlStartTag("material");
-                $intlink = "il_" . IL_INST_ID . "_" . $matches[2] . "_" . $matches[3];
-                if (strcmp($matches[1], "") != 0) {
-                    $intlink = $solution["internal_link"];
-                }
-                $attrs = array(
-                    "label" => "suggested_solution"
-                );
-                $a_xml_writer->xmlElement("mattext", $attrs, $intlink);
-                $a_xml_writer->xmlEndTag("material");
-            }
+        if ($solution !== null) {
+            $a_xml_writer = $this->addSuggestedSolutionLink($a_xml_writer, $solution);
         }
         // shuffle output
         $attrs = array();
@@ -194,7 +178,7 @@ class assOrderingQuestionExport extends assQuestionExport
             } elseif ($this->object->getOrderingType() == OQ_TERMS
             || $this->object->getOrderingType() == OQ_NESTED_TERMS) {
                 $a_xml_writer->xmlStartTag("material");
-                $this->object->addQTIMaterial($a_xml_writer, $element->getContent(), true, false);
+                $this->addQTIMaterial($a_xml_writer, $element->getContent(), true, false);
                 $a_xml_writer->xmlEndTag("material");
                 $a_xml_writer->xmlStartTag("material");
                 $attrs = array("label" => "answerdepth");
@@ -367,7 +351,7 @@ class assOrderingQuestionExport extends assQuestionExport
             $a_xml_writer->xmlStartTag("itemfeedback", $attrs);
             // qti flow_mat
             $a_xml_writer->xmlStartTag("flow_mat");
-            $this->object->addQTIMaterial($a_xml_writer, $feedback_allcorrect);
+            $this->addQTIMaterial($a_xml_writer, $feedback_allcorrect);
             $a_xml_writer->xmlEndTag("flow_mat");
             $a_xml_writer->xmlEndTag("itemfeedback");
         }
@@ -379,7 +363,7 @@ class assOrderingQuestionExport extends assQuestionExport
             $a_xml_writer->xmlStartTag("itemfeedback", $attrs);
             // qti flow_mat
             $a_xml_writer->xmlStartTag("flow_mat");
-            $this->object->addQTIMaterial($a_xml_writer, $feedback_onenotcorrect);
+            $this->addQTIMaterial($a_xml_writer, $feedback_onenotcorrect);
             $a_xml_writer->xmlEndTag("flow_mat");
             $a_xml_writer->xmlEndTag("itemfeedback");
         }

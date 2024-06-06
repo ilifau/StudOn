@@ -31,19 +31,19 @@ class ilBiblEntryTableGUI extends ilTable2GUI
      */
     protected array $filter_objects = array();
     protected array $applied_filter = array();
-    protected \ilBiblFactoryFacade $facade;
 
     /**
      * ilBiblEntryTableGUI constructor.
      */
-    public function __construct(ilObjBibliographicGUI $a_parent_obj, ilBiblFactoryFacade $facade)
-    {
-        $this->facade = $facade;
+    public function __construct(
+        protected ilObjBibliographicGUI $a_parent_obj,
+        protected ilBiblFactoryFacade $facade,
+        protected \ILIAS\DI\UIServices $ui
+    ) {
         $this->setId('tbl_bibl_overview_' . $facade->iliasRefId());
         $this->setPrefix('tbl_bibl_overview_' . $facade->iliasRefId());
         $this->setFormName('tbl_bibl_overview_' . $facade->iliasRefId());
         parent::__construct($a_parent_obj, ilObjBibliographicGUI::CMD_VIEW);
-        $this->parent_obj = $a_parent_obj;
 
         //Number of records
         $this->setEnableNumInfo(true);
@@ -111,7 +111,13 @@ class ilBiblEntryTableGUI extends ilTable2GUI
         $arr_library_link = array();
         foreach ($libraries as $library) {
             if ($library->getShowInList()) {
-                $presentation = new ilBiblLibraryPresentationGUI($library, $this->facade);
+                $presentation = new ilBiblLibraryPresentationGUI(
+                    $library,
+                    $this->facade,
+                    $this->ctrl,
+                    $this->lng,
+                    $this->ui
+                );
                 $arr_library_link[] = $presentation->getButton($this->facade, $presentation_gui->getEntry());
             }
         }
