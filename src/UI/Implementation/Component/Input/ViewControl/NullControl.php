@@ -18,30 +18,15 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Repository\HTML;
+namespace ILIAS\UI\Implementation\Component\Input\ViewControl;
 
-use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\HTTP;
-use ILIAS\FileDelivery\Delivery;
+use ILIAS\UI\Component\Input\ViewControl as VCInterface;
+use ILIAS\Data\Result;
 
-class HTMLUtil
+class NullControl extends ViewControlInput implements VCInterface\NullControl
 {
-    public function __construct()
+    public function isClientSideValueOk($value): bool
     {
-    }
-
-    public function escape(string $input): string
-    {
-        return htmlentities($input);
-    }
-
-    public function strip(string $input): string
-    {
-        // see https://www.ilias.de/mantis/view.php?id=19727
-        $str = \ilUtil::stripSlashes($input);
-        if ($str !== $input) {
-            $str = \ilUtil::stripSlashes(str_replace("<", "< ", $input));
-        }
-        return $str;
+        return true;
     }
 }

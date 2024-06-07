@@ -75,15 +75,20 @@ class ilTestScreenGUI
     public function executeCommand(): void
     {
         if ($this->access->checkAccess('read', '', $this->ref_id)) {
-            $this->{$this->ctrl->getCmd()}();
-        } else {
-            $this->tpl->setOnScreenMessage('failure', sprintf(
-                $this->lng->txt('msg_no_perm_read_item'),
-                $this->object->getTitle()
-            ), true);
-            $this->ctrl->setParameterByClass('ilrepositorygui', 'ref_id', ROOT_FOLDER_ID);
-            $this->ctrl->redirectByClass('ilrepositorygui');
+            $this->{$this->ctrl->getCmd(self::DEFAULT_CMD)}();
+            return;
         }
+
+        if (!$this->object->getMainSettings()->getAdditionalSettings()->getHideInfoTab()) {
+            $this->ctrl->redirectByClass(ilObjTestGUI::class, 'infoScreen');
+        }
+
+        $this->tpl->setOnScreenMessage('failure', sprintf(
+            $this->lng->txt('msg_no_perm_read_item'),
+            $this->object->getTitle()
+        ), true);
+        $this->ctrl->setParameterByClass('ilrepositorygui', 'ref_id', ROOT_FOLDER_ID);
+        $this->ctrl->redirectByClass('ilrepositorygui');
     }
 
     public function testScreen(): void

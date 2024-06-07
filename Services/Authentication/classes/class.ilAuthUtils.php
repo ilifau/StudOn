@@ -581,7 +581,6 @@ class ilAuthUtils
 
         $ilSetting = $DIC->settings();
 
-        //TODO fix casting strings like 2_1 (auth_key for first ldap server) to int to get it to 2
         switch ((int) $a_authmode) {
             // always enabled
             case self::AUTH_LOCAL:

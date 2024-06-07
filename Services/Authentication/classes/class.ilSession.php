@@ -115,13 +115,6 @@ class ilSession
         return 0;
     }
 
-
-    /**
-    * Write session data
-    *
-    * @param	string		session id
-    * @param	string		session data
-    */
     public static function _writeData(string $a_session_id, string $a_data): bool
     {
         global $DIC;
@@ -177,7 +170,39 @@ class ilSession
                 $fields['context'] = [ilDBConstants::T_TEXT, ilContext::getType()];
             }
 
-            $ilDB->insert("usr_session", $fields);
+            $insert_fields = implode(', ', array_keys($fields));
+            $insert_values = implode(
+                ', ',
+                array_map(
+                    static fn (string $type, $value): string => $ilDB->quote($value, $type),
+                    array_column($fields, 0),
+                    array_column($fields, 1)
+                )
+            );
+
+            $update_fields = array_filter(
+                $fields,
+                static fn (string $field): bool => !in_array($field, ['session_id', 'user_id', 'createtime'], true),
+                ARRAY_FILTER_USE_KEY
+            );
+            $update_values = implode(
+                ', ',
+                array_map(
+                    static fn (string $field, string $type, $value): string => $field . ' = ' . $ilDB->quote(
+                        $value,
+                        $type
+                    ),
+                    array_keys($update_fields),
+                    array_column($update_fields, 0),
+                    array_column($update_fields, 1)
+                )
+            );
+
+            $ilDB->manipulate(
+                'INSERT INTO usr_session (' . $insert_fields . ') '
+                . 'VALUES (' . $insert_values . ') '
+                . 'ON DUPLICATE KEY UPDATE ' . $update_values
+            );
 
             // check type against session control
             $type = (int) $fields['type'][1];
@@ -404,7 +429,7 @@ class ilSession
 
         if ($ilSetting->get('session_handling_type', (string) self::SESSION_HANDLING_FIXED) === (string) self::SESSION_HANDLING_LOAD_DEPENDENT) {
             // load dependent session settings
-            return (int) ($ilSetting->get('session_max_idle', (string) (ilSessionControl::DEFAULT_MAX_IDLE * 60)));
+            return ((int) $ilSetting->get('session_max_idle', (string) (ilSessionControl::DEFAULT_MAX_IDLE))) * 60;
         }
         return ilSessionControl::DEFAULT_MAX_IDLE * 60;
     }

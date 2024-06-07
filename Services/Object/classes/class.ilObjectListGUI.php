@@ -25,6 +25,7 @@ use ILIAS\UI\Component\Modal\Modal;
 use ILIAS\UI\Component\Card\RepositoryObject;
 use ILIAS\UI\Component\Item\Item;
 use ILIAS\UI\Component\Image\Image;
+use ILIAS\UI\Implementation\Component\SignalGenerator;
 use ILIAS\Notes\Note;
 use ILIAS\HTTP\Services as HTTPServices;
 use ILIAS\Object\ilObjectDIC;
@@ -3249,10 +3250,10 @@ class ilObjectListGUI
         $def_command = $this->getDefaultCommand();
 
         $dropdown = $ui->factory()->dropdown()->standard($actions)
-                       ->withAriaLabel(sprintf(
-                           $this->lng->txt('actions_for'),
-                           htmlspecialchars(addslashes($title))
-                       ));
+            ->withAriaLabel(sprintf(
+                $this->lng->txt('actions_for'),
+                htmlspecialchars(addslashes($title))
+            ));
 
         // workaround for #26205
         // we should get rid of _top links completely and gifure our how
@@ -3268,32 +3269,26 @@ class ilObjectListGUI
             $this->modifySAHSlaunch($def_cmd_link, $def_cmd_frame);
 
         $image = $this->getTileImage();
+
+
+
         if ($def_cmd_link != '') {    // #24256
             if ($def_cmd_frame !== '' && ($modified_link === $def_cmd_link)) {
-                $image = $image->withAdditionalOnLoadCode(function ($id) use (
-                    $def_cmd_frame,
-                    $def_cmd_link
-                ): string {
-                    return
-                        '$("#' . $id . '").click(function(e) { window.open("' . str_replace(
+                $signal = (new SignalGenerator())->create();
+                $this->main_tpl->addOnLoadCode(
+                    "$(document).on('{$signal->getId()}', function(event, signalData) {"
+                        . ' window.open("' . str_replace(
                             '&amp;',
                             '&',
                             $def_cmd_link
-                        ) . '", "' . $def_cmd_frame . '");});';
-                });
+                        ) . '", "' . $def_cmd_frame . '");'
+                    . '});'
+                );
+
+                $image = $image->withAction($signal);
 
                 $button =
-                    $ui->factory()->button()->shy($title, "")->withAdditionalOnLoadCode(function ($id) use (
-                        $def_cmd_frame,
-                        $def_cmd_link
-                    ): string {
-                        return
-                            '$("#' . $id . '").click(function(e) { window.open("' . str_replace(
-                                '&amp;',
-                                '&',
-                                $def_cmd_link
-                            ) . '", "' . $def_cmd_frame . '");});';
-                    });
+                    $ui->factory()->button()->shy($title, '')->appendOnClick($signal);
                 $title = $ui->renderer()->render($button);
             } else {
                 $image = $image->withAction($modified_link);

@@ -587,7 +587,6 @@ assessment#:#code#:#Code
 assessment#:#codebase#:#Codebase
 assessment#:#concatenation#:#Concatenation
 assessment#:#conf_delete_pass#:#Are you sure you want to delete your existing answers?
-assessment#:#conf_delete_pass_ctm#:#Wollen Sie Ihre bisherigen Antworten wirklich löschen?
 assessment#:#confirm_delete_all_user_data#:#Are you sure you want to delete all user data of the test?
 assessment#:#confirm_delete_single_user_data#:#Are you sure you want to remove the test data of the selected users?
 assessment#:#confirm_sync_questions#:#The question you changed is a copy which has been created for use with the active test. Do you want to change the original of the question too?
@@ -7535,6 +7534,7 @@ crs#:#crs_course_status_of_users#:#Passing the Course
 crs#:#crs_create_date#:#Create date
 crs#:#crs_custom_user_fields#:#Course-Specific User Data
 crs#:#crs_custom_user_fields_infobox#:#Create additional data fields for course members to fill in when joining. You can show this information as an additional column in the "Members" tab.
+crs#:#crs_custom_user_fields_table_title#:#Relevant User Data of This Course
 crs#:#crs_dates#:#Dates
 crs#:#crs_deactivate_notification#:#Deactivate Notification
 crs#:#crs_delete_objectve_sure#:#Are you sure, you want to delete the selected objectives?
@@ -8888,6 +8888,8 @@ didactic#:#grp_closed_info#:#Group is only visible to members.
 didactic#:#more_translations#:#More Translations
 didactic#:#sess_closed#:#Closed Session
 didactic#:#sess_closed_info#:#Session is not visible for non-participants.
+dpro#:#dpro_accept_usr_agreement_anonymous#:#Declaration of Data Protection
+dpro#:#dpro_accept_usr_agreement_anonymous_intro#:#Before you proceed to ILIAS you accept the following Declaration of Data Protection.
 dpro#:#dpro_account_reg_not_possible#:#Self-registration is currently not possible because there is no Declaration of Data Protection agreement available. Please contact your <a href="%1$s">system administrator</a> for further information.
 dpro#:#dpro_agree_date#:#Declaration of Data Protection agreed on
 dpro#:#dpro_last_reset_date#:#The Declaration of Data Protection were reset on %s. Only reset the Declaration of Data Protection if changes have been made to the document(s) and you require all users to agree to the documents.
@@ -9726,6 +9728,7 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#Show Print View
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#A new export file has been created.
+exp#:#export_files_deleted#:#The selected export files have been deleted.
 export#:#export_create#:#Create
 export#:#export_create_new_file#:#Create New Export File
 export#:#export_existing#:#Reuse
@@ -10246,6 +10249,7 @@ grp#:#grp_create_or_use_existing#:#Do you want to add the user to an existing gr
 grp#:#grp_created_and_user_been_added#:#Die Gruppe wurde erstellt und der Benutzer hinzugefügt.
 grp#:#grp_custom_user_fields#:#Group Relevant User Data
 grp#:#grp_custom_user_fields_infobox#:#Create additional data fields for group members to fill in when they join. You can show this information as an additional column in the "Members" tab.
+grp#:#grp_custom_user_fields_table_title#:#Relevant User Data of This Group
 grp#:#grp_deactivate_notification#:#Deactivate Notification
 grp#:#grp_edit_members#:#Edit Participants
 grp#:#grp_enable_map#:#Enable Group Map
@@ -11475,7 +11479,7 @@ mail#:#mail_select_grp#:#Please select at least one group.
 mail#:#mail_select_one_entry#:#You must select at least one entry.
 mail#:#mail_select_one_file#:#You must select at least one file.
 mail#:#mail_send_html#:#HTML Frame
-mail#:#mail_send_html_info#:#Embed the body of external e-mails in an HTML frame. The corresponding template can be customised by creating a copy of './Services/Mail/templates/default/tpl.html_mail_template.html' at './Customizing/global/skin/[SKIN]/Services/Mail/tpl.html_mail_template.html'.
+mail#:#mail_send_html_info#:#Embed the body of external e-mails in an HTML frame. The corresponding template can be customised by creating a copy of './Services/Mail/templates/default/tpl.html_mail_template.html' at './Customizing/global/skin/[SKIN]/[STYLE]/Services/Mail/tpl.html_mail_template.html'.
 mail#:#mail_serial_letter_placeholders#:#Mail Merge Placeholders
 mail#:#mail_settings_external_frm_head#:#External E-Mails
 mail#:#mail_settings_external_tab#:#External
@@ -16895,6 +16899,8 @@ tbl#:#tbl_template_created#:#The current view has been saved.
 tbl#:#tbl_template_delete#:#Delete Saved View
 tbl#:#tbl_template_deleted#:#The saved view has been deleted.
 tbl#:#tbl_templates#:#View
+tos#:#tos_accept_usr_agreement_anonymous#:#Terms of Service
+tos#:#tos_accept_usr_agreement_anonymous_intro#:#Before you proceed to ILIAS you accept the following Terms of Service.
 tos#:#tos_account_reg_not_possible#:#Self-registration is currently not possible because there is no Terms of Service agreement available. Please contact your <a href="%1$s">system administrator</a> for further information.
 tos#:#tos_agree_date#:#ToS agreed on
 tos#:#tos_agreement#:#Terms of Service

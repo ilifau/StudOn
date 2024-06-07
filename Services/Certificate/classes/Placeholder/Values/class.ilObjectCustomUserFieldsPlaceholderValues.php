@@ -24,6 +24,7 @@ declare(strict_types=1);
 class ilObjectCustomUserFieldsPlaceholderValues implements ilCertificatePlaceholderValues
 {
     private readonly ilCertificateObjectHelper $objectHelper;
+    private readonly ilCertificateUtilHelper $utilHelper;
 
     public function __construct(
         ?ilCertificateObjectHelper $objectHelper = null,
@@ -64,8 +65,10 @@ class ilObjectCustomUserFieldsPlaceholderValues implements ilCertificatePlacehol
             $field_id = $field->getId();
 
             $placeholderText = '+' . str_replace(' ', '_', ilStr::strToUpper($field->getName()));
-
-            $placeholder[$placeholderText] = empty($field_values[$userId][$field_id]) ? '' : $field_values[$userId][$field_id];
+            $placeholder[$placeholderText] =
+                !empty($field_values[$userId][$field_id]) ?
+                    $this->utilHelper->prepareFormOutput(trim($field_values[$userId][$field_id])) :
+                    '';
         }
 
         return $placeholder;

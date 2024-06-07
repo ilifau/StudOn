@@ -45,6 +45,9 @@ class Renderer extends AbstractComponentRenderer
                 return $this->renderPagination($component, $default_renderer);
             case ($component instanceof Component\Input\ViewControl\Group):
                 return $default_renderer->render($component->getInputs());
+            case ($component instanceof Component\Input\ViewControl\NullControl):
+                return '';
+
             default:
                 throw new LogicException("Cannot render '" . get_class($component) . "'");
         }
@@ -57,6 +60,7 @@ class Renderer extends AbstractComponentRenderer
             Component\Input\ViewControl\Sortation::class,
             Component\Input\ViewControl\Pagination::class,
             Component\Input\ViewControl\Group::class,
+            Component\Input\ViewControl\NullControl::class,
         ];
     }
 
@@ -150,7 +154,7 @@ class Renderer extends AbstractComponentRenderer
 >>>>>>> v9.1
             $internal_signal = $component->getInternalSignal();
             $internal_signal->addOption('value', $opt_value);
-            $item = $ui_factory->button()->shy((string)$opt_label, '#')
+            $item = $ui_factory->button()->shy((string) $opt_label, '#')
                 ->withOnClick($internal_signal);
             $tpl->setCurrentBlock("option");
             $tpl->setVariable("OPTION", $default_renderer->render($item));
@@ -247,7 +251,7 @@ class Renderer extends AbstractComponentRenderer
             $start = max(0, count($ranges) - $number_of_visible_entries);
         }
 
-        $entries = array_slice($ranges, (int)$start, $number_of_visible_entries);
+        $entries = array_slice($ranges, (int) $start, $number_of_visible_entries);
 
         if (! in_array($first, $entries)) {
             array_shift($entries);
@@ -292,7 +296,7 @@ class Renderer extends AbstractComponentRenderer
                     $signal->addOption('offset', $range->getStart());
                     $signal->addOption('limit', $limit);
                     $tpl->setCurrentBlock("entry");
-                    $entry = $ui_factory->button()->shy((string)($idx + 1), '#')->withOnClick($signal);
+                    $entry = $ui_factory->button()->shy((string) ($idx + 1), '#')->withOnClick($signal);
                     if ($idx === $current) {
                         $entry = $entry->withEngagedState(true);
                     }
@@ -337,12 +341,8 @@ class Renderer extends AbstractComponentRenderer
         foreach ($component->getLimitOptions() as $option) {
             $signal = clone $internal_signal;
             $signal->addOption('offset', $offset);
-            $signal->addOption('limit', (string)$option);
-<<<<<<< HEAD
-            $option_label = $option === \PHP_INT_MAX ? 'unlimited' : (string)$option;
-=======
-            $option_label = $option === \PHP_INT_MAX ? $this->txt('ui_pagination_unlimited') : (string)$option;
->>>>>>> v9.1
+            $signal->addOption('limit', (string) $option);
+            $option_label = $option === \PHP_INT_MAX ? $this->txt('ui_pagination_unlimited') : (string) $option;
 
             $item = $ui_factory->button()->shy($option_label, '#')
                 ->withOnClick($signal);

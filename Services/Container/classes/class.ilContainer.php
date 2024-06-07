@@ -768,7 +768,6 @@ class ilContainer extends ilObject
             }
             // END WebDAV: Don't display hidden Files, Folders and Categories
 
-            // including event items!
             if (!self::$data_preloaded) {
                 $preloader->addItem((int) $object["obj_id"], $object["type"], $object["child"]);
             }

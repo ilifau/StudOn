@@ -202,7 +202,7 @@ class ilFileUtils
             }
         }
 
-        umask(0000);
+        $old_mask = umask(0000);
         foreach ($dirs as $dirindex => $dir) {
             // starting with the longest existing path
             if ($dirindex >= $found_index) {
@@ -328,7 +328,11 @@ class ilFileUtils
         if (is_dir($a_dir)) {
             return true;
         }
-        return mkdir($a_dir, fileperms($path));
+        $old_mask = umask(0000);
+        $result = @mkdir($a_dir, fileperms($path));
+        umask($old_mask);
+        
+        return $result;
     }
 
     protected static function sanitateTargetPath(string $a_target): array

@@ -92,7 +92,7 @@ trait BaseGUIRequest
         return (array) ($this->get($key, $t) ?? []);
     }
 
-    protected function strip(string $input) : string
+    protected function strip(string $input): string
     {
         // see https://www.ilias.de/mantis/view.php?id=19727
         $str = \ilUtil::stripSlashes($input);
@@ -123,7 +123,7 @@ trait BaseGUIRequest
                 // keep keys(!), transform all values to string
                 return array_column(
                     array_map(
-                        static function ($k, $v): array {
+                        function ($k, $v): array {
                             if (is_array($v)) {
                                 $v = "";
                             }
