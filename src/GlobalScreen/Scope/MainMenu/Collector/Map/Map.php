@@ -1,9 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -56,11 +52,6 @@ class Map implements Filterable, Walkable
         $this->factory = $factory;
     }
 
-<<<<<<< HEAD
-    private function getSorter(): Closure
-    {
-        return function (isItem $item_one, isItem $item_two): int {
-=======
     private function getTitleSorter(): Closure
     {
         return static function (isItem $item_one, isItem $item_two): int {
@@ -75,7 +66,6 @@ class Map implements Filterable, Walkable
     private function getPositionSorter(): Closure
     {
         return static function (isItem $item_one, isItem $item_two): int {
->>>>>>> v9.1
             return $item_one->getPosition() - $item_two->getPosition();
         };
     }
@@ -154,10 +144,6 @@ class Map implements Filterable, Walkable
         return $this->raw->count() > 0;
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
     private function applyFilters(): void
     {
         if (!isset($this->filtered)) {

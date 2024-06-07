@@ -27,8 +27,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 class DefaultResponseSenderStrategy implements ResponseSenderStrategy
 {
-<<<<<<< HEAD
-=======
     private const METHOD_FPASSTHRU = 'fpassthru';
     private const METHOD_READFILE = 'readfile';
     private string $method;
@@ -70,7 +68,6 @@ class DefaultResponseSenderStrategy implements ResponseSenderStrategy
         return (int) round(max($this->memory_limit / 4, 8 * 1024));
     }
 
->>>>>>> v9.1
     /**
      * Sends the rendered response to the client.
      *
@@ -114,10 +111,6 @@ class DefaultResponseSenderStrategy implements ResponseSenderStrategy
                 ob_end_clean(); // see https://mantis.ilias.de/view.php?id=32046
             } catch (\Throwable $t) {
             }
-<<<<<<< HEAD
-
-            $sendStatus = fpassthru($resource);
-=======
             switch ($this->method) {
                 case self::METHOD_FPASSTHRU:
                     $sendStatus = fpassthru($resource);
@@ -139,7 +132,6 @@ class DefaultResponseSenderStrategy implements ResponseSenderStrategy
                     }
                     break;
             }
->>>>>>> v9.1
 
             //free up resources
             fclose($resource);

@@ -23,12 +23,9 @@ namespace ILIAS\Tests\UI\Component\Dropzone\File;
 use ILIAS\UI\Implementation\Render\JavaScriptBinding;
 use ILIAS\UI\Implementation\Component\Button\Button;
 use TestDefaultRenderer;
-<<<<<<< HEAD
-=======
 use ILIAS\UI\Implementation\Component\Input\Field\Text;
 use ILIAS\UI\Implementation\Component\Input\Field\Group;
 use ILIAS\UI\Component\Input\Field\Input;
->>>>>>> v9.1
 
 /**
  * @author  Thibeau Fuhrer <thibeau@sr.solutions>
@@ -41,34 +38,6 @@ class StandardTest extends FileTestBase
         $expected_msg = 'test_msg';
         $expected_url = 'test_url';
 
-<<<<<<< HEAD
-        $expected_html = $this->brutallyTrimHTML("
-            <div id=\"id_2\" class=\"ui-dropzone \">
-                <div class=\"modal fade il-modal-roundtrip\" tabindex=\"-1\" role=\"dialog\" id=\"id_1\">
-                    <div class=\"modal-dialog\" role=\"document\" data-replace-marker=\"component\">
-                        <div class=\"modal-content\">
-                            <div class=\"modal-header\">
-                                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"close\">
-                                    <span aria-hidden=\"true\">&times;</span>
-                                </button>
-                                <span class=\"modal-title\">$expected_title
-                                </span>
-                            </div>
-                            <div class=\"modal-body\">
-                            </div>
-                            <div class=\"modal-footer\">
-                                <button class=\"btn btn-default\" data-dismiss=\"modal\">cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class=\"ui-dropzone-container\">
-                    <span class=\"ui-dropzone-message\">$expected_msg
-                    </span>
-                </div>
-            </div>
-        ");
-=======
         $expected_html = $this->brutallyTrimHTML('
 <div id="id_4" class="ui-dropzone ">
 	<div class="modal fade il-modal-roundtrip" tabindex="-1" role="dialog" id="id_1">
@@ -85,7 +54,6 @@ class StandardTest extends FileTestBase
 	<div class="ui-dropzone-container"><span class="ui-dropzone-message">' . $expected_msg . '</span></div>
 </div>
         ');
->>>>>>> v9.1
 
         $dropzone = $this->factory->standard($expected_title, $expected_msg, $expected_url, $this->input);
 
@@ -98,48 +66,6 @@ class StandardTest extends FileTestBase
 
     public function testRenderStandardWithUploadButton(): void
     {
-<<<<<<< HEAD
-        $expected_button_html = 'test_button';
-
-        $expected_html = $this->brutallyTrimHTML("
-            <div id=\"id_2\" class=\"ui-dropzone \">
-                <div class=\"modal fade il-modal-roundtrip\" tabindex=\"-1\" role=\"dialog\" id=\"id_1\">
-                    <div class=\"modal-dialog\" role=\"document\" data-replace-marker=\"component\">
-                        <div class=\"modal-content\">
-                            <div class=\"modal-header\">
-                                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"close\">
-                                    <span aria-hidden=\"true\">&times;</span>
-                                </button>
-                                <span class=\"modal-title\">
-                                </span>
-                            </div>
-                            <div class=\"modal-body\">
-                            </div>
-                            <div class=\"modal-footer\">
-                                <button class=\"btn btn-default\" data-dismiss=\"modal\">cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class=\"ui-dropzone-container\">
-                    <span class=\"ui-dropzone-message\">
-                    </span> $expected_button_html
-                </div>
-            </div>
-        ");
-
-        $button_mock = $this->createMock(Button::class);
-        $button_mock->method('getCanonicalName')->willReturn($expected_button_html);
-        $button_mock->method('withOnClick')->willReturnSelf();
-
-        $dropzone = $this->factory->standard('', '', '', $this->input)->withUploadButton($button_mock);
-
-        $html = $this->brutallyTrimHTML($this->getDefaultRenderer(null, [
-            $button_mock,
-            $this->input,
-        ])->render($dropzone));
-
-=======
         $expected_button_html = md5(Button::class);
 
         $button_mock = $this->createMock(Button::class);
@@ -204,7 +130,6 @@ class StandardTest extends FileTestBase
             $this->input,
         ])->render($dropzone));
 
->>>>>>> v9.1
         $this->assertEquals($expected_html, $html);
     }
 }

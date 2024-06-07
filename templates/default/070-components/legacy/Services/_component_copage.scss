@@ -83,20 +83,9 @@ button.copg-add.dropdown-toggle.btn:hover,
 	}
 }
 
-<<<<<<< HEAD:templates/default/less/Services/COPage/delos.less
-button.copg-add.dropdown-toggle.btn:hover, button.copg-add.dropdown-toggle.btn:focus-visible {
-	background-color: lighten(@il-btn-standard-bg, 50%);
-	color: @il-text-light-color;
-=======
 button.copg-add.dropdown-toggle.btn:hover {
 	background-color: lighten($il-btn-standard-bg, 50%);
 	color: $il-text-light-color;
->>>>>>> v9.1:templates/default/070-components/legacy/Services/_component_copage.scss
-}
-
-button.copg-add.dropdown-toggle.btn:focus-visible {
-	outline: @il-focus-outline-inner;
-	outline-offset: -@il-focus-outline-inner-width;
 }
 
 [data-copg-ed-type='add-area'] ul.dropdown-menu {
@@ -202,11 +191,7 @@ div.il_editarea_disabled, div.copg-disabled-page {
 div.il_editarea_selected, div.copg-current-edit, #tinytarget_ifr {
 	border-style: solid;
 	border-width: 2px;
-<<<<<<< HEAD:templates/default/less/Services/COPage/delos.less
-	border-color: darken(@il-secondary-color, 10%);
-=======
 	border-color: lighten($il-secondary-color, 30%);
->>>>>>> v9.1:templates/default/070-components/legacy/Services/_component_copage.scss
 }
 
 div.il_editarea_selected:hover {
@@ -353,12 +338,6 @@ div.il-copg-button-group-wide {
 	}
 }
 
-#iltinymenu .ilHeader {
-	padding: 0;
-	margin: @il-margin-xlarge-vertical 0;
-	display: block;
-}
-
 #iltinymenu_bd {
 }
 
@@ -423,17 +402,17 @@ li.ilc_page_toc_PageTOCItem {
 }
 
 a.ilc_page_toc_PageTOCLink {
-	color: #03a;
+	color: $il-link-color;
 	font-weight: normal;
 	text-decoration: none;
 }
 
 a.ilc_page_toc_PageTOCLink:hover {
-	color: black;
+	color: $il-link-hover-color;
 }
 
 a.ilc_page_toc_PageTOCLink:visited {
-	color: blue;
+	color: $il-extended-color-6;
 }
 
 /* --- content styles (will move to content.css) --- */
@@ -466,6 +445,7 @@ html.ilc_Fullscreen, body.ilc_Fullscreen {
 	height: 100%;
 	overflow: auto;
 	td > div, td > div > figure > div > iframe {
+		height: 100%;
 		width: 100%;
 	}
 }
@@ -738,7 +718,7 @@ div.ilCOPGMediaPrint {
 		margin: 5px 0;
 	}
 
-	h3.ilTinyInfo {
+	p.ilTinyInfo {
 		padding: 4px;
 		width: 100%;
 		@media only screen and (max-width: $il-grid-float-breakpoint-max) {
@@ -903,10 +883,6 @@ p#copg-auto-save {
 
 .ilPageVideo, .ilPageAudio {
 	button {
-<<<<<<< HEAD:templates/default/less/Services/COPage/delos.less
-		.il-focus();
-=======
 		@include il-focus();
->>>>>>> v9.1:templates/default/070-components/legacy/Services/_component_copage.scss
 	}
 }

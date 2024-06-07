@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 use ILIAS\Data\DataSize;
@@ -36,11 +33,7 @@ class FinderTest extends TestCase
     /**
      * @throws ReflectionException
      */
-<<<<<<< HEAD
-    private function getFlatFileSystemStructure(): Filesystem\Filesystem
-=======
     private function getFlatFileSystemStructure(): \PHPUnit\Framework\MockObject\MockObject
->>>>>>> v9.1
     {
         $fileSystem = $this->getMockBuilder(Filesystem\Filesystem::class)->getMock();
 
@@ -67,11 +60,7 @@ class FinderTest extends TestCase
     /**
      * @throws ReflectionException
      */
-<<<<<<< HEAD
-    private function getNestedFileSystemStructure(): Filesystem\Filesystem
-=======
     private function getNestedFileSystemStructure(): \PHPUnit\Framework\MockObject\MockObject
->>>>>>> v9.1
     {
         $fileSystem = $this->getMockBuilder(Filesystem\Filesystem::class)->getMock();
 
@@ -234,33 +223,6 @@ class FinderTest extends TestCase
             ->expects($this->atLeast(1))
             ->method('getTimestamp')
             ->willReturnCallback(function ($path) use ($now): \DateTimeImmutable {
-<<<<<<< HEAD
-                switch ($path) {
-                    case'file_1.txt':
-                        return $now;
-
-                    case 'file_2.mp3':
-                        return $now->modify('+1 hour');
-
-                    case 'dir_1/file_3.log':
-                        return $now->modify('+2 hour');
-
-                    case 'dir_1/file_4.php':
-                        return $now->modify('+3 hour');
-
-                    case 'dir_1/dir_1_1/file_5.cpp':
-                        return $now->modify('+4 hour');
-
-                    case 'dir_1/dir_1_2/file_6.py':
-                        return $now->modify('+5 hour');
-
-                    case 'dir_1/dir_1_2/file_7.cpp':
-                        return $now->modify('+6 hour');
-
-                    default:
-                        return new \DateTimeImmutable('now');
-                }
-=======
                 return match ($path) {
                     'file_1.txt' => $now,
                     'file_2.mp3' => $now->modify('+1 hour'),
@@ -271,7 +233,6 @@ class FinderTest extends TestCase
                     'dir_1/dir_1_2/file_7.cpp' => $now->modify('+6 hour'),
                     default => new \DateTimeImmutable('now'),
                 };
->>>>>>> v9.1
             });
 
         $finder = (new Finder($fs))->in(['/']);
@@ -300,33 +261,6 @@ class FinderTest extends TestCase
         $fs->expects($this->atLeast(1))
             ->method('getSize')
             ->willReturnCallback(function ($path): \ILIAS\Data\DataSize {
-<<<<<<< HEAD
-                switch ($path) {
-                    case'file_1.txt':
-                        return new DataSize(PHP_INT_MAX, DataSize::Byte);
-
-                    case 'file_2.mp3':
-                        return new DataSize(1024, DataSize::Byte);
-
-                    case 'dir_1/file_3.log':
-                        return new DataSize(1024 * 1024 * 1024, DataSize::Byte);
-
-                    case 'dir_1/file_4.php':
-                        return new DataSize(1024 * 1024 * 127, DataSize::Byte);
-
-                    case 'dir_1/dir_1_1/file_5.cpp':
-                        return new DataSize(1024 * 7, DataSize::Byte);
-
-                    case 'dir_1/dir_1_2/file_6.py':
-                        return new DataSize(1024 * 100, DataSize::Byte);
-
-                    case 'dir_1/dir_1_2/file_7.cpp':
-                        return new DataSize(1, DataSize::Byte);
-
-                    default:
-                        return new DataSize(0, DataSize::Byte);
-                }
-=======
                 return match ($path) {
                     'file_1.txt' => new DataSize(PHP_INT_MAX, DataSize::Byte),
                     'file_2.mp3' => new DataSize(1024, DataSize::Byte),
@@ -337,7 +271,6 @@ class FinderTest extends TestCase
                     'dir_1/dir_1_2/file_7.cpp' => new DataSize(1, DataSize::Byte),
                     default => new DataSize(0, DataSize::Byte),
                 };
->>>>>>> v9.1
             });
 
         $finder = (new Finder($fs))->in(['/']);

@@ -93,12 +93,6 @@ class NullIdentification implements IdentificationInterface
         return "Null";
     }
 
-<<<<<<< HEAD
-    /**
-     * @return array{data: string|null}
-     */
-=======
->>>>>>> v9.1
     public function __serialize(): array
     {
         return ['data' => $this->serialize()];

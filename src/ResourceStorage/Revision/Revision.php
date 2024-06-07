@@ -50,22 +50,13 @@ interface Revision
 
     public function getTitle(): string;
 
-<<<<<<< HEAD
-    public function withToken(Token $token): Revision;
-
-    public function maybeGetToken(): ?Token;
-=======
     public function withStreamResolver(?StreamResolver $stream_resolver = null): Revision;
 
     public function maybeStreamResolver(): ?StreamResolver;
->>>>>>> v9.1
 
     public function setStorageID(string $storage_id): void;
 
     public function getStorageID(): string;
-<<<<<<< HEAD
-=======
 
     public function getStatus(): RevisionStatus;
->>>>>>> v9.1
 }

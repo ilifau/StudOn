@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -40,14 +35,7 @@ class KeyValueAccess implements ArrayAccess, Countable
         $this->raw_values = $raw_values;
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-    public function offsetExists($offset): bool
-=======
     public function offsetExists(mixed $offset): bool
->>>>>>> v9.1
     {
         return isset($this->raw_values[$offset]);
     }
@@ -76,38 +64,18 @@ class KeyValueAccess implements ArrayAccess, Countable
         };
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-    public function offsetSet($offset, $value): void
-=======
     public function offsetSet(mixed $offset, mixed $value): void
->>>>>>> v9.1
     {
         $this->raw_values[$offset] = $value;
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-    public function offsetUnset($offset): void
-=======
     public function offsetUnset(mixed $offset): void
->>>>>>> v9.1
     {
         if ($this->offsetExists($offset)) {
             unset($this->raw_values[$offset]);
         }
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-=======
->>>>>>> v9.1
     public function count(): int
     {
         return count($this->raw_values);

@@ -148,11 +148,7 @@ class StreamInfoResolver extends AbstractInfoResolver implements InfoResolver
         return $this->size;
     }
 
-<<<<<<< HEAD
-    protected function getMSFileTypeFromSuffix(): string
-=======
     protected function getFileTypeFromSuffix(): string
->>>>>>> v9.1
     {
         $mime_types_array = MimeType::getExt2MimeMap();
         $suffix_with_dot = '.' . $this->getSuffix();

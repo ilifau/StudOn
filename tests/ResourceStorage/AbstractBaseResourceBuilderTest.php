@@ -29,10 +29,7 @@ use ILIAS\ResourceStorage\Information\Information;
 use ILIAS\ResourceStorage\Information\Repository\InformationRepository;
 use ILIAS\ResourceStorage\Lock\LockHandler;
 use ILIAS\ResourceStorage\Resource\InfoResolver\UploadInfoResolver;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Resource\Repository\FlavourRepository;
->>>>>>> v9.1
 use ILIAS\ResourceStorage\Resource\Repository\ResourceRepository;
 use ILIAS\ResourceStorage\Resource\StorableFileResource;
 use ILIAS\ResourceStorage\Revision\Repository\RevisionRepository;
@@ -42,10 +39,7 @@ use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderRepository;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandler;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
 use Psr\Http\Message\UploadedFileInterface;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Resource\ResourceType;
->>>>>>> v9.1
 
 /**
  * Class AbstractBaseResourceBuilderTest
@@ -116,21 +110,14 @@ abstract class AbstractBaseResourceBuilderTest extends AbstractBaseTest
         $this->collection_repository = $this->createMock(CollectionRepository::class);
         $this->information_repository = $this->createMock(InformationRepository::class);
         $this->stakeholder_repository = $this->createMock(StakeholderRepository::class);
-<<<<<<< HEAD
-=======
         $this->flavour_repository = $this->createMock(FlavourRepository::class);
->>>>>>> v9.1
         $this->repositories = new Repositories(
             $this->revision_repository,
             $this->resource_repository,
             $this->collection_repository,
             $this->information_repository,
-<<<<<<< HEAD
-            $this->stakeholder_repository
-=======
             $this->stakeholder_repository,
             $this->flavour_repository
->>>>>>> v9.1
         );
         $this->locking = $this->createMock(LockHandler::class);
         $this->stream_access = $this->createMock(StreamAccess::class);

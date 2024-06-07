@@ -39,10 +39,6 @@ interface FileStreamWriteAccess
      * @see     FileStream::detach()
      */
     public function writeStream(string $path, FileStream $stream): void;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Creates a new file or updates an existing one.
@@ -57,10 +53,6 @@ interface FileStreamWriteAccess
      * @see     FileStream::detach()
      */
     public function putStream(string $path, FileStream $stream): void;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Updates an existing file.

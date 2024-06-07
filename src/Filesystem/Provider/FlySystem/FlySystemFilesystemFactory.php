@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Provider\FlySystem;
@@ -33,12 +30,6 @@ use ILIAS\Filesystem\Provider\FilesystemFactory;
  */
 final class FlySystemFilesystemFactory implements FilesystemFactory
 {
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-=======
->>>>>>> v9.1
     public function getLocal(LocalConfig $config, bool $read_only = false): Filesystem
     {
         $localFactory = new FlySystemLocalFilesystemFactory();

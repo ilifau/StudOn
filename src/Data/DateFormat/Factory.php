@@ -64,14 +64,11 @@ class Factory
                              ->day()->dot()->month()->dot()->year()->get();
     }
 
-<<<<<<< HEAD
-=======
     public function americanShort(): DateFormat
     {
         return $this->builder->month()->slash()->day()->slash()->year()->get();
     }
 
->>>>>>> v9.1
     public function withTime12(DateFormat $format): DateFormat
     {
         return $this->amend($format)

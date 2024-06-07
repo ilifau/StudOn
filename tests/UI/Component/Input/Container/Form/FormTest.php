@@ -1,8 +1,5 @@
 <?php
-<<<<<<< HEAD
-=======
 
->>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -135,11 +132,7 @@ class FormTest extends ILIAS_UI_TestBase
         return new Data\Factory();
     }
 
-<<<<<<< HEAD
-    public function test_getInputs(): void
-=======
     public function testGetInputs(): void
->>>>>>> v9.1
     {
         $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -169,11 +162,7 @@ class FormTest extends ILIAS_UI_TestBase
         }
     }
 
-<<<<<<< HEAD
-    public function test_extractPostData(): void
-=======
     public function testExtractPostData(): void
->>>>>>> v9.1
     {
         $form = new ConcreteForm($this->buildInputFactory(), new DefNamesource(), []);
         $request = $this->createMock(ServerRequestInterface::class);
@@ -185,11 +174,7 @@ class FormTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(InputData::class, $input_data);
     }
 
-<<<<<<< HEAD
-    public function test_withRequest(): void
-=======
     public function testWithRequest(): void
->>>>>>> v9.1
     {
         $df = $this->buildDataFactory();
         $request = $this->createMock(ServerRequestInterface::class);
@@ -228,11 +213,7 @@ class FormTest extends ILIAS_UI_TestBase
         $this->assertEquals([$input_1, $input_2], $form2->getInputs());
     }
 
-<<<<<<< HEAD
-    public function test_withRequest_respects_keys(): void
-=======
     public function testWithRequestRespectsKeys(): void
->>>>>>> v9.1
     {
         $df = $this->buildDataFactory();
         $request = $this->createMock(ServerRequestInterface::class);
@@ -271,11 +252,7 @@ class FormTest extends ILIAS_UI_TestBase
         $this->assertEquals(["foo" => $input_1, "bar" => $input_2], $form2->getInputs());
     }
 
-<<<<<<< HEAD
-    public function test_getData(): void
-=======
     public function testGetData(): void
->>>>>>> v9.1
     {
         $df = $this->buildDataFactory();
         $request = $this->createMock(ServerRequestInterface::class);
@@ -310,11 +287,7 @@ class FormTest extends ILIAS_UI_TestBase
         $this->assertEquals([1, 2], $form->getData());
     }
 
-<<<<<<< HEAD
-    public function test_getData_respects_keys(): void
-=======
     public function testGetDataRespectsKeys(): void
->>>>>>> v9.1
     {
         $df = $this->buildDataFactory();
         $request = $this->createMock(ServerRequestInterface::class);
@@ -349,11 +322,7 @@ class FormTest extends ILIAS_UI_TestBase
         $this->assertEquals(["foo" => 1, "bar" => 2], $form->getData());
     }
 
-<<<<<<< HEAD
-    public function test_getData_faulty(): void
-=======
     public function testGetDataFaulty(): void
->>>>>>> v9.1
     {
         $df = $this->buildDataFactory();
         $request = $this->createMock(ServerRequestInterface::class);
@@ -397,11 +366,7 @@ class FormTest extends ILIAS_UI_TestBase
         $this->assertEquals(null, null);
     }
 
-<<<<<<< HEAD
-    public function test_withAdditionalTransformation(): void
-=======
     public function testWithAdditionalTransformation(): void
->>>>>>> v9.1
     {
         $df = $this->buildDataFactory();
         $request = $this->createMock(ServerRequestInterface::class);
@@ -443,11 +408,7 @@ class FormTest extends ILIAS_UI_TestBase
         $this->assertEquals("transformed", $form2->getData());
     }
 
-<<<<<<< HEAD
-    public function test_nameInputs_respects_keys(): void
-=======
     public function testNameInputsRespectsKeys(): void
->>>>>>> v9.1
     {
         $if = $this->buildInputFactory();
         $inputs = [

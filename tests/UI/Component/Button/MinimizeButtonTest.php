@@ -26,21 +26,14 @@ use ILIAS\UI\Implementation as I;
  */
 class MinimizeButtonTest extends ILIAS_UI_TestBase
 {
-<<<<<<< HEAD
-=======
     protected I\Component\Button\Factory $button_factory;
 
->>>>>>> v9.1
     public function setUp(): void
     {
         $this->button_factory = new I\Component\Button\Factory();
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $this->assertInstanceOf(
             "ILIAS\\UI\\Component\\Button\\Minimize",

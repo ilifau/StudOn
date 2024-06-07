@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Provider\FlySystem;
@@ -49,22 +46,6 @@ class FlySystemDirectoryAccess implements DirectoryAccess
     ) {
     }
 
-<<<<<<< HEAD
-
-    /**
-     * Checks whether the directory exists or not.
-     *
-     * @param string $path The path which should be checked.
-     *
-     * @return bool         True if the directory exists otherwise false.
-     *
-     * @throws IOException  Thrown if the type of the path element is unknown.
-     *
-     * @since   5.3
-     * @version 1.0
-     */
-=======
->>>>>>> v9.1
     public function hasDir(string $path): bool
     {
         return $this->flysystem_operator->directoryExists($path);
@@ -168,21 +149,6 @@ class FlySystemDirectoryAccess implements DirectoryAccess
         }
     }
 
-<<<<<<< HEAD
-
-    /**
-     * Deletes a directory recursive.
-     *
-     * @param string $path The path which should be deleted.
-     *
-     *
-     * @throws IOException If the path could not be deleted.
-     *
-     * @since   5.3
-     * @version 1.0
-     */
-=======
->>>>>>> v9.1
     public function deleteDir(string $path): void
     {
         try {
@@ -197,22 +163,7 @@ class FlySystemDirectoryAccess implements DirectoryAccess
         }
     }
 
-<<<<<<< HEAD
-
-    /**
-     * Parses a metadata array into a metadata object.
-     * Array example:
-     *  [
-     *     'type' => 'dir' / 'file',
-     *     'path' => '/path/to/your/dir-or-file'
-     *  ]
-     *
-     *
-     */
-    private function arrayToMetadata(array $metadataArray): \ILIAS\Filesystem\DTO\Metadata
-=======
     private function attributesToMetadata(StorageAttributes $attributes): \ILIAS\Filesystem\DTO\Metadata
->>>>>>> v9.1
     {
         return new Metadata(
             $attributes->path(),

@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\Setup\Objective;
 
 use ILIAS\Setup;
@@ -84,11 +76,7 @@ class ClientIdReadObjective implements Setup\Objective
         $candidates = array_filter(
             $this->scanDirectory($dir),
             function ($c) use ($dir): bool {
-<<<<<<< HEAD
-                if ($c == "." || $c == "..") {
-=======
                 if ($c === "." || $c === "..") {
->>>>>>> v9.1
                     return false;
                 }
                 return $this->isDirectory($dir . "/" . $c);

@@ -25,15 +25,9 @@ ul.ilWikiBlockListNoIndent {
 
 li.ilWikiBlockItem {
 	margin: 0;
-<<<<<<< HEAD:templates/default/less/Modules/Wiki/delos.less
-	padding-top: @il-padding-large-vertical;
-	padding-bottom: @il-padding-large-vertical;
-	font-size: @il-font-size-small;
-=======
 	padding-top: $il-padding-large-vertical;
 	padding-bottom: $il-padding-large-vertical;
 	font-size: $il-font-size-small;
->>>>>>> v9.1:templates/default/070-components/legacy/Modules/_component_wiki.scss
 }
 
 /* see mantis #0027530 */

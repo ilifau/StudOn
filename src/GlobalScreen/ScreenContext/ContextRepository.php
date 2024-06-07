@@ -1,9 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -55,56 +51,26 @@ final class ContextRepository
         $this->refinery = $DIC->refinery();
     }
 
-<<<<<<< HEAD
-    /**
-     * @return ScreenContext
-     */
-=======
->>>>>>> v9.1
     public function main(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, self::C_MAIN);
     }
 
-<<<<<<< HEAD
-    /**
-     * @return ScreenContext
-     */
-=======
->>>>>>> v9.1
     public function internal(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, 'internal');
     }
 
-<<<<<<< HEAD
-    /**
-     * @return ScreenContext
-     */
-=======
->>>>>>> v9.1
     public function external(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, 'external');
     }
 
-<<<<<<< HEAD
-    /**
-     * @return ScreenContext
-     */
-=======
->>>>>>> v9.1
     public function desktop(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, self::C_DESKTOP);
     }
 
-<<<<<<< HEAD
-    /**
-     * @return ScreenContext
-     */
-=======
->>>>>>> v9.1
     public function repository(): ScreenContext
     {
         $context = $this->get(BasicScreenContext::class, self::C_REPO);
@@ -118,23 +84,11 @@ final class ContextRepository
         return $context;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return ScreenContext
-     */
-=======
->>>>>>> v9.1
     public function administration(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, self::C_ADMINISTRATION);
     }
 
-<<<<<<< HEAD
-    /**
-     * @return ScreenContext
-     */
-=======
->>>>>>> v9.1
     public function lti(): ScreenContext
     {
         return $this->get(BasicScreenContext::class, self::C_LTI);

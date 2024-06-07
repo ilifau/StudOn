@@ -31,11 +31,7 @@ class MultiplierStrategy implements IncrementStrategy
         $this->multiplier = $multiplier;
     }
 
-<<<<<<< HEAD
-    public function increment(int $duration_in_ms) : int
-=======
     public function increment(int $duration_in_ms): int
->>>>>>> v9.1
     {
         return ($duration_in_ms * $this->multiplier);
     }

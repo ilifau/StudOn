@@ -91,11 +91,7 @@ class RevisionCollection
         $this->add($revision);
     }
 
-<<<<<<< HEAD
-    public function getCurrent(): Revision
-=======
     public function getCurrent(bool $including_drafts): Revision
->>>>>>> v9.1
     {
         $v = $this->revisions;
 
@@ -119,11 +115,7 @@ class RevisionCollection
     /**
      * @return Revision[]
      */
-<<<<<<< HEAD
-    public function getAll(): array
-=======
     public function getAll(bool $including_drafts): array
->>>>>>> v9.1
     {
         if($including_drafts) {
             return $this->revisions;
@@ -133,11 +125,7 @@ class RevisionCollection
         });
     }
 
-<<<<<<< HEAD
-    public function getMax(): int
-=======
     public function getMax(bool $including_drafts): int
->>>>>>> v9.1
     {
         if ($this->revisions === []) {
             return 0;

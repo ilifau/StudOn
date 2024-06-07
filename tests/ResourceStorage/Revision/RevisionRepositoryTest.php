@@ -31,19 +31,12 @@ class RevisionRepositoryTest extends AbstractBaseTest
 {
     /**
      * @var \ILIAS\ResourceStorage\Resource\StorableFileResource|mixed
-<<<<<<< HEAD
-=======
-     */
-    public $resource;
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\ILIAS\ResourceStorage\Resource\InfoResolver\InfoResolver
->>>>>>> v9.1
      */
     public $resource;
     /**
      * @var \PHPUnit\Framework\MockObject\MockObject|\ILIAS\ResourceStorage\Resource\InfoResolver\InfoResolver
      */
-    private \PHPUnit\Framework\MockObject\MockObject $info_resolver;
+    private $info_resolver;
 
     protected function setUp(): void
     {

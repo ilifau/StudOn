@@ -35,26 +35,18 @@ interface StorableResource
 
     public function getCurrentRevision(): Revision;
 
-<<<<<<< HEAD
-    public function getSpecificRevision(int $number): ?Revision;
-
-=======
     public function getCurrentRevisionIncludingDraft(): Revision;
 
     public function getSpecificRevision(int $number): ?Revision;
 
->>>>>>> v9.1
     public function hasSpecificRevision(int $number): bool;
 
     /**
      * @return Revision[]
      */
     public function getAllRevisions(): array;
-<<<<<<< HEAD
-=======
 
     public function getAllRevisionsIncludingDraft(): array;
->>>>>>> v9.1
 
     /**
      * @return ResourceStakeholder[]
@@ -77,13 +69,9 @@ interface StorableResource
 
     public function setStorageID(string $storage_id): void;
 
-<<<<<<< HEAD
-    public function getMaxRevision(): int;
-=======
     public function getMaxRevision(bool $including_drafts = false): int;
 
     public function getFullSize(): int;
 
     public function getType(): ResourceType;
->>>>>>> v9.1
 }

@@ -18,11 +18,8 @@
 
 namespace ILIAS\ResourceStorage\Resource;
 
-<<<<<<< HEAD
-=======
 require_once(__DIR__ . '/../AbstractBaseResourceBuilderTest.php');
 
->>>>>>> v9.1
 use ILIAS\ResourceStorage\AbstractBaseResourceBuilderTest;
 use ILIAS\ResourceStorage\Collection\CollectionBuilder;
 use ILIAS\ResourceStorage\Collection\Collections;
@@ -33,10 +30,7 @@ use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Preloader\RepositoryPreloader;
 use PHPUnit\Framework\MockObject\MockObject;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Events\Subject;
->>>>>>> v9.1
 
 /**
  * Class CollectionTest
@@ -67,10 +61,7 @@ class CollectionTest extends AbstractBaseResourceBuilderTest
 
         $this->collection_builder = new CollectionBuilder(
             $this->collection_repository,
-<<<<<<< HEAD
-=======
             new Subject(),
->>>>>>> v9.1
             $this->rcid_generator
         );
 
@@ -88,19 +79,11 @@ class CollectionTest extends AbstractBaseResourceBuilderTest
         $this->collections = new Collections(
             $this->resource_builder,
             $this->collection_builder,
-<<<<<<< HEAD
-            $this->preloader
-        );
-    }
-
-
-=======
             $this->preloader,
             new Subject()
         );
     }
 
->>>>>>> v9.1
     public function testCreateCollection(): void
     {
         $identifiation = $this->rcid_generator->getUniqueResourceCollectionIdentification();
@@ -236,8 +219,6 @@ class CollectionTest extends AbstractBaseResourceBuilderTest
         $this->assertEquals(0, $collection->count());
     }
 
-<<<<<<< HEAD
-=======
     public function testDuplicates(): void
     {
         $rid = new ResourceIdentification('rid');
@@ -306,7 +287,6 @@ class CollectionTest extends AbstractBaseResourceBuilderTest
         $this->assertCount(3, $collection->getResourceIdentifications());
     }
 
->>>>>>> v9.1
 
     protected function arrayAsGenerator(array $array): \Generator
     {

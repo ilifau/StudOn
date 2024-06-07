@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-<?php declare(strict_types=1);
-=======
 <?php
 
 declare(strict_types=1);
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -30,9 +26,5 @@ use ILIAS\HTTP\Duration\Duration;
  */
 interface IncrementStrategy
 {
-<<<<<<< HEAD
-    public function increment(int $duration_in_ms) : int;
-=======
     public function increment(int $duration_in_ms): int;
->>>>>>> v9.1
 }

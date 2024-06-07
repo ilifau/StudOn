@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Definitions;
@@ -30,10 +27,6 @@ final class SuffixDefinitions
 {
     public const SEC = ".sec";
     protected array $white_list = [];
-<<<<<<< HEAD
-    protected array $black_list = [];
-=======
->>>>>>> v9.1
 
     /**
      * @param mixed[] $black_list
@@ -44,23 +37,17 @@ final class SuffixDefinitions
         $this->white_list = array_unique($white_list);
     }
 
-<<<<<<< HEAD
-=======
     /**
      * @return mixed[]
      */
->>>>>>> v9.1
     public function getWhiteList(): array
     {
         return $this->white_list;
     }
 
-<<<<<<< HEAD
-=======
     /**
      * @return mixed[]
      */
->>>>>>> v9.1
     public function getBlackList(): array
     {
         return $this->black_list;

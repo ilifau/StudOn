@@ -31,11 +31,8 @@ use ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
  */
 class TopLinkItem extends AbstractBaseItem implements isItem, hasTitle, hasSymbol, hasContentLanguage, hasLanguageForTargetedResource
 {
-<<<<<<< HEAD
-=======
     use ContentLanguage;
     use LanguageForTargetedResource;
->>>>>>> v9.1
     use SymbolDecoratorTrait;
 
     protected ?Symbol $symbol = null;

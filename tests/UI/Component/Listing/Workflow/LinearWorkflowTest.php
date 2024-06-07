@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 
@@ -53,61 +45,37 @@ class LinearWorkflowTest extends ILIAS_UI_TestBase
         $this->wf = $f->linear($this->title, $this->steps);
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $this->assertInstanceOf(Workflow\Workflow::class, $this->wf);
     }
 
-<<<<<<< HEAD
-    public function test_constructor_params(): void
-=======
     public function testConstructorParams(): void
->>>>>>> v9.1
     {
         $this->assertEquals($this->title, $this->wf->getTitle());
         $this->assertEquals($this->steps, $this->wf->getSteps());
         $this->assertEquals(0, $this->wf->getActive());
     }
 
-<<<<<<< HEAD
-    public function test_constructor(): void
-=======
     public function testConstructor(): void
->>>>>>> v9.1
     {
         $this->assertEquals($this->title, $this->wf->getTitle());
         $this->assertEquals($this->steps, $this->wf->getSteps());
         $this->assertEquals(0, $this->wf->getActive());
     }
 
-<<<<<<< HEAD
-    public function test_amount_of_steps(): void
-=======
     public function testAmountOfSteps(): void
->>>>>>> v9.1
     {
         $this->assertEquals(count($this->steps), $this->wf->getAmountOfSteps());
     }
 
-<<<<<<< HEAD
-    public function test_active(): void
-=======
     public function testActive(): void
->>>>>>> v9.1
     {
         $wf = $this->wf->withActive(1);
         $this->assertEquals(1, $wf->getActive());
     }
 
-<<<<<<< HEAD
-    public function test_withActive_throws(): void
-=======
     public function testWithActiveThrows(): void
->>>>>>> v9.1
     {
         $raised = false;
         try {

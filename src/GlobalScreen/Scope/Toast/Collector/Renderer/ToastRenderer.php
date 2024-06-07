@@ -18,7 +18,6 @@
 
 declare(strict_types=1);
 
-<<<<<<<< HEAD:src/GlobalScreen/Scope/Toast/Collector/Renderer/ToastRenderer.php
 namespace ILIAS\GlobalScreen\Scope\Toast\Collector\Renderer;
 
 use ILIAS\UI\Component\Component;
@@ -36,27 +35,4 @@ interface ToastRenderer
      * @return Toast
      */
     public function getToastComponentForItem(isItem $item): Component;
-========
-namespace ILIAS\UI\Implementation\Component\Layout\Alignment;
-
-use ILIAS\UI\Component\Layout\Alignment as I;
-
-class Factory implements I\Factory
-{
-    /**
-     * @inheritdoc
-     */
-    public function horizontal(): I\Horizontal\Factory
-    {
-        return new Horizontal\Factory();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function vertical(I\Block ...$blocks): I\Vertical
-    {
-        return new Vertical(...$blocks);
-    }
->>>>>>>> v9.1:src/UI/Implementation/Component/Layout/Alignment/Factory.php
 }

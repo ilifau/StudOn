@@ -1,7 +1,7 @@
 ILIAS Maintenance
 =================
-The development of the ILIAS source code is coordinated and maintained by a coordination team within the ILIAS
-network. Besides the main responsibilities for the project, several developers and users are maintaining certain
+The development of the ILIAS source code is coordinated and maintained by a coordination team within the ILIAS 
+network. Besides the main responsibilities for the project, several developers and users are maintaining certain 
 modules of ILIAS.
 
 # Special Roles
@@ -14,11 +14,11 @@ modules of ILIAS.
 * **Online Help**: [Alexandra Tödt](https://docu.ilias.de/goto_docu_usr_3139.html)
 
 # Maintainers
-We highly appreciate to get new developers but we have to guarantee the sustainability and the quality of the ILIAS
-source code. The system is complex for new developers and they need to know the concepts of ILIAS that are described
+We highly appreciate to get new developers but we have to guarantee the sustainability and the quality of the ILIAS 
+source code. The system is complex for new developers and they need to know the concepts of ILIAS that are described 
 in the development guide.
-
-Communication among developers that are working on a specific component needs to be assured. Final decision about
+ 
+Communication among developers that are working on a specific component needs to be assured. Final decision about 
 getting write access to the ILIAS development system (Github) is handled by the product manager.
  
 ILIAS is currently maintained by two types of maintainerships:
@@ -36,22 +36,22 @@ maintainer may forward new implementations to the second maintainer.
 
 Responsibilities of a component maintainer:
 
-- Component maintainer must assure maintenance of their component for at least three years (approx. three ILIAS major
-  releases).
+- Component maintainer must assure maintenance of their component for at least three years (approx. three ILIAS major 
+releases).
 - Component maintainers must agree to coordinate the development of their component with the product manager.
-- Component maintainer are responsible for bug fixing of their component and get assigned related bugs automatically
-  by the [Issue-Tracker](https://mantis.ilias.de).
-- Component maintainers are responsible for Pull Requests to their component and get assigned related Pull Requests
-  by the Technical Board according to the [Rules for Maintainers and Coordinators assigned to PRs[(Rules for Maintainers and Coordinators assigned to PRs)
+- Component maintainer are responsible for bug fixing of their component and get assigned related bugs automatically 
+by the [Issue-Tracker](https://mantis.ilias.de).
+- Component maintainers are responsible for Pull Requests to their component and get assigned related Pull Requests 
+by the Technical Board according to the [Rules for Maintainers and Coordinators assigned to PRs[(Rules for Maintainers and Coordinators assigned to PRs)
 
 
 ## Becoming a Maintainer
 
-Applications for maintainerships can be handed in to the product manager. The product manager together with the
-technical board decide on who becomes a maintainer. Maintainerships are listed with the name of the maintainer. In
-addition the company the maintainer is working for can be listed, too. In this second case, the company has the right to
+Applications for maintainerships can be handed in to the product manager. The product manager together with the 
+technical board decide on who becomes a maintainer. Maintainerships are listed with the name of the maintainer. In 
+addition the company the maintainer is working for can be listed, too. In this second case, the company has the right to 
 propose an alternative maintainer at any time. In particular, if the maintainer resigns from his maintenance, a proposal
-for a new maintainer by the company of the old maintainer will be preferred, if the company recently invested
+for a new maintainer by the company of the old maintainer will be preferred, if the company recently invested 
 substantially in the general condition of the component and the proposed maintainer meets the criteria.
 
 ## Implicit Maintainers
@@ -70,23 +70,23 @@ If nobody is fulfilling the responsibilities of the component maintainer, the Pr
 can look for members of the community and assign these competences to them.
 
 ## Tracking Maintainerships
-Maintainerships are tracked in maintenance.json files placed in the root of the corresponding components of ILIAS. The
+Maintainerships are tracked in maintenance.json files placed in the root of the corresponding components of ILIAS. The 
 file containes the following fields:
 
 * **maintenance_model**: Currently there are two possible entries for this field
 	* "[Classic](https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/maintenance.md#maintainers)"
 	* "[Coordinator](https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/maintenance-coordinator.md#coordinator-model)".
-* **"first_maintainer"**: One entry in the form `<username> (<userid>)` pointing to a valid user on
-  https://docu.ilias.de. Only relevant if **the maintenance_model** is set to "Classic".
-* **"second_maintainer"**: One entry in the form `<username> (<userid>)` pointing to a valid user on https://docu.ilias.de.
-  Only relevant if **the maintenance_model** is set to "Classic".
-* **"[implicit_maintainers](https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/maintenance.md#implicit-maintainers)"**:
-  An array in the form [ `<username> (<userid>)` ] pointing to valid users on https://docu.ilias.de. Only relevant if
-  **the maintenance_model** is set to "Classic" **and** neither a first nor a second maintainers is set.
+* **"first_maintainer"**: One entry in the form `<username> (<userid>)` pointing to a valid user on 
+	https://docu.ilias.de. Only relevant if **the maintenance_model** is set to "Classic".
+* **"second_maintainer"**: One entry in the form `<username> (<userid>)` pointing to a valid user on https://docu.ilias.de. 
+	Only relevant if **the maintenance_model** is set to "Classic".
+* **"[implicit_maintainers](https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/maintenance.md#implicit-maintainers)"**: 
+    An array in the form [ `<username> (<userid>)` ] pointing to valid users on https://docu.ilias.de. Only relevant if 
+    **the maintenance_model** is set to "Classic" **and** neither a first nor a second maintainers is set.
 * **"coordinator"**: An array in the form [ `<username> (<userid>)` ] pointing to valid users on https://docu.ilias.de.
-  Only relevant if **the maintenance_model** is set to "Coordinator".
-* **"[pr_management](https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/maintenance.md#additional-competences)"** :
-  An array in the form [ `<username> (<userid>)` ] pointing to valid users on https://docu.ilias.de.
+	Only relevant if **the maintenance_model** is set to "Coordinator".
+* **"[pr_management](https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/maintenance.md#additional-competences)"** : 
+    An array in the form [ `<username> (<userid>)` ] pointing to valid users on https://docu.ilias.de.
 * **"[issue_management](https://github.com/ILIAS-eLearning/ILIAS/blob/trunk/docs/development/maintenance.md#additional-competences)"** :
   An array in the form [ `<username> (<userid>)` ] pointing to valid users on https://docu.ilias.de.
 * **"tester"**: One entry in the form `<username> (<userid>)` pointing to a valid user on
@@ -146,7 +146,7 @@ file containes the following fields:
 	* Maintenance Model: Classic
 	* 1st Maintainer: [mjansen](https://docu.ilias.de/goto_docu_usr_8784.html)
 	* 2nd Maintainer: N.A.
-	* Testcases: [AUTHOR MISSING](https://docu.ilias.de/goto_docu_pg_64423_4793.html)
+	* Testcases: [atoedt](https://docu.ilias.de/goto_docu_usr_3139.html)
 	* Tester: [Thomas.schroeder](https://docu.ilias.de/goto_docu_usr_38330.html)
 
 [//]: # (END Badges)

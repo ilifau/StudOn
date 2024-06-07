@@ -20,10 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Security\Sanitizing;
 
-<<<<<<< HEAD
-use ilFileUtils;
-=======
->>>>>>> v9.1
 use ILIAS\Filesystem\Util;
 
 /**
@@ -34,17 +30,6 @@ use ILIAS\Filesystem\Util;
  */
 class FilenameSanitizerImpl implements FilenameSanitizer
 {
-<<<<<<< HEAD
-    /**
-     * Contains the whitelisted file suffixes.
-     *
-     * @var string[] $whitelist
-     */
-    private array $whitelist;
-
-
-=======
->>>>>>> v9.1
     /**
      * FilenameSanitizerImpl constructor.
      * @param string[] $whitelist

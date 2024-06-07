@@ -78,12 +78,6 @@ class StandardPageBuilder implements PageBuilder
             $view_title
         );
 
-<<<<<<< HEAD
-        foreach ($this->meta->getMetaData()->getItems() as $meta_datum) {
-            $standard = $standard->withAdditionalMetaDatum($meta_datum->getKey(), $meta_datum->getValue());
-        }
-
-=======
         foreach ($this->meta->getMetaData() as $meta_datum) {
             $standard = $standard->withAdditionalMetaDatum($meta_datum);
         }
@@ -92,7 +86,6 @@ class StandardPageBuilder implements PageBuilder
             $standard = $standard->withAdditionalMetaDatum($og_meta_data);
         }
 
->>>>>>> v9.1
         return $standard->withSystemInfos($parts->getSystemInfos())
                         ->withTextDirection($this->meta->getTextDirection() ?? Standard::LTR);
     }

@@ -31,10 +31,7 @@ use ILIAS\UI\Component\Symbol\Symbol;
  */
 class TopLegacyItem extends AbstractBaseItem implements isItem, hasSymbol, hasTitle, hasContentLanguage
 {
-<<<<<<< HEAD
-=======
     use ContentLanguage;
->>>>>>> v9.1
     use \ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
 
     protected ?Symbol $symbol = null;

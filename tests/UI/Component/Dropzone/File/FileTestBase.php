@@ -26,10 +26,7 @@ require_once(__DIR__ . "/../../../Base.php");
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\UI\Implementation as I;
 use ILIAS\UI\Component as C;
-<<<<<<< HEAD
-=======
 use ILIAS\Data\Factory;
->>>>>>> v9.1
 
 /**
  * @author  Thibeau Fuhrer <thibeau@sr.solutions>
@@ -38,27 +35,6 @@ abstract class FileTestBase extends \ILIAS_UI_TestBase
 {
     protected C\Dropzone\File\Factory $factory;
     protected I\Component\Input\Field\File $input;
-<<<<<<< HEAD
-    protected string $input_html = 'test_file_input';
-
-    public function setUp(): void
-    {
-        $this->input = $this->createMock(I\Component\Input\Field\File::class);
-        $this->input->method('getCanonicalName')->willReturn($this->input_html);
-
-        $group_mock = $this->createMock(I\Component\Input\Field\Group::class);
-        $group_mock->method('withNameFrom')->willReturnSelf();
-
-        $factory_mock = $this->createMock(C\Input\Field\Factory::class);
-        $factory_mock->method('group')->willReturn($group_mock);
-
-        $this->factory = new I\Component\Dropzone\File\Factory(
-            new I\Component\SignalGenerator(),
-            $factory_mock
-        );
-
-        parent::setUp();
-=======
     private C\Button\Factory $button_factory;
 
     public function setUp(): void
@@ -101,6 +77,5 @@ abstract class FileTestBase extends \ILIAS_UI_TestBase
                 return $this->button_factory;
             }
         };
->>>>>>> v9.1
     }
 }

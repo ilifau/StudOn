@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . '/ModalBase.php');
 
 use ILIAS\UI\Component as C;
@@ -38,31 +30,20 @@ use ILIAS\UI\Implementation as I;
  */
 class LightboxTest extends ModalBase
 {
-<<<<<<< HEAD
-    public function test_get_single_page(): void
-=======
     public function testGetSinglePage(): void
->>>>>>> v9.1
     {
         $page = $this->getLightboxPage();
         $lightbox = $this->getModalFactory()->lightbox($page);
         $this->assertEquals([$page], $lightbox->getPages());
     }
 
-<<<<<<< HEAD
-    public function test_get_multiple_page(): void
-=======
     public function testGetMultiplePage(): void
->>>>>>> v9.1
     {
         $pages = [$this->getLightboxPage(), $this->getLightboxPage()];
         $lightbox = $this->getModalFactory()->lightbox($pages);
         $this->assertEquals($pages, $lightbox->getPages());
     }
 
-<<<<<<< HEAD
-    public function test_simple_image_page_rendering(): void
-=======
     /**
      * @dataProvider getPageProvider
      */
@@ -75,7 +56,6 @@ class LightboxTest extends ModalBase
     }
 
     public function getPageProvider(): array
->>>>>>> v9.1
     {
         $image = new I\Component\Image\Image("responsive", 'src/fake/image.jpg', 'description');
         $card = new I\Component\Card\Card('foo');
@@ -87,19 +67,7 @@ class LightboxTest extends ModalBase
         ];
     }
 
-<<<<<<< HEAD
-    public function test_simple_text_page_rendering(): void
-    {
-        $lightbox = $this->getModalFactory()->lightbox($this->getModalFactory()->lightboxTextPage('HelloWorld', 'title'));
-        $expected = $this->normalizeHTML($this->getExpectedTextPageHTML());
-        $actual = $this->normalizeHTML($this->getDefaultRenderer()->render($lightbox));
-        $this->assertEquals($expected, $actual);
-    }
-
-    public function test_different_page_type_rendering(): void
-=======
     public function testDifferentPageTypeRendering(): void
->>>>>>> v9.1
     {
         $image1 = new I\Component\Image\Image("responsive", 'src/fake/image.jpg', 'description');
 
@@ -127,11 +95,7 @@ class LightboxTest extends ModalBase
 		<div class="modal-content il-modal-lightbox-page">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
-<<<<<<< HEAD
-				<span class="modal-title">title</span>
-=======
 				<h1 class="modal-title">title</h1>
->>>>>>> v9.1
 			</div>
 			<div class="modal-body">
 				<div id="id_1_carousel" class="carousel slide" data-ride="carousel" data-interval="false">
@@ -196,11 +160,7 @@ EOT;
 		<div class="modal-content il-modal-lightbox-page">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
-<<<<<<< HEAD
-				<span class="modal-title">title</span>
-=======
 				<h1 class="modal-title">title</h1>
->>>>>>> v9.1
 			</div>
 			<div class="modal-body">
 				<div id="id_1_carousel" class="carousel slide" data-ride="carousel" data-interval="false">
@@ -276,11 +236,7 @@ EOT;
 		<div class="modal-content il-modal-lightbox-page">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
-<<<<<<< HEAD
-				<span class="modal-title">title</span>
-=======
 				<h1 class="modal-title">title</h1>
->>>>>>> v9.1
 			</div>
 			<div class="modal-body">
 				<div id="id_1_carousel" class="carousel slide" data-ride="carousel" data-interval="false">

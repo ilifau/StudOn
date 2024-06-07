@@ -69,8 +69,9 @@ abstract class AbstractMetaBarItemRenderer implements MetaBarItemRenderer
     public function getComponentForItem(isItem $item): Component
     {
         $component = $this->getSpecificComponentForItem($item);
+        $component = $this->applyDecorator($component, $item);
 
-        return $this->applyDecorator($component, $item);
+        return $component;
     }
 
     abstract protected function getSpecificComponentForItem(isItem $item): Component;

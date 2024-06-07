@@ -23,10 +23,7 @@ require_once './tests/UI/Base.php';
 
 use ILIAS\UI\Implementation\Component as I;
 use ILIAS\UI\Implementation\Component\Input\ViewControl as Control;
-<<<<<<< HEAD
-=======
 use ILIAS\UI\Implementation\Component\Input\ArrayInputData;
->>>>>>> v9.1
 use ILIAS\UI\Implementation\Component\Input\Container\ViewControl as VC;
 use ILIAS\UI\Implementation\Component\Input\FormInputNameSource;
 use ILIAS\Data;
@@ -34,10 +31,6 @@ use ILIAS\Refinery\Factory as Refinery;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
 use ILIAS\UI\Implementation\Component\Input\Field\Factory as FieldFactory;
-<<<<<<< HEAD
-use ILIAS\UI\Implementation\Component\Input\InputData;
-=======
->>>>>>> v9.1
 
 class ViewControlContainerTest extends ILIAS_UI_TestBase
 {
@@ -102,11 +95,7 @@ class ViewControlContainerTest extends ILIAS_UI_TestBase
         $this->assertSameSize($controls, $vc->getInputs());
 
         $named = array_map(
-<<<<<<< HEAD
-            fn ($input) => $input->withNameFrom($name_source, 'view_control'),
-=======
             fn($input) => $input->withNameFrom($name_source, 'view_control'),
->>>>>>> v9.1
             $vc->getInputs()
         );
 
@@ -148,12 +137,6 @@ class ViewControlContainerTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, array_values($data));
     }
 
-<<<<<<< HEAD
-    public function testViewControlContainerTransforms(): void
-    {
-        $transform = $this->buildRefinery()->custom()->transformation(
-            fn ($v) => ['modified' => 'transformed']
-=======
     public function testViewControlContainerRenderWithoutRequest(): void
     {
         $this->expectException(\LogicException::class);
@@ -170,7 +153,6 @@ class ViewControlContainerTest extends ILIAS_UI_TestBase
     {
         $transform = $this->buildRefinery()->custom()->transformation(
             fn($v) => ['modified' => 'transformed']
->>>>>>> v9.1
         );
 
         $request = $this->createMock(ServerRequestInterface::class);
@@ -189,8 +171,6 @@ class ViewControlContainerTest extends ILIAS_UI_TestBase
         $expected = ['modified' => 'transformed'];
         $this->assertEquals($expected, $vc->getData());
     }
-<<<<<<< HEAD
-=======
 
     public function testExtractCurrentValues(): void
     {
@@ -216,5 +196,4 @@ class ViewControlContainerTest extends ILIAS_UI_TestBase
             $data
         );
     }
->>>>>>> v9.1
 }

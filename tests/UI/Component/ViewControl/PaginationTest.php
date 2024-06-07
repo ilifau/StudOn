@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once("libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -102,11 +94,7 @@ class PaginationTest extends ILIAS_UI_TestBase
         $this->assertEquals(2, $p->getNumberOfPages());
     }
 
-<<<<<<< HEAD
-    public function testRenderUnlimited(): void
-=======
     public function testViewControlPaginationRenderUnlimited(): void
->>>>>>> v9.1
     {
         $p = $this->getFactory()->pagination()
             ->withTotalEntries(2)
@@ -125,11 +113,7 @@ class PaginationTest extends ILIAS_UI_TestBase
 	<button class="btn btn-link engaged" aria-pressed="true" data-action="?pagination_offset=0" id="id_1">1</button>
 	<button class="btn btn-link" data-action="?pagination_offset=1" id="id_2">2</button>
 
-<<<<<<< HEAD
-	<span class="browse next">
-=======
 	<span class="btn btn-ctrl browse next">
->>>>>>> v9.1
 		<a tabindex="0" class="glyph" href="?pagination_offset=1" aria-label="next">
 			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 		</a>
@@ -151,13 +135,8 @@ EOT;
         //two entries, second one inactive
         //browse-right disabled
         $expected_html = <<<EOT
-<<<<<<< HEAD
-<div class="il-viewcontrol-pagination">
-	<span class="browse previous">
-=======
 <div class="il-viewcontrol-pagination l-bar__element">
 	<span class="btn btn-ctrl browse previous">
->>>>>>> v9.1
 		<a tabindex="0" class="glyph" href="?pagination_offset=0" aria-label="back">
 			<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 		</a>
@@ -202,11 +181,7 @@ EOT;
 		<button class="btn btn-link" data-action="?pagination_offset=2" id="id_2">3</button>
 	</span>
 
-<<<<<<< HEAD
-	<span class="browse next">
-=======
 	<span class="btn btn-ctrl browse next">
->>>>>>> v9.1
 		<a tabindex="0" class="glyph" href="?pagination_offset=1" aria-label="next">
 			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 		</a>
@@ -229,13 +204,8 @@ EOT;
         //both rockers enabled
         //both boundary-buttons
         $expected_html = <<<EOT
-<<<<<<< HEAD
-<div class="il-viewcontrol-pagination">
-	<span class="browse previous">
-=======
 <div class="il-viewcontrol-pagination l-bar__element">
 	<span class="btn btn-ctrl browse previous">
->>>>>>> v9.1
 		<a tabindex="0" class="glyph" href="?pagination_offset=0" aria-label="back">
 			<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 		</a>
@@ -251,11 +221,7 @@ EOT;
 		<button class="btn btn-link" data-action="?pagination_offset=2" id="id_3">3</button>
 	</span>
 
-<<<<<<< HEAD
-	<span class="browse next">
-=======
 	<span class="btn btn-ctrl browse next">
->>>>>>> v9.1
 		<a tabindex="0" class="glyph" href="?pagination_offset=2" aria-label="next">
 			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 		</a>
@@ -278,13 +244,8 @@ EOT;
         //browse-right disabled
         //boundary-button left only
         $expected_html = <<<EOT
-<<<<<<< HEAD
-<div class="il-viewcontrol-pagination">
-	<span class="browse previous">
-=======
 <div class="il-viewcontrol-pagination l-bar__element">
 	<span class="btn btn-ctrl browse previous">
->>>>>>> v9.1
 		<a tabindex="0" class="glyph" href="?pagination_offset=1" aria-label="back">
 			<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 		</a>
@@ -324,11 +285,7 @@ EOT;
 	</span>
 
 	<div class="dropdown">
-<<<<<<< HEAD
-		<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_4" aria-haspopup="true" aria-expanded="false" aria-controls="id_4_menu" >pagination_label_x_of_y <span class="caret"></span></button>
-=======
 		<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_4" aria-haspopup="true" aria-expanded="false" aria-controls="id_4_menu" >pagination_label_x_of_y<span class="caret"></span></button>
->>>>>>> v9.1
 		<ul id="id_4_menu" class="dropdown-menu">
 			<li><button class="btn btn-link engaged" aria-pressed="true" data-action="?pagination_offset=0" id="id_1">1</button></li>
 			<li><button class="btn btn-link" data-action="?pagination_offset=1" id="id_2">2</button></li>
@@ -336,11 +293,7 @@ EOT;
 		</ul>
 	</div>
 
-<<<<<<< HEAD
-	<span class="browse next">
-=======
 	<span class="btn btn-ctrl browse next">
->>>>>>> v9.1
 		<a tabindex="0" class="glyph" href="?pagination_offset=1" aria-label="next">
 			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 		</a>

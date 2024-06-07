@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/TestComponent.php");
 
 use ILIAS\UI\Implementation as I;
@@ -59,11 +51,8 @@ class ComponentRendererFSLoaderTest extends TestCase
         $image_path_resolver = $this->getMockBuilder(ILIAS\UI\Implementation\Render\ImagePathResolver::class)
                 ->getMock();
         $data_factory = $this->getMockBuilder(ILIAS\Data\Factory::class)->getMock();
-<<<<<<< HEAD
-=======
         $help_text_retriever = $this->createMock(ILIAS\UI\HelpTextRetriever::class);
         $upload_limit_resolver = $this->createMock(ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class);
->>>>>>> v9.1
 
         $default_renderer_factory = new I\Render\DefaultRendererFactory(
             $ui_factory,
@@ -73,11 +62,8 @@ class ComponentRendererFSLoaderTest extends TestCase
             $refinery_mock,
             $image_path_resolver,
             $data_factory,
-<<<<<<< HEAD
-=======
             $help_text_retriever,
             $upload_limit_resolver,
->>>>>>> v9.1
         );
         $this->glyph_renderer = $this->createMock(I\Render\RendererFactory::class);
         $this->icon_renderer = $this->createMock(I\Render\RendererFactory::class);
@@ -86,11 +72,7 @@ class ComponentRendererFSLoaderTest extends TestCase
         return new FSLoader($default_renderer_factory, $this->glyph_renderer, $this->icon_renderer, $field_renderer);
     }
 
-<<<<<<< HEAD
-    public function test_getRenderer_successfully(): void
-=======
     public function testGetRendererSuccessfully(): void
->>>>>>> v9.1
     {
         // There should be a renderer for Glyph...
         $f = $this->getComponentRendererFSLoader();
@@ -99,11 +81,7 @@ class ComponentRendererFSLoaderTest extends TestCase
         $this->assertInstanceOf(I\Render\ComponentRenderer::class, $r);
     }
 
-<<<<<<< HEAD
-    public function test_getRenderer_successfully_extra(): void
-=======
     public function testGetRendererSuccessfullyExtra(): void
->>>>>>> v9.1
     {
         // There should be a renderer for Glyph...
         $f = $this->getComponentRendererFSLoader();
@@ -128,11 +106,7 @@ class ComponentRendererFSLoaderTest extends TestCase
         $this->assertEquals($renderer, $r);
     }
 
-<<<<<<< HEAD
-    public function test_getRenderer_uses_RendererFactory(): void
-=======
     public function testGetRendererUsesRendererFactory(): void
->>>>>>> v9.1
     {
         $loader = $this->getMockBuilder(ILIAS\UI\Implementation\Render\FSLoader::class)
             ->onlyMethods(["getRendererFactoryFor", "getContextNames"])

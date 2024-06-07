@@ -35,8 +35,7 @@ use ILIAS\Skill\Service\SkillService;
 class Container extends \Pimple\Container
 {
     private ?\ilFileServicesSettings $file_service_settings = null;
-<<<<<<< HEAD
-    
+
     // fau: fauService
     /**
      * Get the factory
@@ -45,9 +44,6 @@ class Container extends \Pimple\Container
         return $this["fau"];
     }
     // fau.
-
-=======
->>>>>>> v9.1
 
     /**
      * Get interface to the Database.
@@ -237,11 +233,7 @@ class Container extends \Pimple\Container
         );
     }
 
-<<<<<<< HEAD
-    public function news(): \ilNewsService
-=======
     public function news(): \ILIAS\News\Service
->>>>>>> v9.1
     {
         return new \ILIAS\News\Service($this);
     }
@@ -409,20 +401,6 @@ class Container extends \Pimple\Container
         return new \ILIAS\Awareness\Service($this);
     }
 
-<<<<<<< HEAD
-    public function fileServiceSettings(): \ilFileServicesSettings
-    {
-        if ($this->file_service_settings === null) {
-            $this->file_service_settings = new \ilFileServicesSettings(
-                $this->settings(),
-                $this->clientIni(),
-                $this->database()
-            );
-        }
-        return $this->file_service_settings;
-    }
-
-=======
     public function export(): \ILIAS\Export\Service
     {
         return new \ILIAS\Export\Service();
@@ -474,7 +452,6 @@ class Container extends \Pimple\Container
         return new Converters();
     }
 
->>>>>>> v9.1
     public function contentStyle(): \ILIAS\Style\Content\Service
     {
         return new \ILIAS\Style\Content\Service($this);

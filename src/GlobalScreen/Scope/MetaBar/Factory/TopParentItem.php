@@ -30,10 +30,7 @@ use ILIAS\UI\Component\Symbol\Symbol;
  */
 class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTitle, isParent, hasContentLanguage
 {
-<<<<<<< HEAD
-=======
     use ContentLanguage;
->>>>>>> v9.1
     use \ILIAS\GlobalScreen\Scope\SymbolDecoratorTrait;
 
     /**
@@ -132,6 +129,6 @@ class TopParentItem extends AbstractBaseItem implements isItem, hasSymbol, hasTi
      */
     public function hasChildren(): bool
     {
-        return $this->children !== [];
+        return count($this->children) > 0;
     }
 }

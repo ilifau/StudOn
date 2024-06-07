@@ -227,32 +227,4 @@ EOT;
             $this->brutallyTrimHTML($html)
         );
     }
-    /**
-     * This test is successfull if the icon label differs from the node label.
-     * As a result the alt attribute will get the icon's label as content.
-     * Else the alt attribute will be empty (see testRenderingWithIcon).
-     *
-     * @depends testConstructionWithIconAndDifferentLabels
-     */
-    public function testRenderingWithIconAndAltAttribute(C\Tree\Node\Simple $node): void
-    {
-        $r = $this->getDefaultRenderer();
-        $html = $r->render($node);
-
-        $expected = <<<EOT
-			<li id="" class="il-tree-node node-simple" role="treeitem">
-				<span class="node-line">
-					<span class="node-label">
-						<img class="icon small" src="./templates/default/images/icon_default.svg" alt="Different Icon Label"/>
-						label
-					</span>
-				</span>
-			</li>
-EOT;
-
-        $this->assertEquals(
-            $this->brutallyTrimHTML($expected),
-            $this->brutallyTrimHTML($html)
-        );
-    }
 }

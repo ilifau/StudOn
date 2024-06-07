@@ -79,11 +79,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
         );
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $pwd = $f->password("label", "byline");
@@ -91,11 +87,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(Field\Password::class, $pwd);
     }
 
-<<<<<<< HEAD
-    public function test_render(): void
-=======
     public function testRender(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -109,11 +101,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
                 <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label . '</label>
                 <div class="col-sm-8 col-md-9 col-lg-10">
                     <div class="il-input-password" id="id_1_container">
-<<<<<<< HEAD
-                        <input id="id_1" type="password" name="' . $name . '" class="form-control form-control-sm" />
-=======
                         <input id="id_1" type="password" name="' . $name . '" class="form-control form-control-sm" autocomplete="off" />
->>>>>>> v9.1
                     </div>
                     <div class="help-block">' . $byline . '</div>
                 </div>
@@ -121,11 +109,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $r->render($pwd));
     }
 
-<<<<<<< HEAD
-    public function test_render_error(): void
-=======
     public function testRenderError(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -140,11 +124,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
    <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
    <div class="col-sm-8 col-md-9 col-lg-10">
       <div class="help-block alert alert-danger" aria-describedby="id_1" role="alert">an_error</div>
-<<<<<<< HEAD
-      <div class="il-input-password" id="id_1_container"><input id="id_1" type="password" name="name_0" class="form-control form-control-sm" /></div>
-=======
       <div class="il-input-password" id="id_1_container"><input id="id_1" type="password" name="name_0" class="form-control form-control-sm" autocomplete="off" /></div>
->>>>>>> v9.1
       <div class="help-block">byline</div>
    </div>
 </div>');
@@ -152,11 +132,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_no_byline(): void
-=======
     public function testRenderNoByline(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -169,22 +145,14 @@ class PasswordInputTest extends ILIAS_UI_TestBase
                 <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label . '</label>
                 <div class="col-sm-8 col-md-9 col-lg-10">
                     <div class="il-input-password" id="id_1_container">
-<<<<<<< HEAD
-                        <input id="id_1" type="password" name="' . $name . '" class="form-control form-control-sm" />
-=======
                         <input id="id_1" type="password" name="' . $name . '" class="form-control form-control-sm" autocomplete="off" />
->>>>>>> v9.1
                     </div>
                 </div>
             </div>';
         $this->assertHTMLEquals($expected, $r->render($pwd));
     }
 
-<<<<<<< HEAD
-    public function test_render_value(): void
-=======
     public function testRenderValue(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -198,22 +166,14 @@ class PasswordInputTest extends ILIAS_UI_TestBase
                 <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label . '</label>
                 <div class="col-sm-8 col-md-9 col-lg-10">
                     <div class="il-input-password" id="id_1_container">
-<<<<<<< HEAD
-                        <input id="id_1" type="password" name="' . $name . '" value="' . $value . '" class="form-control form-control-sm" />
-=======
                         <input id="id_1" type="password" name="' . $name . '" value="' . $value . '" class="form-control form-control-sm" autocomplete="off" />
->>>>>>> v9.1
                     </div>
                 </div>
             </div>';
         $this->assertHTMLEquals($expected, $r->render($pwd));
     }
 
-<<<<<<< HEAD
-    public function test_render_required(): void
-=======
     public function testRenderRequired(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -228,22 +188,14 @@ class PasswordInputTest extends ILIAS_UI_TestBase
             <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label . '<span class="asterisk">*</span></label>
             <div class="col-sm-8 col-md-9 col-lg-10">
                 <div class="il-input-password" id="id_1_container">
-<<<<<<< HEAD
-                    <input id="id_1" type="password" name="' . $name . '" class="form-control form-control-sm" />
-=======
                     <input id="id_1" type="password" name="' . $name . '" class="form-control form-control-sm" autocomplete="off" />
->>>>>>> v9.1
                 </div>
             </div>
         </div>';
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_disabled(): void
-=======
     public function testRenderDisabled(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -258,22 +210,14 @@ class PasswordInputTest extends ILIAS_UI_TestBase
             <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">' . $label . '</label>
             <div class="col-sm-8 col-md-9 col-lg-10">
                 <div class="il-input-password" id="id_1_container">
-<<<<<<< HEAD
-                    <input id="id_1" type="password" name="' . $name . '" disabled="disabled" class="form-control form-control-sm" />
-=======
                     <input id="id_1" type="password" name="' . $name . '" disabled="disabled" class="form-control form-control-sm" autocomplete="off" />
->>>>>>> v9.1
                 </div>
             </div>
         </div>';
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_value_required(): void
-=======
     public function testValueRequired(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -289,11 +233,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
         $this->assertTrue($value2->isError());
     }
 
-<<<<<<< HEAD
-    public function test_value_type(): void
-=======
     public function testValueType(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";

@@ -184,7 +184,7 @@ class Lost extends AbstractBaseItem implements hasContent, isTopItem, isParent, 
      */
     public function hasChildren(): bool
     {
-        return $this->children !== [];
+        return count($this->children) > 0;
     }
 
     /**

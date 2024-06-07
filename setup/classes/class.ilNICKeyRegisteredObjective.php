@@ -1,10 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-declare(strict_types=1);
-
-=======
->>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -20,11 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-<<<<<<< HEAD
-=======
 
 declare(strict_types=1);
->>>>>>> v9.1
 
 use ILIAS\Setup;
 
@@ -87,7 +79,6 @@ class ilNICKeyRegisteredObjective extends ilSetupObjective
         $response = $req->exec();
         $req->parseResponse($response);
 
-
         if ($req->getInfo()["http_code"] != "200") {
             $settings->set("nic_enabled", "-1");
             throw new Setup\UnachievableException(
@@ -112,7 +103,6 @@ class ilNICKeyRegisteredObjective extends ilSetupObjective
 
         $GLOBALS["DIC"] = $old_DIC;
         $GLOBALS["ilSetting"] = $old_settings;
-
 
         return $environment;
     }

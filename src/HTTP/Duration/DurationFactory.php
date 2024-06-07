@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-<?php declare(strict_types=1);
-=======
 <?php
 
 declare(strict_types=1);
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -37,20 +33,12 @@ class DurationFactory
         $this->incrementFactory = $incrementFactory;
     }
 
-<<<<<<< HEAD
-    public function callbackDuration(int $duration_in_ms) : CallbackDuration
-=======
     public function callbackDuration(int $duration_in_ms): CallbackDuration
->>>>>>> v9.1
     {
         return new CallbackDuration($duration_in_ms);
     }
 
-<<<<<<< HEAD
-    public function increments() : IncrementFactory
-=======
     public function increments(): IncrementFactory
->>>>>>> v9.1
     {
         return $this->incrementFactory;
     }

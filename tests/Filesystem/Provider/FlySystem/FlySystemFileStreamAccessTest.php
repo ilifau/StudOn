@@ -172,12 +172,7 @@ class FlySystemFileStreamAccessTest extends TestCase
         $this->filesystemMock
             ->shouldReceive('fileExists')
             ->once()
-<<<<<<< HEAD
-            ->withArgs([$path, \resourceValue()])
-            ->andThrow(FileExistsException::class);
-=======
             ->andReturn(true);
->>>>>>> v9.1
 
         $this->expectException(FileAlreadyExistsException::class);
         $this->expectExceptionMessage("File \"$path\" already exists.");
@@ -316,11 +311,7 @@ class FlySystemFileStreamAccessTest extends TestCase
             ->shouldReceive('writeStream')
             ->once()
             ->withArgs([$path, \resourceValue()])
-<<<<<<< HEAD
-            ->andReturn(false);
-=======
             ->andThrow(UnableToWriteFile::class);
->>>>>>> v9.1
 
         $this->expectException(IOException::class);
         $this->expectExceptionMessage("Unable to update Stream in \"$path\".");

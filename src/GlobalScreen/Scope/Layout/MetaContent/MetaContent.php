@@ -98,17 +98,11 @@ class MetaContent
         $this->on_load_code->addItem(new OnLoadCode($content, $this->resource_version, $batch));
     }
 
-<<<<<<< HEAD
-    public function addMetaDatum(string $key, string $value): void
-=======
     public function addOpenGraphMetaDatum(OpenGraph\TagCollection $og_meta_data): void
->>>>>>> v9.1
     {
         $this->og_meta_data = $og_meta_data;
     }
 
-<<<<<<< HEAD
-=======
     public function addMetaDatum(Html\Tag $meta_data): void
     {
         if ($meta_data instanceof OpenGraph\TagCollection || $meta_data instanceof OpenGraph\Tag) {
@@ -129,7 +123,6 @@ class MetaContent
         }
     }
 
->>>>>>> v9.1
     public function getInlineCss(): InlineCssCollection
     {
         return $this->inline_css;
@@ -150,9 +143,6 @@ class MetaContent
         return $this->css;
     }
 
-<<<<<<< HEAD
-    public function getMetaData(): MetaDataCollection
-=======
     public function getOpenGraphMetaData(): ?OpenGraph\TagCollection
     {
         return $this->og_meta_data;
@@ -162,7 +152,6 @@ class MetaContent
      * @return Html\Tag[]
      */
     public function getMetaData(): array
->>>>>>> v9.1
     {
         return $this->meta_data;
     }

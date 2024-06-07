@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -42,22 +34,14 @@ class DropdownTest extends ILIAS_UI_TestBase
         return new I\Component\Dropdown\Factory();
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
 
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Dropdown\\Standard", $f->standard(array()));
     }
 
-<<<<<<< HEAD
-    public function test_with_label(): void
-=======
     public function testWithLabel(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -66,11 +50,7 @@ class DropdownTest extends ILIAS_UI_TestBase
         $this->assertEquals("label", $c->getLabel());
     }
 
-<<<<<<< HEAD
-    public function test_with_items(): void
-=======
     public function testWithItems(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $link = new I\Component\Link\Standard("Link to Github", "http://www.github.com");
@@ -88,11 +68,7 @@ class DropdownTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Link\\Standard", $items[3]);
     }
 
-<<<<<<< HEAD
-    public function test_render_empty(): void
-=======
     public function testRenderEmpty(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -105,11 +81,7 @@ class DropdownTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_items(): void
-=======
     public function testRenderItems(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -138,11 +110,7 @@ EOT;
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_items_with_label(): void
-=======
     public function testRenderItemsWithLabel(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -156,11 +124,7 @@ EOT;
         $html = $r->render($c);
 
         $expected = <<<EOT
-<<<<<<< HEAD
-			<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu">label <span class="caret"></span></button>
-=======
 			<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu">label<span class="caret"></span></button>
->>>>>>> v9.1
 				<ul id="id_3_menu" class="dropdown-menu">
 					<li><button class="btn btn-link" data-action="https://www.ilias.de" id="id_1">ILIAS</button></li>
 					<li><hr  /></li>
@@ -172,11 +136,7 @@ EOT;
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_with_link_new_viewport(): void
-=======
     public function testRenderWithLinkNewViewport(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -200,11 +160,7 @@ EOT;
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_items_with_aria_label(): void
-=======
     public function testRenderItemsWithAriaLabel(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -218,11 +174,7 @@ EOT;
         $html = $r->render($c);
 
         $expected = <<<EOT
-<<<<<<< HEAD
-			<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="my_aria_label" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu">label <span class="caret"></span></button>
-=======
 			<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="id_3" aria-label="my_aria_label" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu">label<span class="caret"></span></button>
->>>>>>> v9.1
 				<ul id="id_3_menu" class="dropdown-menu">
 					<li><button class="btn btn-link" data-action="https://www.ilias.de" id="id_1">ILIAS</button></li>
 					<li><hr  /></li>

@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . '/ModalBase.php');
 
 use ILIAS\UI\Component as C;
@@ -36,41 +28,25 @@ use ILIAS\UI\Implementation as I;
  */
 class InterruptiveTest extends ModalBase
 {
-<<<<<<< HEAD
-    public function test_get_title(): void
-=======
     public function testGetTitle(): void
->>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $this->assertEquals('myTitle', $interruptive->getTitle());
     }
 
-<<<<<<< HEAD
-    public function test_get_message(): void
-=======
     public function testGetMessage(): void
->>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $this->assertEquals('myMessage', $interruptive->getMessage());
     }
 
-<<<<<<< HEAD
-    public function test_get_form_action(): void
-=======
     public function testGetFormAction(): void
->>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $this->assertEquals('myFormAction', $interruptive->getFormAction());
     }
 
-<<<<<<< HEAD
-    public function test_get_affected_items(): void
-=======
     public function testGetAffectedItems(): void
->>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $items = [$this->getInterruptiveItem(), $this->getInterruptiveItem()];
@@ -78,11 +54,7 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals($items, $interruptive->getAffectedItems());
     }
 
-<<<<<<< HEAD
-    public function test_with_form_action(): void
-=======
     public function testWithFormAction(): void
->>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $interruptive2 = $interruptive->withFormAction('myFormAction2');
@@ -90,11 +62,7 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals('myFormAction2', $interruptive2->getFormAction());
     }
 
-<<<<<<< HEAD
-    public function test_with_affected_items(): void
-=======
     public function testWithAffectedItems(): void
->>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('myTitle', 'myMessage', 'myFormAction');
         $items = [$this->getInterruptiveItem(), $this->getInterruptiveItem()];
@@ -103,11 +71,7 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals($items, $interruptive2->getAffectedItems());
     }
 
-<<<<<<< HEAD
-    public function test_simple_rendering(): void
-=======
     public function testSimpleRendering(): void
->>>>>>> v9.1
     {
         $interruptive = $this->getModalFactory()->interruptive('Title', 'Message', 'myAction.php');
         $expected = $this->brutallyTrimHTML($this->getExpectedHTML());
@@ -115,8 +79,6 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals($expected, $actual);
     }
 
-<<<<<<< HEAD
-=======
     public function testRenderingWithItems(): void
     {
         $interruptive = $this->getModalFactory()->interruptive('Title', 'Message', 'myAction.php');
@@ -133,17 +95,12 @@ class InterruptiveTest extends ModalBase
         $this->assertEquals($expected, $actual);
     }
 
->>>>>>> v9.1
     protected function getInterruptiveItem(): InterruptiveItemMock
     {
         return new InterruptiveItemMock();
     }
 
-<<<<<<< HEAD
-    protected function getExpectedHTML(): string
-=======
     protected function getStandardInterruptiveItem(string $canonical_name): StandardItemMock
->>>>>>> v9.1
     {
         return new StandardItemMock($canonical_name);
     }
@@ -161,11 +118,7 @@ class InterruptiveTest extends ModalBase
 		<form action="myAction.php" method="POST">
 			<div class="modal-content">
 				<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="cancel">
-<<<<<<< HEAD
-					<span aria-hidden="true">&times;</span></button><span class="modal-title">Title</span>
-=======
 					<span aria-hidden="true">&times;</span></button><h1 class="modal-title">Title</h1>
->>>>>>> v9.1
 				</div>
 				<div class="modal-body">
 					<div class="alert alert-warning c-modal--interruptive__message" role="alert">Message</div>
@@ -224,8 +177,6 @@ EOT;
 
 class InterruptiveItemMock implements C\Modal\InterruptiveItem\InterruptiveItem
 {
-<<<<<<< HEAD
-=======
     protected string $canonical_name;
 
     public function __construct(string $canonical_name = '')
@@ -233,14 +184,11 @@ class InterruptiveItemMock implements C\Modal\InterruptiveItem\InterruptiveItem
         $this->canonical_name = $canonical_name;
     }
 
->>>>>>> v9.1
     public function getId(): string
     {
         return '1';
     }
 
-<<<<<<< HEAD
-=======
     public function getCanonicalName(): string
     {
         return $this->canonical_name ?: 'InterruptiveItem';
@@ -249,7 +197,6 @@ class InterruptiveItemMock implements C\Modal\InterruptiveItem\InterruptiveItem
 
 class StandardItemMock extends InterruptiveItemMock implements C\Modal\InterruptiveItem\Standard
 {
->>>>>>> v9.1
     public function getTitle(): string
     {
         return 'title';

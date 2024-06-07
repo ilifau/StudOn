@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem;
@@ -132,11 +129,7 @@ final class FilesystemFacade implements Filesystem
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function getSize(string $path, int $fileSizeUnit): DataSize
-=======
     public function getSize(string $path, int $unit): DataSize
->>>>>>> v9.1
     {
         return $this->fileAccess->getSize($path, $unit);
     }

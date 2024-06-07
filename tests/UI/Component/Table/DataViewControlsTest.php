@@ -37,17 +37,9 @@ class DataViewControlsTest extends TableTestBase
     protected function getDataRetrieval(int $total_count): I\Table\DataRetrieval
     {
         return new class ($total_count) implements I\Table\DataRetrieval {
-<<<<<<< HEAD
-            protected int $total_count;
-            public function __construct(
-                int $total_count
-            ) {
-                $this->total_count = $total_count;
-=======
             public function __construct(
                 protected int $total_count
             ) {
->>>>>>> v9.1
             }
             public function getRows(
                 I\Table\DataRowBuilder $row_builder,
@@ -111,10 +103,21 @@ class DataViewControlsTest extends TableTestBase
 
         $this->assertEquals(
             [
+                C\Table\Data::VIEWCONTROL_KEY_PAGINATION,
                 C\Table\Data::VIEWCONTROL_KEY_ORDERING,
                 C\Table\Data::VIEWCONTROL_KEY_FIELDSELECTION,
             ],
             array_keys($view_controls->getInputs())
+        );
+        $this->assertInstanceOf(
+            I\Input\ViewControl\Group::class,
+            $view_controls->getInputs()[C\Table\Data::VIEWCONTROL_KEY_PAGINATION]
+        );
+
+        $group_contents = $view_controls->getInputs()[C\Table\Data::VIEWCONTROL_KEY_PAGINATION]->getInputs();
+        array_walk(
+            $group_contents,
+            fn($vc) => $this->assertInstanceOf(I\Input\ViewControl\NullControl::class, $vc)
         );
     }
 

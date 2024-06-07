@@ -258,32 +258,8 @@ and the depencency to less from Bootstrap has mostly been removed. However, the 
 and the abandonment from Bootstrap means, that System Styles from 8 and lower are NOT compatible with ILIAS 9.
 They can not be imported, be used, or compiled. 
 
-<<<<<<< HEAD
-Also, most importantly the following components have been introduced:
-
-- [Standard Layout](https://test6.ilias.de/goto_test6_stys_21_LayoutPageStandardStandard_default_delos.html?), 
-template directory: src/UI/templates/default/Layout, the frame of the DOM for the complete ILIAS page. 
-Also checkout the according less variable under section Layout (UI Layout Page).
-- [Meta Bar](https://test6.ilias.de/goto_test6_stys_21_MainControlsMetaBarMetaBar_default_delos.html?) 
-template directory: src/UI/templates/default/MainControls, the Bar on the top holding Notification, Search User Avatar, etc.
-Also checkout the according metabar less variables.
-- [Main Bar](https://test6.ilias.de/goto_test6_stys_21_MainControlsMainBarMainBar_default_delos.html?) 
-template directory: src/UI/templates/default/MainControls, the Bar on the left holding triggers for opening the slates for
-accessing Repository, Dasbhoard etc. Content.
-Also checkout the according mainbar less variables.
-- [Slate](https://test6.ilias.de/goto_test6_stys_21_MainControlsSlateFactorySlate_default_delos.html?) 
-template directory: src/UI/templates/default/MainControls/Slate, the Slates triggered by opening items of the Main Bar.
-Also checkout the according slate less variables.
-- [Breadcrumbs](https://test6.ilias.de/goto_test6_stys_21_BreadcrumbsBreadcrumbsBreadcrumbs_default_delos.html?)
-template directory: src/UI/templates/default/Breadcrumbs, Breadcrumbs working as locator on the top of the page.
-Also checkout the breadcrumb less variables.
-
-See above section on information on how to customize those components.
-
-=======
 However, note, that most of the css should still work. Also less and scss are not that far appart. Best read
 through our [SCSS Coding Guidelines](./Guidelines_SCSS-Coding.md) to get started.
->>>>>>> v9.1
 
 #### ILIAS 7
 
@@ -300,22 +276,7 @@ the override mechanism that fetches a custom style for just the T&A has been
 removed. Please use the standard skin setup described in this document to style
 the Test & Assessment like the rest of your custom skin.
 
-<<<<<<< HEAD
-#### ILIAS 8
-The Main Background has been changed to white. Many style changes have been implemented.
-Maybe best start out with a fresh copy from Delos and move your changes over to this copy.
-
-
-The Icons have completely changed. The outlined items are now the one and only default.
-For this reason, we changed the styling of the Icons in the mainbar, they are now inverted
-with filter: `brightness(5);`. You might to need to change your custom Mainbar Icons if you
-adapted them through the Main Menu.
-
-
-## Less Guideline
-=======
 #### ILIAS 6
->>>>>>> v9.1
 
 Major parts of the UI of ILIAS 6 have changed. It is therefore recommended, to create a new skin
 for ILIAS think an manually move changes that are still needed from oder versions to the new skin.

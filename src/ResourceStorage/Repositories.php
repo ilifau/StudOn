@@ -22,10 +22,7 @@ namespace ILIAS\ResourceStorage;
 
 use ILIAS\ResourceStorage\Collection\Repository\CollectionRepository;
 use ILIAS\ResourceStorage\Information\Repository\InformationRepository;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Resource\Repository\FlavourRepository;
->>>>>>> v9.1
 use ILIAS\ResourceStorage\Resource\Repository\ResourceRepository;
 use ILIAS\ResourceStorage\Revision\Repository\RevisionRepository;
 use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderRepository;
@@ -42,32 +39,22 @@ class Repositories
     private CollectionRepository $collection_repository;
     private InformationRepository $information_repository;
     private StakeholderRepository $stakeholder_repository;
-<<<<<<< HEAD
-=======
     private FlavourRepository $flavour_repository;
->>>>>>> v9.1
 
     public function __construct(
         RevisionRepository $revision_repository,
         ResourceRepository $resource_repository,
         CollectionRepository $collection_repository,
         InformationRepository $information_repository,
-<<<<<<< HEAD
-        StakeholderRepository $stakeholder_repository
-=======
         StakeholderRepository $stakeholder_repository,
         FlavourRepository $flavour_repository
->>>>>>> v9.1
     ) {
         $this->revision_repository = $revision_repository;
         $this->resource_repository = $resource_repository;
         $this->collection_repository = $collection_repository;
         $this->information_repository = $information_repository;
         $this->stakeholder_repository = $stakeholder_repository;
-<<<<<<< HEAD
-=======
         $this->flavour_repository = $flavour_repository;
->>>>>>> v9.1
     }
 
     public function getRevisionRepository(): RevisionRepository
@@ -94,12 +81,9 @@ class Repositories
     {
         return $this->stakeholder_repository;
     }
-<<<<<<< HEAD
-=======
 
     public function getFlavourRepository(): FlavourRepository
     {
         return $this->flavour_repository;
     }
->>>>>>> v9.1
 }

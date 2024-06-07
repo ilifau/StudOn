@@ -39,12 +39,6 @@ use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\Revision\UploadedFileRevision;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
-<<<<<<< HEAD
-
-/**
- * Class ResourceBuilder
- * @author Fabian Schmid <fs@studer-raimann.ch>
-=======
 use ILIAS\ResourceStorage\Revision\RevisionStatus;
 use ILIAS\ResourceStorage\Revision\StreamReplacementRevision;
 use ILIAS\ResourceStorage\StorageHandler\Migrator;
@@ -52,7 +46,6 @@ use ILIAS\ResourceStorage\StorageHandler\Migrator;
 /**
  * Class ResourceBuilder
  * @author   Fabian Schmid <fabian@sr.solutions.ch>
->>>>>>> v9.1
  * @internal This class is not part of the public API and may be changed without notice. Do not use this class in your code.
  */
 class ResourceBuilder
@@ -85,10 +78,7 @@ class ResourceBuilder
     private StorageHandlerFactory $storage_handler_factory;
     private LockHandler $lock_handler;
     private StreamAccess $stream_access;
-<<<<<<< HEAD
-=======
     private bool $auto_migrate = true;
->>>>>>> v9.1
 
     /**
      * ResourceBuilder constructor.
@@ -121,19 +111,12 @@ class ResourceBuilder
      */
     public function new(
         UploadResult $result,
-<<<<<<< HEAD
-        InfoResolver $info_resolver
-    ): StorableResource {
-        $resource = $this->resource_repository->blank(
-            $this->primary_storage_handler->getIdentificationGenerator()->getUniqueResourceIdentification()
-=======
         InfoResolver $info_resolver,
         ResourceType $type = ResourceType::SINGLE_FILE
     ): StorableResource {
         $resource = $this->resource_repository->blank(
             $this->primary_storage_handler->getIdentificationGenerator()->getUniqueResourceIdentification(),
             $type
->>>>>>> v9.1
         );
 
         return $this->append($resource, $result, $info_resolver, RevisionStatus::PUBLISHED);
@@ -142,19 +125,12 @@ class ResourceBuilder
     public function newFromStream(
         FileStream $stream,
         InfoResolver $info_resolver,
-<<<<<<< HEAD
-        bool $keep_original = false
-    ): StorableResource {
-        $resource = $this->resource_repository->blank(
-            $this->primary_storage_handler->getIdentificationGenerator()->getUniqueResourceIdentification()
-=======
         bool $keep_original = false,
         ResourceType $type = ResourceType::SINGLE_FILE
     ): StorableResource {
         $resource = $this->resource_repository->blank(
             $this->primary_storage_handler->getIdentificationGenerator()->getUniqueResourceIdentification(),
             $type
->>>>>>> v9.1
         );
 
         return $this->appendFromStream(
@@ -166,19 +142,11 @@ class ResourceBuilder
         );
     }
 
-<<<<<<< HEAD
-
-    public function newBlank(): StorableResource
-    {
-        $resource = $this->resource_repository->blank(
-            $this->primary_storage_handler->getIdentificationGenerator()->getUniqueResourceIdentification()
-=======
     public function newBlank(ResourceType $type = ResourceType::SINGLE_FILE): StorableResource
     {
         $resource = $this->resource_repository->blank(
             $this->primary_storage_handler->getIdentificationGenerator()->getUniqueResourceIdentification(),
             $type
->>>>>>> v9.1
         );
         $resource->setStorageID($this->primary_storage_handler->getID());
 
@@ -192,14 +160,6 @@ class ResourceBuilder
     public function append(
         StorableResource $resource,
         UploadResult $result,
-<<<<<<< HEAD
-        InfoResolver $info_resolver
-    ): StorableResource {
-        $revision = $this->revision_repository->blankFromUpload($info_resolver, $resource, $result);
-        $revision = $this->populateRevisionInfo($revision, $info_resolver);
-
-        $resource->addRevision($revision);
-=======
         InfoResolver $info_resolver,
         RevisionStatus $status
     ): StorableResource {
@@ -221,7 +181,6 @@ class ResourceBuilder
             $resource->addRevision($new_revision);
         }
 
->>>>>>> v9.1
         $resource->setStorageID(
             $resource->getStorageID() === '' ? $this->primary_storage_handler->getID() : $resource->getStorageID()
         );
@@ -237,14 +196,10 @@ class ResourceBuilder
         UploadResult $result,
         InfoResolver $info_resolver
     ): StorableResource {
-<<<<<<< HEAD
-        $revision = $this->revision_repository->blankFromUpload($info_resolver, $resource, $result);
-=======
         if ($resource->getCurrentRevisionIncludingDraft()->getStatus() === RevisionStatus::DRAFT) {
             throw new \LogicException('You can not replace a draft revision, you must publish it first');
         }
         $revision = $this->revision_repository->blankFromUpload($info_resolver, $resource, $result, RevisionStatus::PUBLISHED);
->>>>>>> v9.1
         $revision = $this->populateRevisionInfo($revision, $info_resolver);
 
         foreach ($resource->getAllRevisionsIncludingDraft() as $existing_revision) {
@@ -263,14 +218,6 @@ class ResourceBuilder
         StorableResource $resource,
         FileStream $stream,
         InfoResolver $info_resolver,
-<<<<<<< HEAD
-        bool $keep_original = false
-    ): StorableResource {
-        $revision = $this->revision_repository->blankFromStream($info_resolver, $resource, $stream, $keep_original);
-        $revision = $this->populateRevisionInfo($revision, $info_resolver);
-
-        $resource->addRevision($revision);
-=======
         RevisionStatus $status,
         bool $keep_original = false,
     ): StorableResource {
@@ -292,7 +239,6 @@ class ResourceBuilder
             $resource->addRevision($new_revision);
         }
 
->>>>>>> v9.1
         $resource->setStorageID(
             $resource->getStorageID() === '' ? $this->primary_storage_handler->getID() : $resource->getStorageID()
         );
@@ -304,11 +250,6 @@ class ResourceBuilder
         StorableResource $resource,
         FileStream $stream,
         InfoResolver $info_resolver,
-<<<<<<< HEAD
-        bool $keep_original = false
-    ): StorableResource {
-        $revision = $this->revision_repository->blankFromStream($info_resolver, $resource, $stream, $keep_original);
-=======
         bool $keep_original = false,
     ): StorableResource {
         if ($resource->getCurrentRevisionIncludingDraft()->getStatus() === RevisionStatus::DRAFT) {
@@ -321,7 +262,6 @@ class ResourceBuilder
             RevisionStatus::PUBLISHED,
             $keep_original
         );
->>>>>>> v9.1
         $revision = $this->populateRevisionInfo($revision, $info_resolver);
 
         foreach ($resource->getAllRevisionsIncludingDraft() as $existing_revision) {
@@ -340,12 +280,9 @@ class ResourceBuilder
         StorableResource $resource,
         int $revision_number
     ): StorableResource {
-<<<<<<< HEAD
-=======
         if ($resource->getCurrentRevisionIncludingDraft()->getStatus() === RevisionStatus::DRAFT) {
             throw new \LogicException('You can not replace a draft revision, you must publish it first');
         }
->>>>>>> v9.1
         $existing_revision = $resource->getSpecificRevision($revision_number);
         if ($existing_revision instanceof FileRevision) {
             $info_resolver = new ClonedRevisionInfoResolver(
@@ -395,7 +332,6 @@ class ResourceBuilder
         return $this->resource_repository->has($identification);
     }
 
-
     /**
      * @description after you have modified a resource, you can store it here
      * @throws \ILIAS\ResourceStorage\Policy\FileNamePolicyException
@@ -416,11 +352,7 @@ class ResourceBuilder
             function () use ($resource): void {
                 $this->resource_repository->store($resource);
 
-<<<<<<< HEAD
-                foreach ($resource->getAllRevisions() as $revision) {
-=======
                 foreach ($resource->getAllRevisionsIncludingDraft() as $revision) {
->>>>>>> v9.1
                     $this->storeRevision($revision);
                 }
 
@@ -432,7 +364,6 @@ class ResourceBuilder
 
         $r->runAndUnlock();
     }
-
 
     /**
      * @description Clone anexisting resource with all it's revisions, stakeholders and information
@@ -454,17 +385,6 @@ class ResourceBuilder
                 $existing_revision
             );
 
-<<<<<<< HEAD
-
-            $existing_revision = $this->stream_access->populateRevision($existing_revision);
-
-            $cloned_revision = new FileStreamRevision(
-                $new_resource->getIdentification(),
-                $existing_revision->maybeGetToken()->resolveStream(),
-                true
-            );
-
-=======
             $existing_revision = $this->stream_access->populateRevision($existing_revision);
 
             $cloned_revision = new FileStreamRevision(
@@ -473,7 +393,6 @@ class ResourceBuilder
                 true
             );
 
->>>>>>> v9.1
             $this->populateRevisionInfo($cloned_revision, $info_resolver);
             $cloned_revision->setVersionNumber($existing_revision->getVersionNumber());
 
@@ -522,8 +441,6 @@ class ResourceBuilder
         }
         $resource = $this->resource_repository->get($identification);
 
-<<<<<<< HEAD
-=======
         if ($this->auto_migrate && $resource->getStorageID() !== $this->primary_storage_handler->getID()) {
             global $DIC;
             /** @var Migrator $migrator */
@@ -532,7 +449,6 @@ class ResourceBuilder
             $resource->setStorageID($this->primary_storage_handler->getID());
         }
 
->>>>>>> v9.1
         $this->resource_cache[$identification->serialize()] = $this->populateNakedResourceWithRevisionsAndStakeholders(
             $resource
         );
@@ -540,11 +456,6 @@ class ResourceBuilder
         return $this->resource_cache[$identification->serialize()];
     }
 
-<<<<<<< HEAD
-    public function extractStream(Revision $revision): FileStream
-    {
-        switch (true) {
-=======
     public function publish(StorableResource $resource): bool
     {
         $revision = $resource->getCurrentRevisionIncludingDraft();
@@ -572,7 +483,6 @@ class ResourceBuilder
         switch (true) {
             case $revision instanceof FileStreamRevision:
                 return $revision->getStream();
->>>>>>> v9.1
             case $revision instanceof UploadedFileRevision:
                 return Streams::ofResource(fopen($revision->getUpload()->getPath(), 'rb'));
             case $revision instanceof CloneRevision:
@@ -582,20 +492,11 @@ class ResourceBuilder
                     return $this->storage_handler_factory->getHandlerForRevision(
                         $revision
                     )->getStream($revision);
-<<<<<<< HEAD
-                } else {
-                    return $this->storage_handler_factory->getHandlerForResource(
-                        $this->get($revision->getIdentification())
-                    )->getStream($revision);
-                }
-                // no break
-=======
                 }
 
                 return $this->storage_handler_factory->getHandlerForResource(
                     $this->get($revision->getIdentification())
                 )->getStream($revision);
->>>>>>> v9.1
             default:
                 throw new \LogicException('This revision type is not supported');
         }
@@ -652,32 +553,12 @@ class ResourceBuilder
         $resource->removeRevision($revision);
     }
 
-<<<<<<< HEAD
-    /**
-     * @return \Iterator<\ILIAS\ResourceStorage\Resource\StorableResource>
-     */
-    public function getAll(): \Iterator
-    {
-        /**
-         * @var StorableResource $resource
-         */
-        foreach ($this->resource_repository->getAll() as $resource) {
-            yield $this->populateNakedResourceWithRevisionsAndStakeholders($resource);
-        }
-    }
-
-=======
->>>>>>> v9.1
     private function populateNakedResourceWithRevisionsAndStakeholders(StorableResource $resource): StorableResource
     {
         $revisions = $this->revision_repository->get($resource);
         $resource->setRevisions($revisions);
 
-<<<<<<< HEAD
-        foreach ($revisions->getAll() as $i => $revision) {
-=======
         foreach ($revisions->getAll(true) as $i => $revision) {
->>>>>>> v9.1
             $information = $this->information_repository->get($revision);
             $revision->setInformation($information);
             $revision->setStorageID($resource->getStorageID());

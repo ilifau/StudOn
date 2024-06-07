@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Finder;
@@ -144,11 +141,7 @@ final class Finder implements IteratorAggregate, Countable
      * @see DepthRangeFilterIterator
      * @see NumberComparator
      */
-<<<<<<< HEAD
-    public function depth($level): self
-=======
     public function depth(string|int $level): self
->>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->depths[] = new Comparator\NumberComparator((string) $level);
@@ -192,11 +185,7 @@ final class Finder implements IteratorAggregate, Countable
      * @see NumberComparator
      * @see \ILIAS\FileSystem\Filesystem::getSize()
      */
-<<<<<<< HEAD
-    public function size($sizes): self
-=======
     public function size(string|int|array $sizes): self
->>>>>>> v9.1
     {
         $sizes = is_array($sizes) ? $sizes : [$sizes];
 
@@ -323,11 +312,7 @@ final class Finder implements IteratorAggregate, Countable
         return $clone;
     }
 
-<<<<<<< HEAD
-    private function searchInDirectory(string $dir): PhpIterator
-=======
     private function searchInDirectory(string $dir): \Traversable
->>>>>>> v9.1
     {
         if (self::IGNORE_VCS_FILES === (self::IGNORE_VCS_FILES&$this->ignore)) {
             $this->exclude = array_merge($this->exclude, $this->vcsPatterns);

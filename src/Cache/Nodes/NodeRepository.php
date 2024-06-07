@@ -18,23 +18,13 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD:Services/TermsOfService/interfaces/interface.ilTermsOfServiceSignableDocument.php
-=======
 namespace ILIAS\Cache\Nodes;
 
->>>>>>> v9.1:src/Cache/Nodes/NodeRepository.php
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */
 interface NodeRepository
 {
-<<<<<<< HEAD:Services/TermsOfService/interfaces/interface.ilTermsOfServiceSignableDocument.php
-    public function content(): string;
-
-    public function title(): string;
-
-    public function id(): int;
-=======
     public function store(Node $node): Node;
 
     public function create(
@@ -42,16 +32,11 @@ interface NodeRepository
         int $port,
         int $weight
     ): Node;
->>>>>>> v9.1:src/Cache/Nodes/NodeRepository.php
 
     /**
      * @return Node[]
      */
-<<<<<<< HEAD:Services/TermsOfService/interfaces/interface.ilTermsOfServiceSignableDocument.php
-    public function criteria(): array;
-=======
     public function getNodes(): array;
 
     public function deleteAll(): void;
->>>>>>> v9.1:src/Cache/Nodes/NodeRepository.php
 }

@@ -32,63 +32,6 @@ class ImplementationOfInterfaceFinder extends AbstractOfFinder
         array $additional_ignore = [],
         string $matching_path = null
     ): \Iterator {
-<<<<<<< HEAD
-        foreach ($this->getAllClassNames($additional_ignore, $matching_path) as $class_name) {
-            try {
-                $r = new \ReflectionClass($class_name);
-                if ($r->isInstantiable() && $r->implementsInterface($interface)) {
-                    yield $class_name;
-                }
-            } catch (\Throwable $e) {
-                // noting to do here
-            }
-        }
-    }
-
-    /**
-     * @param   string[] $additional_ignore
-     */
-    protected function getAllClassNames(array $additional_ignore, string $matching_path = null): \Iterator
-    {
-        $ignore = array_merge($this->ignore, $additional_ignore);
-
-        if (!is_array($this->classmap)) {
-            throw new \LogicException("Composer ClassMap not loaded");
-        }
-
-        $regexp = implode(
-            "|",
-            array_map(
-                // fix path-separators to respect windows' backspaces.
-                fn ($v): string => "(" . str_replace('/', '(/|\\\\)', $v) . ")",
-                $ignore
-            )
-        );
-        if ($matching_path) {
-            $matching_path = str_replace('/', '(/|\\\\)', $matching_path);
-        }
-
-
-        foreach ($this->classmap as $class_name => $file_path) {
-            $real_path = realpath($file_path);
-            if ($real_path === false) {
-                throw new \RuntimeException(
-                    "Could not find file for class $class_name (path: $file_path). " .
-                    "Please check the composer classmap, maybe it is outdated. " .
-                    "You can regenerate it by executing 'composer du' or 'composer install' " .
-                    "(which also ensures dependencies are correctly installed) in the ILIAS root directory."
-                );
-            }
-
-            $path = str_replace($this->root, "", $real_path);
-            if ($matching_path && !preg_match("#^" . $matching_path . "$#", $path)) {
-                continue;
-            }
-            if (!preg_match("#^" . $regexp . "$#", $path)) {
-                yield $class_name;
-            }
-        }
-=======
         yield from $this->genericGetMatchingClassNames(
             fn (\ReflectionClass $r) => $this->isClassMatching($interface, $r),
             $additional_ignore,
@@ -99,6 +42,5 @@ class ImplementationOfInterfaceFinder extends AbstractOfFinder
     public function isClassMatching(string $interface, \ReflectionClass $r): bool
     {
         return ($r->isInstantiable() && $r->implementsInterface($interface));
->>>>>>> v9.1
     }
 }

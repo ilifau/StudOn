@@ -32,20 +32,12 @@ class Node
     ) {
     }
 
-<<<<<<< HEAD:Services/Preview/classes/Setup/class.ilPreviewSetupConfig.php
-    protected function toLinuxConvention(?string $p): ?string
-=======
     public function getHost(): string
->>>>>>> v9.1:src/Cache/Nodes/Node.php
     {
         return $this->host;
     }
 
-<<<<<<< HEAD:Services/Preview/classes/Setup/class.ilPreviewSetupConfig.php
-    public function getPathToGhostscript(): ?string
-=======
     public function getPort(): int
->>>>>>> v9.1:src/Cache/Nodes/Node.php
     {
         return $this->port;
     }

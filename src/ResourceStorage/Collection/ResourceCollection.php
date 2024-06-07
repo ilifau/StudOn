@@ -71,12 +71,9 @@ class ResourceCollection
 
     public function add(ResourceIdentification $identification): void
     {
-<<<<<<< HEAD
-=======
         if ($this->isIn($identification)) {
             return;
         }
->>>>>>> v9.1
         $this->resource_identifications[] = $identification;
     }
 
@@ -84,11 +81,7 @@ class ResourceCollection
     {
         $this->resource_identifications = array_filter(
             $this->resource_identifications,
-<<<<<<< HEAD
-            fn (ResourceIdentification $i): bool => $i->serialize() !== $identification->serialize()
-=======
             fn(ResourceIdentification $i): bool => $i->serialize() !== $identification->serialize()
->>>>>>> v9.1
         );
     }
 

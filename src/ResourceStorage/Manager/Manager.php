@@ -31,11 +31,8 @@ use ILIAS\ResourceStorage\Resource\ResourceBuilder;
 use ILIAS\ResourceStorage\Resource\StorableResource;
 use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Resource\ResourceType;
 use ILIAS\ResourceStorage\Revision\RevisionStatus;
->>>>>>> v9.1
 
 /**
  * Class StorageManager
@@ -133,8 +130,6 @@ class Manager
         ResourceStakeholder $stakeholder,
         string $revision_title = null
     ): ResourceIdentification {
-<<<<<<< HEAD
-=======
         return $this->newStreamBased(
             $stream,
             $stakeholder,
@@ -150,7 +145,6 @@ class Manager
         string $revision_title = null
     ): ResourceIdentification
     {
->>>>>>> v9.1
         $info_resolver = new StreamInfoResolver(
             $stream,
             1,
@@ -170,8 +164,6 @@ class Manager
         return $resource->getIdentification();
     }
 
-<<<<<<< HEAD
-=======
     public function containerFromStream(
         FileStream $stream,
         ResourceStakeholder $stakeholder,
@@ -188,7 +180,6 @@ class Manager
         );
     }
 
->>>>>>> v9.1
     public function find(string $identification): ?ResourceIdentification
     {
         $resource_identification = new ResourceIdentification($identification);
@@ -236,12 +227,8 @@ class Manager
         ResourceIdentification $identification,
         UploadResult $result,
         ResourceStakeholder $stakeholder,
-<<<<<<< HEAD
-        string $revision_title = null
-=======
         string $revision_title = null,
         bool $draft = false
->>>>>>> v9.1
     ): Revision {
         if ($result->isOK()) {
             if (!$this->resource_builder->has($identification)) {
@@ -331,12 +318,8 @@ class Manager
         ResourceIdentification $identification,
         FileStream $stream,
         ResourceStakeholder $stakeholder,
-<<<<<<< HEAD
-        string $revision_title = null
-=======
         string $revision_title = null,
         bool $draft = false
->>>>>>> v9.1
     ): Revision {
         if (!$this->resource_builder->has($identification)) {
             throw new \LogicException(
@@ -415,14 +398,9 @@ class Manager
         return $resource->getCurrentRevisionIncludingDraft();
     }
 
-<<<<<<< HEAD
-    public function getCurrentRevision(ResourceIdentification $identification): Revision
-    {
-=======
     public function getCurrentRevision(
         ResourceIdentification $identification
     ): Revision {
->>>>>>> v9.1
         return $this->resource_builder->get($identification)->getCurrentRevision();
     }
     public function getCurrentRevisionIncludingDraft(

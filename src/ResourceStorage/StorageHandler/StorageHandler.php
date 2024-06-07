@@ -51,15 +51,6 @@ interface StorageHandler
 
     public function has(ResourceIdentification $identification): bool;
 
-<<<<<<< HEAD
-    public function getStream(Revision $revision): FileStream;
-
-    public function storeUpload(UploadedFileRevision $revision): bool;
-
-    public function storeStream(FileStreamRevision $revision): bool;
-
-    public function cloneRevision(CloneRevision $revision): bool;
-=======
     // STREAMS
 
     public function getStream(Revision $revision): FileStream;
@@ -87,7 +78,6 @@ interface StorageHandler
     public function cloneRevision(CloneRevision $revision): bool;
 
     public function streamReplacement(StreamReplacementRevision $revision): bool;
->>>>>>> v9.1
 
     /**
      * This only delets a revision of a Resource
@@ -131,9 +121,6 @@ interface StorageHandler
      * @return string "link" or "rename"
      */
     public function movementImplementation(): string;
-<<<<<<< HEAD
-=======
 
     public function getPathGenerator(): PathGenerator;
->>>>>>> v9.1
 }

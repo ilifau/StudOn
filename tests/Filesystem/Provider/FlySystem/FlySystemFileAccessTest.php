@@ -69,13 +69,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->subject = new FlySystemFileAccess($this->filesystemMock);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testReadWhichShouldSucceed(): void
     {
         $file_content = 'Test file content.';
@@ -96,13 +89,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->assertSame($file_content, $actualContent);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testReadWithGeneralFileAccessErrorWhichShouldFail(): void
     {
         $path = '/path/to/your/file';
@@ -123,13 +109,6 @@ class FlySystemFileAccessTest extends TestCase
         $actualContent = $this->subject->read($path);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testReadWithMissingFileWhichShouldFail(): void
     {
 
@@ -149,13 +128,6 @@ class FlySystemFileAccessTest extends TestCase
         $actualContent = $this->subject->read($path);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetMimeTypeWhichShouldSucceed(): void
     {
         $mimeType = 'image/jpeg';
@@ -167,12 +139,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->assertSame($mimeType, $actualMimeType);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
     public function testPutContentExistingFile(): void
     {
         $content = 'Test file content.';
@@ -203,7 +169,6 @@ class FlySystemFileAccessTest extends TestCase
     }
 
 
->>>>>>> v9.1
     public function testGetMimeTypeWithUnknownMimeTypeWhichShouldFail(): void
     {
         $path = '/path/to/your/file';
@@ -218,13 +183,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->subject->getMimeType($path);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetMimeTypeWithMissingFileWhichShouldFail(): void
     {
         $path = '/path/to/your/file';
@@ -239,13 +197,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->subject->getMimeType($path);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetTimestampWhichShouldSucceed(): void
     {
         $datetime = '2012-02-06';
@@ -271,13 +222,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->assertEquals(new \DateTime($datetime), $actualTimestamp);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetTimestampWithUnknownErrorWhichShouldFail(): void
     {
         $path = '/path/to/your/file';
@@ -293,13 +237,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->subject->getTimestamp($path);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetTimestampWithMissingFileWhichShouldFail(): void
     {
         $path = '/path/to/your/file';
@@ -315,13 +252,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->subject->getTimestamp($path);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetSizeWhichShouldSucceed(): void
     {
         $rawSize = 1024;
@@ -335,13 +265,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->assertSame($size->getSize(), $actualSize->getSize(), '');
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetSizeWithUnknownAdapterErrorWhichShouldFail(): void
     {
         $path = '/path/to/your/file';
@@ -357,13 +280,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->subject->getSize($path, DataSize::MiB);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetSizeWithMissingFileWhichShouldFail(): void
     {
         $path = '/path/to/your/file';
@@ -379,13 +295,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->subject->getSize($path, DataSize::GiB);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testSetVisibilityWhichShouldSucceed(): void
     {
         $path = '/path/to/your/file';
@@ -405,13 +314,6 @@ class FlySystemFileAccessTest extends TestCase
         $this->assertTrue($operationSuccessful);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testSetVisibilityThatFailedDueToAdapterFailureWhichShouldFail(): void
     {
         $path = '/path/to/your/file';
@@ -678,46 +580,6 @@ class FlySystemFileAccessTest extends TestCase
      * @Test
      * @small
      */
-<<<<<<< HEAD
-    public function testPutWhichShouldSucceed(): void
-    {
-        $path = '/path/to/your/file';
-        $content = "some awesome content";
-
-        $this->filesystemMock->shouldReceive('put')
-                             ->once()
-                             ->withArgs([$path, $content])
-                             ->andReturn(true);
-
-        $this->subject->put($path, $content);
-    }
-
-    /**
-     * @Test
-     * @small
-     */
-    public function testPutWithAdapterErrorWhichShouldFail(): void
-    {
-        $path = '/path/to/your/file';
-        $content = "some awesome content";
-
-        $this->filesystemMock->shouldReceive('put')
-                             ->once()
-                             ->withArgs([$path, $content])
-                             ->andReturn(false);
-
-        $this->expectException(IOException::class);
-        $this->expectExceptionMessage("Could not write to file \"$path\" because a general IO error occurred. Please check that your destination is writable.");
-
-        $this->subject->put($path, $content);
-    }
-
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testDeleteWhichShouldSucceed(): void
     {
         $path = '/path/to/your/file';

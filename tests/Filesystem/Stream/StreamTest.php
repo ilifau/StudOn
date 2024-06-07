@@ -44,13 +44,7 @@ class StreamTest extends TestCase
         return \fopen("data://text/plain,$content", $mode);
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-=======
 
->>>>>>> v9.1
     protected function setUp(): void
     {
         parent::setUp();
@@ -58,14 +52,7 @@ class StreamTest extends TestCase
         self::$functions = Mockery::mock();
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
 
->>>>>>> v9.1
     public function testDetachWhichShouldSucceed(): void
     {
         $content = 'awesome content stream';
@@ -82,14 +69,7 @@ class StreamTest extends TestCase
         //Can't test the subject because psr-7 defines that the stream is in an unusable after the detach operation.
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
 
->>>>>>> v9.1
     public function testDetachDoubleInvocationWhichShouldFail(): void
     {
         $content = 'awesome content stream';
@@ -107,14 +87,7 @@ class StreamTest extends TestCase
         $this->assertNull($detachedResource);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
 
->>>>>>> v9.1
     public function testGetSizeWithStatsWhichShouldSucceed(): void
     {
         $content = 'awesome content stream';
@@ -128,14 +101,7 @@ class StreamTest extends TestCase
         $this->assertSame($correctSize, $size);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
 
->>>>>>> v9.1
     public function testGetSizeWithOptionsWhichShouldSucceed(): void
     {
         $content = 'awesome content stream';
@@ -150,13 +116,6 @@ class StreamTest extends TestCase
         $this->assertSame($correctSize, $size);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testGetSizeWithDetachedStreamWhichShouldFail(): void
     {
         $content = 'awesome content stream';
@@ -170,13 +129,6 @@ class StreamTest extends TestCase
         $this->assertNull($size);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testCloseWhichShouldSucceed(): void
     {
         $content = 'awesome content stream';
@@ -189,13 +141,6 @@ class StreamTest extends TestCase
         $this->assertFalse(is_resource($resource));
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testCloseWithDetachedStreamWhichShouldDoNothing(): void
     {
         $content = 'awesome content stream';
@@ -210,13 +155,6 @@ class StreamTest extends TestCase
         $this->assertTrue(is_resource($actualResource));
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testTellWhichShouldSucceed(): void
     {
         $content = 'awesome content stream';
@@ -231,13 +169,6 @@ class StreamTest extends TestCase
         $this->assertSame($offset, $actualPosition);
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testTellWithDetachedStreamWhichShouldFail(): void
     {
         $content = 'awesome content stream';
@@ -253,13 +184,6 @@ class StreamTest extends TestCase
         $subject->tell();
     }
 
-<<<<<<< HEAD
-    /**
-     * @Test
-     * @small
-     */
-=======
->>>>>>> v9.1
     public function testTellWithFtellFailureWhichShouldFail(): void
     {
         $content = 'awesome content stream';

@@ -12,15 +12,7 @@
  * https://github.com/ILIAS-eLearning
  *
  *****************************************************************************/
-
-// A real Shib-Logout ("front" or "back" channel was never implemented resp. removed in ILIAS, because the front-channel
-// also had problems concerning the security. If a logout mechanism is desired, please revisit the feature request
-// https://docu.ilias.de/goto_docu_wiki_wpage_4657_1357.html and bring it as a suggestion to the community:
-// https://docu.ilias.de/goto.php?target=wiki_5307&client_id=docu#ilPageTocA129
 /** @noRector */
-<<<<<<< HEAD
-include 'logout.php';
-=======
 require_once("libs/composer/vendor/autoload.php");
 global $DIC;
 $q = $DIC->http()->wrapper()->query();
@@ -176,4 +168,3 @@ function unserializesession($serialized_string)
 
     return ($variables);
 }
->>>>>>> v9.1

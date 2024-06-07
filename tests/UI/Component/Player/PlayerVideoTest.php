@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -40,18 +32,6 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
 {
     public function getUIFactory(): NoUIFactory
     {
-<<<<<<< HEAD
-        $field_factory = $this->createMock(FieldFactory::class);
-        return new class ($field_factory) extends NoUIFactory {
-            protected FieldFactory $factory;
-            public function __construct(FieldFactory $factory)
-            {
-                $this->factory = $factory;
-            }
-            public function modal(): C\Modal\Factory
-            {
-                return new I\Component\Modal\Factory(new I\Component\SignalGenerator(), $this->factory);
-=======
         return new class (
             $this->createMock(C\Modal\InterruptiveItem\Factory::class),
             $this->createMock(FieldFactory::class),
@@ -69,7 +49,6 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
                     $this->item_factory,
                     $this->field_factory,
                 );
->>>>>>> v9.1
             }
             public function button(): C\Button\Factory
             {
@@ -83,11 +62,7 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
         return new I\Component\Player\Factory();
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -96,11 +71,7 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Player\\Video", $video);
     }
 
-<<<<<<< HEAD
-    public function test_get_title_get_source(): void
-=======
     public function testGetTitleGetSource(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -109,11 +80,7 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
         $this->assertEquals("/foo", $video->getSource());
     }
 
-<<<<<<< HEAD
-    public function test_get_title_get_poster(): void
-=======
     public function testGetTitleGetPoster(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -122,11 +89,7 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
         $this->assertEquals("bar.jpg", $video->getPoster());
     }
 
-<<<<<<< HEAD
-    public function test_get_title_get_subtitle_file(): void
-=======
     public function testGetTitleGetSubtitleFile(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -135,11 +98,7 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
         $this->assertEquals(["en" => "subtitles.vtt"], $video->getSubtitleFiles());
     }
 
-<<<<<<< HEAD
-    public function test_render_video(): void
-=======
     public function testRenderVideo(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -159,11 +118,7 @@ EOT;
         );
     }
 
-<<<<<<< HEAD
-    public function test_render_with_poster(): void
-=======
     public function testRenderWithPoster(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();
@@ -184,11 +139,7 @@ EOT;
         );
     }
 
-<<<<<<< HEAD
-    public function test_render_with_subtitles(): void
-=======
     public function testRenderWithSubtitles(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $r = $this->getDefaultRenderer();

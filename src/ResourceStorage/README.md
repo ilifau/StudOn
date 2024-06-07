@@ -192,8 +192,6 @@ if (null !== $identification) {
 }
 ```
 
-<<<<<<< HEAD
-=======
 # Drafts
 Revisions are published by default. However, a maximum of one revision can be added to a resource in the status DRAFT on top. Cosumers continue to receive the latest revision that has been published. As long as a DRAFT revision exists, no new revisions can be created, but the current DRAFT revision will be updated until the one published via `Manager::publish`.
 
@@ -229,7 +227,6 @@ $latest_published_revision = $irss->manage()->getCurrentRevision($rid); // First
 $latest_draft_revision = $irss->manage()->getCurrentRevisionIncludingDraft($rid); // Second Upload
 ```
 
->>>>>>> v9.1
 # Collections
 
 In many cases a component does not only need a single resource to be stored, but wants to be able to use a collection of
@@ -355,8 +352,6 @@ $range_generator = $collection_services->rangeAsGenerator($collection, 10, 200);
 $range_array = $collection_services->rangeAsArray($collection, 10, 200);
 ```
 
-<<<<<<< HEAD
-=======
 # Resource Flavours
 
 Flavours are derivatives of resources that can be created, managed and used alongside the original resource. A simple
@@ -447,7 +442,6 @@ The `Flavour` object contains a list of `Tokens` for the `StreamAccess` service.
 
 As I said, if you are a consumer of the IRSS, you use the Consumers approach anyway.
 
->>>>>>> v9.1
 # Other (involved) Services
 
 - UploadService, see [here](../FileUpload/README.md)

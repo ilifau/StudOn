@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 use PHPUnit\Framework\TestCase;
 use ILIAS\UI\Implementation\Component\Symbol\Glyph\Glyph;
 use ILIAS\UI\Implementation\Component\Symbol\Glyph\Renderer;
@@ -45,11 +37,7 @@ class DefaultRendererFactoryForTest extends DefaultRendererFactory
 
 class DefaultRendererFactoryTest extends TestCase
 {
-<<<<<<< HEAD
-    public function test_getRendererNameFor(): void
-=======
     public function testGetRendererNameFor(): void
->>>>>>> v9.1
     {
         $f = new DefaultRendererFactoryForTest();
 

@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . '/ModalBase.php');
 
 /**
@@ -35,11 +27,7 @@ require_once(__DIR__ . '/ModalBase.php');
  */
 class ModalFactoryTest extends ModalBase
 {
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $factory = $this->getModalFactory();
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Modal\\Factory", $factory);

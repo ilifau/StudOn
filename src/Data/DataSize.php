@@ -31,24 +31,6 @@ final class DataSize implements \Stringable
 {
     private const SIZE_FACTOR = 1000;
     private const PRECISION = 2;
-<<<<<<< HEAD
-    public const Byte = 1;
-    // binary
-    public const KiB = 1024;
-    public const MiB = 1_048_576;
-    // pow(1024, 2)
-    public const GiB = 1_073_741_824;
-    public const TiB = 1_099_511_627_776;
-    // decimal
-    public const KB = 1000;
-    // kilobyte
-    public const MB = 1_000_000;
-    // megabyte
-    public const GB = 1_000_000_000;
-    // gigabyte
-    public const TB = 1_000_000_000_000;
-    // terabyte
-=======
 
     public const Byte = 1;
 
@@ -64,7 +46,6 @@ final class DataSize implements \Stringable
     public const GB = 1_000_000_000; // gigabyte
     public const TB = 1_000_000_000_000; // terabyte
 
->>>>>>> v9.1
     /**
      * @var array<string, int>
      */
@@ -89,9 +70,11 @@ final class DataSize implements \Stringable
         'TB' => self::TB,
         'TiB' => self::TiB,
     ];
+
     private float $size;
     private int $unit;
     private string $suffix;
+
     /**
      * DataSize constructor.
      *
@@ -105,8 +88,6 @@ final class DataSize implements \Stringable
         $this->suffix = $this->mapUnitToSuffix($unit);
         $this->size = (float) $size / (float) $unit; // the div operation can return int and float
         $this->unit = $unit;
-<<<<<<< HEAD
-=======
     }
 
     private function mapUnitToSuffix(int $unit): string
@@ -123,33 +104,8 @@ final class DataSize implements \Stringable
             self::TB => 'TB',
             default => throw new \InvalidArgumentException('The given data size unit is not valid, please check the provided class constants of the DataSize class.')
         };
->>>>>>> v9.1
     }
-    private function mapUnitToSuffix(int $unit): string
-    {
-        switch ($unit) {
-            case self::Byte:
-                return 'B';
-            case self::KiB:
-                return 'KiB';
-            case self::MiB:
-                return 'MiB';
-            case self::GiB:
-                return 'GiB';
-            case self::TiB:
-                return 'TiB';
-            case self::KB:
-                return 'KB';
-            case self::MB:
-                return 'MB';
-            case self::GB:
-                return 'GB';
-            case self::TB:
-                return 'TB';
-            default:
-                throw new \InvalidArgumentException('The given data size unit is not valid, please check the provided class constants of the DataSize class.');
-        }
-    }
+
     /**
      * The calculated data size.
      */
@@ -157,6 +113,7 @@ final class DataSize implements \Stringable
     {
         return $this->size;
     }
+
     /**
      * The unit which equals the class constant used to calculate the data size. (self::GiB, ...)
      */
@@ -164,6 +121,7 @@ final class DataSize implements \Stringable
     {
         return $this->unit;
     }
+
     /**
      * Get the size in bytes.
      */
@@ -171,6 +129,7 @@ final class DataSize implements \Stringable
     {
         return $this->size * $this->unit;
     }
+
     /**
      * Returns the data size in a human readable manner.
      *
@@ -181,26 +140,6 @@ final class DataSize implements \Stringable
     public function __toString(): string
     {
         $size = $this->inBytes();
-<<<<<<< HEAD
-        // can be switched to match in ILIAS 9
-        switch (true) {
-            case $size > self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR:
-                $unit = DataSize::TB;
-                break;
-            case $size > self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR:
-                $unit = DataSize::GB;
-                break;
-            case $size > self::SIZE_FACTOR * self::SIZE_FACTOR:
-                $unit = DataSize::MB;
-                break;
-            case $size > self::SIZE_FACTOR:
-                $unit = DataSize::KB;
-                break;
-            default:
-                $unit = DataSize::Byte;
-                break;
-        }
-=======
         $unit = match (true) {
             $size > self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR => DataSize::TB,
             $size > self::SIZE_FACTOR * self::SIZE_FACTOR * self::SIZE_FACTOR => DataSize::GB,
@@ -208,7 +147,6 @@ final class DataSize implements \Stringable
             $size > self::SIZE_FACTOR => DataSize::KB,
             default => DataSize::Byte,
         };
->>>>>>> v9.1
 
         $size = round($size / (float) $unit, self::PRECISION);
 

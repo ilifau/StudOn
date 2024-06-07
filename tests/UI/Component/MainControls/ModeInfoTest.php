@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 use ILIAS\Data\URI;
 use ILIAS\UI\Implementation\Component\MainControls\ModeInfo;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
@@ -60,13 +52,6 @@ class ModeInfoTest extends ILIAS_UI_TestBase
         $html = $r->render($mode_info);
 
         $expected = <<<EOT
-<<<<<<< HEAD
-		<div class="il-mode-info">
-		    <span class="il-mode-info-content">$mode_title<a tabindex="0" class="glyph" href="$uri_string" aria-label="close"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
-		    </span>
-		    </div>
-EOT;
-=======
         <div class="c-mode-info__pageframe"></div>
         <div class="c-mode-info">
             <div class="c-mode-info__content">
@@ -80,7 +65,6 @@ EOT;
         </div>
         <div class="c-mode-info__mobile-padding"></div>
         EOT;
->>>>>>> v9.1
 
         $this->assertEquals(
             $this->brutallyTrimHTML($expected),

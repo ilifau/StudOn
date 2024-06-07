@@ -35,11 +35,5 @@ use ILIAS\Filesystem\Provider\DirectoryAccess;
  */
 interface Filesystem extends FileStreamAccess, FileAccess, DirectoryAccess
 {
-<<<<<<< HEAD
-    /**
-     * @return Finder
-     */
-=======
->>>>>>> v9.1
     public function finder(): Finder;
 }

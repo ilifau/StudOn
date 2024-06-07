@@ -87,11 +87,7 @@ div.ilc_Question {
 .ilc_qinput_TextInput {
 	max-width: 65vw;
 
-<<<<<<< HEAD:templates/default/less/Modules/Test/legacy.less
-	@media only screen and (max-width: @il-grid-float-breakpoint-max) {
-=======
 	@media only screen and (max-width: $il-grid-float-breakpoint-max) {
->>>>>>> v9.1:templates/default/070-components/legacy/Modules/_component_test_legacy.scss
 		max-width: 100%;
 	}
 }
@@ -126,17 +122,10 @@ div.ilc_Question {
 	padding: 0.25em;
 	margin-top: 1em;
 
-<<<<<<< HEAD:templates/default/less/Modules/Test/legacy.less
-	padding: @il-padding-xxlarge-horizontal;
-	.row.ilc_qanswer_Answer {
-		padding-left: @il-padding-xxlarge-horizontal;
-		padding-right: @il-padding-xxlarge-horizontal;
-=======
 	padding: $il-padding-xxlarge-horizontal;
 	.row.ilc_qanswer_Answer {
 		padding-left: $il-padding-xxlarge-horizontal;
 		padding-right: $il-padding-xxlarge-horizontal;
->>>>>>> v9.1:templates/default/070-components/legacy/Modules/_component_test_legacy.scss
 	}
 }
 
@@ -606,9 +595,5 @@ div.ilc_Page.readonly textarea[disabled]
 	height: fit-content;
 	position: sticky;
 	top: 40px;
-<<<<<<< HEAD:templates/default/less/Modules/Test/legacy.less
-}
-=======
 }
 
->>>>>>> v9.1:templates/default/070-components/legacy/Modules/_component_test_legacy.scss

@@ -35,10 +35,6 @@ interface DirectoryReadAccess
      * @return bool True if the directory exists otherwise false.
      */
     public function hasDir(string $path): bool;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Lists the content of a directory.

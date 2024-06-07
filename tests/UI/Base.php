@@ -41,12 +41,9 @@ use ILIAS\UI\Implementation\Component\SignalGenerator;
 use PHPUnit\Framework\MockObject\MockObject;
 use ILIAS\UI\Component\Component;
 use ILIAS\Data\Factory as DataFactory;
-<<<<<<< HEAD
-=======
 use ILIAS\UI\HelpTextRetriever;
 use ILIAS\UI\Help;
 use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
->>>>>>> v9.1
 
 class ilIndependentTemplateFactory implements TemplateFactory
 {
@@ -140,8 +137,6 @@ class NoUIFactory implements Factory
     {
     }
     public function player(): C\Player\Factory
-<<<<<<< HEAD
-=======
     {
     }
     public function launcher(): C\Launcher\Factory
@@ -151,7 +146,6 @@ class NoUIFactory implements Factory
     {
     }
     public function entity(): C\Entity\Factory
->>>>>>> v9.1
     {
     }
 }
@@ -370,8 +364,6 @@ abstract class ILIAS_UI_TestBase extends TestCase
         return $this->createMock(DataFactory::class);
     }
 
-<<<<<<< HEAD
-=======
     public function getHelpTextRetriever(): HelpTextRetriever
     {
         return new Help\TextRetriever\Echoing();
@@ -382,7 +374,6 @@ abstract class ILIAS_UI_TestBase extends TestCase
         return $this->createMock(UploadLimitResolver::class);
     }
 
->>>>>>> v9.1
     public function getDefaultRenderer(
         JavaScriptBinding $js_binding = null,
         array $with_stub_renderings = []
@@ -398,10 +389,7 @@ abstract class ILIAS_UI_TestBase extends TestCase
         $refinery = $this->getRefinery();
         $image_path_resolver = $this->getImagePathResolver();
         $data_factory = $this->getDataFactory();
-<<<<<<< HEAD
-=======
         $help_text_retriever = $this->getHelpTextRetriever();
->>>>>>> v9.1
 
         $component_renderer_loader = new Render\LoaderCachingWrapper(
             new Render\LoaderResourceRegistryWrapper(
@@ -414,13 +402,9 @@ abstract class ILIAS_UI_TestBase extends TestCase
                         $js_binding,
                         $refinery,
                         $image_path_resolver,
-<<<<<<< HEAD
-                        $data_factory
-=======
                         $data_factory,
                         $help_text_retriever,
                         $this->getUploadLimitResolver()
->>>>>>> v9.1
                     ),
                     new GlyphRendererFactory(
                         $ui_factory,
@@ -429,13 +413,9 @@ abstract class ILIAS_UI_TestBase extends TestCase
                         $js_binding,
                         $refinery,
                         $image_path_resolver,
-<<<<<<< HEAD
-                        $data_factory
-=======
                         $data_factory,
                         $help_text_retriever,
                         $this->getUploadLimitResolver()
->>>>>>> v9.1
                     ),
                     new IconRendererFactory(
                         $ui_factory,
@@ -444,13 +424,9 @@ abstract class ILIAS_UI_TestBase extends TestCase
                         $js_binding,
                         $refinery,
                         $image_path_resolver,
-<<<<<<< HEAD
-                        $data_factory
-=======
                         $data_factory,
                         $help_text_retriever,
                         $this->getUploadLimitResolver()
->>>>>>> v9.1
                     ),
                     new FieldRendererFactory(
                         $ui_factory,
@@ -459,13 +435,9 @@ abstract class ILIAS_UI_TestBase extends TestCase
                         $js_binding,
                         $refinery,
                         $image_path_resolver,
-<<<<<<< HEAD
-                        $data_factory
-=======
                         $data_factory,
                         $help_text_retriever,
                         $this->getUploadLimitResolver()
->>>>>>> v9.1
                     )
                 )
             )

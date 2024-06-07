@@ -24,11 +24,8 @@ use PHPUnit\Framework\TestCase;
 
 class DateFormatTest extends TestCase
 {
-<<<<<<< HEAD
-=======
     protected DateFormat\Factory $df;
 
->>>>>>> v9.1
     public function setUp(): void
     {
         $f = new ILIAS\Data\Factory();

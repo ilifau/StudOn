@@ -26,14 +26,10 @@ use ILIAS\GlobalScreen\Scope\MainMenu\Factory\AbstractChildItem;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\Item\Link;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\Item\LinkList;
 use ILIAS\Data\Factory;
-<<<<<<< HEAD
+use Exception;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\Item\RepositoryLink;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\Item\Separator;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\isTopItem;
-=======
-use Exception;
-use ILIAS\GlobalScreen\Scope\MainMenu\Factory\Item\RepositoryLink;
->>>>>>> v9.1
 
 /**
  * Render a TopItem as Drilldown (DD in Slate)
@@ -48,31 +44,25 @@ class TopParentItemDrilldownRenderer extends BaseTypeRenderer
             if (!$child->isVisible()) {
                 continue;
             }
-<<<<<<< HEAD
             $component = $this->buildEntry($child, $item);
             if ($component === null) {
                 continue;
             }
             $entries[] = $component;
-=======
-            $entries[] = $this->buildEntry($child);
->>>>>>> v9.1
         }
 
         $dd = $this->ui_factory->menu()->drilldown($item->getTitle(), $entries);
 
-        return $this->ui_factory->mainControls()->slate()->drilldown(
+        $slate = $this->ui_factory->mainControls()->slate()->drilldown(
             $item->getTitle(),
             $this->getStandardSymbol($item),
             $dd
         );
+
+        return $slate;
     }
 
-<<<<<<< HEAD
     protected function buildEntry(AbstractChildItem $item, isTopItem $parent): ?Component
-=======
-    protected function buildEntry(AbstractChildItem $item): Component
->>>>>>> v9.1
     {
         $title = $item->getTitle();
         $symbol = $this->getStandardSymbol($item);
@@ -95,11 +85,7 @@ class TopParentItemDrilldownRenderer extends BaseTypeRenderer
                     if (!$child->isVisible()) {
                         continue;
                     }
-<<<<<<< HEAD
                     $links[] = $this->buildEntry($child, $parent);
-=======
-                    $links[] = $this->buildEntry($child);
->>>>>>> v9.1
                 }
                 $entry = $this->ui_factory->menu()->sub($title, $links);
                 break;

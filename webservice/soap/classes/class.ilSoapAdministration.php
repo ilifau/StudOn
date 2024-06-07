@@ -165,7 +165,7 @@ class ilSoapAdministration
             }
         }
     }
-    
+
     public function reInitUser(): void
     {
         if (ilContext::getType() === ilContext::CONTEXT_SOAP) {
@@ -177,20 +177,6 @@ class ilSoapAdministration
         }
     }
 
-<<<<<<< HEAD
-    public function reInitUser(): void
-    {
-        if (ilContext::getType() === ilContext::CONTEXT_SOAP) {
-            try {
-                require_once("Services/Init/classes/class.ilInitialisation.php");
-                ilInitialisation::reInitUser();
-            } catch (Exception $e) {
-            }
-        }
-    }
-
-=======
->>>>>>> v9.1
     protected function initAuthenticationObject(): void
     {
         include_once './Services/Authentication/classes/class.ilAuthFactory.php';

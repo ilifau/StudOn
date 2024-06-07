@@ -127,11 +127,7 @@ class StandardPagePartProvider implements PagePartProvider
         }
 
         // Tools
-<<<<<<< HEAD
-        $grid_icon = $f->symbol()->icon()->custom(ilUtil::getImagePath("icon_tool.svg"), $this->lang->txt('more'));
-=======
         $grid_icon = $f->symbol()->icon()->custom(ilUtil::getImagePath("standard/icon_tool.svg"), $this->lang->txt('more'));
->>>>>>> v9.1
 
         if ($this->gs->collector()->tool()->hasItems()) {
             $tools_button = $f->button()->bulky($grid_icon, $this->lang->txt('tools'), "#")->withEngagedState(true);

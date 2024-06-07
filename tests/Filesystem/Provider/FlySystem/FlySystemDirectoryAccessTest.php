@@ -93,60 +93,7 @@ class FlySystemDirectoryAccessTest extends TestCase
         $path = '/path/to/file';
 
         $this->filesystemMock
-<<<<<<< HEAD
-            ->shouldReceive('has')
-            ->with($path)
-            ->andReturn(true)
-            ->getMock()
-            ->shouldReceive('getMetadata')
-            ->once()
-            ->andReturn($metadata);
-
-        $exists = $this->subject->hasDir($path);
-        $this->assertFalse($exists);
-    }
-
-    /**
-     * @Test
-     * @small
-     */
-    public function testHasDirWithoutTypeInformationWhichShouldFail(): void
-    {
-        $path = '/path/to/file';
-        $metadata = [
-            'path' => $path,
-            'timestamp' => 10_000_000
-        ];
-
-        $this->filesystemMock
-            ->shouldReceive('has')
-            ->with($path)
-            ->andReturn(true)
-            ->getMock()
-            ->shouldReceive('getMetadata')
-            ->once()
-            ->andReturn($metadata);
-
-        $this->expectException(IOException::class);
-        $this->expectExceptionMessage("Could not evaluate path type: \"$path\"");
-
-        $exists = $this->subject->hasDir($path);
-        $this->assertFalse($exists);
-    }
-
-    /**
-     * @Test
-     * @small
-     */
-    public function testHasDirWithMissingDirWhichShouldSucceed(): void
-    {
-        $path = '/path/to/dir';
-
-        $this->filesystemMock
-            ->shouldReceive('has')
-=======
             ->shouldReceive('directoryExists')
->>>>>>> v9.1
             ->with($path)
             ->andReturn(false);
 
@@ -158,8 +105,6 @@ class FlySystemDirectoryAccessTest extends TestCase
      * @Test
      * @small
      */
-<<<<<<< HEAD
-=======
     public function testHasDirWithMissingDirWhichShouldSucceed(): void
     {
         $path = '/path/to/dir';
@@ -177,7 +122,6 @@ class FlySystemDirectoryAccessTest extends TestCase
      * @Test
      * @small
      */
->>>>>>> v9.1
     public function testListContentsWhichShouldSucceed(): void
     {
         $path = '/path/to/dir';

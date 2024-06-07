@@ -5,32 +5,19 @@
 /* Modules/Excercise */
 
 .ilExcAssignmentBody {
-<<<<<<< HEAD:templates/default/less/Modules/Excercise/delos.less
-	padding-left: @il-padding-xxlarge-horizontal;
-	padding-right: @il-padding-xxlarge-horizontal;
-=======
 	padding-left: $il-padding-xxlarge-horizontal;
 	padding-right: $il-padding-xxlarge-horizontal;
->>>>>>> v9.1:templates/default/070-components/legacy/Modules/_component_excercise.scss
 }
 
 .ilExcAssignmentHead img {
 	display: block;
 	float: left;
-<<<<<<< HEAD:templates/default/less/Modules/Excercise/delos.less
-	margin: 0 @il-padding-base-horizontal 0 @il-padding-xs-horizontal;
-=======
 	margin: 0 $il-padding-base-horizontal 0 $il-padding-xs-horizontal;
->>>>>>> v9.1:templates/default/070-components/legacy/Modules/_component_excercise.scss
 }
 
 .ilExcAssignmentHead .ilAssignmentHeader {
 	padding: 0;
-<<<<<<< HEAD:templates/default/less/Modules/Excercise/delos.less
-	font-size: @il-font-size-large;
-=======
 	font-size: $il-font-size-large;
->>>>>>> v9.1:templates/default/070-components/legacy/Modules/_component_excercise.scss
 }
 
 .ilExcAssignmentHead, .ilAssignmentHeader {

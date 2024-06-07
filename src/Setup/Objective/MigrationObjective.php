@@ -116,10 +116,7 @@ class MigrationObjective implements Setup\Objective
         else {
             $io->inform("{$remaining} step(s) remaining. Run again to proceed.");
         }
-<<<<<<< HEAD
-=======
         
->>>>>>> v9.1
         return $environment;
     }
 

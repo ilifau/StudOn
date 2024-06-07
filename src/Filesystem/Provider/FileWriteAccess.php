@@ -39,10 +39,6 @@ interface FileWriteAccess
      * @throws IOException                  If the file could not be created or written.
      */
     public function write(string $path, string $content): void;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Updates the content of a file.
@@ -57,10 +53,6 @@ interface FileWriteAccess
      *
      */
     public function update(string $path, string $new_content): void;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Creates a file or updates an existing one.
@@ -74,10 +66,6 @@ interface FileWriteAccess
      *
      */
     public function put(string $path, string $content): void;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Deletes a file.
@@ -90,10 +78,6 @@ interface FileWriteAccess
      *
      */
     public function delete(string $path): void;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Reads the entire file content into a string and removes the file afterwards.
@@ -107,10 +91,6 @@ interface FileWriteAccess
      *
      */
     public function readAndDelete(string $path): string;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Moves a file from the source to the destination.
@@ -125,10 +105,6 @@ interface FileWriteAccess
      *
      */
     public function rename(string $path, string $new_path): void;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Copy the source file to a destination.

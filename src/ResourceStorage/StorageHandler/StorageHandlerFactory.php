@@ -22,11 +22,8 @@ namespace ILIAS\ResourceStorage\StorageHandler;
 
 use ILIAS\ResourceStorage\Resource\StorableResource;
 use ILIAS\ResourceStorage\Revision\Revision;
-<<<<<<< HEAD
-=======
 use ILIAS\Data\Meta\Html\OpenGraph\Resource;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
->>>>>>> v9.1
 
 /**
  * Class StorageHandlerFactory

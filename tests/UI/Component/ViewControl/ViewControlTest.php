@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -49,11 +41,7 @@ class ViewControlTest extends ILIAS_UI_TestBase
         return new I\Component\ViewControl\Factory(new SignalGenerator());
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $view_control_f = $this->getViewControlFactory();
 
@@ -70,11 +58,7 @@ class ViewControlTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\ViewControl\\Section", $section);
     }
 
-<<<<<<< HEAD
-    public function test_viewcontrol_section_get_previous_actions(): void
-=======
     public function testViewControlSectionGetPreviousActions(): void
->>>>>>> v9.1
     {
         $button_f = new ILIAS\UI\Implementation\Component\Button\Factory();
 
@@ -87,11 +71,7 @@ class ViewControlTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Button\\Button", $action);
     }
 
-<<<<<<< HEAD
-    public function test_viewcontrol_section_get_next_actions(): void
-=======
     public function testViewControlSectionGetNextActions(): void
->>>>>>> v9.1
     {
         $button_f = new ILIAS\UI\Implementation\Component\Button\Factory();
 
@@ -104,11 +84,7 @@ class ViewControlTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Button\\Button", $action);
     }
 
-<<<<<<< HEAD
-    public function test_render_viewcontrol_section(): void
-=======
     public function testRenderViewControlSection(): void
->>>>>>> v9.1
     {
         $view_control_f = $this->getViewControlFactory();
         $button_f = new ILIAS\UI\Implementation\Component\Button\Factory();
@@ -134,11 +110,7 @@ class ViewControlTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\ViewControl\\Factory", $f);
     }
 
-<<<<<<< HEAD
-    public function test_viewcontrol_with_active(): void
-=======
     public function testViewControlWithActive(): void
->>>>>>> v9.1
     {
         $f = $this->getViewControlFactory();
 
@@ -146,22 +118,14 @@ class ViewControlTest extends ILIAS_UI_TestBase
         $this->assertNotEquals($this->active, $f->mode($this->actions, $this->aria_label)->withActive("Dummy text")->getActive());
     }
 
-<<<<<<< HEAD
-    public function test_viewcontrol_get_actions(): void
-=======
     public function testViewControlGetActions(): void
->>>>>>> v9.1
     {
         $f = $this->getViewControlFactory();
 
         $this->assertIsArray($f->mode($this->actions, $this->aria_label)->getLabelledActions());
     }
 
-<<<<<<< HEAD
-    public function test_render_viewcontrol_mode(): void
-=======
     public function testViewControlModeRender(): void
->>>>>>> v9.1
     {
         $f = $this->getViewControlFactory();
         $r = $this->getDefaultRenderer();

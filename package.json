@@ -1,10 +1,6 @@
 {
   "name": "ilias",
-<<<<<<< HEAD
-  "version": "8.0.0",
-=======
   "version": "9.0.0",
->>>>>>> v9.1
   "description": "ILIAS open source e-Learning",
   "browser": "js/index.js",
   "directories": {
@@ -39,27 +35,12 @@
     "yui2": "^2.9.0"
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "@babel/register": "^7.18.9",
-    "@babel/preset-env": "^7.20.2",
-=======
     "@babel/preset-env": "^7.20.2",
     "@babel/register": "^7.18.9",
->>>>>>> v9.1
     "@rollup/plugin-commonjs": "^13.0.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",
     "chai": "^4.2.0",
-<<<<<<< HEAD
-    "jsdom": "19.0.0",
-    "less": "^4.1.1",
-    "mocha": "^10.1.0",
-    "rollup": "^2.18.0",
-    "rollup-plugin-terser": "^6.1.0"
-  },
-  "scripts": {
-    "test": "mocha --recursive --config tests/mocha.config.js"
-=======
     "eslint": "^8.39.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
@@ -70,7 +51,6 @@
   },
   "scripts": {
     "test": "mocha --recursive"
->>>>>>> v9.1
   },
   "repository": {
     "type": "git",
@@ -307,19 +287,5 @@
       "purpose": "ESLint plugin to allow presets like 'eslint-config-airbnb-base'.",
       "last-update-for-ilias": "9.0"
     }
-  },
-  "@babel/register": {
-    "introduction-date": "2022-12-14",
-    "approved-by": "Jour Fixe",
-    "developer": "tfuhrer",
-    "purpose": "Replacement for the unmaintained ESM module bundler used by mocha.js for js unit tests.",
-    "last-update-for-ilias": "7.0.0"
-  },
-  "@babel/preset-env": {
-    "introduction-date": "2022-12-14",
-    "approved-by": "Jour Fixe",
-    "developer": "tfuhrer",
-    "purpose": "Preset environment for @babel which is used by the @babel/register package to run js unit tests.",
-    "last-update-for-ilias": "7.0.0"
   }
 }

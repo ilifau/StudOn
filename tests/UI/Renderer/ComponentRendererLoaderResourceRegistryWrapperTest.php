@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 use PHPUnit\Framework\TestCase;
 use ILIAS\UI\Implementation\Render\Loader;
 use ILIAS\UI\Implementation\Render\ComponentRenderer;
@@ -37,11 +29,7 @@ use ILIAS\UI\Implementation\Render\RendererFactory;
 
 class ComponentRendererLoaderResourceRegistryWrapperTest extends TestCase
 {
-<<<<<<< HEAD
-    public function test_forwards_from_underlying(): void
-=======
     public function testForwardsFromUnderlying(): void
->>>>>>> v9.1
     {
         $underlying = $this->getMockBuilder(\ILIAS\UI\Implementation\Render\Loader::class)
             ->onlyMethods(["getRendererFor", "getRendererFactoryFor"])
@@ -67,11 +55,7 @@ class ComponentRendererLoaderResourceRegistryWrapperTest extends TestCase
         $this->assertSame($renderer, $r);
     }
 
-<<<<<<< HEAD
-    public function test_registerResources(): void
-=======
     public function testRegisterResources(): void
->>>>>>> v9.1
     {
         $underlying = $this->getMockBuilder(\ILIAS\UI\Implementation\Render\Loader::class)
             ->onlyMethods(["getRendererFor", "getRendererFactoryFor"])
@@ -99,11 +83,7 @@ class ComponentRendererLoaderResourceRegistryWrapperTest extends TestCase
         $l->getRendererFor($component, []);
     }
 
-<<<<<<< HEAD
-    public function test_passthrough_getRendererFactory(): void
-=======
     public function testPassthroughGetRendererFactory(): void
->>>>>>> v9.1
     {
         $underlying = $this->getMockBuilder(\ILIAS\UI\Implementation\Render\Loader::class)
             ->onlyMethods(["getRendererFor", "getRendererFactoryFor"])

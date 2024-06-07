@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Provider\Configuration;
@@ -40,18 +37,6 @@ final class LocalConfig
      * Skip encountered links.
      */
     public const SKIP_LINKS = 2;
-<<<<<<< HEAD
-
-    private int $fileAccessPublic;
-    private int $fileAccessPrivate;
-    private int $directoryAccessPublic;
-    private int $directoryAccessPrivate;
-    private string $rootPath;
-    private int $lockMode;
-    private int $linkBehaviour;
-
-=======
->>>>>>> v9.1
 
     /**
      * LocalConfig constructor.

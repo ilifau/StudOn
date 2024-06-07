@@ -79,11 +79,7 @@ class ViewControlGenericTest extends ViewControlBaseTest
         $this->assertEquals($v, $vc->getValue());
 
         $transform = $this->buildRefinery()->custom()->transformation(
-<<<<<<< HEAD
-            fn ($v) => ['mod' => $v]
-=======
             fn($v) => ['mod' => $v]
->>>>>>> v9.1
         );
         $vc = $vc->withAdditionalTransformation($transform);
         $this->assertEquals(

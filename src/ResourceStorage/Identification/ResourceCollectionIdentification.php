@@ -16,7 +16,6 @@
  *
  *********************************************************************/
 
-<<<<<<<< HEAD:src/ResourceStorage/Identification/ResourceCollectionIdentification.php
 declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Identification;
@@ -30,16 +29,4 @@ namespace ILIAS\ResourceStorage\Identification;
  */
 class ResourceCollectionIdentification extends AbstractIdentification
 {
-========
-namespace ILIAS\Object\Service;
-
-interface ilObjectService
-{
-    /**
-     *
-     * @deprecated 11: This Settings Instance will be removed with ILIAS 11.
-     * Please use ObjectProperties in ilObject.
-     */
-    public function commonSettings(): \ilObjectCommonSettings;
->>>>>>>> v9.1:Services/Object/interfaces/ilObjectService.php
 }

@@ -1,24 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- *********************************************************************/
-
-=======
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Data;
@@ -87,11 +68,7 @@ class URI
                                   '(' . self::HEXDIG . '{1,4}|(' . self::HEXDIG . '{1,4}:)*' . self::HEXDIG . '{1,4})?\\]$';
 
     // HOST_IPV6_EMBEDDED_LONG corresponds to the form defined in RFC4291 Section 2.2.3 but not in a compressed form.
-<<<<<<< HEAD
-    private const HOST_IPV6_EMBEDDED_IPV4_LONG = '^\\[' . self::IPV6_COUNT_COLONS. '{5}' . self::HEXDIG . '{1,4}:' . self::HOST_IPV4_EMBEDDED . '\\]$';
-=======
     private const HOST_IPV6_EMBEDDED_IPV4_LONG = '^\\[' . self::IPV6_COUNT_COLONS . '{5}' . self::HEXDIG . '{1,4}:' . self::HOST_IPV4_EMBEDDED . '\\]$';
->>>>>>> v9.1
     // HOST_IPV6_EMBEDDED_SHORT corresponds to the form defined in RFC4291 Section 2.2.3 in a compressed form.
     private const HOST_IPV6_EMBEDDED_IPV4_SHORT = '^\\[(?=' . self::IPV6_COLONS_BETWEEN . '{2,6}' . self::HOST_IPV4_EMBEDDED . '\\]$)' . // Ensure whole string contains between 2-6 colons.
                                                 self::IPV6_LEFT_SHORT . '::' .

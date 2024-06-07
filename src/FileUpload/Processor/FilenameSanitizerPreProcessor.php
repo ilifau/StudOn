@@ -40,18 +40,10 @@ final class FilenameSanitizerPreProcessor implements PreProcessor
     public function process(FileStream $stream, Metadata $metadata): ProcessingStatus
     {
         $filename = $metadata->getFilename();
-<<<<<<< HEAD
-
-        // remove some special characters
-        $filename = \ILIAS\Filesystem\Util::sanitizeFileName($filename);
-
-        $metadata->setFilename(Util::normalizeRelativePath($filename));
-=======
         // remove some special characters
         $filename = Util::sanitizeFileName($filename);
 
         $metadata->setFilename($filename);
->>>>>>> v9.1
 
         return new ProcessingStatus(ProcessingStatus::OK, 'Filename changed');
     }

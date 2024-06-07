@@ -16,23 +16,15 @@
  *
  *********************************************************************/
 
-<<<<<<< HEAD:Services/TermsOfService/interfaces/interface.ilTermsOfServiceJsonSerialization.php
-declare(strict_types=1);
-=======
 namespace ILIAS\StaticURL\Response;
->>>>>>> v9.1:src/StaticURL/Response/Response.php
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */
 interface Response
 {
-<<<<<<< HEAD:Services/TermsOfService/interfaces/interface.ilTermsOfServiceJsonSerialization.php
-    public function toJson(): string;
-=======
     public function getURIPath(): ?string;
 
     public function targetCanBeReached(): bool;
 
->>>>>>> v9.1:src/StaticURL/Response/Response.php
 }

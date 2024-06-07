@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../../../libs/composer/vendor/autoload.php");
 
 use ILIAS\UI\Implementation\Component\Input\PostDataFromServerRequest;
@@ -43,20 +35,12 @@ class PostDataFromServerRequestTest extends TestCase
         $this->post_data = new PostDataFromServerRequest($request);
     }
 
-<<<<<<< HEAD
-    public function test_get_success(): void
-=======
     public function testGetSuccess(): void
->>>>>>> v9.1
     {
         $this->assertEquals("bar", $this->post_data->get("foo"));
     }
 
-<<<<<<< HEAD
-    public function test_get_fail(): void
-=======
     public function testGetFail(): void
->>>>>>> v9.1
     {
         $raised = false;
         try {
@@ -67,20 +51,12 @@ class PostDataFromServerRequestTest extends TestCase
         $this->assertTrue($raised, "Logic exception was raised.");
     }
 
-<<<<<<< HEAD
-    public function test_getOr_match(): void
-=======
     public function testGetOrMatch(): void
->>>>>>> v9.1
     {
         $this->assertEquals("bar", $this->post_data->getOr("foo", "baz"));
     }
 
-<<<<<<< HEAD
-    public function test_getOr_no_match(): void
-=======
     public function testGetOrNoMatch(): void
->>>>>>> v9.1
     {
         $this->assertEquals("blaw", $this->post_data->getOr("baz", "blaw"));
     }

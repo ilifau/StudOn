@@ -44,11 +44,6 @@ final class ProcessingStatus
      */
     public const REJECTED = 2;
     /**
-<<<<<<< HEAD
-     * Upload got denied by a processor, the upload will be removed immediately
-     */
-    public const DENIED = 4;
-=======
      * Upload is pending
      */
     public const PENDING = 3;
@@ -57,7 +52,6 @@ final class ProcessingStatus
      */
     public const DENIED = 4;
 
->>>>>>> v9.1
     private int $code;
     private string $message;
 
@@ -74,43 +68,21 @@ final class ProcessingStatus
      */
     public function __construct(int $code, string $reason)
     {
-<<<<<<< HEAD
-        $this->intTypeCheck($code, 'code');
-        $this->stringTypeCheck($reason, 'reason');
-
-        if ($code !== self::OK && $code !== self::REJECTED && $code !== self::DENIED) {
-            throw new \InvalidArgumentException('Invalid upload status code received. The code must be OK or REJECTED.');
-=======
         if (!in_array($code, [self::OK, self::REJECTED, self::DENIED, self::PENDING], true)) {
             throw new \InvalidArgumentException(
                 'Invalid upload status code received. The code must be OK or REJECTED.'
             );
->>>>>>> v9.1
         }
 
         $this->code = $code;
         $this->message = $reason;
     }
 
-<<<<<<< HEAD
-
-    /**
-     * @since 5.3
-     */
-=======
->>>>>>> v9.1
     public function getCode(): int
     {
         return $this->code;
     }
 
-<<<<<<< HEAD
-
-    /**
-     * @since 5.3
-     */
-=======
->>>>>>> v9.1
     public function getMessage(): string
     {
         return $this->message;

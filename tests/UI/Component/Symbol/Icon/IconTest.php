@@ -30,11 +30,7 @@ use ILIAS\UI\Component\Symbol\Icon\Custom;
  */
 class IconTest extends ILIAS_UI_TestBase
 {
-<<<<<<< HEAD
-    public const ICON_PATH = __DIR__ . '/../../../../../templates/default/images/';
-=======
     public const ICON_PATH = __DIR__ . '/../../../../../templates/default/images/standard/';
->>>>>>> v9.1
     public const ICON_PATH_REL = './templates/default/images/';
 
     private function getIconFactory(): I\Component\Symbol\Icon\Factory
@@ -212,11 +208,7 @@ imgtag;
     {
         $ico = $this->getIconFactory()->standard('<h1>name</h1>', 'label');
         $html = $this->brutallyTrimHTML($this->getDefaultRenderer()->render($ico));
-<<<<<<< HEAD
-        $expected = '<img class="icon &lt;h1&gt;name&lt;/h1&gt; small" src="./templates/default/images/icon_default.svg" alt="label"/>';
-=======
         $expected = '<img class="icon &lt;h1&gt;name&lt;/h1&gt; small" src="./templates/default/images/standard/icon_default.svg" alt="label"/>';
->>>>>>> v9.1
         $this->assertEquals($expected, $html);
     }
 
@@ -224,11 +216,7 @@ imgtag;
     {
         $ico = $this->getIconFactory()->standard('name', '<h1>label</h1>');
         $html = $this->brutallyTrimHTML($this->getDefaultRenderer()->render($ico));
-<<<<<<< HEAD
-        $expected = '<img class="icon name small" src="./templates/default/images/icon_default.svg" alt="&lt;h1&gt;label&lt;/h1&gt;"/>';
-=======
         $expected = '<img class="icon name small" src="./templates/default/images/standard/icon_default.svg" alt="&lt;h1&gt;label&lt;/h1&gt;"/>';
->>>>>>> v9.1
         $this->assertEquals($expected, $html);
     }
 

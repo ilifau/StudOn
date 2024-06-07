@@ -16,13 +16,9 @@
  *
  *********************************************************************/
 
-<<<<<<< HEAD:Services/TermsOfService/exceptions/class.ilTermsOfServiceNoSignableDocumentFoundException.php
-declare(strict_types=1);
-=======
 namespace ILIAS\ResourceStorage\Revision;
 
 use ILIAS\ResourceStorage\Consumer\StreamAccess\Token;
->>>>>>> v9.1:src/ResourceStorage/Revision/RevisionStatus.php
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions.ch>

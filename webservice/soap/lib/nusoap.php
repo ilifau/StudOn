@@ -584,11 +584,7 @@ class nusoap_base
                     $xml .= "<$name$xmlns$type_str$atts>$pXml</$name>";
                 }
                 break;
-<<<<<<< HEAD
-            break;
-=======
                 break;
->>>>>>> v9.1
             case (is_array($val) || $type):
                 // detect if struct or array
                 $valueType = $this->isArraySimpleOrStruct($val);
@@ -740,15 +736,6 @@ class nusoap_base
         }
         // serialize envelope
         return
-<<<<<<< HEAD
-    '<?xml version="1.0" encoding="' . $this->soap_defencoding . '"?' . ">" .
-    '<SOAP-ENV:Envelope' . $ns_string . ">" .
-    $headers .
-    "<SOAP-ENV:Body>" .
-        $body .
-    "</SOAP-ENV:Body>" .
-    "</SOAP-ENV:Envelope>";
-=======
         '<?xml version="1.0" encoding="' . $this->soap_defencoding . '"?' . ">" .
         '<SOAP-ENV:Envelope' . $ns_string . ">" .
         $headers .
@@ -756,7 +743,6 @@ class nusoap_base
             $body .
         "</SOAP-ENV:Body>" .
         "</SOAP-ENV:Envelope>";
->>>>>>> v9.1
     }
 
     /**
@@ -1241,8 +1227,6 @@ class nusoap_xmlschema extends nusoap_base
     {
         // parse xml string
         if ($xml != "") {
-<<<<<<< HEAD
-
             // Create an XML parser.
             $this->parser = xml_parser_create();
             // Set the options for parsing the XML data.
@@ -1273,38 +1257,6 @@ class nusoap_xmlschema extends nusoap_base
                 $this->setError($errstr);
             }
 
-=======
-            // Create an XML parser.
-            $this->parser = xml_parser_create();
-            // Set the options for parsing the XML data.
-            xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0);
-
-            // Set the object for the parser.
-            xml_set_object($this->parser, $this);
-
-            // Set the element handlers for the parser.
-            if ($type == "schema") {
-                xml_set_element_handler($this->parser, 'schemaStartElement', 'schemaEndElement');
-                xml_set_character_data_handler($this->parser, 'schemaCharacterData');
-            } elseif ($type == "xml") {
-                xml_set_element_handler($this->parser, 'xmlStartElement', 'xmlEndElement');
-                xml_set_character_data_handler($this->parser, 'xmlCharacterData');
-            }
-
-            // Parse the XML file.
-            if (!xml_parse($this->parser, $xml, true)) {
-                // Display an error message.
-                $errstr = sprintf(
-                    'XML error parsing XML schema on line %d: %s',
-                    xml_get_current_line_number($this->parser),
-                    xml_error_string(xml_get_error_code($this->parser))
-                );
-                $this->debug($errstr);
-                $this->debug("XML payload:\n" . $xml);
-                $this->setError($errstr);
-            }
-
->>>>>>> v9.1
             xml_parser_free($this->parser);
         } else {
             $this->debug('no xml passed to parseString()!!');
@@ -1402,11 +1354,7 @@ class nusoap_xmlschema extends nusoap_base
                 //if($name == 'all' || $name == 'sequence'){
                 //	$this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
                 //}
-<<<<<<< HEAD
-            break;
-=======
                 break;
->>>>>>> v9.1
             case 'attribute':	// complexType attribute
                 //$this->xdebug("parsing attribute $attrs[name] $attrs[ref] of value: ".$attrs['http://schemas.xmlsoap.org/wsdl/:arrayType']);
                 $this->xdebug("parsing attribute:");
@@ -1459,15 +1407,9 @@ class nusoap_xmlschema extends nusoap_base
                     }
                     $this->complexTypes[$this->currentComplexType]['arrayType'] = $v;
                 }
-<<<<<<< HEAD
-            break;
-            case 'complexContent':	// (optional) content for a complexType
-            break;
-=======
                 break;
             case 'complexContent':	// (optional) content for a complexType
                 break;
->>>>>>> v9.1
             case 'complexType':
                 array_push($this->complexTypeStack, $this->currentComplexType);
                 if (isset($attrs['name'])) {
@@ -1512,11 +1454,7 @@ class nusoap_xmlschema extends nusoap_base
                         $this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
                     }
                 }
-<<<<<<< HEAD
-            break;
-=======
                 break;
->>>>>>> v9.1
             case 'element':
                 array_push($this->elementStack, $this->currentElement);
                 if (!isset($attrs['form'])) {
@@ -1562,11 +1500,7 @@ class nusoap_xmlschema extends nusoap_base
                     $this->elements[ $attrs['name'] ] = $attrs;
                     $this->elements[ $attrs['name'] ]['typeClass'] = 'element';
                 }
-<<<<<<< HEAD
-            break;
-=======
                 break;
->>>>>>> v9.1
             case 'enumeration':	//	restriction value list member
                 $this->xdebug('enumeration ' . $attrs['value']);
                 if ($this->currentSimpleType) {
@@ -1574,21 +1508,13 @@ class nusoap_xmlschema extends nusoap_base
                 } elseif ($this->currentComplexType) {
                     $this->complexTypes[$this->currentComplexType]['enumeration'][] = $attrs['value'];
                 }
-<<<<<<< HEAD
-            break;
-=======
                 break;
->>>>>>> v9.1
             case 'extension':	// simpleContent or complexContent type extension
                 $this->xdebug('extension ' . $attrs['base']);
                 if ($this->currentComplexType) {
                     $this->complexTypes[$this->currentComplexType]['extensionBase'] = $attrs['base'];
                 }
-<<<<<<< HEAD
-            break;
-=======
                 break;
->>>>>>> v9.1
             case 'import':
                 if (isset($attrs['schemaLocation'])) {
                     //$this->xdebug('import namespace ' . $attrs['namespace'] . ' from ' . $attrs['schemaLocation']);
@@ -1600,15 +1526,9 @@ class nusoap_xmlschema extends nusoap_base
                         $this->namespaces['ns' . (count($this->namespaces)+1)] = $attrs['namespace'];
                     }
                 }
-<<<<<<< HEAD
-            break;
-            case 'list':	// simpleType value list
-            break;
-=======
                 break;
             case 'list':	// simpleType value list
                 break;
->>>>>>> v9.1
             case 'restriction':	// simpleType, simpleContent or complexContent value restriction
                 $this->xdebug('restriction ' . $attrs['base']);
                 if ($this->currentSimpleType) {
@@ -1619,11 +1539,7 @@ class nusoap_xmlschema extends nusoap_base
                         $this->complexTypes[$this->currentComplexType]['phpType'] = 'array';
                     }
                 }
-<<<<<<< HEAD
-            break;
-=======
                 break;
->>>>>>> v9.1
             case 'schema':
                 $this->schemaInfo = $attrs;
                 $this->schemaInfo['schemaVersion'] = $this->getNamespaceFromPrefix($prefix);
@@ -1636,15 +1552,9 @@ class nusoap_xmlschema extends nusoap_base
                 if (!isset($attrs['attributeFormDefault'])) {
                     $this->schemaInfo['attributeFormDefault'] = 'unqualified';
                 }
-<<<<<<< HEAD
-            break;
-            case 'simpleContent':	// (optional) content for a complexType
-            break;
-=======
                 break;
             case 'simpleContent':	// (optional) content for a complexType
                 break;
->>>>>>> v9.1
             case 'simpleType':
                 array_push($this->simpleTypeStack, $this->currentSimpleType);
                 if (isset($attrs['name'])) {
@@ -1661,15 +1571,9 @@ class nusoap_xmlschema extends nusoap_base
                     $this->simpleTypes[$this->currentSimpleType] = $attrs;
                     $this->simpleTypes[$this->currentSimpleType]['phpType'] = 'scalar';
                 }
-<<<<<<< HEAD
-            break;
-            case 'union':	// simpleType type list
-            break;
-=======
                 break;
             case 'union':	// simpleType type list
                 break;
->>>>>>> v9.1
             default:
                 //$this->xdebug("do not have anything to do for element $name");
         }
@@ -2923,550 +2827,6 @@ class soap_transport_http extends nusoap_base
         // length := 0
         $length = 0;
         $new = '';
-<<<<<<< HEAD
-
-        // read chunk-size, chunk-extension (if any) and CRLF
-        // get the position of the linebreak
-        $chunkend = strpos($buffer, $lb);
-        if ($chunkend == false) {
-            $this->debug('no linebreak found in decodeChunked');
-            return $new;
-        }
-        $temp = substr($buffer, 0, $chunkend);
-        $chunk_size = hexdec(trim($temp));
-        $chunkstart = $chunkend + strlen($lb);
-        // while (chunk-size > 0) {
-        while ($chunk_size > 0) {
-            $this->debug("chunkstart: $chunkstart chunk_size: $chunk_size");
-            $chunkend = strpos($buffer, $lb, $chunkstart + $chunk_size);
-
-            // Just in case we got a broken connection
-            if ($chunkend == false) {
-                $chunk = substr($buffer, $chunkstart);
-                // append chunk-data to entity-body
-                $new .= $chunk;
-                $length += strlen($chunk);
-                break;
-            }
-
-            // read chunk-data and CRLF
-            $chunk = substr($buffer, $chunkstart, $chunkend-$chunkstart);
-            // append chunk-data to entity-body
-            $new .= $chunk;
-            // length := length + chunk-size
-            $length += strlen($chunk);
-            // read chunk-size and CRLF
-            $chunkstart = $chunkend + strlen($lb);
-
-            $chunkend = strpos($buffer, $lb, $chunkstart) + strlen($lb);
-            if ($chunkend == false) {
-                break; //Just in case we got a broken connection
-            }
-            $temp = substr($buffer, $chunkstart, $chunkend-$chunkstart);
-            $chunk_size = hexdec(trim($temp));
-            $chunkstart = $chunkend;
-        }
-        return $new;
-    }
-
-    /**
-     * Writes the payload, including HTTP headers, to $this->outgoing_payload.
-     *
-     * @param	string $data HTTP body
-     * @param	string $cookie_str data for HTTP Cookie header
-     * @return	void
-     * @access	private
-     */
-    public function buildPayload($data, $cookie_str = '')
-    {
-        // Note: for cURL connections, $this->outgoing_payload is ignored,
-        // as is the Content-Length header, but these are still created as
-        // debugging guides.
-
-        // add content-length header
-        $this->setHeader('Content-Length', strlen($data));
-
-        // start building outgoing payload:
-        if ($this->proxy) {
-            $uri = $this->url;
-        } else {
-            $uri = $this->uri;
-        }
-        $req = "$this->request_method $uri HTTP/$this->protocol_version";
-        $this->debug("HTTP request: $req");
-        $this->outgoing_payload = "$req\r\n";
-
-        // loop thru headers, serializing
-        foreach ($this->outgoing_headers as $k => $v) {
-            $hdr = $k . ': ' . $v;
-            $this->debug("HTTP header: $hdr");
-            $this->outgoing_payload .= "$hdr\r\n";
-        }
-
-        // add any cookies
-        if ($cookie_str != '') {
-            $hdr = 'Cookie: ' . $cookie_str;
-            $this->debug("HTTP header: $hdr");
-            $this->outgoing_payload .= "$hdr\r\n";
-        }
-
-        // header/body separator
-        $this->outgoing_payload .= "\r\n";
-
-        // add data
-        $this->outgoing_payload .= $data;
-    }
-
-    /**
-    * sends the SOAP request via HTTP[S]
-    *
-    * @param    string $data message data
-    * @param	array $cookies cookies to send
-    * @return	boolean	true if OK, false if problem
-    * @access   private
-    */
-    public function sendRequest($data, $cookies = null)
-    {
-        // build cookie string
-        $cookie_str = $this->getCookiesForRequest($cookies, (($this->scheme == 'ssl') || ($this->scheme == 'https')));
-
-        // build payload
-        $this->buildPayload($data, $cookie_str);
-
-        if ($this->io_method() == 'socket') {
-            // send payload
-            if (!fputs($this->fp, $this->outgoing_payload, strlen($this->outgoing_payload))) {
-                $this->setError('couldn\'t write message data to socket');
-                $this->debug('couldn\'t write message data to socket');
-                return false;
-            }
-            $this->debug('wrote data to socket, length = ' . strlen($this->outgoing_payload));
-            return true;
-        } elseif ($this->io_method() == 'curl') {
-            // set payload
-            // cURL does say this should only be the verb, and in fact it
-            // turns out that the URI and HTTP version are appended to this, which
-            // some servers refuse to work with (so we no longer use this method!)
-            //$this->setCurlOption(CURLOPT_CUSTOMREQUEST, $this->outgoing_payload);
-            $curl_headers = array();
-            foreach ($this->outgoing_headers as $k => $v) {
-                if ($k == 'Connection' || $k == 'Content-Length' || $k == 'Host' || $k == 'Authorization' || $k == 'Proxy-Authorization') {
-                    $this->debug("Skip cURL header $k: $v");
-                } else {
-                    $curl_headers[] = "$k: $v";
-                }
-            }
-            if ($cookie_str != '') {
-                $curl_headers[] = 'Cookie: ' . $cookie_str;
-            }
-            $this->setCurlOption(CURLOPT_HTTPHEADER, $curl_headers);
-            $this->debug('set cURL HTTP headers');
-            if ($this->request_method == "POST") {
-                $this->setCurlOption(CURLOPT_POST, 1);
-                $this->setCurlOption(CURLOPT_POSTFIELDS, $data);
-                $this->debug('set cURL POST data');
-            } else {
-            }
-            // insert custom user-set cURL options
-            foreach ($this->ch_options as $key => $val) {
-                $this->setCurlOption($key, $val);
-            }
-
-            $this->debug('set cURL payload');
-            return true;
-        }
-    }
-
-    /**
-    * gets the SOAP response via HTTP[S]
-    *
-    * @return	string the response (also sets member variables like incoming_payload)
-    * @access   private
-    */
-    public function getResponse()
-    {
-        $this->incoming_payload = '';
-
-        if ($this->io_method() == 'socket') {
-            // loop until headers have been retrieved
-            $data = '';
-            while (!isset($lb)) {
-
-            // We might EOF during header read.
-                if (feof($this->fp)) {
-                    $this->incoming_payload = $data;
-                    $this->debug('found no headers before EOF after length ' . strlen($data));
-                    $this->debug("received before EOF:\n" . $data);
-                    $this->setError('server failed to send headers');
-                    return false;
-                }
-
-                $tmp = fgets($this->fp, 256);
-                $tmplen = strlen($tmp);
-                $this->debug("read line of $tmplen bytes: " . trim($tmp));
-
-                if ($tmplen == 0) {
-                    $this->incoming_payload = $data;
-                    $this->debug('socket read of headers timed out after length ' . strlen($data));
-                    $this->debug("read before timeout: " . $data);
-                    $this->setError('socket read of headers timed out');
-                    return false;
-                }
-
-                $data .= $tmp;
-                $pos = strpos($data, "\r\n\r\n");
-                if ($pos > 1) {
-                    $lb = "\r\n";
-                } else {
-                    $pos = strpos($data, "\n\n");
-                    if ($pos > 1) {
-                        $lb = "\n";
-                    }
-                }
-                // remove 100 headers
-                if (isset($lb) && preg_match('/^HTTP\/1.1 100/', $data)) {
-                    unset($lb);
-                    $data = '';
-                }//
-            }
-            // store header data
-            $this->incoming_payload .= $data;
-            $this->debug('found end of headers after length ' . strlen($data));
-            // process headers
-            $header_data = trim(substr($data, 0, $pos));
-            $header_array = explode($lb, $header_data);
-            $this->incoming_headers = array();
-            $this->incoming_cookies = array();
-            foreach ($header_array as $header_line) {
-                $arr = explode(':', $header_line, 2);
-                if (count($arr) > 1) {
-                    $header_name = strtolower(trim($arr[0]));
-                    $this->incoming_headers[$header_name] = trim($arr[1]);
-                    if ($header_name == 'set-cookie') {
-                        // TODO: allow multiple cookies from parseCookie
-                        $cookie = $this->parseCookie(trim($arr[1]));
-                        if ($cookie) {
-                            $this->incoming_cookies[] = $cookie;
-                            $this->debug('found cookie: ' . $cookie['name'] . ' = ' . $cookie['value']);
-                        } else {
-                            $this->debug('did not find cookie in ' . trim($arr[1]));
-                        }
-                    }
-                } elseif (isset($header_name)) {
-                    // append continuation line to previous header
-                    $this->incoming_headers[$header_name] .= $lb . ' ' . $header_line;
-                }
-            }
-
-            // loop until msg has been received
-            if (isset($this->incoming_headers['transfer-encoding']) && strtolower($this->incoming_headers['transfer-encoding']) == 'chunked') {
-                $content_length =  2147483647;	// ignore any content-length header
-                $chunked = true;
-                $this->debug("want to read chunked content");
-            } elseif (isset($this->incoming_headers['content-length'])) {
-                $content_length = $this->incoming_headers['content-length'];
-                $chunked = false;
-                $this->debug("want to read content of length $content_length");
-            } else {
-                $content_length =  2147483647;
-                $chunked = false;
-                $this->debug("want to read content to EOF");
-            }
-            $data = '';
-            do {
-                if ($chunked) {
-                    $tmp = fgets($this->fp, 256);
-                    $tmplen = strlen($tmp);
-                    $this->debug("read chunk line of $tmplen bytes");
-                    if ($tmplen == 0) {
-                        $this->incoming_payload = $data;
-                        $this->debug('socket read of chunk length timed out after length ' . strlen($data));
-                        $this->debug("read before timeout:\n" . $data);
-                        $this->setError('socket read of chunk length timed out');
-                        return false;
-                    }
-                    $content_length = hexdec(trim($tmp));
-                    $this->debug("chunk length $content_length");
-                }
-                $strlen = 0;
-                while (($strlen < $content_length) && (!feof($this->fp))) {
-                    $readlen = min(8192, $content_length - $strlen);
-                    $tmp = fread($this->fp, $readlen);
-                    $tmplen = strlen($tmp);
-                    $this->debug("read buffer of $tmplen bytes");
-                    if (($tmplen == 0) && (!feof($this->fp))) {
-                        $this->incoming_payload = $data;
-                        $this->debug('socket read of body timed out after length ' . strlen($data));
-                        $this->debug("read before timeout:\n" . $data);
-                        $this->setError('socket read of body timed out');
-                        return false;
-                    }
-                    $strlen += $tmplen;
-                    $data .= $tmp;
-                }
-                if ($chunked && ($content_length > 0)) {
-                    $tmp = fgets($this->fp, 256);
-                    $tmplen = strlen($tmp);
-                    $this->debug("read chunk terminator of $tmplen bytes");
-                    if ($tmplen == 0) {
-                        $this->incoming_payload = $data;
-                        $this->debug('socket read of chunk terminator timed out after length ' . strlen($data));
-                        $this->debug("read before timeout:\n" . $data);
-                        $this->setError('socket read of chunk terminator timed out');
-                        return false;
-                    }
-                }
-            } while ($chunked && ($content_length > 0) && (!feof($this->fp)));
-            if (feof($this->fp)) {
-                $this->debug('read to EOF');
-            }
-            $this->debug('read body of length ' . strlen($data));
-            $this->incoming_payload .= $data;
-            $this->debug('received a total of ' . strlen($this->incoming_payload) . ' bytes of data from server');
-
-            // close filepointer
-            if (
-            (isset($this->incoming_headers['connection']) && strtolower($this->incoming_headers['connection']) == 'close') ||
-            (! $this->persistentConnection) || feof($this->fp)) {
-                fclose($this->fp);
-                $this->fp = false;
-                $this->debug('closed socket');
-            }
-
-            // connection was closed unexpectedly
-            if ($this->incoming_payload == '') {
-                $this->setError('no response from server');
-                return false;
-            }
-
-            // decode transfer-encoding
-//		if(isset($this->incoming_headers['transfer-encoding']) && strtolower($this->incoming_headers['transfer-encoding']) == 'chunked'){
-//			if(!$data = $this->decodeChunked($data, $lb)){
-//				$this->setError('Decoding of chunked data failed');
-//				return false;
-//			}
-            //print "<pre>\nde-chunked:\n---------------\n$data\n\n---------------\n</pre>";
-            // set decoded payload
-//			$this->incoming_payload = $header_data.$lb.$lb.$data;
-//		}
-        } elseif ($this->io_method() == 'curl') {
-            // send and receive
-            $this->debug('send and receive with cURL');
-            $this->incoming_payload = curl_exec($this->ch);
-            $data = $this->incoming_payload;
-
-            $cErr = curl_error($this->ch);
-            if ($cErr != '') {
-                $err = 'cURL ERROR: ' . curl_errno($this->ch) . ': ' . $cErr . '<br>';
-                // TODO: there is a PHP bug that can cause this to SEGV for CURLINFO_CONTENT_TYPE
-                foreach (curl_getinfo($this->ch) as $k => $v) {
-                    $err .= "$k: $v<br>";
-                }
-                $this->debug($err);
-                $this->setError($err);
-                curl_close($this->ch);
-                return false;
-            } else {
-                //echo '<pre>';
-            //var_dump(curl_getinfo($this->ch));
-            //echo '</pre>';
-            }
-            // close curl
-            $this->debug('No cURL error, closing cURL');
-            curl_close($this->ch);
-
-            // try removing skippable headers
-            $savedata = $data;
-            while ($this->isSkippableCurlHeader($data)) {
-                $this->debug("Found HTTP header to skip");
-                if ($pos = strpos($data, "\r\n\r\n")) {
-                    $data = ltrim(substr($data, $pos));
-                } elseif ($pos = strpos($data, "\n\n")) {
-                    $data = ltrim(substr($data, $pos));
-                }
-            }
-
-            if ($data == '') {
-                // have nothing left; just remove 100 header(s)
-                $data = $savedata;
-                while (preg_match('/^HTTP\/1.1 100/', $data)) {
-                    if ($pos = strpos($data, "\r\n\r\n")) {
-                        $data = ltrim(substr($data, $pos));
-                    } elseif ($pos = strpos($data, "\n\n")) {
-                        $data = ltrim(substr($data, $pos));
-                    }
-                }
-            }
-
-            // separate content from HTTP headers
-            if ($pos = strpos($data, "\r\n\r\n")) {
-                $lb = "\r\n";
-            } elseif ($pos = strpos($data, "\n\n")) {
-                $lb = "\n";
-            } else {
-                $this->debug('no proper separation of headers and document');
-                $this->setError('no proper separation of headers and document');
-                return false;
-            }
-            $header_data = trim(substr($data, 0, $pos));
-            $header_array = explode($lb, $header_data);
-            $data = ltrim(substr($data, $pos));
-            $this->debug('found proper separation of headers and document');
-            $this->debug('cleaned data, stringlen: ' . strlen($data));
-            // clean headers
-            foreach ($header_array as $header_line) {
-                $arr = explode(':', $header_line, 2);
-                if (count($arr) > 1) {
-                    $header_name = strtolower(trim($arr[0]));
-                    $this->incoming_headers[$header_name] = trim($arr[1]);
-                    if ($header_name == 'set-cookie') {
-                        // TODO: allow multiple cookies from parseCookie
-                        $cookie = $this->parseCookie(trim($arr[1]));
-                        if ($cookie) {
-                            $this->incoming_cookies[] = $cookie;
-                            $this->debug('found cookie: ' . $cookie['name'] . ' = ' . $cookie['value']);
-                        } else {
-                            $this->debug('did not find cookie in ' . trim($arr[1]));
-                        }
-                    }
-                } elseif (isset($header_name)) {
-                    // append continuation line to previous header
-                    $this->incoming_headers[$header_name] .= $lb . ' ' . $header_line;
-                }
-            }
-        }
-
-        $this->response_status_line = $header_array[0];
-        $arr = explode(' ', $this->response_status_line, 3);
-        $http_version = $arr[0];
-        $http_status = intval($arr[1]);
-        $http_reason = count($arr) > 2 ? $arr[2] : '';
-
-        // see if we need to resend the request with http digest authentication
-        if (isset($this->incoming_headers['location']) && ($http_status == 301 || $http_status == 302)) {
-            $this->debug("Got $http_status $http_reason with Location: " . $this->incoming_headers['location']);
-            $this->setURL($this->incoming_headers['location']);
-            $this->tryagain = true;
-            return false;
-        }
-
-        // see if we need to resend the request with http digest authentication
-        if (isset($this->incoming_headers['www-authenticate']) && $http_status == 401) {
-            $this->debug("Got 401 $http_reason with WWW-Authenticate: " . $this->incoming_headers['www-authenticate']);
-            if (strstr($this->incoming_headers['www-authenticate'], "Digest ")) {
-                $this->debug('Server wants digest authentication');
-                // remove "Digest " from our elements
-                $digestString = str_replace('Digest ', '', $this->incoming_headers['www-authenticate']);
-
-                // parse elements into array
-                $digestElements = explode(',', $digestString);
-                foreach ($digestElements as $val) {
-                    $tempElement = explode('=', trim($val), 2);
-                    $digestRequest[$tempElement[0]] = str_replace("\"", '', $tempElement[1]);
-                }
-
-                // should have (at least) qop, realm, nonce
-                if (isset($digestRequest['nonce'])) {
-                    $this->setCredentials($this->username, $this->password, 'digest', $digestRequest);
-                    $this->tryagain = true;
-                    return false;
-                }
-            }
-            $this->debug('HTTP authentication failed');
-            $this->setError('HTTP authentication failed');
-            return false;
-        }
-
-        if (
-            ($http_status >= 300 && $http_status <= 307) ||
-            ($http_status >= 400 && $http_status <= 417) ||
-            ($http_status >= 501 && $http_status <= 505)
-           ) {
-            $this->setError("Unsupported HTTP response status $http_status $http_reason (soapclient->response has contents of the response)");
-            return false;
-        }
-
-        // decode content-encoding
-        if (isset($this->incoming_headers['content-encoding']) && $this->incoming_headers['content-encoding'] != '') {
-            if (strtolower($this->incoming_headers['content-encoding']) == 'deflate' || strtolower($this->incoming_headers['content-encoding']) == 'gzip') {
-                // if decoding works, use it. else assume data wasn't gzencoded
-                if (function_exists('gzinflate')) {
-                    //$timer->setMarker('starting decoding of gzip/deflated content');
-                    // IIS 5 requires gzinflate instead of gzuncompress (similar to IE 5 and gzdeflate v. gzcompress)
-                    // this means there are no Zlib headers, although there should be
-                    $this->debug('The gzinflate function exists');
-                    $datalen = strlen($data);
-                    if ($this->incoming_headers['content-encoding'] == 'deflate') {
-                        if ($degzdata = @gzinflate($data)) {
-                            $data = $degzdata;
-                            $this->debug('The payload has been inflated to ' . strlen($data) . ' bytes');
-                            if (strlen($data) < $datalen) {
-                                // test for the case that the payload has been compressed twice
-                                $this->debug('The inflated payload is smaller than the gzipped one; try again');
-                                if ($degzdata = @gzinflate($data)) {
-                                    $data = $degzdata;
-                                    $this->debug('The payload has been inflated again to ' . strlen($data) . ' bytes');
-                                }
-                            }
-                        } else {
-                            $this->debug('Error using gzinflate to inflate the payload');
-                            $this->setError('Error using gzinflate to inflate the payload');
-                        }
-                    } elseif ($this->incoming_headers['content-encoding'] == 'gzip') {
-                        if ($degzdata = @gzinflate(substr($data, 10))) {	// do our best
-                            $data = $degzdata;
-                            $this->debug('The payload has been un-gzipped to ' . strlen($data) . ' bytes');
-                            if (strlen($data) < $datalen) {
-                                // test for the case that the payload has been compressed twice
-                                $this->debug('The un-gzipped payload is smaller than the gzipped one; try again');
-                                if ($degzdata = @gzinflate(substr($data, 10))) {
-                                    $data = $degzdata;
-                                    $this->debug('The payload has been un-gzipped again to ' . strlen($data) . ' bytes');
-                                }
-                            }
-                        } else {
-                            $this->debug('Error using gzinflate to un-gzip the payload');
-                            $this->setError('Error using gzinflate to un-gzip the payload');
-                        }
-                    }
-                    //$timer->setMarker('finished decoding of gzip/deflated content');
-                    //print "<xmp>\nde-inflated:\n---------------\n$data\n-------------\n</xmp>";
-                    // set decoded payload
-                    $this->incoming_payload = $header_data . $lb . $lb . $data;
-                } else {
-                    $this->debug('The server sent compressed data. Your php install must have the Zlib extension compiled in to support this.');
-                    $this->setError('The server sent compressed data. Your php install must have the Zlib extension compiled in to support this.');
-                }
-            } else {
-                $this->debug('Unsupported Content-Encoding ' . $this->incoming_headers['content-encoding']);
-                $this->setError('Unsupported Content-Encoding ' . $this->incoming_headers['content-encoding']);
-            }
-        } else {
-            $this->debug('No Content-Encoding header');
-        }
-
-        if (strlen($data) == 0) {
-            $this->debug('no data after headers!');
-            $this->setError('no data present after HTTP headers');
-            return false;
-        }
-
-        return $data;
-    }
-
-    /**
-     * sets the content-type for the SOAP message to be sent
-     *
-     * @param	string $type the content type, MIME style
-     * @param	mixed $charset character set used for encoding (or false)
-     * @access	public
-     */
-    public function setContentType($type, $charset = false)
-    {
-        $this->setHeader('Content-Type', $type . ($charset ? '; charset=' . $charset : ''));
-    }
-
-=======
 
         // read chunk-size, chunk-extension (if any) and CRLF
         // get the position of the linebreak
@@ -4008,7 +3368,6 @@ class soap_transport_http extends nusoap_base
         $this->setHeader('Content-Type', $type . ($charset ? '; charset=' . $charset : ''));
     }
 
->>>>>>> v9.1
     /**
      * specifies that an HTTP persistent connection should be used
      *
@@ -5627,11 +4986,7 @@ class wsdl extends nusoap_base
                         case 'documentation':
                             $this->documentation = true;
                             break;
-<<<<<<< HEAD
-                        // merge input/output data
-=======
                             // merge input/output data
->>>>>>> v9.1
                         default:
                             $m = isset($attrs['message']) ? $this->getLocalPart($attrs['message']) : '';
                             $this->portTypes[$this->currentPortType][$this->currentPortOperation][$name]['message'] = $m;
@@ -5699,57 +5054,6 @@ class wsdl extends nusoap_base
             }
             // set status
             switch ($name) {
-<<<<<<< HEAD
-            case 'import':
-                if (isset($attrs['location'])) {
-                    $this->import[$attrs['namespace']][] = array('location' => $attrs['location'], 'loaded' => false);
-                    $this->debug('parsing import ' . $attrs['namespace'] . ' - ' . $attrs['location'] . ' (' . count($this->import[$attrs['namespace']]) . ')');
-                } else {
-                    $this->import[$attrs['namespace']][] = array('location' => '', 'loaded' => true);
-                    if (! $this->getPrefixFromNamespace($attrs['namespace'])) {
-                        $this->namespaces['ns' . (count($this->namespaces)+1)] = $attrs['namespace'];
-                    }
-                    $this->debug('parsing import ' . $attrs['namespace'] . ' - [no location] (' . count($this->import[$attrs['namespace']]) . ')');
-                }
-                break;
-            //wait for schema
-            //case 'types':
-            //	$this->status = 'schema';
-            //	break;
-            case 'message':
-                $this->status = 'message';
-                $this->messages[$attrs['name']] = array();
-                $this->currentMessage = $attrs['name'];
-                break;
-            case 'portType':
-                $this->status = 'portType';
-                $this->portTypes[$attrs['name']] = array();
-                $this->currentPortType = $attrs['name'];
-                break;
-            case "binding":
-                if (isset($attrs['name'])) {
-                    // get binding name
-                    if (strpos($attrs['name'], ':')) {
-                        $this->currentBinding = $this->getLocalPart($attrs['name']);
-                    } else {
-                        $this->currentBinding = $attrs['name'];
-                    }
-                    $this->status = 'binding';
-                    $this->bindings[$this->currentBinding]['portType'] = $this->getLocalPart($attrs['type']);
-                    $this->debug("current binding: $this->currentBinding of portType: " . $attrs['type']);
-                }
-                break;
-            case 'service':
-                $this->serviceName = $attrs['name'];
-                $this->status = 'service';
-                $this->debug('current service: ' . $this->serviceName);
-                break;
-            case 'definitions':
-                foreach ($attrs as $name => $value) {
-                    $this->wsdl_info[$name] = $value;
-                }
-                break;
-=======
                 case 'import':
                     if (isset($attrs['location'])) {
                         $this->import[$attrs['namespace']][] = array('location' => $attrs['location'], 'loaded' => false);
@@ -5799,7 +5103,6 @@ class wsdl extends nusoap_base
                         $this->wsdl_info[$name] = $value;
                     }
                     break;
->>>>>>> v9.1
             }
         }
     }
@@ -6154,25 +5457,6 @@ class wsdl extends nusoap_base
             $b .= "<div id='$op' class='hidden'>
 				    <a href='#' onclick='popout()'><font color='#ffffff'>Close</font></a><br><br>";
             foreach ($data as $donnie => $marie) { // loop through opdata
-<<<<<<< HEAD
-                        if ($donnie == 'input' || $donnie == 'output') { // show input/output data
-                            $b .= "<font color='white'>" . ucfirst($donnie) . ':</font><br>';
-                            foreach ($marie as $captain => $tenille) { // loop through data
-                                if ($captain == 'parts') { // loop thru parts
-                                    $b .= "&nbsp;&nbsp;$captain:<br>";
-                                    //if(is_array($tenille)){
-                                    foreach ($tenille as $joanie => $chachi) {
-                                        $b .= "&nbsp;&nbsp;&nbsp;&nbsp;$joanie: $chachi<br>";
-                                    }
-                                    //}
-                                } else {
-                                    $b .= "&nbsp;&nbsp;$captain: $tenille<br>";
-                                }
-                            }
-                        } else {
-                            $b .= "<font color='white'>" . ucfirst($donnie) . ":</font> $marie<br>";
-                        }
-=======
                 if ($donnie == 'input' || $donnie == 'output') { // show input/output data
                     $b .= "<font color='white'>" . ucfirst($donnie) . ':</font><br>';
                     foreach ($marie as $captain => $tenille) { // loop through data
@@ -6190,7 +5474,6 @@ class wsdl extends nusoap_base
                 } else {
                     $b .= "<font color='white'>" . ucfirst($donnie) . ":</font> $marie<br>";
                 }
->>>>>>> v9.1
             }
             $b .= '</div>';
         }
@@ -7014,11 +6297,7 @@ class wsdl extends nusoap_base
                 if (isset($optionals)
                     && (!isset($xvalue[$eName]))
                     && ((!isset($attrs['nillable'])) || $attrs['nillable'] != 'true')
-<<<<<<< HEAD
-                    ) {
-=======
                 ) {
->>>>>>> v9.1
                     if (isset($attrs['minOccurs']) && $attrs['minOccurs'] <> '0') {
                         $this->debug("apparent error: no value provided for element $eName with minOccurs=" . $attrs['minOccurs']);
                     }
@@ -8370,19 +7649,11 @@ class nusoap_client extends nusoap_base
                     $this->debug('got response, length=' . strlen($this->responseData) . ' type=' . $http->incoming_headers['content-type']);
                     return $this->parseResponse($http->incoming_headers, $this->responseData);
                 }
-<<<<<<< HEAD
-            break;
-            default:
-                $this->setError('no transport found, or selected transport is not yet supported!');
-            return false;
-            break;
-=======
                 break;
             default:
                 $this->setError('no transport found, or selected transport is not yet supported!');
                 return false;
                 break;
->>>>>>> v9.1
         }
     }
 

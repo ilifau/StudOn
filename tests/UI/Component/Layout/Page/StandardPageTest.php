@@ -201,10 +201,7 @@ class StandardPageTest extends ILIAS_UI_TestBase
             $this->stdpage->withTitle($title)->getTitle()
         );
     }
-<<<<<<< HEAD
-=======
 
->>>>>>> v9.1
     public function testWithShortTitle(): void
     {
         $title = 'some short title';
@@ -213,10 +210,7 @@ class StandardPageTest extends ILIAS_UI_TestBase
             $this->stdpage->withShortTitle($title)->getShortTitle()
         );
     }
-<<<<<<< HEAD
-=======
 
->>>>>>> v9.1
     public function testWithViewTitle(): void
     {
         $title = 'some view title';
@@ -232,24 +226,6 @@ class StandardPageTest extends ILIAS_UI_TestBase
         $this->assertEquals(
             "rtl",
             $this->stdpage
-<<<<<<< HEAD
-            ->withTextDirection($this->stdpage::RTL)
-            ->getTextDirection()
-        );
-    }
-
-    public function testWithMetaDatum(): void
-    {
-        $meta_datum_key = 'meta_datum_key';
-        $meta_datum_value = 'meta_datum_value';
-        $meta_data = [$meta_datum_key => $meta_datum_value];
-        $this->assertEquals(
-            $meta_data,
-            $this->stdpage->withAdditionalMetaDatum($meta_datum_key, $meta_datum_value)->getMetaData()
-        );
-    }
-
-=======
                 ->withTextDirection($this->stdpage::RTL)
                 ->getTextDirection()
         );
@@ -265,7 +241,6 @@ class StandardPageTest extends ILIAS_UI_TestBase
         );
     }
 
->>>>>>> v9.1
     public function testRenderingWithTitle(): void
     {
         $this->stdpage = $this->stdpage
@@ -288,12 +263,8 @@ class StandardPageTest extends ILIAS_UI_TestBase
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>View Title: Short Title</title>
-<<<<<<< HEAD
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-=======
     <link rel="icon" href="logo/favicon.ico" type="image/x-icon">
     <script type="application/javascript">var il = il ||{}; window.il = il;</script>
->>>>>>> v9.1
     <style></style>
 </head>
 
@@ -367,12 +338,6 @@ class StandardPageTest extends ILIAS_UI_TestBase
 
     public function testRenderingWithMetaData(): void
     {
-<<<<<<< HEAD
-        $this->stdpage = $this->stdpage->withAdditionalMetaDatum('meta_datum_key_1', 'meta_datum_value_1');
-        $this->stdpage = $this->stdpage->withAdditionalMetaDatum('meta_datum_key_2', 'meta_datum_value_2');
-
-        $r = $this->getDefaultRenderer(null, [$this->metabar, $this->mainbar, $this->crumbs, $this->logo, $this->overlay]);
-=======
         $meta_datum_1_html = 'test_html_1';
         $meta_datum_2_html = 'test_html_2';
         $meta_datum_1 = $this->getMockedTag($meta_datum_1_html);
@@ -385,7 +350,6 @@ class StandardPageTest extends ILIAS_UI_TestBase
             null,
             [$this->metabar, $this->mainbar, $this->crumbs, $this->logo, $this->overlay]
         );
->>>>>>> v9.1
         $html = $this->brutallyTrimHTML($r->render($this->stdpage));
         $expected = $this->brutallyTrimHTML(
             '
@@ -425,10 +389,6 @@ class StandardPageTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
@@ -436,10 +396,7 @@ class StandardPageTest extends ILIAS_UI_TestBase
             {
                 return new Button\Factory();
             }
-<<<<<<< HEAD
-=======
 
->>>>>>> v9.1
             public function dropdown(): Factory
             {
                 return new Dropdown\Factory();
@@ -447,14 +404,11 @@ class StandardPageTest extends ILIAS_UI_TestBase
         };
     }
 
-<<<<<<< HEAD
-=======
     public function getDataFactory(): DataFactory
     {
         return new DataFactory();
     }
 
->>>>>>> v9.1
     public function testRenderingWithCrumbs(): void
     {
         $crumbs = new Crumbs([

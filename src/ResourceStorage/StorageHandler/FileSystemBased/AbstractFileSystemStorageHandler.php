@@ -35,11 +35,8 @@ use ILIAS\ResourceStorage\Revision\FileStreamRevision;
 use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\Revision\UploadedFileRevision;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandler;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\StorageHandler\PathGenerator\PathGenerator;
 use ILIAS\ResourceStorage\Revision\StreamReplacementRevision;
->>>>>>> v9.1
 
 /**
  * Class AbstractFileSystemStorageHandler
@@ -136,10 +133,7 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
         return $this->fs->readStream($this->getRevisionPath($revision) . '/' . self::DATA);
     }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> v9.1
     public function storeUpload(UploadedFileRevision $revision): bool
     {
         global $DIC;
@@ -200,8 +194,6 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
             $this->fs->writeStream($this->getRevisionPath($revision) . '/' . self::DATA, $stream);
             $stream->close();
         } catch (\Throwable $exception) {
-<<<<<<< HEAD
-=======
             return false;
         }
 
@@ -219,7 +211,6 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
             $this->fs->writeStream($path, $stream);
             $stream->close();
         } catch (\Throwable $exception) {
->>>>>>> v9.1
             return false;
         }
 
@@ -316,8 +307,6 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
         return $this->getFullContainerPath($identification);
     }
 
-<<<<<<< HEAD
-=======
     public function getFlavourPath(Revision $revision, Flavour $flavour): string
     {
         return $this->getRevisionPath($revision)
@@ -325,7 +314,6 @@ abstract class AbstractFileSystemStorageHandler implements StorageHandler
             . '/' . $flavour->getPersistingName();
     }
 
->>>>>>> v9.1
     public function getRevisionPath(Revision $revision): string
     {
         return $this->getFullContainerPath($revision->getIdentification()) . '/' . $revision->getVersionNumber();

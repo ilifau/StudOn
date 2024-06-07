@@ -21,10 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\ResourceStorage\Consumer;
 
 use ILIAS\ResourceStorage\Collection\CollectionBuilder;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Flavour\Flavour;
->>>>>>> v9.1
 use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Resource\ResourceBuilder;
@@ -104,8 +101,6 @@ class Consumers
             $resources,
             $zip_filename
         );
-<<<<<<< HEAD
-=======
     }
 
     public function flavourUrls(Flavour $flavour): FlavourURLs
@@ -143,6 +138,5 @@ class Consumers
             ltrim($start_file, '/'),
             $valid_for_at_least_minutes
         );
->>>>>>> v9.1
     }
 }

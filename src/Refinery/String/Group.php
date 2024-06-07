@@ -24,10 +24,7 @@ use ILIAS\Data\Factory;
 use ilLanguage;
 use ILIAS\Refinery\Constraint;
 use ILIAS\Refinery\Transformation;
-<<<<<<< HEAD
-=======
 use ILIAS\Refinery\String\Encoding\Group as EncodingGroup;
->>>>>>> v9.1
 
 class Group
 {
@@ -74,7 +71,6 @@ class Group
     {
         return new SplitString($delimiter, $this->dataFactory);
     }
-
 
     /**
      * Creates a transformation that strips tags from a string.
@@ -140,8 +136,6 @@ class Group
     {
         return new UTFNormal();
     }
-<<<<<<< HEAD
-=======
 
     /**
      * This method returns an instance of the MarkdownFormattingToHTML class which can be used to tranform a markdown
@@ -159,5 +153,4 @@ class Group
     {
         return new EncodingGroup();
     }
->>>>>>> v9.1
 }

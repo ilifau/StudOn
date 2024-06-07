@@ -99,15 +99,9 @@ span.ilNewsRssIcon {
 			float: left;
 			padding: 20px;
 			position: relative;
-<<<<<<< HEAD:templates/default/less/Services/News/delos.less
-			background: @il-main-dark-bg;
-			border: @il-panel-border;
-			@media only screen and (max-width: @grid-float-breakpoint-max) {
-=======
 			background: $il-main-dark-bg;
 			border: $il-panel-border;
 			@media only screen and (max-width: $il-grid-float-breakpoint-max) {
->>>>>>> v9.1:templates/default/070-components/legacy/Services/_component_news.scss
 				width: 80%;
 			}
 			&:after {
@@ -116,13 +110,8 @@ span.ilNewsRssIcon {
 				right: -14px;
 				display: inline-block;
 				border-top: 14px solid transparent;
-<<<<<<< HEAD:templates/default/less/Services/News/delos.less
-				border-left: 14px solid @il-main-border-color;
-				border-right: 0 solid @il-main-border-color;
-=======
 				border-left: 14px solid $il-main-border-color;
 				border-right: 0 solid $il-main-border-color;
->>>>>>> v9.1:templates/default/070-components/legacy/Services/_component_news.scss
 				border-bottom: 14px solid transparent;
 				content: " ";
 			}

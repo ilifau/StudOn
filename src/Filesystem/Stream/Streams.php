@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Stream;
@@ -64,11 +61,7 @@ final class Streams
      *
      * @see fopen()
      */
-<<<<<<< HEAD
-    public static function ofResource($resource): \ILIAS\Filesystem\Stream\Stream
-=======
     public static function ofResource($resource, bool $inside_zip = false): \ILIAS\Filesystem\Stream\Stream
->>>>>>> v9.1
     {
         if (!is_resource($resource)) {
             throw new \InvalidArgumentException(
@@ -94,11 +87,4 @@ final class Streams
         $resource = $stream->detach();
         return self::ofResource($resource);
     }
-<<<<<<< HEAD
-
-    public function ofZipResource(\ZipArchive $zip, int $index): void
-    {
-    }
-=======
->>>>>>> v9.1
 }

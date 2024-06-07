@@ -50,11 +50,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         );
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $textarea = $f->textarea("label", "byline");
@@ -62,11 +58,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(Field\Textarea::class, $textarea);
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface_without_byline(): void
-=======
     public function testImplementsFactoryInterface_without_byline(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $textarea = $f->textarea("label");
@@ -74,11 +66,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(Field\Textarea::class, $textarea);
     }
 
-<<<<<<< HEAD
-    public function test_with_min_limit(): void
-=======
     public function testWithMinLimit(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $limit = 5;
@@ -88,11 +76,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertEquals($textarea->getMinLimit(), $limit);
     }
 
-<<<<<<< HEAD
-    public function test_with_max_limit(): void
-=======
     public function testWithMaxLimit(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $limit = 15;
@@ -102,11 +86,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertEquals($textarea->getMaxLimit(), $limit);
     }
 
-<<<<<<< HEAD
-    public function test_is_limited(): void
-=======
     public function testIsLimited(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
 
@@ -127,11 +107,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertFalse($textarea->isLimited());
     }
 
-<<<<<<< HEAD
-    public function test_get_min_limit(): void
-=======
     public function testGetMinLimit(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $limit = 5;
@@ -139,11 +115,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertEquals($textarea->getMinLimit(), $limit);
     }
 
-<<<<<<< HEAD
-    public function test_get_max_limit(): void
-=======
     public function testGetMaxLimit(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $limit = 15;
@@ -152,11 +124,7 @@ class TextareaTest extends ILIAS_UI_TestBase
     }
 
     // RENDERER
-<<<<<<< HEAD
-    public function test_renderer(): void
-=======
     public function testRenderer(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $r = $this->getDefaultRenderer();
@@ -182,11 +150,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_renderer_with_min_limit(): void
-=======
     public function testRendererWithMinLimit(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $r = $this->getDefaultRenderer();
@@ -214,11 +178,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_renderer_with_max_limit(): void
-=======
     public function testRendererWithMaxLimit(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $r = $this->getDefaultRenderer();
@@ -246,11 +206,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($this->brutallyTrimHTML($expected), $html);
     }
 
-<<<<<<< HEAD
-    public function test_renderer_with_min_and_max_limit(): void
-=======
     public function testRendererWithMinAndMaxLimit(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $r = $this->getDefaultRenderer();
@@ -281,11 +237,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($this->brutallyTrimHTML($expected), $html);
     }
 
-<<<<<<< HEAD
-    public function test_renderer_counter_with_value(): void
-=======
     public function testRendererCounterWithValue(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $r = $this->getDefaultRenderer();
@@ -312,11 +264,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_renderer_with_error(): void
-=======
     public function testRendererWithError(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $r = $this->getDefaultRenderer();
@@ -328,18 +276,6 @@ class TextareaTest extends ILIAS_UI_TestBase
         $error = "an_error";
         $textarea = $f->textarea($label, $byline)->withNameFrom($this->name_source)->withError($error);
 
-<<<<<<< HEAD
-        $expected = $this->brutallyTrimHTML('
-<div class="form-group row">
-   <label for="id_1" class="control-label col-sm-4 col-md-3 col-lg-2">label</label>
-   <div class="col-sm-8 col-md-9 col-lg-10">
-      <div class="help-block alert alert-danger" aria-describedby="id_1" role="alert">an_error</div>
-      <textarea id="id_1" name="name_0" class="form-control form-control-sm"></textarea>
-      <div class="help-block">This is just a byline Min: 5</div>
-   </div>
-</div>
-');
-=======
         $expected = "
             <div class=\"form-group row\">
                 <label for=\"$id\" class=\"control-label col-sm-4 col-md-3 col-lg-2\">$label</label>
@@ -352,17 +288,12 @@ class TextareaTest extends ILIAS_UI_TestBase
                 </div>
             </div>
         ";
->>>>>>> v9.1
 
         $html = $this->brutallyTrimHTML($r->render($textarea));
         $this->assertEquals($this->brutallyTrimHTML($expected), $html);
     }
 
-<<<<<<< HEAD
-    public function test_renderer_with_disabled(): void
-=======
     public function testRendererWithDisabled(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $r = $this->getDefaultRenderer();
@@ -388,11 +319,7 @@ class TextareaTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_stripsTags(): void
-=======
     public function testStripsTags(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $name = "name_0";

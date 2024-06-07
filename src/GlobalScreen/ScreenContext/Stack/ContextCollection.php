@@ -1,9 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -44,12 +40,6 @@ class ContextCollection
         $this->repo = $context_repository;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param ScreenContext $context
-     */
-=======
->>>>>>> v9.1
     public function push(ScreenContext $context): void
     {
         $current = end($this->stack);
@@ -65,12 +55,6 @@ class ContextCollection
         $this->stack[] = $context;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return ScreenContext
-     */
-=======
->>>>>>> v9.1
     public function getLast(): ?ScreenContext
     {
         $last = end($this->stack);
@@ -88,12 +72,6 @@ class ContextCollection
         return $this->stack;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return array
-     */
-=======
->>>>>>> v9.1
     public function getStackAsArray(): array
     {
         $return = [];
@@ -104,19 +82,9 @@ class ContextCollection
         return $return;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param ContextCollection $other_collection
-     * @return bool
-     */
-    public function hasMatch(ContextCollection $other_collection): bool
-    {
-        $mapper = function (ScreenContext $c): string {
-=======
     public function hasMatch(ContextCollection $other_collection): bool
     {
         $mapper = static function (ScreenContext $c): string {
->>>>>>> v9.1
             return $c->getUniqueContextIdentifier();
         };
         $mine = array_map($mapper, $this->getStack());

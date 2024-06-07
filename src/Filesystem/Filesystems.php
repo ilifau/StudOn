@@ -36,10 +36,6 @@ interface Filesystems
      * @throws IllegalStateException Thrown if the filesystem is requested without initialisation.
      */
     public function web(): Filesystem;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Fetches the storage filesystem.
@@ -49,10 +45,6 @@ interface Filesystems
      * @throws IllegalStateException Thrown if the filesystem is requested without initialisation.
      */
     public function storage(): Filesystem;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Fetches the temporary filesystem which can be used for temporary file operations.
@@ -61,10 +53,6 @@ interface Filesystems
      * @throws IllegalStateException Thrown if the filesystem is requested without initialisation.
      */
     public function temp(): Filesystem;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Fetches the customizing filesystem which is located at the root of the customizing directory of ILIAS.
@@ -73,10 +61,7 @@ interface Filesystems
      * @throws IllegalStateException Thrown if the filesystem is requested without initialisation.
      */
     public function customizing(): Filesystem;
-<<<<<<< HEAD
-=======
 
->>>>>>> v9.1
     /**
      * Fetches the libs filesystem which is located at the root of the libs directory of ILIAS. This is read only
      *

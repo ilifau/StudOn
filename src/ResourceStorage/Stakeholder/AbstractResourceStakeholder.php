@@ -29,62 +29,31 @@ abstract class AbstractResourceStakeholder implements ResourceStakeholder
 {
     private string $provider_name_cache = '';
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-=======
->>>>>>> v9.1
     public function getFullyQualifiedClassName(): string
     {
         return static::class;
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-=======
->>>>>>> v9.1
     public function isResourceInUse(ResourceIdentification $identification): bool
     {
         return false;
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-    public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
-=======
     public function canBeAccessedByCurrentUser(ResourceIdentification $identification): bool
->>>>>>> v9.1
     {
         return true;
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-=======
     public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
     {
         return true;
     }
 
->>>>>>> v9.1
     public function getOwnerOfResource(ResourceIdentification $identification): int
     {
         return 6;
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-=======
->>>>>>> v9.1
     public function getConsumerNameForPresentation(): string
     {
         if ($this->provider_name_cache !== '' && is_string($this->provider_name_cache)) {
@@ -100,16 +69,8 @@ abstract class AbstractResourceStakeholder implements ResourceStakeholder
         return $this->provider_name_cache = implode('/', $parts);
     }
 
-<<<<<<< HEAD
-        $this->provider_name_cache = isset($matches[1]) ? is_string(
-            $matches[1]
-        ) ? $matches[1] : self::class : self::class;
-
-        return $this->provider_name_cache;
-=======
     public function getLocationURIForResourceUsage(ResourceIdentification $identification): ?string
     {
         return null;
->>>>>>> v9.1
     }
 }

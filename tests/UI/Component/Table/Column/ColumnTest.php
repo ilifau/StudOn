@@ -187,11 +187,7 @@ class ColumnTest extends ILIAS_UI_TestBase
 ￼    */
     public function testDataTableColumnAllowedFormats(
         Column\Column $column,
-<<<<<<< HEAD
-        $value,
-=======
         mixed $value,
->>>>>>> v9.1
         bool $ok
     ): void {
         if(! $ok) {
@@ -200,10 +196,7 @@ class ColumnTest extends ILIAS_UI_TestBase
         $this->assertEquals($value, $column->format($value));
     }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> v9.1
     public function testDataTableColumnLinkListingFormat(): void
     {
         $col = new Column\LinkListing($this->lng, 'col');

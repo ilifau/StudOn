@@ -101,8 +101,9 @@ class BaseTypeRenderer implements TypeRenderer
             $content
         );
         $slate = $this->addAsyncLoadingCode($slate, $item);
+        $slate = $this->addOnloadCode($slate, $item);
 
-        return $this->addOnloadCode($slate, $item);
+        return $slate;
     }
 
     private function supportsAsyncContent(isItem $item): bool

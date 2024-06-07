@@ -63,11 +63,7 @@ trait Helper
         return $goal;
     }
 
-<<<<<<< HEAD
-    protected function newInput(): Input
-=======
     protected function newInput(): InputField
->>>>>>> v9.1
     {
         static $no = 0;
 

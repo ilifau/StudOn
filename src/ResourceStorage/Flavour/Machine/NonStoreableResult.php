@@ -15,14 +15,10 @@
  *
  *********************************************************************/
 
-<<<<<<< HEAD:Modules/File/classes/Setup/class.ilFileObjectToStorageInfoResolver.php
-use ILIAS\ResourceStorage\Resource\InfoResolver\StreamInfoResolver;
-=======
 declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Flavour\Machine;
 
->>>>>>> v9.1:src/ResourceStorage/Flavour/Machine/NonStoreableResult.php
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\ResourceStorage\Flavour\Definition\FlavourDefinition;
 

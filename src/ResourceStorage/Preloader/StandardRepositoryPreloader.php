@@ -21,10 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\ResourceStorage\Preloader;
 
 use ILIAS\ResourceStorage\Repositories;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Resource\Repository\FlavourRepository;
->>>>>>> v9.1
 
 /**
  * Class StandardRepositoryPreloader
@@ -44,10 +41,7 @@ class StandardRepositoryPreloader implements RepositoryPreloader
         $this->revision_repository = $repositories->getRevisionRepository();
         $this->information_repository = $repositories->getInformationRepository();
         $this->stakeholder_repository = $repositories->getStakeholderRepository();
-<<<<<<< HEAD
-=======
         $this->flavour_repository = $repositories->getFlavourRepository();
->>>>>>> v9.1
     }
 
     public function preload(array $identification_strings): void

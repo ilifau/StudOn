@@ -18,11 +18,8 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD:Services/TermsOfService/exceptions/class.ilTermsOfServiceDuplicateCriterionAssignmentException.php
-=======
 namespace ILIAS\FileDelivery\Token\Signer\Algorithm;
 
->>>>>>> v9.1:src/FileDelivery/Token/Signer/Algorithm/MD5.php
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */

@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 
@@ -563,11 +555,7 @@ EOT;
             </div>
 
             <div class="form-control form-control-sm il-input-radiooption">
-<<<<<<< HEAD
-                <input type="radio" id="id_1_2_opt" name="" value="2" /><label for="id_1_2_opt">empty group, the title</label>
-=======
                 <input type="radio" id="id_1_2_opt" value="2" /><label for="id_1_2_opt">empty group, the title</label>
->>>>>>> v9.1
                 <div class="help-block">empty group, the byline</div>
             </div>
         </div>

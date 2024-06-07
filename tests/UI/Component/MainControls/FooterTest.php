@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once("libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -330,14 +322,10 @@ EOT;
         $factory_mock = $this->createMock(FieldFactory::class);
         $factory_mock->method('group')->willReturn($group_mock);
 
-<<<<<<< HEAD
-        return new I\Modal\Factory(new SignalGeneratorMock(), $factory_mock);
-=======
         return new I\Modal\Factory(
             new SignalGeneratorMock(),
             $this->createMock(C\Modal\InterruptiveItem\Factory::class),
             $factory_mock,
         );
->>>>>>> v9.1
     }
 }

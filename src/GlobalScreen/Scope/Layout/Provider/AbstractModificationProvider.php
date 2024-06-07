@@ -43,12 +43,6 @@ use ILIAS\Data\Factory as DataFactory;
  */
 abstract class AbstractModificationProvider extends AbstractProvider implements ModificationProvider
 {
-<<<<<<< HEAD
-    /**
-     * @var ContextCollection
-     */
-=======
->>>>>>> v9.1
     protected ContextCollection $context_collection;
     protected DataFactory $data;
     /**

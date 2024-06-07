@@ -1,8 +1,6 @@
 <?php
 
 declare(strict_types=1);
-<<<<<<< HEAD
-=======
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -19,7 +17,6 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
->>>>>>> v9.1
 
 namespace ILIAS\HTTP\Wrapper;
 
@@ -43,14 +40,7 @@ class SuperGlobalDropInReplacement extends KeyValueAccess
         parent::__construct($raw_values, $factory->kindlyTo()->string());
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-    public function offsetSet($offset, $value): void
-=======
     public function offsetSet(mixed $offset, mixed $value): void
->>>>>>> v9.1
     {
         if ($this->throwOnValueAssignment) {
             throw new OutOfBoundsException("Modifying global Request-Array such as \$_GET is not allowed!");
@@ -59,14 +49,7 @@ class SuperGlobalDropInReplacement extends KeyValueAccess
         parent::offsetSet($offset, $value);
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritDoc
-     */
-    public function offsetUnset($offset): void
-=======
     public function offsetUnset(mixed $offset): void
->>>>>>> v9.1
     {
         throw new LogicException("Modifying global Request-Array such as \$_GET is not allowed!");
     }

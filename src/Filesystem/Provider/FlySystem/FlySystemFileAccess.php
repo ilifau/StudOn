@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Provider\FlySystem;
@@ -52,23 +49,6 @@ class FlySystemFileAccess implements FileAccess
     ) {
     }
 
-<<<<<<< HEAD
-
-    /**
-     * Reads a file content to a string.
-     *
-     * @param string $path The path to the file which should be read.
-     *
-     * @return string   The file content.
-     *
-     * @throws FileNotFoundException        If the file doesn't exist.
-     * @throws IOException                  If the file could not be red.
-     *
-     * @since   5.3
-     * @version 1.0
-     */
-=======
->>>>>>> v9.1
     public function read(string $path): string
     {
         try {
@@ -88,39 +68,11 @@ class FlySystemFileAccess implements FileAccess
         }
     }
 
-<<<<<<< HEAD
-
-    /**
-     * Checks whether a file exists.
-     *
-     * @param string $path The file path which should be checked.
-     *
-     * @return bool True if the file exists, otherwise false.
-     *
-     * @since   5.3
-     * @version 1.0
-     */
-=======
->>>>>>> v9.1
     public function has(string $path): bool
     {
         return $this->flysystem_operator->has($path);
     }
 
-<<<<<<< HEAD
-
-    /**
-     * Get a files mime-type.
-     *
-     * @param string $path The file which should be used to get the mime-type.
-     *
-     * @return string   The mime-type of the file.
-     *
-     * @throws FileNotFoundException    If the file is not found.
-     * @throws IOException              If the mime-type could not be determined.
-     */
-=======
->>>>>>> v9.1
     public function getMimeType(string $path): string
     {
         try {
@@ -135,23 +87,6 @@ class FlySystemFileAccess implements FileAccess
         }
     }
 
-<<<<<<< HEAD
-
-    /**
-     * Get the timestamp (mtime) of the file.
-     *
-     * @param string $path The path to the file.
-     *
-     * @return \DateTimeImmutable  The timestamp of the file.
-     *
-     * @throws FileNotFoundException    If the file is not found.
-     * @throws IOException              If the file can not be red.
-     *
-     * @since   5.3
-     * @version 1.0
-     */
-=======
->>>>>>> v9.1
     public function getTimestamp(string $path): \DateTimeImmutable
     {
         try {
@@ -165,29 +100,7 @@ class FlySystemFileAccess implements FileAccess
         }
     }
 
-<<<<<<< HEAD
-
-    /**
-     * Get the size of a file.
-     *
-     * The file size units are provided by the DataSize class.
-     *
-     * @param string $path         The path to the file.
-     * @param int    $fileSizeUnit The unit of the file size, which are defined in the DataSize class.
-     *
-     * @return DataSize
-     * @since   5.3
-     * @version 1.0
-     *
-     * @throws IOException              Thrown if the file is not accessible or the underlying filesystem adapter failed.
-     * @throws FileNotFoundException    Thrown if the specified file was not found.
-     *
-     * @see     DataSize
-     */
-    public function getSize(string $path, int $fileSizeUnit): DataSize
-=======
     public function getSize(string $path, int $unit): DataSize
->>>>>>> v9.1
     {
         try {
             $byte_size = $this->flysystem_operator->fileSize($path);

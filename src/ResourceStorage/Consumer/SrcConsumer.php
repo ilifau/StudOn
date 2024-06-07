@@ -48,12 +48,6 @@ class SrcConsumer
 
     public function getSrc(bool $signed = false): string
     {
-<<<<<<< HEAD
-        return $this->src_builder->getRevisionURL(
-            $this->stream_access->populateRevision($this->getRevision()),
-            $signed
-        );
-=======
         try {
             return $this->src_builder->getRevisionURL(
                 $this->stream_access->populateRevision($this->getRevision()),
@@ -64,7 +58,6 @@ class SrcConsumer
             return '';
         }
 
->>>>>>> v9.1
     }
 
     /**

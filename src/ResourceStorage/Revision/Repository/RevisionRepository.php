@@ -30,10 +30,7 @@ use ILIAS\ResourceStorage\Revision\FileStreamRevision;
 use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\Revision\RevisionCollection;
 use ILIAS\ResourceStorage\Revision\UploadedFileRevision;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Revision\RevisionStatus;
->>>>>>> v9.1
 
 /**
  * Class RevisionARRepository
@@ -45,12 +42,8 @@ interface RevisionRepository extends LockingRepository, PreloadableRepository
     public function blankFromUpload(
         InfoResolver $info_resolver,
         StorableResource $resource,
-<<<<<<< HEAD
-        UploadResult $result
-=======
         UploadResult $result,
         RevisionStatus $status
->>>>>>> v9.1
     ): UploadedFileRevision;
 
     public function blankFromStream(

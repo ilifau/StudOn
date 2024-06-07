@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Finder\Iterator;
@@ -62,11 +59,7 @@ class RecursiveDirectoryIterator implements \RecursiveIterator
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function current(): Metadata
-=======
     public function current(): bool|\ILIAS\Filesystem\DTO\Metadata
->>>>>>> v9.1
     {
         return current($this->files);
     }
@@ -85,14 +78,10 @@ class RecursiveDirectoryIterator implements \RecursiveIterator
     public function rewind(): void
     {
         $contents = $this->filesystem->listContents($this->dir, false);
-<<<<<<< HEAD
-        $this->files = array_combine(array_map(static fn (Metadata $metadata): string => $metadata->getPath(), $contents), $contents);
-=======
         $this->files = array_combine(
             array_map(static fn (Metadata $metadata): string => $metadata->getPath(), $contents),
             $contents
         );
->>>>>>> v9.1
     }
 
     /**

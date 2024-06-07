@@ -66,8 +66,9 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
         }
 
         $center = $this->attachJSShowEvent($center);
+        $center = $this->attachJSRerenderEvent($center);
 
-        return $this->attachJSRerenderEvent($center);
+        return $center;
     }
 
     /**
@@ -82,7 +83,7 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
         $toggle_signal = $center->getToggleSignal();
         $url = ClientNotifications::NOTIFY_ENDPOINT . "?" . $this->buildShowQuery();
 
-        return $center->withAdditionalOnLoadCode(
+        $center = $center->withAdditionalOnLoadCode(
             function ($id) use ($toggle_signal, $url) {
                 return "
                 $(document).on('$toggle_signal', function(event, signalData) {
@@ -90,6 +91,8 @@ class NotificationCenterRenderer extends AbstractMetaBarItemRenderer implements 
                 });";
             }
         );
+
+        return $center;
     }
 
     /**

@@ -23,11 +23,8 @@ use PHPUnit\Framework\TestCase;
 
 class VersionTest extends TestCase
 {
-<<<<<<< HEAD
-=======
     protected Data\Factory $f;
 
->>>>>>> v9.1
     protected function setUp(): void
     {
         $this->f = new Data\Factory();

@@ -43,10 +43,6 @@ interface DirectoryWriteAccess
      *
      */
     public function createDir(string $path, string $visibility = Visibility::PUBLIC_ACCESS): void;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Copy all childes of the source recursive to the destination.

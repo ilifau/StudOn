@@ -54,7 +54,8 @@ class ToolItemRenderer extends BaseTypeRenderer
         $slate = $this->ui_factory->mainControls()->slate()->legacy($item->getTitle(), $symbol, $item->getContent());
 
         $slate = $this->addOnloadCode($slate, $item);
+        $slate = $this->applyDecorator($slate, $item);
 
-        return $this->applyDecorator($slate, $item);
+        return $slate;
     }
 }

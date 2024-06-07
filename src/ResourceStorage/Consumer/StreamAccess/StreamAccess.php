@@ -20,11 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Consumer\StreamAccess;
 
-<<<<<<< HEAD
-=======
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\ResourceStorage\Flavour\Flavour;
->>>>>>> v9.1
 use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
 
@@ -35,13 +32,6 @@ use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
 class StreamAccess
 {
     public const PHP_MEMORY = 'php://memory';
-<<<<<<< HEAD
-    /**
-     * @readonly
-     */
-    private TokenFactory $factory;
-=======
->>>>>>> v9.1
     private StorageHandlerFactory $storage_handler_factory;
 
     public function __construct(
@@ -49,20 +39,11 @@ class StreamAccess
         StorageHandlerFactory $storage_handler_factory
     ) {
         $this->storage_handler_factory = $storage_handler_factory;
-<<<<<<< HEAD
-        $this->factory = new TokenFactory($storage_base_path);
-=======
->>>>>>> v9.1
     }
 
     public function populateRevision(Revision $revision): Revision
     {
         $stream = $this->storage_handler_factory->getHandlerForRevision($revision)->getStream($revision);
-<<<<<<< HEAD
-        $token = $this->factory->lease($stream);
-
-        return $revision->withToken($token);
-=======
 
         return $revision->withStreamResolver(new StreamResolver($stream));
     }
@@ -76,6 +57,5 @@ class StreamAccess
             $index,
             new StreamResolver($file_stream)
         );
->>>>>>> v9.1
     }
 }

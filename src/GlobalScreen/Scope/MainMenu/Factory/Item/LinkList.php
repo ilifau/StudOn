@@ -84,7 +84,11 @@ class LinkList extends AbstractChildItem implements
         if (is_callable($links)) {
             try {
                 $r = new ReflectionFunction($links);
-                $links = $r->isGenerator() ? iterator_to_array($links()) : $links();
+                if ($r->isGenerator()) {
+                    $links = iterator_to_array($links());
+                } else {
+                    $links = $links();
+                }
             } catch (ReflectionException $e) {
                 $links = false;
             }

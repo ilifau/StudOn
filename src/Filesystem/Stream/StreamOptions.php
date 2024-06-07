@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Stream;
@@ -33,16 +30,6 @@ namespace ILIAS\Filesystem\Stream;
 final class StreamOptions
 {
     public const UNKNOWN_STREAM_SIZE = -1;
-<<<<<<< HEAD
-
-    private int $size;
-    /**
-     * @var string[] $metadata
-     */
-    private array $metadata;
-
-=======
->>>>>>> v9.1
 
     /**
      * StreamOptions constructor.
@@ -54,13 +41,6 @@ final class StreamOptions
     {
     }
 
-<<<<<<< HEAD
-
-    /**
-     * @return int
-     */
-=======
->>>>>>> v9.1
     public function getSize(): int
     {
         return $this->size;

@@ -28,12 +28,9 @@ use ILIAS\ResourceStorage\Consumer\InlineSrcBuilder;
 use ILIAS\ResourceStorage\Consumer\SrcBuilder;
 use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
 use ILIAS\ResourceStorage\Consumer\StreamAccess\TokenFactory;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Flavour\FlavourBuilder;
 use ILIAS\ResourceStorage\Flavour\Flavours;
 use ILIAS\ResourceStorage\Flavour\Machine\Factory;
->>>>>>> v9.1
 use ILIAS\ResourceStorage\Identification\UniqueIDCollectionIdentificationGenerator;
 use ILIAS\ResourceStorage\Lock\LockHandler;
 use ILIAS\ResourceStorage\Manager\Manager;
@@ -44,10 +41,7 @@ use ILIAS\ResourceStorage\Preloader\StandardRepositoryPreloader;
 use ILIAS\ResourceStorage\Resource\ResourceBuilder;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandler;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Events\Subject;
->>>>>>> v9.1
 
 /**
  * Class Services
@@ -60,34 +54,15 @@ class Services
     protected \ILIAS\ResourceStorage\Manager\Manager $manager;
     protected \ILIAS\ResourceStorage\Consumer\Consumers $consumers;
     protected \ILIAS\ResourceStorage\Collection\Collections $collections;
-<<<<<<< HEAD
-=======
     protected \ILIAS\ResourceStorage\Flavour\Flavours $flavours;
->>>>>>> v9.1
     protected \ILIAS\ResourceStorage\Preloader\RepositoryPreloader $preloader;
 
     /**
      * Services constructor.
-<<<<<<< HEAD
-     * @param StorageHandler $storage_handler_factory
-=======
->>>>>>> v9.1
      */
     public function __construct(
         StorageHandlerFactory $storage_handler_factory,
         Repositories $repositories,
-<<<<<<< HEAD
-        LockHandler $lock_handler,
-        FileNamePolicy $file_name_policy,
-        StreamAccess $stream_access,
-        SrcBuilder $src_builder = null,
-        RepositoryPreloader $preloader = null
-    ) {
-        $src_builder ??= new InlineSrcBuilder();
-        $stream_info_factory = new TokenFactory(
-            $storage_handler_factory->getBaseDir()
-        );
-=======
         Artifacts $artifacts,
         LockHandler $lock_handler,
         FileNamePolicy $file_name_policy,
@@ -98,7 +73,6 @@ class Services
     ) {
         $this->events = new Subject();
         $src_builder ??= new InlineSrcBuilder();
->>>>>>> v9.1
         $file_name_policy_stack = new FileNamePolicyStack();
         $file_name_policy_stack->addPolicy($file_name_policy);
         $resource_builder = new ResourceBuilder(
@@ -110,10 +84,7 @@ class Services
         );
         $collection_builder = new CollectionBuilder(
             $repositories->getCollectionRepository(),
-<<<<<<< HEAD
-=======
             $this->events,
->>>>>>> v9.1
             new UniqueIDCollectionIdentificationGenerator(),
             $lock_handler
         );
@@ -135,9 +106,6 @@ class Services
         $this->collections = new Collections(
             $resource_builder,
             $collection_builder,
-<<<<<<< HEAD
-            $this->preloader
-=======
             $this->preloader,
             $this->events
         );
@@ -153,7 +121,6 @@ class Services
         $this->flavours = new Flavours(
             $flavour_builder,
             $resource_builder
->>>>>>> v9.1
         );
     }
 
@@ -172,14 +139,11 @@ class Services
         return $this->collections;
     }
 
-<<<<<<< HEAD
-=======
     public function flavours(): Flavours
     {
         return $this->flavours;
     }
 
->>>>>>> v9.1
     public function preload(array $identification_strings): void
     {
         $this->preloader->preload($identification_strings);

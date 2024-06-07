@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../Base.php");
 
@@ -43,11 +35,7 @@ class LinkTest extends ILIAS_UI_TestBase
         return new I\Link\Factory();
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
 
@@ -58,11 +46,7 @@ class LinkTest extends ILIAS_UI_TestBase
         );
     }
 
-<<<<<<< HEAD
-    public function test_get_label(): void
-=======
     public function testGetLabel(): void
->>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
         $c = $f->standard("label", "http://www.ilias.de");
@@ -70,11 +54,7 @@ class LinkTest extends ILIAS_UI_TestBase
         $this->assertEquals("label", $c->getLabel());
     }
 
-<<<<<<< HEAD
-    public function test_get_action(): void
-=======
     public function testGetAction(): void
->>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
         $c = $f->standard("label", "http://www.ilias.de");
@@ -82,11 +62,7 @@ class LinkTest extends ILIAS_UI_TestBase
         $this->assertEquals("http://www.ilias.de", $c->getAction());
     }
 
-<<<<<<< HEAD
-    public function test_render_link(): void
-=======
     public function testRenderLink(): void
->>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
         $r = $this->getDefaultRenderer();
@@ -101,11 +77,7 @@ class LinkTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected_html, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_with_new_viewport(): void
-=======
     public function testRenderWithNewViewport(): void
->>>>>>> v9.1
     {
         $f = $this->getLinkFactory();
         $r = $this->getDefaultRenderer();

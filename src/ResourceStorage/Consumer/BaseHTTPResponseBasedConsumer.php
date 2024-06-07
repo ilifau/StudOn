@@ -20,10 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Consumer;
 
-<<<<<<< HEAD
-use ILIAS\HTTP\Response\ResponseHeader;
-=======
->>>>>>> v9.1
 use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
 use ILIAS\ResourceStorage\Policy\FileNamePolicy;
 use ILIAS\ResourceStorage\Resource\StorableResource;
@@ -37,10 +33,7 @@ abstract class BaseHTTPResponseBasedConsumer extends BaseConsumer implements Del
     // Firefox determines the content type from the file content anyway for some content.
     private const NON_VALID_EXTENSION_MIME = \ILIAS\FileUpload\MimeType::APPLICATION__OCTET_STREAM;
     private \ILIAS\HTTP\Services $http;
-<<<<<<< HEAD
-=======
     private \ILIAS\FileDelivery\Delivery\StreamDelivery $delivery;
->>>>>>> v9.1
 
     public function __construct(
         \ILIAS\HTTP\Services $http,
@@ -48,12 +41,8 @@ abstract class BaseHTTPResponseBasedConsumer extends BaseConsumer implements Del
         StreamAccess $stream_access,
         FileNamePolicy $file_name_policy
     ) {
-<<<<<<< HEAD
-        $this->http = $http;
-=======
         global $DIC;
         $this->delivery = $DIC->fileDelivery()->delivery();
->>>>>>> v9.1
         parent::__construct($resource, $stream_access, $file_name_policy);
     }
 
@@ -66,33 +55,6 @@ abstract class BaseHTTPResponseBasedConsumer extends BaseConsumer implements Del
         $extension = pathinfo($filename_with_extension, PATHINFO_EXTENSION);
         $file_name_for_consumer = $this->file_name_policy->prepareFileNameForConsumer($filename_with_extension);
 
-<<<<<<< HEAD
-        // Build Response
-        $response = $this->http->response();
-        if ($this->file_name_policy->isValidExtension($extension)) {
-            $response = $response->withHeader(ResponseHeader::CONTENT_TYPE, $revision->getInformation()->getMimeType());
-        } else {
-            $response = $response->withHeader(ResponseHeader::X_CONTENT_TYPE_OPTIONS, 'nosniff');
-            $response = $response->withHeader(ResponseHeader::CONTENT_TYPE, self::NON_VALID_EXTENSION_MIME);
-        }
-
-        $response = $response->withHeader(ResponseHeader::CONNECTION, 'close');
-        $response = $response->withHeader(ResponseHeader::ACCEPT_RANGES, 'none');
-        $response = $response->withHeader(
-            ResponseHeader::CONTENT_DISPOSITION,
-            $this->getDisposition()
-            . '; filename="'
-            . $file_name_for_consumer
-            . '"'
-        );
-        $revision = $this->stream_access->populateRevision($revision);
-
-        $response = $response->withBody($revision->maybeGetToken()->resolveStream());
-
-        $this->http->saveResponse($response);
-        $this->http->sendResponse();
-        $this->http->close();
-=======
         $mime_type = $this->file_name_policy->isValidExtension($extension)
             ? $revision->getInformation()->getMimeType()
             : self::NON_VALID_EXTENSION_MIME;
@@ -118,6 +80,5 @@ abstract class BaseHTTPResponseBasedConsumer extends BaseConsumer implements Del
             default:
                 throw new \InvalidArgumentException('Invalid disposition');
         }
->>>>>>> v9.1
     }
 }

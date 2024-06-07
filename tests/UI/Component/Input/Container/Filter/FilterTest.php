@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../Base.php");
 
 use ILIAS\UI\Implementation\Component as I;
@@ -109,10 +101,10 @@ class ConcreteFilter extends Filter
     }
 
     // TODO: DW perhaps, this can be removed
-    //    public function _getInput(ServerRequestInterface $request)
-    //    {
-    //        return $this->getInput($request);
-    //    }
+//    public function _getInput(ServerRequestInterface $request)
+//    {
+//        return $this->getInput($request);
+//    }
 }
 
 /**
@@ -182,11 +174,7 @@ class FilterTest extends ILIAS_UI_TestBase
         return new Data\Factory();
     }
 
-<<<<<<< HEAD
-    public function test_getInputs(): void
-=======
     public function testGetInputs(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -227,11 +215,7 @@ class FilterTest extends ILIAS_UI_TestBase
         }
     }
 
-<<<<<<< HEAD
-    public function test_extractParamData(): void
-=======
     public function testExtractParamData(): void
->>>>>>> v9.1
     {
         $filter = new ConcreteFilter(
             new SignalGenerator(),
@@ -256,11 +240,7 @@ class FilterTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(InputData::class, $input_data);
     }
 
-<<<<<<< HEAD
-    public function test_withRequest(): void
-=======
     public function testWithRequest(): void
->>>>>>> v9.1
     {
         $request = $this->createMock(ServerRequestInterface::class);
         $input_data = $this->createMock(InputData::class);
@@ -313,11 +293,7 @@ class FilterTest extends ILIAS_UI_TestBase
         $this->assertEquals([$input_1, $input_2], $filter2->getInputs());
     }
 
-<<<<<<< HEAD
-    public function test_getData(): void
-=======
     public function testGetData(): void
->>>>>>> v9.1
     {
         $df = $this->buildDataFactory();
         $request = $this->createMock(ServerRequestInterface::class);
@@ -365,11 +341,7 @@ class FilterTest extends ILIAS_UI_TestBase
         $this->assertEquals([1, 2], $filter->getData());
     }
 
-<<<<<<< HEAD
-    public function test_with_activated(): void
-=======
     public function testWithActivated(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -394,11 +366,7 @@ class FilterTest extends ILIAS_UI_TestBase
         $this->assertTrue($filter1->isActivated());
     }
 
-<<<<<<< HEAD
-    public function test_with_deactivated(): void
-=======
     public function testWithDeactivated(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -423,11 +391,7 @@ class FilterTest extends ILIAS_UI_TestBase
         $this->assertFalse($filter1->isActivated());
     }
 
-<<<<<<< HEAD
-    public function test_with_expanded(): void
-=======
     public function testWithExpanded(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -452,11 +416,7 @@ class FilterTest extends ILIAS_UI_TestBase
         $this->assertTrue($filter1->isExpanded());
     }
 
-<<<<<<< HEAD
-    public function test_with_collapsed(): void
-=======
     public function testWithCollapsed(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();

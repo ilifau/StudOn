@@ -1,10 +1,6 @@
 # Roadmap
 
 
-<<<<<<< HEAD
-The ROADMAP will be documentet here in this file after the service has been
-implemented in ILIAS 7.
-=======
 ## Short Term
 
 ### Store File-Structures in the IRSS
@@ -21,4 +17,3 @@ Currently no mid-term goals are planned.
 ## Long Term
 
 Currently no long-term goals are planned.
->>>>>>> v9.1

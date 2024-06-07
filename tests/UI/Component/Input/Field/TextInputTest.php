@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . "/../../../../../libs/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 require_once(__DIR__ . "/InputTest.php");
@@ -58,11 +50,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         );
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
 
@@ -72,11 +60,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(Field\Text::class, $text);
     }
 
-<<<<<<< HEAD
-    public function test_render(): void
-=======
     public function testRender(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -98,11 +82,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_error(): void
-=======
     public function testRenderError(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -126,11 +106,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_no_byline(): void
-=======
     public function testRenderNoByline(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -148,11 +124,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_value(): void
-=======
     public function testRenderValue(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -171,11 +143,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_value_0(): void
-=======
     public function testRenderValue0(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -194,11 +162,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_required(): void
-=======
     public function testRenderRequired(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -216,11 +180,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_render_disabled(): void
-=======
     public function testRenderDisabled(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -238,11 +198,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_max_length(): void
-=======
     public function testMaxLength(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
 
@@ -259,11 +215,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $text->withValue("12345");
     }
 
-<<<<<<< HEAD
-    public function test_render_max_value(): void
-=======
     public function testRenderMaxValue(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -281,11 +233,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertEquals($expected, $html);
     }
 
-<<<<<<< HEAD
-    public function test_value_required(): void
-=======
     public function testValueRequired(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $label = "label";
@@ -302,11 +250,7 @@ class TextInputTest extends ILIAS_UI_TestBase
         $this->assertTrue($value2->isError());
     }
 
-<<<<<<< HEAD
-    public function test_stripsTags(): void
-=======
     public function testStripsTags(): void
->>>>>>> v9.1
     {
         $f = $this->buildFactory();
         $name = "name_0";

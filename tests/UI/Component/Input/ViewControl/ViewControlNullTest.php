@@ -18,20 +18,17 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\ResourceStorage\Consumer\StreamAccess;
+use ILIAS\UI\Implementation\Component\Input\ViewControl as Control;
+use ILIAS\Data\Result;
+use ILIAS\UI\Implementation\Component\Input\InputData;
 
-/**
- * @author Fabian Schmid <fabian@sr.solutions>
- */
-trait Hasher
+require_once('ViewControlBaseTest.php');
+
+class ViewControlNullTest extends ViewControlBaseTest
 {
-    private function hash(string $string): string
+    public function testViewControlFieldNullRendering(): void
     {
-        return base64_encode($string);
-    }
-
-    private function unhash(string $string): string
-    {
-        return base64_decode($string);
+        $vc = $this->buildVCFactory()->nullControl();
+        $this->assertEquals('', $this->getDefaultRenderer()->render($vc));
     }
 }

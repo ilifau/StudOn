@@ -73,11 +73,7 @@ class NoSubmitFormTest extends \ILIAS_UI_TestBase
         parent::setUp();
     }
 
-<<<<<<< HEAD
-    public function test_render(): void
-=======
     public function testRender(): void
->>>>>>> v9.1
     {
         $post_url = 'http://ilias.localhost/some_url?param1=foo&param2=bar';
 
@@ -104,11 +100,7 @@ class NoSubmitFormTest extends \ILIAS_UI_TestBase
         );
     }
 
-<<<<<<< HEAD
-    public function test_render_with_required_inputs(): void
-=======
     public function testRenderWithRequiredInputs(): void
->>>>>>> v9.1
     {
         $post_url = 'http://ilias.localhost/some_url?param1=foo&param2=bar';
         $required_lang_var = 'required_field';
@@ -137,11 +129,7 @@ class NoSubmitFormTest extends \ILIAS_UI_TestBase
         );
     }
 
-<<<<<<< HEAD
-    public function test_render_with_error(): void
-=======
     public function testRenderWithError(): void
->>>>>>> v9.1
     {
         $post_url = 'http://ilias.localhost/some_url?param1=foo&param2=bar';
         $error_lang_var = 'ui_error_in_group';

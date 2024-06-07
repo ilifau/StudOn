@@ -1,9 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -20,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 require_once(__DIR__ . '/../../../../libs/composer/vendor/autoload.php');
 require_once(__DIR__ . '/../../Base.php');
 
@@ -41,11 +34,7 @@ class ItemShyTest extends ILIAS_UI_TestBase
         return new I\Component\Item\Factory();
     }
 
-<<<<<<< HEAD
-    public function test_implements_factory_interface(): void
-=======
     public function testImplementsFactoryInterface(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
 
@@ -54,44 +43,28 @@ class ItemShyTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf('ILIAS\\UI\\Component\\Item\\Shy', $shy);
     }
 
-<<<<<<< HEAD
-    public function test_with_description(): void
-=======
     public function testWithDescription(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $c = $f->shy('shy')->withDescription('This is a shy');
         $this->assertEquals('This is a shy', $c->getDescription());
     }
 
-<<<<<<< HEAD
-    public function test_with_property(): void
-=======
     public function testWithProperty(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $c = $f->shy('shy')->withProperties(['name' => 'value']);
         $this->assertEquals(['name' => 'value'], $c->getProperties());
     }
 
-<<<<<<< HEAD
-    public function test_with_close(): void
-=======
     public function testWithClose(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $c = $f->shy('shy')->withClose((new I\Component\Button\Factory())->close());
         $this->assertInstanceOf(I\Component\Button\Close::class, $c->getClose());
     }
 
-<<<<<<< HEAD
-    public function test_with_lead_icon(): void
-=======
     public function testWithLeadIcon(): void
->>>>>>> v9.1
     {
         $f = $this->getFactory();
         $c = $f->shy('shy')->withLeadIcon(
@@ -100,11 +73,7 @@ class ItemShyTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf(I\Component\Symbol\Icon\Icon::class, $c->getLeadIcon());
     }
 
-<<<<<<< HEAD
-    public function test_render_base(): void
-=======
     public function testRenderBase(): void
->>>>>>> v9.1
     {
         $c = $this->getFactory()->shy('shy');
 
@@ -122,11 +91,7 @@ EOT;
         );
     }
 
-<<<<<<< HEAD
-    public function test_render_critical(): void
-=======
     public function testRenderCritical(): void
->>>>>>> v9.1
     {
         $c = $this->getFactory()->shy('noid"><script>alert(\'CRITICAL\')</script');
 
@@ -144,11 +109,7 @@ EOT;
         );
     }
 
-<<<<<<< HEAD
-    public function test_render_with_description(): void
-=======
     public function testRenderWithDescription(): void
->>>>>>> v9.1
     {
         $c = $this->getFactory()->shy('shy')->withDescription('This is a shy');
 
@@ -167,11 +128,7 @@ EOT;
         );
     }
 
-<<<<<<< HEAD
-    public function test_render_with_property(): void
-=======
     public function testRenderWithProperty(): void
->>>>>>> v9.1
     {
         $c = $this->getFactory()->shy('shy')->withProperties(['name' => 'value']);
 
@@ -195,11 +152,7 @@ EOT;
     }
 
 
-<<<<<<< HEAD
-    public function test_render_with_lead_icon(): void
-=======
     public function testRenderWithLeadIcon(): void
->>>>>>> v9.1
     {
         $c = $this->getFactory()->shy('shy')->withLeadIcon(
             new I\Component\Symbol\Icon\Standard('name', 'aria_label', 'small', false)
@@ -220,11 +173,7 @@ EOT;
         );
     }
 
-<<<<<<< HEAD
-    public function test_render_with_close(): void
-=======
     public function testRenderWithClose(): void
->>>>>>> v9.1
     {
         $c = $this->getFactory()->shy('shy')->withClose(new I\Component\Button\Close());
 

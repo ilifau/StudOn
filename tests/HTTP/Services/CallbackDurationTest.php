@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-<?php declare(strict_types=1);
-=======
 <?php
 
 declare(strict_types=1);
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -31,10 +27,6 @@ use ILIAS\HTTP\Duration\CallbackDuration;
  */
 class CallbackDurationTest extends TestCase
 {
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 //    // there isn't a good way to test the shutdown-function with PHPUnit (yet?).
 //    public function testCallbackStretchingWithExit() : void
 //    {
@@ -46,11 +38,7 @@ class CallbackDurationTest extends TestCase
 //        $duration->stretch($callback);
 //    }
 
-<<<<<<< HEAD
-    public function testCallbackStretchingWithTooLongExecutionTime() : void
-=======
     public function testCallbackStretchingWithTooLongExecutionTime(): void
->>>>>>> v9.1
     {
         $callback = $this->getTestCallbackWithLength(2);
         $duration = new CallbackDuration(1);
@@ -60,11 +48,7 @@ class CallbackDurationTest extends TestCase
         $duration->stretch($callback);
     }
 
-<<<<<<< HEAD
-    public function testCallbackStretching() : void
-=======
     public function testCallbackStretching(): void
->>>>>>> v9.1
     {
         $callback = $this->getTestCallbackWithLength(1);
         $duration = new CallbackDuration(3);
@@ -79,11 +63,7 @@ class CallbackDurationTest extends TestCase
         $this->assertGreaterThanOrEqual($expected_duration_in_us, ($end_time - $start_time));
     }
 
-<<<<<<< HEAD
-    protected function getTestCallbackWithLength(int $duration_in_ms, bool $should_halt = false) : callable
-=======
     protected function getTestCallbackWithLength(int $duration_in_ms, bool $should_halt = false): callable
->>>>>>> v9.1
     {
         return static function () use ($duration_in_ms, $should_halt) {
             usleep(1_000 * $duration_in_ms);

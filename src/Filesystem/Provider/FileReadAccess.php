@@ -40,10 +40,6 @@ interface FileReadAccess
      *
      */
     public function read(string $path): string;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Checks whether a file exists.
@@ -66,10 +62,6 @@ interface FileReadAccess
      * @throws IOException              If the mime-type could not be determined.
      */
     public function getMimeType(string $path): string;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Get the timestamp of the file.
@@ -83,10 +75,6 @@ interface FileReadAccess
      *
      */
     public function getTimestamp(string $path): \DateTimeImmutable;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Get the size of a file.
@@ -101,11 +89,7 @@ interface FileReadAccess
      *
      * @see     DataSize
      */
-<<<<<<< HEAD
-    public function getSize(string $path, int $fileSizeUnit): DataSize;
-=======
     public function getSize(string $path, int $unit): DataSize;
->>>>>>> v9.1
 
     /**
      * Sets the visibility for a file.
@@ -123,10 +107,6 @@ interface FileReadAccess
      *
      */
     public function setVisibility(string $path, string $visibility): bool;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Get the file visibility.

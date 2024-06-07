@@ -144,21 +144,13 @@ class InputTest extends ILIAS_UI_TestBase
         $this->name_source = new DefNamesource();
     }
 
-<<<<<<< HEAD
-    public function test_constructor(): void
-=======
     public function testConstructor(): void
->>>>>>> v9.1
     {
         $this->assertEquals("label", $this->input->getLabel());
         $this->assertEquals("byline", $this->input->getByline());
     }
 
-<<<<<<< HEAD
-    public function test_withLabel(): void
-=======
     public function testWithLabel(): void
->>>>>>> v9.1
     {
         $label = "new label";
         $input = $this->input->withLabel($label);
@@ -166,11 +158,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertNotSame($this->input, $input);
     }
 
-<<<<<<< HEAD
-    public function test_withByline(): void
-=======
     public function testWithByline(): void
->>>>>>> v9.1
     {
         $byline = "new byline";
         $input = $this->input->withByline($byline);
@@ -178,11 +166,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertNotSame($this->input, $input);
     }
 
-<<<<<<< HEAD
-    public function test_withRequired(): void
-=======
     public function testWithRequired(): void
->>>>>>> v9.1
     {
         $this->assertFalse($this->input->isRequired());
         $input = $this->input->withRequired(true);
@@ -191,11 +175,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertFalse($input->isRequired());
     }
 
-<<<<<<< HEAD
-    public function test_withRequired_and_custom_constraint(): void
-=======
     public function testWithRequiredAndCustomConstraint(): void
->>>>>>> v9.1
     {
         $custom_constraint = $this->refinery->custom()->constraint(
             function ($value) {
@@ -208,11 +188,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($input->requirement_constraint, $custom_constraint);
     }
 
-<<<<<<< HEAD
-    public function test_withDisabled(): void
-=======
     public function testWithDisabled(): void
->>>>>>> v9.1
     {
         $this->assertFalse($this->input->isDisabled());
         $input = $this->input->withDisabled(true);
@@ -221,11 +197,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertFalse($input->isDisabled());
     }
 
-<<<<<<< HEAD
-    public function test_withValue(): void
-=======
     public function testWithValue(): void
->>>>>>> v9.1
     {
         $value = "some value";
         $input = $this->input->withValue($value);
@@ -234,11 +206,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertNotSame($this->input, $input);
     }
 
-<<<<<<< HEAD
-    public function test_withValue_throws(): void
-=======
     public function testWithValueThrows(): void
->>>>>>> v9.1
     {
         $this->input->value_ok = false;
         $raised = false;
@@ -252,11 +220,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals(null, $this->input->getValue());
     }
 
-<<<<<<< HEAD
-    public function test_withName(): void
-=======
     public function testWithName(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $input = $this->input->withNameFrom($this->name_source);
@@ -266,11 +230,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals(1, $this->name_source->count);
     }
 
-<<<<<<< HEAD
-    public function test_withNameForNamedInput(): void
-=======
     public function testWithNameForNamedInput(): void
->>>>>>> v9.1
     {
         $name = "dedicated_name_0";
         $input = $this->named_input->withNameFrom($this->name_source);
@@ -280,11 +240,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals(1, $this->name_source->count);
     }
 
-<<<<<<< HEAD
-    public function test_withError(): void
-=======
     public function testWithError(): void
->>>>>>> v9.1
     {
         $error = "error";
         $input = $this->input->withError($error);
@@ -293,22 +249,14 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertNotSame($this->input, $input);
     }
 
-<<<<<<< HEAD
-    public function test_getContent(): void
-=======
     public function testGetContent(): void
->>>>>>> v9.1
     {
         $this->expectException(LogicException::class);
 
         $this->input->getContent();
     }
 
-<<<<<<< HEAD
-    public function test_withInput(): void
-=======
     public function testWithInput(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "valu";
@@ -326,11 +274,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($value, $input2->getValue());
     }
 
-<<<<<<< HEAD
-    public function test_only_run_withInput_with_name(): void
-=======
     public function testOnlyRunWithInputWithName(): void
->>>>>>> v9.1
     {
         $raised = false;
         try {
@@ -342,11 +286,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertTrue($raised);
     }
 
-<<<<<<< HEAD
-    public function test_withInput_and_transformation(): void
-=======
     public function testWithInputAndTransformation(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";
@@ -371,11 +311,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($value, $input2->getValue());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_and_transformation_different_order(): void
-=======
     public function testWithInputAndTransformationDifferentOrder(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";
@@ -400,11 +336,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($value, $input2->getValue());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_and_constraint_successfull(): void
-=======
     public function testWithInputAndConstraintSuccessfull(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";
@@ -426,11 +358,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals(null, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_and_constraint_fails(): void
-=======
     public function testWithInputAndConstraintFails(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";
@@ -452,11 +380,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($error, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_and_constraint_fails_different_order(): void
-=======
     public function testWithInputAndConstraintFailsDifferentOrder(): void
->>>>>>> v9.1
     {
         $rc = $this->refinery->custom();
 
@@ -483,11 +407,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($error, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_transformation_and_constraint(): void
-=======
     public function testWithInputTransformationAndConstraint(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";
@@ -519,11 +439,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals(null, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_transformation_and_constraint_different_order(): void
-=======
     public function testWithInputTransformationAndConstraintDifferentOrder(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";
@@ -555,11 +471,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals(null, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_constraint_and_transformation(): void
-=======
     public function testWithInputConstraintAndTransformation(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";
@@ -591,11 +503,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals(null, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_constraint_fails_and_transformation(): void
-=======
     public function testWithInputConstraintFailsAndTransformation(): void
->>>>>>> v9.1
     {
         $rc = $this->refinery->custom();
 
@@ -628,11 +536,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($error, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_constraint_fails_and_transformation_different_order(): void
-=======
     public function testWithInputConstraintFailsAndTransformationDifferentOrder(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";
@@ -664,11 +568,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($error, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_requirement_constraint(): void
-=======
     public function testWithInputRequirementConstraint(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "Adam";
@@ -688,11 +588,7 @@ class InputTest extends ILIAS_UI_TestBase
         $this->assertEquals($error, $input2->getError());
     }
 
-<<<<<<< HEAD
-    public function test_withInput_toggle_requirement(): void
-=======
     public function testWithInputToggleRequirement(): void
->>>>>>> v9.1
     {
         $name = "name_0";
         $value = "value";

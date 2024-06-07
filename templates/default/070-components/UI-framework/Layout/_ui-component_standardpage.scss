@@ -15,15 +15,12 @@ $il-standard-page-zindex-mainbar-slates: $il-standard-page-zindex-mainbar - 1;
 $il-standard-page-zindex-breadcrumbs: $il-standard-page-zindex-mainbar-slates - 1;
 $il-standard-page-zindex-systeminfo: $il-standard-page-zindex-header - 1;
 
-<<<<<<< HEAD:src/UI/templates/default/Layout/standardpage.less
-=======
 /*
 *********************
 grid-based layout
 *********************
 */
 
->>>>>>> v9.1:templates/default/070-components/UI-framework/Layout/_ui-component_standardpage.scss
 // main grid without slates
 .il-layout-page {
 	background: $il-main-bg;
@@ -485,11 +482,7 @@ footer {
 	}
 
 	footer {
-<<<<<<< HEAD:src/UI/templates/default/Layout/standardpage.less
-		margin-bottom: @il-footer-margin-bottom;
-=======
 		margin-bottom: $il-footer-margin-bottom;
->>>>>>> v9.1:templates/default/070-components/UI-framework/Layout/_ui-component_standardpage.scss
 	}
 }
 

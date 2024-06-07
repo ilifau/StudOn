@@ -1,25 +1,17 @@
-<<<<<<<< HEAD:.github/workflows/install-check-release_8-8.0.yml
-name: install-check-release_8-8.0
-========
 name: install-check-trunk-8.1
->>>>>>>> v9.1:.github/workflows/install-check-trunk-8.1.yml
 on:
   schedule:
     - cron: "0 12 * * *"
   workflow_dispatch:
 jobs:
   installation:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       all: ${{ steps.changes.outputs.all }}
     strategy:
       fail-fast: false
       matrix:
-<<<<<<<< HEAD:.github/workflows/install-check-release_8-8.0.yml
-        php: [8.0]
-========
         php: [8.1]
->>>>>>>> v9.1:.github/workflows/install-check-trunk-8.1.yml
     env:
       DB_DATABASE: ilias
       DB_USER: root
@@ -28,11 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: release_8
-
-      - name: Copy config file to location outside webroot
-        run: |
-           cp CI/install-check/ilias-ci-config.json ../ilias-ci-config.json
+          ref: trunk
 
       - name: Copy config file to location outside webroot
         run: |
@@ -50,16 +38,11 @@ jobs:
           tools: composer:v2
           coverage: none
 
-<<<<<<<< HEAD:.github/workflows/install-check-release_8-8.0.yml
-      - name: Install dependencies
-        run: composer install --no-interaction --no-progress --no-dev
-========
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --no-dev
 
       - name: Install Node dependencies
         run: npm clean-install --omit-dev --ignore-scripts
->>>>>>>> v9.1:.github/workflows/install-check-trunk-8.1.yml
 
       - name: Perform setup
         run: |

@@ -41,15 +41,9 @@ use ILIAS\HTTP\Duration\DurationFactory;
  */
 interface GlobalHttpState
 {
-<<<<<<< HEAD
-    public function durations() : DurationFactory;
-
-    public function wrapper() : WrapperFactory;
-=======
     public function durations(): DurationFactory;
 
     public function wrapper(): WrapperFactory;
->>>>>>> v9.1
 
     /**
      * Returns the current psr-7 server request.

@@ -232,17 +232,9 @@ class DataTest extends TableTestBase
         $storage[$internal_table_id] = $table_data;
 
         $table = new class ($storage) extends C\Table\Data {
-<<<<<<< HEAD
-            protected \ArrayAccess $storage;
-            public function __construct(
-                \ArrayAccess $storage
-            ) {
-                $this->storage = $storage;
-=======
             public function __construct(
                 protected \ArrayAccess $storage,
             ) {
->>>>>>> v9.1
             }
             public function mockGetStorageData(): ?array
             {

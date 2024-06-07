@@ -1,7 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-=======
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +16,6 @@
  *
  *********************************************************************/
 
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\Filesystem\Provider\FlySystem;
@@ -30,14 +27,7 @@ namespace ILIAS\Filesystem\Provider\FlySystem;
  */
 class Util // extends \League\Flysystem\Util
 {
-<<<<<<< HEAD
-    /**
-     * @param string $path
-     */
-    public static function normalizeRelativePath($path): string
-=======
     public static function normalizeRelativePath(string $path): string
->>>>>>> v9.1
     {
         $path = preg_replace("#\\\\(?!['\\\])#m", '/', $path); // this only replaces backslashes
         $path = preg_replace('#\p{C}+#u', '', $path);

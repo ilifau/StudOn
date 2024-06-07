@@ -18,11 +18,8 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD:Services/TermsOfService/exceptions/class.ilTermsOfServiceCriterionTypeNotFoundException.php
-=======
 namespace ILIAS\Cache\Container;
 
->>>>>>> v9.1:src/Cache/Container/Request.php
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */

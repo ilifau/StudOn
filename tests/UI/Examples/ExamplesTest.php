@@ -143,11 +143,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
         return $crawler->crawlFactory($this->path_to_base_factory);
     }
 
-<<<<<<< HEAD
-    public function provideExampleFullFunctionNamesAndPath(): array
-=======
     public function getFullFunctionNamesAndPathExample(): array
->>>>>>> v9.1
     {
         $function_names = [];
         foreach ($this->getEntriesFromCrawler() as $entry) {
@@ -177,11 +173,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
         }
     }
 
-<<<<<<< HEAD
-    public function provideListOfFullscreenExamples(): array
-=======
     public function getListOfFullscreenExamples(): array
->>>>>>> v9.1
     {
         return [
             ['ILIAS\UI\examples\MainControls\Footer\renderFooterInFullscreenMode', "src/UI/examples/MainControls/Footer/footer.php"],

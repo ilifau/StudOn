@@ -26,10 +26,7 @@ use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Preloader\RepositoryPreloader;
 use ILIAS\ResourceStorage\Resource\ResourceBuilder;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
-<<<<<<< HEAD
-=======
 use ILIAS\ResourceStorage\Events\Subject;
->>>>>>> v9.1
 
 /**
  * Class Collections
@@ -40,10 +37,7 @@ use ILIAS\ResourceStorage\Events\Subject;
 class Collections
 {
     private array $cache = [];
-<<<<<<< HEAD
-=======
     private array $rid_cache = [];
->>>>>>> v9.1
     private ResourceBuilder $resource_builder;
     private CollectionBuilder $collection_builder;
     private RepositoryPreloader $preloader;
@@ -54,12 +48,8 @@ class Collections
     public function __construct(
         ResourceBuilder $resource_builder,
         CollectionBuilder $collection_builder,
-<<<<<<< HEAD
-        RepositoryPreloader $preloader
-=======
         RepositoryPreloader $preloader,
         private Subject $events
->>>>>>> v9.1
     ) {
         $this->resource_builder = $resource_builder;
         $this->collection_builder = $collection_builder;
@@ -107,16 +97,6 @@ class Collections
         ResourceCollectionIdentification $identification,
         ?int $owner = null
     ): ResourceCollection {
-<<<<<<< HEAD
-        $collection = $this->cache[$identification->serialize()]
-            ?? $this->collection_builder->get(
-                $identification,
-                $owner
-            );
-
-        $preload = [];
-        foreach ($this->collection_builder->getResourceIds($identification) as $resource_identification) {
-=======
         $rcid = $identification->serialize();
 
         $collection = $this->cache[$rcid] ?? $this->collection_builder->get(
@@ -135,32 +115,21 @@ class Collections
         $collection->clear();
 
         foreach ($rids as $resource_identification) {
->>>>>>> v9.1
             if ($this->resource_builder->has($resource_identification)) {
                 $collection->add($resource_identification);
                 $preload[] = $resource_identification;
             }
-<<<<<<< HEAD
-        }
-        $this->preloader->preload($preload);
-
-        return $this->cache[$identification->serialize()] = $collection;
-=======
             $this->rid_cache[$rcid][] = $resource_identification;
         }
         $this->preloader->preload($preload);
 
         return $this->cache[$rcid] = $collection;
->>>>>>> v9.1
     }
 
     public function store(ResourceCollection $collection): bool
     {
-<<<<<<< HEAD
-=======
         $this->cache[$collection->getIdentification()->serialize()] = $collection;
 
->>>>>>> v9.1
         return $this->collection_builder->store($collection);
     }
 
@@ -192,11 +161,8 @@ class Collections
                 $this->resource_builder->remove($resource, $stakeholder);
             }
         }
-<<<<<<< HEAD
-=======
         unset($this->cache[$collection_id->serialize()]);
 
->>>>>>> v9.1
         return $this->collection_builder->delete($collection_id);
     }
 

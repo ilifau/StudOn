@@ -42,10 +42,6 @@ interface FilenameSanitizer
      *
      */
     public function isClean(string $filename): bool;
-<<<<<<< HEAD
-
-=======
->>>>>>> v9.1
 
     /**
      * Validates the file ending, with the filesystem whitelist provided by ILIAS.
