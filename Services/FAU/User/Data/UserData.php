@@ -59,7 +59,7 @@ class UserData extends RecordData
         $this->firstname = $firstname;
         $this->lastname = $lastname;
         $this->gender = $gender;
-        $this->email = $email;
+        $this->mail = $email;
         $this->matriculation = $matriculation;
         $this->ext_account = $ext_account;
         $this->idle_ext_account = $idle_ext_account;
@@ -115,7 +115,7 @@ class UserData extends RecordData
      */
     public function getEmail() : ?string
     {
-        return $this->email;
+        return $this->mail;
     }
 
     /**
