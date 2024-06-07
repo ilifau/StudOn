@@ -31,8 +31,6 @@ use ILIAS\UI\Renderer as UIRenderer;
 
 class ilParticipantsTestResultsTableGUI extends ilTable2GUI
 {
-    private UIServices $ui;
-
     protected bool $accessResultsCommandsEnabled = false;
     protected bool $manageResultsCommandsEnabled = false;
 

@@ -689,8 +689,6 @@ interface Factory
      * @return \ILIAS\UI\Component\Input\Field\Hidden
      */
     public function hidden(): Hidden;
-<<<<<<< HEAD
-=======
 
     /**
      * ---
@@ -758,5 +756,4 @@ interface Factory
      * @return \ILIAS\UI\Component\Input\Field\Markdown
      */
     public function markdown(MarkdownRenderer $md_renderer, string $label, string $byline = null): Markdown;
->>>>>>> v9.1
 }

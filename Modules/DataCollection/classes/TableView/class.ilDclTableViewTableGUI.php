@@ -23,9 +23,6 @@ class ilDclTableViewTableGUI extends ilTable2GUI
     protected ilDclTable $table;
 
     protected \ILIAS\UI\Renderer $renderer;
-    protected \ILIAS\UI\Factory $factory;
-
-    protected \ILIAS\UI\Renderer $renderer;
     protected \ILIAS\UI\Factory $ui_factory;
 
     public function __construct(object $a_parent_obj, string $a_parent_cmd, ilDclTable $table, int $ref_id)

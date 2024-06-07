@@ -130,11 +130,4 @@ final class IliasDBEmployeeTalkSeriesRepository
             'editing_locked' => ['integer', (int) $settings_dto->isLockedEditing()],
         ];
     }
-
-    public function deleteEmployeeTalkSerieSettings(int $obj_id): void
-    {
-        /** @var EmployeeTalkSerieSettings $activeRecord */
-        $activeRecord = EmployeeTalkSerieSettings::findOrGetInstance($obj_id);
-        $activeRecord->delete();
-    }
 }

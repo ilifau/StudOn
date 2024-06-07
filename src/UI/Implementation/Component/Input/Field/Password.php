@@ -87,11 +87,7 @@ class Password extends FormInput implements C\Input\Field\Password, Triggerable
         bool $upper = true,
         bool $numbers = true,
         bool $special = true
-<<<<<<< HEAD
-    ): C\Input\Field\Input {
-=======
     ): self {
->>>>>>> v9.1
         $pw_validation = $this->refinery->password();
         $constraints = [
             $this->refinery->string()->hasMinLength($min_length),

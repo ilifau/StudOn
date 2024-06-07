@@ -69,6 +69,7 @@ class ilAssOrderingImagesInputGUI extends ilMultipleImagesInputGUI
 
     /**
      * @param integer $questionId
+     * @return ilAssOrderingElementList
      */
     public function getElementList($questionId): ilAssOrderingElementList
     {

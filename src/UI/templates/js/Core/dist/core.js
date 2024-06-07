@@ -12,11 +12,6 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  */
-<<<<<<< HEAD
-
-var il = il || {};
-=======
->>>>>>> v9.1
 (function (il, $) {
     'use strict';
 
@@ -64,8 +59,6 @@ var il = il || {};
     };
 
     /**
-<<<<<<< HEAD
-=======
      * This represents one tooltip on the page.
      */
     class Tooltip {
@@ -281,7 +274,6 @@ var il = il || {};
     }
 
     /**
->>>>>>> v9.1
      * This file is part of ILIAS, a powerful learning management system
      * published by ILIAS open source e-Learning e.V.
      *
@@ -556,14 +548,7 @@ var il = il || {};
         this.#parameters.set(parameter, value ?? '');
         this.#tokens.set(parameter, newToken);
 
-<<<<<<< HEAD
-        return {
-          url: this,
-          token: newToken,
-        };
-=======
         return [this, newToken];
->>>>>>> v9.1
       }
 
       /**
@@ -644,10 +629,7 @@ var il = il || {};
     il__default["default"].UI.core = il__default["default"].UI.core || {};
 
     il__default["default"].UI.core.replaceContent = replaceContent($__default["default"]);
-<<<<<<< HEAD
-=======
     il__default["default"].UI.core.Tooltip = Tooltip;
->>>>>>> v9.1
     il__default["default"].UI.core.URLBuilder = URLBuilder;
     il__default["default"].UI.core.URLBuilderToken = URLBuilderToken;
 

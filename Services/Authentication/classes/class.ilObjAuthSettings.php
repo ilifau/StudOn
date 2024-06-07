@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
 * @author Sascha Hofmann <saschahofmann@gmx.de>
 */

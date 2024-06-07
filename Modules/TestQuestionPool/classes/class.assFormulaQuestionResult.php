@@ -680,7 +680,7 @@ class assFormulaQuestionResult
 
     public function setPoints(float $points): void
     {
-        $this->points = (float) str_replace(",", ".", $points);
+        $this->points = $points;
     }
 
     public function getPoints(): float

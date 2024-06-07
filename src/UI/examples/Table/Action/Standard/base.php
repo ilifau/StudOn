@@ -56,11 +56,7 @@ function base()
     $query = $DIC->http()->wrapper()->query();
     if ($query->has($action_token->getName())) {
         $action = $query->retrieve($action_token->getName(), $refinery->to()->string());
-<<<<<<< HEAD
-        $ids = $query->retrieve($id_token->getName(), $refinery->custom()->transformation(fn ($v) => $v));
-=======
         $ids = $query->retrieve($id_token->getName(), $refinery->custom()->transformation(fn($v) => $v));
->>>>>>> v9.1
 
         if ($action === 'do_something_else') {
             $items = [];

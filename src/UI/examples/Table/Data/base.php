@@ -130,23 +130,10 @@ function base()
      * Those parameters are being provided to DataRetrieval::getRows.
      */
     $data_retrieval = new class ($f, $r) implements I\DataRetrieval {
-<<<<<<< HEAD
-        
-        protected \ILIAS\UI\Factory $ui_factory;
-        protected \ILIAS\UI\Renderer $ui_renderer;
-
-        public function __construct(
-            \ILIAS\UI\Factory $ui_factory,
-            \ILIAS\UI\Renderer $ui_renderer
-        ) {
-         $this->ui_factory = $ui_factory;
-         $this->ui_renderer = $ui_renderer;
-=======
         public function __construct(
             protected \ILIAS\UI\Factory $ui_factory,
             protected \ILIAS\UI\Renderer $ui_renderer
         ) {
->>>>>>> v9.1
         }
 
         public function getRows(
@@ -217,13 +204,8 @@ function base()
                 ]
             ];
             if ($order) {
-<<<<<<< HEAD
-                list($order_field, $order_direction) = $order->join([], fn ($ret, $key, $value) => [$key, $value]);
-                usort($records, fn ($a, $b) => $a[$order_field] <=> $b[$order_field]);
-=======
                 list($order_field, $order_direction) = $order->join([], fn($ret, $key, $value) => [$key, $value]);
                 usort($records, fn($a, $b) => $a[$order_field] <=> $b[$order_field]);
->>>>>>> v9.1
                 if ($order_direction === 'DESC') {
                     $records = array_reverse($records);
                 }
@@ -260,11 +242,7 @@ function base()
     if ($query->has($action_parameter_token->getName())) {
         $action = $query->retrieve($action_parameter_token->getName(), $refinery->to()->string());
         /** also get the row-ids and build some listing */
-<<<<<<< HEAD
-        $ids = $query->retrieve($row_id_token->getName(), $refinery->custom()->transformation(fn ($v) => $v));
-=======
         $ids = $query->retrieve($row_id_token->getName(), $refinery->custom()->transformation(fn($v) => $v));
->>>>>>> v9.1
         $listing = $f->listing()->characteristicValue()->text([
             'table_action' => $action,
             'id' => print_r($ids, true),
@@ -274,14 +252,7 @@ function base()
         if ($action === 'delete') {
             $items = [];
             foreach ($ids as $id) {
-<<<<<<< HEAD
-                $items[] = $f->modal()->interruptiveItem(
-                    $id,
-                    $row_id_token->getName() . ' - ' . $id
-                );
-=======
                 $items[] = $f->modal()->interruptiveItem()->keyValue($id, $row_id_token->getName(), $id);
->>>>>>> v9.1
             }
             echo($r->renderAsync([
                 $f->modal()->interruptive(
@@ -289,11 +260,7 @@ function base()
                     'You are about to delete items!',
                     '#'
                 )->withAffectedItems($items)
-<<<<<<< HEAD
-                ->withAdditionalOnLoadCode(static fn ($id): string => "console.log('ASYNC JS');")
-=======
                 ->withAdditionalOnLoadCode(static fn($id): string => "console.log('ASYNC JS');")
->>>>>>> v9.1
             ]));
             exit();
         }

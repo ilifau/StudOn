@@ -37,15 +37,7 @@ if ($request_wrapper->has('new_ui')
     exit();
 }
 
-<<<<<<< HEAD
-if (isset($request_wrapper) && isset($refinery) && $request_wrapper->has('new_ui') && $request_wrapper->retrieve('new_ui', $refinery->kindlyTo()->string()) == '1') {
-    echo renderFooterInFullscreenMode($DIC);
-}
-
-function renderFooterInFullscreenMode(Container $dic): string
-=======
 function renderFullDemoPage(\ILIAS\DI\Container $dic)
->>>>>>> v9.1
 {
     $refinery = $dic->refinery();
     $request_wrapper = $dic->http()->wrapper()->query();

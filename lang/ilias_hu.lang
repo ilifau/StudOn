@@ -599,8 +599,6 @@ assessment#:#counter#:#Számláló
 assessment#:#create_date#:#Létrehozva
 assessment#:#create_gaps#:#Kitöltendő helyek létrehozása és frissítése
 assessment#:#create_new#:#új létrehozása
-assessment#:#ctm_cannot_be_changed#:#Ez a teszt CTM módban van. A beállítások nem módosíthatók a CTM elhagyása után.
-assessment#:#ctm_cannot_be_started#:#Ez a teszt CTM módban van. A teszt nem indítható a CTM elhagyása után.
 assessment#:#customstyle#:#Egyéni stílus
 assessment#:#dashboard_tab#:#Résztvevők
 assessment#:#definition#:#Definíció
@@ -2974,7 +2972,6 @@ chatroom#:#connection_url_info#:#Adja meg a szerverhez kapcsolódás URL-jét.
 chatroom#:#custom_username#:#Egyéni felhasználónév
 chatroom#:#dhparam#:#Diffie-Hellman paraméter
 chatroom#:#display_past_msgs#:#Elküldött üzenetek száma
-chatroom#:#display_past_msgs_suffix#:#Üzenetek
 chatroom#:#duration_from#:#Innen:
 chatroom#:#duration_to#:#Ide:
 chatroom#:#end_whisper#:#Mégsem
@@ -3184,8 +3181,6 @@ cmix#:#conf_privacy_setting_default#:#Alapértelmezett beállítások, módosít
 cmix#:#conf_privacy_setting_force#:#Az objektumok beállításai nem módosíthatók
 cmix#:#conf_privacy_setting_info#:#Konfigurációs beállítások az adatvédelmi beállításokhoz
 cmix#:#conf_remarks#:#Belső észrevételek
-cmix#:#conf_switch_to_review#:#Switch to Review Mode###XXX
-cmix#:#conf_switch_to_review_info#:#After the cmi5 learning module has been successfully processed (status satisfied), the learning module is started in review mode the next time it is called up.
 cmix#:#conf_title#:#Cím
 cmix#:#conf_use_proxy#:#xAPI-Proxy###30 04 2024 new variable
 cmix#:#conf_use_proxy_info#:#The xAPI proxy provides real-time data to determine learning progress in ILIAS. The proxy reduces personal data in accordance with the selected data protection options. If the xAPI proxy is deactivated, the learning content writes the learning progress directly to the LRS. This data must then also be retrieved directly from the LRS. The cron job "xAPI/cmi5 get results" is required to determine the learning progress. The xAPI proxy is mandatory for cmi5 objects and is activated automatically.###30 04 2024 new variable
@@ -4977,7 +4972,6 @@ common#:#obj_lso_duplicate#:#Tanulási sor másolása
 common#:#obj_lsos#:#Tanulási sorok
 common#:#obj_lsos_desc#:#Tanulási sorok általános beállításai
 common#:#obj_lti#:#LTI-Fogyasztó
-common#:#obj_lti_duplicate#:#LTI-Fogyasztó másolása
 common#:#obj_ltis#:#LTI
 common#:#obj_ltis_desc#:#Tanulási eszközök átjárhatósága (Learning Tools Interoperability)
 common#:#obj_mail#:#Levelezés
@@ -5322,7 +5316,6 @@ common#:#predefined_template#:#Előre definiált szerepsablon
 common#:#preferences#:#Beállítások
 common#:#presentation_table_more#:#Több megjelenítése
 common#:#preview#:#Előnézet
-common#:#preview_caption#:#%s / %s előnézet
 common#:#preview_create#:#Előnézet létrehozása
 common#:#preview_delete#:#Előnézet törlése
 common#:#preview_image_size#:#Előnézeti képek mérete
@@ -5400,7 +5393,6 @@ common#:#referral_comment#:#Honnan szerzett tudomást az ILIAS-ról
 common#:#refresh#:#Frissítés
 common#:#refresh_languages#:#Összes nyelv frissítése
 common#:#refuse#:#Visszautasítás
-common#:#refuse_tos_acceptance#:#A Szolgáltatási feltételek elfogadásának megtagadása
 common#:#reg_account_confirmation_successful#:#ILIAS-fiókját aktiválták.
 common#:#reg_goto_parent_membership_info#:#Csak tagok érhetik el a célobjektumot.
 common#:#reg_mail_body_2_confirmation#:#A link csak eddig működik: %s, után az elejéről kell kezdenie a regisztrációs folyamatot.
@@ -9723,7 +9715,6 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#Nyomtatási nézet megjelenítése
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#Új exportfájl jött létre.
-exp#:#export_files_deleted#:#The selected export files have been deleted.###28 05 2024 new variable
 export#:#export_create#:#Létrehozás
 export#:#export_create_new_file#:#Új exportfájl létrehozása
 export#:#export_existing#:#Újrafelhasználás
@@ -10122,7 +10113,6 @@ forum#:#sort_by_posts#:#Válasz szerint
 forum#:#sort_by_posts_desc#:#A témát fa nézetben jelenítjük meg. A válaszokat aszerint rendezzük, hogy melyik hozzászóláshoz készültek.
 forum#:#sorting#:#Rendezés
 forum#:#sticky#:#Kiemelt
-forum#:#sticky_threads_sorting#:#Ragadós témák rendezése
 forum#:#sure_delete_drafts#:#Biztos, hogy törli a kijelölt piszkozatokat?
 forum#:#switch_threads_for_merge#:#A kijelölt téma régebbi, mint a cél. A sikeres összevon érdekében a kijelölt és a cél témát felcseréljük.
 forum#:#target_select#:#Hozzászólások kiválasztása a limitált megjelenítéshez
@@ -13248,7 +13238,6 @@ prg#:#prg_cancel_tree_order#:#Faszerkezet eldobása
 prg#:#prg_change_deadline#:#Határidő módosítása
 prg#:#prg_change_expire_date#:#Lejárati d módosítása
 prg#:#prg_changed_by#:#Módosította
-prg#:#prg_completed_by_subnodes#:#alprogramok
 prg#:#prg_completion_by#:#Véglegesítette
 prg#:#prg_completion_date#:#Befejezés dátuma
 prg#:#prg_confirm_delete#:#Törlés

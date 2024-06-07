@@ -53,14 +53,6 @@ if ($request_wrapper->has('new_footer_ui')
     exit();
 }
 
-<<<<<<< HEAD
-
-if (isset($request_wrapper) && isset($refinery) && $request_wrapper->has('new_footer_ui') && $request_wrapper->retrieve('new_footer_ui', $refinery->kindlyTo()->string()) == '1') {
-    echo renderFooterInFullscreenMode($DIC);
-}
-
-=======
->>>>>>> v9.1
 function renderFooterInFullscreenMode(Container $dic): string
 {
     $f = $dic->ui()->factory();

@@ -251,7 +251,6 @@ class ilObjSCORMTracking
     //erase later see ilSCORM2004StoreData
     /**
      * like necessary because of Oracle
-     * @return mixed[]
      */
     public static function _getCompleted(object $scorm_item_id, int $a_obj_id): array
     {
@@ -395,7 +394,6 @@ class ilObjSCORMTracking
 
     /**
      * Get all tracked users
-     * @return mixed[]
      */
     public static function _getTrackedUsers(int $a_obj_id): array
     {
@@ -420,7 +418,6 @@ class ilObjSCORMTracking
 
     /**
      * like necessary because of Oracle
-     * @return mixed[]
      */
     public static function _getFailed(object $scorm_item_id, int $a_obj_id): array
     {

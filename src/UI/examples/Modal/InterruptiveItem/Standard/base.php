@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD:src/UI/examples/Modal/InterruptiveItem/base.php
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1:src/UI/examples/Modal/InterruptiveItem/Standard/base.php
 
 declare(strict_types=1);
 

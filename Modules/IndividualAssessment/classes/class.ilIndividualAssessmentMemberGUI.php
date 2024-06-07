@@ -199,9 +199,6 @@ class ilIndividualAssessmentMemberGUI extends AbstractCtrlAwareUploadHandler
         if (!is_null($grading)) {
             $this->saveMember($grading, true, true);
 
-            $storage = $this->getUserFileStorage();
-            $storage->deleteAllFilesBut($grading->getFile());
-
             if ($this->getObject()->isActiveLP()) {
                 ilIndividualAssessmentLPInterface::updateLPStatusOfMember($this->getMember());
             }
@@ -337,9 +334,6 @@ class ilIndividualAssessmentMemberGUI extends AbstractCtrlAwareUploadHandler
         $this->upload->process();
         $array = $this->upload->getResults();
         $result = end($array);
-
-        $storage = $this->getUserFileStorage();
-        $storage->create();
 
         if ($result instanceof UploadResult && $result->isOK()) {
 

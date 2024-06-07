@@ -32,9 +32,6 @@ class ilPlainTextHandler extends \Whoops\Handler\PlainTextHandler
     /** @var list<string> */
     private array $exclusion_list = [];
 
-    /** @var list<string> */
-    private array $exclusion_list = [];
-
     /**
      * @param list<string> $exclusion_list
      */

@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\Button;
 
 use ILIAS\UI\Component as C;
@@ -105,11 +97,7 @@ abstract class Button implements C\Button\Button
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function withUnavailableAction(): C\Button\Button
-=======
     public function withUnavailableAction(bool $flag = true): C\Button\Button
->>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->active = !$flag;

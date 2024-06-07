@@ -52,18 +52,12 @@ class PresentationRow implements T\PresentationRow
     private array $data;
     private ?Symbol $symbol = null;
     protected SignalGeneratorInterface $signal_generator;
-    protected string $table_id;
 
     public function __construct(
         SignalGeneratorInterface $signal_generator,
-<<<<<<< HEAD
-        string $table_id
-=======
         protected string $table_id
->>>>>>> v9.1
     ) {
         $this->signal_generator = $signal_generator;
-        $this->table_id = $table_id;
         $this->initSignals();
     }
 
@@ -173,25 +167,14 @@ class PresentationRow implements T\PresentationRow
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function withContent(Descriptive $content): T\PresentationRow
-=======
     public function withContent(Block $content): T\PresentationRow
->>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->content = $content;
         return $clone;
     }
 
-<<<<<<< HEAD
-    /**
-     * @inheritdoc
-     */
-    public function getContent(): Descriptive
-=======
     public function getContent(): Block
->>>>>>> v9.1
     {
         return $this->content;
     }
@@ -263,8 +246,6 @@ class PresentationRow implements T\PresentationRow
         return $this->action;
     }
 
-<<<<<<< HEAD
-=======
     public function withLeadingSymbol(Symbol $symbol): self
     {
         $clone = clone $this;
@@ -277,7 +258,6 @@ class PresentationRow implements T\PresentationRow
         return $this->symbol;
     }
 
->>>>>>> v9.1
     public function getTableId(): string
     {
         return $this->table_id;

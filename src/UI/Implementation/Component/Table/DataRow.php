@@ -33,16 +33,6 @@ class DataRow implements T\DataRow
      */
     protected array $disabled_actions = [];
 
-<<<<<<< HEAD
-    protected bool $table_has_singleactions;
-    protected bool $table_has_multiactions;
-    protected array $columns;
-    protected array $actions;
-    protected string $id;
-    protected array $record;
-
-=======
->>>>>>> v9.1
     /**
      * The records's key is the column-id of the table.
      * Its value will be formatted by the respective colum type's format-method.
@@ -52,21 +42,6 @@ class DataRow implements T\DataRow
      * @param array<string, mixed> $record
      */
     public function __construct(
-<<<<<<< HEAD
-        bool $table_has_singleactions,
-        bool $table_has_multiactions,
-        array $columns,
-        array $actions,
-        string $id,
-        array $record
-    ) {
-        $this->table_has_singleactions = $table_has_singleactions;
-        $this->table_has_multiactions = $table_has_multiactions;
-        $this->columns = $columns;
-        $this->actions = $actions;
-        $this->id = $id;
-        $this->record = $record;
-=======
         protected bool $table_has_singleactions,
         protected bool $table_has_multiactions,
         protected array $columns,
@@ -74,7 +49,6 @@ class DataRow implements T\DataRow
         protected string $id,
         protected array $record
     ) {
->>>>>>> v9.1
     }
 
     public function getId(): string
@@ -117,11 +91,7 @@ class DataRow implements T\DataRow
         );
     }
 
-<<<<<<< HEAD
-    public function getCellContent(string $col_id)
-=======
     public function getCellContent(string $col_id): string|Component
->>>>>>> v9.1
     {
         if (!array_key_exists($col_id, $this->record)) {
             return '';

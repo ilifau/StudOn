@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
  * Base class for authentication providers (ldap, apache, ...)
  *

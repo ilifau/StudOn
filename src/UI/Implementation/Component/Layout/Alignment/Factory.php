@@ -18,25 +18,6 @@
 
 declare(strict_types=1);
 
-<<<<<<<< HEAD:src/GlobalScreen/Scope/Toast/Collector/Renderer/ToastRenderer.php
-namespace ILIAS\GlobalScreen\Scope\Toast\Collector\Renderer;
-
-use ILIAS\UI\Component\Component;
-use ILIAS\GlobalScreen\Scope\Toast\Factory\isItem;
-use ILIAS\UI\Component\Toast\Toast;
-
-/**
- * @author Fabian Schmid <fabian@sr.solutions>
- */
-interface ToastRenderer
-{
-    /**
-     * Returns the UI Component for the past item
-     * @param isItem $item
-     * @return Toast
-     */
-    public function getToastComponentForItem(isItem $item): Component;
-========
 namespace ILIAS\UI\Implementation\Component\Layout\Alignment;
 
 use ILIAS\UI\Component\Layout\Alignment as I;
@@ -58,5 +39,4 @@ class Factory implements I\Factory
     {
         return new Vertical(...$blocks);
     }
->>>>>>>> v9.1:src/UI/Implementation/Component/Layout/Alignment/Factory.php
 }

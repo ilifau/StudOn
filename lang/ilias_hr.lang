@@ -399,7 +399,6 @@ adn#:#msg_type_2#:#Important###04 06 2021 new variable
 adn#:#msg_type_3#:#Breaking News###04 06 2021 new variable
 adn#:#msg_type_during_event#:#During Event###04 06 2021 new variable
 adn#:#msg_type_info#:#the importance has an influence on the color representation of the notification###04 06 2021 new variable
-adn#adn#:#administrative_notification#:#Administrative Notifications###31 03 2023 new variable
 adve#:#advanced_editing_excass_settings#:#Exercise Assignments Settings
 adve#:#advanced_editing_tst_editing#:#Page Editor for additional question content
 adve#:#advanced_editing_tst_editing_desc#:#Activates ILIAS Page Editor for feedback and hint text editing.
@@ -600,8 +599,6 @@ assessment#:#counter#:#Brojač
 assessment#:#create_date#:#Kreirano
 assessment#:#create_gaps#:#Generiraj i ažuriraj praznine
 assessment#:#create_new#:#Kreiraj novo
-assessment#:#ctm_cannot_be_changed#:#This is a test in CTM-Mode. Settings cannot be changed anymore as CTM has been abandoned.###31 03 2023 new variable
-assessment#:#ctm_cannot_be_started#:#This is a test in CTM-Mode. The test cannot be started anymore as CTM has been abandoned.###31 03 2023 new variable
 assessment#:#customstyle#:#Prilagodi stil
 assessment#:#dashboard_tab#:#Nadzorna ploča
 assessment#:#definition#:#Definicija
@@ -2975,7 +2972,6 @@ chatroom#:#connection_url_info#:#Please insert an URL for the Server connection.
 chatroom#:#custom_username#:#Custom Username
 chatroom#:#dhparam#:#Diffie-Hellman Parameter
 chatroom#:#display_past_msgs#:#Number of Past Messages
-chatroom#:#display_past_msgs_suffix#:#Messages###31 03 2023 new variable
 chatroom#:#duration_from#:#From
 chatroom#:#duration_to#:#To
 chatroom#:#end_whisper#:#Cancel
@@ -3185,8 +3181,6 @@ cmix#:#conf_privacy_setting_default#:#Default Settings, changeable for Objects##
 cmix#:#conf_privacy_setting_force#:#Settings are not changeable for Objects###04 06 2021 new variable
 cmix#:#conf_privacy_setting_info#:#Configuration Options for Privacy Settings###04 06 2021 new variable
 cmix#:#conf_remarks#:#Internal comments###04 06 2021 new variable
-cmix#:#conf_switch_to_review#:#Switch to Review Mode###03 11 2021 new variable
-cmix#:#conf_switch_to_review_info#:#After the cmi5 learning module has been successfully processed (status satisfied), the learning module is started in review mode the next time it is called up.###03 11 2021 new variable
 cmix#:#conf_title#:#Title###04 06 2021 new variable
 cmix#:#conf_use_proxy#:#xAPI-Proxy###30 04 2024 new variable
 cmix#:#conf_use_proxy_info#:#The xAPI proxy provides real-time data to determine learning progress in ILIAS. The proxy reduces personal data in accordance with the selected data protection options. If the xAPI proxy is deactivated, the learning content writes the learning progress directly to the LRS. This data must then also be retrieved directly from the LRS. The cron job "xAPI/cmi5 get results" is required to determine the learning progress. The xAPI proxy is mandatory for cmi5 objects and is activated automatically.###30 04 2024 new variable
@@ -3431,7 +3425,6 @@ cntr#:#tab_back_to_repository#:#Natrag na repozitorij
 common#:#HH#:#HH: MM
 common#:#absolute_path#:#Apsolutni put
 common#:#accept_usr_agreement_btn#:#Accept###04 06 2021 new variable
-common#:#accept_usr_agreement_intro#:#There are new terms of service. You need to accept them before proceeding with the use of ILIAS. Read the following document carefully and give your consent or dissent at the bottom of the page.###24 11 2022 new variable
 common#:#access#:#Pristup
 common#:#accessFree#:#Uklonite datum 'Važi do'
 common#:#accessRestrict#:#Postavite datum 'Važi do'
@@ -4576,7 +4569,6 @@ common#:#lso_edit#:#Uredi sekvencu učenja
 common#:#lso_import#:#Uvezi sekvencu učenja
 common#:#lso_new#:#Nova sekvenca učenja
 common#:#lso_wizard_page#:#Kopiraj sekvencu učenja (korak 2/2)
-common#:#lti#:#LTI Consumer###31 03 2023 new variable
 common#:#lti_outcome#:#Obavijest o napretku učenja u LTI-ju
 common#:#lti_outcome_info#:#Pošaljite status napretka učenja za korisnike LTI-ja potrošaču LTI alata.
 common#:#mail#:#E-pošra
@@ -4980,7 +4972,6 @@ common#:#obj_lso_duplicate#:#Kopiraj sekvencu učenja
 common#:#obj_lsos#:#Learning Sequences###04 06 2021 new variable
 common#:#obj_lsos_desc#:#General settings for Learning Sequences###04 06 2021 new variable
 common#:#obj_lti#:#LTI Consumer###04 06 2021 new variable
-common#:#obj_lti_duplicate#:#Copy LTI Consumer###31 03 2023 new variable
 common#:#obj_ltis#:#LTI
 common#:#obj_ltis_desc#:#Interoperabilnost alata za učenje
 common#:#obj_mail#:#E-pošta
@@ -5325,7 +5316,6 @@ common#:#predefined_template#:#Preddefinirani predložak uloge
 common#:#preferences#:#Korisničke postavke
 common#:#presentation_table_more#:#Prikaži više
 common#:#preview#:#Pregled
-common#:#preview_caption#:#Preview %sof %s###31 03 2023 new variable
 common#:#preview_create#:#Kreiraj pregled
 common#:#preview_delete#:#Izbriši pregled
 common#:#preview_image_size#:#Size of Preview Images###30 04 2024 new variable
@@ -5403,7 +5393,6 @@ common#:#referral_comment#:#Kako ste čuli za ILIAS?
 common#:#refresh#:#Osvježi
 common#:#refresh_languages#:#Osvježi sve jezike
 common#:#refuse#:#Odbij
-common#:#refuse_tos_acceptance#:#Refuse to Accept Terms of Service###09 03 2022 new variable
 common#:#reg_account_confirmation_successful#:#Vaš korisnički račun je aktiviran.
 common#:#reg_goto_parent_membership_info#:#Samo članovi mogu pristupiti ciljanom objektu.
 common#:#reg_mail_body_2_confirmation#:#Poveznica će važiti samo %s, nakon toga ćete se morati registrirati ponovno.
@@ -9726,7 +9715,6 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#Show Print View###31 03 2023 new variable
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#Kreirana je nova datoteka za izvoz.
-exp#:#export_files_deleted#:#The selected export files have been deleted.###28 05 2024 new variable
 export#:#export_create#:#Kreiraj
 export#:#export_create_new_file#:#Kreiraj novu datoteku za izvoz
 export#:#export_existing#:#Ponovna upotreba
@@ -10125,7 +10113,6 @@ forum#:#sort_by_posts#:#Poredaj po objavama
 forum#:#sort_by_posts_desc#:#The thread is presented in a tree view. Replies to posts are shown in the order in which they relate to each other.###31 03 2023 new variable
 forum#:#sorting#:#Sorting###04 06 2021 new variable
 forum#:#sticky#:#Top tema
-forum#:#sticky_threads_sorting#:#Sticky Threads Sorting###24 09 2021 new variable
 forum#:#sure_delete_drafts#:#Jeste li sigurni da želite izbrisati odabrane nacrte?
 forum#:#switch_threads_for_merge#:#Odabrana tema je starija od ciljane teme. Kako bi se osiguralo uspješno spajanje, izvorna i ciljana tema će se zamijeniti.
 forum#:#target_select#:#Select posting for limited view###31 03 2023 new variable
@@ -11217,7 +11204,6 @@ lti#:#lti_object_consumer#:#Potrošači LTI-ja
 lti#:#lti_object_release_settings_form#:#Uredi odobrenja LTI-ja
 lti#:#lti_provider#:#Odobrenja LTI-ja
 lti#:#lti_provider_not_avail_msg#:#LTI Provider is set to 'Not Available'###04 06 2021 new variable
-lti#:#lti_provider_not_set_msg#:#LTI Provider / Tool is configured incompletely.###26 04 2023 new variable
 lti#:#lti_providing_tab#:#ILIAS as LTI Provider###04 06 2021 new variable
 lti#:#lti_released_objects#:#Odobrenja objekta
 lti#:#lti_select_provider#:#Select Provider###04 06 2021 new variable
@@ -12599,7 +12585,6 @@ mme#:#type_separator#:#Separator
 mme#:#type_separator_info#:#Naslov ove stavke bit će prikazan u sivom natpisu. Ako ne unesete nijedan naslov, prikazat će se jednostavan redak.
 mme#:#type_top_link_item#:#Poveznica
 mme#:#type_top_parent_item#:#Spremnik
-mme#:#unable_to_render#:#Unable to show '%s' in '%s'.###28 05 2024 new variable
 mob#:#mob_choose_from_pool#:#Choose from Media Pool###04 06 2021 new variable
 mob#:#mob_external_url#:#External URL###04 06 2021 new variable
 mob#:#mob_extract_preview_image#:#Extract Preview Image###30 04 2024 new variable

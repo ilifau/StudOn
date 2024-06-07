@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\ViewControl;
 
 use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
@@ -185,11 +177,7 @@ class Renderer extends AbstractComponentRenderer
         Component\ViewControl\Pagination $component,
         RendererInterface $default_renderer
     ): string {
-<<<<<<< HEAD
-        $tpl = $this->getTemplate("tpl.pagination.html", true, true);
-=======
         $range = $this->getPaginationRange($component);
->>>>>>> v9.1
 
         if($component->getNumberOfPages() < 2) {
             return '';

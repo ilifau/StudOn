@@ -36,8 +36,6 @@ class ilSCORMTrackingItemsTableGUI extends ilTable2GUI
 
     /**
      * @throws ilCtrlException
-     * @param mixed[] $a_userSelected
-     * @param mixed[] $a_scosSelected
      */
     public function __construct(int $a_obj_id, ?object $a_parent_obj, string $a_parent_cmd, array $a_userSelected, array $a_scosSelected, string $a_report)
     {

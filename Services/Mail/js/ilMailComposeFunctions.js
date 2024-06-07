@@ -21,21 +21,6 @@ il = il || {};
   }
 
   const methods = {};
-  
-  methods.initMailPlaceholderSelection = function(elements, target_textarea) {
-    elements.forEach(function (link_element, i) {
-      elements[i].addEventListener('click', function(e) {
-        e.preventDefault();
-        il.Mail.insertTextIntoTextField(target_textarea, link_element.innerHTML);
-      });
-      elements[i].addEventListener('keyup', function(e) {
-        if (e.code === 'Space') {
-          e.preventDefault();
-          il.Mail.insertTextIntoTextField(target_textarea, link_element.innerHTML);
-        }
-      });
-    });
-  };
 
   methods.initMailPlaceholderSelection = function (elements, target_textarea) {
     elements.forEach((link_element, i) => {

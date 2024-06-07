@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 class ilVirusScannerFactory
 {
     public static function _getInstance(): ?ilVirusScanner

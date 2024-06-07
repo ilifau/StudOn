@@ -132,11 +132,7 @@ class Renderer extends AbstractComponentRenderer
 
         $component = $component->withAdditionalOnLoadCode(
             function ($id) use ($slate_signals, $mb_id): string {
-<<<<<<< HEAD
-                $js = "fn = il.UI.maincontrols.slate.onSignal;";
-=======
                 $js = "";
->>>>>>> v9.1
                 foreach ($slate_signals as $key => $signal) {
                     $js .= "$(document).on('{$signal}', function(event, signalData) { 
                         il.UI.maincontrols.slate.onSignal('{$key}', 

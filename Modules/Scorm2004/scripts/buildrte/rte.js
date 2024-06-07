@@ -14885,9 +14885,8 @@ function sendLogEntry(timespan,action,key,value,result,errorCode)
 		setTimeout("refreshDebugger()",2000);
 	} else {
 //		var result = sendJSONRequest(this.config.post_log_url, logEntry,refreshDebugger(true));
-		setTimeout("refreshDebugger()",1000);
-		setTimeout("refreshDebugger(true)",2000);
-	}
+		refreshDebugger(true);
+	}	
 }
 
 function removeByElement(arrayName,arrayElement)

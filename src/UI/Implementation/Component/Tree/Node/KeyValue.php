@@ -1,11 +1,5 @@
-<<<<<<< HEAD:src/GlobalScreen/Scope/Layout/MetaContent/MetaData/MetaDatum.php
-<?php
-
-declare(strict_types=1);
-=======
 <?php declare(strict_types=1);
 
->>>>>>> v9.1:src/UI/Implementation/Component/Tree/Node/KeyValue.php
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -41,16 +35,7 @@ class KeyValue extends Simple implements KeyValueInterface
         $this->value = $value;
     }
 
-<<<<<<< HEAD:src/GlobalScreen/Scope/Layout/MetaContent/MetaData/MetaDatum.php
-    public function getKey(): string
-    {
-        return $this->key;
-    }
-
-    public function getValue(): string
-=======
     public function getValue() : string
->>>>>>> v9.1:src/UI/Implementation/Component/Tree/Node/KeyValue.php
     {
         return $this->value;
     }

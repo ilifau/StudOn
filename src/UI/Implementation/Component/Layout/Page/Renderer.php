@@ -111,18 +111,9 @@ class Renderer extends AbstractComponentRenderer
             $tpl = $this->setHeaderVars($tpl, $component->getIsUIDemo());
         }
 
-<<<<<<< HEAD
-        foreach ($component->getMetaData() as $meta_key => $meta_value) {
-            $tpl->setCurrentBlock('meta_datum');
-            $tpl->setVariable('META_KEY', $meta_key);
-            $tpl->setVariable('META_VALUE', $meta_value);
-            $tpl->parseCurrentBlock();
-        }
-=======
         $tpl->setVariable('META_DATA', $this->getDataFactory()->htmlMetadata()->collection(
             $component->getMetaData()
         )->toHtml());
->>>>>>> v9.1
 
         return $tpl->get();
     }

@@ -20,10 +20,6 @@ declare(strict_types=1);
 namespace ILIAS\UI\Implementation\Component\Input;
 
 use ILIAS\UI\Implementation\Component\ComponentHelper;
-<<<<<<< HEAD
-use ILIAS\UI\Component\Input\Field\Input as LegacyInputInterface;
-=======
->>>>>>> v9.1
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Refinery\Constraint;
 use ILIAS\Data\Factory as DataFactory;
@@ -49,11 +45,7 @@ trait Group
      */
     public function getValue()
     {
-<<<<<<< HEAD
-        return array_map(fn ($i) => $i->getValue(), $this->inputs);
-=======
         return array_map(fn($i) => $i->getValue(), $this->inputs);
->>>>>>> v9.1
     }
 
     /**
@@ -63,11 +55,7 @@ trait Group
      * @param mixed $value
      * @throws  \InvalidArgumentException    if value does not fit client side input
      */
-<<<<<<< HEAD
-    public function withValue($value): LegacyInputInterface
-=======
     public function withValue($value): self
->>>>>>> v9.1
     {
         $this->checkArg("value", $this->isClientSideValueOk($value), "Display value does not match input type.");
         $clone = clone $this;
@@ -83,11 +71,7 @@ trait Group
      *
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function withInput(InputData $input): LegacyInputInterface
-=======
     public function withInput(InputData $input): self
->>>>>>> v9.1
     {
         if (empty($this->getInputs())) {
             return $this;

@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 use ILIAS\Data\Clock\ClockInterface;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\HTTP\Response\ResponseHeader;

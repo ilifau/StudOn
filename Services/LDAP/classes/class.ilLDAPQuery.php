@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
  *
  * @author Stefan Meyer <meyer@leifos.com>
@@ -545,7 +543,7 @@ class ilLDAPQuery
      * @param array|null $controls LDAP Control to be passed on the the ldap functions
      * @return resource|null
      */
-    private function queryByScope(int $a_scope, string $a_base_dn, string $a_filter, array $a_attributes, array $controls = [])
+    private function queryByScope(int $a_scope, string $a_base_dn, string $a_filter, array $a_attributes, array $controls = null)
     {
         $a_filter = $a_filter ?: "(objectclass=*)";
 

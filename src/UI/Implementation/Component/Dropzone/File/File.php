@@ -165,11 +165,7 @@ abstract class File implements FileDropzone
         return $this->modal->getActionButtons();
     }
 
-<<<<<<< HEAD
-    public function getCancelButtonLabel(): string
-=======
     public function getCancelButtonLabel(): ?string
->>>>>>> v9.1
     {
         return $this->modal->getCancelButtonLabel();
     }
@@ -198,18 +194,6 @@ abstract class File implements FileDropzone
         return $this->modal->getPostURL();
     }
 
-<<<<<<< HEAD
-    public function withSubmitCaption(string $caption): self
-    {
-        $clone = clone $this;
-        $clone->modal = $clone->modal->withSubmitCaption($caption);
-        return $clone;
-    }
-
-    public function getSubmitCaption(): ?string
-    {
-        return $this->modal->getSubmitCaption();
-=======
     public function withSubmitLabel(string $caption): self
     {
         $clone = clone $this;
@@ -220,7 +204,6 @@ abstract class File implements FileDropzone
     public function getSubmitLabel(): ?string
     {
         return $this->modal->getSubmitLabel();
->>>>>>> v9.1
     }
 
     public function getInputs(): array

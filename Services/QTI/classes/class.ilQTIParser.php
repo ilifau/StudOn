@@ -1116,7 +1116,6 @@ class ilQTIParser extends ilSaxParser
                     }
                 }
                 break;
-
         }
     }
 

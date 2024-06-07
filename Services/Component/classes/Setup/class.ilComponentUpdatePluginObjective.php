@@ -147,11 +147,11 @@ class ilComponentUpdatePluginObjective implements Setup\Objective
             }
             public static function getRootLogger(): ilLogger
             {
-                return $GLOBALS["DIC"]["ilLog"];
+                return $GLOBALS["DIC"]["ilLogger"];
             }
             public static function getLogger(string $a_component_id): ilLogger
             {
-                return $GLOBALS["DIC"]["ilLog"];
+                return $GLOBALS["DIC"]["ilLogger"];
             }
         };
         $GLOBALS["ilLog"] = $GLOBALS["DIC"]["ilLog"];

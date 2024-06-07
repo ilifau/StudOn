@@ -58,11 +58,7 @@ interface InputInternal extends Input
     /**
      * Get an input like this one, with a different error.
      */
-<<<<<<< HEAD
-    public function withError(string $error);
-=======
     public function withError(string $error): self;
->>>>>>> v9.1
 
     /**
      * The error of the input as used in HTML.

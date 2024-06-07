@@ -35,10 +35,7 @@ class Standard extends File implements StandardDropzone
 {
     protected ?Button $upload_button = null;
     protected string $message;
-<<<<<<< HEAD
-=======
     protected bool $bulky = false;
->>>>>>> v9.1
 
     public function __construct(
         SignalGeneratorInterface $signal_generator,

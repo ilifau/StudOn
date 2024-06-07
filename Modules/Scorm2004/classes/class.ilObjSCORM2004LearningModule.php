@@ -213,13 +213,14 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
 
     public function convert_1_2_to_2004(string $manifest): void
     {
+        $ilDB = $this->db;
         $ilLog = $this->log;
 
         ##check manifest-file for version. Check for schemaversion as this is a required element for SCORM 2004
         ##accept 2004 3rd Edition an CAM 1.3 as valid schemas
 
         //set variables
-        $packageFolder = $this->getDataDirectory();
+        $this->packageFolder = $this->getDataDirectory();
         $this->imsmanifestFile = $manifest;
         $doc = new DomDocument();
 
@@ -261,7 +262,7 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
 
 
         //first copy wrappers
-        $wrapperdir = $packageFolder . "/GenericRunTimeWrapper1.0_aadlc";
+        $wrapperdir = $this->packageFolder . "/GenericRunTimeWrapper1.0_aadlc";
         if (!mkdir($wrapperdir) && !is_dir($wrapperdir)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $wrapperdir));
         }
@@ -269,12 +270,12 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         copy(self::WRAPPER_JS, $wrapperdir . "/SCOPlayerWrapper.js");
 
         //backup manifestfile
-        $backupManifest = $packageFolder . "/imsmanifest.xml.back";
-        $ret = copy($this->imsmanifestFile, $backupManifest);
+        $this->backupManifest = $this->packageFolder . "/imsmanifest.xml.back";
+        $ret = copy($this->imsmanifestFile, $this->backupManifest);
 
         //transform manifest file
-        $totransform = $doc;
-        $ilLog->debug("SCORM: about to transform to SCORM 2004");
+        $this->totransform = $doc;
+        $ilLog->write("SCORM: about to transform to SCORM 2004");
 
         $xsl = new DOMDocument();
         //        $xsl->async = false;
@@ -282,9 +283,9 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         $prc = new XSLTProcessor();
         $r = @$prc->importStyleSheet($xsl);
 
-        file_put_contents($this->imsmanifestFile, $prc->transformToXML($totransform));
+        file_put_contents($this->imsmanifestFile, $prc->transformToXML($this->totransform));
 
-        $ilLog->debug("SCORM: Transformation completed");
+        $ilLog->write("SCORM: Transformation completed");
     }
 
     /**

@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
 *
 * Update/create ILIAS user account by given LDAP attributes according to user attribute mapping settings.

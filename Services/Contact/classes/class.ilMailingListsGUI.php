@@ -362,9 +362,6 @@ class ilMailingListsGUI
                 $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
                 $this->ctrl->redirect($this, 'showMembersList');
             }
-
-            $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);
-            $this->ctrl->redirect($this, 'showMailingLists');
         }
 
         $this->tpl->setTitle($this->lng->txt('mail_addressbook'));

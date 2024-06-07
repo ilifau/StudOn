@@ -430,11 +430,6 @@ il.TestPlayerQuestionEditControl = new function() {
            return true;
         }
 
-        // ignore JavaScript links
-        if (href.indexOf("javascript:") === 0) {
-           return true;
-        }
-
         // check explictly again at navigation
        detectFormChange();
 

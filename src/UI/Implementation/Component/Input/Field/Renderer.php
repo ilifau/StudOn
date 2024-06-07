@@ -470,11 +470,7 @@ class Renderer extends AbstractComponentRenderer
         return $this->wrapInFormContext($component, $tpl->get(), $id);
     }
 
-<<<<<<< HEAD
-    protected function renderTextareaField(F\Textarea $component): string
-=======
     protected function renderMarkdownField(F\Markdown $component, RendererInterface $default_renderer): string
->>>>>>> v9.1
     {
         /** @var $component F\Markdown */
         $component = $component->withAdditionalOnLoadCode(
@@ -536,14 +532,6 @@ class Renderer extends AbstractComponentRenderer
             $markdown_tpl->setVariable($tpl_variable, $default_renderer->render($action));
         }
 
-<<<<<<< HEAD
-        $this->applyName($component, $tpl);
-        $this->applyValue($component, $tpl, $this->htmlEntities());
-        $this->maybeDisable($component, $tpl);
-        return $this->wrapInFormContext($component, $tpl->get(), $id);
-    }
-
-=======
         // label must point to the wrapped textarea input, not the markdown input.
         return $this->wrapInFormContext($component, $markdown_tpl->get(), $textarea_id);
     }
@@ -586,7 +574,6 @@ class Renderer extends AbstractComponentRenderer
         return $tpl;
     }
 
->>>>>>> v9.1
     protected function renderRadioField(F\Radio $component): string
     {
         $tpl = $this->getTemplate("tpl.radio.html", true, true);
@@ -652,8 +639,6 @@ class Renderer extends AbstractComponentRenderer
     }
 
     protected function renderDateTimeField(F\DateTime $component, RendererInterface $default_renderer): string
-<<<<<<< HEAD
-=======
     {
         list($component, $tpl) = $this->internalRenderDateTimeField($component, $default_renderer);
         $id = $this->bindJSandApplyId($component, $tpl);
@@ -664,7 +649,6 @@ class Renderer extends AbstractComponentRenderer
      * @return array<DateTime,Template>
      */
     protected function internalRenderDateTimeField(F\DateTime $component, RendererInterface $default_renderer): array
->>>>>>> v9.1
     {
         $tpl = $this->getTemplate("tpl.datetime.html", true, true);
         $this->applyName($component, $tpl);
@@ -847,10 +831,6 @@ class Renderer extends AbstractComponentRenderer
         $registry->register('./src/UI/templates/js/Input/Field/tagInput.js');
 
         $registry->register('./src/UI/templates/js/Input/Field/input.js');
-<<<<<<< HEAD
-        $registry->register('./src/UI/templates/js/Input/Field/duration.js');
-=======
->>>>>>> v9.1
         $registry->register('./node_modules/dropzone/dist/dropzone.js');
         $registry->register('./src/UI/templates/js/Input/Field/file.js');
         $registry->register('./src/UI/templates/js/Input/Field/groups.js');
@@ -930,11 +910,8 @@ class Renderer extends AbstractComponentRenderer
             Component\Input\Field\File::class,
             Component\Input\Field\Url::class,
             Component\Input\Field\Hidden::class,
-<<<<<<< HEAD
-=======
             Component\Input\Field\ColorPicker::class,
             Component\Input\Field\Markdown::class,
->>>>>>> v9.1
         ];
     }
 
@@ -999,13 +976,8 @@ class Renderer extends AbstractComponentRenderer
                             '{$this->prepareDropzoneJsMimeTypes($input->getAcceptedMimeTypes())}',
                             $is_disabled,
                             $translations,
-<<<<<<< HEAD
-                            '{$input->getUploadHandler()->supportsChunkedUploads()}',
-                            {$input->getMaxFileSize()}
-=======
                             $should_upload_be_chunked,
                             $chunk_size
->>>>>>> v9.1
                         );
                     });
                 ";

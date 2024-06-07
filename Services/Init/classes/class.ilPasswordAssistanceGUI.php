@@ -56,7 +56,6 @@ class ilPasswordAssistanceGUI
         $this->ilErr = $DIC['ilErr'];
         $this->help = $DIC->help();
         $this->http = $DIC->http();
-        $this->actor = $DIC->user();
         $this->refinery = $DIC->refinery();
         $this->ui_factory = $DIC->ui()->factory();
         $this->ui_renderer = $DIC->ui()->renderer();
@@ -266,23 +265,6 @@ class ilPasswordAssistanceGUI
         if ($GLOBALS['DIC']['ilSetting']->get('auth_mode')) {
             $defaultAuth = $GLOBALS['DIC']['ilSetting']->get('auth_mode');
         }
-
-        $assistance_callback = function () use ($form, $defaultAuth): void {
-            $username = trim($form->getInput('username'));
-            $email = trim($form->getInput('email'));
-
-            $usrId = \ilObjUser::getUserIdByLogin($username);
-            if (!is_numeric($usrId) || !($usrId > 0)) {
-                \ilLoggerFactory::getLogger('usr')->info(
-                    sprintf(
-                        'Could not process password assistance form (reason: no user found) %s / %s',
-                        $username,
-                        $email
-                    )
-                );
-
-                return;
-            }
 
         $username = $form_data[self::PROP_USERNAME];
         $email = $form_data[self::PROP_EMAIL];

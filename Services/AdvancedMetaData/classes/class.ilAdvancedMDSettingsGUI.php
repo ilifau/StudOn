@@ -227,19 +227,6 @@ class ilAdvancedMDSettingsGUI
         return [];
     }
 
-    protected function getTableOffsetFromPost(): int
-    {
-        // BT 35518: hacky solution for getting the table offset
-        if ($this->http->wrapper()->post()->has(ilAdvancedMDRecordTableGUI::ID . '_table_nav')) {
-            $nav = $this->http->wrapper()->post()->retrieve(
-                ilAdvancedMDRecordTableGUI::ID . '_table_nav',
-                $this->refinery->kindlyTo()->string()
-            );
-            return (int) explode(':', $nav)[2];
-        }
-        return 0;
-    }
-
     /**
      * @return ilAdvancedMDPermissionHelper
      */
@@ -796,9 +783,7 @@ class ilAdvancedMDSettingsGUI
                     $record_obj->setActive(isset($post_active[$record_obj->getRecordId()]));
                 }
 
-                if (isset($sorted_positions[$record_obj->getRecordId()])) {
-                    $record_obj->setGlobalPosition((int) $sorted_positions[$record_obj->getRecordId()]);
-                }
+                $record_obj->setGlobalPosition((int) $sorted_positions[$record_obj->getRecordId()]);
                 $record_obj->update();
             } elseif (
                 $perm[ilAdvancedMDPermissionHelper::ACTION_RECORD_TOGGLE_ACTIVATION] &&

@@ -599,8 +599,6 @@ assessment#:#counter#:#Licznik
 assessment#:#create_date#:#Utworzony
 assessment#:#create_gaps#:#Twórz i odświeżaj odstępy
 assessment#:#create_new#:#Twórz nowe
-assessment#:#ctm_cannot_be_changed#:#This is a test in CTM-Mode. Settings cannot be changed anymore as CTM has been abandoned.###31 03 2023 new variable
-assessment#:#ctm_cannot_be_started#:#This is a test in CTM-Mode. The test cannot be started anymore as CTM has been abandoned.###31 03 2023 new variable
 assessment#:#customstyle#:#Własny arkusz stylu
 assessment#:#dashboard_tab#:#Dashboard
 assessment#:#definition#:#Definicja
@@ -2974,7 +2972,6 @@ chatroom#:#connection_url_info#:#Wpisz tutaj adres URL, za pomocą którego nale
 chatroom#:#custom_username#:#Niestandardowa nazwa użytkownika
 chatroom#:#dhparam#:#Parametr Diffiego-Hellmanna
 chatroom#:#display_past_msgs#:#Liczba nieodebranych wiadomości
-chatroom#:#display_past_msgs_suffix#:#Messages###31 03 2023 new variable
 chatroom#:#duration_from#:#Od
 chatroom#:#duration_to#:#Do
 chatroom#:#end_whisper#:#Anuluj
@@ -3184,8 +3181,6 @@ cmix#:#conf_privacy_setting_default#:#Default Settings, changeable for Objects##
 cmix#:#conf_privacy_setting_force#:#Settings are not changeable for Objects###07 02 2020 new variable
 cmix#:#conf_privacy_setting_info#:#Configuration Options for Privacy Settings###07 02 2020 new variable
 cmix#:#conf_remarks#:#Internal comments###07 02 2020 new variable
-cmix#:#conf_switch_to_review#:#Switch to Review Mode###03 11 2021 new variable
-cmix#:#conf_switch_to_review_info#:#After the cmi5 learning module has been successfully processed (status satisfied), the learning module is started in review mode the next time it is called up.###03 11 2021 new variable
 cmix#:#conf_title#:#Title###07 02 2020 new variable
 cmix#:#conf_use_proxy#:#xAPI-Proxy###30 04 2024 new variable
 cmix#:#conf_use_proxy_info#:#The xAPI proxy provides real-time data to determine learning progress in ILIAS. The proxy reduces personal data in accordance with the selected data protection options. If the xAPI proxy is deactivated, the learning content writes the learning progress directly to the LRS. This data must then also be retrieved directly from the LRS. The cron job "xAPI/cmi5 get results" is required to determine the learning progress. The xAPI proxy is mandatory for cmi5 objects and is activated automatically.###30 04 2024 new variable
@@ -4574,7 +4569,6 @@ common#:#lso_edit#:#Edit Learning Sequence
 common#:#lso_import#:#Import Learning Sequence
 common#:#lso_new#:#New Learning Sequence
 common#:#lso_wizard_page#:#Copy Learning Sequence (Step 2/2)###07 02 2020 new variable
-common#:#lti#:#LTI Consumer###31 03 2023 new variable
 common#:#lti_outcome#:#Przekazanie statusu postępu w nauce
 common#:#lti_outcome_info#:#Przesyła status postępu w nauce od użytkowników LTI do odbiorców LTI
 common#:#mail#:#Poczta elektroniczna
@@ -4978,7 +4972,6 @@ common#:#obj_lso_duplicate#:#Copy Learning Sequence
 common#:#obj_lsos#:#Learning Sequences###30 04 2021 new variable
 common#:#obj_lsos_desc#:#General settings for Learning Sequences###30 04 2021 new variable
 common#:#obj_lti#:#LTI Consumer###07 02 2020 new variable
-common#:#obj_lti_duplicate#:#Copy LTI Consumer###31 03 2023 new variable
 common#:#obj_ltis#:#LTI
 common#:#obj_ltis_desc#:#Learning Tools Interoperability
 common#:#obj_mail#:#Poczta elektroniczna
@@ -5323,7 +5316,6 @@ common#:#predefined_template#:#Predefiniowany szablon roli
 common#:#preferences#:#Preferencje
 common#:#presentation_table_more#:#more
 common#:#preview#:#Podgląd
-common#:#preview_caption#:#Preview %sof %s###31 03 2023 new variable
 common#:#preview_create#:#Utwórz podgląd
 common#:#preview_delete#:#Usuń podgląd
 common#:#preview_image_size#:#Size of Preview Images###30 04 2024 new variable
@@ -5401,7 +5393,6 @@ common#:#referral_comment#:#Jak się dowiedziałeś o ILIAS-ie?
 common#:#refresh#:#Odśwież
 common#:#refresh_languages#:#Odśwież języki
 common#:#refuse#:#Odmowa
-common#:#refuse_tos_acceptance#:#Refuse to Accept Terms of Service###09 03 2022 new variable
 common#:#reg_account_confirmation_successful#:#Twoje konto w systemie LMS ILIAS zostało aktywowane.
 common#:#reg_goto_parent_membership_info#:#Tylko członkowie mają dostęp do obiektu docelowego.
 common#:#reg_mail_body_2_confirmation#:#Link będzie ważny przez %s, po tym czasie procedurę rejestracji będziesz musiał rozpocząć od nowa.
@@ -6374,7 +6365,6 @@ content#:#cont_dir_file#:#Katalog/Plik
 content#:#cont_dir_renamed#:#Zmieniono nazwę indeksu.
 content#:#cont_disable_def_feedback#:#Wyłącz domyślny feedback
 content#:#cont_disable_def_feedback_info#:#Wyłącza domyślny feedback po udzieleniu odpowiedzi na pytania.
-content#:#cont_double_click_to_delete#:#Double-click on content elements to select them for (de-)activation or deletion.###14 05 2024 new variable
 content#:#cont_download#:#Download
 content#:#cont_download_no_download#:#Funkcja pobierania jest aktualnie wyłączona. Dlatego plik nie jest dostępny dla uczestników kursu.
 content#:#cont_download_no_menu#:#Menu modułu nauczania jest aktualnie wyłączone. Dlatego plik nie jest dostępny dla uczestników kursu.
@@ -9725,7 +9715,6 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#Show Print View###31 03 2023 new variable
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#Utworzono nowy plik eksportowy.
-exp#:#export_files_deleted#:#The selected export files have been deleted.###28 05 2024 new variable
 export#:#export_create#:#Utwórz nowy
 export#:#export_create_new_file#:#Utwórz nowy plik eksportowy
 export#:#export_existing#:#Użyj ponownie
@@ -10124,7 +10113,6 @@ forum#:#sort_by_posts#:#Sortuj wg wpisów
 forum#:#sort_by_posts_desc#:#The thread is presented in a tree view. Replies to posts are shown in the order in which they relate to each other.###31 03 2023 new variable
 forum#:#sorting#:#Sorting###07 02 2020 new variable
 forum#:#sticky#:#'Top-wątek'
-forum#:#sticky_threads_sorting#:#Sticky Threads Sorting###24 09 2021 new variable
 forum#:#sure_delete_drafts#:#Jesteś pewien, że chcesz usunąć wybrane szkice?
 forum#:#switch_threads_for_merge#:#Wybrany wątek jest starszy niż wątek docelowy. Aby połączenie było sensowne, należy zamienić element źródłowy z elementem celowym.
 forum#:#target_select#:#Select posting for limited view###31 03 2023 new variable
@@ -11216,7 +11204,6 @@ lti#:#lti_object_consumer#:#Odbiorcy LTI
 lti#:#lti_object_release_settings_form#:#Edytuj udostępnienia LTI
 lti#:#lti_provider#:#Udostępnienia LTI
 lti#:#lti_provider_not_avail_msg#:#LTI Provider is set to 'Not Available'###07 02 2020 new variable
-lti#:#lti_provider_not_set_msg#:#LTI Provider / Tool is configured incompletely.###26 04 2023 new variable
 lti#:#lti_providing_tab#:#ILIAS as LTI Provider###07 02 2020 new variable
 lti#:#lti_released_objects#:#Udostępnienia obiektów
 lti#:#lti_select_provider#:#Select Provider###07 02 2020 new variable
@@ -13251,7 +13238,6 @@ prg#:#prg_cancel_tree_order#:#Odrzuć kolejność drzewa.
 prg#:#prg_change_deadline#:#Change deadline###28 07 2023 new variable
 prg#:#prg_change_expire_date#:#Change expire date###28 07 2023 new variable
 prg#:#prg_changed_by#:#Zmieniono przez
-prg#:#prg_completed_by_subnodes#:#subprogrammes###31 03 2023 new variable
 prg#:#prg_completion_by#:#Zakończone przez
 prg#:#prg_completion_date#:#Completion date###07 02 2020 new variable
 prg#:#prg_confirm_delete#:#Delete###30 04 2021 new variable

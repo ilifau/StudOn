@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-declare(strict_types=1);
+require_once "./Services/Language/classes/class.ilObjLanguage.php";
 
 /**
 * Class ilObjLanguageExt
@@ -415,6 +415,7 @@ class ilObjLanguageExt extends ilObjLanguage
         $save_date = (new DateTime())->format("Y-m-d H:i:s");
 
         // read and get the global values
+        require_once "./Services/Language/classes/class.ilLanguageFile.php";
         $global_file_obj = ilLanguageFile::_getGlobalLanguageFile($a_lang_key);
         $file_values = $global_file_obj->getAllValues();
         $file_comments = $global_file_obj->getAllComments();
@@ -459,7 +460,7 @@ class ilObjLanguageExt extends ilObjLanguage
             ));
             $row = $ilDB->fetchAssoc($set);
 
-            $arr = isset($row["lang_array"]) ? unserialize($row["lang_array"], ["allowed_classes" => false]) : "";
+            $arr = unserialize($row["lang_array"], ["allowed_classes" => false]);
             if (is_array($arr)) {
                 $entries = array_merge($arr, $entries);
             }

@@ -1,12 +1,4 @@
 <?php
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:src/UI/Component/Input/Field/FormInput.php
-
-declare(strict_types=1);
-========
->>>>>>>> v9.1:src/UI/Component/Input/Container/Form/FormInput.php
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -23,14 +15,6 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:src/UI/Component/Input/Field/FormInput.php
-
-namespace ILIAS\UI\Component\Input\Field;
-
-========
->>>>>>> v9.1
 declare(strict_types=1);
 
 namespace ILIAS\UI\Component\Input\Container\Form;
@@ -41,27 +25,11 @@ use ILIAS\UI\Component\OnUpdateable;
 use ILIAS\Refinery\Constraint;
 use Closure;
 
-<<<<<<< HEAD
 /**
  * This describes inputs that can be used in forms.
  */
 interface FormInput extends Input, JavaScriptBindable, OnUpdateable
 {
-=======
->>>>>>>> v9.1:src/UI/Component/Input/Container/Form/FormInput.php
-/**
- * This is a legacy support of Component\Input\Field\Input 
- * that has been moved to Component\Input\Container\Form\FormInput.
- * 
- * Please always hint to \ILIAS\UI\Component\Input\Container\Form\FormInput
- * 
- * @deprecated removed in 9
- */
-interface FormInput
-{
-<<<<<<<< HEAD:src/UI/Component/Input/Field/FormInput.php
-========
->>>>>>> v9.1
     /**
      * Get the label of the input.
      */
@@ -98,11 +66,7 @@ interface FormInput
      * (see getConstraintForRequirement() on Input/Field implementations).
      * A custom constraint SHOULD be explained in the byline of the input.
      */
-<<<<<<< HEAD
-    public function withRequired(bool $is_required, ?Constraint $requirement_constraint = null);
-=======
     public function withRequired(bool $is_required, ?Constraint $requirement_constraint = null): self;
->>>>>>> v9.1
 
     /**
      * Is this input disabled?
@@ -126,8 +90,4 @@ interface FormInput
      * It must pass a readable string representation of its value in parameter 'string_value'.
      */
     public function getUpdateOnLoadCode(): Closure;
-<<<<<<< HEAD
-=======
->>>>>>>> v9.1:src/UI/Component/Input/Container/Form/FormInput.php
->>>>>>> v9.1
 }

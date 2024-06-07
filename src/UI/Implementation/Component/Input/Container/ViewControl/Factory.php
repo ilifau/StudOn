@@ -31,23 +31,11 @@ use ILIAS\Data\Factory as DataFactory;
  */
 class Factory implements V\Factory
 {
-<<<<<<< HEAD
-    protected SignalGeneratorInterface $signal_generator;
-    protected ViewControlFactory $view_control_factory;
-
-    public function __construct(
-        SignalGeneratorInterface $signal_generator,
-        ViewControlFactory $view_control_factory
-    ) {
-        $this->signal_generator = $signal_generator;
-        $this->view_control_factory = $view_control_factory;
-=======
     public function __construct(
         protected SignalGeneratorInterface $signal_generator,
         protected ViewControlFactory $view_control_factory,
     ) {
         $this->signal_generator = $signal_generator;
->>>>>>> v9.1
     }
 
     public function standard(array $controls): V\Standard

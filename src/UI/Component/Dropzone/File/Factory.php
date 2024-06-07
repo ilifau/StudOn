@@ -60,15 +60,9 @@ interface Factory
      *        Standard dropzones MUST offer the possibility to select files
      *        manually from the computer.
      * ---
-<<<<<<< HEAD
-     * @param string $title
-     * @param string $message
-     * @param string $post_url
-=======
      * @param string    $title
      * @param string    $message
      * @param string    $post_url
->>>>>>> v9.1
      * @param FileInput $file_input
      * @param FormInput $additional_input
      * @return \ILIAS\UI\Component\Dropzone\File\Standard
@@ -78,11 +72,7 @@ interface Factory
         string $message,
         string $post_url,
         FileInput $file_input,
-<<<<<<< HEAD
-        ?FormInput $additional_input = null
-=======
         ?FormInput $additional_input = null,
->>>>>>> v9.1
     ): Standard;
 
     /**
@@ -120,13 +110,8 @@ interface Factory
      *     3: Wrapper dropzones MUST NOT contain any other file dropzones.
      *     4: Wrapper dropzones MUST NOT be used in modals.
      * ---
-<<<<<<< HEAD
-     * @param string $title
-     * @param string $post_url
-=======
      * @param string                $title
      * @param string                $post_url
->>>>>>> v9.1
      * @param Component|Component[] $content
      * @param FileInput             $file_input
      * @param FormInput             $additional_input
@@ -137,10 +122,6 @@ interface Factory
         string $post_url,
         $content,
         FileInput $file_input,
-<<<<<<< HEAD
-        ?FormInput $additional_input = null
-=======
         ?FormInput $additional_input = null,
->>>>>>> v9.1
     ): Wrapper;
 }

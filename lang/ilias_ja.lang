@@ -599,8 +599,6 @@ assessment#:#counter#:#カウンター
 assessment#:#create_date#:#作成
 assessment#:#create_gaps#:#穴埋め作成
 assessment#:#create_new#:#新規作成
-assessment#:#ctm_cannot_be_changed#:#CTM-Modeのテストモードです。CTMは廃止のため設定変更はできません。
-assessment#:#ctm_cannot_be_started#:#CTM-Modeのテストモードです。CTMは廃止のため開始できません。
 assessment#:#customstyle#:#カスタムスタイル
 assessment#:#dashboard_tab#:#Dashboard
 assessment#:#definition#:#定義
@@ -2974,7 +2972,6 @@ chatroom#:#connection_url_info#:#サーバ接続用のURLを挿入してくだ�
 chatroom#:#custom_username#:#カスタムユーザ名
 chatroom#:#dhparam#:#Diffie-Hellmanパラメータ
 chatroom#:#display_past_msgs#:#過去のメッセージ数
-chatroom#:#display_past_msgs_suffix#:#メッセージ
 chatroom#:#duration_from#:#From
 chatroom#:#duration_to#:#To
 chatroom#:#end_whisper#:#キャンセル
@@ -5319,7 +5316,6 @@ common#:#predefined_template#:#事前定義の役割テンプレート
 common#:#preferences#:#プレファレンス
 common#:#presentation_table_more#:#詳しく見る
 common#:#preview#:#プレビュー
-common#:#preview_caption#:#プレビュー %sof %s
 common#:#preview_create#:#プレビューを作成
 common#:#preview_delete#:#プレビューを削除
 common#:#preview_image_size#:#Size of Preview Images###08 04 2024 new variable
@@ -5397,7 +5393,6 @@ common#:#referral_comment#:#ILIASに関する評判はいかがでしたか?
 common#:#refresh#:#リフレッシュ
 common#:#refresh_languages#:#全ての言語をリフレッシュ
 common#:#refuse#:#拒否
-common#:#refuse_tos_acceptance#:#使用許諾書を拒否
 common#:#reg_account_confirmation_successful#:#ユーザアカウントは使用可能になりました。
 common#:#reg_goto_parent_membership_info#:#目的のオブジェクトはメンバのみしかアクセスできません。
 common#:#reg_mail_body_2_confirmation#:#リンクは%s限定有効でそれを過ぎると最初から再度やり直しとなります。
@@ -6370,7 +6365,6 @@ content#:#cont_dir_file#:#ディレクトリ/ファイル
 content#:#cont_dir_renamed#:#ディレクトリは名前変更されました。
 content#:#cont_disable_def_feedback#:#質問フィードバックを無効
 content#:#cont_disable_def_feedback_info#:#無効にすると回答済み問題は学習者へ何もフィードバック表示されなくなります。問題用にカスタムフィードバップを提供する必要があります。
-content#:#cont_double_click_to_delete#:#Double-click on content elements to select them for (de-)activation or deletion.###14 05 2024 new variable
 content#:#cont_download#:#ダウンロード
 content#:#cont_download_no_download#:#ダウンロード機能がオンになっていないのでユーザはダウンロードできません。
 content#:#cont_download_no_menu#:#ラーニングモジュールメニューがオンになっていないので、ユーザはダウンロードできません。
@@ -9721,7 +9715,6 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#印刷View表示
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#新しいエクスポートファイルが作成されました。
-exp#:#export_files_deleted#:#The selected export files have been deleted.###28 05 2024 new variable
 export#:#export_create#:#作成
 export#:#export_create_new_file#:#新規エクスポート ファイルを作成
 export#:#export_existing#:#再利用

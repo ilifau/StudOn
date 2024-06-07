@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Data\Clock\ClockInterface;
 

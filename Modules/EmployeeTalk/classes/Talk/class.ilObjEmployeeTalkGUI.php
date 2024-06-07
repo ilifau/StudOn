@@ -239,7 +239,6 @@ final class ilObjEmployeeTalkGUI extends ilObjectGUI
         $ru->deleteObjects($this->requested_ref_id, $ref_ids);
         $trashEnabled = boolval($this->settings->get('enable_trash'));
 
-        $this->sendNotification($talks);
         if ($trashEnabled) {
             ilRepUtil::removeObjectsFromSystem($ref_ids);
         }

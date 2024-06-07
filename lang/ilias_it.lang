@@ -598,8 +598,6 @@ assessment#:#counter#:#Contatore
 assessment#:#create_date#:#Data creazione
 assessment#:#create_gaps#:#Crea uno spazio vuoto
 assessment#:#create_new#:#Crea nuova
-assessment#:#ctm_cannot_be_changed#:#This is a test in CTM-Mode. Settings cannot be changed anymore as CTM has been abandoned.###31 03 2023 new variable
-assessment#:#ctm_cannot_be_started#:#This is a test in CTM-Mode. The test cannot be started anymore as CTM has been abandoned.###31 03 2023 new variable
 assessment#:#customstyle#:#Stile personalizzato
 assessment#:#dashboard_tab#:#Dashboard
 assessment#:#definition#:#Definizione
@@ -2973,7 +2971,6 @@ chatroom#:#connection_url_info#:#Si prega di digitare un URL per la connessione 
 chatroom#:#custom_username#:#Nome utente personalizzato
 chatroom#:#dhparam#:#Parametro Diffie-Hellman
 chatroom#:#display_past_msgs#:#Numero dei messaggi precedenti
-chatroom#:#display_past_msgs_suffix#:#Messages###31 03 2023 new variable
 chatroom#:#duration_from#:#Da
 chatroom#:#duration_to#:#A
 chatroom#:#end_whisper#:#Annulla
@@ -5318,7 +5315,6 @@ common#:#predefined_template#:#Template di ruolo predefiniti
 common#:#preferences#:#Preferenze definite dall'utente
 common#:#presentation_table_more#:#Di Più
 common#:#preview#:#Anteprima
-common#:#preview_caption#:#Preview %sof %s###31 03 2023 new variable
 common#:#preview_create#:#Crea anteprima
 common#:#preview_delete#:#Elimina anteprima
 common#:#preview_image_size#:#Size of Preview Images###30 04 2024 new variable
@@ -5396,7 +5392,6 @@ common#:#referral_comment#:#Come hai conosciuto di ILIAS?
 common#:#refresh#:#Aggiorna
 common#:#refresh_languages#:#Aggiorna le lingue
 common#:#refuse#:#Rifiuta
-common#:#refuse_tos_acceptance#:#Refuse to Accept Terms of Service###09 03 2022 new variable
 common#:#reg_account_confirmation_successful#:#Il tuo account utente è stato riattivato.
 common#:#reg_goto_parent_membership_info#:#Solo i membri possono accedere all’oggetto di destinazione.
 common#:#reg_mail_body_2_confirmation#:#Il link sarà utile solo per %s, dopo di che bisognerà provare nuovamente dall’inizio.
@@ -6369,7 +6364,6 @@ content#:#cont_dir_file#:#Cartella/File
 content#:#cont_dir_renamed#:#Directory rinominata.
 content#:#cont_disable_def_feedback#:#Disattiva feedback domande predefinite
 content#:#cont_disable_def_feedback_info#:#Se disabilitato, le risposte alle domande non mostreranno alcun feedback per l’allievo. È necessario fornire feedback personalizzati per le vostre domande.
-content#:#cont_double_click_to_delete#:#Double-click on content elements to select them for (de-)activation or deletion.###14 05 2024 new variable
 content#:#cont_download#:#Scarica
 content#:#cont_download_no_download#:#Download non disponibile per l'utente, la funzione di download non è attivata.
 content#:#cont_download_no_menu#:#Download non disponibile per l'utente, il menu del learning module non è attivato.
@@ -9720,7 +9714,6 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#Show Print View###31 03 2023 new variable
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#Un nuovo file di export e'stato creato
-exp#:#export_files_deleted#:#The selected export files have been deleted.###28 05 2024 new variable
 export#:#export_create#:#Crea
 export#:#export_create_new_file#:#Crea Nuovo File di Esportazione
 export#:#export_existing#:#Riutilizza
@@ -13244,7 +13237,6 @@ prg#:#prg_cancel_tree_order#:#Ignora ordine albero
 prg#:#prg_change_deadline#:#Change deadline###28 07 2023 new variable
 prg#:#prg_change_expire_date#:#Change expire date###28 07 2023 new variable
 prg#:#prg_changed_by#:#Modificato da
-prg#:#prg_completed_by_subnodes#:#subprogrammes###31 03 2023 new variable
 prg#:#prg_completion_by#:#Completamento da
 prg#:#prg_completion_date#:#Data di completamento
 prg#:#prg_confirm_delete#:#Elimina

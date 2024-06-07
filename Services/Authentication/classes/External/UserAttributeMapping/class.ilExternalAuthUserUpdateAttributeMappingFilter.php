@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
  * Class ilExternalAuthUserUpdateAttributeMappingFilter
  * @author Michael Jansen <mjansen@databay.de>

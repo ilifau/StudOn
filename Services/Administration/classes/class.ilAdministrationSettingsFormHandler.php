@@ -47,8 +47,6 @@ class ilAdministrationSettingsFormHandler
     public const FORM_CALENDAR = 17;
     public const FORM_PRG = 18;
 
-    public const FORM_CALENDAR = 17;
-
     public const SETTINGS_USER = "usrf";
     public const SETTINGS_GENERAL = "adm";
     public const SETTINGS_FILE = "facs";

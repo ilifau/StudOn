@@ -263,7 +263,7 @@ class ilFileInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolbarIte
 
     public function getInput(): array
     {
-        return $_FILES[$this->getPostVar()] ?? [];
+        return $_FILES[$this->getPostVar()];
     }
 
     public function render(string $a_mode = ""): string

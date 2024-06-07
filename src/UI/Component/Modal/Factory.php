@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Component\Modal;
 
 use ILIAS\UI\Component;
@@ -95,16 +87,7 @@ interface Factory
      * ---
      * @return \ILIAS\UI\Component\Modal\InterruptiveItem\Factory
      */
-<<<<<<< HEAD
-    public function interruptiveItem(
-        string $id,
-        string $title,
-        Image $icon = null,
-        string $description = ''
-    ): InterruptiveItem;
-=======
     public function interruptiveItem(): InterruptiveItem\Factory;
->>>>>>> v9.1
 
 
     /**
@@ -147,11 +130,7 @@ interface Factory
      * ---
      * @param string $title
      * @param Component\Component|Component\Component[]|null $content
-<<<<<<< HEAD
-     * @param Component\Input\Field\Input[] $inputs
-=======
      * @param Component\Input\Container\Form\FormInput[] $inputs
->>>>>>> v9.1
      * @param string|null $post_url
      * @return \ILIAS\UI\Component\Modal\RoundTrip
      */
@@ -237,8 +216,6 @@ interface Factory
      * @return \ILIAS\UI\Component\Modal\LightboxTextPage
      */
     public function lightboxTextPage(string $text, string $title): LightboxTextPage;
-<<<<<<< HEAD
-=======
 
     /**
      * ---
@@ -261,5 +238,4 @@ interface Factory
      * @return \ILIAS\UI\Component\Modal\LightboxCardPage
      */
     public function lightboxCardPage(Card $card): LightboxCardPage;
->>>>>>> v9.1
 }

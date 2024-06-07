@@ -101,14 +101,6 @@ abstract class ilDclSelectionFieldRepresentation extends ilDclBaseFieldRepresent
                 }
                 $input->setValue((string)array_keys($options)[0]);
                 break;
-            case ilDclSelectionFieldModel::SELECTION_TYPE_SINGLE:
-            default:
-                $input = new ilRadioGroupInputGUI($this->getField()->getTitle(), 'field_' . $this->getField()->getId());
-                foreach ($options as $opt) {
-                    $input->addOption(new ilRadioOption($opt->getValue(), $opt->getOptId()));
-                }
-                $input->setValue(array_keys($options)[0]);
-                break;
         }
         $this->setupInputField($input, $this->getField());
 

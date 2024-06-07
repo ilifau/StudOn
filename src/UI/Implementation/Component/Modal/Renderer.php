@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\Modal;
 
 use ILIAS\UI\Component\Modal\LightboxDescriptionEnabledPage;
@@ -33,14 +25,10 @@ use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Implementation\Render\ResourceRegistry;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
-<<<<<<< HEAD
-use ILIAS\UI\Implementation\Component\Input\Container\Form\FormWithoutSubmitButton;
-=======
 use ILIAS\UI\Component\Modal\InterruptiveItem\InterruptiveItem;
 use ILIAS\UI\Implementation\Component\Input\Container\Form\FormWithoutSubmitButton;
 use ILIAS\UI\Component\Modal\LightboxPage;
 use ILIAS\UI\Implementation\Render\Template;
->>>>>>> v9.1
 
 /**
  * @author Stefan Wanzenried <sw@studer-raimann.ch>
@@ -152,12 +140,6 @@ class Renderer extends AbstractComponentRenderer
             $tpl->setCurrentBlock('with_standard_items');
             $tpl->setVariable('STANDARD_ITEMS', $standard_items);
         }
-<<<<<<< HEAD
-        $tpl->setVariable('ACTION_BUTTON_LABEL', $this->txt($modal->getActionButtonLabel()));
-        $tpl->setVariable('ACTION_BUTTON', $modal->getActionButtonLabel());
-        $tpl->setVariable('CANCEL_BUTTON_LABEL', $this->txt($modal->getCancelButtonLabel()));
-        $tpl->setVariable('CLOSE_LABEL', $this->txt($modal->getCancelButtonLabel()));
-=======
 
         $key_value_items = $this->renderInterruptiveItemsByClass(
             Component\Modal\InterruptiveItem\KeyValue::class,
@@ -172,13 +154,10 @@ class Renderer extends AbstractComponentRenderer
         $tpl->setVariable('ACTION_BUTTON_LABEL', $modal->getActionButtonLabel() ?? $this->txt('delete'));
         $tpl->setVariable('CANCEL_BUTTON_LABEL', $modal->getCancelButtonLabel() ?? $this->txt('cancel'));
         $tpl->setVariable('CLOSE_LABEL', $modal->getCancelButtonLabel() ?? $this->txt('cancel'));
->>>>>>> v9.1
 
         return $tpl->get();
     }
 
-<<<<<<< HEAD
-=======
     /**
      * Filters items by provided class, and renders only those.
      * @param string            $class_name
@@ -202,7 +181,6 @@ class Renderer extends AbstractComponentRenderer
         return $rendered_items;
     }
 
->>>>>>> v9.1
     protected function renderRoundTrip(Component\Modal\RoundTrip $modal, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate('tpl.roundtrip.html', true, true);
@@ -233,11 +211,7 @@ class Renderer extends AbstractComponentRenderer
 
             // render submit in modal footer.
             $submit = $this->getUIFactory()->button()->standard(
-<<<<<<< HEAD
-                $modal->getSubmitCaption(),
-=======
                 $modal->getSubmitLabel() ?? $this->txt('save'),
->>>>>>> v9.1
                 ''
             )->withOnClick($modal->getForm()->getSubmitSignal());
             $tpl->setCurrentBlock('with_submit');
@@ -245,11 +219,7 @@ class Renderer extends AbstractComponentRenderer
             $tpl->parseCurrentBlock();
         }
 
-<<<<<<< HEAD
-        $tpl->setVariable('CANCEL_BUTTON_LABEL', $this->txt($modal->getCancelButtonLabel()));
-=======
         $tpl->setVariable('CANCEL_BUTTON_LABEL', $modal->getCancelButtonLabel() ?? $this->txt('cancel'));
->>>>>>> v9.1
         return $tpl->get();
     }
 
@@ -264,10 +234,7 @@ class Renderer extends AbstractComponentRenderer
         $tpl->setVariable('TITLE', $pages[0]->getTitle());
         $tpl->setVariable('ID_CAROUSEL', $id_carousel);
         $tpl->setVariable('CLOSE_LABEL', $this->txt('close'));
-<<<<<<< HEAD
-=======
         $tpl->setVariable('COLOR_SCHEME', $modal->getScheme());
->>>>>>> v9.1
 
         if (count($pages) > 1) {
             $tpl->setCurrentBlock('has_indicators');

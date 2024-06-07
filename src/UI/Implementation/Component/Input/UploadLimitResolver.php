@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -54,29 +49,12 @@ class UploadLimitResolver
     ) {
     }
 
-<<<<<<< HEAD
-    public function min(int $size_in_bytes): int
-    {
-        return min($this->default_upload_size_limit, $size_in_bytes);
-    }
-
-    public function max(int $size_in_bytes): int
-    {
-        return max($this->default_upload_size_limit, $size_in_bytes);
-    }
-
-    public function checkUploadLimit(int $size_in_bytes): void
-    {
-        if ($size_in_bytes > $this->default_upload_size_limit) {
-            throw new \InvalidArgumentException("File size exceeds $this->default_upload_size_limit bytest.");
-=======
     public function getBestPossibleUploadLimitInBytes(
         UploadHandler $upload_handler,
         int $local_limit_in_bytes = null
     ): int {
         if (null !== $local_limit_in_bytes && $this->canUploadLimitBeUsed($upload_handler, $local_limit_in_bytes)) {
             return $local_limit_in_bytes;
->>>>>>> v9.1
         }
 
         if (null !== $this->custom_global_upload_limit_in_bytes &&
@@ -88,11 +66,7 @@ class UploadLimitResolver
         return $this->php_upload_limit_in_bytes;
     }
 
-<<<<<<< HEAD
-    public function getUploadLimit(): int
-=======
     public function getPhpUploadLimitInBytes(): int
->>>>>>> v9.1
     {
         return $this->php_upload_limit_in_bytes;
     }

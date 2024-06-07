@@ -135,7 +135,7 @@ class ilLTIConsumerSettingsGUI
         switch ($nc) {
             case strtolower(ilCertificateGUI::class):
 
-                    $validator = new ilCertificateActiveValidator();
+                $validator = new ilCertificateActiveValidator();
 
                 if (!$validator->validate()) {
                     throw new ilCmiXapiException('access denied!');
@@ -143,8 +143,8 @@ class ilLTIConsumerSettingsGUI
 
                 $DIC->tabs()->activateSubTab(self::SUBTAB_ID_CERTIFICATE);
 
-                    $guiFactory = new ilCertificateGUIFactory();
-                    $gui = $guiFactory->create($this->object);
+                $guiFactory = new ilCertificateGUIFactory();
+                $gui = $guiFactory->create($this->object);
 
                 $DIC->ctrl()->forwardCommand($gui);
 

@@ -188,41 +188,4 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
                 }
             )->withPriority(self::MODIFICATION_PRIORITY);
     }
-
-    public function getShortTitleModification(CalledContexts $called_contexts): ?ShortTitleModification
-    {
-        if ($this->isKioskModeEnabled($called_contexts)) {
-            $title = $called_contexts->current()->getAdditionalData()->get(self::TEST_PLAYER_SHORT_TITLE);
-            if($title == null) {
-                $title = '';
-            }
-            return $this->globalScreen()->layout()->factory()->short_title()
-            ->withModification(
-                function (?string $content) use ($title): ?string {
-                    return $title;
-                }
-            )
-            ->withHighPriority();
-        }
-        return null;
-    }
-
-    public function getViewTitleModification(CalledContexts $called_contexts): ?ViewTitleModification
-    {
-        if ($called_contexts->current()->getAdditionalData()->exists(self::TEST_PLAYER_TITLE)) {
-            $title = $called_contexts->current()->getAdditionalData()->get(self::TEST_PLAYER_TITLE);
-            if($title == null) {
-                $title = '';
-            }
-            return $this->globalScreen()->layout()->factory()->view_title()
-            ->withModification(
-                function (?string $content) use ($title): ?string {
-                    return $title;
-                }
-            )
-            ->withHighPriority();
-        }
-        return null;
-    }
-
 }

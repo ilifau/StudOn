@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Implementation\Component\Image;
 
 use ILIAS\UI\Component as C;
@@ -93,8 +85,6 @@ class Image implements C\Image\Image
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-=======
     public function withAdditionalHighResSource(string $source, int $min_width_in_pixels): C\Image\Image
     {
         $clone = clone $this;
@@ -114,7 +104,6 @@ class Image implements C\Image\Image
     /**
      * @inheritdoc
      */
->>>>>>> v9.1
     public function withAlt(string $alt): C\Image\Image
     {
         $clone = clone $this;

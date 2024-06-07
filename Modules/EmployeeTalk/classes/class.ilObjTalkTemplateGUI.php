@@ -216,61 +216,6 @@ final class ilObjTalkTemplateGUI extends ilContainerGUI
         );
     }
 
-    protected function addAdminLocatorItems(bool $do_not_add_object = false): void
-    {
-        parent::addAdminLocatorItems(true);
-
-        $this->ctrl->setParameterByClass(
-            strtolower(ilObjTalkTemplateAdministrationGUI::class),
-            'ref_id',
-            ilObjTalkTemplateAdministration::getRootRefId()
-        );
-        $this->locator->addItem(
-            $this->lng->txt('obj_tala'),
-            $this->ctrl->getLinkTargetByClass(
-                ilObjTalkTemplateAdministrationGUI::class,
-                ControlFlowCommand::INDEX
-            )
-        );
-        $this->ctrl->clearParameterByClass(
-            strtolower(ilObjTalkTemplateAdministrationGUI::class),
-            'ref_id'
-        );
-
-        $this->locator->addItem(
-            ilObject::_lookupTitle(
-                ilObject::_lookupObjId($this->object->getRefId())
-            ),
-            $this->ctrl->getLinkTargetByClass([
-                strtolower(ilAdministrationGUI::class),
-                strtolower(ilObjTalkTemplateAdministrationGUI::class),
-                strtolower(self::class),
-            ], ControlFlowCommand::INDEX)
-        );
-    }
-
-    public static function _goto(string $refId): void
-    {
-        /**
-         * @var \ILIAS\DI\Container $container
-         */
-        $container = $GLOBALS['DIC'];
-        if (!ilObject::_exists((int) $refId, true)) {
-            $container["tpl"]->setOnScreenMessage(
-                'failure',
-                $container->language()->txt("permission_denied"),
-                true
-            );
-            $container->ctrl()->redirectByClass(ilDashboardGUI::class, "");
-        }
-        $container->ctrl()->setParameterByClass(strtolower(self::class), 'ref_id', $refId);
-        $container->ctrl()->redirectByClass([
-            strtolower(ilAdministrationGUI::class),
-            strtolower(ilObjTalkTemplateAdministrationGUI::class),
-            strtolower(self::class),
-        ], ControlFlowCommand::INDEX);
-    }
-
     public static function _goto(string $refId): void
     {
         /**

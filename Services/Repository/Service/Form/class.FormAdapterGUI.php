@@ -443,9 +443,6 @@ class FormAdapterGUI
         if (count($mime_types) > 0) {
             $field = $field->withAcceptedMimeTypes($mime_types);
         }
-        if ($required) {
-            $field = $field->withRequired(true);
-        }
 
         $this->addField(
             $key,

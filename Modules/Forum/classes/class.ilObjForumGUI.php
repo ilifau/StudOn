@@ -1672,7 +1672,6 @@ class ilObjForumGUI extends ilObjectGUI implements ilDesktopItemHandling, ilForu
         $active = [
             '',
             'showThreads',
-            'sortThreads',
             'view',
             'markAllRead',
             'enableForumNotification',
@@ -3470,7 +3469,6 @@ class ilObjForumGUI extends ilObjectGUI implements ilDesktopItemHandling, ilForu
 
             $pageSize = $frm->getPageHits();
             $postIndex = 0;
-
             if ($numberOfPostings > $pageSize) {
                 $this->ctrl->setParameter($this, 'ref_id', $this->object->getRefId());
                 $this->ctrl->setParameter($this, 'thr_pk', $this->objCurrentTopic->getId());

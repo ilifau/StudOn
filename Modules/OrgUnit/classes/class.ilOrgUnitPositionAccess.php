@@ -129,7 +129,6 @@ class ilOrgUnitPositionAccess implements ilOrgUnitPositionAccessHandler, ilOrgUn
                 continue;
             }
 
-            $position->afterObjectLoad();
             foreach ($position->getAuthorities() as $authority) {
                 switch ($authority->getOver()) {
                     case ilOrgUnitAuthority::OVER_EVERYONE:

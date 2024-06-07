@@ -240,19 +240,19 @@ class ilObjAssessmentFolder extends ilObject
         $ilUser = $DIC['ilUser'];
         $ilDB = $DIC['ilDB'];
 
-        $db_question_id = 0;
+        $question_id = 0;
         if (is_numeric($question_id)) {
-            $db_question_id = (int) $question_id;
+            $question_id = (int) $question_id;
         }
 
-        $db_original_id = 0;
+        $original_id = 0;
         if (is_numeric($original_id)) {
-            $db_original_id = (int) $original_id;
+            $original_id = (int) $original_id;
         }
 
-        $db_test_ref_id = 0;
+        $test_ref_id = 0;
         if (is_numeric($test_ref_id)) {
-            $db_test_ref_id = (int) $test_ref_id;
+            $test_ref_id = (int) $test_ref_id;
         }
 
         $only = ($test_only === true) ? 1 : 0;
@@ -265,10 +265,10 @@ class ilObjAssessmentFolder extends ilObject
                 $user_id,
                 $object_id,
                 $logtext,
-                $db_question_id,
-                $db_original_id,
+                $question_id,
+                $original_id,
                 $only,
-                $db_test_ref_id,
+                $test_ref_id,
                 time()
             ]
         );

@@ -40,6 +40,7 @@ class ilFileSystemTableGUI extends ilTable2GUI
     protected array $file_labels = [];
     protected \ILIAS\Filesystem\Filesystem $filesystem;
     protected ilFileSystemGUI $filesystem_gui;
+
     /**
      * Constructor
      */

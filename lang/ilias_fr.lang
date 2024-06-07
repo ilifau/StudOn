@@ -599,8 +599,6 @@ assessment#:#counter#:#Compteur
 assessment#:#create_date#:#Créé
 assessment#:#create_gaps#:#Créer trou
 assessment#:#create_new#:#Créer nouveau
-assessment#:#ctm_cannot_be_changed#:#This is a test in CTM-Mode. Settings cannot be changed anymore as CTM has been abandoned.###31 10 2023 new variable
-assessment#:#ctm_cannot_be_started#:#This is a test in CTM-Mode. The test cannot be started anymore as CTM has been abandoned.###31 10 2023 new variable
 assessment#:#customstyle#:#Style personnalisé
 assessment#:#dashboard_tab#:#Dashboard
 assessment#:#definition#:#Définition
@@ -2974,7 +2972,6 @@ chatroom#:#connection_url_info#:#Veuillez insérer une URL pour la connexion au 
 chatroom#:#custom_username#:#Nom d'Utilisateur Personnalisé
 chatroom#:#dhparam#:#Paramètre Diffie-Hellman
 chatroom#:#display_past_msgs#:#Nombre de Messages Précédents
-chatroom#:#display_past_msgs_suffix#:#Messages###31 10 2023 new variable
 chatroom#:#duration_from#:#De
 chatroom#:#duration_to#:#A
 chatroom#:#end_whisper#:#Terminer
@@ -5319,7 +5316,6 @@ common#:#predefined_template#:#Modèle de rôle prédéfini
 common#:#preferences#:#Préférences Utilisateur-défini
 common#:#presentation_table_more#:#more
 common#:#preview#:#Aperçu
-common#:#preview_caption#:#Preview %sof %s
 common#:#preview_create#:#Créer Aperçu
 common#:#preview_delete#:#Supprimer Aperçu
 common#:#preview_image_size#:#Size of Preview Images###30 04 2024 new variable
@@ -5397,7 +5393,6 @@ common#:#referral_comment#:#Comment avez-vous entendu parler d'ILIAS ?
 common#:#refresh#:#Actualiser
 common#:#refresh_languages#:#Actualiser toutes les langues
 common#:#refuse#:#Refuser
-common#:#refuse_tos_acceptance#:#Refuse to Accept Terms of Service
 common#:#reg_account_confirmation_successful#:#Votre compte utilisateur a été activé.
 common#:#reg_goto_parent_membership_info#:#Seuls les membres peuvent accéder à cet objet.
 common#:#reg_mail_body_2_confirmation#:#Le lien sera bon uniquement pour %s. Après, vous devrez recommencer depuis le début.
@@ -6370,7 +6365,6 @@ content#:#cont_dir_file#:#Dossier/Fichier
 content#:#cont_dir_renamed#:#Le dossier a été renommé.
 content#:#cont_disable_def_feedback#:#Désactiver le Retour Utilisateur par Défaut
 content#:#cont_disable_def_feedback_info#:#Lorsque désactivé, il n'y a aucun retour utilisateur pour les questions répondues. Vous devez fournir des retours utilisateurs personnalisés pour vos questions.
-content#:#cont_double_click_to_delete#:#Double-click on content elements to select them for (de-)activation or deletion.###14 05 2024 new variable
 content#:#cont_download#:#Télécharger
 content#:#cont_download_no_download#:#Le téléchargement ne sera pas disponible pour les utilisateurs dès lors que la fonction de téléchargement n'est pas active.
 content#:#cont_download_no_menu#:#Le téléchargement ne sera pas disponible pour les utilisateurs dès lors que le menu du document d'apprentissage n'est pas actif.
@@ -9721,7 +9715,6 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#Show Print View###31 10 2023 new variable
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#Un nouveau fichier d'export a été créé.
-exp#:#export_files_deleted#:#The selected export files have been deleted.###28 05 2024 new variable
 export#:#export_create#:#Créer
 export#:#export_create_new_file#:#Créer nouveau fichier d'export
 export#:#export_existing#:#Réutiliser
@@ -10120,7 +10113,6 @@ forum#:#sort_by_posts#:#Trier par Sujet
 forum#:#sort_by_posts_desc#:#The thread is presented in a tree view. Replies to posts are shown in the order in which they relate to each other.###31 10 2023 new variable
 forum#:#sorting#:#Sorting
 forum#:#sticky#:#Annonce
-forum#:#sticky_threads_sorting#:#Sticky Threads Sorting
 forum#:#sure_delete_drafts#:#Êtes-vous sûr de vouloir supprimer les brouillons sélectionnés?
 forum#:#switch_threads_for_merge#:#Le sujet choisi est plus ancien que le sujet ciblé. Pour garantir une bonne fusion, les sujets source et ciblé vont être inversés.
 forum#:#target_select#:#Select posting for limited view###31 10 2023 new variable
@@ -13246,7 +13238,6 @@ prg#:#prg_cancel_tree_order#:#Rejeter l’ordre arborescent
 prg#:#prg_change_deadline#:#Change deadline###31 10 2023 new variable
 prg#:#prg_change_expire_date#:#Change expire date###31 10 2023 new variable
 prg#:#prg_changed_by#:#Modifiée par
-prg#:#prg_completed_by_subnodes#:#subprogrammes###31 10 2023 new variable
 prg#:#prg_completion_by#:#Complétée par
 prg#:#prg_completion_date#:#Completion date
 prg#:#prg_confirm_delete#:#Delete

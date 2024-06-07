@@ -210,18 +210,6 @@ if ($request_wrapper->has('ui_mainbar')
 }
 
 
-<<<<<<< HEAD
-if (isset($request_wrapper) && isset($refinery) && $request_wrapper->has('ui_mainbar')) {
-    if ($request_wrapper->retrieve('ui_mainbar', $refinery->kindlyTo()->string()) == '1') {
-        echo getUIMainbarExampleCondensed($DIC);
-    }
-    if ($request_wrapper->retrieve('ui_mainbar', $refinery->kindlyTo()->string()) == '2') {
-        echo getUIMainbarExampleFull($DIC);
-    }
-}
-
-=======
->>>>>>> v9.1
 function getURI(): \ILIAS\Data\URI
 {
     $df = new Factory();

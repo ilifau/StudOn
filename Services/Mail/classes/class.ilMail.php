@@ -566,6 +566,7 @@ class ilMail
             } else {
                 $context = new ilMailTemplateGenericContext();
             }
+
             $user = $usrId > 0 ? $this->getUserInstanceById($usrId) : null;
             $message = $this->placeholder_resolver->resolve(
                 $context,

@@ -533,6 +533,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     /**
      * @param string $value1
      * @param string $value2
+     * @return ilAssOrderingElement
      */
     protected function getSolutionValuePairBrandedOrderingElementByRandomIdentifier($value1, $value2): ilAssOrderingElement
     {
@@ -553,6 +554,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     /**
      * @param string $value1
      * @param string $value2
+     * @return ilAssOrderingElement
      */
     protected function getSolutionValuePairBrandedOrderingElementBySolutionIdentifier($value1, $value2): ilAssOrderingElement
     {
@@ -730,6 +732,8 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 
     /**
     * Returns the maximum points, a learner can reach answering the question
+    *
+    * @return double Points
     * @see $points
     */
     public function getMaximumPoints(): float
@@ -787,6 +791,8 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 
     /*
     * Deletes an imagefile from the system if the file is deleted manually
+    *
+    * @param string $filename Image file filename
     * @return boolean Success
     */
     public function dropImageFile($imageFilename)
@@ -1251,6 +1257,8 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 
     /**
      * @param array $userSolutionPost
+     * @return ilAssOrderingElementList
+     * @throws ilTestException
      */
     public function fetchSolutionListFromFormSubmissionData($userSolutionPost): ilAssOrderingElementList
     {
@@ -1340,6 +1348,9 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
      * Get all available operations for a specific question
      *
      * @param string $expression
+     *
+     * @internal param string $expression_type
+     * @return array
      */
     public function getOperators($expression): array
     {
@@ -1365,6 +1376,8 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     *
     * @param int $active_id
     * @param int $pass
+    *
+    * @return ilUserQuestionResult
     */
     public function getUserQuestionResult($active_id, $pass): ilUserQuestionResult
     {
@@ -1457,7 +1470,9 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
     public function buildTestPresentationConfig(): ilTestQuestionConfig
     // hey.
     {
+        // hey: refactored identifiers
         return parent::buildTestPresentationConfig()
+        // hey.
             ->setIsUnchangedAnswerPossible(true)
             ->setUseUnchangedAnswerLabel($this->lng->txt('tst_unchanged_order_is_correct'));
     }

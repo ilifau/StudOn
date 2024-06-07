@@ -340,9 +340,10 @@ class ilTestEvaluationUserDataTest extends ilTestBaseTestCase
     public function testReachedPoints(): void
     {
         $pass = new ilTestEvaluationPassData();
+        $pass->setReachedPoints(25);
         $this->testObj->addPass(0, $pass);
 
-        $this->assertEquals(0.0, $this->testObj->getReachedPoints());
+        $this->assertEquals(25, $this->testObj->getReachedPoints());
     }
 
     public function testGetAvailablePoints(): void

@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 use ILIAS\DI\Container;
 use ILIAS\UI\Component\Legacy\Legacy;
 use ILIAS\UI\Factory;

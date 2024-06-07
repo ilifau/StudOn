@@ -392,7 +392,6 @@ class ilForumXMLParser extends ilSaxParser
                     $this->forumThread->setForumId($this->lastHandledForumId);
                     $this->forumThread->setSubject(ilUtil::stripSlashes((string) ($this->threadArray['Subject'] ?? '')));
                     $this->forumThread->setSticky((bool) ($this->threadArray['Sticky'] ?? false));
-                    $this->forumThread->setOrderSequenceIndex((int) ($this->threadArray['OrderSequenceIndex'] ?? 0));
                     $this->forumThread->setClosed((bool) ($this->threadArray['Closed'] ?? false));
 
                     $this->forumThread->setImportName(

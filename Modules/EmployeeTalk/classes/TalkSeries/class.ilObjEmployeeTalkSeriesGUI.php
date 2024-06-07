@@ -174,11 +174,6 @@ final class ilObjEmployeeTalkSeriesGUI extends ilContainerGUI
         $this->redirectToParentGUI();
     }
 
-    public function cancelObject(): void
-    {
-        $this->ctrl->redirectByClass(strtolower(ilEmployeeTalkMyStaffListGUI::class), ControlFlowCommand::DEFAULT, "", false);
-    }
-
     /**
      * Redirect to etalk mystaff list instead of parent which is not accessible by most users.
      *

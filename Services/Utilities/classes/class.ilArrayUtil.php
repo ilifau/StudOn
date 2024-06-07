@@ -56,7 +56,6 @@ class ilArrayUtil
 
     /**
      * @param $data string|array
-     * @return string|array
      * @deprecated
      */
     public static function stripSlashesRecursive($a_data, bool $a_strip_html = true, string $a_allow = ""): array

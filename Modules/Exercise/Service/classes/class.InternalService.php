@@ -55,7 +55,6 @@ class InternalService
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
         $this->obj_service = $DIC->object();
-        $this->DIC = $DIC;
 
         $this->data = new InternalDataService();
         $this->repo = new InternalRepoService(

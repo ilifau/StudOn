@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
  * Synchronization of user accounts used in auth container ldap, cas,...
  *

@@ -38,18 +38,6 @@ class Group extends ViewControlInput implements ViewControlGroupInterface, Group
 {
     use GroupInternals;
 
-<<<<<<< HEAD
-    protected \ilLanguage $language;
-
-    public function __construct(
-        DataFactory $data_factory,
-        Refinery $refinery,
-        \ilLanguage $language,
-        array $inputs
-    ) {
-        parent::__construct($data_factory, $refinery);
-        $this->language = $language;
-=======
     public function __construct(
         DataFactory $data_factory,
         Refinery $refinery,
@@ -57,7 +45,6 @@ class Group extends ViewControlInput implements ViewControlGroupInterface, Group
         array $inputs,
     ) {
         parent::__construct($data_factory, $refinery);
->>>>>>> v9.1
         $this->checkInputListElements('inputs', $inputs, [ViewControlInputInterface::class]);
         $this->setInputs($inputs);
     }
@@ -87,11 +74,7 @@ class Group extends ViewControlInput implements ViewControlGroupInterface, Group
     public function withOnChange(Signal $change_signal): self
     {
         $clone = parent::withOnChange($change_signal);
-<<<<<<< HEAD
-        $clone->setInputs(array_map(static fn ($i) => $i->withOnChange($change_signal), $clone->getInputs()));
-=======
         $clone->setInputs(array_map(static fn($i) => $i->withOnChange($change_signal), $clone->getInputs()));
->>>>>>> v9.1
         return $clone;
     }
 

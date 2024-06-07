@@ -499,9 +499,4 @@ class ilLTIConsumeProviderList implements Iterator
     {
         return implode('<br />', $keywords);
     }
-
-    protected function getKeywordsFormatted(array $keywords): string
-    {
-        return implode('<br />', $keywords);
-    }
 }

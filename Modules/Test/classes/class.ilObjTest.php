@@ -125,7 +125,6 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware
     public function __construct(int $id = 0, bool $a_call_by_reference = true)
     {
         $this->type = "tst";
-        $this->testrequest = $DIC->test()->internal()->request();
 
         /** @var ILIAS\DI\Container $DIC */
         global $DIC;
@@ -8437,30 +8436,5 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware
             $newsItem->setContent('');
             $newsItem->update();
         }
-    }
-
-    /**
-     * @return ilHtmlPurifierInterface|ilAssHtmlUserSolutionPurifier
-     */
-    protected function getHtmlQuestionContentPurifier(): ilHtmlPurifierInterface
-    {
-        return ilHtmlPurifierFactory::getInstanceByType('qpl_usersolution');
-    }
-
-    public function getScoreSettings(): ilObjTestScoreSettings
-    {
-        if (!$this->score_settings) {
-            $this->score_settings = $this->getScoreSettingsRepository()
-                ->getFor($this->getTestId());
-        }
-        return $this->score_settings;
-    }
-
-    public function getScoreSettingsRepository(): ScoreSettingsRepository
-    {
-        if (!$this->score_settings_repo) {
-            $this->score_settings_repo = new ilObjTestScoreSettingsDatabaseRepository($this->db);
-        }
-        return $this->score_settings_repo;
     }
 }

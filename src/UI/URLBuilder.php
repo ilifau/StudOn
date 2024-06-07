@@ -162,16 +162,8 @@ class URLBuilder
     /**
      * Change an acquired parameter's value if the supplied token is valid
      */
-<<<<<<< HEAD
-    public function withParameter(URLBuilderToken $token, $value): self
-    {
-        if(! is_string($value) && ! is_array($value)) {
-            throw new \InvalidArgumentException('Parameter must be of type string or array');
-        }
-=======
     public function withParameter(URLBuilderToken $token, string|array $value): self
     {
->>>>>>> v9.1
         $this->checkToken($token);
         $clone = clone $this;
         $clone->params[$token->getName()] = $value;

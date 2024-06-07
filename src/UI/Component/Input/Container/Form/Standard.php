@@ -26,16 +26,6 @@ namespace ILIAS\UI\Component\Input\Container\Form;
 interface Standard extends FormWithPostURL
 {
     /**
-<<<<<<< HEAD
-     * Sets the caption of the submit button of the form
-     */
-    public function withSubmitCaption(string $caption): Standard;
-
-    /**
-     * Gets submit caption of the form
-     */
-    public function getSubmitCaption(): ?string;
-=======
      * Sets the label of the submit button of the form
      */
     public function withSubmitLabel(string $label): Standard;
@@ -44,5 +34,4 @@ interface Standard extends FormWithPostURL
      * Gets the submit label of the form.
      */
     public function getSubmitLabel(): ?string;
->>>>>>> v9.1
 }

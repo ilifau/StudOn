@@ -980,9 +980,9 @@ export default class PageUI {
       this.log(pl.pcModel);
       il.COPagePres.initAudioVideo();
 
-        for (const [key, value] of Object.entries(pl.pcModel)) {
-          this.model.addPCModelIfNotExists(key, value);
-        }
+      for (const [key, value] of Object.entries(pl.pcModel)) {
+        this.model.addPCModelIfNotExists(key, value);
+      }
 
       //      il.IntLink.refresh();           // missing
       this.reInit();

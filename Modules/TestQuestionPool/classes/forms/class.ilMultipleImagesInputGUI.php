@@ -59,6 +59,8 @@ abstract class ilMultipleImagesInputGUI extends ilIdentifiedMultiValuesInputGUI
     protected Renderer $renderer;
 
     /**
+     * Constructor
+     *
      * @param	string	$a_title	Title
      * @param	string	$a_postvar	Post Variable
      */
@@ -411,7 +413,8 @@ JS;
     }
 
     /**
-     * @param array|string $value
+     * @param $value
+     * @return bool
      */
     protected function valueHasContentImageSource($value): bool
     {
@@ -421,7 +424,8 @@ JS;
     }
 
     /**
-     * @param array $value
+     * @param $value
+     * @return string
      */
     protected function fetchContentImageSourceFromValue($value): ?string
     {
@@ -433,7 +437,8 @@ JS;
     }
 
     /**
-     * @param array $value
+     * @param $value
+     * @return bool
      */
     protected function valueHasContentImageTitle($value): bool
     {

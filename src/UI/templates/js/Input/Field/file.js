@@ -125,13 +125,8 @@ il.UI.Input = il.UI.Input || {};
 			mime_types,
 			is_disabled,
 			translations,
-<<<<<<< HEAD
-			chunked_upload,
-			chunk_size
-=======
 			should_upload_be_chunked,
 			chunk_size_in_bytes
->>>>>>> v9.1
 		) {
 			if (typeof dropzones[input_id] !== 'undefined') {
 				console.error(`Error: tried to register input '${input_id}' as file input twice.`);
@@ -159,11 +154,7 @@ il.UI.Input = il.UI.Input || {};
 					uploadMultiple: (!should_upload_be_chunked && 1 < max_file_amount),
 					acceptedFiles: (0 < mime_types.length) ? mime_types : null,
 					maxFiles: max_file_amount,
-<<<<<<< HEAD
-					maxFilesize: max_file_size,
-=======
 					maxFilesize: bytesToMiB(max_file_size_in_bytes), // official dropzone.js docu is wrong, MiB is expected.
->>>>>>> v9.1
 					previewsContainer: file_list,
 					clickable: action_button,
 					autoProcessQueue: false,
@@ -172,15 +163,9 @@ il.UI.Input = il.UI.Input || {};
 					file_identifier: file_identifier,
 					removal_url: removal_url,
 					input_id: input_id,
-<<<<<<< HEAD
-					chunking: chunked_upload,
-					chunkSize: chunk_size,
-					forceChunking: chunked_upload,
-=======
 					chunking: should_upload_be_chunked,
 					forceChunking: should_upload_be_chunked,
 					chunkSize: chunk_size_in_bytes,
->>>>>>> v9.1
 
 					// override default rendering function.
 					addedfile: file => {
@@ -237,10 +222,6 @@ il.UI.Input = il.UI.Input || {};
 				let file_preview = file_id_input.closest(SELECTOR.file_list_entry);
 
 				if (file_preview) {
-<<<<<<< HEAD
-					file_preview.find(SELECTOR.removal_glyph).hide();
-=======
->>>>>>> v9.1
 					let progressContainer = file_preview.find(SELECTOR.progress_container);
 					let progressIndicator = file_preview.find(SELECTOR.progress_indicator);
 					let number = Math.round(progress);
@@ -387,13 +368,8 @@ il.UI.Input = il.UI.Input || {};
 			}
 
 			// abort if the given file size exceeds the max limit.
-<<<<<<< HEAD
-			if (dropzones[input_id].options.maxFilesize < file.size) {
-				let allowed_file_size = dropzones[input_id].filesize(dropzones[input_id].options.maxFilesize);
-=======
 			if ((dropzones[input_id].options.maxFilesize * 1024 * 1024) < file.size) {
 				let allowed_file_size = dropzones[input_id].filesize(dropzones[input_id].options.maxFilesize * 1024 * 1024);
->>>>>>> v9.1
 				displayErrorMessage(
 					I18N.invalid_size.replace('%s', allowed_file_size),
 					$(`#${input_id} ${SELECTOR.dropzone}`)
@@ -575,10 +551,7 @@ il.UI.Input = il.UI.Input || {};
 			}
 
 			for (let i = 0; i < dropzones[input_id].files.length; ++i) {
-<<<<<<< HEAD
-=======
 				dropzones[input_id].options.current_file_count -= 1;
->>>>>>> v9.1
 				let file = dropzones[input_id].files[i];
 				let file_id_input = $(`#${file.input_id}`);
 				let file_preview = file_id_input.closest(SELECTOR.file_list_entry);
@@ -586,10 +559,7 @@ il.UI.Input = il.UI.Input || {};
 			}
 
 			dropzones[input_id].removeAllFiles();
-<<<<<<< HEAD
-=======
 			maybeToggleActionButtonAndErrorMessage(input_id);
->>>>>>> v9.1
 		}
 
 		/**
@@ -735,7 +705,6 @@ il.UI.Input = il.UI.Input || {};
 		 * @param {jQuery} container
 		 */
 		let displayErrorMessage = function (message, container) {
-			container.find(SELECTOR.removal_glyph).show();
 			container.find(SELECTOR.error_message).html(message);
 			container.find(SELECTOR.progress_indicator).addClass('error');
 		}

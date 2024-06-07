@@ -18,11 +18,7 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD:src/UI/Component/Modal/InterruptiveItem.php
-namespace ILIAS\UI\Component\Modal;
-=======
 namespace ILIAS\UI\Component\Modal\InterruptiveItem;
->>>>>>> v9.1:src/UI/Component/Modal/InterruptiveItem/Standard.php
 
 use ILIAS\UI\Component\Image\Image;
 
@@ -36,31 +32,15 @@ interface Standard extends InterruptiveItem
     /**
      * Get the title of the object
      */
-<<<<<<< HEAD:src/UI/Component/Modal/InterruptiveItem.php
-    public function getId(): string;
-=======
     public function getTitle(): string;
->>>>>>> v9.1:src/UI/Component/Modal/InterruptiveItem/Standard.php
 
     /**
      * Get the description of the object
      */
-<<<<<<< HEAD:src/UI/Component/Modal/InterruptiveItem.php
-    public function getTitle(): string;
-=======
     public function getDescription(): string;
->>>>>>> v9.1:src/UI/Component/Modal/InterruptiveItem/Standard.php
 
     /**
      * Get the icon of the object
      */
-<<<<<<< HEAD:src/UI/Component/Modal/InterruptiveItem.php
-    public function getDescription(): string;
-
-    /**
-     * Get the icon of the item
-     */
-=======
->>>>>>> v9.1:src/UI/Component/Modal/InterruptiveItem/Standard.php
     public function getIcon(): ?Image;
 }

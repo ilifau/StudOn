@@ -961,8 +961,7 @@ class ilFileSystemGUI
                 "name" => $this->lng->txt("unzip"),
                 "allow_dir" => true,
                 "int" => true,
-                "single" => true,
-                "id" => "unzip_file"
+                "single" => true
             ),
             3 => array(
                 "object" => $this,

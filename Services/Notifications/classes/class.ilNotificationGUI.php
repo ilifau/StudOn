@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 use ILIAS\DI\Container;
 use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\GlobalScreen\Scope\Toast\Collector\ToastCollector;
 use ILIAS\Notifications\ilNotificationDatabaseHandler;
 use ILIAS\Notifications\ilNotificationHandler;
 use ILIAS\Notifications\ilNotificationSettingsTable;

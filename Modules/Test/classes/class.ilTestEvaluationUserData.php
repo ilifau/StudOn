@@ -107,7 +107,7 @@ class ilTestEvaluationUserData
 
     public function getLogin(): string
     {
-        return $this->login ?? '';
+        return $this->login;
     }
 
     public function setLogin(string $login): void

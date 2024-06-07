@@ -33,11 +33,7 @@ interface DateTime extends FormInput
     /**
      * Get an input like this using the given format.
      */
-<<<<<<< HEAD
-    public function withFormat(DateFormat $format): DateTime;
-=======
     public function withFormat(DateFormat $format): self;
->>>>>>> v9.1
 
     /**
      * Get the date-format of this input.
@@ -47,11 +43,7 @@ interface DateTime extends FormInput
     /**
      * Get an input like this using the given timezone.
      */
-<<<<<<< HEAD
-    public function withTimezone(string $tz): DateTime;
-=======
     public function withTimezone(string $tz): self;
->>>>>>> v9.1
 
     /**
      * Get the timezone of this input.
@@ -61,11 +53,7 @@ interface DateTime extends FormInput
     /**
      * Limit accepted values to datetime past (and including) the given $datetime.
      */
-<<<<<<< HEAD
-    public function withMinValue(DateTimeImmutable $datetime): DateTime;
-=======
     public function withMinValue(DateTimeImmutable $datetime): self;
->>>>>>> v9.1
 
     /**
      * Return the lowest value the input accepts.
@@ -75,11 +63,7 @@ interface DateTime extends FormInput
     /**
      * Limit accepted values to datetime before (and including) the given value.
      */
-<<<<<<< HEAD
-    public function withMaxValue(DateTimeImmutable $datetime): DateTime;
-=======
     public function withMaxValue(DateTimeImmutable $datetime): self;
->>>>>>> v9.1
 
     /**
      * Return the maximum date the input accepts.
@@ -89,11 +73,7 @@ interface DateTime extends FormInput
     /**
      * Input both date and time.
      */
-<<<<<<< HEAD
-    public function withUseTime(bool $with_time): DateTime;
-=======
     public function withUseTime(bool $with_time): self;
->>>>>>> v9.1
 
     /**
      * Should the input be used to get both date and time?
@@ -103,11 +83,7 @@ interface DateTime extends FormInput
     /**
      * Use this Input for a time-value rather than a date.
      */
-<<<<<<< HEAD
-    public function withTimeOnly(bool $time_only): DateTime;
-=======
     public function withTimeOnly(bool $time_only): self;
->>>>>>> v9.1
 
     /**
      * Should the input be used to get a time only?

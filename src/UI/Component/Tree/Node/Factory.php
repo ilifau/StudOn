@@ -78,9 +78,6 @@ interface Factory
      * @param \ILIAS\UI\Component\Symbol\Icon\Icon|null $icon
      * @return \ILIAS\UI\Component\Tree\Node\Bylined
      */
-<<<<<<< HEAD
-    public function bylined(string $label, string $byline, Icon $icon = null): Bylined;
-=======
     public function bylined(string $label, string $byline, Icon $icon = null) : Bylined;
 
     /**
@@ -113,5 +110,4 @@ interface Factory
      * @return \ILIAS\UI\Component\Tree\Node\KeyValue
      */
     public function keyValue(string $label, string $value, Icon $icon = null) : KeyValue;
->>>>>>> v9.1
 }

@@ -41,34 +41,6 @@ use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
  */
 abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextRetriever
 {
-<<<<<<< HEAD
-    private Factory $ui_factory;
-    private TemplateFactory $tpl_factory;
-    private ilLanguage $lng;
-    private JavaScriptBinding $js_binding;
-    private static array $component_storage = [];
-    private \ILIAS\Refinery\Factory $refinery;
-    private ImagePathResolver $image_path_resolver;
-    private DataFactory $data_factory;
-
-
-    final public function __construct(
-        Factory $ui_factory,
-        TemplateFactory $tpl_factory,
-        ilLanguage $lng,
-        JavaScriptBinding $js_binding,
-        \ILIAS\Refinery\Factory $refinery,
-        ImagePathResolver $image_path_resolver,
-        DataFactory $data_factory
-    ) {
-        $this->ui_factory = $ui_factory;
-        $this->tpl_factory = $tpl_factory;
-        $this->lng = $lng;
-        $this->js_binding = $js_binding;
-        $this->refinery = $refinery;
-        $this->image_path_resolver = $image_path_resolver;
-        $this->data_factory = $data_factory;
-=======
     private static array $component_storage;
 
     final public function __construct(
@@ -82,7 +54,6 @@ abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextR
         private HelpTextRetriever $help_text_retriever,
         private UploadLimitResolver $upload_limit_resolver,
     ) {
->>>>>>> v9.1
     }
 
     /**
@@ -337,8 +308,6 @@ abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextR
         return $this->image_path_resolver;
     }
 
-<<<<<<< HEAD
-=======
     public function getHelpText(Help\Purpose $purpose, Help\Topic ...$topics): array
     {
         return $this->help_text_retriever->getHelpText($purpose, ...$topics);
@@ -360,7 +329,6 @@ abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextR
         return $this->tooltip_renderer;
     }
 
->>>>>>> v9.1
     protected function convertSpecialCharacters(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'utf-8');

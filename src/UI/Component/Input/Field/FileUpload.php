@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Component\Input\Field;
 
 /**
@@ -35,8 +27,6 @@ interface FileUpload
 {
     public function getUploadHandler(): UploadHandler;
 
-<<<<<<< HEAD
-=======
     /**
      * Get an instance like this with a local upload-size limitation. This value will take
      * precedence over other implicit upload-limits which may apply.
@@ -44,7 +34,6 @@ interface FileUpload
      * Please note that upload-limits greater than the PHP limit can only be applied if the
      * corresponding @see UploadHandler supports chunked uploads.
      */
->>>>>>> v9.1
     public function withMaxFileSize(int $size_in_bytes): FileUpload;
 
     public function getMaxFileSize(): int;

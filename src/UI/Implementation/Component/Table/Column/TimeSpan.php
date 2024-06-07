@@ -25,25 +25,12 @@ use ILIAS\Data\DateFormat\DateFormat;
 
 class TimeSpan extends Column implements C\TimeSpan
 {
-<<<<<<< HEAD
-    protected DateFormat $format;
-
-    public function __construct(
-        \ilLanguage $lng,
-        string $title,
-        DateFormat $format
-    )
-    {
-        parent::__construct($lng, $title);
-        $this->format = $format;
-=======
     public function __construct(
         \ilLanguage $lng,
         string $title,
         protected DateFormat $format
     ) {
         parent::__construct($lng, $title);
->>>>>>> v9.1
     }
 
     public function getFormat(): DateFormat

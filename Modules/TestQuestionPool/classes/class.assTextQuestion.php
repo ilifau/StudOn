@@ -1041,6 +1041,8 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
 
     public function getLatestAutosaveContent(int $active_id, int $pass): ?string
     {
+        $question_fi = $this->getId();
+
         // Do we have an unauthorized result?
         $cntresult = $this->db->query(
             '

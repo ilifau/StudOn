@@ -19,7 +19,6 @@
 namespace OrgUnit\User;
 
 use Exception;
-use function PHPUnit\Framework\throwException;
 
 use function PHPUnit\Framework\throwException;
 

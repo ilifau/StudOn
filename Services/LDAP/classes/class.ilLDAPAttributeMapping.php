@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
  * This class stores the settings that define the mapping between LDAP attribute and user profile fields.
  *

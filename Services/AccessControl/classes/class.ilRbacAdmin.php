@@ -29,8 +29,6 @@ declare(strict_types=1);
  */
 class ilRbacAdmin
 {
-    use RbacAdminHelper;
-    
     protected ilDBInterface $db;
     protected ilRbacReview $rbacreview;
     protected ilLogger $logger;

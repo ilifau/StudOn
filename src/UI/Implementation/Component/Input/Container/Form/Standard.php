@@ -47,11 +47,7 @@ class Standard extends Form implements C\Input\Container\Form\Standard
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function withSubmitCaption(string $caption): C\Input\Container\Form\Standard
-=======
     public function withSubmitLabel(string $caption): C\Input\Container\Form\Standard
->>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->submit_caption = $caption;
@@ -61,11 +57,7 @@ class Standard extends Form implements C\Input\Container\Form\Standard
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function getSubmitCaption(): ?string
-=======
     public function getSubmitLabel(): ?string
->>>>>>> v9.1
     {
         return $this->submit_caption;
     }

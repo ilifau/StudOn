@@ -51,11 +51,7 @@ class Factory implements FileDropzoneFactory
         string $message,
         string $post_url,
         FileInput $file_input,
-<<<<<<< HEAD
-        ?FormInput $additional_input = null
-=======
         ?FormInput $additional_input = null,
->>>>>>> v9.1
     ): StandardDropzone {
         return new Standard(
             $this->signal_generator,
@@ -77,11 +73,7 @@ class Factory implements FileDropzoneFactory
         string $post_url,
         $content,
         FileInput $file_input,
-<<<<<<< HEAD
-        ?FormInput $additional_input = null
-=======
         ?FormInput $additional_input = null,
->>>>>>> v9.1
     ): WrapperDropzone {
         return new Wrapper(
             $this->signal_generator,

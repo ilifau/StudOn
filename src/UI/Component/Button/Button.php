@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Component\Button;
 
 use ILIAS\UI\Component\Clickable;
@@ -68,11 +60,7 @@ interface Button extends Component, JavaScriptBindable, Clickable, Hoverable, En
      * The button will still have an action afterwards, this might be usefull
      * at some point where we want to reactivate the button client side.
      */
-<<<<<<< HEAD
-    public function withUnavailableAction(): Button;
-=======
     public function withUnavailableAction(bool $flag = true): Button;
->>>>>>> v9.1
 
     /**
      * Get a button like this, but with an additional/replaced aria-label.

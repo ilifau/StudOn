@@ -13,17 +13,6 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:src/UI/Implementation/Component/Input/Field/Input.php
- */
-
-declare(strict_types=1);
-
-namespace ILIAS\UI\Implementation\Component\Input\Field;
-
-========
->>>>>>> v9.1
  *
  *********************************************************************/
 
@@ -47,26 +36,9 @@ use Generator;
 use InvalidArgumentException;
 use ILIAS\UI\Implementation\Component\Input\DynamicInputsNameSource;
 
-<<<<<<< HEAD
 /**
  * This implements commonalities between inputs.
  */
-=======
->>>>>>>> v9.1:src/UI/Implementation/Component/Input/Input.php
-/**
- * This is a legacy support of Implementation\Component\Input\Field\Input
- * that has been moved to Implementation\Component\Input\Input.
- *
- * Please always extend from \ILIAS\UI\Implementation\Component\Input\Input
- * or \ILIAS\UI\Implementation\Component\Input\Field\FormInput.
- *
- * @deprecated removed in 9
- */
-<<<<<<<< HEAD:src/UI/Implementation/Component/Input/Field/Input.php
-abstract class Input extends FormInput
-{
-========
->>>>>>> v9.1
 abstract class Input implements InputInternal
 {
     use ComponentHelper;
@@ -100,27 +72,13 @@ abstract class Input implements InputInternal
      */
     protected array $operations = [];
 
-<<<<<<< HEAD
-    protected DataFactory $data_factory;
-    protected Refinery $refinery;
-
-=======
->>>>>>> v9.1
     /**
      * Input constructor.
      */
     public function __construct(
-<<<<<<< HEAD
-        DataFactory $data_factory,
-        Refinery $refinery
-    ) {
-        $this->data_factory = $data_factory;
-        $this->refinery = $refinery;
-=======
         protected DataFactory $data_factory,
         protected Refinery $refinery,
     ) {
->>>>>>> v9.1
     }
 
     /**
@@ -140,11 +98,7 @@ abstract class Input implements InputInternal
      * @param   mixed $value
      * @throws  InvalidArgumentException    if value does not fit client side input
      */
-<<<<<<< HEAD
-    public function withValue($value)
-=======
     public function withValue($value): self
->>>>>>> v9.1
     {
         $this->checkArg("value", $this->isClientSideValueOk($value), "Display value does not match input type.");
         $clone = clone $this;
@@ -170,11 +124,7 @@ abstract class Input implements InputInternal
     /**
      * Get an input like this one, with a different error.
      */
-<<<<<<< HEAD
-    public function withError(string $error)
-=======
     public function withError(string $error): self
->>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->setError($error);
@@ -192,11 +142,7 @@ abstract class Input implements InputInternal
     /**
      * Apply a transformation to the current or future content.
      */
-<<<<<<< HEAD
-    public function withAdditionalTransformation(Transformation $trafo)
-=======
     public function withAdditionalTransformation(Transformation $trafo): self
->>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->setAdditionalTransformation($trafo);
@@ -251,11 +197,7 @@ abstract class Input implements InputInternal
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function withNameFrom(NameSource $source, ?string $parent_name = null)
-=======
     public function withNameFrom(NameSource $source, ?string $parent_name = null): self
->>>>>>> v9.1
     {
         $clone = clone $this;
         if ($source instanceof DynamicInputsNameSource) {
@@ -275,11 +217,7 @@ abstract class Input implements InputInternal
      *
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function withInput(InputData $input)
-=======
     public function withInput(InputData $input): self
->>>>>>> v9.1
     {
         if ($this->getName() === null) {
             throw new LogicException("Can only collect if input has a name.");
@@ -348,8 +286,4 @@ abstract class Input implements InputInternal
         }
         return $this->content;
     }
-<<<<<<< HEAD
-=======
->>>>>>>> v9.1:src/UI/Implementation/Component/Input/Input.php
->>>>>>> v9.1
 }

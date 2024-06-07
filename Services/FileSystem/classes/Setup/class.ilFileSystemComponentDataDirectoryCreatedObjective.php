@@ -47,10 +47,6 @@ class ilFileSystemComponentDataDirectoryCreatedObjective extends Setup\Objective
         $ini = $environment->getResource(Setup\Environment::RESOURCE_ILIAS_INI);
         $client_id = $environment->getResource(Setup\Environment::RESOURCE_CLIENT_ID);
 
-        if ($ini === null || $client_id === null) {
-            return null;
-        }
-
         if ($this->base_location === self::DATADIR) {
             $data_dir = $ini->readVariable('clients', 'datadir');
         } elseif ($this->base_location === self::WEBDIR) {

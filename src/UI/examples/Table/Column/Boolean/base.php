@@ -30,10 +30,7 @@ function base()
             $f->symbol()->glyph()->like(),
             $f->symbol()->glyph()->dislike()->withHighlight()
         )
-<<<<<<< HEAD
-=======
 
->>>>>>> v9.1
     ];
 
     $data_retrieval = new class ($dummy_records) implements I\DataRetrieval {

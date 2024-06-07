@@ -34,10 +34,6 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     protected $value;
     protected bool $hide_sub = false;
 
-    // fau: campoSub
-    protected $disabled_values = array();
-    // fau.
-
     public function __construct(
         string $a_title = "",
         string $a_postvar = ""
@@ -53,18 +49,6 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     {
         $this->options = $a_options;
     }
-
-
-    /**
-     * fau: campoSub
-     * Set values for options that should be shown as disabled
-     */
-    public function setDisabledValues(array $a_values)
-    {
-        $this->disabled_values = $a_values;
-    }
-    // fau.
-    
 
     public function getOptions(): array
     {
@@ -114,8 +98,6 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
         }
     }
 
-    // fau: campoSub
-
     public function checkInput(): bool
     {
         $lng = $this->lng;
@@ -128,18 +110,10 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
                 $this->setAlert($lng->txt('msg_invalid_post_input'));
                 return false;
             }
-            elseif (in_array($this->str($this->getPostVar()), $this->disabled_values)) {
-                $this->setAlert($lng->txt('msg_invalid_post_input'));
-                return false;
-            }
         } else {
             $values = $this->strArray($this->getPostVar());
             foreach ($values as $value) {
                 if (!array_key_exists($value, $this->getOptions())) {
-                    $this->setAlert($lng->txt('msg_invalid_post_input'));
-                    return false;
-                }
-                elseif (in_array($value, $this->disabled_values)) {
                     $this->setAlert($lng->txt('msg_invalid_post_input'));
                     return false;
                 }
@@ -154,7 +128,6 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
         }
         return $this->checkSubItemsInput();
     }
-    // fau.
 
     /**
      * @return string|string[]
@@ -215,16 +188,6 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
                     ' selected="selected"'
                 );
             }
-
-            // fau: campoSub
-            if (in_array($option_value, $this->disabled_values)) {
-                $tpl->setVariable(
-                    "DISABLE_OPTION",
-                    'disabled="disabled"'
-                );
-            }
-            // fau.
-
             $tpl->setVariable("TXT_SELECT_OPTION", $option_text);
 
             if ($this->langresolve) {

@@ -293,7 +293,7 @@ class ilTestResultsImportParser extends ilSaxParser
         }
 
         if ($attribs['tries'] > 0) {
-            return (int) $attribs['tries'] - 1;
+            return $attribs['tries'] - 1;
         }
 
         return null;

@@ -647,7 +647,6 @@ class ilObjectCopyGUI
         if ($tit === "") {
             $tit = ilSession::get('source_query', '');
         }
-
         $query_parser = new ilQueryParser($tit);
         $query_parser->setMinWordLength(1);
         $query_parser->setCombination(ilQueryParser::QP_COMBINATION_AND);

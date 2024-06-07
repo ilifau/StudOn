@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Component\Item;
 
 use ILIAS\UI\Component\Symbol\Icon\Icon;
@@ -79,22 +71,6 @@ interface Standard extends Item
      */
     public function withLeadText(string $text): Standard;
 
-    // fau: studySearch - define checkbox functions
-    /**
-     * Set value for a checkbox
-     */
-    public function withCheckbox(string $name, ?string $value = null) : Item;
-
-    /**
-     * Get the name for a checkbox
-     */
-    public function getCheckboxName() : ?string;
-
-    /**
-     * Get the value for a checkbox
-     */
-    public function getCheckboxValue() : ?string;
-    // fau.
     /**
      * Reset lead to null
      */
@@ -123,11 +99,8 @@ interface Standard extends Item
      * Get the actions of the item.
      */
     public function getActions(): ?DropdownStandard;
-<<<<<<< HEAD
-=======
 
     public function withMainAction(ButtonStandard|LinkStandard $button): Standard;
 
     public function getMainAction(): ButtonStandard|LinkStandard|null;
->>>>>>> v9.1
 }

@@ -47,9 +47,6 @@ class ilForumStatisticsTableGUI extends ilTable2GUI
         if ($lp->isActive()) {
             $this->has_active_lp = true;
         }
-        $this->has_general_lp_access = $has_general_lp_access;
-        $this->has_rbac_or_position_access = $has_rbac_or_position_access;
-        $this->actor = $actor;
 
         $this->setRowTemplate('tpl.statistics_table_row.html', 'Modules/Forum');
 

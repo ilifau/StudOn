@@ -45,11 +45,4 @@ class ilAssHintPageGUI extends ilPageObjectGUI
         $this->tabs_gui->activateTab("pg");
         return $page;
     }
-
-    public function preview(): string
-    {
-        $page = parent::preview();
-        $this->tabs_gui->activateTab("pg");
-        return $page;
-    }
 }

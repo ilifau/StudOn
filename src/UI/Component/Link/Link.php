@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Component\Link;
 
 use ILIAS\UI\Component\Component;
@@ -48,11 +40,8 @@ interface Link extends Component, HasContentLanguage, HasHelpTopics, JavaScriptB
      * Set if link should be opened in new viewport
      */
     public function withOpenInNewViewport(bool $open_in_new_viewport): Link;
-<<<<<<< HEAD
-=======
 
     public function getOpenInNewViewport(): ?bool;
->>>>>>> v9.1
 
     /**
      * The hreflang attribute indicates the language of content targeted by links.
@@ -60,9 +49,6 @@ interface Link extends Component, HasContentLanguage, HasHelpTopics, JavaScriptB
      * not be translated in this process. If the link text also is not translated (e.g., because it is a formal title
      * that should be kept in the original language), you should also add the language attributes to the anchor element.
      */
-<<<<<<< HEAD
-    public function getOpenInNewViewport(): ?bool;
-=======
     public function withLanguageOfReferencedContent(LanguageTag $language): Link;
 
     /**
@@ -80,5 +66,4 @@ interface Link extends Component, HasContentLanguage, HasHelpTopics, JavaScriptB
      * @return IsRelationship[]
      */
     public function getRelationshipsToReferencedResource(): array;
->>>>>>> v9.1
 }

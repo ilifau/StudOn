@@ -348,6 +348,7 @@ administration#:#vc_information#:#Zeige Version-Control-Information
 administration#:#vc_information_not_determined#:#Es konnten keine Version Control-Informationen ermittelt werden.
 administration#:#view_last_log#:#Zeige letztes Scan-Log
 administration#:#view_log#:#Zeige Details
+adn#:#administrative_notification#:#Ankündigung
 adn#:#administrative_notification_description#:#Bereitstellen systemweiter Ankündigungen in der Kopfzeile von ILIAS
 adn#:#btn_cancel#:#Abbrechen
 adn#:#btn_delete#:#Löschen
@@ -1202,8 +1203,6 @@ assessment#:#show_old_introduction#:#Alten Einleitungstext anzeigen
 assessment#:#show_pass_overview#:#Ergebnisübersicht (bewerteter Testdurchlauf)
 assessment#:#show_requested_question_hints#:#Zeige angeforderte Lösungshinweise
 assessment#:#show_user_answers#:#Antworten (bewerteter Testdurchlauf)
-assessment#:#showinfo#:#Testeigenschaften anzeigen
-assessment#:#showinfo_desc#:#Den Benutzern werden auf dem 'Info'-Reiter alle Testeigenschaften angezeigt, z.B. Reihenfolge, Bewertung oder Ergebnisausgabe.
 assessment#:#shuffle_answers#:#Antworten mischen
 assessment#:#skip_question#:#Nicht antworten und weiter
 assessment#:#solutionText#:#Text
@@ -3182,8 +3181,6 @@ cmix#:#conf_privacy_setting_default#:#Standardeinstellungen, änderbar für Obje
 cmix#:#conf_privacy_setting_force#:#Die Einstellungen sind für Objekte nicht änderbar.
 cmix#:#conf_privacy_setting_info#:#Konfigurationsoptionen für die Datenschutzeinstellungen
 cmix#:#conf_remarks#:#Interne Kommentare
-cmix#:#conf_switch_to_review#:#In den Review-Modus wechseln
-cmix#:#conf_switch_to_review_info#:#Nachdem das cmi5 Lernmodul erfolgreich bearbeitet wurde (Status satisfied), wird das Lernmodul beim nächsten Aufruf im Review-Modus gestartet.
 cmix#:#conf_title#:#Titel
 cmix#:#conf_use_proxy#:#xAPI-Proxy
 cmix#:#conf_use_proxy_info#:#Der xAPI-Proxy liefert in Echtzeit Daten zur Bestimmung des Lernfortschritts in ILIAS. Entsprechend der gewählten Optionen zum Datenschutz reduziert der Proxy personenbezogene Daten. Bei deaktiviertem xAPI-Proxy schreibt der Lerninhalt den Lernfortschritt direkt in den LRS. Dann müssen diese Daten auch direkt aus dem LRS herausgeholt werden. Für die Bestimmung des Lernfortschritts benötigt man dafür den Cronjob „xAPI/cmi5 Ergebnisse holen“. Für cmi5-Objekte ist der xAPI-Proxy zwingend erforderlich und wird automatisch aktiviert.
@@ -3306,8 +3303,6 @@ cmix#:#terminated_label#:#Statements mit dem Verb 'terminated'
 cmix#:#timestamp_info#:#Der timestamp kennzeichnet den Zeitpunkt einer durch das Statement gekennzeichneten Aktion. Der timestamp wird durch diese Option auf den Standardwert 01.01.1970 (1970-01-01T00:00:00.000Z) gesetzt. Bitte beachten Sie, dass ein Learning Record Store gegebenenfalls selbstständig einen Wert für das Speicherdatum (stored) setzt, der mit dem timestamp nahezu identisch sein kann.
 cmix#:#timestamp_label#:#Zeitstempel 'timestamp'
 cmix#:#title_info#:#Geben Sie dem Objekt einen Titel.
-cmix#:#toplist_top_n_results#:#Bestenliste
-cmix#:#toplist_your_result#:#Eigener Rang
 cmix#:#type_cmi5#:#cmi5 Lernmodul
 cmix#:#type_generic#:#xAPI Standardobjekt
 cmix#:#use_fetch#:#Autorisierung durch Fetch-URL
@@ -4338,7 +4333,6 @@ common#:#ignore_required_fields#:#Benutzerpflichtfelder ignorieren
 common#:#ignore_required_fields_info#:#Falls aktiviert, werden Pflichtangaben beim Absenden dieses Formulars nicht mehr überprüft (sofern möglich). Auswirkung dessen ist, dass der Benutzer nach der nächsten Anmeldung sein Profil vervollständigen muss.
 common#:#il_astpl_loc_initial#:#Einstiegstest
 common#:#il_astpl_loc_qualified#:#Qualifizierender Test
-common#:#il_astpl_loc_qualified_desc#:#Einstellungsvorlage für Qualifizierende Tests lernzielorientierter Kurse
 common#:#il_blog_contributor#:#Blog-Autorenschaft###Modified as part of gender mainstreaming activities for ILIAS 8
 common#:#il_blog_editor#:#Blog-Redaktion###Modified as part of gender mainstreaming activities for ILIAS 8
 common#:#il_chat_moderator#:#Chatmoderation###Modified as part of gender mainstreaming activities for ILIAS 8
@@ -4575,7 +4569,6 @@ common#:#lso_edit#:#Lernsequenz bearbeiten
 common#:#lso_import#:#Lernsequenz importieren
 common#:#lso_new#:#Neue Lernsequenz anlegen
 common#:#lso_wizard_page#:#Lernsequenz kopieren (Schritt 2/2)
-common#:#lti#:#LTI Konsument
 common#:#lti_outcome#:#Benachrichtigung über LTI-Lernfortschritt
 common#:#lti_outcome_info#:#Sendet den Lernfortschrittstatus von LTI-Benutzern an LTI-Tool-Consumer.
 common#:#mail#:#Mail
@@ -9641,7 +9634,6 @@ exc#:#exc_team_log_create_team#:#Team erstellt.
 exc#:#exc_team_log_remove_file#:#Datei %s entfernt.
 exc#:#exc_team_log_remove_member#:#Mitglied %s entfernt.
 exc#:#exc_team_management_tutor#:#Team-Management durch Tutoren
-exc#:#exc_team_management_tutor_info#:#Bei Aktivierung dieser Option können Teilnehmer ihre Teams nicht selbst organisieren.
 exc#:#exc_team_max_small_than_members#:#Die maximale Anzahl von Teilnehmern kann nicht auf %s gesetzt werden, da einige Teams %s Teilnehmer erhalten müssen.
 exc#:#exc_team_member_add#:#Team-Mitglied hinzufügen (Suche)
 exc#:#exc_team_member_container_add#:#Team-Mitglied aus Kurs/Gruppe hinzufügen
@@ -10125,7 +10117,6 @@ forum#:#sort_by_posts#:#Nach Beiträge sortieren
 forum#:#sort_by_posts_desc#:#Das Thema wird in einer Baumansicht präsentiert. Antworten auf Beiträge werden in der Reihenfolge gezeigt, in der sie sich aufeinander beziehen.
 forum#:#sorting#:#Sortierung
 forum#:#sticky#:#'Top-Thema'
-forum#:#sticky_threads_sorting#:#Top-Thema-Sortierung
 forum#:#sure_delete_drafts#:#Sind Sie sicher, dass Sie die gewählten Entwürfe löschen möchten?
 forum#:#switch_threads_for_merge#:#Das ausgewählte Thema ist älter als das Zielthema. Um eine sinnvolle Zusammenführung zu schaffen, werden Quell- und Zielthema getauscht.
 forum#:#target_select#:#Beitrag für begrenzte Ansicht auswählen
@@ -11199,15 +11190,15 @@ lti#:#lti_form_provider_create#:#Provider-Einstellungen anlegen
 lti#:#lti_form_provider_edit#:#Provider-Einstellungen bearbeiten
 lti#:#lti_form_section_appearance#:#Optionen für den Start
 lti#:#lti_global_settings_form#:#Globale Einstellungen
-lti#:#lti_import_global_provider#:#Globalen Provider bzw. globales Tool für alle Benutzer mit XML-Datei importieren
-lti#:#lti_info_external_provider_info#:#Der verwendete Provider bzw. das Tool gilt als 'extern'. Hier haben Verantwortliche für diese ILIAS-Installation möglicherweise nur begrenzten Einfluss auf den Umgang mit Daten - zum Beispiel wenn es keine Rechte zum Löschen von Daten gibt.###Modified as part of gender mainstreaming activities for ILIAS 8
-lti#:#lti_info_external_provider_label#:#Zusätzliche Informationen über diesen Provider bzw. dieses Tool
+lti#:#lti_import_global_provider#:#Globalen Provider für alle Benutzer mit XML-Datei importieren
+lti#:#lti_info_external_provider_info#:#Der verwendete Provider ist ein externer Provider. Auf externe Provider haben Sie als Betreiber der ILIAS-Installation möglicherweise nur begrenzten Einfluss auf den Umgang mit Daten, zum Beispiel wenn es keine Rechte zum Löschen von Daten gibt.###Modified as part of gender mainstreaming activities for ILIAS 8
+lti#:#lti_info_external_provider_label#:#Zusätzliche Informationen über diesen Provider
 lti#:#lti_info_learning_progress_section#:#Info zur Ermittlung des Lernfortschritts
-lti#:#lti_info_privacy_section#:#Informationen über personenbezogene Daten, die beim Start an den Provider bzw. das Tool übermittelt werden.###Modified as part of gender mainstreaming activities for ILIAS 8
+lti#:#lti_info_privacy_section#:#Informationen über personenbezogene Daten, die beim Start an den Provider übermittelt wurden.###Modified as part of gender mainstreaming activities for ILIAS 8
 lti#:#lti_launch_url#:#URL
 lti#:#lti_member#:#LTI-Rolle „Member“ / „Learner“
 lti#:#lti_navigation#:#Navigation
-lti#:#lti_no_provider_selected#:#Kein Provider oder Tool ausgewählt
+lti#:#lti_no_provider_selected#:#Kein Provider ausgewählt
 lti#:#lti_not_allowed#:#Zugriff nicht erlaubt. Sie wurden in den ursprünglichen LTI-Bereich umgeleitet.
 lti#:#lti_obj_active#:#LTI-Tool-Provider
 lti#:#lti_obj_active_info#:#Wenn aktiviert, kann dieses Objekt über die LTI-Schnittstelle von anderen Plattformen eingebunden werden.
@@ -11217,11 +11208,10 @@ lti#:#lti_obj_version_13#:#Version 1.3
 lti#:#lti_object_consumer#:#LTI-Konsumenten
 lti#:#lti_object_release_settings_form#:#LTI-Freigaben bearbeiten
 lti#:#lti_provider#:#LTI-Freigaben
-lti#:#lti_provider_not_avail_msg#:#LTI-Provider bzw. -Tool ist auf „Nicht verfügbar“ gesetzt.
-lti#:#lti_provider_not_set_msg#:#LTI-Provider bzw. -Tool ist unvollständig konfiguriert.
-lti#:#lti_providing_tab#:#ILIAS als LTI-Provider / -Tool
+lti#:#lti_provider_not_avail_msg#:#LTI-Provider ist auf „Nicht verfügbar“ gesetzt.
+lti#:#lti_providing_tab#:#ILIAS als LTI-Provider
 lti#:#lti_released_objects#:#Objekt-Freigaben
-lti#:#lti_select_provider#:#Provider bzw. Tool auswählen
+lti#:#lti_select_provider#:#Provider auswählen
 lti#:#lti_session#:#LTI-Sitzung
 lti#:#lti_settings#:#LTI-Einstellungen
 lti#:#lti_settings_form#:#Objekteinstellungen
@@ -11245,7 +11235,7 @@ lti#:#show_statements#:#Lernerfahrungen anzeigen
 lti#:#show_statements_info#:#Die Lernerfahrungen anderer Benutzer können angezeigt werden, wenn das Recht 'Lernerfahrungen anderer Benutzer anzeigen' gesetzt ist.
 lti#:#subtab_certificate#:#Zertifikat
 lti#:#subtab_object_settings#:#Objekteinstellungen
-lti#:#subtab_provider_settings#:#Einstellungen für Provider bzw. Tool
+lti#:#subtab_provider_settings#:#LTI-Provider-Einstellungen
 lti#:#tab_content#:#Inhalt
 lti#:#tab_grade_synchronization#:#Erweiterte Benotungsdienste
 lti#:#tab_info#:#Info
@@ -13254,7 +13244,6 @@ prg#:#prg_cancel_tree_order#:#Reihenfolge des Baums verwerfen.
 prg#:#prg_change_deadline#:#Stichtag anpassen
 prg#:#prg_change_expire_date#:#Ablauf der Qualifikation anpassen
 prg#:#prg_changed_by#:#Geändert durch
-prg#:#prg_completed_by_subnodes#:#Unterprogramm(e)
 prg#:#prg_completion_by#:#Abgeschlossen durch
 prg#:#prg_completion_date#:#Abschlussdatum
 prg#:#prg_confirm_delete#:#Löschen
@@ -17435,7 +17424,7 @@ wiki#:#wiki_change_notification_salutation#:#Hallo %s,
 wiki#:#wiki_change_notification_subject#:#Wiki "%1$s" wurde bearbeitet: %2$s
 wiki#:#wiki_changed_by#:#Geändert von
 wiki#:#wiki_commented_by#:#Von###Modified as part of gender mainstreaming activities for ILIAS 8
-wiki#:#wiki_contributor#:#Mitwirkende
+wiki#:#wiki_contributor#:#Mitwirkende/r
 wiki#:#wiki_contributors#:#Mitwirkende
 wiki#:#wiki_copy#:#Wiki kopieren
 wiki#:#wiki_create_page#:#Seite erstellen

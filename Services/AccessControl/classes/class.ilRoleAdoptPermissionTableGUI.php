@@ -56,6 +56,6 @@ class ilRoleAdoptPermissionTableGUI extends ilTable2GUI
         if (is_string($a_set["role_desc"]) && $a_set["role_desc"] !== '') {
             $this->tpl->setVariable("VAL_DESCRIPTION", $a_set["role_desc"]);
         }
-        $this->tpl->setVariable("VAL_TYPE", $a_set["type"] ?? '');
+        $this->tpl->setVariable("VAL_TYPE", $a_set["type"]);
     }
 }

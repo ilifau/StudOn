@@ -27,6 +27,7 @@ declare(strict_types=1);
 * @defgroup ModulesTest Modules/Test
 * @extends ilObject
 */
+
 class ilTestEvaluationData
 {
     public const FILTER_BY_NONE = '';

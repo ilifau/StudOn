@@ -1,9 +1,4 @@
 <?php
-<<<<<<<< HEAD:Modules/EmployeeTalk/classes/Exceptions/ilEmployeeTalkAppointmentException.php
-
-declare(strict_types=1);
-========
->>>>>>>> v9.1:src/UI/Implementation/Component/Entity/Standard.php
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,9 +16,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<<< HEAD:Modules/EmployeeTalk/classes/Exceptions/ilEmployeeTalkAppointmentException.php
-class ilEmployeeTalkAppointmentException extends ilException
-========
 declare(strict_types=1);
 
 namespace ILIAS\UI\Implementation\Component\Entity;
@@ -31,6 +23,5 @@ namespace ILIAS\UI\Implementation\Component\Entity;
 use ILIAS\UI\Component\Entity as I;
 
 class Standard extends Entity implements I\Standard
->>>>>>>> v9.1:src/UI/Implementation/Component/Entity/Standard.php
 {
 }

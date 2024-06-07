@@ -749,19 +749,4 @@ abstract class ilAssQuestionFeedback
         }
         return $content;
     }
-
-    protected function cleanupPageContent(string $content): string
-    {
-        $doc = new DOMDocument('1.0', 'UTF-8');
-        if (@$doc->loadHTML('<html><body>' . $content . '</body></html>')) {
-            $xpath = new DOMXPath($doc);
-            $nodes_after_comments = $xpath->query('//comment()/following-sibling::*[1]');
-            foreach ($nodes_after_comments as $node_after_comments) {
-                if (trim($node_after_comments->nodeValue) === '') {
-                    return '';
-                }
-            }
-        }
-        return $content;
-    }
 }

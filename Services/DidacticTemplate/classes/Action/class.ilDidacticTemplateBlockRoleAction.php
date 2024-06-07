@@ -107,13 +107,13 @@ class ilDidacticTemplateBlockRoleAction extends ilDidacticTemplateAction
 
         // Delete template permissions
         $this->admin->deleteSubtreeTemplates($source->getRefId(), $a_role_id);
-        if ($a_role_id !== SYSTEM_ROLE_ID) {
-            $this->admin->assignRoleToFolder(
-                $a_role_id,
-                $source->getRefId(),
-                $assign
-            );
-        }
+
+        $this->admin->assignRoleToFolder(
+            $a_role_id,
+            $source->getRefId(),
+            $assign
+        );
+
         return true;
     }
 

@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
  * Login page editor settings GUI
  * ILIAS page editor or richtext editor

@@ -68,9 +68,6 @@ class ilMarkSchemaGUI
     {
         $this->tabs->activateTab(ilTestTabsManager::TAB_ID_SETTINGS);
         $cmd = $this->ctrl->getCmd('showMarkSchema');
-        if ($cmd === self::RESET_MARK_BUTTON_LABEL) {
-            $cmd = 'resetToSimpleMarkSchema';
-        }
         $this->$cmd();
     }
 

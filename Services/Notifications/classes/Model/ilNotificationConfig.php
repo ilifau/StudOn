@@ -45,7 +45,6 @@ class ilNotificationConfig
     protected int $visibleForSeconds = 0;
     /** @var array<string, array<string, string>> */
     private array $handlerParams = [];
-    private NotificationIdentification $identification;
 
     public function __construct(private readonly string $provider, private ?NotificationIdentification $identification = null)
     {

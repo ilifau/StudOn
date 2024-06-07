@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Component\Image;
 
 use ILIAS\UI\Component\JavaScriptBindable;
@@ -57,8 +49,6 @@ interface Image extends Component, JavaScriptBindable, Clickable, Block
      * Get the source (path) of the image.
      */
     public function getSource(): string;
-<<<<<<< HEAD
-=======
 
     /**
      * Add an additional source (path) pointing to an image of higher resolution
@@ -81,7 +71,6 @@ interface Image extends Component, JavaScriptBindable, Clickable, Block
      * @return array<integer, string>
      */
     public function getAdditionalHighResSources(): array;
->>>>>>> v9.1
 
     /**
      * Get the type of the image

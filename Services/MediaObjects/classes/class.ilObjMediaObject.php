@@ -874,8 +874,7 @@ class ilObjMediaObject extends ilObject
         global $DIC;
 
         $ilDB = $DIC->database();
-        $log = ilLoggerFactory::getLogger('mob');
-        $log->debug("save usage mob: " . $a_mob_id . ", type " . $a_type . " id: " . $a_id . ", hist: " . $a_usage_hist_nr . ", lang: " . $a_lang);
+
         $ilDB->replace(
             "mob_usage",
             array(

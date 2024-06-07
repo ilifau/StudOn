@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Component\Card;
 
 use ILIAS\UI\Component\Component;
@@ -76,8 +68,6 @@ interface Card extends Component, JavaScriptBindable, Clickable
      * @return \ILIAS\UI\Component\Component[]
      */
     public function getSections(): array;
-<<<<<<< HEAD
-=======
 
     /**
      * @param \ILIAS\UI\Component\Component[] $sections
@@ -88,7 +78,6 @@ interface Card extends Component, JavaScriptBindable, Clickable
      * @return \ILIAS\UI\Component\Component[] $sections
      */
     public function getHiddenSections(): array;
->>>>>>> v9.1
 
     /**
      * Set the image of the card

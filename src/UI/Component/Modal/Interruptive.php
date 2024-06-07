@@ -55,11 +55,7 @@ interface Interruptive extends Modal
     /**
      * Get the custom label of the action button in the footer.
      */
-<<<<<<< HEAD
-    public function getActionButtonLabel(): string;
-=======
     public function getActionButtonLabel(): ?string;
->>>>>>> v9.1
 
     /**
      * Get a modal like this with the action button labeled
@@ -70,11 +66,7 @@ interface Interruptive extends Modal
     /**
      * Get the custom label of the cancel button in the footer.
      */
-<<<<<<< HEAD
-    public function getCancelButtonLabel(): string;
-=======
     public function getCancelButtonLabel(): ?string;
->>>>>>> v9.1
 
     /**
      * Get a modal like this with the cancel button labeled

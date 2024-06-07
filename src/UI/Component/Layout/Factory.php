@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI\Component\Layout;
 
 /**
@@ -43,8 +35,6 @@ interface Factory
      * @return  \ILIAS\UI\Component\Layout\Page\Factory
      */
     public function page(): Page\Factory;
-<<<<<<< HEAD
-=======
 
     /**
      * ---
@@ -95,5 +85,4 @@ interface Factory
      * @return  \ILIAS\UI\Component\Layout\Alignment\Factory
      */
     public function alignment(): Alignment\Factory;
->>>>>>> v9.1
 }

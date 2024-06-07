@@ -41,13 +41,9 @@ class IconRendererFactory extends Render\DefaultRendererFactory
                 $this->js_binding,
                 $this->refinery,
                 $this->image_path_resolver,
-<<<<<<< HEAD
-                $this->data_factory
-=======
                 $this->data_factory,
                 $this->help_text_retriever,
                 $this->upload_limit_resolver
->>>>>>> v9.1
             );
         }
         return new Renderer(
@@ -57,13 +53,9 @@ class IconRendererFactory extends Render\DefaultRendererFactory
             $this->js_binding,
             $this->refinery,
             $this->image_path_resolver,
-<<<<<<< HEAD
-            $this->data_factory
-=======
             $this->data_factory,
             $this->help_text_retriever,
             $this->upload_limit_resolver
->>>>>>> v9.1
         );
     }
 }

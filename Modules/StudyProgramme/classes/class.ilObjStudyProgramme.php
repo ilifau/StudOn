@@ -944,12 +944,6 @@ class ilObjStudyProgramme extends ilContainer
     // USER ASSIGNMENTS
     ////////////////////////////////////
 
-    protected function getMessageCollection(string $topic): ilPRGMessageCollection
-    {
-        $msgs = new ilPRGMessageCollection();
-        return $msgs->withNewTopic($topic);
-    }
-
     /**
      * Assign a user to this node at the study program.
      *
@@ -1728,7 +1722,6 @@ class ilObjStudyProgramme extends ilContainer
         $this->assignment_repository->store($assignment);
         $this->refreshLPStatus($assignment->getUserId());
     }
-
 
     public function changeProgressDeadline(
         int $assignment_id,

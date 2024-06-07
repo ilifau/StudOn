@@ -22,19 +22,10 @@ namespace ILIAS\UI\Component\Input\Container\ViewControl;
 
 use ILIAS\UI\Component\Input\Input;
 use ILIAS\UI\Component\Triggerer;
-<<<<<<< HEAD
-use ILIAS\UI\Component\Input\ViewControl\ViewControl as LegacyViewControlInput;
-
-=======
->>>>>>> v9.1
 
 /**
  * This describes the basis of all View Control Inputs.
  */
-<<<<<<< HEAD
-interface ViewControlInput extends Input, Triggerer, LegacyViewControlInput
-=======
 interface ViewControlInput extends Input, Triggerer
->>>>>>> v9.1
 {
 }

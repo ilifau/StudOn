@@ -840,16 +840,14 @@ class ilObjUserGUI extends ilObjectGUI
         $data = [];
 
         // login data
-        $data["auth_mode"] = $this->object->getAuthMode();
-        $data["login"] = $this->object->getLogin();
-        //$data["passwd"] = "********";
-        //$data["passwd2"] = "********";
-        $data["ext_account"] = $this->object->getExternalAccount();
+        $data['auth_mode'] = $this->object->getAuthMode();
+        $data['login'] = $this->object->getLogin();
+        $data['ext_account'] = $this->object->getExternalAccount();
         // fau: samlChange - get data for idle_ext_account
         $data["idle_ext_account"] = $this->object->getIdleExtAccount();
         // fau.
         // system information
-        $data["create_date"] = ilDatePresentation::formatDate(new ilDateTime(
+        $data['create_date'] = ilDatePresentation::formatDate(new ilDateTime(
             $this->object->getCreateDate(),
             IL_CAL_DATETIME
         ));
@@ -916,7 +914,7 @@ class ilObjUserGUI extends ilObjectGUI
         $data['chat_broadcast_typing'] = ($this->object->prefs['chat_broadcast_typing'] ?? '') == 'y';
         $data['session_reminder_enabled'] = (int) ($this->object->prefs['session_reminder_enabled'] ?? 0);
 
-        $data["send_mail"] = (($this->object->prefs['send_info_mails'] ?? "") == 'y');
+        $data['send_mail'] = (($this->object->prefs['send_info_mails'] ?? '') == 'y');
         // fau: userData - get raw studydata
         global $DIC;
         $person =  $DIC->fau()->user()->repo()->getPersonOfUser($this->object->getId());
@@ -991,12 +989,7 @@ class ilObjUserGUI extends ilObjectGUI
         if ($this->user->getId() === (int) SYSTEM_USER_ID
             || !in_array(SYSTEM_ROLE_ID, $this->rbac_review->assignedRoles($this->object->getId()))
             || in_array(SYSTEM_ROLE_ID, $this->rbac_review->assignedRoles($this->user->getId()))) {
-
-        // passwords
-        // @todo: do not show passwords, if there is not a single auth, that
-        // allows password setting
-        {
-            $pw = new ilPasswordInputGUI($lng->txt("passwd"), "passwd");
+            $pw = new ilPasswordInputGUI($this->lng->txt('passwd'), 'passwd');
             $pw->setUseStripSlashes(false);
             $pw->setSize(32);
             $pw->setMaxLength(80);
@@ -1681,9 +1674,9 @@ class ilObjUserGUI extends ilObjectGUI
     {
         $this->tabs->activateTab('role_assignment');
 
-    
-        if (!$rbacsystem->checkAccess("edit_roleassignment", $this->usrf_ref_id) &&
-            !$access->isCurrentUserBasedOnPositionsAllowedTo("read_users", array($this->object->getId()))
+        if ($this->object->getId() === (int) ANONYMOUS_USER_ID
+            || !$this->rbac_system->checkAccess('edit_roleassignment', $this->usrf_ref_id)
+                && !$this->access->isCurrentUserBasedOnPositionsAllowedTo('read_users', [$this->object->getId()])
         ) {
             $this->ilias->raiseError(
                 $this->lng->txt('msg_no_perm_assign_role_to_user'),
@@ -2041,34 +2034,4 @@ class ilObjUserGUI extends ilObjectGUI
             $this->ilias->raiseError($this->lng->txt('msg_no_perm_modify_user'), $this->ilias->error_obj->MESSAGE);
         }
     }
-
-    private function checkUserWriteRight(): void
-    {
-        if ($this->usrf_ref_id == USER_FOLDER_ID
-            && (
-                !$this->rbac_system->checkAccess('visible,read', $this->usrf_ref_id)
-                || !$this->rbac_system->checkAccess('write', $this->usrf_ref_id)
-                    && (
-                        !$this->access->checkPositionAccess(\ilObjUserFolder::ORG_OP_EDIT_USER_ACCOUNTS, $this->usrf_ref_id)
-                        || $this->access->checkPositionAccess(\ilObjUserFolder::ORG_OP_EDIT_USER_ACCOUNTS, $this->usrf_ref_id)
-                            && !in_array(
-                                $this->object->getId(),
-                                $this->access->filterUserIdsByPositionOfCurrentUser(
-                                    \ilObjUserFolder::ORG_OP_EDIT_USER_ACCOUNTS,
-                                    USER_FOLDER_ID,
-                                    [$this->object->getId()]
-                                )
-                            )
-                    )
-            )
-        ) {
-            $this->ilias->raiseError($this->lng->txt('msg_no_perm_modify_user'), $this->ilias->error_obj->MESSAGE);
-        }
-
-        // if called from local administration $this->usrf_ref_id is category id
-        // Todo: this has to be fixed. Do not mix user folder id and category id
-        if ($this->usrf_ref_id != USER_FOLDER_ID
-            && !$this->rbac_system->checkAccess('cat_administrate_users', $this->object->getTimeLimitOwner())) {
-            $this->ilias->raiseError($this->lng->txt('msg_no_perm_modify_user'), $this->ilias->error_obj->MESSAGE);
-        }
-    }}
+}

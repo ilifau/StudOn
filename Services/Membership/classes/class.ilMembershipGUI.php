@@ -1393,7 +1393,7 @@ class ilMembershipGUI
                 $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
                 ilUtil::getImagePath('standard/icon_usr.svg')
             );
-        
+        }
 
         $this->tpl->setContent($c_gui->getHTML());
     }

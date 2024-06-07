@@ -50,11 +50,7 @@ interface RoundTrip extends Modal, Standard
     /**
      * Get the custom label of the cancel button in the footer.
      */
-<<<<<<< HEAD
-    public function getCancelButtonLabel(): string;
-=======
     public function getCancelButtonLabel(): ?string;
->>>>>>> v9.1
 
     /**
      * Get a modal like this with the provided action buttons in the footer.

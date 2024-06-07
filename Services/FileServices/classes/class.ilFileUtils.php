@@ -730,10 +730,8 @@ class ilFileUtils
     */
     public static function rRenameSuffix(string $a_dir, string $a_old_suffix, string $a_new_suffix): bool
     {
-        if ($a_dir === "/"
-            || $a_dir === ""
-            || strpos($a_dir, "..") !== false
-            || trim($a_old_suffix) === "") {
+        if ($a_dir == "/" || $a_dir == "" || is_int(strpos($a_dir, ".."))
+            || trim($a_old_suffix) == "") {
             return false;
         }
 
@@ -754,7 +752,7 @@ class ilFileUtils
                 }
                 // directories
                 if (@is_dir($a_dir . "/" . $file)) {
-                    self::rRenameSuffix($a_dir . "/" . $file, $a_old_suffix, $a_new_suffix);
+                    ilFileUtils::rRenameSuffix($a_dir . "/" . $file, $a_old_suffix, $a_new_suffix);
                 }
 
                 // files

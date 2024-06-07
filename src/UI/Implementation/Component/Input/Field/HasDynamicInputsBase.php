@@ -26,7 +26,6 @@ use ILIAS\UI\Implementation\Component\Input\NameSource;
 use ILIAS\UI\Implementation\Component\Input\InputData;
 use ILIAS\UI\Component\Input\Container\Form\FormInput as FormInputInterface;
 use ILIAS\UI\Component\Input\Field\HasDynamicInputs;
-use ILIAS\UI\Component\Input\Field\Input as LegacyInputInterface;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Data\Factory as DataFactory;
 use InvalidArgumentException;
@@ -66,11 +65,7 @@ abstract class HasDynamicInputsBase extends FormInput implements HasDynamicInput
      * Returns the instance of Field which should be used to generate
      * dynamic inputs on clientside.
      */
-<<<<<<< HEAD
-    public function getTemplateForDynamicInputs(): LegacyInputInterface
-=======
     public function getTemplateForDynamicInputs(): FormInputInterface
->>>>>>> v9.1
     {
         return $this->dynamic_input_template;
     }

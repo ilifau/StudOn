@@ -49,7 +49,7 @@ class ilDBStepExecutionDBExistsObjective implements Setup\Objective
 
         return $environment
             ->withResource(
-                \ilDBStepExecutionDB::class,
+                \ilDatabaseUpdateStepExecutionLog::class,
                 new \ilDBStepExecutionDB(
                     $db,
                     fn() => new \DateTime()

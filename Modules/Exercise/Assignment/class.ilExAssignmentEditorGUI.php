@@ -288,17 +288,16 @@ class ilExAssignmentEditorGUI
 
             // Radio for creators
             $rd_team = new ilRadioGroupInputGUI($lng->txt("exc_team_formation"), "team_creator");
-            $rd_team->setValue((string) ilExAssignment::TEAMS_FORMED_BY_PARTICIPANTS);
 
             $radio_participants = new ilRadioOption(
                 $lng->txt("exc_team_by_participants"),
-                (string) ilExAssignment::TEAMS_FORMED_BY_PARTICIPANTS,
+                ilExAssignment::TEAMS_FORMED_BY_PARTICIPANTS,
                 $lng->txt("exc_team_by_participants_info")
             );
 
             $radio_tutors = new ilRadioOption(
                 $lng->txt("exc_team_by_tutors"),
-                (string) ilExAssignment::TEAMS_FORMED_BY_TUTOR,
+                ilExAssignment::TEAMS_FORMED_BY_TUTOR,
                 $lng->txt("exc_team_by_tutors_info")
             );
 

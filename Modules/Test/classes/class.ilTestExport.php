@@ -179,22 +179,6 @@ abstract class ilTestExport
         return $this->export_dir . "/" . $this->filename;
     }
 
-
-    protected function orderQuestions(array $questions): array
-    {
-        $key = $this->test_obj->isRandomTest() ? 'qid' : 'sequence';
-        usort(
-            $questions,
-            function ($a, $b) use ($key) {
-                if (isset($a[$key], $b[$key]) && $a[$key] > $b[$key]) {
-                    return 1;
-                }
-                return -1;
-            }
-        );
-        return $questions;
-    }
-
     abstract protected function initXmlExport();
 
     abstract protected function getQuestionIds();

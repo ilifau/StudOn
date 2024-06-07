@@ -91,11 +91,7 @@ class Interruptive extends Modal implements M\Interruptive
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function getActionButtonLabel(): string
-=======
     public function getActionButtonLabel(): ?string
->>>>>>> v9.1
     {
         return $this->action_button_label;
     }
@@ -114,11 +110,7 @@ class Interruptive extends Modal implements M\Interruptive
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function getCancelButtonLabel(): string
-=======
     public function getCancelButtonLabel(): ?string
->>>>>>> v9.1
     {
         return $this->cancel_button_label;
     }

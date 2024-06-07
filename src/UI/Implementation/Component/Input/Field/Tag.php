@@ -229,11 +229,7 @@ class Tag extends FormInput implements C\Input\Field\Tag
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function withTagMaxLength(int $max_length): C\Input\Field\Tag
-=======
     public function withTagMaxLength(int $max_length): self
->>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->tag_max_length = $max_length;
@@ -252,11 +248,7 @@ class Tag extends FormInput implements C\Input\Field\Tag
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function withMaxTags(int $max_tags): C\Input\Field\Tag
-=======
     public function withMaxTags(int $max_tags): self
->>>>>>> v9.1
     {
         $clone = clone $this;
         $clone->max_tags = $max_tags;
@@ -275,11 +267,7 @@ class Tag extends FormInput implements C\Input\Field\Tag
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function withInput(InputData $input): C\Input\Field\Input
-=======
     public function withInput(InputData $input): self
->>>>>>> v9.1
     {
         // ATTENTION: This is a slightly modified copy of parent::withInput, which
         // fixes #27909 but makes the Tag Input unusable in Filter Containers.
@@ -303,20 +291,12 @@ class Tag extends FormInput implements C\Input\Field\Tag
     }
 
     // Events
-<<<<<<< HEAD
-    public function withAdditionalOnTagAdded(Signal $signal): C\Input\Field\Tag
-=======
     public function withAdditionalOnTagAdded(Signal $signal): self
->>>>>>> v9.1
     {
         return $this->appendTriggeredSignal($signal, self::EVENT_ITEM_ADDED);
     }
 
-<<<<<<< HEAD
-    public function withAdditionalOnTagRemoved(Signal $signal): C\Input\Field\Tag
-=======
     public function withAdditionalOnTagRemoved(Signal $signal): self
->>>>>>> v9.1
     {
         return $this->appendTriggeredSignal($signal, self::EVENT_ITEM_REMOVED);
     }

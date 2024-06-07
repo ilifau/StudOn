@@ -76,11 +76,7 @@ class SwitchableGroup extends Group implements I\SwitchableGroup
         return array_key_exists($value, $this->getInputs());
     }
 
-<<<<<<< HEAD
-    public function withRequired($is_required, ?Constraint $requirement_constraint = null): I\Input
-=======
     public function withRequired($is_required, ?Constraint $requirement_constraint = null): self
->>>>>>> v9.1
     {
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return FormInput::withRequired($is_required, $requirement_constraint);
@@ -89,11 +85,7 @@ class SwitchableGroup extends Group implements I\SwitchableGroup
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function withValue($value): I\Input
-=======
     public function withValue($value): self
->>>>>>> v9.1
     {
         if (is_string($value) || is_int($value)) {
             /** @noinspection PhpIncompatibleReturnTypeInspection */
@@ -109,11 +101,7 @@ class SwitchableGroup extends Group implements I\SwitchableGroup
 
         /** @var $clone self */
         $clone = FormInput::withValue($key);
-<<<<<<< HEAD
-        $clone->setInputs($clone->getInputsWithOperationForKey($key, fn ($i) => $i->withValue($group_value)));
-=======
         $clone->setInputs($clone->getInputsWithOperationForKey($key, fn($i) => $i->withValue($group_value)));
->>>>>>> v9.1
         return $clone;
     }
 
@@ -138,11 +126,7 @@ class SwitchableGroup extends Group implements I\SwitchableGroup
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function withInput(InputData $input): I\Input
-=======
     public function withInput(InputData $input): self
->>>>>>> v9.1
     {
         if ($this->getName() === null) {
             throw new LogicException("Can only collect if input has a name.");
@@ -163,11 +147,7 @@ class SwitchableGroup extends Group implements I\SwitchableGroup
 
         if (!$this->isDisabled()) {
             $clone = $clone->withValue($key);
-<<<<<<< HEAD
-            $clone->setInputs($clone->getInputsWithOperationForKey($key, fn ($i) => $i->withInput($input)));
-=======
             $clone->setInputs($clone->getInputsWithOperationForKey($key, fn($i) => $i->withInput($input)));
->>>>>>> v9.1
         }
 
         /** @var $inputs I\Group[] */
@@ -203,14 +183,8 @@ class SwitchableGroup extends Group implements I\SwitchableGroup
      * the given $key. The callable will recieve the input as its only argument and must return
      * it again with applied operations.
      */
-<<<<<<< HEAD
-    protected function getInputsWithOperationForKey($key, \Closure $operation): array
-    {
-        $this->checkArg("key", is_int($key) || is_string($key), "Key must be int or string.");
-=======
     protected function getInputsWithOperationForKey(int|string $key, \Closure $operation): array
     {
->>>>>>> v9.1
         $inputs = $this->getInputs();
         if (!array_key_exists($key, $inputs)) {
             throw new LogicException("Key '$key' does not exist in inputs.");

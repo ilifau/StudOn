@@ -92,11 +92,7 @@ class Renderer extends AbstractComponentRenderer
         $param_name = $component->getName();
         if ($container_submit_signal = $component->getOnChangeSignal()) {
             $component = $component->withAdditionalOnLoadCode(
-<<<<<<< HEAD
-                fn ($id) => "$(document).on('{$internal_signal}', 
-=======
                 fn($id) => "$(document).on('{$internal_signal}', 
->>>>>>> v9.1
                     function(event, signal_data) {
                         var container = event.target.closest('.il-viewcontrol-fieldselection'),
                             checkbox = container.querySelectorAll('input[type=checkbox]'),
@@ -118,11 +114,7 @@ class Renderer extends AbstractComponentRenderer
         }
 
         $component = $component->withAdditionalOnLoadCode(
-<<<<<<< HEAD
-            fn ($id) => "$('#{$id} > .dropdown-menu')
-=======
             fn($id) => "$('#{$id} > .dropdown-menu')
->>>>>>> v9.1
                 .on('click', (event) =>  event.stopPropagation());"
         );
 
@@ -147,11 +139,7 @@ class Renderer extends AbstractComponentRenderer
         $ui_factory = $this->getUIFactory();
 
         foreach ($component->getOptions() as $opt_label => $order) {
-<<<<<<< HEAD
-            $opt_value = $order->join(':', fn ($ret, $key, $value) => implode($ret, [$key, $value]));
-=======
             $opt_value = $order->join(':', fn($ret, $key, $value) => implode($ret, [$key, $value]));
->>>>>>> v9.1
             $internal_signal = $component->getInternalSignal();
             $internal_signal->addOption('value', $opt_value);
             $item = $ui_factory->button()->shy((string) $opt_label, '#')
@@ -167,11 +155,7 @@ class Renderer extends AbstractComponentRenderer
 
         if ($container_submit_signal = $component->getOnChangeSignal()) {
             $component = $component->withAdditionalOnLoadCode(
-<<<<<<< HEAD
-                fn ($id) => "$(document).on('{$internal_signal}', 
-=======
                 fn($id) => "$(document).on('{$internal_signal}', 
->>>>>>> v9.1
                     function(event, signal_data) { 
                         let container;
                         if(signal_data.options.parent_container) {
@@ -357,11 +341,7 @@ class Renderer extends AbstractComponentRenderer
 
         if ($container_submit_signal = $component->getOnChangeSignal()) {
             $component = $component->withAdditionalOnLoadCode(
-<<<<<<< HEAD
-                fn ($id) => "$(document).on('{$internal_signal}',
-=======
                 fn($id) => "$(document).on('{$internal_signal}',
->>>>>>> v9.1
                     function(event, signal_data) {
                         let inputs = event.target
                             .closest('.il-viewcontrol-pagination')

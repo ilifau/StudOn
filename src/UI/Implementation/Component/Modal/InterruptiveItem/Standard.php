@@ -18,11 +18,7 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD:src/UI/Implementation/Component/Modal/InterruptiveItem.php
-namespace ILIAS\UI\Implementation\Component\Modal;
-=======
 namespace ILIAS\UI\Implementation\Component\Modal\InterruptiveItem;
->>>>>>> v9.1:src/UI/Implementation/Component/Modal/InterruptiveItem/Standard.php
 
 use ILIAS\UI\Component\Image\Image;
 use ILIAS\UI\Component\Modal\InterruptiveItem\Standard as StandardInterface;
@@ -46,42 +42,16 @@ class Standard extends InterruptiveItem implements StandardInterface
         $this->description = $description;
     }
 
-<<<<<<< HEAD:src/UI/Implementation/Component/Modal/InterruptiveItem.php
-    /**
-     * @inheritdoc
-     */
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-=======
->>>>>>> v9.1:src/UI/Implementation/Component/Modal/InterruptiveItem/Standard.php
     public function getTitle(): string
     {
         return $this->title;
     }
 
-<<<<<<< HEAD:src/UI/Implementation/Component/Modal/InterruptiveItem.php
-    /**
-     * @inheritdoc
-     */
-=======
->>>>>>> v9.1:src/UI/Implementation/Component/Modal/InterruptiveItem/Standard.php
     public function getDescription(): string
     {
         return $this->description;
     }
 
-<<<<<<< HEAD:src/UI/Implementation/Component/Modal/InterruptiveItem.php
-    /**
-     * @inheritdoc
-     */
-=======
->>>>>>> v9.1:src/UI/Implementation/Component/Modal/InterruptiveItem/Standard.php
     public function getIcon(): ?Image
     {
         return $this->icon;

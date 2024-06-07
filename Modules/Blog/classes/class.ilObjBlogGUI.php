@@ -886,11 +886,6 @@ class ilObjBlogGUI extends ilObject2GUI implements ilDesktopItemHandling
         return $this->rendered_content;
     }
 
-    public function getRenderedContent(): string
-    {
-        return $this->rendered_content;
-    }
-
     protected function triggerAssignmentTool(): void
     {
         $be = $this->domain->exercise($this->node_id);

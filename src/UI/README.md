@@ -16,13 +16,8 @@ not a templating framework.
 ## Semantics of Components
 
 UI Components serve a specific purpose. They are not simply named html structures that are composed to larger structures, 
-<<<<<<< HEAD
-but semantically different identities. It is possible that two different component look the same and act the same by 
-accident, but still remain different identities. However it is also possible that the same component, looks different in serpereate contexts.
-=======
 but semantically different identities. It is possible that two different components look the same and act the same by 
 accident, but still remain different identities. However it is also possible that the same component looks different in separate contexts.
->>>>>>> v9.1
 
 ## Correctness by Construction and Testability
 

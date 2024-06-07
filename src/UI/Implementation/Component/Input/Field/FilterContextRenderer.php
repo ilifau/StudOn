@@ -312,11 +312,7 @@ class FilterContextRenderer extends AbstractComponentRenderer
         if ($signals !== null) {
             $signals = json_encode($signals);
 
-<<<<<<< HEAD
-            $input = $input->withAdditionalOnLoadCode(fn ($id) => "il.UI.input.setSignalsForId('$id', $signals);");
-=======
             $input = $input->withAdditionalOnLoadCode(fn($id) => "il.UI.input.setSignalsForId('$id', $signals);");
->>>>>>> v9.1
 
             $input = $input->withAdditionalOnLoadCode($input->getUpdateOnLoadCode());
         }

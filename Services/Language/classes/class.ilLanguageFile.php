@@ -16,9 +16,8 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- *********************************************************************/
-
-declare(strict_types=1);
+ ********************************************************************
+ */
 
 /**
 * Class ilLanguageFile
@@ -298,7 +297,7 @@ class ilLanguageFile
     */
     public function getParam(string $a_name): string
     {
-        return $this->params[$a_name] ?? '';
+        return $this->params[$a_name];
     }
 
     /**

@@ -598,8 +598,6 @@ assessment#:#counter#:#计数器
 assessment#:#create_date#:#已创建
 assessment#:#create_gaps#:#创建间隔
 assessment#:#create_new#:#新创建
-assessment#:#ctm_cannot_be_changed#:#This is a test in CTM-Mode. Settings cannot be changed anymore as CTM has been abandoned.###31 03 2023 new variable
-assessment#:#ctm_cannot_be_started#:#This is a test in CTM-Mode. The test cannot be started anymore as CTM has been abandoned.###31 03 2023 new variable
 assessment#:#customstyle#:#自定义样式
 assessment#:#dashboard_tab#:#Dashboard###10 11 2018 new variable
 assessment#:#definition#:#定义
@@ -2973,7 +2971,6 @@ chatroom#:#connection_url_info#:#Please insert an URL for the Server connection.
 chatroom#:#custom_username#:#自定义用户名
 chatroom#:#dhparam#:#Diffie-Hellman Parameter###25 10 2016 new variable
 chatroom#:#display_past_msgs#:#已往消息的数量
-chatroom#:#display_past_msgs_suffix#:#Messages###31 03 2023 new variable
 chatroom#:#duration_from#:#来自
 chatroom#:#duration_to#:#到
 chatroom#:#end_whisper#:#取消
@@ -3183,8 +3180,6 @@ cmix#:#conf_privacy_setting_default#:#Default Settings, changeable for Objects##
 cmix#:#conf_privacy_setting_force#:#Settings are not changeable for Objects###07 02 2020 new variable
 cmix#:#conf_privacy_setting_info#:#Configuration Options for Privacy Settings###07 02 2020 new variable
 cmix#:#conf_remarks#:#Internal comments###07 02 2020 new variable
-cmix#:#conf_switch_to_review#:#Switch to Review Mode###03 11 2021 new variable
-cmix#:#conf_switch_to_review_info#:#After the cmi5 learning module has been successfully processed (status satisfied), the learning module is started in review mode the next time it is called up.###03 11 2021 new variable
 cmix#:#conf_title#:#Title###07 02 2020 new variable
 cmix#:#conf_use_proxy#:#xAPI-Proxy###30 04 2024 new variable
 cmix#:#conf_use_proxy_info#:#The xAPI proxy provides real-time data to determine learning progress in ILIAS. The proxy reduces personal data in accordance with the selected data protection options. If the xAPI proxy is deactivated, the learning content writes the learning progress directly to the LRS. This data must then also be retrieved directly from the LRS. The cron job "xAPI/cmi5 get results" is required to determine the learning progress. The xAPI proxy is mandatory for cmi5 objects and is activated automatically.###30 04 2024 new variable
@@ -4573,7 +4568,6 @@ common#:#lso_edit#:#Edit Learning Sequence###10 11 2018 new variable
 common#:#lso_import#:#Import Learning Sequence###10 11 2018 new variable
 common#:#lso_new#:#New Learning Sequence###10 11 2018 new variable
 common#:#lso_wizard_page#:#Copy Learning Sequence (Step 2/2)###07 02 2020 new variable
-common#:#lti#:#LTI Consumer###31 03 2023 new variable
 common#:#lti_outcome#:#LTI Lernfortschritt Benachrichtigung###31 08 2017 new variable
 common#:#lti_outcome_info#:#Sendet den Lernfortschrittstatus von LTI-Benutzern an LTI Tool Consumer.###31 08 2017 new variable
 common#:#mail#:#邮件
@@ -4977,7 +4971,6 @@ common#:#obj_lso_duplicate#:#Copy Learning Sequence###10 11 2018 new variable
 common#:#obj_lsos#:#Learning Sequences###30 04 2021 new variable
 common#:#obj_lsos_desc#:#General settings for Learning Sequences###30 04 2021 new variable
 common#:#obj_lti#:#LTI Consumer###07 02 2020 new variable
-common#:#obj_lti_duplicate#:#Copy LTI Consumer###31 03 2023 new variable
 common#:#obj_ltis#:#LTI###31 08 2017 new variable
 common#:#obj_ltis_desc#:#Learning Tools Interoperability###31 08 2017 new variable
 common#:#obj_mail#:#邮件设置
@@ -5322,7 +5315,6 @@ common#:#predefined_template#:#预定义的角色模板
 common#:#preferences#:#用户定义偏好
 common#:#presentation_table_more#:#more###10 11 2018 new variable
 common#:#preview#:#Preview###24 10 2013 new variable
-common#:#preview_caption#:#Preview %sof %s###31 03 2023 new variable
 common#:#preview_create#:#Create Preview###24 10 2013 new variable
 common#:#preview_delete#:#Delete Preview###24 10 2013 new variable
 common#:#preview_image_size#:#Size of Preview Images###30 04 2024 new variable
@@ -5400,7 +5392,6 @@ common#:#referral_comment#:#您是如何了解到ILIAS的?
 common#:#refresh#:#更新
 common#:#refresh_languages#:#更新语言
 common#:#refuse#:#拒绝
-common#:#refuse_tos_acceptance#:#Refuse to Accept Terms of Service###09 03 2022 new variable
 common#:#reg_account_confirmation_successful#:#您的账号已经激活。
 common#:#reg_goto_parent_membership_info#:#仅成员能访问目标对象。
 common#:#reg_mail_body_2_confirmation#:#The link will only be good for %s, after that you will have to try again from the beginning.
@@ -6373,7 +6364,6 @@ content#:#cont_dir_file#:#目录/文件
 content#:#cont_dir_renamed#:#目录已被重新命名
 content#:#cont_disable_def_feedback#:#Disable Default Question Feedback###24 10 2013 new variable
 content#:#cont_disable_def_feedback_info#:#If disabled, answered questions will not show any feedback for the learner. You need to provide custom feedbacks for your questions.###24 10 2013 new variable
-content#:#cont_double_click_to_delete#:#Double-click on content elements to select them for (de-)activation or deletion.###14 05 2024 new variable
 content#:#cont_download#:#Download###27 01 2015 new variable
 content#:#cont_download_no_download#:#下载将对用户不可用，因为下载功能没激活。
 content#:#cont_download_no_menu#:#下载将对用户不可用，来自学习模块的菜单没有激活。
@@ -9724,7 +9714,6 @@ exp#:#exp_scorm#:#SCORM
 exp#:#exp_show_print_view#:#Show Print View###31 03 2023 new variable
 exp#:#exp_xml#:#XML
 exp#:#export_created#:#一个新导出文件被创建。
-exp#:#export_files_deleted#:#The selected export files have been deleted.###28 05 2024 new variable
 export#:#export_create#:#创建
 export#:#export_create_new_file#:#创建新的导出文件
 export#:#export_existing#:#重用
@@ -10123,7 +10112,6 @@ forum#:#sort_by_posts#:#按贴子排序
 forum#:#sort_by_posts_desc#:#The thread is presented in a tree view. Replies to posts are shown in the order in which they relate to each other.###31 03 2023 new variable
 forum#:#sorting#:#Sorting###07 02 2020 new variable
 forum#:#sticky#:#sticky
-forum#:#sticky_threads_sorting#:#Sticky Threads Sorting###24 09 2021 new variable
 forum#:#sure_delete_drafts#:#Are you sure, you want to delete the selected drafts?###25 10 2016 new variable
 forum#:#switch_threads_for_merge#:#The selected thread is older than the target thread. To ensure a successful merge, the source and target thread will be switched.###24 10 2013 new variable
 forum#:#target_select#:#Select posting for limited view###31 03 2023 new variable
@@ -11215,7 +11203,6 @@ lti#:#lti_object_consumer#:#LTI Consumers###31 08 2017 new variable
 lti#:#lti_object_release_settings_form#:#LTI Freigaben bearbeiten###31 08 2017 new variable
 lti#:#lti_provider#:#LTI-Freigaben###31 08 2017 new variable
 lti#:#lti_provider_not_avail_msg#:#LTI Provider is set to 'Not Available'###07 02 2020 new variable
-lti#:#lti_provider_not_set_msg#:#LTI Provider / Tool is configured incompletely.###26 04 2023 new variable
 lti#:#lti_providing_tab#:#ILIAS as LTI Provider###07 02 2020 new variable
 lti#:#lti_released_objects#:#Objekt-Freigaben###31 08 2017 new variable
 lti#:#lti_select_provider#:#Select Provider###07 02 2020 new variable
@@ -13250,7 +13237,6 @@ prg#:#prg_cancel_tree_order#:#Dismiss tree order###30 08 2015 new variable
 prg#:#prg_change_deadline#:#Change deadline###28 07 2023 new variable
 prg#:#prg_change_expire_date#:#Change expire date###28 07 2023 new variable
 prg#:#prg_changed_by#:#Changed by###30 08 2015 new variable
-prg#:#prg_completed_by_subnodes#:#subprogrammes###31 03 2023 new variable
 prg#:#prg_completion_by#:#Completion by###30 08 2015 new variable
 prg#:#prg_completion_date#:#Completion date###07 02 2020 new variable
 prg#:#prg_confirm_delete#:#Delete###30 04 2021 new variable

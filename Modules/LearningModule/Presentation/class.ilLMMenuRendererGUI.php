@@ -220,11 +220,6 @@ class ilLMMenuRendererGUI
                 $this->ui_factory->dropdown()->standard($actions)
             );
         }
-        if (count($actions) > 0) {
-            $this->toolbar->addStickyItem(
-                $this->ui_factory->dropdown()->standard($actions)
-            );
-        }
 
         return $tabs_gui->$getcmd();
     }

@@ -99,11 +99,7 @@ class Radio extends FormInput implements C\Input\Field\Radio
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function withInput(InputData $input): C\Input\Field\Input
-=======
     public function withInput(InputData $input): self
->>>>>>> v9.1
     {
         if ($this->getName() === null) {
             throw new LogicException("Can only collect if input has a name.");

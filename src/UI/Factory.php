@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-declare(strict_types=1);
-=======
->>>>>>> v9.1
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -21,11 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-<<<<<<< HEAD
-=======
 declare(strict_types=1);
 
->>>>>>> v9.1
 namespace ILIAS\UI;
 
 use ILIAS\UI\Component as C;
@@ -919,8 +911,6 @@ interface Factory
      * @return \ILIAS\UI\Component\Toast\Factory
      */
     public function toast(): C\Toast\Factory;
-<<<<<<< HEAD
-=======
 
     /**
      * ---
@@ -1057,5 +1047,4 @@ interface Factory
      * @return \ILIAS\UI\Component\Entity\Factory
      */
     public function entity(): C\Entity\Factory;
->>>>>>> v9.1
 }

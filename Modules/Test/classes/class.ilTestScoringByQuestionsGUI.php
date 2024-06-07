@@ -244,7 +244,6 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
 
                 $maxPointsByQuestionId[$qst_id] = $this->questioninfo->getMaximumPoints($qst_id);
                 $manPointsPost[$pass][$active_id][$qst_id] = $reached_points;
-
                 if ($reached_points > $maxPointsByQuestionId[$qst_id]) {
                     $this->tpl->setOnScreenMessage('failure', sprintf($this->lng->txt('tst_save_manscoring_failed'), $pass + 1), false);
                     $this->showManScoringByQuestionParticipantsTable($manPointsPost);

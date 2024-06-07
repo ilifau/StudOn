@@ -103,9 +103,4 @@ abstract class ilObjFileAbstractProcessor implements ilObjFileProcessorInterface
     {
         return $this->invalid_file_names;
     }
-
-    public function getInvalidFileNames(): array
-    {
-        return $this->invalid_file_names;
-    }
 }

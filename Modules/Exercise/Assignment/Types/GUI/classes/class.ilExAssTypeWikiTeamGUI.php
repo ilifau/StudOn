@@ -122,7 +122,6 @@ class ilExAssTypeWikiTeamGUI implements ilExAssignmentTypeGUIInterface
 
         $ar = new ilExAssWikiTeamAR($ass->getId());
 
-        $values["template"] = "0";
         if ($ar->getTemplateRefId() > 0) {
             $values["template_ref_id"] = $ar->getTemplateRefId();
             $values["template"] = "1";

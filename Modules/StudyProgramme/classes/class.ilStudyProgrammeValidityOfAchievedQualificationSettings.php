@@ -121,7 +121,6 @@ class ilStudyProgrammeValidityOfAchievedQualificationSettings
                 )
                 ->withAdditionalTransformation($refinery->int()->isGreaterThanOrEqual(1))
                 ->withValue($this->getQualificationPeriod())
-                ->withRequired(true)
             ],
             $lng->txt('validity_qualification_period')
         );

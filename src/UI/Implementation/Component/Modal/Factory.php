@@ -23,36 +23,21 @@ namespace ILIAS\UI\Implementation\Component\Modal;
 use ILIAS\UI\Component\Modal as M;
 use ILIAS\UI\Component\Image\Image;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
-<<<<<<< HEAD
-use ILIAS\UI\Implementation\Component\Input\FormInputNameSource;
-use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
-=======
 use ILIAS\UI\Component\Modal\InterruptiveItem\Factory as ItemFactory;
 use ILIAS\UI\Implementation\Component\Input\FormInputNameSource;
 use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
 use ILIAS\UI\Component\Card\Card;
->>>>>>> v9.1
 
 /**
  * Implementation of factory for modals
  */
 class Factory implements M\Factory
 {
-<<<<<<< HEAD
-    protected SignalGeneratorInterface $signal_generator;
-    protected FieldFactory $field_factory;
-
-    public function __construct(SignalGeneratorInterface $signal_generator, FieldFactory $field_factory)
-    {
-        $this->signal_generator = $signal_generator;
-        $this->field_factory = $field_factory;
-=======
     public function __construct(
         protected SignalGeneratorInterface $signal_generator,
         protected ItemFactory $item_factory,
         protected FieldFactory $field_factory,
     ) {
->>>>>>> v9.1
     }
 
     /**
@@ -66,42 +51,14 @@ class Factory implements M\Factory
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-    public function interruptiveItem(
-        string $id,
-        string $title,
-        Image $icon = null,
-        string $description = ''
-    ): M\InterruptiveItem {
-        return new InterruptiveItem($id, $title, $icon, $description);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function roundtrip(string $title, $content, array $inputs = [], string $post_url = null): M\RoundTrip
-    {
-        return new RoundTrip(
-            $this->signal_generator,
-            $this->field_factory,
-            new FormInputNameSource(),
-            $title,
-            $content,
-            $inputs,
-            $post_url
-        );
-=======
     public function interruptiveItem(): M\InterruptiveItem\Factory
     {
         return $this->item_factory;
->>>>>>> v9.1
     }
 
     /**
      * @inheritdoc
      */
-<<<<<<< HEAD
-=======
     public function roundtrip(string $title, $content, array $inputs = [], string $post_url = null): M\RoundTrip
     {
         return new RoundTrip(
@@ -118,7 +75,6 @@ class Factory implements M\Factory
     /**
      * @inheritdoc
      */
->>>>>>> v9.1
     public function lightbox($pages): M\Lightbox
     {
         return new Lightbox($pages, $this->signal_generator);

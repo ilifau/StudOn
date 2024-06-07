@@ -630,7 +630,6 @@ class ilObjSurvey extends ilObject
         $show_questiontext = false;
         $show_blocktitle = false;
         $title = "";
-        $this->svy_log->debug("insert block, original id: " . $questionblock_id);
         while ($row = $ilDB->fetchAssoc($result)) {
             //$duplicate_id = $this->duplicateQuestionForSurvey($row["question_fi"]);
             $duplicate_id = $sequence_manager->appendQuestion($row["question_fi"], true);

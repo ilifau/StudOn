@@ -261,7 +261,7 @@ class ilMemberExport
         if ($this->settings->enabled('group_memberships')) {
             $fields[] = 'crs_members_groups';
         }
-        return $fields ? $fields : array();
+        return $fields;
     }
 
     protected function write(): void

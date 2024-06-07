@@ -37,7 +37,7 @@ class ilObjMediaPoolSubItemListGUI extends ilSubItemListGUI
                 $this->tpl->parseCurrentBlock();
             }
             $this->tpl->setCurrentBlock('subitem');
-            $this->tpl->setVariable('SEPERATOR', ': ');
+            $this->tpl->setVariable('SEPERATOR', ':');
 
             switch (ilMediaPoolItem::lookupType($sub_item)) {
                 case 'fold':
@@ -113,7 +113,7 @@ class ilObjMediaPoolSubItemListGUI extends ilSubItemListGUI
                 );
                 $this->tpl->setVariable('LINKED_TARGET', '_blank');
                 $this->tpl->setVariable("LINKED_IMAGE", ilUtil::img($target));
-                // end-patch mime_filter
+            // end-patch mime_filter
             } else {
                 $this->tpl->setVariable("SUB_ITEM_IMAGE", ilUtil::img(ilUtil::getImagePath("standard/icon_" . "mob" . ".gif")));
             }
