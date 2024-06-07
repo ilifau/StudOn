@@ -28,7 +28,7 @@ class ilFairAutoFillCron extends ilCronJob
         return $DIC->language()->txt("fair_autofill_cron_info");
     }
     
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
     {
         return self::SCHEDULE_TYPE_IN_MINUTES;
     }

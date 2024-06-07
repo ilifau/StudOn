@@ -25,7 +25,7 @@ class ilSyncWithCampoCron extends ilCronJob
         return $DIC->language()->txt("fau_campo_data_update_info");
     }
     
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
     {
         return self::SCHEDULE_TYPE_IN_HOURS;
     }

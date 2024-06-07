@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 // fau: filterMyMem - use Filter\Standard
 use ILIAS\UI\Implementation\Component\Input\Container\Filter\Standard;
@@ -18,8 +19,6 @@ use ILIAS\UI\Implementation\Component\Input\Container\Filter\Standard;
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-
-declare(strict_types=1);
 
 /**
  * Membership overview
