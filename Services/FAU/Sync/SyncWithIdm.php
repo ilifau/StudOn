@@ -284,10 +284,13 @@ class SyncWithIdm extends SyncBase
      */
     protected function getPersonUpdate(Person $person, Identity $identity) : Person
     {
+        $sData = $person->getStudydata();
+        $fsData = $identity->getFauStudydata();
+        $fsDataNext = $identity->getFauStudydataNext();
         $studydata = array_merge(
-            (array) json_decode($person->getStudydata(), true),
-            $this->getStudydataByPeriod((array) json_decode($identity->getFauStudydata(), true)),
-            $this->getStudydataByPeriod((array) json_decode($identity->getFauStudydataNext(), true)));
+            (array) json_decode(is_null($sData) ? "" : $sData, true),
+            $this->getStudydataByPeriod((array) json_decode(is_null($fsData) ? "" : $fsData, true)),
+            $this->getStudydataByPeriod((array) json_decode(is_null($fsDataNext) ? "" : $fsDataNext, true)));
 
         // reformat the approval date to match the date datatype
         $doc_approval_date = null;

@@ -15,7 +15,7 @@ class SearchResultEvent extends RecordData
 
     // from initial query
     protected int $event_id;
-    protected ?string $event_type;
+    protected ?string $eventtype;
     protected ?string $title;
     protected ?string $shorttext;
     protected ?int $guest;
@@ -65,7 +65,7 @@ class SearchResultEvent extends RecordData
      */
     public function getEventType() : ?string
     {
-        return $this->event_type;
+        return $this->eventtype;
     }
 
     /**

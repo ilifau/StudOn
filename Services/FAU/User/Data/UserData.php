@@ -31,7 +31,7 @@ class UserData extends RecordData
     protected string $firstname;
     protected string $lastname;
     protected ?string $gender;
-    protected ?string $mail;
+    protected ?string $email;
     protected ?string $matriculation;
     protected ?string $ext_account;
     protected ?string $idle_ext_account;
@@ -59,7 +59,7 @@ class UserData extends RecordData
         $this->firstname = $firstname;
         $this->lastname = $lastname;
         $this->gender = $gender;
-        $this->mail = $email;
+        $this->email = $email;
         $this->matriculation = $matriculation;
         $this->ext_account = $ext_account;
         $this->idle_ext_account = $idle_ext_account;
@@ -115,7 +115,7 @@ class UserData extends RecordData
      */
     public function getEmail() : ?string
     {
-        return $this->mail;
+        return $this->email;
     }
 
     /**

@@ -931,6 +931,7 @@ class ilObjUserGUI extends ilObjectGUI
      */
     public function initForm(string $a_mode): void
     {
+        global $DIC;
         $settings = $this->settings->getAll();
 
         $this->form_gui = new ilPropertyFormGUI();
@@ -1014,10 +1015,10 @@ class ilObjUserGUI extends ilObjectGUI
             $this->form_gui->addItem($ext);
 
             // fau: samlChange - add idle ext_account to form
-            $ext = new ilTextInputGUI($lng->txt("idle_ext_account"), "idle_ext_account");
+            $ext = new ilTextInputGUI($this->lng->txt("idle_ext_account"), "idle_ext_account");
             $ext->setSize(40);
             $ext->setMaxLength(250);
-            $ext->setInfo($lng->txt("idle_ext_account_info"));
+            $ext->setInfo($this->lng->txt("idle_ext_account_info"));
             $this->form_gui->addItem($ext);
             // fau.
         }
@@ -1252,7 +1253,7 @@ class ilObjUserGUI extends ilObjectGUI
         }
 
         // fau: userData - add fields for studydata and educations
-        $stu = new ilCustomInputGUI($lng->txt("studydata"), "studydata");
+        $stu = new ilCustomInputGUI($this->lng->txt("studydata"), "studydata");
         $stu->setHTML(nl2br($DIC->fau()->user()->getStudiesAsText($this->object->getId())));
 
         $this->form_gui->addItem($stu);
@@ -1260,7 +1261,7 @@ class ilObjUserGUI extends ilObjectGUI
         $stu2->setInfo($this->lng->txt('fau_read_only'));
         $this->form_gui->addItem($stu2);
 
-        $edu = new ilNonEditableValueGUI($lng->txt('fau_educations'), 'educations', true);
+        $edu = new ilNonEditableValueGUI($this->lng->txt('fau_educations'), 'educations', true);
         $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText($this->object->getId())));
         $this->form_gui->addItem($edu);
         // fau.
