@@ -29,6 +29,9 @@ declare(strict_types=1);
  */
 class ilRbacAdmin
 {
+    // fau: changeSub 
+    use FAU\Ilias\Helper\RbacAdminHelper;
+    // fau. 
     protected ilDBInterface $db;
     protected ilRbacReview $rbacreview;
     protected ilLogger $logger;

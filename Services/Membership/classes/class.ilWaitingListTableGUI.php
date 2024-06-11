@@ -19,6 +19,8 @@ declare(strict_types=1);
 use FAU\Ilias\Helper\WaitingListConstantsHelper;
 use FAU\Ilias\Helper\WaitingListTableGUIHelper;
 
+use ILIAS\UI\Implementation\Factory as UIImplementationFactory;
+use ILIAS\UI\Renderer as UIRenderer;
 
 /**
  * GUI class for course/group waiting list

@@ -272,7 +272,6 @@ abstract class ilRegistrationGUI
     // fau: objectSub - new function fillRegistrationTypeObject()
     protected function fillRegistrationTypeObject($a_ref_id)
     {
-        require_once('Services/Link/classes/class.ilLink.php');
         $obj_id = ilObject::_lookupObjId($a_ref_id);
         $link = ilLink::_getLink($a_ref_id);
 

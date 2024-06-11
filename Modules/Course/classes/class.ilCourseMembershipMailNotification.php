@@ -51,6 +51,7 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     const TYPE_AUTOFILL_STILL_WAITING = 52;				//member
     const TYPE_AUTOFILL_STILL_TO_CONFIRM = 53;			//member
     const TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM = 63;	//admins
+    private ilCourseWaitingList $waiting_list;
     // fau.
 
     // fau: paraSub - additional notification types

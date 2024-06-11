@@ -36,7 +36,7 @@ class ImportId
         $event_id = null;
         $course_id = null;
 
-        $parts = (array) explode('/', $id);
+        $parts = (array) explode('/', ($id == null) ? '' : $id);
         if (isset($parts[0]) && $parts[0] == 'FAU') {
             foreach ($parts as $part) {
                 list($key, $value) = array_pad(explode( '=', $part), 2, '');
