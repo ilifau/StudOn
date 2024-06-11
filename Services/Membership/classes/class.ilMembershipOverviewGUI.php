@@ -64,6 +64,14 @@ class ilMembershipOverviewGUI implements ilCtrlBaseClassInterface
                 }
                 // fau.
         }
+
+        // fau: filterMyMem - add filter to page
+        global $DIC;
+        $renderer = $DIC->ui()->renderer();
+        $block = new ilMembershipBlockGUI();
+        $this->main_tpl->setContent($renderer->render($this->getFilter()) . $block->getHTML());
+        // fau.
+        
         $this->main_tpl->printToStdout();
     }
 
@@ -75,12 +83,13 @@ class ilMembershipOverviewGUI implements ilCtrlBaseClassInterface
         $main_tpl->setTitle($lng->txt("my_courses_groups"));
         $main_tpl->setTitleIcon(\ilUtil::getImagePath("standard/icon_crgr.svg"));
 
-        $block = new ilPDMembershipBlockGUI(true);
-        // fau: filterMyMem - add filter to page
-        global $DIC;
-        $renderer = $DIC->ui()->renderer();
-        $main_tpl->setContent($renderer->render($this->getFilter()) . $block->getHTML());
-        // fau.
+        $block = new ilMembershipBlockGUI();
+
+        $main_tpl = $this->main_tpl;
+        $lng = $this->lng;
+
+        $main_tpl->setTitle($lng->txt("my_courses_groups"));
+        $main_tpl->setTitleIcon(\ilUtil::getImagePath("standard/icon_crgr.svg"));   
     }
 
     // fau: filterMyMem - get the filter control

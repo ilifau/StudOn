@@ -32,6 +32,7 @@ class ilStudyCondGUI
     protected $parent_gui;
     protected $parent_obj_id;
     protected $parent_ref_id;
+    protected ilErrorHandling $err;
 
     /**
      * Constructor

@@ -58,6 +58,7 @@ abstract class ilRegistrationGUI
     // fau: studyCond - class variables
     protected bool $matches_studycond = true;
     protected string $describe_studycond = "";
+    protected bool $has_studycond = false;
     // fau.
 
     // fau: campoCheck - class vatiable

@@ -34,6 +34,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     use CourseRegistrationGUIHelper;
 
     private object $parent_gui;
+    private int $subscription_type = ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT;
 
     public function __construct(ilObject $a_container, object $a_parent_gui)
     {

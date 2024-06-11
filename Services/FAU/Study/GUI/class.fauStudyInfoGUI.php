@@ -10,7 +10,6 @@ use FAU\Study\Service;
 use FAU\Ilias\Data\ContainerInfo;
 use ILIAS\UI\Component\Button\Button;
 use ILIAS\UI\Component\Modal\Modal;
-use FAU\Ilias\Helper\UtilHelper;
 
 /**
  * GUI for the display of course related data
@@ -18,7 +17,7 @@ use FAU\Ilias\Helper\UtilHelper;
  */
 class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
 {
-    use UtilHelper;
+    use FAU\Ilias\Helper\UtilHelper;
     protected Service $service;
     protected Repository $repo;
 
@@ -107,13 +106,13 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
         $this->ctrl->setParameter($this, 'ref_id', $ref_id);
 
-        $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
+        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
                                ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal'))
                                ->withResetSignals();
         $button = $this->factory->button()->shy($title, '#')
                                 ->withResetTriggeredSignals()
                                 ->withOnClick($modal->getShowSignal());
-
+                               
         return $this->renderer->render([$modal, $button]);
     }
 
@@ -125,7 +124,7 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
         $this->ctrl->setParameter($this, 'ref_id', $ref_id);
 
-        $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
+        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
                                ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal'))
                                ->withResetSignals();
         return $modal;
@@ -487,7 +486,7 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $text = ilUtil::secureString($text);
 
         foreach ($additional_tags as $tag) {
-            $text = UtilHelper::unmaskTag($text, $tag);
+            $text = self::unmaskTag($text, $tag);
         }
 
         return $text;

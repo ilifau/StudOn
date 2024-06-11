@@ -69,7 +69,7 @@ class fauHardRestrictionsGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
         $this->ctrl->setParameter($this, 'user_id', $this->dic->user()->getId());
 
-        $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
+        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
             ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
 
         $button = $this->factory->button()->shy('» ' . $this->lng->txt('fau_rest_hard_restrictions'), '#')
@@ -103,7 +103,7 @@ class fauHardRestrictionsGUI extends BaseGUI implements ilCtrlBaseClassInterface
                     'fau_check_info_passed_restrictions' : 'fau_check_info_failed_restrictions');
         }
 
-        $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
+        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
             ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
 
         $button = $this->factory->button()->shy($link_label, '#')
