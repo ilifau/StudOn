@@ -310,7 +310,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 case 'subject':
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
-                        nl2br($a_set['subject']),
+                        nl2br(is_null($a_set['subject']) ? '' : $a_set['subject']),
                         $this->lng->txt('fau_sub_message_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
                         50
                     ));
