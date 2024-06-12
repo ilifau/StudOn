@@ -103,11 +103,8 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
      */
     public function getDetailsLink(ImportId $import_id, int $ref_id, string $title)
     {
-        $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
-        $this->ctrl->setParameter($this, 'ref_id', $ref_id);
-
         $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
-                               ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal'))
+                               ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal') . '&import_id='. $import_id->toString(). '&ref_id='.$ref_id)
                                ->withResetSignals();
         $button = $this->factory->button()->shy($title, '#')
                                 ->withResetTriggeredSignals()
@@ -121,11 +118,8 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
      */
     protected function getDetailsModal(ImportId $import_id, int $ref_id): Modal
     {
-        $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
-        $this->ctrl->setParameter($this, 'ref_id', $ref_id);
-
         $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
-                               ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal'))
+                               ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal') . '&import_id='. $import_id->toString(). '&ref_id='.$ref_id)
                                ->withResetSignals();
         return $modal;
     }

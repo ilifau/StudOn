@@ -65,12 +65,12 @@ class fauHardRestrictionsGUI extends BaseGUI implements ilCtrlBaseClassInterface
      */
     public function getRestrictionsModalLink(ImportId $import_id, int $ref_id) : string
     {
-        $this->ctrl->setParameter($this, 'ref_id', $ref_id);
-        $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
-        $this->ctrl->setParameter($this, 'user_id', $this->dic->user()->getId());
+      //  $this->ctrl->setParameter($this, 'ref_id', $ref_id);
+      //  $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
+      //  $this->ctrl->setParameter($this, 'user_id', $this->dic->user()->getId());
 
         $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
-            ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
+            ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal').'&import_id='. $import_id->toString(). '&ref_id='.$ref_id .'&user_id=' . $this->dic->user()->getId());
 
         $button = $this->factory->button()->shy('» ' . $this->lng->txt('fau_rest_hard_restrictions'), '#')
             ->withOnClick($modal->getShowSignal());
