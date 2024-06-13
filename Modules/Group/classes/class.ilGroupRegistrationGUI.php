@@ -37,7 +37,10 @@ use FAU\Ilias\Registration;
 */
 class ilGroupRegistrationGUI extends ilRegistrationGUI
 {
-    
+    // fau: studyCond
+    private int $registration_type;
+    // fau.
+
     public function __construct(ilObject $a_container)
     {
         parent::__construct($a_container);

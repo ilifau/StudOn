@@ -34,6 +34,10 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     protected $value;
     protected bool $hide_sub = false;
 
+    // fau: campoSub: improved display of restrictions and module selection
+    protected $disabled_values = array();   
+    // fau. 
+
     public function __construct(
         string $a_title = "",
         string $a_postvar = ""
@@ -49,6 +53,16 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     {
         $this->options = $a_options;
     }
+
+    // fau: campoSub: improved display of restrictions and module selection
+    /**
+     * Set values for options that should be shown as disabled
+     */
+    public function setDisabledValues(array $a_values)
+    {
+        $this->disabled_values = $a_values;
+    }    
+    // fau.
 
     public function getOptions(): array
     {
@@ -110,6 +124,12 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
                 $this->setAlert($lng->txt('msg_invalid_post_input'));
                 return false;
             }
+            // fau: campoSub: improved display of restrictions and module selection
+            elseif (in_array($_POST[$this->getPostVar()], $this->disabled_values)) {
+                $this->setAlert($lng->txt('msg_invalid_post_input'));
+                return false;
+            // fau.
+            }
         } else {
             $values = $this->strArray($this->getPostVar());
             foreach ($values as $value) {
@@ -117,11 +137,19 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
                     $this->setAlert($lng->txt('msg_invalid_post_input'));
                     return false;
                 }
+                // fau: campoSub: improved display of restrictions and module selection
+                elseif (in_array($value, $this->disabled_values)) {
+                    $this->setAlert($lng->txt('msg_invalid_post_input'));
+                    return false;
+                // fau.
+                }
             }
+        
             if ($this->getRequired() && !trim(implode("", $values))) {
                 $valid = false;
             }
         }
+        
         if (!$valid) {
             $this->setAlert($lng->txt("msg_input_is_required"));
             return false;
@@ -188,6 +216,14 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
                     ' selected="selected"'
                 );
             }
+            // fau: campoSub: improved display of restrictions and module selection
+            if (in_array($option_value, $this->disabled_values)) {
+                $tpl->setVariable(
+                    "DISABLE_OPTION",
+                    'disabled="disabled"'
+                );
+            }
+            // fau.
             $tpl->setVariable("TXT_SELECT_OPTION", $option_text);
 
             if ($this->langresolve) {
