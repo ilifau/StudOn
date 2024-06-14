@@ -234,25 +234,27 @@ class ilExportGUI
             $si->setOptions($options);
             $this->toolbar->addInputItem($si, true);
 
+            // fau: campoExport - offer export button only if formats are available
+            if (count($this->getFormats()) > 0) {
             $this->gui->button(
-                $this->lng->txt("exp_create_file"),
-                "createExportFile"
-            )->submit()->toToolbar();
+                    $this->lng->txt("exp_create_file"),
+                    "createExportFile"
+                )->submit()->toToolbar();
+            }
+            // fau.
         } else {
             $format = $this->getFormats();
             $format = $format[0];
 
-            $this->gui->button(
-                $this->lng->txt("exp_create_file") . " (" . $format["txt"] . ")",
-                "create_" . $format["key"]
-            )->submit()->toToolbar();
+            // fau: campoExport - offer export button only if formats are available
+            if (count($this->getFormats()) > 0) {
+                $this->gui->button(
+                    $this->lng->txt("exp_create_file") . " (" . $format["txt"] . ")",
+                    "create_" . $format["key"]
+                )->submit()->toToolbar();
+            }
+            // fau.
         }
-
-        // fau: campoExport - offer export button only if formats are available
-        if (count($this->getFormats()) > 0) {
-            $this->toolbar->addButtonInstance($button);
-        }
-        // fau.
 
         $table = $this->buildExportTableGUI();
         $table->setSelectAllCheckbox("file");

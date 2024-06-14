@@ -769,8 +769,8 @@ class ilMemberExport
                 unset($tmp_sess);
             }
 
-            $basekey = utf8_decode($data['type']) . chr(255)
-                     . utf8_decode($data['title']) . chr(255)
+            $basekey = mb_convert_encoding($data['type'],'ISO-8859-1', 'UTF8') . chr(255)
+                     . mb_convert_encoding($data['title'],'ISO-8859-1', 'UTF8') . chr(255)
                      . $data['obj_id'] . chr(255);
 
 

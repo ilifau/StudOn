@@ -25,43 +25,48 @@ ilInitialisation::initILIAS();
 
 global $DIC;
 
+
+// fau: campoLink - treat course link from campo
+if (isset($_GET['target']))
+{
+    if (substr($_GET['target'], 0, 6) == 'campo_') {
+        global $DIC;
+        $DIC->fau()->study()->redirectFromTarget($_GET['target']);
+    }
+    if (substr($_GET['target'], 0, 8) == 'orgunit_') {
+        global $DIC;
+        $DIC->fau()->org()->redirectFromTarget($_GET['target']);
+    }
+}
+// fau.
+
+// fau: numericLink - lookup the type when only the ref_id or obj_id is given
+if (isset($_GET['target']))
+{
+    if (is_numeric($_GET['target'])) {
+    $type = ilObject::_lookupType((int) $_GET['target'], true);
+
+        // check if obj_id is given
+        if (empty($type)) {
+            $ref_ids = ilObject::_getAllReferences($_GET['target']);
+            foreach ($ref_ids as $ref_id) {
+                if (!ilObject::_isInTrash($ref_id)) {
+                    $_GET['target'] = $ref_id;
+                    $type = ilObject::_lookupType((int) $_GET['target'], true);
+                    break;
+                }
+            }
+        }
+
+        if (!empty($type)) {
+            $_GET['target'] = $type . '_' . (int) $_GET['target'];
+        }
+    }
+}
+// fau.
+
 /** @var Services $static_url */
 $static_url = $DIC['static_url'];
 $static_url->handler()->performRedirect(
     $static_url->builder()->getBaseURI()
 );
-
-// fau: campoLink - treat course link from campo
-if (substr($_GET['target'], 0, 6) == 'campo_') {
-    global $DIC;
-    $DIC->fau()->study()->redirectFromTarget($_GET['target']);
-}
-if (substr($_GET['target'], 0, 8) == 'orgunit_') {
-    global $DIC;
-    $DIC->fau()->org()->redirectFromTarget($_GET['target']);
-}
-
-// fau.
-
-// fau: numericLink - lookup the type when only the ref_id or obj_id is given
-if (is_numeric($_GET['target'])) {
-    $type = ilObject::_lookupType((int) $_GET['target'], true);
-
-    // check if obj_id is given
-    if (empty($type)) {
-        $ref_ids = ilObject::_getAllReferences($_GET['target']);
-        foreach ($ref_ids as $ref_id) {
-            if (!ilObject::_isInTrash($ref_id)) {
-                $_GET['target'] = $ref_id;
-                $type = ilObject::_lookupType((int) $_GET['target'], true);
-                break;
-            }
-        }
-    }
-
-    if (!empty($type)) {
-        $_GET['target'] = $type . '_' . (int) $_GET['target'];
-    }
-}
-// fau.
-
