@@ -82,8 +82,8 @@ class Term extends RecordData
 
     public static function fromString(?string $string) : self
     {
-        $year = (int) substr($string, 0, 4);
-        $type_id = (int) substr($string, 4, 1);
+        $year = (int) substr(is_null($string) ? "" : $string, 0, 4);
+        $type_id = (int) substr(is_null($string) ? "" : $string, 4, 1);
 
         return new self($year, $type_id, null);
     }
