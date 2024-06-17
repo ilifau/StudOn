@@ -36,6 +36,9 @@ class ilGroupMembershipMailNotification extends ilMailNotification
     const TYPE_AUTOFILL_STILL_TO_CONFIRM = 53;			//member
     const TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM = 63;	//admins
     // fau.
+    // fau: fairSub - waiting list object for detailed information in the mails
+    private ilGroupWaitingList $waiting_list;
+    // fau.
     /**
      * 
      * Notifications which are not affected by "mail_grp_member_notification" setting

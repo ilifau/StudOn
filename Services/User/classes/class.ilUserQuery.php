@@ -64,7 +64,7 @@ class ilUserQuery
 
     public function __construct()
     {
-    }
+    }  
 
     /**
      * Set udf filter
@@ -534,7 +534,7 @@ class ilUserQuery
         $result = [];
 
         while ($rec = $ilDB->fetchAssoc($set)) {
-            // fau: userData - optionally add the studydata and educations
+            // getUserListData - optionally add the studydata and educations
             if (isset($add_studydata) && $add_studydata) {
                 $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
             }
@@ -565,7 +565,7 @@ class ilUserQuery
         return ["cnt" => $cnt, "set" => $result];
     }
 
-
+    // fau: userData add ref id to filter the display of educations as parameter
     /**
      * Get data for user administration list.
      * @deprecated
@@ -586,7 +586,8 @@ class ilUserQuery
         array $a_additional_fields = null,
         array $a_user_filter = null,
         string $a_first_letter = "",
-        string $a_authentication_filter = ""
+        string $a_authentication_filter = "",
+        ?int $a_educations_ref_id = null
     ): array {
         $query = new ilUserQuery();
         $query->setOrderField($a_order_field);
@@ -605,6 +606,8 @@ class ilUserQuery
         $query->setUserFilter($a_user_filter ?? []);
         $query->setFirstLetterLastname($a_first_letter);
         $query->setAuthenticationFilter($a_authentication_filter);
+        $query->setEducationsRefId($a_educations_ref_id);
         return $query->query();
     }
+    // fau.
 }

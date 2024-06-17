@@ -183,6 +183,8 @@ class ilUserProfile
         ilPropertyFormGUI $form,
         ?ilRegistrationSettings $registration_settings
     ): ilPropertyFormGUI {
+        global $DIC;
+
         $method = $field_definition['method'] ?? '';
 
         $lang_var = (isset($field_definition['lang_var']) && $field_definition['lang_var'] !== '')
@@ -346,6 +348,27 @@ class ilUserProfile
                     $this->getNonEditableInput($method, $lang_var, $user)
                 );
                 break;
+            // fau: userData - add studydata and educations to standard fields
+            case "studydata":
+                if ($this->mode != self::MODE_REGISTRATION) {
+                    $stu = new ilCustomInputGUI($this->lng->txt("studydata"), "studydata");
+                    if ($user) {
+                        $stu->setHTML(nl2br($DIC->fau()->user()->getStudiesAsText((int) $user->getId())));
+                    }
+                    $form->addItem($stu);
+                }
+                break;
+
+            case "educations":
+                if ($this->mode != self::MODE_REGISTRATION) {
+                    $edu = new ilNonEditableValueGUI($this->lng->txt("fau_educations"), "educations", true);
+                    if ($user) {
+                        $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText((int) $user->getId())));
+                    }
+                    $form->addItem($edu);
+                }
+                break;
+            // fau.
         }
 
         return $form;

@@ -287,6 +287,16 @@ class ilUserProfileDefaultFields
             'method' => 'getMatriculation',
             'group' => 'other'
         ],
+        // fau: userData - add studydata and educations to profile fields
+        'studydata' => [
+            'input' => 'studydata',
+            'lists_hide' => false,
+            'group' => 'other'],
+        'educations' => [
+            'input' => 'educations',
+            'lists_hide' => false,
+            'group' => 'other'],
+        // fau.        
         'language' => [
             'input' => 'language',
             'method' => 'getLanguage',
