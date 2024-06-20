@@ -68,10 +68,21 @@ class Repository extends RecordRepo
     public function getEducationsOfPerson(?int $person_id, ?array $orgunits = null) : array
     {
         $query = "SELECT * FROM fau_user_educations WHERE person_id = " . $this->db->quote((int) $person_id, 'integer');
-        if (isset($orgunits))  {
-            $query .= " AND " . $this->db->in('orgunit', $orgunits, false,'text');
+        $records = $this->queryRecords($query, Education::model());
+
+        if (isset($orgunits))
+        {
+            $records_filtered_by_orgunits = []; 
+            foreach($records as $record)
+            {
+                $record_orgunits = explode(";", $record->getOrgunit());
+
+                if(sizeof(array_intersect($orgunits, $record_orgunits)) > 0)
+                    array_push($records_filtered_by_orgunits, $record);
+            }
+            return $records_filtered_by_orgunits;
         }
-        return $this->queryRecords($query, Education::model());
+        else return $records;
     }
 
     /**
