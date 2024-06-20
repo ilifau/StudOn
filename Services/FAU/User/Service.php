@@ -181,7 +181,7 @@ class Service extends SubService
         $alltexts = [];
         foreach ($texts as $orgunit => $unittexts) {
             sort($unittexts);
-            $alltexts[] = (count($texts) > 1 ? $orgunit . ": \n" : '')
+            $alltexts[] = (count($texts) > 0 ? $orgunit . ": \n" : '')
                 . implode("\n", $unittexts);
         }
 
