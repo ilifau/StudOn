@@ -1129,7 +1129,7 @@ class ilObjCourseGUI extends ilContainerGUI
         // handle a change of the fair time
         if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair()) {
             require_once('Modules/Course/classes/class.ilCourseWaitingList.php');
-            if (!WaitingListHelper::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
+            if (!self::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
                 $this->tpl->setOnScreenMessage('failure', $this->lng->txt('sub_fair_not_changeable'));
                 $this->editObject();
                 return;

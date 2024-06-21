@@ -4,6 +4,7 @@ namespace FAU\Ilias\Helper;
 use ilConfirmationGUI;
 use ilObjUser;
 use ilUtil;
+use ilObjCourse;
 
 /**
  * trait for providing additional ilMembershipGUI methods
