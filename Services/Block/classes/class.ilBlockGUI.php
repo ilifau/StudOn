@@ -127,6 +127,16 @@ abstract class ilBlockGUI
         $this->setLimit($this->user->getPref("hits_per_page"));
     }
 
+    protected function specialCharsAsEntities(string $string): string
+    {
+        // Should be replaced by a proper refinery transformation once https://github.com/ILIAS-eLearning/ILIAS/pull/6314 is merged
+        return  htmlspecialchars(
+            $string,
+            ENT_QUOTES | ENT_SUBSTITUTE,
+            'utf-8'
+        );
+    }
+
 
     /**
      * Set Data.
@@ -1170,14 +1180,14 @@ abstract class ilBlockGUI
         switch ($this->getPresentation()) {
             case self::PRES_SEC_LEG:
                 $panel = $factory->panel()->secondary()->legacy(
-                    $this->getTitle(),
+                    $this->specialCharsAsEntities($this->getTitle()),
                     $factory->legacy($this->getLegacyContent())
                 );
                 break;
 
             case self::PRES_MAIN_LEG:
                 $panel = $factory->panel()->standard(
-                    $this->getTitle(),
+                    $this->specialCharsAsEntities($this->getTitle()),
                     $factory->legacy($this->getLegacyContent())
                 );
                 break;
@@ -1185,7 +1195,7 @@ abstract class ilBlockGUI
             case self::PRES_SEC_LIST:
                 $this->handleNavigation();
                 $panel = $factory->panel()->secondary()->listing(
-                    $this->getTitle(),
+                    $this->specialCharsAsEntities($this->getTitle()),
                     $this->getListItemGroups()
                 );
                 break;
@@ -1193,7 +1203,7 @@ abstract class ilBlockGUI
             case self::PRES_MAIN_LIST:
                 $this->handleNavigation();
                 $panel = $factory->panel()->listing()->standard(
-                    $this->getTitle(),
+                    $this->specialCharsAsEntities($this->getTitle()),
                     $this->getListItemGroups()
                 );
                 break;
@@ -1230,12 +1240,12 @@ abstract class ilBlockGUI
             (count($panel->getItemGroups()) == 0 || (count($panel->getItemGroups()) == 1 && count($panel->getItemGroups()[0]->getItems()) == 0))) {
             if ($this->getPresentation() == self::PRES_SEC_LIST) {
                 $panel = $factory->panel()->secondary()->legacy(
-                    $this->getTitle(),
+                    $this->specialCharsAsEntities($this->getTitle()),
                     $factory->legacy($this->getNoItemFoundContent())
                 );
             } else {
                 $panel = $factory->panel()->standard(
-                    $this->getTitle(),
+                    $this->specialCharsAsEntities($this->getTitle()),
                     $factory->legacy($this->getNoItemFoundContent())
                 );
             }
