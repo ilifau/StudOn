@@ -118,11 +118,25 @@ class ilTimingsManageTableGUI extends ilTable2GUI
         if (strlen($set['title_link'])) {
             $this->tpl->setCurrentBlock('title_link');
             $this->tpl->setVariable('TITLE_LINK', $set['title_link']);
-            $this->tpl->setVariable('TITLE_LINK_NAME', $set['title']);
+            $this->tpl->setVariable(
+                'TITLE_LINK_NAME',
+                htmlspecialchars(
+                    $a_set['title'] ?? '',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                    'utf-8'
+                )
+            );
             $this->tpl->parseCurrentBlock();
         } else {
             $this->tpl->setCurrentBlock('title_plain');
-            $this->tpl->setVariable('TITLE', $set['title']);
+            $this->tpl->setVariable(
+                'TITLE',
+                htmlspecialchars(
+                    $a_set['title'] ?? '',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                    'utf-8'
+                )
+            );
             $this->tpl->parseCurrentBlock();
         }
         if (strlen($set['desc'])) {
