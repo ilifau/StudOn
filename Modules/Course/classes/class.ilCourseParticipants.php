@@ -14,11 +14,11 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+declare(strict_types=0);
+
 // fau: fairSub#79 - use CourseParticipantsHelper
 use FAU\Ilias\Helper\CourseParticipantsHelper;
 // fau.
-
-declare(strict_types=0);
 
 /**
  * @author  Stefan Meyer <meyer@leifos.com>
