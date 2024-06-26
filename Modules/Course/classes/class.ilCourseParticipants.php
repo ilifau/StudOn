@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=0);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -19,6 +17,8 @@ declare(strict_types=0);
 // fau: fairSub#79 - use CourseParticipantsHelper
 use FAU\Ilias\Helper\CourseParticipantsHelper;
 // fau.
+
+declare(strict_types=0);
 
 /**
  * @author  Stefan Meyer <meyer@leifos.com>
@@ -159,7 +159,12 @@ class ilCourseParticipants extends ilParticipants
                 $ilDB->quote(0, 'integer') . ", " .
                 $ilDB->quote(0, 'integer') . ", " .
                 $ilDB->quote($origin, 'integer') . ", " .
-                $ilDB->quote($origin_ts, 'integer') . ")";
+                $ilDB->quote($origin_ts, 'integer') . ")
+                ON DUPLICATE KEY UPDATE
+                    passed = VALUES(passed),
+                    origin = VALUES(origin),
+                    origin_ts = VALUES(origin_ts)
+            ";
         }
         if (strlen($update_query)) {
             $ilDB->manipulate($update_query);
