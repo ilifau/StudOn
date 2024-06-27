@@ -233,7 +233,11 @@ class ilObjectActivationGUI
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this));
 
-        $title = ilObject::_lookupTitle(ilObject::_lookupObjId($this->getItemId()));
+        $title = htmlspecialchars(
+            ilObject::_lookupTitle(ilObject::_lookupObjId($this->getItemId())),
+            ENT_QUOTES | ENT_SUBSTITUTE,
+            'utf-8'
+        );
         $form->setTitle($title . ': ' . $this->lng->txt('crs_edit_timings'));
 
 

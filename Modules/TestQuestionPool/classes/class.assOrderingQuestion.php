@@ -737,7 +737,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 
         $solutionOrderingElementList = unserialize(
             $previewSession->getParticipantsSolution(),
-            ['allowed_classes' => false]
+            ['allowed_classes' => true]
         );
 
         $reachedPoints = $this->calculateReachedPointsForSolution($solutionOrderingElementList);
