@@ -175,7 +175,7 @@ class ilPollBlockGUI extends ilBlockGUI
                     }
 
                     $this->tpl->setVariable("VALUE_ANSWER", $item["id"]);
-                    $this->tpl->setVariable("TXT_ANSWER_VOTE", nl2br($item["answer"]));
+                    $this->tpl->setVariable("TXT_ANSWER_VOTE", $this->specialCharsAsEntities(nl2br($item["answer"])));
                     $this->tpl->parseCurrentBlock();
                 }
 
@@ -314,7 +314,7 @@ class ilPollBlockGUI extends ilBlockGUI
                 );
             }
         } else {
-            $this->tpl->setVariable("TXT_QUESTION", nl2br(trim($a_poll->getQuestion())));
+            $this->tpl->setVariable("TXT_QUESTION", $this->specialCharsAsEntities(nl2br(trim($a_poll->getQuestion()))));
 
             $img = $a_poll->getImageFullPath();
             if ($img) {
@@ -329,7 +329,7 @@ class ilPollBlockGUI extends ilBlockGUI
 
         $desc = trim($a_poll->getDescription());
         if ($desc) {
-            $this->tpl->setVariable("TXT_DESC", nl2br($desc));
+            $this->tpl->setVariable("TXT_DESC", $this->specialCharsAsEntities(nl2br($desc)));
         }
 
 
