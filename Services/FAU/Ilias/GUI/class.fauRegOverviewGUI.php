@@ -11,7 +11,7 @@ use FAU\Ilias\Data\ListProperty;
  *
  * @ilCtrl_Calls fauRegOverviewGUI: ilPropertyFormGUI, ilObjRootFolderGUI
  */
-class fauRegOverviewGUI extends BaseGUI
+class fauRegOverviewGUI extends BaseGUI implements ilCtrlBaseClassInterface
 {
     public function __construct() {
         parent::__construct();

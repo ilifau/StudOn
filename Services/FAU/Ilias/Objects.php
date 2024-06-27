@@ -76,7 +76,7 @@ class Objects
     public function getRegistrationsOverviewInfos(bool $sort_by_end = false) : array
     {
         $infos = [];
-        foreach ($this->dic->fau()->ilias()->repo()->findRegistrationsOverviewRefIds($this->dic->user()->id) as $ref_id) {
+        foreach ($this->dic->fau()->ilias()->repo()->findRegistrationsOverviewRefIds($this->dic->user()->getId()) as $ref_id) {
             $info = $this->getContainerInfo($ref_id);
             if (!$this->dic->access()->checkAccess('visible', '', $info->getRefId())
                 || $info->isAssigned()    

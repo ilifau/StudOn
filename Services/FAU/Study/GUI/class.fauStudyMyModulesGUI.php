@@ -7,6 +7,8 @@ use ILIAS\UI\Component\Item\Group;
 use FAU\Study\Data\ImportId;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\Course;
+use ILIAS\Data\URI;
+use ILIAS\UI\Component\Table\Presentation;
 
 /**
  * Search for events from campo
@@ -134,7 +136,7 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
     /**
      * Get the list of objects for setting the module_id
      */
-    protected function getList() : Group
+    protected function getList() : Presentation | Group
     {
         $this->lng->loadLanguageModule('trac');
         ilDatePresentation::setUseRelativeDates(false);
@@ -212,12 +214,14 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
                     $this->lng->txt('fau_campo_member_status_for_campo') => $item['campo_status'],
                 ];
             }
-            
-            $gui_item = $this->factory->item()->standard('<a href="' . $link . '">'.$item['title'].'</a>')
-                                  ->withDescription($description)
-                                  ->withLeadIcon($item['type'] == 'crs' ? $icon_crs : $icon_grp)
-                                  ->withProperties($props);
 
+            $gui_item['title'] = $item['title'];
+            $gui_item['link'] = $link;
+            $gui_item['subtitle'] = (string) $description;
+            $gui_item['content'] = [];
+            $gui_item['leadicon'] = $item['type'] == 'crs' ? $icon_crs : $icon_grp;
+            $gui_item['ref_id'] = $item['ref_id'];
+            $gui_item['moveable'] = false;
             $gui_items[] = $gui_item;
         }
 
@@ -225,7 +229,55 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
             return $this->factory->item()->group($this->lng->txt('fau_my_modules_not_found'), $gui_items);
         }
         else {
-            return $this->factory->item()->group($this->lng->txt('fau_my_modules_list'), $gui_items);
+            //build table
+            $ptable = $this->factory->table()->presentation
+            (
+                $this->lng->txt('fau_my_modules_list'), //title
+                array(),
+                function ($row, $record, $ui_factory, $environment) 
+                {   //mapping-closure
+                    $headline = $this->renderer->render
+                    (
+                        $this->factory->item()->standard
+                        (
+                            $this->factory->link()->standard($record['title'], $record['link'])
+                        )
+                        ->withLeadIcon($record['leadicon'])
+                    );   
+
+                    $row = $row
+                    ->withHeadline($headline)
+                    ->withSubheadline($record['subtitle'])
+                    ->withContent(
+                        $ui_factory->listing()->descriptive(
+                            $record['content']
+                            )
+                        );
+                    if ($record['link'] != "#")
+                        return $row
+                            ->withHeadline($headline)
+                            ->withSubheadline($record['subtitle'])
+                            ->withContent(
+                                $ui_factory->listing()->descriptive(
+                                        $record['content']
+                                    )
+                                )
+                                ->withAction($this->factory->button()->standard($this->lng->txt('fau_search_visit_event'), $record['link']));
+                    else 
+                        return $row
+                            ->withHeadline($record['title'])
+                            ->withSubheadline($record['subtitle'])
+                            ->withContent(
+                                $ui_factory->listing()->descriptive(
+                                        $record['content']
+                                    )
+                                );
+                }
+            );
+
+            //apply data to table and render
+            return $ptable
+                ->withData($gui_items);
         }
     }
 
