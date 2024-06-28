@@ -158,7 +158,7 @@ class fauRegOverviewGUI extends BaseGUI implements ilCtrlBaseClassInterface
             }
             
             $link = ilLink::_getStaticLink($info->getRefId(), $info->getType());
-            $item = $this->factory->item()->standard('<a href="' . $link . '">'.$info->getTitle().'</a>')
+            $item = $this->factory->item()->standard($this->factory->link()->standard($info->getTitle(), $link))
                 ->withLeadIcon($info->getType() == 'crs' ? $icon_crs : $icon_grp)
                 ->withProperties($props);
             
