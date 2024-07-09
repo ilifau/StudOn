@@ -220,7 +220,7 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
             (string) $form->getInput('event_type'),
             (string) $form->getInput('cos_ids'),
             (string) $form->getInput('module_ids'),
-            (int) $form->getInput('search_ref_id'),
+            (int) $form->getInput('search_ref_id')[0],
             (bool) $form->getInput('fitting')
         );
     }
