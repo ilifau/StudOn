@@ -196,7 +196,7 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $ref = new fauRepositorySelectorInputGUI(
             $this->lng->txt('search_area'), 
             'search_ref_id', 
-            true,
+            false,
             $form
         );
         $ref->getExplorerGUI()->setSelectableTypes(["cat"]);
@@ -220,7 +220,7 @@ class fauStudySearchGUI extends BaseGUI implements ilCtrlBaseClassInterface
             (string) $form->getInput('event_type'),
             (string) $form->getInput('cos_ids'),
             (string) $form->getInput('module_ids'),
-            (int) $form->getInput('search_ref_id')[0],
+            (int) $form->getInput('search_ref_id'),
             (bool) $form->getInput('fitting')
         );
     }
