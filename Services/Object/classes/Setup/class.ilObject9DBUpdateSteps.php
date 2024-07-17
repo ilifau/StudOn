@@ -87,7 +87,7 @@ class ilObject9DBUpdateSteps implements \ilDatabaseUpdateSteps
                 [
                     'type' => 'text',
                     'notnull' => true,
-                    'length' => 128,
+                    'length' => 250, // fau: studon has description length 250; ilias 128
                     'default' => ''
                 ]
             );
