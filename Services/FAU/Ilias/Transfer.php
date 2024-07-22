@@ -191,7 +191,7 @@ $assigned[] = $assign_groups[$ref_id];
         $source->applyDidacticTemplate($this->dic->fau()->tools()->settings()->getCourseDidacticTemplateId());
 
         // save the new course relation
-        $this->dic->fau()->study()->repo()->save($course->withIliasObjId($target->id));
+        $this->dic->fau()->study()->repo()->save($course->withIliasObjId($target->getId()));
 
         $this->addCourseParticipantsToGroup($source, $target);
         $this->dic->fau()->ilias()->repo()->copyWaitingList($source->getId(), $target->getId());
