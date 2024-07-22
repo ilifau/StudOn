@@ -185,8 +185,8 @@ $assigned[] = $assign_groups[$ref_id];
         $source->setTitle($this->dic->fau()->ilias()->objects()->buildTitle($term, $event, null));
         $source->setDescription($this->dic->fau()->ilias()->objects()->buildDescription($event, null));
         $source->enableSubscriptionMembershipLimitation(false);
-        $source->setSubscriptionMaxMembers(null);
-        $source->setSubscriptionMinMembers(null);
+        $source->setSubscriptionMaxMembers(0);
+        $source->setSubscriptionMinMembers(0);
         $source->update();
         $source->applyDidacticTemplate($this->dic->fau()->tools()->settings()->getCourseDidacticTemplateId());
 
