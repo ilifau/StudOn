@@ -20,8 +20,22 @@ class SyncToCampo extends SyncBase
      */
     public function synchronize() : void
     {
-        foreach ($this->sync->getTermsToSync(true) as $term) {
+        $terms = [
+            new Term(2024, 1),              // current summer term
+            new Term(2024, 2),              // next winter term
+            new Term(2023, 1),
+            new Term(2023, 2),
+            new Term(2022, 1),
+            new Term(2022, 2)
+        ];
+
+        foreach ($terms as $term)
+        {
             $this->syncCourses($term);
+        }
+
+        foreach ($this->sync->getTermsToSync(true) as $term) 
+        {
             $this->syncMembersInTerm($term);
         }
 
@@ -36,16 +50,28 @@ class SyncToCampo extends SyncBase
     {
         $this->info('sync StudOnCourses for Term ' . $term->toString() . '...');
         $existing = $this->staging->repo()->getStudOnCourses($term);
+        $campoCourses = $this->staging->repo()->getCourses();
+        $campoCoursesIds = [];
+        foreach($campoCourses as $campoCourse)
+        {
+            $campoCoursesIds[] = $campoCourse->getCourseId();
+        }
 
+        
         foreach ($this->sync->repo()->getCoursesToSyncBack($term) as $course) {
-            if (!isset($existing[$course->key()])) {
-                $this->staging->repo()->save($course);
+            // if course is in campo
+            if(in_array($course->key(), $campoCoursesIds))
+            {
+                if (!isset($existing[$course->key()])) {
+                    $this->staging->repo()->save($course);
+                }
+                elseif ($existing[$course->key()]->hash() != $course->hash()) {
+                    $this->staging->repo()->save($course);
+                }
+                
+                // record is still needed
+                unset($existing[$course->key()]);
             }
-            elseif ($existing[$course->key()]->hash() != $course->hash()) {
-                $this->staging->repo()->save($course);
-            }
-            // record is still needed
-            unset($existing[$course->key()]);
         }
 
         // delete existing records that are no longer needed
