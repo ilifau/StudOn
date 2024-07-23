@@ -14,6 +14,7 @@ use ilFAUAppEventListener;
 use ilParticipants;
 use FAU\Study\Data\Term;
 use ilCourseConstants;
+use ilGroupParticipants;
 
 class Transfer
 {
@@ -61,7 +62,7 @@ class Transfer
             foreach ($this->dic->fau()->ilias()->objects()->findChildParallelGroups($source->getRefId(), false) as $ref_id) {
                 if (isset($assign_groups[$ref_id])) {
                     $this->reassignParallelGroup($ref_id, $assign_groups[$ref_id], $update_group_titles, $move_old_members);
-$assigned[] = $assign_groups[$ref_id];
+                    $assigned[] = $assign_groups[$ref_id];
                 }
                 else {
                     $this->moveObject($ref_id, $target->getRefId());
@@ -440,6 +441,7 @@ $assigned[] = $assign_groups[$ref_id];
     protected function addCourseParticipantsToGroup(ilObjCourse $source, ilObjGroup $target)
     {
         $sourceMembers = $source->getMembersObject();
+        $target->members_obj = ilGroupParticipants::_getInstanceByObjId($target->getId());
         $targetMembers = $target->getMembersObject();
 
 
