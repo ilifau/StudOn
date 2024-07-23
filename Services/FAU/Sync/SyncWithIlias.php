@@ -483,7 +483,7 @@ class SyncWithIlias extends SyncBase
         // always provide the info and delete the import id
         // do not yet update to allow a check for manual changes
         $object->setTitle($this->lng->txt('fau_campo_course_is_missing_prefix') . ' ' . $object->getTitle());
-        $object->setImportId(null);
+        $object->setImportId("");
 
 //        echo "Manually changed: " . $this->isObjectManuallyChanged($object) . "\n";
 //        echo "UndeletedContents: " . $this->ilias->objects()->hasUndeletedContents($ref_id) . "\n";
@@ -539,7 +539,7 @@ class SyncWithIlias extends SyncBase
                 // delete the campo connection of the parent course
                 $parent_course->setTitle($this->lng->txt('fau_campo_course_is_missing_prefix') . ' ' . $parent_course->getTitle());
                 $parent_course->setDescription($this->lng->txt('fau_campo_course_is_missing_for_ilias_course'));
-                $parent_course->setImportId(null);
+                $parent_course->setImportId("");
                 $parent_course->update();
             }
         }
