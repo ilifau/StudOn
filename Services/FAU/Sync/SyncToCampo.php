@@ -32,15 +32,17 @@ class SyncToCampo extends SyncBase
         foreach ($terms as $term)
         {
             $this->syncCourses($term);
+            $this->syncMembersInTerm($term);
         }
-
+/*
         foreach ($this->sync->getTermsToSync(true) as $term) 
         {
-            $this->syncMembersInTerm($term);
+
         }
 
         // 2023-11-06 passed members should be synced for all terms
         $this->syncAllPassedMembers();
+*/
     }
 
     /**
@@ -93,31 +95,40 @@ class SyncToCampo extends SyncBase
         $sending = $this->sync->repo()->getCourseSendPassedToSyncBack($term);
         // get the module ids of modules for which a 'passed' status of members should be sent to campo
         $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
-        
+        $campoCourses = $this->staging->repo()->getCourses();
+        $campoCoursesIds = [];
+        foreach($campoCourses as $campoCourse)
+        {
+            $campoCoursesIds[] = $campoCourse->getCourseId();
+        }
+
         foreach ($this->sync->repo()->getMembersOfCoursesInTermToSyncBack($term) as $member) {
-            
-            if ($member->getStatus() == StudOnMember::STATUS_PASSED) {
-                
-                // don't send a 'passed' status if neither the module nor the course allows it
-                if (!in_array($member->getModuleId(), $passing_module_ids)
-                    && (!isset($sending[$member->getCourseId()]) || $sending[$member->getCourseId()] != Course::SEND_PASSED_LP)) {
+            // if course is in campo
+            if(in_array($member->getCourseId(), $campoCoursesIds))
+            {
+                if ($member->getStatus() == StudOnMember::STATUS_PASSED) {
                     
-                    $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
+                    // don't send a 'passed' status if neither the module nor the course allows it
+                    if (!in_array($member->getModuleId(), $passing_module_ids)
+                        && (!isset($sending[$member->getCourseId()]) || $sending[$member->getCourseId()] != Course::SEND_PASSED_LP)) {
+                        
+                        $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
+                    }
                 }
+                
+                if (!isset($existing[$member->key()]) || $existing[$member->key()]->hash() != $member->hash()) {
+                    $this->staging->repo()->save($member);
+                    $this->increaseItemsUpdated();
+                }
+                // existing member in campo is still assigned in studon
+                unset($existing[$member->key()]);
             }
-            
-            if (!isset($existing[$member->key()]) || $existing[$member->key()]->hash() != $member->hash()) {
-                $this->staging->repo()->save($member);
-                $this->increaseItemsUpdated();
-            }
-            // existing member in campo is still assigned in studon
-            unset($existing[$member->key()]);
         }
 
         // delete remaining existing members in campo that are no longer assigned in studon
         // don't delete those of older courses where the studon object is deleted or connected with another course
         foreach ($existing as $member) {
-            if (isset($sending[$member->getCourseId()])) {
+            if (isset($sending[$member->getCourseId()]) || !in_array($member->getCourseId(), $campoCoursesIds)) {
                 $this->staging->repo()->delete($member);
                 $this->increaseItemsDeleted();
             }
