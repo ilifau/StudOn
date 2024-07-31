@@ -1635,7 +1635,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     
     public function downloadObject()
     {
-        if (in_array($this->user->getId(), [ANONYMOUS_USER_ID, 0], true)) {
+        if (in_array($this->user->getId(), [(int) ANONYMOUS_USER_ID, 0], true)) {
             return;
         }
 
