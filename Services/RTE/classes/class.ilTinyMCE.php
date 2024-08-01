@@ -954,9 +954,16 @@ class ilTinyMCE extends ilRTE
                 case 'meta':
                     $valid_elements[] = 'meta[content|dir<ltr?rtl|http-equiv|lang|name|scheme]';
                     break;
-// fau: nobrElement - allow nobr as valid element
+                // fau: nobrElement - allow nobr as valid element
                 case "nobr":
                     array_push($valid_elements, "nobr[[class|clear<all?left?none?right|id|style|title]");
+                    break;
+                // fau.
+
+                case 'noframes':
+                        $valid_elements[] = 'noframes[class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress'
+                        . '|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style'
+                        . '|title]';
                     break;
                 case 'noscript':
                     $valid_elements[] = 'noscript[class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress'
