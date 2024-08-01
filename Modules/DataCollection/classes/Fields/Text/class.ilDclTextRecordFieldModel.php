@@ -133,7 +133,7 @@ class ilDclTextRecordFieldModel extends ilDclBaseRecordFieldModel
         if ($this->getField()->getProperty(ilDclBaseFieldModel::PROP_TEXTAREA)
             && !$this->getField()->getProperty(ilDclBaseFieldModel::PROP_URL)
         ) {
-            return nl2br($value);
+            return $value;
         }
 
         return $value;
@@ -149,10 +149,10 @@ class ilDclTextRecordFieldModel extends ilDclBaseRecordFieldModel
             if (is_array($value)) {
                 return $value['title'] ?? $value['link'];
             } else {
-                return (string)$value;
+                return (string) $value;
             }
         } else {
-            return (string)$value;
+            return (string) $value;
         }
     }
 }

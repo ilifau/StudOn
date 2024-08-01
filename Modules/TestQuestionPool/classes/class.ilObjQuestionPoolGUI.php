@@ -26,6 +26,7 @@ use ILIAS\UI\URLBuilder;
 use ILIAS\UI\URLBuilderToken;
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\GlobalScreen\Services as GlobalScreen;
+use ILIAS\HTTP\Services as HTTPServices;
 
 /**
  * Class ilObjQuestionPoolGUI
@@ -52,6 +53,7 @@ use ILIAS\GlobalScreen\Services as GlobalScreen;
  */
 class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
 {
+    private HTTPServices $http;
     private HttpRequest $http_request;
     private QuestionInfoService $questioninfo;
     private \ILIAS\Filesystem\Util\Archive\LegacyArchives $archives;
@@ -90,7 +92,8 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         $this->questioninfo = $DIC->testQuestionPool()->questionInfo();
         $this->qplrequest = $DIC->testQuestionPool()->internal()->request();
         $this->taxonomy = $DIC->taxonomy();
-        $this->http_request = $DIC->http()->request();
+        $this->http = $DIC->http();
+        $this->http_request = $this->http->request();
         $this->data_factory = new DataFactory();
         $this->archives = $DIC->legacyArchives();
         parent::__construct('', $this->qplrequest->raw('ref_id'), true, false);
@@ -235,7 +238,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
                     $ilDB,
                     $ilUser,
                     $randomGroup,
-                    $this->global_screen
+                    $this->global_screen,
+                    $this->http,
+                    $this->refinery
                 );
 
                 $gui->initQuestion((int) $this->qplrequest->raw('q_id'), $this->object->getId());
@@ -494,7 +499,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
                         $this->tpl->setOnScreenMessage('failure', $this->lng->txt('msg_no_questions_selected'), true);
                         $this->ctrl->redirect($this, 'questions');
                     }
-                    if (! is_array($ids)) {
+                    if ($ids[0] === 'ALL_OBJECTS') {
+                        $ids = $this->object->getAllQuestionIds();
+                    }
+                    if (!is_array($ids)) {
                         $ids = explode(',', $ids);
                     }
                     $ids = array_map('intval', $ids);
@@ -1892,10 +1900,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
             $this->lng,
             $this->component_repository,
             $this->rbac_system,
-            $this->taxonomy->domain(),
+            $this->object->getShowTaxonomies() ? $this->taxonomy->domain() : null,
             $this->notes_service,
             $this->object->getId(),
-            (int)$this->qplrequest->getRefId()
+            (int) $this->qplrequest->getRefId()
         );
 
         /**
@@ -1906,22 +1914,25 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         $filter = $table->getFilter($this->ui_service, $filter_action);
 
         $filter_params = $this->ui_service->filter()->getData($filter);
+
         if ($filter_params) {
             foreach (array_filter($filter_params) as $item => $value) {
 
                 switch ($item) {
                     case 'taxonomies':
-                        if($value === 'null') {
-                            $table->addTaxonomyFilterNoTaxonomySet(true);
-                        } else {
-                            $tax_nodes = explode('-', $value);
-                            $tax_id = array_shift($tax_nodes);
-                            $table->addTaxonomyFilter(
-                                $tax_id,
-                                $tax_nodes,
-                                $this->object->getId(),
-                                $this->object->getType()
-                            );
+                        foreach($value as $tax_value) {
+                            if($tax_value === 'null') {
+                                $table->addTaxonomyFilterNoTaxonomySet(true);
+                            } else {
+                                $tax_nodes = explode('-', $tax_value);
+                                $tax_id = array_shift($tax_nodes);
+                                $table->addTaxonomyFilter(
+                                    $tax_id,
+                                    $tax_nodes,
+                                    $this->object->getId(),
+                                    $this->object->getType()
+                                );
+                            }
                         }
                         break;
                     case 'commented':

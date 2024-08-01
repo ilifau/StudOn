@@ -627,19 +627,6 @@ assessment#:#dont_use_questionpool#:#不要在题目池中插入题目(仅在这
 assessment#:#duplicate#:#复制
 assessment#:#duplicate_matching_values_selected#:#You have selected duplicate matching values!
 assessment#:#duplicate_order_values_entered#:#You have entered duplicate order values!
-assessment#:#ects_allow_ects_grades#:#Show ECTS grade additional to received mark
-assessment#:#ects_fx_threshold#:#Threshold###27 01 2015 new variable
-assessment#:#ects_fx_threshold_info#:#Please enter the required percentile for granting the 'FX' grade.###27 01 2015 new variable
-assessment#:#ects_grade#:#ECTS grade
-assessment#:#ects_grade_a_desc#:#outstanding performance with only minor errors###10 11 2018 new variable
-assessment#:#ects_grade_b_desc#:#above the average standard but with some errors###10 11 2018 new variable
-assessment#:#ects_grade_c_desc#:#generally sound work with a number of notable errors###10 11 2018 new variable
-assessment#:#ects_grade_d_desc#:#fair but with significant shortcomings###10 11 2018 new variable
-assessment#:#ects_grade_desc_prefix#:#Meaning of grade:###10 11 2018 new variable
-assessment#:#ects_grade_e_desc#:#performance meets the minimum criteria###10 11 2018 new variable
-assessment#:#ects_grade_f_desc#:#considerable further work is required###10 11 2018 new variable
-assessment#:#ects_grade_fx_desc#:#some more work required before the credit can be awarded###10 11 2018 new variable
-assessment#:#ects_output_of_ects_grades#:#ECTS等级输出
 assessment#:#edit_answer#:#Edit Answer###30 08 2015 new variable
 assessment#:#edit_concluding_remarks#:#Edit Concluding Remarks###30 04 2024 new variable
 assessment#:#edit_introduction#:#Edit Introduction###30 04 2024 new variable
@@ -873,7 +860,6 @@ assessment#:#manscoring_results_pass#:#Manual scoreable Questions for Pass %s手
 assessment#:#manual_editing#:#Manual Editing###30 08 2015 new variable
 assessment#:#mark_schema#:#Mark schema已标注模式
 assessment#:#mark_schema_invalid#:#标记模式没有验证。请创建一个正确的模式。
-assessment#:#mark_tst_ects#:#Your ECTS grade is &quot;[markects]&quot; 此用户的ECTS 的成绩是**
 assessment#:#matches#:# 匹配
 assessment#:#matching_pairs#:#Matching Pairs匹配对 中
 assessment#:#matching_shuffle_definitions#:#Definitions only只填定义
@@ -1064,6 +1050,7 @@ assessment#:#qpl_skl_sub_tab_quest_assign#:#Question/Competence Assignment###30 
 assessment#:#qpl_skl_sub_tab_usages#:#Assignment Frequency###30 08 2015 new variable
 assessment#:#qpl_sync_quest_skl_assigns_confirmation#:#The question was inserted from another repository object. Should the question's original be updated with the current config of competence assignments?###30 08 2015 new variable
 assessment#:#qpl_tab_competences#:#Competences###30 08 2015 new variable
+assessment#:#qpl_taxonomy_tab_info_message#:#Taxonomies in question pools can be used to filter the questions. After activating the function in the "Settings" tab, they are displayed in the filter in the "Questions" tab.###30 07 2024 new variable
 assessment#:#qst_error_text_too_long#:#One or more text elements marked as erroneous are too long. The maximum size for a text element marked as erroneous is 150 characters:###21 06 2023 new variable
 assessment#:#qst_essay_allready_written_words#:#Already entered words:###07 02 2020 new variable
 assessment#:#qst_essay_chars_remaining#:#Remaining characters:###07 02 2020 new variable
@@ -1994,7 +1981,6 @@ assessment#:#units#:#Units###24 10 2013 new variable
 assessment#:#unlimited#:#无限制
 assessment#:#unlock#:#未锁定
 assessment#:#uploaded_material#:#已上传的资料
-assessment#:#use_ects_fx#:#Use the 'FX' grade###27 01 2015 new variable
 assessment#:#use_previous_solution#:#Use Previous Solution###31 08 2017 new variable
 assessment#:#use_previous_solution_advice#:#The shown solution for the question is your previously given one. You have to confirm the adoption of the solution, if you like to use it without any change. ###31 08 2017 new variable
 assessment#:#user_has_finished_a_test#:#A participant has finished a test.###27 01 2015 new variable
@@ -2375,8 +2361,6 @@ blog#:#blog_add_contributor#:#添加贡献者
 blog#:#blog_add_posting#:#发贴
 blog#:#blog_admin_inactive_info#:#您能在个人桌面管理中激活博客特性
 blog#:#blog_admin_toggle_info#:#您能在个人桌面管理中完整地关闭博客特性。
-blog#:#blog_allow_html#:#Allow HTML/Javascript###10 07 2013 new variable
-blog#:#blog_allow_html_info#:#Enables users to include HTML and/or Javascript in their blog postings. This can lead to security issues.###10 07 2013 new variable
 blog#:#blog_approve#:#批准
 blog#:#blog_author#:#作者
 blog#:#blog_authors#:#作者
@@ -2424,8 +2408,6 @@ blog#:#blog_incl_comments#:#including comments###30 04 2021 new variable
 blog#:#blog_keyword#:#关键词
 blog#:#blog_keyword_enter#:#Write a keyword and press Enter.###10 11 2018 new variable
 blog#:#blog_keywords#:#关键词
-blog#:#blog_keywords_other#:#Other Keywords###30 08 2015 new variable
-blog#:#blog_keywords_other_info#:#These keywords were set for other blog postings.###30 08 2015 new variable
 blog#:#blog_latest_posting#:#Latest Posting###31 08 2017 new variable
 blog#:#blog_link#:#Link###31 03 2023 new variable
 blog#:#blog_list_more#:#更多
@@ -2434,8 +2416,6 @@ blog#:#blog_list_num_postings_info#:#This setting is only used if no specific mo
 blog#:#blog_nav_mode#:#Postings###26 09 2014 new variable
 blog#:#blog_nav_mode_month_list#:#Show List of Months###26 09 2014 new variable
 blog#:#blog_nav_mode_month_list_info#:#All months with postings are listed in the 'Postings' block.###26 09 2014 new variable
-blog#:#blog_nav_mode_month_list_num_detail#:#Total number of postings###26 09 2014 new variable
-blog#:#blog_nav_mode_month_list_num_detail_info#:#Latest postings are listed by date in reverse chronological order. Older postings are available via their month.###26 09 2014 new variable
 blog#:#blog_nav_mode_month_list_num_month#:#Number of listed months###26 09 2014 new variable
 blog#:#blog_nav_mode_month_list_num_month_info#:#Months above the limit will not be listed and related postings are not accessible.###26 09 2014 new variable
 blog#:#blog_nav_mode_month_list_num_month_with_post#:#Number of month with listed postings###31 08 2017 new variable
@@ -2456,8 +2436,6 @@ blog#:#blog_notification_deactivated#:#通知已停用
 blog#:#blog_notification_toggle_off#:#停用通知
 blog#:#blog_notification_toggle_on#:#激活通知
 blog#:#blog_number_users_notes_or_comments#:#附加笔记或评论到这个条目的用户数
-blog#:#blog_page_type_blp#:#Blog Posting###30 04 2021 new variable
-blog#:#blog_permanent_link#:#永久链接
 blog#:#blog_posting#:#博客贴子
 blog#:#blog_posting_deleted#:#条目已被删除。
 blog#:#blog_posting_deletion_confirmation#:#您确定想删除以下条目吗？
@@ -2481,7 +2459,6 @@ blog#:#blog_settings_navigation#:#Navigation Column###26 09 2014 new variable
 blog#:#blog_show_latest#:#Show latest postings/drafts###25 10 2016 new variable
 blog#:#blog_show_print_view#:#Show Print View###31 03 2023 new variable
 blog#:#blog_starting_page#:#Starting Page###28 11 2023 new variable
-blog#:#blog_style#:#Blog Style###24 10 2013 new variable
 blog#:#blog_task_publishing_draft_title#:#Publishing of Draft "%s"###07 02 2020 new variable
 blog#:#blog_toggle_draft#:#保存为草稿
 blog#:#blog_toggle_draft_admin#:#关闭博客贴子
@@ -3396,7 +3373,6 @@ cntr#:#cntr_saved_sorting#:#已保存的排序
 cntr#:#cntr_switch_to_new_editor_cmd#:#切换到这个页面介绍
 cntr#:#cntr_switch_to_new_editor_message#:#这是已支持的标准编辑器。请使用它设置内容页面。如果您点击下面的链接，知识库中的内容介绍将从老编辑器的内容切换到这个页面。
 cntr#:#cntr_switched_editor#:#已切换到新内容。
-cntr#:#cntr_tax_list_info#:#The following are all taxonomies that have been defined for this object.###27 01 2015 new variable
 cntr#:#cntr_tax_none_available#:#There are no taxonomies available.###26 09 2014 new variable
 cntr#:#cntr_tax_settings_info#:#Taxonomies in categories classify and filter the objects contained in the category. After adding taxonomies, classifications can be made via the "Metadata" tabs and the "Taxonomy Assignment" sub-tabs of the respective objects. Taxonomies can additionally be displayed in the side block of the category's "Contents" tab to enable direct filtering of the assigned objects.###30 04 2024 new variable
 cntr#:#cntr_taxonomy_definitions#:#Taxonomy Definition###27 01 2015 new variable
@@ -6066,6 +6042,7 @@ cont#:#cont_news_timeline_info#:#Activates News Timeline Tab###25 10 2016 new va
 cont#:#cont_news_timeline_landing_page#:#Landing Page###25 10 2016 new variable
 cont#:#cont_news_timeline_landing_page_info#:#Timeline page will be the landing page.###25 10 2016 new variable
 cont#:#cont_news_timeline_tab#:#Timeline###25 10 2016 new variable
+cont#:#cont_no_title#:#Empty Title###30 07 2024 new variable
 cont#:#cont_page_type_cont#:#Repository Page (Cours, Group, ...)###30 04 2021 new variable
 cont#:#cont_page_type_cstr#:#Course Start Page (Learning Objectives View)###30 04 2021 new variable
 cont#:#cont_path#:#Path###31 08 2017 new variable
@@ -8513,7 +8490,6 @@ dateplaner#:#date_format#:#m/d/Y H:i/ /月/天/4位年份 小时(24小时制):�
 dateplaner#:#end_date#:#End of Date
 dateplaner#:#err_end_before_start#:#结束之前预约必须没有开始。
 dateplaner#:#err_missing_title#:#请输入一个预约标题。
-dateplaner#:#execute#:#执行选择
 dateplaner#:#free#:#免费
 dateplaner#:#group#:#组
 dateplaner#:#grp_cal_end#:#Group ends###22 11 2017 new variable
@@ -8566,7 +8542,6 @@ dcl#:#dcl_changed_by#:#更改者
 dcl#:#dcl_checked#:#已勾选的
 dcl#:#dcl_comments#:#Comments###26 09 2014 new variable
 dcl#:#dcl_comments_desc#:#Displays the number of comments for a Entry.###25 10 2016 new variable
-dcl#:#dcl_configuration_complete#:#Configuration Complete###30 04 2021 new variable
 dcl#:#dcl_confirm_delete_detailed_view_text#:#这个表的记录的视图定义将被不可逆转的删除，记录和字段自己将不会改变。
 dcl#:#dcl_confirm_delete_detailed_view_title#:#您确定要删除这个视图？
 dcl#:#dcl_confirm_delete_field#:#您真的要删除这个字段？
@@ -9498,6 +9473,7 @@ exc#:#exc_rel_start_latest_lead_text#:#%s the Latest###30 04 2024 new variable
 exc#:#exc_rel_start_lead_text#:#Submit %s Days After Start###30 04 2024 new variable
 exc#:#exc_relative_date#:#Relative Date###10 11 2018 new variable
 exc#:#exc_relative_date_info#:#The deadline is set individually relative to the time when a user started the assignment.###10 11 2018 new variable
+exc#:#exc_relative_date_period#:#Working Time###30 07 2024 new variable
 exc#:#exc_rem_time_after_start#:#Remaining Time after Start###10 11 2018 new variable
 exc#:#exc_reminder_cron_ok#:#Reminders sent:###10 11 2018 new variable
 exc#:#exc_reminder_end#:#Reminder ends###10 11 2018 new variable
@@ -11579,8 +11555,8 @@ mathjax#:#mathjax_limiter#:#行内分隔符
 mathjax#:#mathjax_limiter_info#:#选择行内分隔符，因为他们已配置在您的MathJax安装中。
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_polyfill_url#:#Url of a Polyfill###31 03 2023 new variable
-mathjax#:#mathjax_polyfill_url_desc_line1#:#For MathJax 2 not needed###31 03 2023 new variable
-mathjax#:#mathjax_polyfill_url_desc_line2#:#For MathJax 3 e.g. https://polyfill.io/v3/polyfill.min.js?features=es6###31 03 2023 new variable
+mathjax#:#mathjax_polyfill_url_desc_line1#:#For MathJax 2 and MathJax 3 with current browsers not needed.
+mathjax#:#mathjax_polyfill_url_desc_line2#:#Please remove any reference to polyfill.io! See https://sansec.io/research/polyfill-supply-chain-attack
 mathjax#:#mathjax_script_url#:#URL of the MathJax Script###31 03 2023 new variable
 mathjax#:#mathjax_script_url_desc_line1#:#For MathJax 2 e.g. %s###31 03 2023 new variable
 mathjax#:#mathjax_script_url_desc_line2#:#Please activate the safe mode to avoid XSS attacks by MathJax code with javascript. For MathJax 2 it can be activated by adding the 'Safe' parameter to the CDN url. For MathJax 3 you need to include a script that configures it before MathJax is loaded. Use for example %s###31 03 2023 new variable
@@ -16685,6 +16661,7 @@ survey#:#svy_page_add_question#:#添加新 %s
 survey#:#svy_page_error#:#回答这个调查问题时有一个错误。请参考这个问题获得有关这个错误的更多信息！
 survey#:#svy_page_errors#:#回答这个调查问题时有一个错误。请参考这个问题获得有关这个错误的更多信息！
 survey#:#svy_participant#:#Participant###10 11 2018 new variable
+survey#:#svy_participants#:#Participants###30 07 2024 new variable
 survey#:#svy_participation#:#参与
 survey#:#svy_please_select_unused_codes#:#Please select at least one unused code.###31 03 2023 new variable
 survey#:#svy_print_hide_labels#:#Hide labels###31 08 2017 new variable
@@ -17230,6 +17207,7 @@ user#:#enable_local_user_administration#:#启用本地用户管理
 user#:#enable_local_user_administration_info#:#如果启用，本地用户账号在类目中能被管理。
 user#:#feedhash#:#Newsfeedhash###08 10 2015 new variable
 user#:#has_role#:#Role###31 08 2017 new variable
+user#:#info_accessFree_sure#:#Are you sure you want to remove the valid until date from the following accounts?###30 07 2024 new variable
 user#:#inform_user_mail_info#:#If activated, an email will be sent to the user. Its content can be defined in Administration > User Management > Settings > New Account Mail.###30 12 2013 new variable
 user#:#interests#:#Interests###26 09 2014 new variable
 user#:#interests_general#:#General Interests###26 09 2014 new variable

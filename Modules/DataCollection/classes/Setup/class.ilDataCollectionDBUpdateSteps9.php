@@ -175,4 +175,35 @@ class ilDataCollectionDBUpdateSteps9 implements ilDatabaseUpdateSteps
             [ilDclDatatype::INPUTFORMAT_MOB]
         );
     }
+
+    public function step_12(): void
+    {
+        $this->db->manipulateF(
+            'UPDATE il_dcl_stloc1_value v ' .
+            'INNER JOIN il_dcl_record_field rf ON rf.id = v.record_field_id ' .
+            'INNER JOIN il_dcl_field f ON f.id = rf.field_id ' .
+            'SET v.value = REPLACE(v.value, "<br />", "\r\n") WHERE f.datatype_id = %s',
+            [ilDBConstants::T_INTEGER],
+            [ilDclDatatype::INPUTFORMAT_TEXT]
+        );
+    }
+
+    public function step_13(): void
+    {
+        if ($this->db->tableColumnExists('il_dcl_tableview', 'step_vs')) {
+            $this->db->dropTableColumn('il_dcl_tableview', 'step_vs');
+        }
+        if ($this->db->tableColumnExists('il_dcl_tableview', 'step_c')) {
+            $this->db->dropTableColumn('il_dcl_tableview', 'step_c');
+        }
+        if ($this->db->tableColumnExists('il_dcl_tableview', 'step_e')) {
+            $this->db->dropTableColumn('il_dcl_tableview', 'step_e');
+        }
+        if ($this->db->tableColumnExists('il_dcl_tableview', 'step_o')) {
+            $this->db->dropTableColumn('il_dcl_tableview', 'step_o');
+        }
+        if ($this->db->tableColumnExists('il_dcl_tableview', 'step_s')) {
+            $this->db->dropTableColumn('il_dcl_tableview', 'step_s');
+        }
+    }
 }

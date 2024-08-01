@@ -628,19 +628,6 @@ assessment#:#dont_use_questionpool#:#Ne illessze be a kérdéseket kérdésgyűj
 assessment#:#duplicate#:#Másodpéldány létrehozása
 assessment#:#duplicate_matching_values_selected#:#Többszörösen illeszkedő értékeket választott ki.
 assessment#:#duplicate_order_values_entered#:#Többszörös sorrendi értékeket adott meg.
-assessment#:#ects_allow_ects_grades#:#A kapott érdemjegyen túl az ETCS-értékelés megjelenítése
-assessment#:#ects_fx_threshold#:#Küszöbérték
-assessment#:#ects_fx_threshold_info#:#Adja meg az 'FX' osztályzat értékeihez szükséges százalékokat.
-assessment#:#ects_grade#:#ETCS-értékelés
-assessment#:#ects_grade_a_desc#:#kiemelkedő teljesítmény, csak kisebb hibák vannak
-assessment#:#ects_grade_b_desc#:#átlagon felüli teljesítmény, kevés hibával
-assessment#:#ects_grade_c_desc#:#általában elfogadható, de van számos jelentős hiba
-assessment#:#ects_grade_d_desc#:#elfogadható, de vannak jelentős hiányosságok
-assessment#:#ects_grade_desc_prefix#:#Értékelés jelentése:
-assessment#:#ects_grade_e_desc#:#a teljesítmény megfelel a minimális követelményeknek
-assessment#:#ects_grade_f_desc#:#jelentős további munka szükséges
-assessment#:#ects_grade_fx_desc#:#további munka szükséges még a kredit megszerzéséhez
-assessment#:#ects_output_of_ects_grades#:#ECTS-minősítés eredménye
 assessment#:#edit_answer#:#Válasz módosítása
 assessment#:#edit_concluding_remarks#:#Záró megjegyzések szerkesztése
 assessment#:#edit_introduction#:#Útmutató szerkesztése
@@ -874,7 +861,6 @@ assessment#:#manscoring_results_pass#:#Manuálisan pontozandó kérdések a(z) %
 assessment#:#manual_editing#:#Kézi módosítás
 assessment#:#mark_schema#:#Értékelés
 assessment#:#mark_schema_invalid#:#Az értékelésséma nem teljes, kérem, ellenőrizze a minálisan elérendő értéket.
-assessment#:#mark_tst_ects#:#Az Ön ECTS-értékelése (ECTS = Európai Kreditátviteli Rendszer): '[markects]'
 assessment#:#matches#:#összeillők
 assessment#:#matching_pairs#:#Összeillő párok
 assessment#:#matching_shuffle_definitions#:#Csak definíciók
@@ -1065,6 +1051,7 @@ assessment#:#qpl_skl_sub_tab_quest_assign#:#Kérdés/kompetencia összerendelés
 assessment#:#qpl_skl_sub_tab_usages#:#Összerendelés gyakorisága
 assessment#:#qpl_sync_quest_skl_assigns_confirmation#:#A kérdést egy másik objektumból illesztették be. Frissítsük a kérdés eredetijét a jelenlegi kompetencia-összerendelések beállítása alapján?
 assessment#:#qpl_tab_competences#:#Kompetenciák
+assessment#:#qpl_taxonomy_tab_info_message#:#Taxonomies in question pools can be used to filter the questions. After activating the function in the "Settings" tab, they are displayed in the filter in the "Questions" tab.###30 07 2024 new variable
 assessment#:#qst_error_text_too_long#:#Néhány szövegelem hibásnak van megjelölve a hossza miatt. A karakterek megengedett maximális száma 150:
 assessment#:#qst_essay_allready_written_words#:#Beírt szavak száma:
 assessment#:#qst_essay_chars_remaining#:#Fennmaradó karakterek száma:
@@ -1995,7 +1982,6 @@ assessment#:#units#:#Mértékegységek
 assessment#:#unlimited#:#Korlátlan
 assessment#:#unlock#:#Zárolás feloldása
 assessment#:#uploaded_material#:#Feltöltött anyag
-assessment#:#use_ects_fx#:#'FX' osztályzat használata
 assessment#:#use_previous_solution#:#Előző megoldás használata
 assessment#:#use_previous_solution_advice#:#A jelenleg látszódó megoldás egy korábbi teszkitöltése során adott válasza. Ha módosítás nélkül szeretné ezt a korábbi megoldását használni, erősítse azt meg a 'Előző megoldás használata' gombbal.
 assessment#:#user_has_finished_a_test#:#Egy résztvevő befejezte a tesztet.
@@ -2376,8 +2362,6 @@ blog#:#blog_add_contributor#:#Szerző hozzáadása
 blog#:#blog_add_posting#:#Bejegyzés létrehozása
 blog#:#blog_admin_inactive_info#:#A blogfunkciót a Rendszerbeállítások » Személyes munkaterület » Személyes erőforrások kezelése menüpont alatt kapcsolhatja be.
 blog#:#blog_admin_toggle_info#:#A blogfunkciót a Rendszerbeállítások » Személyes munkaterület » Személyes erőforrások kezelése menüpont alatt kapcsolhatja ki teljesen.
-blog#:#blog_allow_html#:#HTML/JavaScript engedélyezése
-blog#:#blog_allow_html_info#:#Engedélyezi, hogy a felhasználók HTML és JavaScript kódokat használhassanak a blogbejegyzéseikben. Ez biztonsági problémákhoz vezethet.
 blog#:#blog_approve#:#Blogbejegyzés jóváhagyása
 blog#:#blog_author#:#Írta
 blog#:#blog_authors#:#Szerzők
@@ -2425,8 +2409,6 @@ blog#:#blog_incl_comments#:#hozzászólásokkal együtt
 blog#:#blog_keyword#:#Kulcsszó
 blog#:#blog_keyword_enter#:#Írjon be egy kulcsszót, majd nyomjon Enter-t.
 blog#:#blog_keywords#:#Kulcsszavak
-blog#:#blog_keywords_other#:#További kulcsszavak
-blog#:#blog_keywords_other_info#:#Ezeket a kulcsszavakat másik blogbejegyzésekhez állította be.
 blog#:#blog_latest_posting#:#Utolsó bejegyzés
 blog#:#blog_link#:#Link
 blog#:#blog_list_more#:#Bővebben
@@ -2435,8 +2417,6 @@ blog#:#blog_list_num_postings_info#:#Ez a beállítás csak akkor használható,
 blog#:#blog_nav_mode#:#Bejegyzések
 blog#:#blog_nav_mode_month_list#:#Hónapok listájának megjelenítése
 blog#:#blog_nav_mode_month_list_info#:#Összes hónap felsorolása bejegyzéseikkel együtt a 'Bejegyzések' blokkban.
-blog#:#blog_nav_mode_month_list_num_detail#:#Összes bejegyzés száma
-blog#:#blog_nav_mode_month_list_num_detail_info#:#A bejegyzések fordított időbeli sorrendbe vannak rendezve. A régebbi bejegyzések hónapjukon keresztül érhetőek el.
 blog#:#blog_nav_mode_month_list_num_month#:#Felsorolt hónapok száma
 blog#:#blog_nav_mode_month_list_num_month_info#:#A korlát feletti hónapokat nem soroljuk fel és az azokhoz kapcsolódó bejegyzéseket nem lehet elérni.
 blog#:#blog_nav_mode_month_list_num_month_with_post#:#Hónapok száma
@@ -2457,8 +2437,6 @@ blog#:#blog_notification_deactivated#:#Értesítés kikapcsolva
 blog#:#blog_notification_toggle_off#:#Értesítés kikapcsolása
 blog#:#blog_notification_toggle_on#:#Értesítés bekapcsolása
 blog#:#blog_number_users_notes_or_comments#:#Ezen bejegyzés jegyzeteihez és megjegyzéseihez csatlakozott felhasználóknak a száma
-blog#:#blog_page_type_blp#:#Blogbejegyzés
-blog#:#blog_permanent_link#:#Állandó link
 blog#:#blog_posting#:#Bloghozzászólás
 blog#:#blog_posting_deleted#:#A bejegyzést sikeresen törölte.
 blog#:#blog_posting_deletion_confirmation#:#Biztos, hogy törli az alábbi bejegyzéseket?
@@ -2482,7 +2460,6 @@ blog#:#blog_settings_navigation#:#Navigáció oszlop
 blog#:#blog_show_latest#:#Utolsó bejegyzés/piszkozat megjelenítése
 blog#:#blog_show_print_view#:#Nyomtatási nézet megjelenítése
 blog#:#blog_starting_page#:#Kezdőoldal
-blog#:#blog_style#:#Blog stílus
 blog#:#blog_task_publishing_draft_title#:#'%s' bejegyzéspiszkozat közzététele
 blog#:#blog_toggle_draft#:#Közzététel visszavonása
 blog#:#blog_toggle_draft_admin#:#Blog hozzászólások tiltása
@@ -3397,7 +3374,6 @@ cntr#:#cntr_saved_sorting#:#Rendezés mentése sikerült
 cntr#:#cntr_switch_to_new_editor_cmd#:#Új tartalom kapcsolása ehhez a laphoz. A régi tartalom eltávolításra kerül.
 cntr#:#cntr_switch_to_new_editor_message#:#Ez a támogatott szabványos szerkesztő. A régi szerkesztő tartalma nem hozható át. Lentebb vegyen fel új laptartalmat. Ha az alábbi linkre kattint, az új tartalom kerül használatra.
 cntr#:#cntr_switched_editor#:#Új tartalomhoz kapcsolva.
-cntr#:#cntr_tax_list_info#:#Ehhez az objektumhoz definiált összes taxonómia felsorolása.
 cntr#:#cntr_tax_none_available#:#Nincsenek elérhető taxonómiák.
 cntr#:#cntr_tax_settings_info#:#A kategóriákban lévő taxonómiák osztályozzák és szűrik a kategóriában lévő objektumokat. A taxonómiák hozzáadása után a besorolásokat a megfelelő objektumok 'Metaadatok' és 'Taxonómia hozzárendelése' allapjain lehet elvégezni. A taxonómiák emellett a kategória 'Tartalom' lapjának oldalsó blokkjában is megjeleníthetők, így lehetővé válik a hozzárendelt objektumok közvetlen szűrése is.
 cntr#:#cntr_taxonomy_definitions#:#Taxonómia meghatározása
@@ -6067,6 +6043,7 @@ cont#:#cont_news_timeline_info#:#Hírek idővonal lapjának bekapcsolása
 cont#:#cont_news_timeline_landing_page#:#Kezdőoldal
 cont#:#cont_news_timeline_landing_page_info#:#Az Idővonal lap lesz a kezdőoldal.
 cont#:#cont_news_timeline_tab#:#Idővonal
+cont#:#cont_no_title#:#Empty Title###30 07 2024 new variable
 cont#:#cont_page_type_cont#:#Tartalomtár oldal (kurzusok, csoportok, ...)
 cont#:#cont_page_type_cstr#:#Kurzus kezdő oldala (tanulási cél nézet)
 cont#:#cont_path#:#Útvonal
@@ -6517,7 +6494,7 @@ content#:#cont_file_renamed#:#A fájl neve megváltozott.
 content#:#cont_file_unzipped#:#A fájlt kicsomagoltuk.
 content#:#cont_files#:#Fájlok
 content#:#cont_finish_editing#:#Szerkesztés befejezése
-content#:#cont_finish_table_editing#:#Adattábla szerkesztésének befejezése 
+content#:#cont_finish_table_editing#:#Adattábla szerkesztésének befejezése
 content#:#cont_first_open#:#Első panel kinyitva
 content#:#cont_first_page#:#Első oldal
 content#:#cont_first_row_style#:#Első sor stílusosztálya
@@ -8514,7 +8491,6 @@ dateplaner#:#date_format#:#Y.m.d H:i
 dateplaner#:#end_date#:#Záró idő
 dateplaner#:#err_end_before_start#:#Az esemény nem kezdődhet a befejezése után.
 dateplaner#:#err_missing_title#:#Adjon az eseménynek címet!
-dateplaner#:#execute#:#művelet végrehajtása
 dateplaner#:#free#:#szabad
 dateplaner#:#group#:#csoport
 dateplaner#:#grp_cal_end#:#Csoport záró időpontja
@@ -8567,7 +8543,6 @@ dcl#:#dcl_changed_by#:#Módosította
 dcl#:#dcl_checked#:#Kipipált
 dcl#:#dcl_comments#:#Megjegyzések
 dcl#:#dcl_comments_desc#:#Megjegyzések számának megjelenítése a bejegyzéshez.
-dcl#:#dcl_configuration_complete#:#A konfigurációs sikeresen befejezve
 dcl#:#dcl_confirm_delete_detailed_view_text#:#A tábla bejegyzéseinek részletesnézet-sablonját véglegesen eltávolítja, de a tábla rekordjai és a mezői nem módosulnak.
 dcl#:#dcl_confirm_delete_detailed_view_title#:#Biztos, hogy törli ezt a részletes nézetet?
 dcl#:#dcl_confirm_delete_field#:#Biztos, hogy törli ezt a mezőt?
@@ -9371,9 +9346,9 @@ exc#:#exc_msg_new_feedback_file_uploaded#:#'%s' beadandó feladathoz új visszaj
 exc#:#exc_msg_new_feedback_file_uploaded2#:#ezúton tájékoztatjuk, hogy új visszajelzésfájlt töltöttek fel az Ön megoldásához.
 exc#:#exc_msg_new_feedback_text_uploaded#:#'%s' beadandó feladathoz új megjegyzés jött létre
 exc#:#exc_msg_new_feedback_text_uploaded2#:#ezúton tájékoztatjuk, hogy egy tutor megjegyzést írt Önnek.
-exc#:#exc_msg_new_message_from_pf_giver#:#'%s' feladathoz egy visszajelző üzenetet küldött. 
+exc#:#exc_msg_new_message_from_pf_giver#:#'%s' feladathoz egy visszajelző üzenetet küldött.
 exc#:#exc_msg_new_message_from_pf_giver2#:#Egy visszajelző üzenetet küldött Önnek:
-exc#:#exc_msg_new_message_from_pf_recipient#:#'%s' feladathoz egy visszajelzett üzenetet küldött. 
+exc#:#exc_msg_new_message_from_pf_recipient#:#'%s' feladathoz egy visszajelzett üzenetet küldött.
 exc#:#exc_msg_new_message_from_pf_recipient2#:#egy visszajelzett üzenetet küldött Önnek:
 exc#:#exc_msg_participants_removed#:#A résztvevőket eltávolítottuk a beadandó feladatból.
 exc#:#exc_msg_public_submission#:#Összes megoldást publikáltuk a határidő után.
@@ -9499,6 +9474,7 @@ exc#:#exc_rel_start_latest_lead_text#:#%s a legkésőbbi
 exc#:#exc_rel_start_lead_text#:#Submit %s nappal a kezdés után
 exc#:#exc_relative_date#:#Relatív Dátum
 exc#:#exc_relative_date_info#:#Az összes felhasználónál a feladat megkezdésétől számítjuk a határidőt.
+exc#:#exc_relative_date_period#:#Working Time###30 07 2024 new variable
 exc#:#exc_rem_time_after_start#:#Hátralévő idő
 exc#:#exc_reminder_cron_ok#:#Emlékeztető kiküldve:
 exc#:#exc_reminder_end#:#Emlékeztetők vége
@@ -11580,8 +11556,8 @@ mathjax#:#mathjax_limiter#:#Beágyazott határolójelek
 mathjax#:#mathjax_limiter_info#:#Válassza ki a beágyazott határolójeleket, ahogy azok az Ön MathJax installációjában konfiguráltak.
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_polyfill_url#:#Polyfill URJ-je
-mathjax#:#mathjax_polyfill_url_desc_line1#:#MathJax 2-höz nem szükséges
-mathjax#:#mathjax_polyfill_url_desc_line2#:#MathJax 3-hoz például https://polyfill.io/v3/polyfill.min.js?features=es6
+mathjax#:#mathjax_polyfill_url_desc_line1#:#For MathJax 2 and MathJax 3 with current browsers not needed.
+mathjax#:#mathjax_polyfill_url_desc_line2#:#Please remove any reference to polyfill.io! See https://sansec.io/research/polyfill-supply-chain-attack
 mathjax#:#mathjax_script_url#:#MathJax Script URL-je
 mathjax#:#mathjax_script_url_desc_line1#:#MathJax 2-höz például %s
 mathjax#:#mathjax_script_url_desc_line2#:#Kérem, aktiválja a biztonságos módot, hogy elkerülje a MathJax kódon keresztüli javascript-alapú XSS-támadásokat. MathJax 2 alatt ezt a CDN url-hez a 'Safe' paraméter hozzádásával teheti meg. MathJax 3 alatt egy szkriptet kell beletennie, ami ezt beállítja, mielőtt a MathJax betöltődik. Például: %s
@@ -13636,7 +13612,7 @@ ps#:#ps_export_excel#:#Excel-export indítása
 ps#:#ps_export_files#:#Exportfájlok
 ps#:#ps_export_groups#:#Felhasználó profiladatainak exportálásának engedélyezése csoportokban
 ps#:#ps_export_member#:#Tagok
-ps#:#ps_export_prgs#:#A Képzési programban a felhasználó profiladatok exportálásának engedélyezése 
+ps#:#ps_export_prgs#:#A Képzési programban a felhasználó profiladatok exportálásának engedélyezése
 ps#:#ps_export_settings#:#Exportbeállítások
 ps#:#ps_export_sub#:#Feliratkozottak
 ps#:#ps_export_tutor#:#Tutorok
@@ -13907,7 +13883,7 @@ rbac#:#crsr_copy#:#A felhasználó másolhat kurzuslinket
 rbac#:#crsr_delete#:#A felhasználó áthelyezhet vagy törölhet kurzuslinket
 rbac#:#crsr_edit_learning_progress#:#A felhasználó módosíthatja a tanulási haladás beállításait
 rbac#:#crsr_edit_permission#:#A felhasználó módosíthatja a jogosultsági beállításokat
-rbac#:#crsr_read_learning_progress#:#A felhasználó megtekintheti a többi felhasználó tanulási haladását 
+rbac#:#crsr_read_learning_progress#:#A felhasználó megtekintheti a többi felhasználó tanulási haladását
 rbac#:#crsr_visible#:#A kurzuslink látható
 rbac#:#crsr_write#:#A felhasználó szerkesztheti kurzuslinket
 rbac#:#crss_edit_permission#:#A felhasználó módosíthatja a Rendszerbeállítások » Kurzus jogosultsági beállításait
@@ -16686,6 +16662,7 @@ survey#:#svy_page_add_question#:#Új %s létrehozása
 survey#:#svy_page_error#:#Egy kérdés megválaszolásakor egy hiba jelentkezett. További információért keresse meg a kérdést!
 survey#:#svy_page_errors#:#Kérdések megválaszolásakor hibák jelentkeztek. További információért keresse meg a kérdéseket!
 survey#:#svy_participant#:#Résztvevő
+survey#:#svy_participants#:#Participants###30 07 2024 new variable
 survey#:#svy_participation#:#Részvétel
 survey#:#svy_please_select_unused_codes#:#Válasszon egy, még el nem használt kódot.
 survey#:#svy_print_hide_labels#:#Címkék elrejtése
@@ -17231,6 +17208,7 @@ user#:#enable_local_user_administration#:#Helyi ILIAS-fiókok kezelésének enge
 user#:#enable_local_user_administration_info#:#A 'Helyi ILIAS-fiókok kezelése' lap megjelenik a kategóriáknál és a szervezeti egységeknél.
 user#:#feedhash#:#Hírcsatorna-hash
 user#:#has_role#:#Szabály
+user#:#info_accessFree_sure#:#Are you sure you want to remove the valid until date from the following accounts?###30 07 2024 new variable
 user#:#inform_user_mail_info#:#Email-t küldünk a felhasználónak. Az e-mail tartalma megadható itt: Rendszerbeállítások » ILIAS-fiókok » Beállítások » Új felhasználónak levél.
 user#:#interests#:#Érdeklődési körök
 user#:#interests_general#:#Általános érdeklődési kör

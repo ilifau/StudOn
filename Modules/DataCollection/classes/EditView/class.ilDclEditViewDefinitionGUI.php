@@ -104,7 +104,7 @@ class ilDclEditViewDefinitionGUI extends ilPageObjectGUI
         $conf->setFormAction($ilCtrl->getFormAction($this));
         $conf->setHeaderText($lng->txt('dcl_confirm_delete_detailed_view_title'));
 
-        $conf->addItem('tableview', (string)$this->tableview_id, $lng->txt('dcl_confirm_delete_detailed_view_text'));
+        $conf->addItem('tableview', (string) $this->tableview_id, $lng->txt('dcl_confirm_delete_detailed_view_text'));
 
         $conf->setConfirm($lng->txt('delete'), 'deleteView');
         $conf->setCancel($lng->txt('cancel'), 'cancelDelete');
@@ -234,13 +234,6 @@ class ilDclEditViewDefinitionGUI extends ilPageObjectGUI
 
                 $setting->update();
             }
-        }
-
-        // Set Workflow flag to true
-        $view = ilDclTableView::getCollection()->where(["id" => filter_input(INPUT_GET, "tableview_id")])->first();
-        if (!is_null($view)) {
-            $view->setStepE(true);
-            $view->save();
         }
 
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('dcl_msg_tableview_updated'), true);
