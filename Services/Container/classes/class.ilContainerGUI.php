@@ -139,15 +139,18 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         return $this->mode_manager;
     }
 
-    protected function getItemPresentation($include_empty_blocks = true): \ILIAS\Container\Content\ItemPresentationManager
-    {
+    protected function getItemPresentation(
+        $include_empty_blocks = true,
+        ?string $lang = null
+    ): \ILIAS\Container\Content\ItemPresentationManager {
         if (is_null($this->item_presentation)) {
             $this->item_presentation = $this->domain
                 ->content()
                 ->itemPresentation(
                     $this->getObject(),
                     $this->container_user_filter,
-                    $include_empty_blocks
+                    $include_empty_blocks,
+                    $lang
                 );
         }
         return $this->item_presentation;
@@ -258,7 +261,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $page_gui->setStyleId(
             $style->getEffectiveStyleId()
         );
-        $page_gui->setItemPresentationManager($this->getItemPresentation(false));
+        $page_gui->setItemPresentationManager($this->getItemPresentation(
+            false,
+            $page_gui->getLanguage()
+        ));
         $page_gui->setTemplateTargetVar("ADM_CONTENT");
         $page_gui->setFileDownloadLink("");
         //$page_gui->setLinkParams($this->ctrl->getUrlParameterString()); // todo
@@ -1111,6 +1117,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
     public function downloadObject(): void
     {
+        if (in_array($this->user->getId(), [ANONYMOUS_USER_ID, 0], true)) {
+            return;
+        }
+
         $ilErr = $this->error;
         // This variable determines whether the task has been initiated by a folder's action drop-down to prevent a folder
         // duplicate inside the zip.

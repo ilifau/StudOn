@@ -628,19 +628,6 @@ assessment#:#dont_use_questionpool#:#Nevkládat otázky do zásobníku otázek (
 assessment#:#duplicate#:#Duplikovat
 assessment#:#duplicate_matching_values_selected#:#Vybral(a) jste duplikované identické hodnoty!
 assessment#:#duplicate_order_values_entered#:#Vložil(a) jste duplikované hodnoty pořadí!
-assessment#:#ects_allow_ects_grades#:#Zobrazit dodatečné hodnocení ECTS k získané známce
-assessment#:#ects_fx_threshold#:#Práh
-assessment#:#ects_fx_threshold_info#:#Zadejte požadovaný percentil pro udělení stupně „FX“.
-assessment#:#ects_grade#:#Hodnocení ECTS
-assessment#:#ects_grade_a_desc#:#vynikající výkon pouze s malými chybami
-assessment#:#ects_grade_b_desc#:#nadprůměrný standard, ale s nějakými chybami
-assessment#:#ects_grade_c_desc#:#obecně dobrá práce s množstvím významných chyb
-assessment#:#ects_grade_d_desc#:#slušné, ale s výraznými nedostatky
-assessment#:#ects_grade_desc_prefix#:#Význam známky:
-assessment#:#ects_grade_e_desc#:#výkon splňuje minimální kritéria
-assessment#:#ects_grade_f_desc#:#je zapotřebí další velká práce
-assessment#:#ects_grade_fx_desc#:#než bude možné udělit kredit, je třeba další práce
-assessment#:#ects_output_of_ects_grades#:#Výstup hodnocení ECTS
 assessment#:#edit_answer#:#Upravit odpověď
 assessment#:#edit_concluding_remarks#:#Edit Concluding Remarks###30 04 2024 new variable
 assessment#:#edit_introduction#:#Edit Introduction###30 04 2024 new variable
@@ -874,7 +861,6 @@ assessment#:#manscoring_results_pass#:#Manuálně hodnotitelné otázky pro prů
 assessment#:#manual_editing#:#Manuální editace
 assessment#:#mark_schema#:#Schéma známkování
 assessment#:#mark_schema_invalid#:#Schéma známkování není platné. Vytvořte prosím správné schéma.
-assessment#:#mark_tst_ects#:#Vaše hodnocení ECTS je &quot;[markects]&quot;
 assessment#:#matches#:#patří k
 assessment#:#matching_pairs#:#Odpovídající dvojice
 assessment#:#matching_shuffle_definitions#:#Jen definice
@@ -1065,6 +1051,7 @@ assessment#:#qpl_skl_sub_tab_quest_assign#:#Přiřazení otázky / způsobilosti
 assessment#:#qpl_skl_sub_tab_usages#:#Četnost přiřazení
 assessment#:#qpl_sync_quest_skl_assigns_confirmation#:#Otázka byla vložena z jiného objektu úložiště. Musí být originál otázky aktualizován o aktuální konfiguraci přiřazení způsobilosti?
 assessment#:#qpl_tab_competences#:#Způsobilosti
+assessment#:#qpl_taxonomy_tab_info_message#:#Taxonomies in question pools can be used to filter the questions. After activating the function in the "Settings" tab, they are displayed in the filter in the "Questions" tab.###30 07 2024 new variable
 assessment#:#qst_error_text_too_long#:#One or more text elements marked as erroneous are too long. The maximum size for a text element marked as erroneous is 150 characters:###21 06 2023 new variable
 assessment#:#qst_essay_allready_written_words#:#Already entered words:###07 02 2020 new variable
 assessment#:#qst_essay_chars_remaining#:#Remaining characters:###07 02 2020 new variable
@@ -1995,7 +1982,6 @@ assessment#:#units#:#Jednotky
 assessment#:#unlimited#:#neomezený
 assessment#:#unlock#:#Odemknout
 assessment#:#uploaded_material#:#Odeslaný materiál
-assessment#:#use_ects_fx#:#Použít stupeň „FX“
 assessment#:#use_previous_solution#:#Použít předchozí řešení
 assessment#:#use_previous_solution_advice#:#Zobrazené řešení pro tuto otázku je vaše dříve uvedené řešení. Musíte potvrdit přijetí řešení, pokud ho chcete použít bez jakýchkoliv změn.
 assessment#:#user_has_finished_a_test#:#Účastník dokončil test.
@@ -2376,8 +2362,6 @@ blog#:#blog_add_contributor#:#Přidat přispěvatele
 blog#:#blog_add_posting#:#Přidat aktualizování
 blog#:#blog_admin_inactive_info#:#Můžete aktivovat rysy blogu ve správě Osobní pracovní plochy.
 blog#:#blog_admin_toggle_info#:#Můžete deaktivovat rysy blogu úplně ve správě Osobní pracovní plochy.
-blog#:#blog_allow_html#:#Povolit HTML/Javascript
-blog#:#blog_allow_html_info#:#Zapíná možnost uživatele zahrnout HTML a/nebo Javascript v jejich zasílání blogu. To může vést k bezpečnostním problémům.
 blog#:#blog_approve#:#Schválit
 blog#:#blog_author#:#Autor
 blog#:#blog_authors#:#Autoři
@@ -2425,8 +2409,6 @@ blog#:#blog_incl_comments#:#including comments###30 04 2021 new variable
 blog#:#blog_keyword#:#Klíčové slovo
 blog#:#blog_keyword_enter#:#Napište klíčové slovo a stiskněte tlačítko Enter.
 blog#:#blog_keywords#:#Klíčová slova
-blog#:#blog_keywords_other#:#Další klíčová slova
-blog#:#blog_keywords_other_info#:#Tato klíčová slova byla nastavena pro další příspěvky blogu.
 blog#:#blog_latest_posting#:#Nejnovější příspěvek
 blog#:#blog_link#:#Link###31 03 2023 new variable
 blog#:#blog_list_more#:#další
@@ -2435,8 +2417,6 @@ blog#:#blog_list_num_postings_info#:#Toto nastavení se používá pouze v pří
 blog#:#blog_nav_mode#:#Příspěvky
 blog#:#blog_nav_mode_month_list#:#Zobrazit seznam měsíců
 blog#:#blog_nav_mode_month_list_info#:#Všechny měsíce s příspěvky jsou uvedeny v bloku „Příspěvky“.
-blog#:#blog_nav_mode_month_list_num_detail#:#Celkový počet příspěvků
-blog#:#blog_nav_mode_month_list_num_detail_info#:#Nejnovější příspěvky jsou uvedeny podle data v opačném chronologickém pořadí. Starší příspěvky jsou dostupné prostřednictvím měsíce.
 blog#:#blog_nav_mode_month_list_num_month#:#Počet uvedených měsíců
 blog#:#blog_nav_mode_month_list_num_month_info#:#Měsíce nad limitem nebudou uvedeny a související příspěvky nejsou přístupné.
 blog#:#blog_nav_mode_month_list_num_month_with_post#:#Počet měsíců s uvedenými příspěvky
@@ -2457,8 +2437,6 @@ blog#:#blog_notification_deactivated#:#Oznamování deaktivováno
 blog#:#blog_notification_toggle_off#:#Deaktivovat oznamování
 blog#:#blog_notification_toggle_on#:#Aktivovat oznamování
 blog#:#blog_number_users_notes_or_comments#:#Počet uživatelů, kteří připojili poznámky nebo komentáře k tomuto záznamu
-blog#:#blog_page_type_blp#:#Blog Posting###30 04 2021 new variable
-blog#:#blog_permanent_link#:#Trvalý odkaz
 blog#:#blog_posting#:#Aktualizace blogu
 blog#:#blog_posting_deleted#:#Položka byla smazána.
 blog#:#blog_posting_deletion_confirmation#:#Skutečně chcete smazat následující položku?
@@ -2482,7 +2460,6 @@ blog#:#blog_settings_navigation#:#Sloupec navigace
 blog#:#blog_show_latest#:#Zobrazit nejnovější příspěvky/koncepty
 blog#:#blog_show_print_view#:#Show Print View###31 03 2023 new variable
 blog#:#blog_starting_page#:#Starting Page###28 11 2023 new variable
-blog#:#blog_style#:#Styl blogu
 blog#:#blog_task_publishing_draft_title#:#Publishing of Draft "%s"###07 02 2020 new variable
 blog#:#blog_toggle_draft#:#Uložit jako Draft
 blog#:#blog_toggle_draft_admin#:#Deaktivovat aktualizování blogu
@@ -3397,7 +3374,6 @@ cntr#:#cntr_saved_sorting#:#Řazení uloženo.
 cntr#:#cntr_switch_to_new_editor_cmd#:#Přepnout zobrazení na tuto stránku
 cntr#:#cntr_switch_to_new_editor_message#:#To je podporovaný standardní editor. Použijte jej prosím k nastavení obsahu stránky. Pokud klepnete na následující odkaz, obsah zobrazení úložiště bude přepnut ze starého editoru obsahu na tuto stránku.
 cntr#:#cntr_switched_editor#:#Přepnuto na nový obsah.
-cntr#:#cntr_tax_list_info#:#Níže jsou uvedeny všechny taxonomie, které byly definovány pro tento objekt.
 cntr#:#cntr_tax_none_available#:#Nejsou k dispozici žádné taxonomie.
 cntr#:#cntr_tax_settings_info#:#Taxonomies in categories classify and filter the objects contained in the category. After adding taxonomies, classifications can be made via the "Metadata" tabs and the "Taxonomy Assignment" sub-tabs of the respective objects. Taxonomies can additionally be displayed in the side block of the category's "Contents" tab to enable direct filtering of the assigned objects.###30 04 2024 new variable
 cntr#:#cntr_taxonomy_definitions#:#Definice taxonomie
@@ -6067,6 +6043,7 @@ cont#:#cont_news_timeline_info#:#Aktivuje záložku Časová osa zpráv
 cont#:#cont_news_timeline_landing_page#:#Vstupní stránka
 cont#:#cont_news_timeline_landing_page_info#:#Stránka časové osy bude vstupní stránkou.
 cont#:#cont_news_timeline_tab#:#Časová osa
+cont#:#cont_no_title#:#Empty Title###30 07 2024 new variable
 cont#:#cont_page_type_cont#:#Repository Page (Cours, Group, ...)###30 04 2021 new variable
 cont#:#cont_page_type_cstr#:#Course Start Page (Learning Objectives View)###30 04 2021 new variable
 cont#:#cont_path#:#Cesta
@@ -8514,7 +8491,6 @@ dateplaner#:#date_format#:#m/d/R H:i
 dateplaner#:#end_date#:#Ukončení:
 dateplaner#:#err_end_before_start#:#Tato schůzka nesmí začínat před koncem.
 dateplaner#:#err_missing_title#:#Vložte prosím název schůzky.
-dateplaner#:#execute#:#Vykonat volby
 dateplaner#:#free#:#Volno
 dateplaner#:#group#:#Skupina
 dateplaner#:#grp_cal_end#:#Skupina končí
@@ -8567,7 +8543,6 @@ dcl#:#dcl_changed_by#:#Změnil
 dcl#:#dcl_checked#:#Zkontrolován.
 dcl#:#dcl_comments#:#Komentáře
 dcl#:#dcl_comments_desc#:#Zobrazí počet komentářů pro záznam.
-dcl#:#dcl_configuration_complete#:#Configuration Complete###30 04 2021 new variable
 dcl#:#dcl_confirm_delete_detailed_view_text#:#Definice zobrazení záznamů v této tabulce bude nevratně smazána, záznamy a pole samotné nebudou změněny.
 dcl#:#dcl_confirm_delete_detailed_view_title#:#Skutečně chcete smazat toto zobrazení?
 dcl#:#dcl_confirm_delete_field#:#Skutečně chcete smazat toto pole?
@@ -9499,6 +9474,7 @@ exc#:#exc_rel_start_latest_lead_text#:#%s the Latest###30 04 2024 new variable
 exc#:#exc_rel_start_lead_text#:#Submit %s Days After Start###30 04 2024 new variable
 exc#:#exc_relative_date#:#Relativní datum
 exc#:#exc_relative_date_info#:#Konečný termín je stanoven individuálně ve vztahu k době, kdy uživatel začal s úlohou.
+exc#:#exc_relative_date_period#:#Working Time###30 07 2024 new variable
 exc#:#exc_rem_time_after_start#:#Zbývající čas po zahájení
 exc#:#exc_reminder_cron_ok#:#Připomenutí odeslána:
 exc#:#exc_reminder_end#:#Připomenutí končí
@@ -11580,8 +11556,8 @@ mathjax#:#mathjax_limiter#:#Oddělovače inline
 mathjax#:#mathjax_limiter_info#:#Vyberte inline oddělovače, jak jsou nakonfigurovány ve vaší instalaci MathJax.
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_polyfill_url#:#Url of a Polyfill###31 03 2023 new variable
-mathjax#:#mathjax_polyfill_url_desc_line1#:#For MathJax 2 not needed###31 03 2023 new variable
-mathjax#:#mathjax_polyfill_url_desc_line2#:#For MathJax 3 e.g. https://polyfill.io/v3/polyfill.min.js?features=es6###31 03 2023 new variable
+mathjax#:#mathjax_polyfill_url_desc_line1#:#For MathJax 2 and MathJax 3 with current browsers not needed.
+mathjax#:#mathjax_polyfill_url_desc_line2#:#Please remove any reference to polyfill.io! See https://sansec.io/research/polyfill-supply-chain-attack
 mathjax#:#mathjax_script_url#:#URL of the MathJax Script###31 03 2023 new variable
 mathjax#:#mathjax_script_url_desc_line1#:#For MathJax 2 e.g. %s###31 03 2023 new variable
 mathjax#:#mathjax_script_url_desc_line2#:#Please activate the safe mode to avoid XSS attacks by MathJax code with javascript. For MathJax 2 it can be activated by adding the 'Safe' parameter to the CDN url. For MathJax 3 you need to include a script that configures it before MathJax is loaded. Use for example %s###31 03 2023 new variable
@@ -16686,6 +16662,7 @@ survey#:#svy_page_add_question#:#Přidat nový %s
 survey#:#svy_page_error#:#Při odpovědi na otázku ankety se vyskytla chyba. Vyhledejte chybovou zprávu ke získání informací o tom, které otázky se chyba týká!
 survey#:#svy_page_errors#:#Při odpovědích na otázky ankety se vyskytly chyby. Vyhledejte chybovou zprávu ke získání informací o tom, kterých otázek se chyby týkají!
 survey#:#svy_participant#:#Účastník
+survey#:#svy_participants#:#Participants###30 07 2024 new variable
 survey#:#svy_participation#:#Účast
 survey#:#svy_please_select_unused_codes#:#Please select at least one unused code.###31 03 2023 new variable
 survey#:#svy_print_hide_labels#:#Skrýt štítky
@@ -17231,6 +17208,7 @@ user#:#enable_local_user_administration#:#Zapnout lokální uživatelskou správ
 user#:#enable_local_user_administration_info#:#Je-li zapnuto, lokální uživatelské účty mohou být spravovány v kategoriích.
 user#:#feedhash#:#Newsfeedhash
 user#:#has_role#:#Role
+user#:#info_accessFree_sure#:#Are you sure you want to remove the valid until date from the following accounts?###30 07 2024 new variable
 user#:#inform_user_mail_info#:#Pokud je toto aktivováno, bude uživateli zaslán e-mail. Jeho obsah lze definovat v Správa> Správa uživatelů> Nastavení> Nový účet pošty.
 user#:#interests#:#Zájmy
 user#:#interests_general#:#Obecné zájmy

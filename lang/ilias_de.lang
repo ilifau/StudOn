@@ -628,19 +628,6 @@ assessment#:#dont_use_questionpool#:#Fragen nicht in einen Fragenpool einfügen 
 assessment#:#duplicate#:#Kopieren
 assessment#:#duplicate_matching_values_selected#:#Sie haben mindestens einen doppelten Zuordnungswert ausgewählt!
 assessment#:#duplicate_order_values_entered#:#Sie haben mindestens eine doppelte Reihenfolge angegeben!
-assessment#:#ects_allow_ects_grades#:#ECTS-Note zusätzlich zur erreichten Note anzeigen
-assessment#:#ects_fx_threshold#:#Grenzwert
-assessment#:#ects_fx_threshold_info#:#Bitte geben Sie den Grenzwert an, ab dem durchgefallene Teilnehmer die ECTS-Note 'FX' erhalten.
-assessment#:#ects_grade#:#ECTS-Note
-assessment#:#ects_grade_a_desc#:#ausgezeichnete Leistungen und nur wenige unbedeutende Fehler
-assessment#:#ects_grade_b_desc#:#überdurchschnittliche Leistungen, aber einige Fehler
-assessment#:#ects_grade_c_desc#:#insgesamt gute und solide Arbeit, jedoch mit einigen grundlegenden Fehlern
-assessment#:#ects_grade_d_desc#:#mittelmäßig, jedoch deutliche Mängel
-assessment#:#ects_grade_desc_prefix#:#Bedeutung der Note:
-assessment#:#ects_grade_e_desc#:#die gezeigten Leistungen entsprechen den Mindestanforderungen
-assessment#:#ects_grade_f_desc#:#es sind erhebliche Verbesserungen erforderlich
-assessment#:#ects_grade_fx_desc#:#es sind Verbesserungen erforderlich, bevor die Leistung anerkannt wird
-assessment#:#ects_output_of_ects_grades#:#Ausgabe von ECTS-Noten
 assessment#:#edit_answer#:#Antwort ändern
 assessment#:#edit_concluding_remarks#:#Abschließende Bemerkung bearbeiten
 assessment#:#edit_introduction#:#Einleitung bearbeiten
@@ -874,7 +861,6 @@ assessment#:#manscoring_results_pass#:#Manuell bewertbare Fragen für Testdurchl
 assessment#:#manual_editing#:#Manuelle Editierung
 assessment#:#mark_schema#:#Notenschema
 assessment#:#mark_schema_invalid#:#Das Notenschema konnte nicht erfolgreich validiert werden. Bitte erstellen Sie ein gültiges Schema.
-assessment#:#mark_tst_ects#:#Ihre ECTS-Note lautet "[markects]" (European Credit Transfer System)
 assessment#:#matches#:#passt zu
 assessment#:#matching_pairs#:#Zuordnungspaare
 assessment#:#matching_shuffle_definitions#:#Nur Definitionen
@@ -1065,6 +1051,7 @@ assessment#:#qpl_skl_sub_tab_quest_assign#:#Fragen-Kompetenz-Zuordnung
 assessment#:#qpl_skl_sub_tab_usages#:#Vergabehäufigkeit
 assessment#:#qpl_sync_quest_skl_assigns_confirmation#:#Die Frage wurde aus einem anderen Magazinobjekt eingefügt. Soll die aktuelle Konfiguration von Kompetenzzuweisungen auf das Original der Frage übertragen werden?
 assessment#:#qpl_tab_competences#:#Kompetenzen
+assessment#:#qpl_taxonomy_tab_info_message#:#Taxonomien in Fragenpools klassifizieren und filtern die Fragen. Sie werden nach Aktivierung der Funktion im Reiter „Einstellungen“ im Filter im Reiter „Fragen“ angezeigt.
 assessment#:#qst_error_text_too_long#:#Einer oder mehrere der als fehlerhaft markierten Textelemente ist zu lang. Die maximale Länge für ein als fehlerhaft markiertes Textelement ist 150 Zeichen.
 assessment#:#qst_essay_allready_written_words#:#Bereits geschriebene Wörter:
 assessment#:#qst_essay_chars_remaining#:#Noch übrige Zeichen:
@@ -1515,7 +1502,7 @@ assessment#:#tst_instant_feedback_trigger_forced_desc#:#Durch Beantwortung einer
 assessment#:#tst_instant_feedback_trigger_manual#:#Teilnehmer können die Rückmeldung selbst auslösen
 assessment#:#tst_instant_feedback_trigger_manual_desc#:#Die Rückmeldung steht Teilnehmern zur Verfügung, wird aber erst gezeigt, wenn der Teilnehmer diese auslöst.
 assessment#:#tst_introduction#:#Einleitung
-assessment#:#tst_introduction_desc#:#Zeigt einen Einleitungstext auf dem 'Info'-Reiter des Tests an. Der Text ist bereits vor Beginn des Tests zugänglich.
+assessment#:#tst_introduction_desc#:#Zeigt einen Einleitungstext auf dem "Test"-Reiter an. Der Einleitungstext kann im Unterreiter "Einleitung bearbeiten" geändert werden und ist bereits vor Beginn des Tests zugänglich.
 assessment#:#tst_introduction_text#:#Einleitungstext
 assessment#:#tst_invited_nobody#:#Es wurden keine Benutzer, Gruppen oder Rollen als feste Teilnehmer hinzugefügt
 assessment#:#tst_invited_selected_users#:#Die ausgewählten Benutzer wurden als feste Teilnehmer hinzugefügt
@@ -1995,7 +1982,6 @@ assessment#:#units#:#Einheiten
 assessment#:#unlimited#:#unbegrenzt
 assessment#:#unlock#:#Entsperren
 assessment#:#uploaded_material#:#Hochgeladene Materialien
-assessment#:#use_ects_fx#:#Verwenden der ECTS-Note 'FX'
 assessment#:#use_previous_solution#:#Verwende vorherige Lösung
 assessment#:#use_previous_solution_advice#:#Die angezeigte Lösung wurde vormals von Ihnen abgegeben. Sie müssen die Übernahme dieser Lösung unterhalb der Frage bestätigen, falls Sie die Lösung ohne Änderungen übernehmen wollen.
 assessment#:#user_has_finished_a_test#:#Ein Teilnehmer hat einen Test beendet.
@@ -2365,7 +2351,7 @@ bibl#:#translate#:#Übersetzen
 bkm#:#bkm_fold_created#:#Bookmark-Ordner wurde angelegt.
 blog#:#blog_abstract_image#:#Erstes Bild anzeigen
 blog#:#blog_abstract_image_height#:#Höhe
-blog#:#blog_abstract_image_info#:#Das erste Bild des Beitrags wird auf die hier festgelegte Größe verkleinert. Bilder, die kleiner sind als die festgelegte Größe, werden nicht angezeigt.
+blog#:#blog_abstract_image_info#:#Das erste im Beitrag verwendete Bild wird in der Größe so angepasst, dass seine längste Kante der hier eingegebenen Wert entspricht. Dieses Bild wird zusammen mit der Zusammenfassung des Textinhalts des Beitrags angezeigt. Bilder, die kleiner als die Mindestgröße sind, werden nicht angezeigt.
 blog#:#blog_abstract_image_pixels#:#Px
 blog#:#blog_abstract_image_width#:#Breite
 blog#:#blog_abstract_shorten#:#Nur Anfang des Beitrags zeigen
@@ -2374,10 +2360,8 @@ blog#:#blog_abstract_shorten_length#:#Maximale Länge
 blog#:#blog_add#:#Blog anlegen
 blog#:#blog_add_contributor#:#Mitwirkende hinzufügen
 blog#:#blog_add_posting#:#Beitrag hinzufügen
-blog#:#blog_admin_inactive_info#:#Das Blog-Feature kann in der Administration der „Persönlichen Ressourcen“ aktiviert werden.
-blog#:#blog_admin_toggle_info#:#Das Blog-Feature kann in der Administration der „Persönlichen Ressourcen“ deaktiviert werden.
-blog#:#blog_allow_html#:#HTML/Javascript erlauben
-blog#:#blog_allow_html_info#:#Es kann HTML oder Javascript in Blog-Einträgen verwendet werden. Dies kann zu Sicherheitsproblemen führen.###Modified as part of gender mainstreaming activities for ILIAS 8
+blog#:#blog_admin_inactive_info#:#Das Blog-Feature kann in der Administration unter „Administration » Persönlicher Arbeitsraum » Persönliche Ressourcen“ aktiviert werden.
+blog#:#blog_admin_toggle_info#:#Das Blog-Feature kann in der Administration unter „Administration » Persönlicher Arbeitsraum » Persönliche Ressourcen“ deaktiviert werden.
 blog#:#blog_approve#:#Beitrag freischalten
 blog#:#blog_author#:#Beiträge von
 blog#:#blog_authors#:#Beitragende Personen###Modified as part of gender mainstreaming activities for ILIAS 8
@@ -2397,7 +2381,7 @@ blog#:#blog_contributors#:#Mitwirkende
 blog#:#blog_copy#:#Blog kopieren
 blog#:#blog_download_submission#:#Kopie der Abgabe herunterladen
 blog#:#blog_draft#:#Entwurf
-blog#:#blog_draft_info#:#Der Inhalt dieses Beitrags ist als Entwurf nur für Sie sichtbar.
+blog#:#blog_draft_info#:#Die Veröffentlichung dieses Beitrags wurde zurückgenommen. Dieser Beitrag ist jetzt nur für Mitwirkende sichtbar.
 blog#:#blog_draft_info_contributors#:#Dieser Beitrag ist als Entwurf nur für die Mitwirkenden sichtbar.
 blog#:#blog_draft_text#:#Unveröffentlichter Beitrag
 blog#:#blog_edit#:#Blog bearbeiten
@@ -2415,7 +2399,7 @@ blog#:#blog_enable_notes#:#Öffentliche Kommentare
 blog#:#blog_enable_rss#:#RSS aktivieren
 blog#:#blog_enable_rss_info#:#Der RSS-Feed ist öffentlich und unabhängig von Blog-Freigaben oder Rechten.
 blog#:#blog_est_reading_time#:#Geschätzte Lesedauer
-blog#:#blog_est_reading_time_info#:#In Blogs im Magazin kann eine geschätzte Lesezeit ermittelt und angezeigt werden.
+blog#:#blog_est_reading_time_info#:#Eine automatisch geschätzte Lesezeit wird allen Blog-Beiträge im Magazin hinzugefügt.
 blog#:#blog_exercise_info#:#Dieses Blog ist der Übungseinheit „%s“ in der Übung „%s“ zugeordnet.
 blog#:#blog_exercise_submitted_info#:#Ihre letzte Einreichung war am %s. Bitte prüfen Sie die Export-Datei: %s
 blog#:#blog_finalize_blog#:#Blog abschließen und abgeben
@@ -2425,24 +2409,20 @@ blog#:#blog_incl_comments#:#inklusive Kommentare
 blog#:#blog_keyword#:#Schlagwort
 blog#:#blog_keyword_enter#:#Geben Sie ein Schlagwort ein und drücken Sie Enter.
 blog#:#blog_keywords#:#Schlagwörter
-blog#:#blog_keywords_other#:#Sonstige Schlagwörter
-blog#:#blog_keywords_other_info#:#Diese Schlagwörter sind für andere Blog-Einträge vergeben worden.
 blog#:#blog_latest_posting#:#Neuester Beitrag
 blog#:#blog_link#:#Link
 blog#:#blog_list_more#:#mehr
 blog#:#blog_list_num_postings#:#Anzahl Einträge in der initialen Übersicht
-blog#:#blog_list_num_postings_info#:#Diese Einstellung wird nur verwendet, wenn kein konkreter Monat ausgewählt ist.
+blog#:#blog_list_num_postings_info#:#Die maximale Anzahl von Beiträgen, die angezeigt werden, wenn kein konkreter Monat ausgewählt ist.
 blog#:#blog_nav_mode#:#Monatsweise Navigation
 blog#:#blog_nav_mode_month_list#:#Aktuelle Monate als Liste
 blog#:#blog_nav_mode_month_list_info#:#Der Seitenblock zeigt eine Liste der Monate. Die Anzahl angezeigter Monate und Beiträge kann festgelegt werden.
-blog#:#blog_nav_mode_month_list_num_detail#:#Anzahl Einträge (nach absteigendem Datum sortiert)
-blog#:#blog_nav_mode_month_list_num_detail_info#:#Ältere Einträge werden in der Monatsansicht gelistet.
 blog#:#blog_nav_mode_month_list_num_month#:#Gesamtanzahl angezeigter Monate
-blog#:#blog_nav_mode_month_list_num_month_info#:#Monate werden standardmäßig nur mit der Anzahl ihrer Beiträge angezeigt.
+blog#:#blog_nav_mode_month_list_num_month_info#:#Die Anzahl der Monate, die in dem „Beiträge“ Block gezeigt werde, wird beschränkt. Die angezeigten Monate sind immer die aktuellsten und werden standardmäßig nur mit der Anzahl ihrer Beiträge angezeigt.
 blog#:#blog_nav_mode_month_list_num_month_with_post#:#Anzahl Monate mit Links zu allen Beiträgen
-blog#:#blog_nav_mode_month_list_num_month_with_post_info#:#Für diese Anzahl aktueller Monate werden im Seitenblock Links zu allen Beiträge angezeigt.
+blog#:#blog_nav_mode_month_list_num_month_with_post_info#:#Für diese Anzahl aktueller Monate werden im Seitenblock Links zu allen Beiträgen angezeigt. Weitere Monate werden mit einer Zahl angezeigt, die die Gesamtzahl der Beiträge in diesem Monat angibt.
 blog#:#blog_nav_mode_month_single#:#Alle Monate per Dropdown
-blog#:#blog_nav_mode_month_single_info#:#Im Seitenblock bietet ein Dropdown alle Monate zur Auswahl an. Für den gewählten Monat werden alle Beiträge aufgelistet.
+blog#:#blog_nav_mode_month_single_info#:#Anstelle einer Liste wird im Seitenblock ein Dropdown-Menü gezeigt, das alle Monate zur Auswahl anbietet. Nur Beiträge der gewählten Monat werden aufgelistet.
 blog#:#blog_nav_sortorder#:#Reihenfolge der Seitenblöcke
 blog#:#blog_navigation#:#Beiträge
 blog#:#blog_needs_approval#:#Beitrag ist noch nicht freigeschaltet
@@ -2457,12 +2437,10 @@ blog#:#blog_notification_deactivated#:#Änderungs-Benachrichtigung deaktiviert
 blog#:#blog_notification_toggle_off#:#Änderungs-Benachrichtigung deaktivieren
 blog#:#blog_notification_toggle_on#:#Änderungs-Benachrichtigung aktivieren
 blog#:#blog_number_users_notes_or_comments#:#Anzahl der Benutzer, die zu diesem Beitrag Notizen oder Kommentare verfasst haben.
-blog#:#blog_page_type_blp#:#Blogbeitrag
-blog#:#blog_permanent_link#:#Permalink
 blog#:#blog_posting#:#Beitrag
 blog#:#blog_posting_deleted#:#Der Beitrag wurde gelöscht.
 blog#:#blog_posting_deletion_confirmation#:#Wollen Sie diesen Beitrag wirklich löschen?
-blog#:#blog_posting_edit_approval_info#:#Der Beitrag muss vor der Veröffentlichung durch die Blog-Redaktion freigeschaltet werden.
+blog#:#blog_posting_edit_approval_info#:#Der Beitrag muss durch die Blog-Redaktion freigeschaltet werden, bevor er sichtbar wird. Die Freischaltung kann nur stattfinden, wenn der Beitrag schon veröffentlicht wurde. 
 blog#:#blog_posting_not_found#:#Der Beitrag ist nicht verfügbar.
 blog#:#blog_postings#:#Beiträge
 blog#:#blog_presentation_frame#:#Darstellung
@@ -2482,7 +2460,6 @@ blog#:#blog_settings_navigation#:#Navigation
 blog#:#blog_show_latest#:#Neueste Beiträge/Entwürfe anzeigen
 blog#:#blog_show_print_view#:#Druckansicht
 blog#:#blog_starting_page#:#Startseite
-blog#:#blog_style#:#Blog-Style
 blog#:#blog_task_publishing_draft_title#:#Veröffentlichen des Entwurfs „%s“
 blog#:#blog_toggle_draft#:#Veröffentlichung zurücknehmen
 blog#:#blog_toggle_draft_admin#:#Beitrag deaktivieren
@@ -3397,7 +3374,6 @@ cntr#:#cntr_saved_sorting#:#Sortierung gespeichert
 cntr#:#cntr_switch_to_new_editor_cmd#:#Zu untenstehenden Inhalten wechseln. Alte Inhalte werden gelöscht.
 cntr#:#cntr_switch_to_new_editor_message#:#Dies ist der Standard-Seiteneditor. Wenn Sie ihn nutzen möchten, müssen Sie die Inhalte per Klick auf die Platzhalter unten hinzufügen. Wenn Sie auf den nachfolgenden Link klicken, werden die unterstehenden Inhalte für die Seitendarstellung genutzt.
 cntr#:#cntr_switched_editor#:#Auf neue Darstellung umgestellt
-cntr#:#cntr_tax_list_info#:#Nachfolgend sind alle Taxonomien gelistet, die für dieses Objekt definiert wurden.
 cntr#:#cntr_tax_none_available#:#Es gibt keine verfügbaren Taxonomien.
 cntr#:#cntr_tax_settings_info#:#Taxonomien in Kategorien klassifizieren und filtern die in der Kategorie enthaltenen Objekte. Nach dem Hinzufügen von Taxonomien können über die Reiter „Metadaten“ und die Unterreiter „Taxonomiezuordnung“ der jeweiligen Objekte Klassifizierungen vorgenommen werden. Taxonomien können zusätzlich im Seitenblock des Reiters „Inhalt“ der Kategorie angezeigt werden, um ein direktes Filtern der zugeordneten Objekte zu ermöglichen.
 cntr#:#cntr_taxonomy_definitions#:#Taxonomie-Definition
@@ -4733,7 +4709,7 @@ common#:#msg_deleted_role#:#Rolle gelöscht
 common#:#msg_deleted_roles_rolts#:#Rollen und Rollenvorlagen gelöscht
 common#:#msg_failed#:#Aktion fehlgeschlagen
 common#:#msg_form_save_error#:#Die Formulardaten konnten nicht gespeichert werden. Bitte überprüfen Sie die Formularfelder auf detaillierte Fehlermeldungen.
-common#:#msg_info_blacklisted#:#Leider dürfen Sie diese Datei aus Sicherheitsgründen nicht hochladen.
+common#:#msg_info_blacklisted#:#Diese Datei kann aus Sicherheitsgründen nicht hochgeladen werden.
 common#:#msg_input_char_limit_max#:#Sie müssen die festgelegte Höchstzahl von Zeichen beachten. Ihr Beitrag ist zu lang.
 common#:#msg_input_char_limit_min#:#Sie müssen die festgelegte Mindestanzahl an Zeichen eingeben. Ihr Beitrag ist zu kurz.
 common#:#msg_input_does_not_match_regexp#:#Bitte geben Sie einen gültigen Wert ein.
@@ -5609,7 +5585,7 @@ common#:#shib_email#:#Attribut für E-Mail-Adresse
 common#:#shib_federation_name#:#Name der Shibboleth-Föderation
 common#:#shib_firstname#:#Attribut für Vornamen
 common#:#shib_gender#:#Attribut für Anrede (muss 'n', 'm' oder 'f' sein)
-common#:#shib_general_login_instructions#:#Um sich über %s anzumelden, klicken Sie bitte auf den Anmelde-Button und wählen Sie auf der folgenden Seite Ihre Organisation aus.<br />Bei Fragen dazu, wenden Sie sich bitte an den %s
+common#:#shib_general_login_instructions#:#Um sich über %s anzumelden, klicken Sie bitte auf den Anmelde-Button und wählen auf der folgenden Seite Ihre Organisation aus. Bei Fragen dazu wenden Sie sich bitte an den %s
 common#:#shib_general_wayf_login_instructions#:#Falls Sie keiner der angegebenen Organisationen angehören und Zugang zu einem Kurs auf diesem Server benötigen, wenden Sie sich bitte an den %s
 common#:#shib_idp_list#:#Bitte geben Sie eine Liste von Identity-Providern an, aus denen der Benutzer auf der ILIAS-Anmeldeseite auswählen kann.<br />In jeder Zeile muss ein Komma-getrenntes Tupel sein, welches aus der<strong>providerID eines IdP</strong> (schauen Sie dazu die Shibboleth-Metadaten an) und dem <strong>Namen eines IdP</strong> besteht, so wie er in der Drop-Down Liste angezeigt werden soll.<br />Als optionaler dritter Parameter kann die <strong>Location eines Shibboleth Session Initiators</strong> angegeben werden, welcher benutzt werden kann falls Ihre ILIAS-Installation Teil von mehreren Föderationen ist.
 common#:#shib_institution#:#Attribut für Institution
@@ -6067,6 +6043,7 @@ cont#:#cont_news_timeline_info#:#Aktiviert den Reiter "Timeline" für Neuigkeite
 cont#:#cont_news_timeline_landing_page#:#Startseite
 cont#:#cont_news_timeline_landing_page_info#:#Timeline als Startseite
 cont#:#cont_news_timeline_tab#:#Timeline
+cont#:#cont_no_title#:#Leerer Titel
 cont#:#cont_page_type_cont#:#Magazinseite (Kurs, Gruppe, Kategorie, ...)
 cont#:#cont_page_type_cstr#:#Startseite lernzielorientierter Kurs
 cont#:#cont_path#:#Pfad
@@ -6899,7 +6876,7 @@ content#:#cont_pc_prof#:#Persönliche Daten
 content#:#cont_pc_qover#:#Fragenübersicht
 content#:#cont_pc_qst#:#Frage
 content#:#cont_pc_repobj#:#Objekteblock
-content#:#cont_pc_res#:#Ressource
+content#:#cont_pc_res#:#Objekteblock
 content#:#cont_pc_sec#:#Block
 content#:#cont_pc_skills#:#Kompetenz
 content#:#cont_pc_src#:#Programmcode
@@ -8514,7 +8491,6 @@ dateplaner#:#date_format#:#T.M.J H:i
 dateplaner#:#end_date#:#Termin Ende
 dateplaner#:#err_end_before_start#:#Der Endtermin darf nicht vor dem Starttermin liegen.
 dateplaner#:#err_missing_title#:#Bitte geben Sie einen Titel ein.
-dateplaner#:#execute#:#Aktionen ausführen
 dateplaner#:#free#:#frei
 dateplaner#:#group#:#Gruppe
 dateplaner#:#grp_cal_end#:#Gruppe endet
@@ -8567,7 +8543,6 @@ dcl#:#dcl_changed_by#:#Letzte Änderung durch
 dcl#:#dcl_checked#:#Ausgewählt
 dcl#:#dcl_comments#:#Kommentare
 dcl#:#dcl_comments_desc#:#Zeigt die Zahl der Kommentare pro Eintrag an.
-dcl#:#dcl_configuration_complete#:#Konfiguration abgeschlossen
 dcl#:#dcl_confirm_delete_detailed_view_text#:#Die Vorlage für Einzelansicht wird unwiderruflich gelöscht. Verwendete Felder und ihre Einträge bleiben aber erhalten.
 dcl#:#dcl_confirm_delete_detailed_view_title#:#Vorlage für Einzelansicht wirklich löschen?
 dcl#:#dcl_confirm_delete_field#:#Möchten Sie dieses Feld wirklich löschen?
@@ -9499,6 +9474,7 @@ exc#:#exc_rel_start_latest_lead_text#:#spätestens am %s
 exc#:#exc_rel_start_lead_text#:#%s Tage nach Starten abgeben
 exc#:#exc_relative_date#:#Relatives Datum
 exc#:#exc_relative_date_info#:#Das Abgabedatum ergibt sich aus dem Bearbeitungszeitraum und dem durch den Teilnehmer gewählten Startzeitpunkt.
+exc#:#exc_relative_date_period#:#Bearbeitungszeitraum
 exc#:#exc_rem_time_after_start#:#Bearbeitungszeitraum nach Start
 exc#:#exc_reminder_cron_ok#:#Erinnerungen wurden verschickt
 exc#:#exc_reminder_end#:#Letzte Erinnerung
@@ -9693,7 +9669,7 @@ exc#:#text_assignment#:#Text Übungseinheit
 excv#:#excv_create#:#Übungszertifikat erstellen
 excv#:#excv_create_info#:#Wählen Sie eine Übung, für die Sie ein Zertifikat benötigen
 exercise#:#exc_admin_settings#:#Übungs-Administration
-exercise#:#exc_comment#:#Stellungnahme
+exercise#:#exc_comment#:#Rückmeldung
 exercise#:#exc_comment_for_learner#:#Rückmeldung für Teilnehmer
 exercise#:#exc_failed#:#Nicht bestanden
 exercise#:#exc_feedback_from_tutor#:#Bewertung
@@ -10480,7 +10456,7 @@ iass#:#iass_upload_file#:#Prüfungsblatt
 iass#:#iass_user_removed#:#Benutzer wurde erfolgreich entfernt.
 iass#:#iass_usr_amend#:#Prüfungsdaten nachträglich ändern
 iass#:#iass_usr_download_attachment#:#Datei herunterladen
-iass#:#iass_usr_edit#:#Bewerten
+iass#:#iass_usr_edit#:#Prüfungsdaten bearbeiten
 iass#:#iass_usr_remove#:#Entfernen
 iass#:#iass_usr_view#:#Prüfungsdaten
 iass#:#il_iass_member#:#Teilnehmer
@@ -10901,7 +10877,7 @@ lso#:#lso_edit_permission#:#Rechteeinstellungen ändern
 lso#:#lso_header_delete_members#:#Sie möchten folgende Mitglieder aus der Lernsequenz austragen?
 lso#:#lso_header_edit_members#:#Mitglieder bearbeiten
 lso#:#lso_intropages_deprecationhint#:#Sie können die Einleitungs- und Abschlussseite unter "Inhalt" editieren.
-lso#:#lso_legacy_info#:#Das Objekt öffnet sich in einem neuen Tab Ihres Browsers. Bitte kommen Sie nach Bearbeitung des Inhalts in diesen Tab zurück. Laden Sie die Seite neu, wenn sie den Inhalt bearbeitet haben aber die "Weiter"-Schaltfläche weiterhin deaktiviert bleibt.
+lso#:#lso_legacy_info#:#Das Objekt öffnet sich in einem neuen Tab Ihres Browsers. Bitte kommen Sie nach Bearbeitung des Inhalts in diesen Tab zurück. Laden Sie die Seite neu, wenn sie den Inhalt bearbeitet haben, aber die „Weiter“-Schaltfläche weiterhin deaktiviert bleibt.
 lso#:#lso_mail_admission_new_bod#:#Sie sind in Lernsequenz „%s“ als Mitglied aufgenommen worden.
 lso#:#lso_mail_admission_new_sub#:#Mitgliedschaft in Lernsequenz „%s“
 lso#:#lso_mail_dismiss_bod#:#hre Mitgliedschaft in Lernsequenz „%s“ wurde beendet.
@@ -11580,8 +11556,8 @@ mathjax#:#mathjax_limiter#:#Trennzeichen
 mathjax#:#mathjax_limiter_info#:#Wählen Sie die Trennzeichen, die ILIAS für das MathJax-Skript produzieren soll
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_polyfill_url#:#Url eines Polyfills
-mathjax#:#mathjax_polyfill_url_desc_line1#:#Für MathJax 2 nicht benötigt
-mathjax#:#mathjax_polyfill_url_desc_line2#:#Für MathJax 3 z.B. https://polyfill.io/v3/polyfill.min.js?features=es6
+mathjax#:#mathjax_polyfill_url_desc_line1#:#Für MathJax 2 und MathJax 3 mit aktuellen Browsern nicht benötigt.
+mathjax#:#mathjax_polyfill_url_desc_line2#:#Bitte entfernen Sie die Einbindung von polyfill.io! Siehe https://sansec.io/research/polyfill-supply-chain-attack
 mathjax#:#mathjax_script_url#:#URL des MathJax-Skripts
 mathjax#:#mathjax_script_url_desc_line1#:#Für MathJax 2 z.B. %s
 mathjax#:#mathjax_script_url_desc_line2#:#Bitte verwenden Sie den Safe Mode, um XSS-Angriffe durch MathJax-Code mit Javascript zu vermeiden. Für MathJax 2 kann er an die CDN-Url als Parameter angefügt werden (s.o). Für MathJax 3 müssen Sie ein Skript einbinden, dass ihn konfiguriert, bevor MathJax geladen wird. Verwenden Sie z.B. %s
@@ -13875,7 +13851,7 @@ rbac#:#coms_read#:#Lesezugriff auf Administration für Kommentare
 rbac#:#coms_visible#:#Administration für Kommentare ist sichtbar.
 rbac#:#coms_write#:#Einstellungen in Administration für Kommentare ändern
 rbac#:#condition_failed#:#Nicht bestanden
-rbac#:#condition_learning_progress#:#gemäß Lernfortschritt
+rbac#:#condition_learning_progress#:#Lernfortschritt-Status: Bearbeitet
 rbac#:#contribute#:#Beiträge erstellen
 rbac#:#copa_copy#:#Inhaltsseite kopieren
 rbac#:#copa_delete#:#Inhaltsseite löschen
@@ -16685,7 +16661,8 @@ survey#:#svy_only_max_one_external_rater#:#Bitte wählen Sie nur einen externen 
 survey#:#svy_page_add_question#:#Neue %s hinzufügen
 survey#:#svy_page_error#:#Beim Beantworten einer Frage ist ein Fehler aufgetreten. Die Fehlermeldung finden Sie bei der betroffenen Frage!
 survey#:#svy_page_errors#:#Beim Beantworten mehrerer Fragen sind Fehler aufgetreten. Die Fehlermeldungen finden Sie bei den betroffenen Fragen!
-survey#:#svy_participant#:#Participant###17 05 2024 new variable
+survey#:#svy_participant#:#Teilnehmer
+survey#:#svy_participants#:#Teilnehmer
 survey#:#svy_participation#:#Teilnahme
 survey#:#svy_please_select_unused_codes#:#Bitte wählen Sie zumindest einen ungenutzten Zugangsschlüssel aus.
 survey#:#svy_print_hide_labels#:#Labels ausblenden
@@ -17231,6 +17208,7 @@ user#:#enable_local_user_administration#:#Lokale Konten
 user#:#enable_local_user_administration_info#:#In Kategorien und Organisationseinheiten erscheint ein Reiter „Lokale Konten”. Dort können lokale ILIAS-Konten angelegt, importiert und verwaltet werden. Damit können auch Personen ohne Zugriff auf die Administration neue ILIAS-Konten anlegen.
 user#:#feedhash#:#Newsfeed-Hash
 user#:#has_role#:#Rolle
+user#:#info_accessFree_sure#:#Sind Sie sicher, dass Sie die Befristung des Zugangs der folgenden Konten entfernen möchten?
 user#:#inform_user_mail_info#:#An die oben eingetragene E-Mail-Adresse wird eine Benachrichtigung gesendet. Deren Inhalt kann definiert werden in der Administration: „Konten und Rollen » ILIAS-Konten”, Reiter „Einstellungen : Benachrichtigung über Neuanmeldung”
 user#:#interests#:#Interessen
 user#:#interests_general#:#Allgemeine Interessen

@@ -757,7 +757,9 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
                     $this->db,
                     $this->user,
                     $this->refinery->random(),
-                    $this->global_screen
+                    $this->global_screen,
+                    $this->http,
+                    $this->refinery
                 );
 
                 $gui->initQuestion($this->fetchAuthoringQuestionIdParameter(), $this->object->getId());
@@ -1292,7 +1294,8 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
         ilSession::set("tst_import_qti_file", $qti_file);
         ilSession::set("tst_import_subdir", $subdir);
 
-        if ($qtiParser->getQuestionSetType() != ilObjTest::QUESTION_SET_TYPE_FIXED) {
+        if ($qtiParser->getQuestionSetType() != ilObjTest::QUESTION_SET_TYPE_FIXED
+            || file_exists($results_file)) {
             $this->importVerifiedFileObject();
             return;
         }
@@ -1442,7 +1445,8 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
             $imp->importObject($newObj, $fullPath, $fileName, 'tst', 'Modules/Test', true);
         } else {
             $qtiParser = new ilQTIParser(ilSession::get("tst_import_qti_file"), ilQTIParser::IL_MO_PARSE_QTI, $questionParentObjId, $_POST["ident"] ?? '');
-            if (!isset($_POST["ident"]) || !is_array($_POST["ident"]) || !count($_POST["ident"])) {
+            if (!file_exists(ilSession::get("tst_import_results_file"))
+                && (!isset($_POST["ident"]) || !is_array($_POST["ident"]) || !count($_POST["ident"]))) {
                 $qtiParser->setIgnoreItemsEnabled(true);
             }
             $qtiParser->setTestObject($newObj);
@@ -1452,19 +1456,17 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
             $questionPageParser->setQuestionMapping($qtiParser->getImportMapping());
             $questionPageParser->startParsing();
 
-            if (isset($_POST["ident"]) && is_array($_POST["ident"]) && count($_POST["ident"]) == $qtiParser->getNumImportedItems()) {
-                // import test results
-                if (@file_exists(ilSession::get("tst_import_results_file"))) {
-                    $results = new ilTestResultsImportParser(
-                        ilSession::get("tst_import_results_file"),
-                        $newObj,
-                        $this->db,
-                        $this->logging_services->root()
-                    );
-                    $results->setQuestionIdMapping($qtiParser->getQuestionIdMapping());
-                    $results->startParsing();
-                }
+            if (file_exists(ilSession::get("tst_import_results_file"))) {
+                $results = new ilTestResultsImportParser(
+                    ilSession::get("tst_import_results_file"),
+                    $newObj,
+                    $this->db,
+                    $this->logging_services->root()
+                );
+                $results->setQuestionIdMapping($qtiParser->getQuestionIdMapping());
+                $results->startParsing();
             }
+
             $newObj->update();
         }
 
@@ -2478,12 +2480,15 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
      */
     public function applyDefaultsObject($confirmed = false)
     {
-        if (!isset($_POST['chb_defaults']) || !is_array($_POST["chb_defaults"]) || 1 !== count($_POST["chb_defaults"])) {
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt("tst_defaults_apply_select_one"));
+        if(!$confirmed) {
+            if (!isset($_POST['chb_defaults']) || !is_array($_POST["chb_defaults"]) || 1 !== count($_POST["chb_defaults"])) {
+                $this->tpl->setOnScreenMessage('info', $this->lng->txt("tst_defaults_apply_select_one"));
 
-            $this->defaultsObject();
-            return;
+                $this->defaultsObject();
+                return;
+            }
         }
+
 
         // do not apply if user datasets exist
         if ($this->object->evalTotalPersons() > 0) {
@@ -2493,7 +2498,12 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
             return;
         }
 
-        $defaults = $this->object->getTestDefaults($_POST["chb_defaults"][0]);
+        if(!$confirmed) {
+            $defaults = $this->object->getTestDefaults($_POST["chb_defaults"][0]);
+        } else {
+            $defaults = $this->object->getTestDefaults($_POST["confirmed_defaults_id"][0]);
+        }
+
         $defaultSettings = unserialize($defaults["defaults"]);
 
         if (isset($defaultSettings['isRandomTest'])) {
@@ -2532,7 +2542,7 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
                 $confirmation->setQuestionLossInfoEnabled(false);
                 $confirmation->build();
 
-                $confirmation->populateParametersFromPost();
+                $confirmation->addHiddenItem("confirmed_defaults_id", $_POST["chb_defaults"][0]);
 
                 $this->tpl->setContent($this->ctrl->getHTML($confirmation));
 

@@ -631,6 +631,14 @@ abstract class ilPageObject
                 array($a_id, $a_parent_type, $a_lang)
             );
             $rec = $db->fetchAssoc($set);
+            if (!$rec) {
+                return [
+                    "active" => 1,
+                    "activation_start" => null,
+                    "activation_end" => null,
+                    "show_activation_info" => 0
+                ];
+            }
         }
 
         return $rec;
@@ -2987,12 +2995,32 @@ s     */
     public function getPCModel(): array
     {
         $model = [];
+        /*
+        $this->log->debug("--- Get page model start");
+        $model = [];
         foreach ($this->getAllPCIds() as $pc_id) {
             $co = $this->getContentObjectForPcId($pc_id);
             if ($co !== null) {
                 $co_model = $co->getModel();
                 if ($co_model !== null) {
                     $model[$pc_id] = $co_model;
+                }
+            }
+        }
+        $this->log->debug("--- Get page model end");
+        */
+
+        $config = $this->getPageConfig();
+        foreach ($this->pc_definition->getPCDefinitions() as $def) {
+            $model_provider = $this->pc_definition->getPCModelProviderByName($def["name"]);
+            if ($config->getEnablePCType($def["name"])) {
+                if (!is_null($model_provider)) {
+                    foreach ($model_provider->getModels(
+                        $this->dom_util,
+                        $this
+                    ) as $pc_id => $co_model) {
+                        $model[$pc_id] = $co_model;
+                    }
                 }
             }
         }

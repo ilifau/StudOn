@@ -628,19 +628,6 @@ assessment#:#dont_use_questionpool#:#Nemojte umetati pitanja u bazen pitanja (do
 assessment#:#duplicate#:#Dupliciraj
 assessment#:#duplicate_matching_values_selected#:#Odabrali ste dvostruku odgovarajuću vrijednost!
 assessment#:#duplicate_order_values_entered#:#Unijeli ste dvostruki redoslijed vrijednosti!
-assessment#:#ects_allow_ects_grades#:#Prikaži pored dobivene ocjene i ECTS ocjenu
-assessment#:#ects_fx_threshold#:#Prag
-assessment#:#ects_fx_threshold_info#:#Unesite traženi postatak za dodjelu ocjene ‘FX’.
-assessment#:#ects_grade#:#ECTS ocjena
-assessment#:#ects_grade_a_desc#:#izuzetan rezultat sa samo nekoliko manjih pogrešaka
-assessment#:#ects_grade_b_desc#:#natprosječan rezultat, ali s nekim pogreškama
-assessment#:#ects_grade_c_desc#:#sveukupno dobar rezultat, međutim, s nekoliko značajnih pogrešaka
-assessment#:#ects_grade_d_desc#:#osrednje, ali sa značajnim nedostacima
-assessment#:#ects_grade_desc_prefix#:#Značenje ocjene:
-assessment#:#ects_grade_e_desc#:#rezultat zadovoljava minimalne kriterije
-assessment#:#ects_grade_f_desc#:#potreban je značajan daljnji rad
-assessment#:#ects_grade_fx_desc#:#potrebna su poboljšanja prije nego što se učinak može priznati
-assessment#:#ects_output_of_ects_grades#:#Izdavanje ECTS ocjena
 assessment#:#edit_answer#:#Uredi odgovor
 assessment#:#edit_concluding_remarks#:#Edit Concluding Remarks###30 04 2024 new variable
 assessment#:#edit_introduction#:#Edit Introduction###30 04 2024 new variable
@@ -874,7 +861,6 @@ assessment#:#manscoring_results_pass#:#Pitanja za prolaz %s koja se mogu bodovat
 assessment#:#manual_editing#:#Ručno uređivanje
 assessment#:#mark_schema#:#Shema ocjena
 assessment#:#mark_schema_invalid#:#Ova shema ocjena nije se mogla validirati. Molimo izradite ispravnu shemu.
-assessment#:#mark_tst_ects#:#Vaša ECTS ocjena je "[markects]" (European Credit Transfer System)
 assessment#:#matches#:#odgovara
 assessment#:#matching_pairs#:#Odgovarajući parovi
 assessment#:#matching_shuffle_definitions#:#Samo definicije
@@ -1065,6 +1051,7 @@ assessment#:#qpl_skl_sub_tab_quest_assign#:#Dodjela pitanja/kompetencije
 assessment#:#qpl_skl_sub_tab_usages#:#Učestalost dodjele
 assessment#:#qpl_sync_quest_skl_assigns_confirmation#:#Pitanje je umetnuto iz drugog objekta repozitorija. Želite li da se aktualna konfiguacija dodjela kompetencija prenese na izvornik pitanja?
 assessment#:#qpl_tab_competences#:#Kompetencije
+assessment#:#qpl_taxonomy_tab_info_message#:#Taxonomies in question pools can be used to filter the questions. After activating the function in the "Settings" tab, they are displayed in the filter in the "Questions" tab.###30 07 2024 new variable
 assessment#:#qst_error_text_too_long#:#One or more text elements marked as erroneous are too long. The maximum size for a text element marked as erroneous is 150 characters:###21 06 2023 new variable
 assessment#:#qst_essay_allready_written_words#:#Already entered words:###04 06 2021 new variable
 assessment#:#qst_essay_chars_remaining#:#Remaining characters:###04 06 2021 new variable
@@ -1995,7 +1982,6 @@ assessment#:#units#:#Jedinice
 assessment#:#unlimited#:#neograničeno
 assessment#:#unlock#:#Otključaj
 assessment#:#uploaded_material#:#Učitani materijali
-assessment#:#use_ects_fx#:#Koristite ECTS ocjenu ‘FX’
 assessment#:#use_previous_solution#:#Koristi prethodno rješenje
 assessment#:#use_previous_solution_advice#:#Prikazani odgovor je onaj koji ste prethodno dali na ovo pitanje. Ako ga želite preuzeti bez izmjena, morate potvrditi preuzimanje ovog rješenja.
 assessment#:#user_has_finished_a_test#:#Jedan sudionik je završio test.
@@ -2376,8 +2362,6 @@ blog#:#blog_add_contributor#:#Dodaj suradnika
 blog#:#blog_add_posting#:#Dodaj objavljivanja
 blog#:#blog_admin_inactive_info#:#Značajku bloga možete aktivirati u administriranju osobnih resursa.
 blog#:#blog_admin_toggle_info#:#Značajku bloga možete u potpunosti deaktivirati u administriranju osobnih resursa.
-blog#:#blog_allow_html#:#Dopustite HTML/Javascript
-blog#:#blog_allow_html_info#:#Omogućuje korisnicima da u svojim postovima na blogu koriste HTML i/ili Javascript. To može dovesti do sigurnosnih problema.
 blog#:#blog_approve#:#Odobri objavljivanje
 blog#:#blog_author#:#Napisao
 blog#:#blog_authors#:#Autori
@@ -2425,8 +2409,6 @@ blog#:#blog_incl_comments#:#including comments###04 06 2021 new variable
 blog#:#blog_keyword#:#Ključna riječ
 blog#:#blog_keyword_enter#:#Napiši ključnu riječ i pritisni Enter.
 blog#:#blog_keywords#:#Ključne riječi
-blog#:#blog_keywords_other#:#Ostale ključne riječi
-blog#:#blog_keywords_other_info#:#Te su ključne riječi zadane za druge objave na blogu.
 blog#:#blog_latest_posting#:#Najnovije objave
 blog#:#blog_link#:#Link###31 03 2023 new variable
 blog#:#blog_list_more#:#više
@@ -2435,8 +2417,6 @@ blog#:#blog_list_num_postings_info#:#Ova se postavka koristi samo ako nije odabr
 blog#:#blog_nav_mode#:#Objave - navigacija po mjesecima
 blog#:#blog_nav_mode_month_list#:#Prikaži popis mjeseci
 blog#:#blog_nav_mode_month_list_info#:#Svi mjeseci s objavama navedeni su u bloku ‘Objava’.
-blog#:#blog_nav_mode_month_list_num_detail#:#Ukupan broj objava (sortirane po silaznom datumu)
-blog#:#blog_nav_mode_month_list_num_detail_info#:#Najnovije objave prikazane su po datumima prema obrnutim kronološkim redoslijedom. Starije objave prikazane su u mjesečnom prikazu.
 blog#:#blog_nav_mode_month_list_num_month#:#Ukupan broj prikazanih mjeseci
 blog#:#blog_nav_mode_month_list_num_month_info#:#Prikazat će se dodatni mjeseci s njihovim ukupnim brojem objava.
 blog#:#blog_nav_mode_month_list_num_month_with_post#:#Broj mjeseca s poveznicama na sve objave
@@ -2457,8 +2437,6 @@ blog#:#blog_notification_deactivated#:#Obavijest o izmjenama deaktivirana
 blog#:#blog_notification_toggle_off#:#Deaktiviraj obavijest o izmjenama
 blog#:#blog_notification_toggle_on#:#Aktiviraj obavijest o izmjenama
 blog#:#blog_number_users_notes_or_comments#:#Broj korisnika koji su uz ovu obavu napisali bilješke ili komentare
-blog#:#blog_page_type_blp#:#Blog Posting###04 06 2021 new variable
-blog#:#blog_permanent_link#:#Permalink
 blog#:#blog_posting#:#Objava na blogu
 blog#:#blog_posting_deleted#:#Objava je izbrisana.
 blog#:#blog_posting_deletion_confirmation#:#Jeste li sigurni da želite izbrisati sljedeću objavu?
@@ -2482,7 +2460,6 @@ blog#:#blog_settings_navigation#:#Navigacijski stupac
 blog#:#blog_show_latest#:#Prikaži najnovije objave/nacrte
 blog#:#blog_show_print_view#:#Show Print View###31 03 2023 new variable
 blog#:#blog_starting_page#:#Starting Page###28 11 2023 new variable
-blog#:#blog_style#:#Stil bloga
 blog#:#blog_task_publishing_draft_title#:#Publishing of Draft "%s"###04 06 2021 new variable
 blog#:#blog_toggle_draft#:#Povuci objavu
 blog#:#blog_toggle_draft_admin#:#Deaktiviraj objavu
@@ -3397,7 +3374,6 @@ cntr#:#cntr_saved_sorting#:#Sortiranje spremljeno.
 cntr#:#cntr_switch_to_new_editor_cmd#:#Prebacite se na novi sadržaj ove stranice. Stari će se sadržaj ukloniti.
 cntr#:#cntr_switch_to_new_editor_message#:#Ovo je podržani standardni urednik. Sadržaj iz starog urednika ne može se prenijeti. Počnite dodavati novi sadržaj stranice u nastavku. Ako kliknete sljedeću poveznicu, koristit će se novi sadržaj.
 cntr#:#cntr_switched_editor#:#Prebačen na novi sadržaj.
-cntr#:#cntr_tax_list_info#:#U nastavku su navedene sve taksonomije koje su definirane za ovaj objekt.
 cntr#:#cntr_tax_none_available#:#Ne postoje dostupne taksonomije.
 cntr#:#cntr_tax_settings_info#:#Taxonomies in categories classify and filter the objects contained in the category. After adding taxonomies, classifications can be made via the "Metadata" tabs and the "Taxonomy Assignment" sub-tabs of the respective objects. Taxonomies can additionally be displayed in the side block of the category's "Contents" tab to enable direct filtering of the assigned objects.###30 04 2024 new variable
 cntr#:#cntr_taxonomy_definitions#:#Definicija taksonomije
@@ -6067,6 +6043,7 @@ cont#:#cont_news_timeline_info#:#Aktivira karticu Vremenska traka vijesti
 cont#:#cont_news_timeline_landing_page#:#Odredišna stranica
 cont#:#cont_news_timeline_landing_page_info#:#Stranica vremenske trake bit će odredišna stranica.
 cont#:#cont_news_timeline_tab#:#Vremenska traka
+cont#:#cont_no_title#:#Empty Title###30 07 2024 new variable
 cont#:#cont_page_type_cont#:#Repository Page (Cours, Group, ...)###04 06 2021 new variable
 cont#:#cont_page_type_cstr#:#Course Start Page (Learning Objectives View)###04 06 2021 new variable
 cont#:#cont_path#:#Staza
@@ -8514,7 +8491,6 @@ dateplaner#:#date_format#:#m/d/G H:i
 dateplaner#:#end_date#:#Datum završetka
 dateplaner#:#err_end_before_start#:#Sastanak ne smije započeti prije kraja.
 dateplaner#:#err_missing_title#:#Unesite naziv sastanka.
-dateplaner#:#execute#:#Izvrši izbor
 dateplaner#:#free#:#Besplatno
 dateplaner#:#group#:#Grupa
 dateplaner#:#grp_cal_end#:#Grupa završava
@@ -8567,7 +8543,6 @@ dcl#:#dcl_changed_by#:#Promijenio
 dcl#:#dcl_checked#:#Provjereno.
 dcl#:#dcl_comments#:#Komentari
 dcl#:#dcl_comments_desc#:#Prikazuje broj komentara za unos.
-dcl#:#dcl_configuration_complete#:#Configuration Complete###04 06 2021 new variable
 dcl#:#dcl_confirm_delete_detailed_view_text#:#Definicija detaljnog prikaza unosa u ovoj tablici nepovratno će se ukloniti, sami unosi i polja neće se mijenjati.
 dcl#:#dcl_confirm_delete_detailed_view_title#:#Želite li zaista izbrisati ovaj detaljan prikaz?
 dcl#:#dcl_confirm_delete_field#:#Želite li zaista izbrisati ovo polje?
@@ -9499,6 +9474,7 @@ exc#:#exc_rel_start_latest_lead_text#:#%s the Latest###30 04 2024 new variable
 exc#:#exc_rel_start_lead_text#:#Submit %s Days After Start###30 04 2024 new variable
 exc#:#exc_relative_date#:#Relativni datum
 exc#:#exc_relative_date_info#:#Kranji se rok postavlja pojedinačno u odnosu na vrijeme kada je korisnik započeo zadatak.
+exc#:#exc_relative_date_period#:#Working Time###30 07 2024 new variable
 exc#:#exc_rem_time_after_start#:#Preostalo vrijeme nakon početka
 exc#:#exc_reminder_cron_ok#:#Poslani podsjetnici:
 exc#:#exc_reminder_end#:#Podsjetnik završava
@@ -11580,8 +11556,8 @@ mathjax#:#mathjax_limiter#:#Inline Delimiters
 mathjax#:#mathjax_limiter_info#:#Select the inline delimiters as they are configured in your MathJax installation.
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_polyfill_url#:#Url of a Polyfill###31 03 2023 new variable
-mathjax#:#mathjax_polyfill_url_desc_line1#:#For MathJax 2 not needed###31 03 2023 new variable
-mathjax#:#mathjax_polyfill_url_desc_line2#:#For MathJax 3 e.g. https://polyfill.io/v3/polyfill.min.js?features=es6###31 03 2023 new variable
+mathjax#:#mathjax_polyfill_url_desc_line1#:#For MathJax 2 and MathJax 3 with current browsers not needed.
+mathjax#:#mathjax_polyfill_url_desc_line2#:#Please remove any reference to polyfill.io! See https://sansec.io/research/polyfill-supply-chain-attack
 mathjax#:#mathjax_script_url#:#URL of the MathJax Script###31 03 2023 new variable
 mathjax#:#mathjax_script_url_desc_line1#:#For MathJax 2 e.g. %s###31 03 2023 new variable
 mathjax#:#mathjax_script_url_desc_line2#:#Please activate the safe mode to avoid XSS attacks by MathJax code with javascript. For MathJax 2 it can be activated by adding the 'Safe' parameter to the CDN url. For MathJax 3 you need to include a script that configures it before MathJax is loaded. Use for example %s###31 03 2023 new variable
@@ -16686,6 +16662,7 @@ survey#:#svy_page_add_question#:#Dodajte novi %s
 survey#:#svy_page_error#:#Došlo je do pogreške pri odgovaranju na pitanje iz ankete. Pogledajte pitanje kako biste dobili više informacija o pogrešci!
 survey#:#svy_page_errors#:#Došlo je do pogrešaka pri odgovaranju na pitanje iz ankete. Pogledajte pitanja kako biste saznali više o pogreškama!
 survey#:#svy_participant#:#Sudionik
+survey#:#svy_participants#:#Participants###30 07 2024 new variable
 survey#:#svy_participation#:#Sudjelovanje
 survey#:#svy_please_select_unused_codes#:#Please select at least one unused code.###31 03 2023 new variable
 survey#:#svy_print_hide_labels#:#Sakrij oznake
@@ -17231,6 +17208,7 @@ user#:#enable_local_user_administration#:#Enable Local User Administration###04 
 user#:#enable_local_user_administration_info#:#If enabled, local user accounts can be administrated in categories and organisational units.###04 06 2021 new variable
 user#:#feedhash#:#Newsfeedhash###04 06 2021 new variable
 user#:#has_role#:#Role###04 06 2021 new variable
+user#:#info_accessFree_sure#:#Are you sure you want to remove the valid until date from the following accounts?###30 07 2024 new variable
 user#:#inform_user_mail_info#:#If activated, an e-mail will be sent to the user. Its content can be defined in Administration > User Management > Settings > New Account Mail.###04 06 2021 new variable
 user#:#interests#:#Interests###04 06 2021 new variable
 user#:#interests_general#:#General Interests###04 06 2021 new variable
