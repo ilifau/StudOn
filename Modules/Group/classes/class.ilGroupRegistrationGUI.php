@@ -505,7 +505,10 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         // set agreement accepted
         $this->setAccepted(true);
 
-        $this->registration->doRegistration(ilUtil::stripSlashes((string) $_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
+        $subject =  isset( $_POST['subject']) ? ilUtil::stripSlashes((string) $_POST['subject']) : "";
+        $group_ref_ids = isset($_POST['group_ref_ids']) ? (array) $_POST['group_ref_ids'] : [];
+        $selected_module = isset($_POST['selected_module']) ? (int) $_POST['selected_module'] : 0;
+        $this->registration->doRegistration($subject, $group_ref_ids, $selected_module);
 
         // get the link to the upper container
         $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id",
