@@ -165,8 +165,15 @@ class ilDataCollectionDataSet extends ilDataSet
      */
     public function importRecord($a_entity, $a_types, $a_rec, $a_mapping, $a_schema_version)
     {
-        foreach ($a_rec as &$value) {
-            $value = htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'utf-8');
+        foreach ($a_rec as $key => &$value) {
+            $array = json_decode($value, true);
+            if ($key === 'title' || $key === 'description') {
+                $value = strip_tags($value, ilObjectGUI::ALLOWED_TAGS_IN_TITLE_AND_DESCRIPTION);
+            } elseif (is_array($array)) {
+                $value = json_encode($this->escapeArray($array));
+            } else {
+                $value = htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'utf-8');
+            }
         }
         switch ($a_entity) {
             case 'dcl':
@@ -460,6 +467,25 @@ class ilDataCollectionDataSet extends ilDataSet
         }
     }
 
+    protected function escapeArray(array $array): array
+    {
+        $new = [];
+        foreach ($array as $key => $value) {
+            $newkey = $key;
+            if (is_string($key)) {
+                $newkey = htmlspecialchars($key, ENT_QUOTES | ENT_SUBSTITUTE, 'utf-8');
+            }
+            $newvalue = $value;
+            if (is_string($value)) {
+                $newvalue = htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'utf-8');
+            }
+            if (is_array($value)) {
+                $newvalue = $this->escapeArray($value);
+            }
+            $new[$newkey] = $newvalue;
+        }
+        return $new;
+    }
 
     /**
      * Called before finishing import. Fix references inside DataCollections
