@@ -308,7 +308,7 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
                 $html .= "<select id=\"$module_post_var\" name=\"$module_post_var\">";
                 $html .= "<option value=\"0\">" . $this->lng->txt('please_select') . "</option>\n";
                 foreach ($options as $module_id => $module_label) {
-                    $text = ilUtil::prepareFormOutput($module_label);
+                    $text = ilLegacyFormElementsUtil::prepareFormOutput($module_label);
                     $selected = ($module_id == $selected_module_id ? 'selected' : '');
                     $disabled = (in_array($module_id, $disabled_ids) ? 'disabled="disabled' : '');
                     $html .= "<option $disabled $selected value=\"$module_id\">$text</option>\n";
