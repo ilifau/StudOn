@@ -414,13 +414,13 @@ case self::TYPE_ACCEPTED_STILL_WAITING:
 
         $this->setSubject(sprintf($this->getLanguageText('sub_mail_request_grp'), $this->getObjectTitle(true)));
 
-        $this->setBody(ilMail::getSalutation($rcp, $this->getLanguage()));
+        $this->setBody(ilMail::getSalutation((int) $rcp, $this->getLanguage()));
 
         $this->appendBody("\n\n");
         $this->appendBody(sprintf($this->getLanguageText('sub_mail_request_accepted'), $this->getObjectTitle()));
 
         $this->appendBody("\n\n");
-        $this->appendBody($this->getLanguageText('mem_waiting_list_position') . ' ' . $waiting_list->getPositionInfo($rcp, $this->getLanguage()));
+        $this->appendBody($this->getLanguageText('mem_waiting_list_position') . ' ' . $waiting_list->getPositionInfo((int) $rcp, $this->getLanguage()));
 
         $this->appendBody("\n\n");
         $this->appendBody($this->getLanguageText('grp_mail_permanent_link'));
@@ -429,7 +429,7 @@ case self::TYPE_ACCEPTED_STILL_WAITING:
 
 
         $this->getMail()->appendInstallationSignature(true);
-        $this->sendMail(array($rcp));
+        $this->sendMail(array((int) $rcp));
     }
     break;
 // fau.
