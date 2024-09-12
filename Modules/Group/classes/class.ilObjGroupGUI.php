@@ -788,10 +788,6 @@ class ilObjGroupGUI extends ilContainerGUI
             // list presentation
             $this->saveListPresentation($form);
 
-            // update object settings
-            $this->object->update();
-
-
             ilObjectServiceSettingsGUI::updateServiceSettingsForm(
                 $this->object->getId(),
                 $form,

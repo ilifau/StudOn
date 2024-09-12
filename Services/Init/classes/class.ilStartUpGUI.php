@@ -1243,7 +1243,7 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
                 // no break
             default:
                 $this->getLogger()->info('Account migration failed for user ' . $username);
-                $this->showAccountMigration($GLOBALS['lng']->txt('err_wrong_login'));
+                $this->showAccountMigration(null, $GLOBALS['lng']->txt('err_wrong_login'));
         }
     }
 
@@ -1505,6 +1505,8 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
 
     private function confirmRegistration(): void
     {
+        $this->lng->loadLanguageModule('registration');
+
         ilUtil::setCookie('iltest', 'cookie', false);
         $regitration_hash = trim($this->http->wrapper()->query()->retrieve(
             'rh',
