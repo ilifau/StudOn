@@ -462,6 +462,8 @@ class ilCourseMembershipGUI extends ilMembershipGUI
     {
         global $DIC;
         
+        $_POST['participants'] = $_POST['participants'] ?? [];
+        $_POST['visible_member_ids'] = $_POST['visible_member_ids'] ?? [];
         $participants = (array) $_POST['participants'];
         $visible_members = (array) $_POST['visible_member_ids'];
         

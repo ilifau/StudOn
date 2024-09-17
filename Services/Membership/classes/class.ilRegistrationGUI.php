@@ -670,6 +670,8 @@ abstract class ilRegistrationGUI
                 return;
             }
 
+            $_POST['group_ref_ids'] = $_POST['group_ref_ids'] ?? [];
+            $_POST['selected_module'] = $_POST['selected_module'] ?? 0;
             $this->registration->doUpdate(ilUtil::stripSlashes((string) $_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
             $this->participants->sendExternalNotifications($this->container, $this->user, true);
 
