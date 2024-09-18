@@ -1564,6 +1564,7 @@ class ilObjGroupGUI extends ilContainerGUI
 
         // fau: campoInfo - show info on group info page
         // set event id null to prevent event info being shown
+        global $DIC;
         $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId())->withEventId(null);
         $DIC->fau()->study()->info()->addInfoScreenSections($info, $importId, $this->ref_id);
         // fau.
