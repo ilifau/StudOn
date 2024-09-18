@@ -1399,13 +1399,14 @@ class ilObjGroupGUI extends ilContainerGUI
         $info->enablePrivateNotes();
         $info->enableLearningProgress(true);
 
-        $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'grp', $this->object->getId());
-        $record_gui->setInfoObject($info);
-        $record_gui->parse();
+        // fau: infoScreen - don't show metadata section
+        // $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'grp', $this->object->getId());
+        // $record_gui->setInfoObject($info);
+        // $record_gui->parse();
 
         // meta data
-        $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
-
+        // $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
+        // fau.
 
         // support contacts
         $parts = ilParticipants::getInstance($this->object->getRefId());

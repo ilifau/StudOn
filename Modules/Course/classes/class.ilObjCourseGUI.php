@@ -330,13 +330,14 @@ class ilObjCourseGUI extends ilContainerGUI
             );
         }
 
-        $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'crs', $this->object->getId());
-        $record_gui->setInfoObject($info);
-        $record_gui->parse();
+        // fau: infoScreen - don't show metadata section
+        // $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'crs', $this->object->getId());
+        // $record_gui->setInfoObject($info);
+        // $record_gui->parse();
 
         // meta data
-        $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
-
+        // $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
+        // fau.
         // contact
         if ($this->object->hasContactData()) {
             $info->addSection($this->lng->txt("crs_contact"));

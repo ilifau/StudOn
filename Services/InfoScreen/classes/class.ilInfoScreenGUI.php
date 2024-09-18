@@ -379,38 +379,42 @@ class ilInfoScreenGUI
             $this->addProperty("", nl2br($description));
         }*/
 
-        // general section
-        $this->addSection($lng->txt("meta_general"));
-        if ($langs != "") {	// language
-            $this->addProperty(
-                $lng->txt("language"),
-                $langs
-            );
+        // fau: infoScreen - show "general" section only if relevant data exist
+        if ($keywords != '' or $author != '' or $copyright != '' or $learning_time != '') {
+            // general section
+            $this->addSection($lng->txt("meta_general"));
+            if ($langs != "") {	// language
+                $this->addProperty(
+                    $lng->txt("language"),
+                    $langs
+                );
+            }
+            if ($keywords != "") {	// keywords
+                $this->addProperty(
+                    $lng->txt("keywords"),
+                    $keywords
+                );
+            }
+            if ($author != "") {		// author
+                $this->addProperty(
+                    $lng->txt("author"),
+                    $author
+                );
+            }
+            if ($copyright != "") {		// copyright
+                $this->addProperty(
+                    $lng->txt("meta_copyright"),
+                    $copyright
+                );
+            }
+            if ($learning_time != "") {		// typical learning time
+                $this->addProperty(
+                    $lng->txt("meta_typical_learning_time"),
+                    $learning_time
+                );
+            }
         }
-        if ($keywords != "") {	// keywords
-            $this->addProperty(
-                $lng->txt("keywords"),
-                $keywords
-            );
-        }
-        if ($author != "") {		// author
-            $this->addProperty(
-                $lng->txt("author"),
-                $author
-            );
-        }
-        if ($copyright != "") {		// copyright
-            $this->addProperty(
-                $lng->txt("meta_copyright"),
-                $copyright
-            );
-        }
-        if ($learning_time != "") {		// typical learning time
-            $this->addProperty(
-                $lng->txt("meta_typical_learning_time"),
-                $learning_time
-            );
-        }
+        // fau.
     }
 
     /**
@@ -442,12 +446,14 @@ class ilInfoScreenGUI
             $ref_id = $a_obj->getRefId();
 
             if ($ref_id) {
-                if (ilECSServerSettings::getInstance()->activeServerExists()) {
+                // fau: infoScreen - don't show the object twice
+                /* if (ilECSServerSettings::getInstance()->activeServerExists()) {
                     $this->addProperty(
                         $lng->txt("object_id"),
                         (string) $a_obj->getId()
                     );
                 }
+                */
 
                 $this->tpl->setPermanentLink($type, $ref_id);
 
@@ -480,8 +486,16 @@ class ilInfoScreenGUI
             }
         }
 
+        // fau: infoScreen - show the ref_id (and the obj_id and import id to admins)
+        $this->addProperty($this->lng->txt('studon_ref_id'), (string) $a_obj->getRefId());
+        if (ilCust::administrationIsVisible()) {
+            $this->addProperty($this->lng->txt('object_id'), (string) $a_obj->getId());
+            if ($import_id = $a_obj->getImportId()) {
+                $this->addProperty($this->lng->txt('fau_import_id'), (string) $import_id);
+            }
+        }
+        // fau.
 
-        // creation date
         if ($ilAccess->checkAccess("write", "", $ref_id) ||
             $ilAccess->checkAccess("edit_permissions", "", $ref_id)) {
             $this->addProperty(
