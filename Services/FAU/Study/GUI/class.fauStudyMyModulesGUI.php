@@ -83,7 +83,7 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $tpl->setVariable('FORMACTION', $this->ctrl->getFormAction($this, 'saveModules'));
         $tpl->setVariable('FILTER_HTML', $this->renderer->render($this->getFilter()));
         $tpl->setVariable('LIST_HTML', $this->dic->ui()->renderer()->render($this->getList()));
-        $tpl->setVariable('CMD_MOVE', 'saveModules');
+        $tpl->setVariable('CMD_SAVE', 'saveModules');
         $tpl->setVariable('TXT_SAVE', $this->lng->txt('fau_my_modules_save'));
         $this->tpl->setContent($tpl->get());
     }
