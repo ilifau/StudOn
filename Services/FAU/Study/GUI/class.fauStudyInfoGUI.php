@@ -190,7 +190,7 @@ class fauStudyInfoGUI extends BaseGUI implements ilCtrlBaseClassInterface
             }
         }
 
-        $modal = $this->factory->modal()->roundtrip($title, $panels)->withCancelButtonLabel('close');
+        $modal = $this->factory->modal()->roundtrip($title, $panels)->withCancelButtonLabel($this->lng->txt('fau_campo_close_modal'));
         echo $this->renderer->render($modal);
         exit;
     }

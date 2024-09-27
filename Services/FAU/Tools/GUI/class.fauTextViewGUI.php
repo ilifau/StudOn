@@ -80,7 +80,7 @@ class fauTextViewGUI extends BaseGUI
             $label = '» ' . $this->lng->txt('show');
         }
 
-        $modal = $this->factory->modal()->roundtrip($title,[$this->factory->legacy($text)])->withCancelButtonLabel('close');
+        $modal = $this->factory->modal()->roundtrip($title,[$this->factory->legacy($text)])->withCancelButtonLabel($this->lng->txt('fau_campo_close_modal'));
         $button = $this->factory->button()->shy($label, '#')->withOnClick($modal->getShowSignal());
 
         return $this->renderer->render([$modal, $button]);

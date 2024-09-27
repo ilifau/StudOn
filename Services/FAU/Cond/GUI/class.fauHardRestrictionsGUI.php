@@ -191,7 +191,7 @@ class fauHardRestrictionsGUI extends BaseGUI implements ilCtrlBaseClassInterface
         $modal = $this->factory->modal()->roundtrip(
             sprintf($this->lng->txt('fau_check_info_restrictions_for'), ilObjUser::_lookupFullname((int) $restrictions->getCheckedUserId())),
             $parts
-        )->withCancelButtonLabel('close');
+        )->withCancelButtonLabel($this->lng->txt('fau_campo_close_modal'));
 
         echo $this->renderer->render($modal);
         exit;
