@@ -1707,6 +1707,13 @@ class ilObjGroupGUI extends ilContainerGUI
 
         $form = $this->initDidacticTemplate($form);
 
+        // fau: showUpperPermissions - show info about rights of group admins
+        $grp_type = $form->getItemByPostVar('didactic_type');
+        if ($grp_type instanceof ilRadioGroupInputGUI) {
+            $grp_type->setInfo($this->lng->txt('grp_type_info_' . $a_mode));
+        }
+        // fau.
+
         if ($a_mode == 'edit') {
             // group period
             $cdur = new ilDateDurationInputGUI($this->lng->txt('grp_period'), 'period');

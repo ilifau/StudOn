@@ -584,6 +584,142 @@ class ilInfoScreenGUI
     }
     // END ChangeEvent: Display standard object info
 
+
+    // fau: showUpperPermissions - new function addObjectPermissions
+    /**
+     * @return void
+     * @throws ilDatabaseException
+     * @throws ilObjectNotFoundException
+     */
+    protected function addObjectPermissions()
+    {
+        global $DIC;
+        $rbacreview = $DIC->rbac()->review();
+
+        if (is_object($this->gui_object->getObject())
+            && ilCust::get('ilias_show_roles_info')
+            && $this->user->getId() != ANONYMOUS_USER_ID
+        ) {
+            $type = $this->gui_object->getObject()->getType();
+            $ref_id = $this->gui_object->getObject()->getRefId();
+
+            // get the roles depending on the object type
+            switch ($type) {
+                case "cat":
+                    $lang_prefix = 'info_section_cat_roles_';
+
+                    // show admins and managers to all logged in users
+                    $permissions = array('edit_permission', 'delete');
+
+                    // show lercturers to managers and admins
+                    if ($this->access->checkAccess('write', '', $ref_id, $type)) {
+                        $permissions[] = 'create_crs';
+                    }
+
+                    $roles = $rbacreview->getRolesByPermissions(
+                        $ref_id,
+                        $permissions,
+                        true,
+                        false
+                    );
+                    break;
+
+                case "grp":
+                case "crs":
+                    $lang_prefix = 'info_section_crs_parent_roles_';
+                    $permissions = array('read');
+
+                    $roles = $rbacreview->getRolesByPermissions(
+                        $ref_id,
+                        $permissions,
+                        false,
+                        false
+                    );
+                    break;
+
+                default:
+                    $lang_prefix = 'info_section_roles_';
+                    $permissions = array();
+                    $roles = array();
+                    break;
+            }
+
+            $special_roles = array('il_crs_admin','il_crs_member','il_crs_tutor',
+                'il_grp_admin', 'il_grp_member');
+
+            $user_fields = array('usr_id','login','firsname','lastname');
+
+            // create a section for each found permission
+            foreach ($permissions as $perm) {
+                if (isset($roles[$perm]) && is_array($roles[$perm])) {
+                    $this->addSection($this->lng->txt($lang_prefix . $perm));
+
+                    foreach ($roles[$perm] as $role_id => $role_data) {
+                        $title = $role_data['title'];
+
+                        $rolf_id = current($rbacreview->getFoldersAssignedToRole($role_id, true));
+                        $object_ref_id = $rolf_id;
+                        $object_id = ilObject::_lookupObjId($object_ref_id);
+                        $object_type = ilObject::_lookupType($object_id);
+                        $object_title = ilObject::_lookupTitle($object_id);
+                        $object_link = ilLink::_getStaticLink($object_ref_id);
+
+                        // show only role title for participant roles
+                        // these may have long member lists
+                        foreach ($special_roles as $spec) {
+                            if (strpos($title, $spec, 0) !== false) {
+                                $details = $this->lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
+
+                                $this->addProperty($this->lng->txt($spec), $details);
+                                continue 2;
+                            }
+                        }
+
+
+                        // list owners of other roles
+                        include_once "./Services/Object/classes/class.ilObjectFactory.php";
+
+                        $users = $rbacreview->assignedUsers($role_id);
+                        $userlist = array();
+                        $i = 0;
+                        foreach ($users as $user_id) {
+                            if ($userObj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
+                                if ($userObj->hasPublicProfile()) {
+                                    $this->ctrl->setParameterByClass("ilpublicuserprofilegui", "user_id", $userObj->getId());
+                                    $userlist[] = '<a href=' . $this->ctrl->getLinkTargetByClass("ilpublicuserprofilegui", "getHTML") . '>'
+                                        . $userObj->getLogin() . '</a>';
+                                } else {
+                                    $userlist[] = $userObj->getLogin();
+                                }
+                            }
+
+                            // limit user list to 50 participants
+                            $i++;
+                            if ($i == 50) {
+                                $userlist[] = '...';
+                                break;
+                            }
+                        }
+
+
+                        $details = $this->lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
+                        if (count($userlist)) {
+                            $details .= '<br />' . $this->lng->txt('users') . ': ' . implode(', ', $userlist) ;
+                        }
+
+                        $this->addProperty($title, $details);
+                    }
+                }
+            }
+
+            // add info about StudOn administrators
+            if (in_array($type, array('cat','crs','grp')) and $this->access->checkAccess('write', '', $ref_id, $type)) {
+                $this->addSection($this->lng->txt('info_section_studon_admins'));
+                $this->addProperty($this->lng->txt('administrator'), $this->lng->txt('info_section_studon_admins_details'));
+            }
+        }
+    }
+    // fau.    
     /**
      * @throws ilCtrlException
      * @throws ilDatabaseException
@@ -793,8 +929,12 @@ class ilInfoScreenGUI
                 $this->addTagging();
             }
 
+            // fau: showUpperPermissions - place permissions info above object sections
+            $this->addObjectPermissions();
+            // fau.
             $this->addObjectSections();
         }
+
 
         // render all sections
         for ($i = 1; $i <= $this->sec_nr; $i++) {
