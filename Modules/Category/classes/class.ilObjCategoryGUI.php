@@ -936,7 +936,7 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
             $entry->label = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
             $result[] = $entry;
         }
-        echo ilJsonUtil::encode($result);
+        echo json_encode($result, JSON_THROW_ON_ERROR);
         exit;
     }
     // fau;
