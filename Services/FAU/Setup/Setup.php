@@ -33,6 +33,16 @@ class Setup
         return $steps;
     }
 
+    /**
+     * Get the update steps for ilias data
+     */
+    public function ilias() : FAUILIASSteps
+    {
+        $steps = new FAUILIASSteps();
+        $steps->prepare($this->db);
+        return $steps;
+    }
+
 
     /**
      * Get the update steps for organisational data
