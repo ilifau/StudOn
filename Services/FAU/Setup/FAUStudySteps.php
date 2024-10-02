@@ -723,4 +723,17 @@ class FAUStudySteps
             ['type' => 'integer', 'notnull' => false, 'default' => null]);
         $this->db->addIndex('fau_study_courses', ['ilias_obj_id_trans'], 'i6');
     }
+
+    // fau: fauService - add valid_to column to fau_study_modules table
+    public function custom_step_131() 
+    {
+        $this->addModulesValidTo();
+    }    
+
+    protected function addModulesValidTo()
+    {
+        $this->db->addTableColumn('fau_study_modules', 'valid_to',
+            ['type' => 'date', 'notnull' => false, 'default' => null]);
+    }    
+    // fau.
 }

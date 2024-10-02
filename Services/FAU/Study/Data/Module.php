@@ -17,6 +17,7 @@ class Module extends RecordData
     protected const otherTypes = [
         'module_nr' => 'text',
         'module_name' => 'text',
+        'valid_to' => 'date'
     ];
 
     protected int $module_id;
@@ -28,6 +29,7 @@ class Module extends RecordData
      * @var HardRestriction
      */
     protected $restrictions = [];
+    protected ?string $valid_to = NULL;
 
     /**
      * Ids of the module's courses of study that fit to a user
@@ -40,16 +42,18 @@ class Module extends RecordData
     public function __construct(
         int $module_id,
         ?string $module_nr,
-        ?string $module_name
+        ?string $module_name,
+        ?string $valid_to
     ) {
         $this->module_id = $module_id;
         $this->module_nr = $module_nr;
         $this->module_name = $module_name;
+        $this->valid_to = $valid_to;
     }
 
     public static function model() : self
     {
-        return new self(0,null,null);
+        return new self(0,null,null,null);
     }
 
     public function getModuleId() : int
@@ -67,9 +71,15 @@ class Module extends RecordData
         return $this->module_name;
     }
 
+    public function getValidTo() : ?string
+    {
+        return $this->valid_to;
+    }
+
     public function getLabel() : string
     {
-        return $this->module_name . ' (' . $this->module_nr . ')';
+        $expired_module_text = $this->getIsValid() ? "" : " (module expired)";
+        return $this->module_name . ' (' . $this->module_nr . ')' . $expired_module_text;
     }
 
     /**
@@ -80,6 +90,19 @@ class Module extends RecordData
     {
         return $this->restrictions;
     }
+
+    public function getIsValid() : bool
+    {
+        if(!isset($this->valid_to))
+            return true;
+        $date_now = time(); //current timestamp
+        $date_convert = strtotime($this->valid_to);
+
+        if($date_convert < $date_now)
+            return false;
+        else return true;
+    }
+
 
     /**
      * Add a restriction for joining events of this module
