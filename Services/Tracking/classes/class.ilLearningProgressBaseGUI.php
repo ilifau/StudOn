@@ -71,6 +71,9 @@ class ilLearningProgressBaseGUI
     protected const LP_ACTIVE_OBJSTATDAILY = 9;
     protected const LP_ACTIVE_OBJSTATADMIN = 10;
     protected const LP_ACTIVE_MATRIX = 11;
+    // fau: LPExport
+    protected const LP_ACTIVE_EXPORT = 12;
+    // fau.
 
     public function __construct(
         int $a_mode,
@@ -272,6 +275,17 @@ class ilLearningProgressBaseGUI
                             "",
                             $a_active == self::LP_ACTIVE_SUMMARY
                         );
+
+                        // fau: LPExport
+                        $this->tabs_gui->addSubTabTarget(
+                            "trac_export",
+                            $this->ctrl->getLinkTargetByClass("illpexportgui", ''),
+                            "",
+                            "",
+                            "",
+                            $a_active == self::LP_ACTIVE_EXPORT
+                        );
+                        // fau.
                     }
                 }
                 if (!($olp instanceof ilPluginLP) &&

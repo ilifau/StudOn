@@ -23,6 +23,8 @@ declare(strict_types=0);
  * @author       Stefan Meyer <meyer@leifos.com>
  * @ilCtrl_Calls ilLearningProgressGUI: ilLPListOfObjectsGUI, ilLPListOfSettingsGUI, ilLPListOfProgressGUI
  * @ilCtrl_Calls ilLearningProgressGUI: ilLPObjectStatisticsGUI
+*  @ilCtrl_Calls ilLearningProgressGUI: ilLPExportGUI
+*
  */
 class ilLearningProgressGUI extends ilLearningProgressBaseGUI
 {
@@ -112,7 +114,14 @@ class ilLearningProgressGUI extends ilLearningProgressBaseGUI
                 );
                 $this->ctrl->forwardCommand($ost_gui);
                 break;
-
+                // fau: LPExport
+            case 'illpexportgui':
+                $this->__setSubTabs(self::LP_ACTIVE_EXPORT);
+                $this->__setCmdClass('illpexportgui');
+                $export_gui = new ilLPExportGUI($this->getMode(), $this->getRefId());
+                $this->ctrl->forwardCommand($export_gui);
+                break;
+                // fau.
             default:
                 $cmd = $this->ctrl->getCmd();
                 if (!$cmd) {
