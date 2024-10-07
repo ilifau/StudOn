@@ -439,7 +439,8 @@ class SyncWithCampo extends SyncBase
             $module = new Module(
                 $record->getModuleId(),
                 $record->getModuleNr(),
-                $record->getModuleName()
+                $record->getModuleName(),
+                $record->getValidTo()
             );
             $moduleEvent = new ModuleEvent(
                 $record->getModuleId(),
