@@ -256,7 +256,7 @@ class fauStudyMyModulesGUI extends BaseGUI
                 foreach ($options as $module_id => $module_label) {
                     $text = ilUtil::prepareFormOutput($module_label);
                     $selected = ($module_id == $selected_module_id ? 'selected' : '');
-                    $disabled = (in_array($module_id, $disabled_ids) ? 'disabled="disabled' : '');
+                    $disabled = (in_array($module_id, $disabled_ids) ? 'disabled="disabled"' : '');
                     $html .= "<option $disabled $selected value=\"$module_id\">$text</option>\n";
                 }
                 $html .= "</select></p>";
