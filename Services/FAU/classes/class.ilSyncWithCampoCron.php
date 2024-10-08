@@ -27,7 +27,7 @@ class ilSyncWithCampoCron extends ilCronJob
     
     public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_IN_HOURS;
+        return ILIAS\Cron\Schedule\CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS;
     }
     
     public function getDefaultScheduleValue(): ?int

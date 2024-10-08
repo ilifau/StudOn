@@ -55,18 +55,18 @@ class SyncWithCampo extends SyncBase
         $this->syncStudyForms();
         $this->syncStudySchools();
         $this->syncStudySubjects();
-        $this->syncTerms();
+        $this->syncTerms(); 
 
         // study structure
         // courses must be synced first, changes in other data may set the dirty status in the course data
         $this->syncCourses();
         $this->syncEvents();
         $this->syncEventOrgunits();
-        $this->syncEventTypes();
+        $this->syncEventTypes(); 
         $this->syncEventModules();
         $this->syncModuleCos();
         $this->syncPlannedDates();
-        $this->syncIndividualDates();
+        $this->syncIndividualDates(); 
 
         // conditions
         $this->syncModuleRestrictions();
@@ -439,7 +439,8 @@ class SyncWithCampo extends SyncBase
             $module = new Module(
                 $record->getModuleId(),
                 $record->getModuleNr(),
-                $record->getModuleName()
+                $record->getModuleName(),
+                $record->getValidTo()
             );
             $moduleEvent = new ModuleEvent(
                 $record->getModuleId(),

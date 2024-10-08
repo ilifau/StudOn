@@ -743,6 +743,10 @@ class HardRestrictions
      */
     protected function checkModule(Module $module, Person $person, Term $term) : bool
     {
+        // don't allow modules which are not valid any more (first option - no longer available in select dropdown)
+        // if(!$module->getIsValid())
+        //      return false;
+
         // prepare a clone of the module that gets the check result
         // only the failed restrictions will be added
         // this allows a display the actual failed restrictions
@@ -776,7 +780,9 @@ class HardRestrictions
             }
         }
 
-        if (empty($fitting_cos_ids) || $oneRestrictionFailed) {
+        // don't allow modules which are not valid any more (second option - available in select dropdown; uncomment first option to use this one)
+        if (empty($fitting_cos_ids) || $oneRestrictionFailed || !$module->getIsValid())
+        {
             $this->checkedForbiddenModules[$checkedModule->getModuleId()] = $checkedModule;
             return false;
         }

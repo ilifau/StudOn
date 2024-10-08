@@ -1791,5 +1791,12 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->ilias()->custom_step_130();
 ?>
+<#131>
+<?php
+/**
+ * fau: fauService - add valid_to column to 'fau_study_modules' table
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_131();
+?>
 
 
