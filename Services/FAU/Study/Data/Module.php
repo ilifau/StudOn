@@ -78,7 +78,8 @@ class Module extends RecordData
 
     public function getLabel() : string
     {
-        $expired_module_text = $this->getIsValid() ? "" : " (module expired)";
+        global $DIC;
+        $expired_module_text = $this->getIsValid() ? "" : " (". $DIC->language()->txt('fau_module_expired'). ")";
         return $this->module_name . ' (' . $this->module_nr . ')' . $expired_module_text;
     }
 
