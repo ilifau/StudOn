@@ -307,7 +307,7 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
             $a = array ('a' => 'apple', 'b' => 'banana', 'c' => array ('x', 'y', 'z'));
             //fwrite($fp, '<pre>'.print_r($a).'</pre>');
             //fclose($fp);  
-            $html .= print_r($a, true);
+            $html .= "<pre>".print_r($a, true)."</pre>";
             
             $options = $hardRestrictions->getCheckedModuleSelectOptions();
             $disabled_ids = $hardRestrictions->getCheckedModuleSelectDisabledIds();
