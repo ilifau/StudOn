@@ -205,7 +205,10 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
             $import_id = new ImportId($term->toString(),$item['event_id'], $item['course_id']);
             
             $info_gui = $this->dic->fau()->study()->info();
-            $description = "import_id: " .$import_id . " " .$info_gui->getLinksLine($import_id, $item['ref_id'])
+            $description = "term_id " .$import_id->getTermId() . "\n" .
+                "event_id " .$import_id->getEventId() . "\n" .
+                "course_id " .$import_id->getCourseId() . "\n" 
+                .$info_gui->getLinksLine($import_id, $item['ref_id'])
                 . $this->getModuleSelectionHtml($import_id->toString(), 'module_ids[' . $item['course_id'] . ']', $item['module_id']);
             
             $props = [];
