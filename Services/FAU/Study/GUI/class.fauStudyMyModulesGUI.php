@@ -313,7 +313,7 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
             foreach ($modules_for_event as $module)
             {
                 if($module->getEventId() != $import_id->getEventId())
-                $disabled_ids[] = $module->getEventId();
+                    $disabled_ids[] = $module->getModuleId();
             }
 
             if (true || !empty($options)) {
