@@ -205,9 +205,9 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
             $import_id = new ImportId($term->toString(),$item['event_id'], $item['course_id']);
             
             $info_gui = $this->dic->fau()->study()->info();
-            $description = "term_id " .$import_id->getTermId() . "\n" .
-                "event_id " .$import_id->getEventId() . "\n" .
-                "course_id " .$import_id->getCourseId() . "\n" 
+            $description = "term_id " .$import_id->getTermId() . "<br>" .
+                "event_id " .$import_id->getEventId() . "<br>" .
+                "course_id " .$import_id->getCourseId() . "<br>" 
                 .$info_gui->getLinksLine($import_id, $item['ref_id'])
                 . $this->getModuleSelectionHtml($import_id->toString(), 'module_ids[' . $item['course_id'] . ']', $item['module_id']);
             
@@ -299,8 +299,12 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
             $hardRestrictions = $this->dic->fau()->cond()->hard();
             $hardRestrictions->checkByImportId($import_id, $this->dic->user()->getId());
 
+
+
             $html = '<p>' .$this->lng->txt('fau_rest_hard_restrictions') . ': '
                 . fauHardRestrictionsGUI::getInstance()->getResultModalLink($hardRestrictions, $selected_module_id) . '</p>';
+
+            $html = '<p>'. var_dump($hardRestrictions) . '</p>';    
             
             $options = $hardRestrictions->getCheckedModuleSelectOptions();
             $disabled_ids = $hardRestrictions->getCheckedModuleSelectDisabledIds();
