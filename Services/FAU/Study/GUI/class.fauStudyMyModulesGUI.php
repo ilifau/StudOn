@@ -303,10 +303,9 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
 
             $html = '<p>' .$this->lng->txt('fau_rest_hard_restrictions') . ': '
                 . fauHardRestrictionsGUI::getInstance()->getResultModalLink($hardRestrictions, $selected_module_id) . '</p>';
-            ob_start();
-            var_dump($hardRestrictions);
-            $mystring = ob_get_clean();
-            $html .= '<p>'. print_r($mystring) . '</p>';    
+            $fp = fopen('debug.txt', 'w');
+            fwrite($fp, serialize($hardRestrictions));
+            fclose($fp);  
             
             $options = $hardRestrictions->getCheckedModuleSelectOptions();
             $disabled_ids = $hardRestrictions->getCheckedModuleSelectDisabledIds();
