@@ -781,7 +781,7 @@ class HardRestrictions
         }
 
         // don't allow modules which are not valid any more (second option - available in select dropdown; uncomment first option to use this one)
-        if (empty($fitting_cos_ids) || $oneRestrictionFailed || !$module->getIsValid())
+        if (empty($fitting_cos_ids) || $oneRestrictionFailed)
         {
             $this->checkedForbiddenModules[$checkedModule->getModuleId()] = $checkedModule;
             return false;
