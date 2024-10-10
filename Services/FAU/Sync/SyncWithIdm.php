@@ -100,7 +100,7 @@ class SyncWithIdm extends SyncBase
             
             $userObj = new ilObjUser($userData->getUserId());
             $userObj->setAuthMode('local');
-            $userObj->setPasswd(random_bytes(20), IL_PASSWD_PLAIN);
+            $userObj->setPasswd($this->generate_random_string_without_null_byte(20), IL_PASSWD_PLAIN);
             $userObj->setIdleExtAccount($userObj->getExternalAccount());
             $userObj->setExternalAccount(null);
             $userObj->setTimeLimitUnlimited(false);
@@ -329,6 +329,19 @@ class SyncWithIdm extends SyncBase
             }
         }
         return $indexed;
+    }
+
+    protected function generate_random_string_without_null_byte(int $i = 32) {    
+        while (true) {
+            // Generate $i random bytes
+            $random_bytes = random_bytes($i);
+            // Check if the random string contains a null byte
+            if (str_contains($random_bytes, "\0") === false) {
+                // No null byte found, break the loop and return the string
+                return $random_bytes; 
+            }
+            // If null byte found, continue to generate another random string
+        }    
     }
 }
 
