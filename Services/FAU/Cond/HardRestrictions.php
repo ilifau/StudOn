@@ -653,6 +653,7 @@ class HardRestrictions
     public function getCheckedModuleSelectOptions() : array
     {
         $options = [];
+        
         foreach ($this->getCheckedFittingModules() as $module) {
             if (isset($this->checkedAllowedModules[$module->getModuleId()])) {
                 $options[$module->getModuleId()] = '✓ ' . $module->getLabel();
@@ -697,6 +698,7 @@ class HardRestrictions
         $this->checkedUserCos = [];
         $this->checkedAllowedModules = [];
         $this->checkedForbiddenModules = [];
+        $this->checkedFittingModules = [];
         $this->checkedAllowedEvent = null;
         $this->checkedForbiddenEvent = null;
     }
