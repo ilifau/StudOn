@@ -309,12 +309,7 @@ class fauStudyMyModulesGUI extends BaseGUI implements ilCtrlBaseClassInterface
             
             $options = $hardRestrictions->getCheckedModuleSelectOptions();
             $disabled_ids = $hardRestrictions->getCheckedModuleSelectDisabledIds();
-            $modules_for_event = $this->dic->fau()->study()->repo()->getModuleEvent([$import_id->getEventId()]);
-            foreach ($modules_for_event as $module)
-            {
-                if($module->getEventId() != $import_id->getEventId())
-                    $disabled_ids[] = $module->getModuleId();
-            }
+
 
             if (true || !empty($options)) {
                 $html .= '<p><label for="' . $module_post_var . '">' . $this->lng->txt(

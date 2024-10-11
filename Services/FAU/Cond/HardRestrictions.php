@@ -432,6 +432,9 @@ class HardRestrictions
         }
 
         $modules = $this->getModulesOfEventWithLoadedRestrictions($event_id);
+        $fp = fopen('/nfs/iliasdata/studon/debug_'.$import_id->getEventId().'modules.txt', 'w');
+        fwrite($fp, print_r($modules, true));
+        fclose($fp);  
         if (empty($modules) && empty($event->getRestrictions())) {
             $this->checkMessage = $this->lng->txt('fau_check_success_no_restriction');
             $this->checkInfo = $this->lng->txt('fau_check_info_passed');
