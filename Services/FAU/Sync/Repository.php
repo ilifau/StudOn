@@ -333,7 +333,7 @@ class Repository extends RecordRepo
             SELECT distinct module_id 
             FROM fau_study_module_cos mc
             JOIN fau_study_cos c ON c.cos_id = mc.cos_id
-            WHERE c.subject = 'Evangelische Theologie'
+            WHERE c.subject = 'Evangelische Theologie' OR (c.subject like '%geograph%' AND c.degree not like 'Austausch%' AND c.degree not like '%Promotion%')
         ";
         
         return $this->getIntegerList($query, 'module_id');
