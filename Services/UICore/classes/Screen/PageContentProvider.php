@@ -179,7 +179,6 @@ class PageContentProvider extends AbstractModificationProvider implements Modifi
             $users_online = \ilSession::_getUsersOnline(600, true) . ' (10min) ⸱ ' . \ilSession::_getUsersOnline(3600). ' (1h)';
             // fau.
 
-            $texts[] = $lng->txt('footer_realised_with') . ' '. ILIAS_VERSION_NUMERIC;
             $texts[] = $lng->txt('footer_server') . ' ' . current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR'])));
             $texts[] = $lng->txt('footer_active_users') . ' ' . $users_online;
 
