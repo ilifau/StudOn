@@ -920,7 +920,7 @@ th {
   margin-top: var(--bs-gutter-y);
 }
 
-@media (min-width: 480px) {
+@media (min-width: 0px) {
   .col-xs {
     flex: 1 0 0%;
   }
@@ -5715,6 +5715,7 @@ footer {
   padding: 0;
   border: 0;
   border-bottom: 1px solid #dddddd;
+  border-radius: 0px;
   flex-flow: column nowrap;
   justify-content: center;
   gap: 1px;

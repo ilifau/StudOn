@@ -3053,7 +3053,7 @@ class ilObjUser extends ilObject
     {
         $udata = new ilUserDefinedData($this->getId());
         foreach ($this->user_defined_data as $field => $value) {
-            if ($field != 'usr_id') {
+            if ($field !== 'usr_id' && $value !== null) {
                 $udata->set($field, $value);
             }
         }
@@ -3131,10 +3131,11 @@ class ilObjUser extends ilObject
         if (strlen($this->getFax())) {
             $body .= ($language->txt("fax") . ": " . $this->getFax() . "\n");
         }
-        if (strlen($this->getEmail())) {
+        if ($this->getEmail() !== '') {
             $body .= ($language->txt("email") . ": " . $this->getEmail() . "\n");
         }
-        if (strlen($this->getSecondEmail())) {
+        if ($this->getSecondEmail() !== null
+            && $this->getSecondEmail() !== '') {
             $body .= ($language->txt("second_email") . ": " . $this->getSecondEmail() . "\n");
         }
         if (strlen($this->getHobby())) {
