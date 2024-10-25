@@ -327,7 +327,24 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, UserData::model());
     }
 
-    
+    /**
+     * Get the user id of a person id from fau_user_persons
+     * @return int
+     */
+    public function getUserIdOfPerson(int $person_id) : ?int
+    {
+        $query = "SELECT user_id FROM fau_user_persons WHERE person_id = ". $person_id;
+        $ret = null;
+        $count = 0;
+        foreach ($this->getIntegerList($query, 'user_id') as $usr_id) {
+            if($count > 0) return null;
+            $count++;
+            $ret = $usr_id;
+        }
+
+        return $ret;
+    }
+
     /**
      * Add the info about public profile to the data of users
      * @param UserData[] $users
