@@ -1105,4 +1105,16 @@ class ilObjSession extends ilObject
         return false;
     }
     // fau.    
+
+    // fau: new functions initWaitingList(), getWaitingList
+    public function initWaitingList()
+    {
+        $this->waiting_list_obj = new ilSessionWaitingList($this->getId());
+    }
+    public function getWaitingList() : ilSessionWaitingList
+    {
+        $this->initWaitingList();
+        return $this->waiting_list_obj;
+    }
+    // fau.    
 }
