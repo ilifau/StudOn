@@ -128,7 +128,7 @@ class StudOnMember extends RecordData
      * @param string $status
      * @return StudOnMember
      */
-    public function withStatusChanged(string $status_changed): StudOnMember
+    public function withStatusChanged(?string $status_changed): StudOnMember
     {
         $clone = clone $this;
         $clone->status_changed = $status_changed;
