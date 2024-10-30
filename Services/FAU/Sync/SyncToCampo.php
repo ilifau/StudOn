@@ -157,7 +157,7 @@ class SyncToCampo extends SyncBase
     private function rememberStatusChangedFromStaging(StudOnMember $member): StudOnMember
     {
         $member_in_staging = $this->staging->repo()->getStudOnMember($member->getCourseId(), $member->getPersonId());
-        $member = $member->withStatusChanged($member_in_staging->getStatusChanged());
+        $member = ($member_in_staging != null) ? $member->withStatusChanged($member_in_staging->getStatusChanged()) : $member;
         return $member;
 
     }
