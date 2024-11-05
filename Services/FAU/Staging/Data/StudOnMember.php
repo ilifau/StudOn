@@ -16,7 +16,8 @@ class StudOnMember extends RecordData
         'module_id' => 'integer',
         'status' => 'text',
         'term_year' => 'integer',
-        'term_type_id' => 'integer'
+        'term_type_id' => 'integer', 
+        'status_changed' => 'datetime'
     ];
 
     public const STATUS_REGISTERED = 'registered';
@@ -28,7 +29,7 @@ class StudOnMember extends RecordData
     protected string $status;
     protected int $term_year;
     protected int $term_type_id;
-
+    protected ?string $status_changed;
 
     public function __construct(
         int $course_id,
@@ -36,7 +37,8 @@ class StudOnMember extends RecordData
         ?int $module_id,
         string $status,
         int $term_year,
-        int $term_type_id
+        int $term_type_id,
+        ?string $status_changed
     )
     {
         $this->course_id = $course_id;
@@ -45,11 +47,12 @@ class StudOnMember extends RecordData
         $this->status = $status;
         $this->term_year = $term_year;
         $this->term_type_id = $term_type_id;
+        $this->status_changed = $status_changed;
     }
 
     public static function model(): self
     {
-        return new self(0,0,0,'', 0,0);
+        return new self(0,0,0,'', 0,0, null);
     }
 
     /**
@@ -83,6 +86,14 @@ class StudOnMember extends RecordData
     {
         return $this->status;
     }
+    
+    /**
+     * @return string|null
+     */
+    public function getStatusChanged() : ?string
+    {
+        return $this->status_changed;
+    }
 
     /**
      * @return int
@@ -110,4 +121,15 @@ class StudOnMember extends RecordData
         $clone->status = $status;
         return $clone;
     }
+
+    /**
+     * @param string $status
+     * @return StudOnMember
+     */
+    public function withStatusChanged(?string $status_changed): StudOnMember
+    {
+        $clone = clone $this;
+        $clone->status_changed = $status_changed;
+        return $clone;
+    }    
 }

@@ -324,6 +324,24 @@ class Repository extends RecordRepo
     /**
      * @return StudOnMember[]
      */
+    public function getStudOnMembers() : array
+    {
+        $query = "SELECT * FROM studon_members";
+        return $this->queryRecords($query, StudOnMember::model(), false, true);
+    }
+
+    /**
+     * @return StudOnMember
+     */
+    public function getStudOnMember(int $course_id, int $person_id) : ?StudOnMember
+    {
+        $query = "SELECT * FROM studon_members where course_id = ".$course_id. " AND person_id = " .$person_id;
+        return $this->getSingleRecord($query, StudOnMember::model(), null, true);
+    }  
+
+    /**
+     * @return StudOnMember[]
+     */
     public function getPassedStudOnMembers() : array
     {
         $query = "SELECT * FROM studon_members WHERE status = 'passed'";

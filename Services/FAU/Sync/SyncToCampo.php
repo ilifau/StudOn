@@ -6,6 +6,7 @@ use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
 use FAU\Staging\Data\StudOnMember;
 use FAU\Study\Data\Course;
+use ilLPMarks;
 
 /**
  * Synchronisation of course settings and members from StudOn to campo
@@ -27,6 +28,32 @@ class SyncToCampo extends SyncBase
 
         // 2023-11-06 passed members should be synced for all terms
         $this->syncAllPassedMembers();
+
+        // sync the date of changing passed status for all members in studon_members
+        $this->syncStatusChanged();
+    }
+
+    /**
+     * sync passed status changed
+     */
+    public function syncStatusChanged() : void
+    {
+        $this->info('sync status_changed of StudOnMembers...');
+        // get the members in the staging database
+        $existing = $this->staging->repo()->getStudOnMembers();
+        foreach($existing as $member)
+        {
+            $usr_id = $this->dic->fau()->user()->repo()->getUserIdOfPerson($member->getPersonId());
+            $course = $this->dic->fau()->study()->repo()->getCourse($member->getCourseId());
+            $object_id = ($course != null) ? $course->getIliasObjId() : null;
+            if($usr_id != null && $object_id != null)
+            {
+                $lp = new ilLPMarks($object_id, $usr_id);
+                $member = $member->withStatusChanged($lp->getStatusChanged());
+                $this->increaseItemsUpdated();
+                $this->staging->repo()->save($member);
+            }
+        }
     }
 
     /**
@@ -69,7 +96,8 @@ class SyncToCampo extends SyncBase
         $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
         
         foreach ($this->sync->repo()->getMembersOfCoursesInTermToSyncBack($term) as $member) {
-            
+            $member = $this->rememberStatusChangedFromStaging($member);
+
             if ($member->getStatus() == StudOnMember::STATUS_PASSED) {
                 
                 // don't send a 'passed' status if neither the module nor the course allows it
@@ -112,11 +140,23 @@ class SyncToCampo extends SyncBase
         // get the module ids of modules for which a 'passed' status of members should be sent to campo
         $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
         foreach ($this->sync->repo()->getPassedMembersOfCoursesToSyncBack($passing_module_ids) as $member) {
+            $member = $this->rememberStatusChangedFromStaging($member);
+
             if (!isset($existing[$member->key()]) || $existing[$member->key()]->hash() != $member->hash()) {
                 $this->staging->repo()->save($member);
                 $this->increaseItemsUpdated();
             }
         }
     }
+
+    /**
+     * avoid sync overwrites status_changed with NULL
+     */
+    private function rememberStatusChangedFromStaging(StudOnMember $member): StudOnMember
+    {
+        $member_in_staging = $this->staging->repo()->getStudOnMember($member->getCourseId(), $member->getPersonId());
+        $member = ($member_in_staging != null) ? $member->withStatusChanged($member_in_staging->getStatusChanged()) : $member;
+        return $member;
+    }    
 }
 
