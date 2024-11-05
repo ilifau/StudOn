@@ -210,6 +210,14 @@ class ilRepositoryTrashGUI
         $deps = [];
         foreach ($a_ids as $ref_id) {
             $obj_id = ilObject::_lookupObjId($ref_id);
+
+            // fau: preventCampoDelete - show message
+            global $DIC;
+            if ($DIC->fau()->study()->isObjectForCampo($obj_id)) {
+                $DIC->ui()->mainTemplate()->setOnScreenMessage('info', $this->lng->txt('fau_delete_info_campo'));
+            }
+            // fau.
+
             $type = ilObject::_lookupType($obj_id);
             $title = call_user_func([ilObjectFactory::getClassByType($type), '_lookupTitle'], $obj_id);
             $alt = ($objDefinition->isPlugin($type))

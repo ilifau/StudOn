@@ -207,10 +207,14 @@ class ilObjCourseListGUI extends ilObjectListGUI
         ?int $obj_id = null
     ): bool {
         // Only check cmd access for cmd 'register' and 'unregister'
-        if ($cmd != 'view' && $cmd != 'leave' && $cmd != 'join' && $cmd !== 'leaveWaitList') {
+        // fau: joinAsGuest - add 'join_as_guest' as possible command
+        // fau: preventCampoDelete - add 'cut' command to distinct cut from delete in modified ilObjCourseAccess
+        // moving courses with campo connection should be allowed
+        // normally just the delete permission is checked for moving objects        
+        if ($cmd != 'view' && $cmd != 'leave' && $cmd != 'join' && $cmd !== 'leaveWaitList' && $cmd != 'joinAsGuest' && $cmd != 'cut') {
             $cmd = '';
         }
-
+        // fau.
         if ($permission == 'crs_linked') {
             return
                 parent::checkCommandAccess('read', $cmd, $ref_id, $type, $obj_id) ||
