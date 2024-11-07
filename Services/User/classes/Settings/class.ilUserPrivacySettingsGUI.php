@@ -159,6 +159,12 @@ class ilUserPrivacySettingsGUI
      */
     public function initPrivacySettingsForm(): \ILIAS\UI\Component\Input\Container\Form\Standard
     {
+        // fau: awrnLegal - add legal text on user privacy settings page
+        global $DIC;
+
+        $this->lng->loadLanguageModule('awrn');
+        $DIC->ui()->mainTemplate()->setOnScreenMessage('info', $this->lng->txt('legal_visibility'));
+        // fau.        
         $sections = [];
 
         $this->populateWithAwarenessSettingsSection($sections);
