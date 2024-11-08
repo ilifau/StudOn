@@ -203,7 +203,9 @@ class ilExportFieldsInfo
             list($export_hide, $export_fix_val, $field_prefix) = $type_vals[$type];
         }
 
-        foreach ($profile->getStandardFields() as $key => $data) {
+        // fau: extendedAccess - use only the allowed profile fields
+        foreach ($profile->getAllowedStandardFields() as $key => $data) {
+            // fau.
             if (!array_key_exists($export_hide, $data) || !$data[$export_hide]) {
                 if (isset($data[$export_fix_val]) and $data[$export_fix_val]) {
                     $this->possible_fields[$key] = $data[$export_fix_val];

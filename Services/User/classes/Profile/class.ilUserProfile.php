@@ -71,6 +71,31 @@ class ilUserProfile
         }
         return $fields;
     }
+   
+    // fau: extendedAccess - new function getAllowedStandardFields()
+    /**
+     * Get standard fields that are allowed to be viewed for other users
+     * - Users with extended access can see all standard fields
+     * - Other users can see only username, firstname ans lastname
+     */
+    public function getAllowedStandardFields()
+    {
+        include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
+        if (ilPrivacySettings::_checkExtendedAccess()) {
+            return $this->getStandardFields();
+        } else {
+            $fields = array();
+            if (!in_array("personal_data", $this->skip_groups)) {
+                foreach (array('username','firstname','lastname') as $f) {
+                    if (!in_array($f, $this->skip_fields)) {
+                        $fields[$f] = self::$user_fields[$f];
+                    }
+                }
+            }
+            return $fields;
+        }
+    }
+    // fau.    
 
     public function getLocalUserAdministrationFields(): array // Missing array type.
     {

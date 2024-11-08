@@ -1108,7 +1108,17 @@ class ilMembershipGUI
             );
         }
 
-        if (ilPrivacySettings::getInstance()->checkExportAccess($this->getParentObject()->getRefId())) {
+        include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
+        // fau: extendedAccess - show export tab even if general export permission is not given to the user (permission is handled on the tab)
+        global $DIC;
+        $privacy = ilPrivacySettings::getInstance();
+        if ($this->getParentObject() instanceof ilObjCourse) {
+            $enabled = $privacy->enabledCourseExport();
+        }
+        if ($this->getParentObject() instanceof ilObjGroup) {
+            $enabled = $privacy->enabledGroupExport();
+        }
+        if ($enabled && $DIC->access()->checkAccess('manage_members', '', $this->getParentObject()->getRefId())) {
             $tabs->addSubTabTarget(
                 'export_members',
                 $this->ctrl->getLinkTargetByClass(array(get_class($this), 'ilmemberexportgui'), 'show'),
@@ -1116,6 +1126,7 @@ class ilMembershipGUI
                 'ilmemberexportgui'
             );
         }
+        // fau.
     }
 
     /**

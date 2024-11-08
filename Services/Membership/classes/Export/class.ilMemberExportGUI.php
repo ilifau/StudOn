@@ -91,11 +91,20 @@ class ilMemberExportGUI
 
     public function executeCommand(): void
     {
-        if (!ilPrivacySettings::getInstance()->checkExportAccess($this->ref_id)) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
-            $this->ctrl->returnToParent($this);
-        }
+        global $DIC;
 
+        $ilAccess = $DIC['ilAccess'];
+       // fau: extendedAccess - jump to export request form if not granted
+       $privacy = ilPrivacySettings::getInstance();
+       $enabled = $this->type == 'crs' ? $privacy->enabledCourseExport() : $privacy->enabledGroupExport();
+
+       if (!$ilAccess->checkAccess('manage_members', '', $this->ref_id) or !$enabled) {
+           $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
+           $this->ctrl->returnToParent($this);
+       } elseif (!ilPrivacySettings::_checkExtendedAccess()) {
+           ilUtil::redirect("goto.php?target=studon_exportrequest");
+       }
+       // fau.
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
 

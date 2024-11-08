@@ -784,46 +784,46 @@ class ilRepositorySearchGUI
 
 
 
-        // Role
-        $roles = new ilRadioOption($this->lng->txt('search_for_role_members'), 'role');
-        $role = new ilTextInputGUI($this->lng->txt('search_role_title'), 'rep_query[role][title]');
-        $role->setSize(30);
-        $role->setMaxLength(120);
-        $roles->addSubItem($role);
-        $kind->addOption($roles);
+        // fau: extendedAccess - search for roles, courses and groups only with extended access
+        include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
+        if (ilPrivacySettings::_checkExtendedAccess()) {
+            // Role
+            $roles = new ilRadioOption($this->lng->txt('search_for_role_members'), 'role');
+            $role = new ilTextInputGUI($this->lng->txt('search_role_title'), 'rep_query[role][title]');
+            $role->setSize(30);
+            $role->setMaxLength(120);
+            $roles->addSubItem($role);
+            $kind->addOption($roles);
 
-        // Course
-        $groups = new ilRadioOption($this->lng->txt('search_for_crs_members'), 'crs');
-        $group = new ilTextInputGUI($this->lng->txt('search_crs_title'), 'rep_query[crs][title]');
-        $group->setSize(30);
-        $group->setMaxLength(120);
-        $groups->addSubItem($group);
-        $kind->addOption($groups);
+            // Course
+            $groups = new ilRadioOption($this->lng->txt('search_for_crs_members'), 'crs');
+            $group = new ilTextInputGUI($this->lng->txt('search_crs_title'), 'rep_query[crs][title]');
+            $group->setSize(30);
+            $group->setMaxLength(120);
+            $groups->addSubItem($group);
+            $kind->addOption($groups);
 
-        // Group
-        $groups = new ilRadioOption($this->lng->txt('search_for_grp_members'), 'grp');
-        $group = new ilTextInputGUI($this->lng->txt('search_grp_title'), 'rep_query[grp][title]');
-        $group->setSize(30);
-        $group->setMaxLength(120);
-        $groups->addSubItem($group);
-        $kind->addOption($groups);
+            // Group
+            $groups = new ilRadioOption($this->lng->txt('search_for_grp_members'), 'grp');
+            $group = new ilTextInputGUI($this->lng->txt('search_grp_title'), 'rep_query[grp][title]');
+            $group->setSize(30);
+            $group->setMaxLength(120);
+            $groups->addSubItem($group);
+            $kind->addOption($groups);
 
-        // Orgus
-        if (ilUserSearchOptions::_isEnabled("org_units")) {
-            $orgus = new ilRadioOption($this->lng->txt('search_for_orgu_members'), 'orgu');
-            $orgu = new ilRepositorySelector2InputGUI(
-                $this->lng->txt('select_orgu'),
-                'rep_query_orgu',
-                true,
-                $this->form
-            );
-            $orgu->getExplorerGUI()->setSelectableTypes(["orgu"]);
-            $orgu->getExplorerGUI()->setTypeWhiteList(["root", "orgu"]);
-            $orgu->getExplorerGUI()->setRootId(ilObjOrgUnit::getRootOrgRefId());
-            $orgu->getExplorerGUI()->setAjax(false);
-            $orgus->addSubItem($orgu);
-            $kind->addOption($orgus);
+            // Orgus
+            if (ilUserSearchOptions::_isEnabled("org_units")) {
+                $orgus = new ilRadioOption($this->lng->txt('search_for_orgu_members'), 'orgu');
+                $orgu = new ilRepositorySelector2InputGUI($this->lng->txt('select_orgu'), 'rep_query_orgu', true, get_class($this));
+                $orgu->getExplorerGUI()->setSelectableTypes(["orgu"]);
+                $orgu->getExplorerGUI()->setTypeWhiteList(["root", "orgu"]);
+                $orgu->getExplorerGUI()->setRootId(ilObjOrgUnit::getRootOrgRefId());
+                $orgu->getExplorerGUI()->setAjax(false);
+                $orgus->addSubItem($orgu);
+                $kind->addOption($orgus);
+            }
         }
+    // fau.
     }
 
 
