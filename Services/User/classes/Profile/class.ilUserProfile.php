@@ -88,7 +88,7 @@ class ilUserProfile
             if (!in_array("personal_data", $this->skip_groups)) {
                 foreach (array('username','firstname','lastname') as $f) {
                     if (!in_array($f, $this->skip_fields)) {
-                        $fields[$f] = $this->$user_fields[$f];
+                        $fields[$f] = $this->user_fields[$f];
                     }
                 }
             }
