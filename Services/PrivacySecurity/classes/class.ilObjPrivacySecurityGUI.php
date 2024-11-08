@@ -21,6 +21,9 @@ declare(strict_types=1);
 /**
  * @author       Stefan Meyer <meyer@leifos.de>
  * @ilCtrl_Calls ilObjPrivacySecurityGUI: ilPermissionGUI
+ * fau: allowPrivacyRoles - allow role and rold folder GUI
+ * @ilCtrl_Calls ilObjPrivacySecurityGUI: ilObjRoleGUI, ilObjRoleFolderGUI
+ * fau.
  * @ingroup      ServicesPrivacySecurity
  */
 class ilObjPrivacySecurityGUI extends ilObjectGUI
