@@ -96,6 +96,7 @@ class ilStudyExportRequestGUI
             [],
             false
         );
+        $mail->sendMail($mail_data); 
             
         $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/FAU/Cond/GUI");
         $tpl->touchBlock('sent_message');
