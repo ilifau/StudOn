@@ -87,8 +87,7 @@ class ilStudyExportRequestGUI
 
         require_once('Services/Mail/classes/class.ilMail.php');
         $mail = new ilMail($ilUser->getId());
-
-        $mail->sendMail(
+        $mail_data = new MailDeliveryData(
             'studon@uni-erlangen.de',
             $ilUser->getEmail(),
             '',
