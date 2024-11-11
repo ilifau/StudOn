@@ -65,6 +65,64 @@ if (isset($_GET['target']))
 }
 // fau.
 
+/*
+ * fau: gotoLinks - explanation of target handling
+ *
+ * target:			crs_123_join
+ *
+ * target_arr: 		array(crs, 123, join)
+ * target_type: 	crs
+ * target_id: 		123
+ * rest: 			123_join
+ * additional: 		join
+ *
+ *
+ * called from ilInitialisation:
+ * ilStartUpGUI::_checkGoto($_GET["target"])
+ * - returns true for target type 'studon'
+ * - returns false for join command if user is anonymous
+ *
+ * called afterwards from goto.php:
+ * ilObjXyzGUI::_goto($rest) 					(default implementation)
+ * ilObjXyzGUI::_goto($target_id, $additional)	(specific implementation)
+ *
+ * fau.
+ */
+
+// fau: gotoLinks - studon specific goto requests
+// fau: regCodes - add code to registration link
+if (isset($_GET['target']))
+{
+    $target_arr = explode("_", $_GET["target"]);
+    $target_type = $target_arr[0];
+    $target_id = $target_arr[1];
+    $additional = isset($target_arr[2]) ? $target_arr[2] : null;		// optional for pages
+
+    if ($target_type == 'studon') {
+        switch ($target_id) {
+            case "exportrequest":
+                $ilCtrl->setTargetScript("goto.php");
+                //$ilCtrl->getCallStructure("ilstudyexportrequestgui");
+                $ilCtrl->setParameterByClass("ilstudyexportrequestgui", "target", "studon_exportrequest");
+                $ilCtrl->forwardCommand(new ilStudyExportRequestGUI());
+                exit;
+
+            case "agreement":
+                ilUtil::redirect('ilias.php?baseClass=ilStartUpGUI&cmd=showTermsOfService');
+                break;
+
+            case "register":
+                if ($additional) {
+                    ilUtil::redirect('register.php?code=' . $additional);
+                } else {
+                    ilUtil::redirect('register.php');
+                }
+                break;
+        }
+    }
+}
+// fau.
+
 /** @var Services $static_url */
 $static_url = $DIC['static_url'];
 $static_url->handler()->performRedirect(

@@ -48,7 +48,7 @@ class ilStudyExportRequestGUI
         $rbacsystem = $DIC->rbac()->system();
 
         include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
-        $privacy = ilPrivacySettings::_getInstance();
+        $privacy = ilPrivacySettings::getInstance();
 
         $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/FAU/Cond/GUI");
 
@@ -59,7 +59,7 @@ class ilStudyExportRequestGUI
             $tpl->touchBlock('hasright_message');
         } else {
             $tpl->setCurrentBlock('export_request');
-            $tpl->setVariable("FORMACTION", $ilCtrl->getFormAction($this));
+            $tpl->setVariable("FORMACTION", "goto.php?target=studon_exportrequest&cmd=post&cmdClass=ilstudyexportrequestgui");
             $tpl->setVariable("LOGIN", $ilUser->getLogin());
             ilDatePresentation::setUseRelativeDates(false);
             $tpl->setVariable("DATE", ilDatePresentation::formatDate(new ilDate(time(), IL_CAL_UNIX)));
