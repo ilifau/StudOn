@@ -26,6 +26,9 @@ class ilPortfolioTableGUI extends ilTable2GUI
     protected array $shared_objects;
     protected ilObjUser $user;
     protected int $user_id;
+    // fau: visibilityHints - init access handler
+    private ilPortfolioAccessHandler $access_handler; 
+    // fau.
 
     public function __construct(
         object $a_parent_obj,
@@ -61,6 +64,10 @@ class ilPortfolioTableGUI extends ilTable2GUI
         $this->getItems();
 
         $lng->loadLanguageModule("wsp");
+
+        // fau: visibilityHints - init access handler
+        $this->access_handler = new ilPortfolioAccessHandler();
+        // fau.
     }
 
     protected function getItems(): void
@@ -82,11 +89,21 @@ class ilPortfolioTableGUI extends ilTable2GUI
         $this->tpl->setVariable("VAL_TITLE", ilLegacyFormElementsUtil::prepareFormOutput($a_set["title"]));
         $this->tpl->parseCurrentBlock();
 
-        if (in_array($a_set["id"], $this->shared_objects)) {
+        // fau: visibilityHints - add better messages about public visibility
+        if ($this->access_handler->hasGlobalPermission($a_set["id"])) {
+            $this->tpl->setCurrentBlock("shared");
+            $this->tpl->setVariable("TXT_SHARED", $lng->txt("privacy_portfolio_visible_to_public"));
+            $this->tpl->parseCurrentBlock();
+        } elseif ($this->access_handler->hasGlobalPasswordPermission($a_set["id"])) {
+            $this->tpl->setCurrentBlock("shared");
+            $this->tpl->setVariable("TXT_SHARED", $lng->txt("privacy_portfolio_visible_with_password"));
+            $this->tpl->parseCurrentBlock();
+        } elseif (in_array($a_set["id"], $this->shared_objects)) {
             $this->tpl->setCurrentBlock("shared");
             $this->tpl->setVariable("TXT_SHARED", $lng->txt("wsp_status_shared"));
             $this->tpl->parseCurrentBlock();
         }
+        // fau.
 
         $this->tpl->setCurrentBlock("chck");
         $this->tpl->setVariable("VAL_ID", $a_set["id"]);

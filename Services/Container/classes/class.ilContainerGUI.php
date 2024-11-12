@@ -348,6 +348,14 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             $this->tpl->setTitle($this->object->getTitle(), true);
         } else {
             parent::setTitleAndDescription();
+            // fau: visibilityHints - add an alert about the public vissibility of the object
+            include_once './Services/Object/classes/class.ilObjectListGUIFactory.php';
+            $lgui = ilObjectListGUIFactory::_getListGUIByType($this->object->getType());
+            $lgui->initItem($this->object->getRefId(), $this->object->getId(), $this->object->getType());
+            $this->tpl->setAlertProperties(
+                $this->addPublicVisibilityAlert($lgui->getAlertProperties())
+            );
+            // fau.
         }
     }
 

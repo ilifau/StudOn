@@ -126,9 +126,15 @@ class ilObjWorkspaceFolderTableGUI extends ilTable2GUI
             $item_list_gui->addCustomCommand($share_link, "wsp_permissions");
 
             // show "shared" status
-            if (in_array($a_set["obj_id"], $this->shared_objects)) {
+            // fau: visibilityHints - show better notes about public visibility
+            if ($this->access_handler->hasGlobalPermission($a_set["child"])) {
+                $item_list_gui->addCustomProperty($this->lng->txt("status"), $this->lng->txt("privacy_object_visible_to_public"), true, true);
+            } elseif ($this->access_handler->hasGlobalPasswordPermission($a_set["child"])) {
+                $item_list_gui->addCustomProperty($this->lng->txt("status"), $this->lng->txt("privacy_object_visible_with_password"), true, true);
+            } elseif (in_array($a_set["obj_id"], $this->shared_objects)) {
                 $item_list_gui->addCustomProperty($this->lng->txt("status"), $this->lng->txt("wsp_status_shared"), true, true);
             }
+            // fau.
         }
 
         if ($html = $item_list_gui->getListItemHTML(
