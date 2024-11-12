@@ -903,7 +903,9 @@ class ilPersonalProfileGUI
             'email' => $this->user->getEmail(),
             'second_email' => $this->user->getSecondEmail(),
             'hobby' => $this->user->getHobby(),
-            'matriculation' => $this->user->getMatriculation()
+            // fau: reduceProfile - don't add matriculation to the public profile fields
+            // 'matriculation' => $this->user->getMatriculation()
+            // fau.
         ];
 
         // location

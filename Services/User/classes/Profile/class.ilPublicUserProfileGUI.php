@@ -462,14 +462,16 @@ class ilPublicUserProfileGUI implements ilCtrlBaseClassInterface
         }
 
 
-        $val_arr = [
-            'getHobby' => 'hobby',
-            'getGeneralInterestsAsText' => 'interests_general',
-            'getOfferingHelpAsText' => 'interests_help_offered',
-            'getLookingForHelpAsText' => 'interests_help_looking',
-            'getMatriculation' => 'matriculation',
-            'getClientIP' => 'client_ip'
-        ];
+        // fau: reduceProfile - don't add matriculation and client IP to the public profile
+        $val_arr = array(
+            "getHobby" => "hobby",
+            "getGeneralInterestsAsText" => "interests_general",
+            "getOfferingHelpAsText" => "interests_help_offered",
+            "getLookingForHelpAsText" => "interests_help_looking",
+            // "getMatriculation" => "matriculation",
+            // "getClientIP" => "client_ip"
+        );
+        // fau.
 
         foreach ($val_arr as $key => $value) {
             // if value 'y' show information
@@ -655,8 +657,12 @@ class ilPublicUserProfileGUI implements ilCtrlBaseClassInterface
             'getZipcode' => 'zipcode', 'getCity' => 'city', 'getCountry' => 'country',
             'getPhoneOffice' => 'phone_office', 'getPhoneHome' => 'phone_home',
             'getPhoneMobile' => 'phone_mobile', 'getFax' => 'fax', 'getEmail' => 'email',
-            'getHobby' => 'hobby', 'getMatriculation' => 'matriculation',
-            'getClientIP' => 'client_ip', 'dummy' => 'location'
+            'getHobby' => 'hobby', 
+            // fau: reduceProfile - don't add matriculation and client IP to the public profile
+            // 'getMatriculation' => 'matriculation',
+            // 'getClientIP' => 'client_ip', 
+            // fau.
+            'dummy' => 'location'
         ];
 
         $org = [];
