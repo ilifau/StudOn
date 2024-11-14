@@ -52,6 +52,12 @@ class ilTestExportGUI extends ilExportGUI
         $this->addFormat('xmlres', $this->lng->txt('ass_create_export_file_with_results'), $this, 'createTestExportWithResults');
         $this->addFormat('csv', $this->lng->txt('ass_create_export_test_results'), $this, 'createTestResultsExport');
         $this->addFormat('arc', $this->lng->txt('ass_create_export_test_archive'), $this, 'createTestArchiveExport');
+        // fau: campoGrades - button to export test results for campo
+
+        if (ilCust::get('tst_export_campo')) {
+            $this->addFormat('prfcampo', $this->lng->txt('ass_create_export_campo'), $this, 'createTestResultsCampo');
+        }
+        // fau.
         foreach ($active_export_plugins as $plugin) {
             $plugin->setTest($this->obj);
             $this->addFormat(
@@ -107,6 +113,14 @@ class ilTestExportGUI extends ilExportGUI
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('exp_file_created'), true);
         $this->ctrl->redirectByClass('iltestexportgui');
     }
+
+    // fau: campoGrades - create test results for campo
+    public function createTestResultsCampo()
+    {
+        global $ilCtrl;
+        $ilCtrl->redirectByClass("iltestcampogui");
+    }
+    // fau.
 
     public function createTestArchiveExport()
     {
@@ -185,19 +199,15 @@ class ilTestExportGUI extends ilExportGUI
         if (count($export_files) > 0) {
             foreach ($export_files as $exp_file) {
                 $file_arr = explode('__', $exp_file);
-                if ($file_arr[0] == $exp_file) {
-                    continue;
-                }
-
-                array_push(
-                    $data,
-                    [
-                        'file' => $exp_file,
-                        'size' => filesize($export_dir . '/' . $exp_file),
-                        'timestamp' => $file_arr[0],
-                        'type' => $this->getExportTypeFromFileName($exp_file)
-                    ]
-                );
+// fau: campoGrades - support export files with other naming scheme
+                //if($file_arr[0] == $exp_file) continue;
+                array_push($data, array(
+                    'file' => $exp_file,
+                    'size' => filesize($export_dir . "/" . $exp_file),
+                    'timestamp' => filemtime($export_dir . "/" . $exp_file),
+                    'type' => $this->getExportTypeFromFileName($exp_file)
+// fau.
+                ));
             }
         }
 

@@ -973,7 +973,7 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
                         list($orgnr, $orgname) = explode(' - ', $entry);
                         if (!empty($unit = $DIC->fau()->org()->repo()->getOrgunitByNumber($orgnr))) {
                             if (!empty($unit->getIliasRefId() && $unit->getIliasRefId() != $this->object->getRefId())) {
-                                ilUtil::sendFailure(sprintf($this->lng->txt('fau_relation_unit_used'),
+                                $DIC->ui()->mainTemplate()->setOnScreenMessage('failure', sprintf($this->lng->txt('fau_relation_unit_used'),
                                     $unit->getLongtext(), ilLink::_getLink($unit->getIliasRefId()),
                                 ilObject::_lookupTitle(ilObject::_lookupObjId($unit->getIliasRefId()))), true);
                                 $success = false;
