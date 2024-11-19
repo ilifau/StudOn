@@ -110,10 +110,15 @@ class ilAuthStatus
      */
     public function getTranslatedReason(): string
     {
+        // fau: loginFailed - add a help text to the failure message
         if ($this->translated_reason !== '') {
-            return $this->translated_reason;
+            $message = $this->translated_reason;
+        } else {
+            $message = $this->lng->txt($this->getReason());
         }
-        return $this->lng->txt($this->getReason());
+
+        return $message . $this->lng->txt('err_wrong_login_assist');
+        // fau.
     }
 
 
