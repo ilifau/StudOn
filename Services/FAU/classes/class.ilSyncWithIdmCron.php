@@ -1,5 +1,6 @@
 <?php
 
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 /**
  * fau: syncWithIdm - new class for idm data update cron job.
@@ -27,7 +28,7 @@ class ilSyncWithIdmCron extends ilCronJob
     
     public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_DAILY;
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
     }
     
     public function getDefaultScheduleValue(): ?int
