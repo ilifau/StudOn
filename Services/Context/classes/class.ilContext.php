@@ -64,6 +64,9 @@ class ilContext
     public const CONTEXT_SHIBBOLETH = ilContextShibboleth::class;
     public const CONTEXT_LTI_PROVIDER = ilContextLTIProvider::class;
     public const CONTEXT_SAML = ilContextSaml::class;
+    // fau: customPatches - add context for patches
+    const CONTEXT_PATCH = ilContextPatch::class;
+    // fau.
 
     /**
      * Init context by type

@@ -136,3 +136,10 @@ $p->login();
 //$p->applyPatch('ilPermissionPatches7.initPluginsCopyPermissions');
 //$p->applyPatch('ilPermissionPatches7.initCourseRefLearningProgress');
 //$p->applyPatch('ilPermissionPatches7.initInteractiveVideoLearningProgress');
+
+/******************
+ * Testing Patches
+ *****************/
+
+//$p->applyPatch('ilTestingPatches.testIdmPass', ['login' => 'idmpass.crypt', 'password'=> 'homer', 'encoding' => 'idmcrypt']);
+//$p->applyPatch('ilTestingPatches.testIdmPass', ['login' => 'idmpass.ssha', 'password'=> 'homer', 'encoding' => 'idmssha']);
