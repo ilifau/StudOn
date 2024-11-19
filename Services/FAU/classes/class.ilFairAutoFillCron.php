@@ -2,6 +2,8 @@
 
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use ILIAS\Cron\Schedule\CronJobScheduleType;
+
 include_once "Services/Cron/classes/class.ilCronJob.php";
 
 /**
@@ -30,7 +32,7 @@ class ilFairAutoFillCron extends ilCronJob
     
     public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_IN_MINUTES;
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
     }
     
     public function getDefaultScheduleValue(): ?int

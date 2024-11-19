@@ -1,5 +1,6 @@
 <?php
 
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 /**
  * fau: syncWithOrg - new class for fau.org data update cron job.
@@ -27,7 +28,7 @@ class ilSyncWithOrgCron extends ilCronJob
     
     public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_IN_HOURS;
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
     }
     
     public function getDefaultScheduleValue(): ?int

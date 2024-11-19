@@ -1,5 +1,6 @@
 <?php
 
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 /**
  * fau: syncWithCampo - new class for campo data update cron job.
@@ -27,7 +28,7 @@ class ilSyncWithCampoCron extends ilCronJob
     
     public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
     {
-        return ILIAS\Cron\Schedule\CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS;
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
     }
     
     public function getDefaultScheduleValue(): ?int
