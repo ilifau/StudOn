@@ -55,6 +55,10 @@ class ilUserPasswordEncoderFactory
             new ilBcryptPhpPasswordEncoder($config),
             new ilBcryptPasswordEncoder($config),
             new ilMd5PasswordEncoder(),
+            // fau: idmPass - add idm encoders
+            new ilIdmSshaPasswordEncoder($config),
+            new ilIdmCryptPasswordEncoder($config)
+            // fau.
         ];
     }
 
