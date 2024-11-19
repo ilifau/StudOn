@@ -2807,12 +2807,14 @@ class ilObjUser extends ilObject
         }
 
         // For compatibility, check for login (no ext_account entry given)
+        // fau: loginFallback - allow local login with different external account (e.g. vhb user)
         $res = $db->queryF(
             "SELECT login FROM usr_data " .
-            "WHERE login = %s AND auth_mode = %s AND (ext_account IS NULL OR ext_account = '') ",
+            "WHERE login = %s AND auth_mode = %s ",
             ["text", "text"],
             [$a_account, $a_auth]
         );
+        // fau.
         if ($usr = $db->fetchAssoc($res)) {
             return $usr['login'];
         }
