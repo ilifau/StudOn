@@ -191,7 +191,7 @@ common#:#label_remark#:#References
 common#:#lang_refresh_confirm_info#:#ILIAS found changed language variables. Refreshing a language will read the standard language file and probably a custom language file to the database. This will not affect your changes.###fau: keepAllLocalChanges
 common#:#links_password_coded#:#password-code
 common#:#local_login_to_ilias#:#Local Login to StudOn###fau: loginForm
-common#:#local_login_to_ilias_addition#:#Use this login if you got a local account from StudOn###fau.
+common#:#local_login_to_ilias_addition#:#Use this login if you got a local account from StudOn###fau: loginForm
 common#:#local_login_to_ilias_registered#:#Login###fau: regCodes
 common#:#login_required_for_object#:#Bitte melden Sie sich an.
 common#:#mail_folder_tools#:#You will find your Mail-Folder under „Tools“
@@ -243,6 +243,9 @@ common#:#rpl_overview#:#Overview of Registration starts
 common#:#rpl_overview_desc#:#This tables shows the registration starts for courses and groups with a limited number of places. Each time slot show the sum of places for which the registration starts. High values may indicate a high system load, but uther factors like the popularity of courses may be relevant, too. Please try to use a free slot for your own registration start. The first two weeks of the lectures period have a high load generally.
 common#:#rpl_previous_week#:#Previous Week
 common#:#rpl_warning#:#The registration starts at the same time with others for over %s places. This may cause high system load. Please choose a different time, if possible.
+common#:#saml_log_in#:#Login###fau: loginForm
+common#:#saml_login_form_info_txt#:#As a member of FAU, you can log in to StudOn with your IdM-ID » <strong><a href="https://www.studon.fau.de/studon/goto.php?target=cat_166816">Help</a></strong>###fau: loginForm
+common#:#saml_login_form_txt#:#Login with Single Sign-On###fau: loginForm
 common#:#score#:#Points
 common#:#select_all_page_only#:#Select all on this page. Show more rows per page to select all!
 common#:#shib_data_missing#:#Your Single Sign-On did work, some data is missing (firstname or lastname) to create a user account for StudOn. Please contact<a href="idm@fau.de">idm@fau.de</a>, to solve the problem and tell your user identification and the missing data.

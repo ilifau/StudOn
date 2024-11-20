@@ -513,7 +513,11 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
                 ),
         ];
 
-        $sections = [$field_factory->section($fields, $this->lng->txt('login_to_ilias'))];
+        // fau: loginForm - use specific language variables for local login
+        $sections = [$field_factory->section($fields,
+            $this->lng->txt('local_login_to_ilias'))->withByline($this->lng->txt('local_login_to_ilias_addition'))
+        ];
+        // fau.
 
         return $this->ui_factory->input()
                                 ->container()
