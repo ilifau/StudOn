@@ -186,7 +186,18 @@ class ilTestRandomQuestionSetConfigStateMessageHandler
             $this->setValidationFailed(true);
             $this->addValidationReport($this->lng->txt('tst_msg_rand_quest_set_pass_not_buildable'));
             $this->addValidationReport(implode('<br />', $this->questionSetConfig->getBuildableMessages()));
-        } elseif ($this->questionSetConfig->getLastQuestionSyncTimestamp()) {
+        }
+        // fau: fixRandomTestDoubleOriginals - show message if the test has double originals
+        elseif (!$this->questionSetConfig->hasUniqueOriginalQuestions()) {
+            $this->setValidationFailed(true);
+            $this->addValidationReport($this->lng->txt('tst_msg_rand_quest_set_has_double_originals'));
+            $this->addValidationReport('<br /><a href="'
+                    . $this->ctrl->getLinkTarget($this->getTargetGUI(), ilTestRandomQuestionSetConfigGUI::CMD_BUILD_QUESTION_STAGE) . '">'
+                    . $this->lng->txt('tst_btn_rebuild_random_question_stage') . '</a>');
+            $this->addValidationReport("<br><small>" . $this->lng->txt('tst_msg_rand_quest_set_sync_duration') . "</small>");
+        }
+        // fau.
+        elseif ($this->questionSetConfig->getLastQuestionSyncTimestamp()) {
             $this->setSyncInfoMessage($this->buildLastSyncMessage());
         }
     }
