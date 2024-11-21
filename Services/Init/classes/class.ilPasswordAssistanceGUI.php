@@ -375,7 +375,9 @@ class ilPasswordAssistanceGUI implements ilCtrlSecurityInterface
      * client_id
      * key
      */
-    private function sendPasswordAssistanceMail(ilObjUser $userObj): void
+    // fau: pwChangeForm - make sendPasswordAssistanceMail public
+    public function sendPasswordAssistanceMail(ilObjUser $userObj): void
+    // fau.
     {
         global $DIC;
 
