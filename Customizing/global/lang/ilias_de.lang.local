@@ -242,6 +242,9 @@ common#:#rpl_overview#:#Übersicht der Anmeldestarts
 common#:#rpl_overview_desc#:#Diese Tabelle zeigt die vorgesehenen Anmeldestarts für Gruppen und Kurse mit beschränkter Teilnehmerzahl. Pro Zeitraum sind alle Plätze summiert, für die eine Anmeldung startet. Hohe Werte geben einen Hinweis auf erhöhte Zugriffe, allerdings spielen auch andere Faktoren, z.B. die Beliebtheit von Kursen eine Rolle. Bitte wählen Sie für eigene Anmeldestarts möglichst einen freien Zeitraum. In den ersten beiden Wochen des Vorlesungszeitraums ist generell mit hoher Systemlast zu rechnen.
 common#:#rpl_previous_week#:#Vorherige Woche
 common#:#rpl_warning#:#Die Registrierung startet zeitgleich mit anderen für über %s Plätze. Dadurch ist mit erhöhter Systemlast zu rechnen. Bitte wählen Sie, wenn möglich, einen anderen Zeitpunkt.
+common#:#saml_log_in#:#Anmelden###fau: loginForm
+common#:#saml_login_form_info_txt#:#Verwenden Sie als Mitglied der FAU Ihre IdM-Kennung » <strong><a href="https://www.studon.fau.de/studon/goto.php?target=cat_166816">Hilfe</a></strong>###fau: loginForm
+common#:#saml_login_form_txt#:#Bei StudOn über Single Sign-On anmelden###fau: loginForm
 common#:#score#:#Punkte
 common#:#select_all_page_only#:#Alle auf dieser Seite auswählen. Lassen Sie mehr Zeilen pro Seite anzeigen, um alle auswählen zu können!
 common#:#shib_data_missing#:#Ihr Single Sign-On hat funktioniert, aber es fehlen Daten (Vor- oder Nachname), um ein Benutzerkonto in StudOn anlegen zu können. Bitte wenden Sie sich an den IDM-Support <a href="mailto:idm@fau.de">idm@fau.de</a>, um das Problem zu beheben und nennen Sie dabei Ihre Benutzerkennung und die fehlenden Daten.
