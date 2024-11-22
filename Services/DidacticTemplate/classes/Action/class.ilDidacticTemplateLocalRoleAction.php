@@ -33,42 +33,71 @@ class ilDidacticTemplateLocalRoleAction extends ilDidacticTemplateAction
     }
 
     public function apply(): bool
-    {
+    {     
         $source = $this->initSourceObject();
 
-        $role = new ilObjRole();
-        $role->setTitle(ilObject::_lookupTitle($this->getRoleTemplateId()) . '_' . $this->getRefId());
-        $role->setDescription(ilObject::_lookupDescription($this->getRoleTemplateId()));
-        $role->create();
-        $this->admin->assignRoleToFolder($role->getId(), $source->getRefId(), "y");
-        $this->logger->info(
-            'Using rolt: ' .
-            $this->getRoleTemplateId() .
-            ' with title "' .
-            ilObject::_lookupTitle($this->getRoleTemplateId()) .
-            '". '
-        );
+        // fau: updateDidacticTemplateRole - search existing roles and update their permissions instead of creating a new one
+        global $DIC;
 
-        // Copy template permissions
+        $rbacreview = $DIC['rbacreview'];
+        $rbacadmin = $DIC['rbacadmin'];
+        
+        $template_title = ilObject::_lookupTitle($this->getRoleTemplateId());
+        $roles = [];
+        foreach ($rbacreview->getLocalRoles($this->getRefId()) as $role_id) {
+            $role_title = ilObject::_lookupTitle($role_id);
+            //echo $role_title;
+            if (substr($role_title, 0, strlen($template_title)) == $template_title) {
+                $roles[] = new ilObjRole($role_id);
+            }
+        }
+        //exit;
+        if (empty($roles)) {
+            $role = new ilObjRole();
+            $role->setTitle(ilObject::_lookupTitle($this->getRoleTemplateId()) . '_' . $this->getRefId());
+            $role->setDescription(ilObject::_lookupDescription($this->getRoleTemplateId()));
+            $role->create();
+            $rbacadmin->assignRoleToFolder($role->getId(), $source->getRefId(), "y");
 
-        $this->logger->debug(
-            'Copy role template permissions ' .
-            'tpl_id: ' . $this->getRoleTemplateId() . ' ' .
-            'parent: ' . ROLE_FOLDER_ID . ' ' .
-            'role_id: ' . $role->getId() . ' ' .
-            'role_parent: ' . $source->getRefId()
-        );
+            $roles[] = $role;
+        }
 
-        $this->admin->copyRoleTemplatePermissions(
-            $this->getRoleTemplateId(),
-            ROLE_FOLDER_ID,
-            $source->getRefId(),
-            $role->getId(),
-            true
-        );
-        // Set permissions
-        $ops = $this->review->getOperationsOfRole($role->getId(), $source->getType(), $source->getRefId());
-        $this->admin->grantPermission($role->getId(), $ops, $source->getRefId());
+        /** @var ilObjRole $role */
+        foreach ($roles as $role) {
+            ilLoggerFactory::getLogger('otpl')->info('Using rolt: ' . $this->getRoleTemplateId() . ' with title "' . ilObject::_lookupTitle($this->getRoleTemplateId() . '". '));
+
+            // Copy template permissions
+
+            ilLoggerFactory::getLogger('otpl')->debug(
+                'Copy role template permissions ' .
+                'tpl_id: ' . $this->getRoleTemplateId() . ' ' .
+                'parent: ' . ROLE_FOLDER_ID . ' ' .
+                'role_id: ' . $role->getId() . ' ' .
+                'role_parent: ' . $source->getRefId()
+            );
+
+
+            $rbacadmin->copyRoleTemplatePermissions(
+                $this->getRoleTemplateId(),
+                ROLE_FOLDER_ID,
+                $source->getRefId(),
+                $role->getId(),
+                true
+            );
+
+            // Set permissions
+            $ops = $rbacreview->getOperationsOfRole($role->getId(), $source->getType(), $source->getRefId());
+            $rbacadmin->grantPermission($role->getId(), $ops, $source->getRefId());
+
+            // change existing objects
+            $protected = $rbacreview->isProtected($source->getRefId(), $role->getId());
+            $role->changeExistingObjects(
+                $source->getRefId(),
+                $protected ? ilObjRole::MODE_PROTECTED_DELETE_LOCAL_POLICIES : ilObjRole::MODE_UNPROTECTED_DELETE_LOCAL_POLICIES,
+                array('all')
+            );
+        }
+        // fau.
 
         return true;
     }
