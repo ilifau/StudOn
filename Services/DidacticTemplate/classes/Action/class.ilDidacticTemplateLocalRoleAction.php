@@ -64,7 +64,7 @@ class ilDidacticTemplateLocalRoleAction extends ilDidacticTemplateAction
 
         /** @var ilObjRole $role */
         foreach ($roles as $role) {
-            ilLoggerFactory::getLogger('otpl')->info('Using rolt: ' . $this->getRoleTemplateId() . ' with title "' . ilObject::_lookupTitle($this->getRoleTemplateId()) . '". ');
+            ilLoggerFactory::getLogger('otpl')->info('Using rolt: ' . $this->getRoleTemplateId() . ' with title "' . ilObject::_lookupTitle($this->getRoleTemplateId()) . '"');
 
             // Copy template permissions
 
