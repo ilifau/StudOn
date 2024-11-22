@@ -32,8 +32,10 @@ class ilAuthProviderSaml extends ilAuthProvider implements ilAuthProviderAccount
 
     private ilSamlIdp $idp;
     private readonly ilLanguage $lng;
+    // fau: samlAuth - maje attributes available for child class
     /** @var array<string, mixed> */
-    private array $attributes = [];
+    protected array $attributes = [];
+    // fau.
     private string $return_to = '';
     private string $uid = '';
     private bool $force_new_account = false;

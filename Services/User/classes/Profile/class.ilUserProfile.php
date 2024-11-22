@@ -226,8 +226,9 @@ class ilUserProfile
                     break;
                 }
 
+                // fau: samlAuth - disable also changing firstname and lastname if password modification is not allowed
                 $form->addItem(
-                    $this->getTextInput(
+                    $text_input = $this->getTextInput(
                         $field_id,
                         $field_definition,
                         $method,
@@ -235,6 +236,15 @@ class ilUserProfile
                         $user
                     )
                 );
+
+                if ($field_id == 'firstname' || $field_id == 'lastname') {
+                    if (isset($user) && !ilAuthUtils::isPasswordModificationEnabled($user->getAuthMode())) {
+                        $text_input->setDisabled(true);
+                        $text_input->setInfo($this->lng->txt('shib_updated_field'));
+                    }
+                }
+                // fau.
+
                 break;
 
             case 'textarea':

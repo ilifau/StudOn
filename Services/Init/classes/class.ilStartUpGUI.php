@@ -280,6 +280,15 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
         $page_editor_html = $this->showLegalDocumentsLinks($page_editor_html);
         $page_editor_html = $this->purgePlaceholders($page_editor_html);
 
+        // fau: samlAuth - provide a login URL with return target
+        $return = '';
+        if ($this->http->wrapper()->query()->has('target')) {
+            $return = '?returnTo=' . urlencode(ilUtil::stripSlashes(
+                    $this->http->wrapper()->query()->retrieve('target', $this->refinery->kindlyTo()->string())));
+        }
+        $page_editor_html = str_replace('SAML_LOGIN_URL',  './saml.php' . $return, $page_editor_html);
+        // fau.
+
         // check expired session and send message
         if ($this->authSession->isExpired() || $this->http->wrapper()->query()->has('session_expired')) {
             $this->mainTemplate->setOnScreenMessage('failure', $this->lng->txt('auth_err_expired'));
@@ -296,6 +305,18 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
                 $this->lng->txt($message_key)
             );
         }
+
+        // fau: samlAuth - show a message if a reason is provided in the login link
+        if ($this->http->wrapper()->query()->has('reason')) {
+            $reason = ilUtil::secureString(
+                $this->http->wrapper()->query()->retrieve('reason', $this->refinery->kindlyTo()->string())
+            );
+            $tpl->setOnScreenMessage(
+                ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+                $this->lng->txt($reason) . $this->lng->txt('err_wrong_login_assist'));
+        }
+        // fau.
+
         if ($page_editor_html !== '') {
             $tpl->setVariable('LPE', $page_editor_html);
         }
@@ -1311,12 +1332,15 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
                 'used_external_auth_mode' => $used_external_auth_mode,
             ]
         );
-        if ($used_external_auth_mode && (int) $this->user->getAuthMode(true) === ilAuthUtils::AUTH_SAML) {
+
+        // fau: samlAuth - do SAML logout when auth mode is Shibboleth
+        if ($used_external_auth_mode && (int) $this->user->getAuthMode(true) === ilAuthUtils::AUTH_SHIBBOLETH) {
             $this->logger->info('Redirecting user to SAML logout script');
             $this->ctrl->redirectToURL(
                 'saml.php?action=logout&logout_url=' . urlencode(ilUtil::_getHttpPath() . '/login.php')
             );
         }
+        // fau.
 
         // reset cookie
         ilUtil::setCookie("ilClientId", "");

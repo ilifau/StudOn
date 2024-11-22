@@ -95,7 +95,9 @@ class ilAuthProviderFactory
 
             case ilAuthUtils::AUTH_SAML:
                 $this->logger->debug('Using apache authentication.');
-                return new ilAuthProviderSaml($credentials, ilSamlIdp::getIdpIdByAuthMode($a_authmode));
+// fau: samlAuth - use StudOn Auth provider
+                return new ilAuthProviderSamlStudOn($credentials, ilSamlIdp::getIdpIdByAuthMode($a_authmode));
+// fau.
 
             case ilAuthUtils::AUTH_OPENID_CONNECT:
                 $this->logger->debug('Using openid connect authentication.');
