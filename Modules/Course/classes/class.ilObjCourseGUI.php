@@ -1163,7 +1163,13 @@ class ilObjCourseGUI extends ilContainerGUI
 
         ilChangeEvent::_recordWriteEvent($this->object->getId(), $this->user->getId(), 'update');
         ilChangeEvent::_catchupWriteEvents($this->object->getId(), $this->user->getId());
-
+        // fau: studyCond - eventually redirect to condition settings after update
+        if ($this->update_for_memcond) {
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
+            $this->ctrl->redirectByClass('ilstudycondgui');
+        }
+        // fau.
+        
         // lp sync confirmation required
         if ($show_lp_sync_confirmation) {
             $this->confirmLPSync();
@@ -1183,12 +1189,7 @@ class ilObjCourseGUI extends ilContainerGUI
         global $DIC;
         $DIC->fau()->ilias()->getCourseSettingsGUI()->saveCampoSettingsFromForm($form, $this->object);
         // fau.        
-        // fau: studyCond - eventually redirect to condition settings after update
-        if ($this->update_for_memcond) {
-            $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
-            $this->ctrl->redirectByClass('ilstudycondgui');
-        }
-        // fau.
+
         // 29589
         if (
             $sub_type === ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED &&
