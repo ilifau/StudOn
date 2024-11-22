@@ -41,7 +41,7 @@ class ilDidacticTemplateLocalRoleAction extends ilDidacticTemplateAction
 
         $rbacreview = $DIC['rbacreview'];
         $rbacadmin = $DIC['rbacadmin'];
-        
+
         $template_title = ilObject::_lookupTitle($this->getRoleTemplateId());
         $roles = [];
         foreach ($rbacreview->getLocalRoles($this->getRefId()) as $role_id) {
@@ -64,7 +64,7 @@ class ilDidacticTemplateLocalRoleAction extends ilDidacticTemplateAction
 
         /** @var ilObjRole $role */
         foreach ($roles as $role) {
-            ilLoggerFactory::getLogger('otpl')->info('Using rolt: ' . $this->getRoleTemplateId() . ' with title "' . ilObject::_lookupTitle($this->getRoleTemplateId() . '". '));
+            ilLoggerFactory::getLogger('otpl')->info('Using rolt: ' . $this->getRoleTemplateId() . ' with title "' . ilObject::_lookupTitle($this->getRoleTemplateId()) . '". ');
 
             // Copy template permissions
 
