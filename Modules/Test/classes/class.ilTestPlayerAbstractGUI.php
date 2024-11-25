@@ -1588,6 +1588,14 @@ JS;
             'tpl.il_as_tst_output.html',
             'Modules/Test'
         );
+
+        // fau: preventImageDrag - prevent dragging of images into text boxes during test (would display the image name which could be a hint)
+        if (ilCust::get("tst_prevent_image_drag")) {
+            iljQueryUtil::initjQuery();
+            $this->tpl->addOnLoadCode("$('img').bind('dragstart', function(event) { event.preventDefault(); });");
+            $this->tpl->addOnLoadCode("$('a').bind('dragstart', function(event) { event.preventDefault(); });");
+        }
+        // fau.        
     }
 
     protected function handlePasswordProtectionRedirect()
