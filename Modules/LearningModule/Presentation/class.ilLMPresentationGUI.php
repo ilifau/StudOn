@@ -794,6 +794,12 @@ class ilLMPresentationGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInt
                 $tpl_menu->setVariable("EDIT_TXT", $this->lng->txt("edit_page"));
                 $tpl_menu->setVariable("EDIT_TARGET", $buttonTarget);
                 $tpl_menu->parseCurrentBlock();
+
+                // fau: relativeLink - add to lm page if write access
+                $rlink = new ilRelativeLinkGUI();
+                $rlink->setTarget(ilRelativeLink::TYPE_LM_PAGE, $page_id);
+                $tpl_menu->setVariable("RELATIVE_LINK", $rlink->getHTML(true));
+                // fau.
             }
 
             $page_id = $this->getCurrentPageId();

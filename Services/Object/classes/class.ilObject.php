@@ -1345,6 +1345,11 @@ class ilObject
             ilAdvancedMDValues::_deleteByObjId($this->getId());
             ilLPObjSettings::_deleteByObjId($this->getId());
 
+            // fau: relativeLink - delete relative link if last reference is deleted
+            if ($this->referenced) {
+                ilRelativeLink::deleteLink(ilRelativeLink::TYPE_REP_OBJECT, $this->getId());
+            }
+            // fau.
             $remove = true;
         } else {
             $this->log->write(
@@ -1620,6 +1625,10 @@ class ilObject
                 // copy local roles
                 $rbac_admin->copyLocalRoles($this->getRefId(), $new_obj->getRefId());
             }
+
+            // fau: relativeLink - clone relative link
+            ilRelativeLink::cloneLink(ilRelativeLink::TYPE_REP_OBJECT, $this->getId(), $new_obj->getId());
+        // fau.
         } else {
             ilLoggerFactory::getLogger('obj')->debug('Tree copy is disabled');
         }
