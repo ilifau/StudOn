@@ -1,14 +1,11 @@
 <?php
 /* Copyright (c) 1998-2015 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once 'Services/RelativeLink/classes/class.ilRelativeLink.php';
-
 /**
  * fau: relativeLink - new class ilRelativeLinkGUI
  *
  * @author Fred Neumann <fred.neumann@fau.de>
  * @version $Id: $
- * @ilCtrl_IsCalledBy  ilRelativeLinkGUI: ilInfoScreenGUI
  */
 class ilRelativeLinkGUI
 {
@@ -119,7 +116,7 @@ class ilRelativeLinkGUI
      */
     public function gotoHook()
     {
-        global $lng;
+        global $lng, $DIC;
 
         // everything after "lcode_"
         $code = substr($_GET['target'], 6);
@@ -131,7 +128,7 @@ class ilRelativeLinkGUI
             $url = ilUserUtil::getStartingPointAsUrl();
 
             include_once './Services/Utilities/classes/class.ilUtil.php';
-            ilUtil::sendFailure(sprintf($lng->txt('relative_link_not_found'), $code), true);
+            $DIC->ui()->mainTemplate()->setOnScreenMessage('failure', sprintf($lng->txt('relative_link_not_found'), $code), true);
             ilUtil::redirect($url);
         } else {
             // use redirect to prevent the relative link from being bookmarked by the user
