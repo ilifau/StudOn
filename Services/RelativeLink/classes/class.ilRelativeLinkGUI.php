@@ -6,6 +6,7 @@
  *
  * @author Fred Neumann <fred.neumann@fau.de>
  * @version $Id: $
+ * @ilCtrl_IsCalledBy  ilRelativeLinkGUI: ilInfoScreenGUI, ilLMPresentationGUI
  */
 class ilRelativeLinkGUI
 {
