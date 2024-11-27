@@ -399,6 +399,18 @@ class ilObjUserGUI extends ilObjectGUI
 
         $this->loadUserDefinedDataFromForm($user_object);
 
+        // fau: samlAuth - check authentication settings
+        global $DIC;
+        if ($errors = $DIC->fau()->user()->getAuthSettingErrors($user_object)) {
+            $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+                $this->lng->txt('user_error_auth_settings_wrong')
+                . $DIC->fau()->tools()->format()->list($errors));
+            $this->form_gui->setValuesByPost();
+            $this->tpl->setContent($this->form_gui->getHtml());
+            return;
+        }
+        // fau.
+
         $user_object->create();
 
         if (ilAuthUtils::_isExternalAccountEnabled()) {
@@ -721,6 +733,18 @@ class ilObjUserGUI extends ilObjectGUI
             $this->loadValuesFromForm('update');
 
             $this->loadUserDefinedDataFromForm();
+
+            // fau: samlAuth - check authentication settings
+            global $DIC;
+            if ($this->object instanceof ilObjUser && $errors = $DIC->fau()->user()->getAuthSettingErrors($this->object)) {
+                $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+                    $this->lng->txt('user_error_auth_settings_wrong')
+                    . $DIC->fau()->tools()->format()->list($errors));
+                $this->form_gui->setValuesByPost();
+                $this->tpl->setContent($this->form_gui->getHtml());
+                return;
+            }
+            // fau.
 
             try {
                 $this->object->updateLogin($this->form_gui->getInput('login'));
