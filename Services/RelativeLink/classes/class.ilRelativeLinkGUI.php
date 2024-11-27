@@ -42,7 +42,7 @@ class ilRelativeLinkGUI
         global $ilCtrl, $tpl, $lng;
 
         // get existing link object, but do not create automatically
-        $this->linkObj = ilRelativeLink::getForTarget($this->target_type, $this->target_id, false);
+        $this->linkObj = ilRelativeLink::getForTarget($this->target_type, $this->target_id, true);
 
         // prepare the javascript and ajax part
         $ilCtrl->setParameterByClass("ilrelativelinkgui", "target_id", $this->target_id);
