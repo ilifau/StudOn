@@ -37,7 +37,7 @@ class ilAuthStatus
     public const STATUS_CODE_ACTIVATION_REQUIRED = 5;
 
     // fau: samlChange - new auth status code
-    const STATUS_SSO_CHANGE_REQUIRED = 550;
+    public const STATUS_SSO_CHANGE_REQUIRED = 550;
     // fau.
 
     private int $status = self::STATUS_UNDEFINED;
@@ -45,7 +45,11 @@ class ilAuthStatus
     private string $translated_reason = '';
     private int $auth_user_id = 0;
 
-
+    // fau: samlChange - new class variables in auth status
+    private $sso_change_identity = '';
+    private $sso_change_logins = [];
+    private $sso_change_selected_login = '';
+    // fau.
 
     /**
      * Constructor

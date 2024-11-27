@@ -238,7 +238,7 @@ class ilUserProfile
                 );
 
                 if ($field_id == 'firstname' || $field_id == 'lastname') {
-                    if (isset($user) && !ilAuthUtils::isPasswordModificationEnabled($user->getAuthMode())) {
+                    if (isset($user) && !ilAuthUtils::isPasswordModificationEnabled($user->getAuthMode(true))) {
                         $text_input->setDisabled(true);
                         $text_input->setInfo($this->lng->txt('shib_updated_field'));
                     }

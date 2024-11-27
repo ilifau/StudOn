@@ -26,11 +26,11 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
         try {
             // get the uid attribute
-            $this->uid = $this->attributes['urn:mace:dir:attribute-def:uid'][0];
+            $this->uid = $this->attributes['urn:mace:dir:attribute-def:uid'][0] ?? '';
 
             // needed since ILIAS 5.4.10
             if (empty($this->uid)) {
-                $this->uid = $this->attributes['urn:oid:0.9.2342.19200300.100.1.1'][0];
+                $this->uid = $this->attributes['urn:oid:0.9.2342.19200300.100.1.1'][0] ?? '';
             }
 
 
@@ -57,7 +57,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
                 $this->handleAuthenticationFail($status, 'auth_shib_not_configured');
                 return false;
             }
-            
+
 
             $login = $this->findLogin();
             // take an already selected login fon the SSO change
@@ -155,7 +155,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
         // set basic account data
         $userObj->setLogin($login);
-        $userObj->setPasswd(null);
+        $userObj->setPasswd('');
         $userObj->setLanguage($DIC->language()->getLangKey());
         $userObj->setAuthMode('shibboleth');
         $userObj->setExternalAccount($this->identity->getPkPersistentId());
@@ -241,7 +241,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
             $log_accounts = explode(',', $log_accounts);
             foreach ($log_accounts as $log_account) {
                 if ($this->uid == trim($log_account)) {
-                    require_once "include/inc.debug.php";
+                    require_once "include/inc.log_request.php";
                     log_request();
                     log_server();
                 }

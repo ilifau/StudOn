@@ -194,6 +194,12 @@ class ilAuthFrontend
                 case ilAuthStatus::STATUS_AUTHENTICATED:
                     return $this->handleAuthenticationSuccess($provider);
 
+                // fau: samlChange - handle change request
+                case ilAuthStatus::STATUS_SSO_CHANGE_REQUIRED:
+                    $this->logger->notice("Account migration required.");
+                    return false;
+                // fau.
+
                 case ilAuthStatus::STATUS_ACCOUNT_MIGRATION_REQUIRED:
                     $this->logger->notice("Account migration required.");
                     if ($provider instanceof ilAuthProviderAccountMigrationInterface) {
