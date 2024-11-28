@@ -33,7 +33,10 @@ class php4XSLTProcessor
 
     public function __construct()
     {
-        $this->myProc = new XSLTProcessor();
+        $this->myProc = new XSLTProcessor;
+        // fau: linkInSameWindow - register php functions
+        $this->myProc->registerPhpFunctions();
+        // fau.
     }
 }
 

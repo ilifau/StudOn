@@ -34,6 +34,9 @@ class XslManager
         array $params
     ): string {
         $xslt = new \XSLTProcessor();
+        // fau: linkInSameWindow - register php functions
+        $xslt ->registerPhpFunctions();
+        // fau.
         $xsl = file_get_contents("./Services/COPage/xsl/page.xsl");
         $xslt_domdoc = new \DomDocument();
         $xslt_domdoc->loadXML($xsl);

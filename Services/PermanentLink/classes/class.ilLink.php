@@ -71,4 +71,30 @@ class ilLink
     ): string {
         return self::_getLink($a_ref_id, $a_type, [], $append);
     }
+
+    // fau: linkInSameWindow - new function to check whether link targets to the same platform
+    /**
+     * Check whether a link is on the same host
+     * Called in page.xsl to check if link should open in same window
+     *
+     * @param	string		$link	url
+     * @return	boolean				url is in the same platform
+     */
+    public static function _isLocalLink($link = '')
+    {
+        $link_host = strtolower(parse_url($link, PHP_URL_HOST));
+        if (empty($link_host)) {
+            return true;
+        }
+
+        $link_host = str_replace('uni-erlangen', 'fau', $link_host);
+        $link_host = str_replace('www.', '', $link_host);
+
+        $ilias_host = strtolower($_SERVER['HTTP_HOST']);
+        $ilias_host = str_replace('uni-erlangen', 'fau', $ilias_host);
+        $ilias_host = str_replace('www.', '', $ilias_host);
+
+        return $link_host == $ilias_host;
+    }
+    // fau.    
 }

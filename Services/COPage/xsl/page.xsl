@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<!-- fau: linkInSameWindow - add php namespace -->
+<xsl:stylesheet version="1.0"
+								xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                                xmlns:php="http://php.net/xsl"
+								xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<!-- fau. -->
 <!-- removed xmlns:str="http://exslt.org/strings" -->
 
 <xsl:output method="xml" omit-xml-declaration="yes" />
@@ -1378,10 +1383,16 @@
 <!-- SetExtLinkAttributes -->
 <xsl:template name="SetExtLinkAttributes">
 	<xsl:variable name="targetframe"><xsl:value-of select="@TargetFrame"/></xsl:variable>
+    <!-- fau: linkInSameWindow - use top as default target for external links to internal urls -->
+    <xsl:variable name="link_href"><xsl:value-of select="@Href"/></xsl:variable>
 	<xsl:variable name="link_target">
-		<xsl:if test="$targetframe != ''"><xsl:value-of select="//LinkTargets/LinkTarget[@TargetFrame=$targetframe]/@LinkTarget"/></xsl:if>
-		<xsl:if test="$targetframe = ''">_blank</xsl:if>
+        <xsl:choose>
+            <xsl:when test="$targetframe != ''"><xsl:value-of select="//LinkTargets/LinkTarget[@TargetFrame=$targetframe]/@LinkTarget"/></xsl:when>
+            <xsl:when test="php:function('ilLink::_isLocalLink',$link_href)">_top</xsl:when>
+            <xsl:otherwise>_blank</xsl:otherwise>
+        </xsl:choose>
 	</xsl:variable>
+    <!-- fau. -->
 	<xsl:if test="//LinkTargets/LinkTarget[@TargetFrame=$targetframe]/@OnClick">
 		<xsl:attribute name="onclick"><xsl:value-of select="//LinkTargets/LinkTarget[@TargetFrame=$targetframe]/@OnClick"/></xsl:attribute>
 	</xsl:if>
