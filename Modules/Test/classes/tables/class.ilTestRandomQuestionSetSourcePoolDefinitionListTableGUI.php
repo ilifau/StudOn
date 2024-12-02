@@ -140,6 +140,11 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
         $this->tpl->setVariable('LIFECYCLE_FILTER', $this->taxonomyLabelTranslater->getLifecycleFilterLabel($a_set['lifecycle_filter']));
         $this->tpl->setVariable('TYPE_FILTER', $this->taxonomyLabelTranslater->getTypeFilterLabel($a_set['type_filter']));
         // fau.
+        // fau: randomSetOrder - get the order criteria
+        if (!empty($set['order_by'])) {
+            $this->tpl->setVariable('ORDER_BY', $this->lng->txt('tst_filter_order_' . $set['order_by']));
+        }
+        //	fau.        
     }
 
     private function getSelectionCheckboxHTML($sourcePoolDefinitionId): string
@@ -266,7 +271,9 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
         #$this->addColumn($this->lng->txt("tst_filter_tax_node"),'tst_filter_tax_node', '');
         $this->addColumn($this->lng->txt("qst_lifecycle"), 'tst_filter_lifecycle', '');
         $this->addColumn($this->lng->txt("tst_filter_question_type"), 'tst_filter_question_type', '');
-
+        // fau: randomSetOrder - add column for order
+        $this->addColumn($this->lng->txt("tst_filter_order_by"), 'tst_filter_order_by', '');
+        // fau.
         if ($this->isQuestionAmountColumnEnabled()) {
             $this->addColumn($this->lng->txt("tst_question_amount"), 'tst_question_amount', '');
         }
@@ -301,6 +308,9 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
             $set['lifecycle_filter'] = $sourcePoolDefinition->getLifecycleFilter();
             $set['type_filter'] = $sourcePoolDefinition->getTypeFilter();
             // fau.
+            // fau: randomSetOrder - get the order criteria
+            $set['order_by'] = $sourcePoolDefinition->getOrderBy();
+            // fau.            
             $set['question_amount'] = $sourcePoolDefinition->getQuestionAmount();
             $set['ref_id'] = $sourcePoolDefinition->getPoolRefId();
             $rows[] = $set;

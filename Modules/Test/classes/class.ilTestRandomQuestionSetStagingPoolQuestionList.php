@@ -64,6 +64,16 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
      * @var array
      */
     private $lifecycleFilter = [];
+    // fau: taxGroupFilter - class variables for question grouping and selection
+    private $groupTaxId = null;
+    /** @var array node_id => question_ids[] */
+    private $groupedQuestions = array();
+
+    private $selectSize = 0;
+    // fau.
+    // fau: randomSetOrder -class variable for ordering the selected questions
+    private $orderBy = null;
+    // fau.
 
     /**
      * @var array
@@ -143,11 +153,45 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
     {
         $this->lifecycleFilter = $lifecycleFilter;
     }
+    // fau: taxGroupFilter - getter/setter
+    public function getGroupTaxId()
+    {
+        return $this->groupTaxId;
+    }
 
+    public function setGroupTaxId($groupTaxId)
+    {
+        $this->groupTaxId = $groupTaxId;
+    }
+
+    public function setSelectSize($size)
+    {
+        $this->selectSize = $size;
+    }
+
+    public function getSelectSize()
+    {
+        return $this->selectSize;
+    }
+    // fau.
+
+    // fau: randomSetOrder - getter/setter
+    public function getOrderBy()
+    {
+        return $this->orderBy;
+    }
+
+    public function setOrderBy($orderBy)
+    {
+        $this->orderBy = $orderBy;
+    }
+    // fau.
+    // fau: randomSetOrder - sort the loaded questions
     public function loadQuestions()
     {
         $query = "
-			SELECT		qpl_questions.question_id,
+			SELECT		{$this->getSortKey()}
+						qpl_questions.question_id,
 						qpl_qst_type.type_tag,
 						qpl_qst_type.plugin,
 						qpl_qst_type.plugin_name
@@ -165,25 +209,48 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
 			{$this->getConditionalExpression()}
 		";
-
+        
         $res = $this->db->queryF(
             $query,
-            ['integer', 'integer'],
-            [$this->getTestId(), $this->getPoolId()]
+            array('integer', 'integer'),
+            array($this->getTestId(), $this->getPoolId())
         );
 
         //echo sprintf($query, $this->getTestId(), $this->getPoolId());exit;
 
+        $questions = array();
         while ($row = $this->db->fetchAssoc($res)) {
             $row = ilAssQuestionType::completeMissingPluginName($row);
 
             if (!$this->isActiveQuestionType($row)) {
                 continue;
             }
+            $questions[$row['question_id']] = $row['sort_key'];
+        }
 
-            $this->questions[] = (int) $row['question_id'];
+        if ($this->getOrderBy()) {
+            natsort($questions);
+        }
+
+        $this->questions = array_keys($questions);
+    }
+    // fau.
+
+    // fau: randomSetOrder - get a sort key field
+    private function getSortKey()
+    {
+        switch ($this->getOrderBy()) {
+            case 'title':
+                return 'qpl_questions.title sort_key,';
+            case 'description':
+                return 'qpl_questions.description sort_key,';
+            case 'random':
+                return 'RAND() sort_key,';
+            default:
+                return "'A' AS sort_key,";
         }
     }
+    // fau.    
 
     private function getConditionalExpression(): string
     {

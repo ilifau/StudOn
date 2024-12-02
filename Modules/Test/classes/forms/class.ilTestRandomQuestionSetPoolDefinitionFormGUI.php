@@ -195,6 +195,19 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
             }
 
             $this->addItem($questionAmountPerSourcePool);
+            // fau: randomSetOrder - add order_by
+            $orderBy = new ilSelectInputGUI($this->lng->txt('tst_filter_order_by'), 'tst_filter_order_by');
+            $orderBy->setInfo($this->lng->txt('tst_filter_order_by_info'));
+            $options = array(
+                '' => $this->lng->txt('tst_filter_order_undefined'),
+                'random' => $this->lng->txt('tst_filter_order_random'),
+                'title' => $this->lng->txt('tst_filter_order_title'),
+                'description' => $this->lng->txt('tst_filter_order_description'),
+            );
+            $orderBy->setOptions($options);
+            $orderBy->setValue((string) $sourcePool->getOrderBy());
+            $this->addItem($orderBy);
+            // fau.            
         }
     }
 
@@ -231,5 +244,13 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
         if ($this->questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
             $sourcePoolDefinition->setQuestionAmount(intval($this->getItemByPostVar('question_amount_per_pool')->getValue()));
         }
+        // fau: randomSetOrder - submit order_by
+        $orderByItem = $this->getItemByPostVar('tst_filter_order_by');
+        if (is_object($orderByItem) && !empty($orderByItem->getValue())) {
+            $sourcePoolDefinition->setOrderBy($orderByItem->getValue());
+        } else {
+            $sourcePoolDefinition->setOrderBy(null);
+        }
+        // fau.        
     }
 }

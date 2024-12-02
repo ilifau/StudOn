@@ -219,8 +219,8 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
                                 SELECT COUNT(DISTINCT original_id) AS orig_count, COUNT(DISTINCT question_id) AS question_count
                                 FROM qpl_questions q
                                 INNER JOIN tst_rnd_cpy c ON c.qst_fi = q.question_id
-                                WHERE q.obj_fi = " . $this->db->quote($this->testOBJ->getId(), 'integer') . "
-                                AND c.tst_fi = " . $this->db->quote($this->testOBJ->getTestId(), 'integer')
+                                WHERE q.obj_fi = " . $this->db->quote($this->test_obj->getId(), 'integer') . "
+                                AND c.tst_fi = " . $this->db->quote($this->test_obj->getTestId(), 'integer')
         );
         $row = $this->db->fetchAssoc($res);
 

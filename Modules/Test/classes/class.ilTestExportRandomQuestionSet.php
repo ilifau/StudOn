@@ -123,6 +123,9 @@ class ilTestExportRandomQuestionSet extends ilTestExport
                 'poolQuestCount' => $definition->getPoolQuestionCount(),
                 'position' => $definition->getSequencePosition(),
                 'typeFilter' => implode(',', $definition->getTypeFilterAsTypeTags()),
+                // fau: randomSetOrder - export order
+                'orderBy' => $definition->getOrderBy()
+                // fau.                
             ];
 
 

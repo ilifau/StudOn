@@ -46,7 +46,10 @@ class ilTestRandomQuestionSetSourcePoolDefinition
     private array $type_filter = [];
     private array $lifecycle_filter = [];
 
-    private ?int $question_amount = null;
+    // fau: randomSetOrder - new class variable
+    private $orderBy = null;
+    // fau.
+        private ?int $question_amount = null;
 
     private ?int $sequence_position = null;
 
@@ -269,6 +272,27 @@ class ilTestRandomQuestionSetSourcePoolDefinition
         $this->question_amount = $question_amount;
     }
 
+    // fau: randomSetOrder - setters and getters
+
+    /**
+     * Set the field to ordder a random set
+     * @param string|null $orderBy		'title', 'description', 'random'
+     */
+    public function setOrderBy($orderBy)
+    {
+        $this->orderBy = $orderBy;
+    }
+
+    /**
+     * Set the field to ordder a random set
+     * @return string|null 		'title' or 'description'
+     */
+    public function getOrderBy()
+    {
+        return $this->orderBy;
+    }
+    // fau.
+
     public function getQuestionAmount(): ?int
     {
         return $this->question_amount;
@@ -321,6 +345,9 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                     $this->setLifecycleFilterFromDbValue($value);
                     break;
                     // fau.
+                // fau: randomSetOrder - read from db
+                case 'order_by':			$this->setOrderBy($value);		break;
+                // fau.
                 case 'quest_amount':
                     $this->setQuestionAmount($value);
                     break;
@@ -387,6 +414,9 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 'mapped_tax_filter' => ['text', $this->getMappedTaxonomyFilterForDbValue()],
                 'type_filter' => ['text', $this->getTypeFilterForDbValue()],
                 'lifecycle_filter' => ['text', $this->getLifecycleFilterForDbValue()],
+                // fau: randomSetOrder - update in db
+                'order_by' => array('text', $this->getOrderBy()),
+                // fau.
                 'quest_amount' => ['integer', $this->getQuestionAmount()],
                 'sequence_pos' => ['integer', $this->getSequencePosition()]
             ],
@@ -412,6 +442,9 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 'mapped_tax_filter' => ['text', $this->getMappedTaxonomyFilterForDbValue()],
                 'type_filter' => ['text', $this->getTypeFilterForDbValue()],
                 'lifecycle_filter' => ['text', $this->getLifecycleFilterForDbValue()],
+                // fau: randomSetOrder - update in db
+                'order_by' => array('text', $this->getOrderBy()),
+                // fau.
                 'quest_amount' => ['integer', $this->getQuestionAmount()],
                 'sequence_pos' => ['integer', $this->getSequencePosition()]
         ]);

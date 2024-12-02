@@ -116,6 +116,9 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
             $this->stagingPoolQuestionList->setTypeFilter($definition->getTypeFilter());
         }
         // fau.
+        // fau: randomSetOrder - set order information
+        $this->stagingPoolQuestionList->setOrderBy($definition->getOrderBy());
+        // fau.        
 
         $this->stagingPoolQuestionList->loadQuestions();
 
