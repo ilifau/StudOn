@@ -25,6 +25,17 @@ ilInitialisation::initILIAS();
 
 global $DIC;
 
+// fau: relativeLink - goto hook for rewriting the target
+if (isset($_GET['target']))
+{
+    if (substr($_GET['target'], 0, 6) == 'lcode_') {
+        $relgui = new ilRelativeLinkGUI();
+        $relgui->gotoHook();
+    }
+}
+// fau.
+
+
 
 // fau: campoLink - treat course link from campo
 if (isset($_GET['target']))

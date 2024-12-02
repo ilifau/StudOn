@@ -126,6 +126,12 @@ class ilMDEditorGUI
 
     public function listQuickEdit(): void
     {
+        // fau: vhbNumber - show notice on how to enter the number
+        if ($this->type == 'crs') {
+            $this->tpl->setOnScreenMessage('info', $this->presenter->utilities()->txt('meta_vhb_notice'));
+        }
+        // fau.
+
         $digest = $this->digest_initiator->init();
         $set = $this->repository->getMD(
             $this->obj_id,

@@ -205,10 +205,28 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
     {
         return $this->getLastQuestionSyncTimestamp() != 0
             && $this->isQuestionAmountConfigComplete()
-            && $this->hasSourcePoolDefinitions()
+            && $this->hasSourcePoolDefinitions() // fau: fixRandomTestDoubleOriginals - check if the test has double originals
+            && $this->hasUniqueOriginalQuestions() //fau.
             && $this->isQuestionSetBuildable();
     }
 
+
+    // fau: fixRandomTestDoubleOriginals - new function hasUniqueOriginalQuestions()
+    public function hasUniqueOriginalQuestions()
+    {
+        $res = $this->db->query(
+            "
+                                SELECT COUNT(DISTINCT original_id) AS orig_count, COUNT(DISTINCT question_id) AS question_count
+                                FROM qpl_questions q
+                                INNER JOIN tst_rnd_cpy c ON c.qst_fi = q.question_id
+                                WHERE q.obj_fi = " . $this->db->quote($this->test_obj->getId(), 'integer') . "
+                                AND c.tst_fi = " . $this->db->quote($this->test_obj->getTestId(), 'integer')
+        );
+        $row = $this->db->fetchAssoc($res);
+
+        return ($row['orig_count'] == $row['question_count']);
+    }
+    // fau.    
     public function isQuestionAmountConfigComplete(): bool
     {
         if ($this->isQuestionAmountConfigurationModePerPool()) {

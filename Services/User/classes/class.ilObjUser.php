@@ -4360,4 +4360,36 @@ class ilObjUser extends ilObject
 
         return $r;
     }
+
+    // fau: videoPortal - new function _findUserIdByAccount
+    /**
+    * This will first search for the external account and then for the login
+    *
+    * @param  	string  account name
+    * @return   int     user id
+    */
+    public static function _findUserIdByAccount($account)
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        // first try the external account
+        $query = "SELECT usr_id FROM usr_data " .
+        "WHERE ext_account = " . $ilDB->quote($account, 'text');
+        $result = $ilDB->query($query);
+        if ($row = $ilDB->fetchAssoc($result)) {
+            return $row['usr_id'];
+        }
+
+        // then try the login
+        $query = "SELECT usr_id FROM usr_data " .
+        "WHERE login = " . $ilDB->quote($account, 'text');
+        $result = $ilDB->query($query);
+
+        if ($row = $ilDB->fetchAssoc($result)) {
+            return $row['usr_id'];
+        }
+    }
+    // fau.
+
 }
