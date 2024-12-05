@@ -67,24 +67,21 @@ class SyncToCampo extends SyncBase
         $this->info('sync StudOnMembers for Term ' . $term->toString() . '...');
         // get the members noted in the staging database
         $existing = $this->staging->repo()->getStudOnMembersInTerm($term);
-        // get the sending setting of courses in the term (course_id => send_passed)
-        $sending = $this->sync->repo()->getCourseSendPassedToSyncBack($term);
         // get the module ids of modules for which a 'passed' status of members should be sent to campo
         $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
         
         foreach ($this->sync->repo()->getMembersOfCoursesInTermToSyncBack($term) as $member) {
-            $member = $this->rememberStatusChangedFromStaging($member);
+            $member = $this->rememberStatusChangedFromStaging($member);            
             
             if ($member->getStatus() == StudOnMember::STATUS_PASSED) {
                 
-                // don't send a 'passed' status if neither the module nor the course allows it
-                if (!in_array($member->getModuleId(), $passing_module_ids)
-                    && (!isset($sending[$member->getCourseId()]) || $sending[$member->getCourseId()] != Course::SEND_PASSED_LP)) {
-                    
+                // don't send a 'passed' status if the module does not allow it and a module is set
+                if (!in_array($member->getModuleId(), $passing_module_ids) && $member->getModuleId() != null)
+                {
                     $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
                 }
             }
-            
+           
             if (!isset($existing[$member->key()]) || $existing[$member->key()]->hash() != $member->hash()) {
                 $this->staging->repo()->save($member);
                 $this->increaseItemsUpdated();
@@ -96,13 +93,10 @@ class SyncToCampo extends SyncBase
         // delete remaining existing members in campo that are no longer assigned in studon
         // don't delete those of older courses where the studon object is deleted or connected with another course
         foreach ($existing as $member) {
-            if (isset($sending[$member->getCourseId()])) {
-                $this->staging->repo()->delete($member);
-                $this->increaseItemsDeleted();
-            }
+            $this->staging->repo()->delete($member);
+            $this->increaseItemsDeleted();
         }
     }
-
 
     /**
      * Update all passed members in the staging table, regardless of the term
