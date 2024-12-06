@@ -69,7 +69,7 @@ class SyncToCampo extends SyncBase
         $existing = $this->staging->repo()->getStudOnMembersInTerm($term);
         // get the module ids of modules for which a 'passed' status of members should be sent to campo
         $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
-        
+
         foreach ($this->sync->repo()->getMembersOfCoursesInTermToSyncBack($term) as $member) {
             $member = $this->rememberStatusChangedFromStaging($member);            
             
@@ -79,6 +79,15 @@ class SyncToCampo extends SyncBase
                 if (!in_array($member->getModuleId(), $passing_module_ids) && $member->getModuleId() != null)
                 {
                     $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
+                }
+
+                // if module is not set, we need to find out if the course has event_id fitting to passing modules
+                if($member->getModuleId() == null)
+                {
+                    $course_id = $member->getCourseId();
+                    if(!$this->sendPassedCourseId($course_id, $passing_module_ids)){
+                        $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
+                    }
                 }
             }
            
@@ -96,6 +105,26 @@ class SyncToCampo extends SyncBase
             $this->staging->repo()->delete($member);
             $this->increaseItemsDeleted();
         }
+    }
+
+    /**
+     *  Find out if the course has event_id fitting to passing modules
+     */
+    private function sendPassedCourseId(int $course_id, array $passing_module_ids): bool 
+    {
+        $course_event_id = $this->study->repo()->getCourse($course_id)->getEventId();
+        $event_modules = $this->staging->repo()->getEventModulesWithEventID($course_event_id);
+
+        foreach($event_modules as $event_module)
+        {
+            if($event_module->getEventId() == $course_event_id)
+            {
+                if(in_array($event_module->getModuleId(), $passing_module_ids))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     /**
