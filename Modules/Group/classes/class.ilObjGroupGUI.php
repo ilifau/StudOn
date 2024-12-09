@@ -830,13 +830,7 @@ class ilObjGroupGUI extends ilContainerGUI
                 $DIC->fau()->ilias()->getRegistration($course)->doAutoFill();
             }
             // fau.
-
-            // fau: syncToCampo - save the campo settings from the form
-            global $DIC;
-            $DIC->fau()->ilias()->getCourseSettingsGUI()->saveCampoSettingsFromForm($form, $this->object);
-            // fau.
-
-            
+          
             // BEGIN ChangeEvents: Record update Object.
             require_once('Services/Tracking/classes/class.ilChangeEvent.php');
             global $DIC;
@@ -2228,11 +2222,6 @@ class ilObjGroupGUI extends ilContainerGUI
             $not->setInfo($this->lng->txt('grp_auto_notification_info'));
             $not->setChecked($this->object->getAutoNotification());
             $form->addItem($not);
-
-            // fau: campoSub - add the campo settings to the form
-            $DIC->fau()->ilias()->getCourseSettingsGUI()->addCampoSettingsToForm($form, $this->object);
-            // fau.
-
         }
         
         switch ($a_mode) {
