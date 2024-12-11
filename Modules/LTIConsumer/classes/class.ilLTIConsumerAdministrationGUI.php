@@ -732,8 +732,8 @@ class ilLTIConsumerAdministrationGUI
             
             $confirmationGUI->addItem(
                 'provider_ids[]',
-                $provider->getId(),
-                $provider->getTitle(),
+                (string) $provider->getId(),
+                htmlspecialchars($provider->getTitle()),
                 $providerIcon
             );
         }
