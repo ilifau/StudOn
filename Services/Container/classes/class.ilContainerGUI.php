@@ -1420,7 +1420,9 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     */
     public function enableAdministrationPanelObject()
     {
-        $_SESSION["il_cont_admin_panel"] = true;
+        if (!in_array($this->user->getId(), [(int) ANONYMOUS_USER_ID, 0], true)) {
+            $_SESSION["il_cont_admin_panel"] = true;
+        }
         $this->ctrl->redirect($this, "render");
     }
 
@@ -1633,6 +1635,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     
     public function downloadObject()
     {
+        if (in_array($this->user->getId(), [(int) ANONYMOUS_USER_ID, 0], true)) {
+            return;
+        }
+
         $ilErr = $this->error;
         // This variable determines whether the task has been initiated by a folder's action drop-down to prevent a folder
         // duplicate inside the zip.

@@ -447,8 +447,8 @@ class ilLTIConsumeProviderList implements Iterator
             $tblRow = array();
             
             $tblRow['id'] = $provider->getId();
-            $tblRow['title'] = $provider->getTitle();
-            $tblRow['description'] = $provider->getDescription();
+            $tblRow['title'] = htmlspecialchars($provider->getTitle());
+            $tblRow['description'] = htmlspecialchars($provider->getDescription());
             $tblRow['category'] = $provider->getCategory();
             $tblRow['keywords'] = $provider->getKeywordsArray();
             $tblRow['outcome'] = $provider->getHasOutcome();

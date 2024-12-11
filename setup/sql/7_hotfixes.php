@@ -1857,4 +1857,33 @@ if (
         ]);
     }
 ?>
+<#111>
+<?php
+    // LDAP: Increase length of password fields
+    // see  https://mantis.ilias.de/view.php?id=31280
 
+    if ($this->db->tableColumnExists('ldap_server_settings', 'bind_pass')) {
+        $this->db->modifyTableColumn(
+            'ldap_server_settings',
+            'bind_pass',
+            [
+                'type' => 'text',
+                'length' => 100,
+                'notnull' => false,
+                'default' => null
+            ]
+        );
+    }
+    if ($this->db->tableColumnExists('ldap_server_settings', 'role_bind_pass')) {
+        $this->db->modifyTableColumn(
+            'ldap_server_settings',
+            'role_bind_pass',
+            [
+                'type' => 'text',
+                'length' => 100,
+                'notnull' => false,
+                'default' => null
+            ]
+        );
+    }
+?>
