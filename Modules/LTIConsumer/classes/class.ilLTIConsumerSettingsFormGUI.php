@@ -51,7 +51,7 @@ class ilLTIConsumerSettingsFormGUI extends ilPropertyFormGUI
         
         $item = new ilNonEditableValueGUI($DIC->language()->txt('provider_info'));
         $item->setValue($this->object->getProvider()->getTitle());
-        $item->setInfo($this->object->getProvider()->getDescription());
+        $item->setInfo(htmlspecialchars($this->object->getProvider()->getDescription()));
         $this->addItem($item);
         
         $item = new ilTextInputGUI($DIC->language()->txt('title'), 'title');
