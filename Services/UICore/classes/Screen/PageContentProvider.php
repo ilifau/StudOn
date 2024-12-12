@@ -208,7 +208,7 @@ class PageContentProvider extends AbstractModificationProvider
             if (($system_support_url = \ilSystemSupportContactsGUI::getFooterLink()) !== '') {
                 $system_support_title = \ilSystemSupportContactsGUI::getFooterText();
                 $links[] = $f->link()->standard($system_support_title, $system_support_url);
-            }
+            }*/
 
             // output translation link
             if (\ilObjLanguageAccess::_checkTranslate() && !\ilObjLanguageAccess::_isPageTranslation()) {
@@ -216,7 +216,7 @@ class PageContentProvider extends AbstractModificationProvider
                 $translation_title = $this->dic->language()->txt('translation');
                 $links[] = $f->link()->standard($translation_title, $translation_url)->withOpenInNewViewport(true);
             }
-
+/*
             // accessibility control concept
             if (($accessibility_control_url = \ilAccessibilityControlConceptGUI::getFooterLink()) !== '') {
                 $accessibility_control_title = \ilAccessibilityControlConceptGUI::getFooterText();
