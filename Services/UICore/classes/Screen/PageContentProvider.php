@@ -181,6 +181,7 @@ class PageContentProvider extends AbstractModificationProvider
 
     public function getFooterModification(CalledContexts $screen_context_stack): ?FooterModification
     {
+        // fau: ownFooter - add the own links
         return $this->globalScreen()->layout()->factory()->footer()->withModification(function (?Footer $footer): ?Footer {
             $f = $this->dic->ui()->factory();
 
@@ -190,6 +191,7 @@ class PageContentProvider extends AbstractModificationProvider
             $text = "powered by ILIAS (v{$ilias_version})";
 
             // Imprint
+            /*
             $base_class = ($this->dic->http()->wrapper()->query()->has(\ilCtrlInterface::PARAM_BASE_CLASS)) ?
                 $this->dic->http()->wrapper()->query()->retrieve(
                     \ilCtrlInterface::PARAM_BASE_CLASS,
@@ -225,17 +227,53 @@ class PageContentProvider extends AbstractModificationProvider
             if (($accessibility_report_url = \ilAccessibilitySupportContactsGUI::getFooterLink()) !== '') {
                 $accessibility_report_title = \ilAccessibilitySupportContactsGUI::getFooterText();
                 $links[] = $f->link()->standard($accessibility_report_title, $accessibility_report_url);
+            }*/
+
+            if (\ilCust::get('ilias_footer_type') != 'exam') {
+                $links[] = $f->link()->standard($this->dic->language()->txt('footer_contact'), \ilCust::get("ilias_footer_contact_url"));
+                $links[] = $f->link()->standard( $this->dic->language()->txt('footer_imprint'), \ilCust::get("ilias_footer_imprint_url"));
+                $links[] = $f->link()->standard( $this->dic->language()->txt('footer_privacy'), \ilCust::get("ilias_footer_privacy_url"));
+                $links[] = $f->link()->standard( $this->dic->language()->txt('obj_accs'), \ilCust::get("ilias_footer_accessibility_url"));
             }
 
+          
             $footer = $f->mainControls()->footer($links, $text);
+            // fau: countUsersOnline - call the counter
+            $users_online = \ilSession::_getUsersOnline(600, true) . ' (10min) ⸱ ' . \ilSession::_getUsersOnline(3600). ' (1h)';
+            // fau.
 
-            $footer = $this->dic['legalDocuments']->modifyFooter($footer);
+            $texts[] = $this->dic->language()->txt('footer_server') . ' ' . current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR'])));
+            $texts[] = $this->dic->language()->txt('footer_active_users') . ' ' . $users_online;
 
-            if (self::$perma_link !== "") {
-                $footer = $footer->withPermanentURL(new URI(self::$perma_link));
-            }
+            // fau: devmodeFooter - show memory usage as MB
+            if (DEVMODE) {
+                // execution time
+                $t1 = explode(" ", $GLOBALS['ilGlobalStartTime']);
+                $t2 = explode(" ", microtime());
+                $diff = $t2[0] - $t1[0] + $t2[1] - $t1[1];
 
-            return $footer;
-        });
+                $texts[] = "Execution Time: " . round($diff, 4) . " seconds";
+
+                if (function_exists("memory_get_usage")) {
+                    $texts[] =
+                        "Memory Usage: " . round(memory_get_usage() / (1024 * 1024)) . " MB";
+                }
+                if (function_exists("xdebug_peak_memory_usage")) {
+                    $texts[] =
+                        "XDebug Peak Memory Usage: " . round(xdebug_peak_memory_usage() / (1024 * 1024)) . " MB";
+                }
+             }
+             // fau.
+            
+             $footer = $f->mainControls()->footer($links, $texts[0].'<br/>'.$texts[1]);
+
+             $footer = $this->dic['legalDocuments']->modifyFooter($footer);
+ 
+             if (self::$perma_link !== "") {
+                 $footer = $footer->withPermanentURL(new URI(self::$perma_link));
+             }
+ 
+             return $footer;
+            });
+        }
     }
-}
