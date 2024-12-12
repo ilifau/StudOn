@@ -97,7 +97,7 @@ class ilBookingObjectGUI
 
         $this->context_obj_id = $context_obj_id;
 
-        /** @var ilObjBookingPoolGUI $this->pool_gui */
+        /** @var ilObjBookingPoolGUI $this ->pool_gui */
         $this->pool_gui = $a_parent_obj;
         $this->pool_has_schedule =
             ($a_parent_obj->object->getScheduleType() == ilObjBookingPool::TYPE_FIX_SCHEDULE);
@@ -111,7 +111,7 @@ class ilBookingObjectGUI
         $this->ref_id = (int) $_REQUEST['ref_id'];
         $this->ctrl->saveParameter($this, "object_id");
 
-        if ($this->object_id > 0 && ilBookingObject::lookupPoolId($this->object_id) !== $this->pool_gui->getObject()->getId()) {
+        if ($this->object_id > 0 && ilBookingObject::lookupPoolId($this->object_id) !== $this->pool_gui->object->getId()) {
             throw new \ilException("Booking object pool id does not match pool id.");
         }
 
