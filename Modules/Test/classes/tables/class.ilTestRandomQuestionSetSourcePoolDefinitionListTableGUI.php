@@ -140,6 +140,11 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
         $this->tpl->setVariable('LIFECYCLE_FILTER', $this->taxonomyLabelTranslater->getLifecycleFilterLabel($a_set['lifecycle_filter']));
         $this->tpl->setVariable('TYPE_FILTER', $this->taxonomyLabelTranslater->getTypeFilterLabel($a_set['type_filter']));
         // fau.
+        // fau: taxGroupFilter - set group taxonomy label
+        if ($a_set['group_tax_id']) {
+            $this->tpl->setVariable('GROUP_TAXONOMY', "<br />" . $this->taxonomyLabelTranslater->getGroupTaxonomyLabel($set['group_tax_id']));
+        }
+        // fau.        
         // fau: randomSetOrder - get the order criteria
         if (!empty($set['order_by'])) {
             $this->tpl->setVariable('ORDER_BY', $this->lng->txt('tst_filter_order_' . $set['order_by']));
@@ -296,15 +301,19 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
             $set['sequence_position'] = $sourcePoolDefinition->getSequencePosition();
             $set['source_pool_label'] = $sourcePoolDefinition->getPoolTitle();
             // fau: taxFilter/typeFilter - get the type and taxonomy filter for display
+            // fau: taxGroupFilter - get group selection info
             if ($this->showMappedTaxonomyFilter) {
                 // mapped filter will be used after synchronisation
                 $set['taxonomy_filter'] = $sourcePoolDefinition->getMappedTaxonomyFilter();
+                $set['group_tax_id'] = $sourcePoolDefinition->getMappedGroupTaxId();
             } else {
                 // original filter will be used before synchronisation
                 $set['taxonomy_filter'] = $sourcePoolDefinition->getOriginalTaxonomyFilter();
+                $set['group_tax_id'] = $sourcePoolDefinition->getOriginalGroupTaxId();
             }
             #$set['filter_taxonomy'] = $sourcePoolDefinition->getMappedFilterTaxId();
             #$set['filter_tax_node'] = $sourcePoolDefinition->getMappedFilterTaxNodeId();
+            // fau.
             $set['lifecycle_filter'] = $sourcePoolDefinition->getLifecycleFilter();
             $set['type_filter'] = $sourcePoolDefinition->getTypeFilter();
             // fau.

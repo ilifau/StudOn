@@ -199,4 +199,13 @@ class ilTestQuestionFilterLabelTranslater
         return implode(', ', $types);
     }
     // fau.
+
+    // fau: taxGroupFilter - new function to get a label for group selection in taxonomy
+    public function getGroupTaxonomyLabel($taxId)
+    {
+        global $lng;
+
+        return $lng->txt('tst_group_filter') . ': ' . $this->getTaxonomyTreeLabel($taxId);
+    }
+    // fau.    
 }
