@@ -87,8 +87,17 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
         return $combinationCollection->getUniqueQuestionCollection();
     }
     // hey.
+    // fau: taxGroupFilter - get a pre-selected set of questions for a source pool definition
+    protected function getQuestionSetForSourcePoolDefinition(ilTestRandomQuestionSetSourcePoolDefinition $definition)
+    {
+        $questionIds = $this->getQuestionIdsForSourcePoolDefinitionIds($definition, true);
+        $questionStage = $this->buildSetQuestionCollection($definition, $questionIds);
 
-    private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition): array
+        return $questionStage;
+    }
+    // fau.
+    // fau: taxGroupFilter - add parameter to select questions from a group
+    private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition, bool $select = false): array
     {
         $this->stagingPoolQuestionList->resetQuestionList();
 
@@ -116,13 +125,25 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
             $this->stagingPoolQuestionList->setTypeFilter($definition->getTypeFilter());
         }
         // fau.
+
+        // fau: taxGroupFilter - set the gouping information
+        $this->stagingPoolQuestionList->setGroupTaxId($definition->getMappedGroupTaxId());
+        $this->stagingPoolQuestionList->setSelectSize($definition->getQuestionAmount());
+        // fau.
+
         // fau: randomSetOrder - set order information
         $this->stagingPoolQuestionList->setOrderBy($definition->getOrderBy());
         // fau.        
 
         $this->stagingPoolQuestionList->loadQuestions();
 
+        // fau: taxGroupFilter - select questions from a group
+        if ($select) {
+            return $this->stagingPoolQuestionList->getSelectedQuestions();
+        } else {
         return $this->stagingPoolQuestionList->getQuestions();
+        }
+        // fau.
     }
 
     private function buildSetQuestionCollection(ilTestRandomQuestionSetSourcePoolDefinition $definition, $questionIds): ilTestRandomQuestionSetQuestionCollection

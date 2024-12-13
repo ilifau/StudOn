@@ -288,6 +288,15 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
                 $taxItems = $taxNodeAssignment->getAssignmentsOfNode($subNodes);
 
+                // fau: taxGroupFilter - collect the defined questions per group node
+                if ($taxId == $this->getGroupTaxId()) {
+                    $group = array();
+                    foreach ($taxItems as $taxItem) {
+                        $group[] = $taxItem['item_id'];
+                    }
+                    $this->groupedQuestions[$taxNode] = array_unique($group);
+                }
+                // fau.
                 foreach ($taxItems as $taxItem) {
                     $questionIds[$taxItem['item_id']] = $taxItem['item_id'];
                 }
@@ -369,6 +378,47 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
     {
         return array_values($this->questions);
     }
+
+
+    // fau: taxGroupFilter - get selected questions
+    public function getSelectedQuestions()
+    {
+        if (empty($this->getSelectSize())) {
+            return array();
+        }
+
+        if ($this->getGroupTaxId()) {
+            $validGroups = array();
+            foreach ($this->groupedQuestions	as $taxNode => $nodeQuestions) {
+                // filter the really found questions by the question ids of the group node
+                // this keeps them in the loaded order
+                $filteredQuestions = array_intersect($this->questions, $nodeQuestions);
+
+                // collect groups that have enough questions
+                if (count($filteredQuestions) >= $this->getSelectSize()) {
+                    $validGroups[] = $filteredQuestions;
+                }
+            }
+
+            if (count($validGroups)) {
+                // choose a question group randomly
+                $groupQuestions = $validGroups[array_rand($validGroups)];
+
+                // choose the selected amount of questions and keep their order
+                $selectedKeys = (array) array_rand($groupQuestions, $this->getSelectSize());
+                $selectedQuestions = array_values(array_intersect_key($groupQuestions, array_flip($selectedKeys)));
+                return $selectedQuestions;
+            }
+        } elseif (count($this->questions) >= $this->getSelectSize()) {
+            // choose the selected amount of questions and keep their order
+            $selectedKeys = (array) array_rand($this->questions, $this->getSelectSize());
+            $selectedQuestions = array_values(array_intersect_key($this->questions, array_flip($selectedKeys)));
+            return $selectedQuestions;
+        }
+
+        return array();
+    }
+    // fau.
 
     // =================================================================================================================
 

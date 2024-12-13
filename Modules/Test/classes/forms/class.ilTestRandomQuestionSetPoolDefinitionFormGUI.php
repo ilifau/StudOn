@@ -177,6 +177,31 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
         // fau.
 
         if ($this->questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
+
+// fau: taxGroupFilter - add option for group slection
+            if (count($availableTaxonomyIds)) {
+                $groupFilter = new ilCheckboxInputGUI($this->lng->txt('tst_group_filter'), 'tst_group_filter');
+                $groupFilter->setInfo($this->lng->txt('tst_group_filter_info'));
+                $groupFilter->setChecked((bool) $sourcePool->getOriginalGroupTaxId());
+                $this->addItem($groupFilter);
+
+                $groupFilterTax = new ilSelectInputGUI($this->lng->txt('tst_group_filter_tax'), 'tst_group_filter_tax');
+                $groupFilterTax->setInfo($this->lng->txt('tst_group_filter_tax_info'));
+                $options = array();
+                foreach ($availableTaxonomyIds as $taxId) {
+                    $taxonomy = new ilObjTaxonomy($taxId);
+                    $options[$taxId] = $taxonomy->getTitle();
+                }
+                $groupFilterTax->setOptions($options);
+                $groupFilterTax->setValue($sourcePool->getOriginalGroupTaxId());
+                $groupFilter->addSubItem($groupFilterTax);
+
+                $warning = new ilNonEditableValueGUI();
+                $warning->setInfo($this->lng->txt('tst_group_filter_info_warning'));
+                $groupFilter->addSubItem($warning);
+            }
+            // fau.
+
             $questionAmountPerSourcePool = new ilNumberInputGUI(
                 $this->lng->txt('tst_inp_quest_amount_per_source_pool'),
                 'question_amount_per_pool'
@@ -226,6 +251,9 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
             }
         }
         $sourcePoolDefinition->setOriginalTaxonomyFilter($filter);
+        // fau: taxGroupFilter - remember the taxonomy filter
+        $taxFilter = $filter;
+        // fau.
 
         $filter = array();
         if ($this->getItemByPostVar("filter_type_enabled")->getChecked()) {
@@ -243,6 +271,18 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
 
         if ($this->questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
             $sourcePoolDefinition->setQuestionAmount(intval($this->getItemByPostVar('question_amount_per_pool')->getValue()));
+            // fau: taxGroupFilter - submit group setting
+            if (count($availableTaxonomyIds)) {
+                $groupFilter = $this->getItemByPostVar('tst_group_filter')->getChecked();
+                $groupTaxId = $this->getItemByPostVar('tst_group_filter_tax')->getValue();
+
+                if ($groupFilter && in_array($groupTaxId, array_keys($taxFilter))) {
+                    $sourcePoolDefinition->setOriginalGroupTaxId($groupTaxId);
+                } else {
+                    $sourcePoolDefinition->setOriginalGroupTaxId(null);
+                }
+            }
+            // fau.
         }
         // fau: randomSetOrder - submit order_by
         $orderByItem = $this->getItemByPostVar('tst_filter_order_by');

@@ -45,7 +45,10 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 
     private array $type_filter = [];
     private array $lifecycle_filter = [];
-
+   // fau: taxGroupFilter - new class variables
+   private ?int $originalGroupTaxId = null;
+   private ?int $mappedGroupTaxId = null;
+   // fau.
     // fau: randomSetOrder - new class variable
     private $orderBy = null;
     // fau.
@@ -271,6 +274,27 @@ class ilTestRandomQuestionSetSourcePoolDefinition
     {
         $this->question_amount = $question_amount;
     }
+    // fau: taxGroupFilter - setters and getters
+    public function setOriginalGroupTaxId($originalGroupTaxId)
+    {
+        $this->originalGroupTaxId = $originalGroupTaxId;
+    }
+
+    public function getOriginalGroupTaxId()
+    {
+        return $this->originalGroupTaxId;
+    }
+
+    public function setMappedGroupTaxId($mappedGroupTaxId)
+    {
+        $this->mappedGroupTaxId = $mappedGroupTaxId;
+    }
+
+    public function getMappedGroupTaxId()
+    {
+        return $this->mappedGroupTaxId;
+    }
+    // fau.
 
     // fau: randomSetOrder - setters and getters
 
@@ -344,7 +368,10 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 case 'lifecycle_filter':
                     $this->setLifecycleFilterFromDbValue($value);
                     break;
-                    // fau.
+// fau: taxGroupFilter - read from db
+                case 'origin_group_tax_fi':	$this->setOriginalGroupTaxId($value);	break;
+                case 'mapped_group_tax_fi': $this->setMappedGroupTaxId($value);	break;
+// fau.
                 // fau: randomSetOrder - read from db
                 case 'order_by':			$this->setOrderBy($value);		break;
                 // fau.
@@ -414,6 +441,10 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 'mapped_tax_filter' => ['text', $this->getMappedTaxonomyFilterForDbValue()],
                 'type_filter' => ['text', $this->getTypeFilterForDbValue()],
                 'lifecycle_filter' => ['text', $this->getLifecycleFilterForDbValue()],
+                // fau: taxGroupFilter - update in db
+                'origin_group_tax_fi' => array('integer', $this->getOriginalGroupTaxId()),
+                'mapped_group_tax_fi' => array('integer', $this->getMappedGroupTaxId()),
+                // fau.
                 // fau: randomSetOrder - update in db
                 'order_by' => array('text', $this->getOrderBy()),
                 // fau.
@@ -442,6 +473,10 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 'mapped_tax_filter' => ['text', $this->getMappedTaxonomyFilterForDbValue()],
                 'type_filter' => ['text', $this->getTypeFilterForDbValue()],
                 'lifecycle_filter' => ['text', $this->getLifecycleFilterForDbValue()],
+                // fau: taxGroupFilter - insert in db
+                'origin_group_tax_fi' => array('integer', $this->getOriginalGroupTaxId()),
+                'mapped_group_tax_fi' => array('integer', $this->getMappedGroupTaxId()),
+                // fau.
                 // fau: randomSetOrder - update in db
                 'order_by' => array('text', $this->getOrderBy()),
                 // fau.
