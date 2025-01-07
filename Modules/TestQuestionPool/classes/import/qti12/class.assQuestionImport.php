@@ -333,7 +333,7 @@ class assQuestionImport
     public function QTIMaterialToString(ilQTIMaterial $a_material): string
     {
         $result = "";
-        $mobs = [];
+        $mobs = ilSession::get('import_mob_xhtml') ?? [];
         for ($i = 0; $i < $a_material->getMaterialCount(); $i++) {
             $material = $a_material->getMaterial($i);
             if (strcmp($material["type"], "mattext") === 0) {
@@ -356,4 +356,20 @@ class assQuestionImport
         return $result;
     }
 
+    protected function deduceThumbSizeFromImportValue(?int $size): int
+    {
+        if ($size === null) {
+            return $this->object->getThumbSize();
+        }
+
+        if ($size < $this->object->getMaximumThumbSize()) {
+            return $this->object->getMaximumThumbSize();
+        }
+
+        if ($size > $this->object->getMaximumThumbSize()) {
+            return $this->object->getMaximumThumbSize();
+        }
+
+        return $size;
+    }
 }

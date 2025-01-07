@@ -1725,6 +1725,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         return $this->items[(int) $a_admin_panel_enabled][(int) $a_include_side_block];
     }
 
+
     // fau: new functions initWaitingList(), getWaitingList
     public function initWaitingList()
     {
@@ -1738,5 +1739,5 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         }
         return $this->waiting_list_obj;
     }
-    // fau.    
+    // fau.        
 } //END class.ilObjGroup

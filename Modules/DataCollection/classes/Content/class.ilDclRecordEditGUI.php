@@ -170,6 +170,8 @@ class ilDclRecordEditGUI
      */
     public function create(): void
     {
+        global $DIC;
+        $DIC->help()->setSubScreenId('create');
         $this->initForm();
         $this->tpl->setContent($this->form->getHTML());
     }
@@ -447,9 +449,7 @@ class ilDclRecordEditGUI
             /** @var ilDclBaseRecordFieldModel $record_field */
             $record_field->addHiddenItemsToConfirmation($confirmation);
 
-            if (($record_field instanceof ilDclFileuploadRecordFieldModel || $record_field instanceof ilDclMobRecordFieldModel)
-                && $record_field->getValue() == null
-            ) {
+            if ($record_field instanceof ilDclFileRecordFieldModel && $record_field->getValue() == null) {
                 $empty_fileuploads['field_' . $field->getId()] = [
                     "name" => "",
                     "type" => "",
@@ -460,7 +460,7 @@ class ilDclRecordEditGUI
             }
             $record_representation = ilDclFieldFactory::getRecordRepresentationInstance($record_field);
 
-            if ($record_representation->getConfirmationHTML() != false) {
+            if ($record_representation->getConfirmationHTML() !== '') {
                 $record_data .= $field->getTitle() . ": " . $record_representation->getConfirmationHTML() . "<br />";
             }
         }
