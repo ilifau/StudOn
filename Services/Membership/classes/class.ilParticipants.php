@@ -1312,6 +1312,7 @@ abstract class ilParticipants
         }
     }
 
+
     /**
      * @return array<{time: int, usr_id: int, subject: string}>
      */

@@ -8,6 +8,7 @@ use ilUtil;
 use ilMimeMail;
 use ilWaitingList;
 use ilParticipants;
+use ilCourseDefinedFieldDefinition;
 /**
  * trait for providing additional ilParticipants methods
  */
@@ -46,7 +47,7 @@ trait ParticipantsHelper
      */
     public function sendExternalNotifications($a_object, $a_user, $a_changed = false)
     {
-        global $ilSetting;
+        global $ilSetting, $DIC;
 
         $user_data = ilCourseUserData::getFieldsWithData($a_object->getId(), $a_user->getId());
         $notifications = array();
@@ -55,7 +56,7 @@ trait ParticipantsHelper
         foreach ($user_data as $data) {
             $field = $data['field'];
             $value = $data['value'];
-            if ($field->getType() == IL_CDF_TYPE_EMAIL && $field->getEmailAuto() && ilUtil::is_email($value)) {
+            if ($field->getType() == ilCourseDefinedFieldDefinition::IL_CDF_TYPE_EMAIL && $field->getEmailAuto() && ilUtil::is_email($value)) {
                 $notifications[$value] = $field->getEmailText();
             }
         }
@@ -65,7 +66,7 @@ trait ParticipantsHelper
         }
 
         // prepare common data
-        $sender = new ilMailMimeSenderUserById($ilSetting, $a_user->getId());
+        $sender = new ilMailMimeSenderUserById($ilSetting, $a_user->getId(), $DIC->mail()->mustacheFactory());
 
         $sender_address = $sender->getReplyToAddress();
         $cc_address = '';
