@@ -150,13 +150,13 @@ class ilCourseDefinedFieldDefinition
      * @param string $a_sort
      * @return ilCourseDefinedFieldDefinition[]
      */
-    public static function _getPossibleParentFields($a_container_id, $a_field_id = null, $a_sort = IL_CDF_SORT_NAME)
+    public static function _getPossibleParentFields($a_container_id, $a_field_id = null, $a_sort = self::IL_CDF_SORT_NAME)
     {
         $fields = array();
         foreach (ilCourseDefinedFieldDefinition::_getFieldIds($a_container_id, $a_sort) as $field_id) {
             if (empty($a_field_id) || $field_id != $a_field_id) {
                 $field = new ilCourseDefinedFieldDefinition($a_container_id, $field_id);
-                if ($field->getType() == IL_CDF_TYPE_SELECT && empty($field->getParentFieldId() && !empty($field->getValues()))) {
+                if ($field->getType() == ilCourseDefinedFieldDefinition::IL_CDF_TYPE_SELECT && empty($field->getParentFieldId() && !empty($field->getValues()))) {
                     $fields[] = $field;
                 }
             }
@@ -412,7 +412,7 @@ class ilCourseDefinedFieldDefinition
     {
         $next_id = $this->db->nextId('crs_f_definitions');
         // fau: courseUdf - save additional properties        
-        $query = "INSERT INTO crs_f_definitions (field_id,obj_id,field_name,field_type,field_values,field_required,field_values_opt) " .
+        $query = "INSERT INTO crs_f_definitions (field_id,obj_id,field_name,field_type,field_values,field_required,field_values_opt,field_desc,field_email_auto,field_email_text, parent_field_id, parent_value_id) " .
             "VALUES ( " .
             $this->db->quote($next_id, 'integer') . ", " .
             $this->db->quote($this->getObjId(), 'integer') . ", " .

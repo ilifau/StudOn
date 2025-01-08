@@ -78,8 +78,8 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
         $this->tpl->setVariable('VAL_NAME', $a_set['name']);
         $this->tpl->setVariable('VAL_TYPE', $a_set['type']);
         // fau: courseUdf - fill parent name in field row
-        $this->tpl->setVariable('VAL_PARENT_NAME', $a_set['parent_name']);
-        $this->tpl->setVariable('VAL_PARENT_VALUE', $a_set['parent_value']);
+        $this->tpl->setVariable('VAL_PARENT_NAME', $a_set['parent_name'] ?? '');
+        $this->tpl->setVariable('VAL_PARENT_VALUE', $a_set['parent_value'] ?? '');
         // fau.
         $this->tpl->setVariable('REQUIRED_CHECKED', $a_set['required'] ? 'checked="checked"' : '');
 
@@ -94,6 +94,11 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
     public function parse(array $a_defs): void
     {
         $rows = [];
+        // courseUdf - store the field object
+        foreach ($a_defs as $def) {
+            $this->fields[$def->getId()] = $def;
+        }
+        // couseUdf.
         foreach ($a_defs as $def) {
             $rows[$def->getId()]['field_id'] = $def->getId();
             $rows[$def->getId()]['name'] = $def->getName();
@@ -119,9 +124,12 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
 
             // fau: courseUdf - add parent name to field data
             /** @var ilCourseDefinedFieldDefinition $parent */
-            $parent = $this->fields[$def->getParentFieldId()];
-            $rows[$def->getId()]['parent_name'] = isset($parent) ? $parent->getName() :'';
-            $rows[$def->getId()]['parent_value'] = isset($parent) ? $parent->getValueById((int) $def->getParentValueId()) : '';
+            if(isset($this->fields[$def->getParentFieldId()]))
+            {
+                $parent = $this->fields[$def->getParentFieldId()];
+                $rows[$def->getId()]['parent_name'] = isset($parent) ? $parent->getName() :'';
+                $rows[$def->getId()]['parent_value'] = isset($parent) ? $parent->getValueById((int) $def->getParentValueId()) : '';
+            }
             // fau.            
             $rows[$def->getId()]['required'] = $def->isRequired();
         }

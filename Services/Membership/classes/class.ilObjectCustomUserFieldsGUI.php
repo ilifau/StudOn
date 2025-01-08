@@ -402,7 +402,7 @@ class ilObjectCustomUserFieldsGUI
         // Email Auto
         $ty_em_auto = new ilCheckboxInputGUI($this->lng->txt('ps_cdf_email_auto'), 'ea');
         $ty_em_auto->setInfo($this->lng->txt('ps_cdf_email_auto_info'));
-        $ty_em_auto->setValue(1);
+        $ty_em_auto->setValue((string) 1);
         $ty_em->addSubItem($ty_em_auto);
 
         // Email Text
@@ -422,7 +422,8 @@ class ilObjectCustomUserFieldsGUI
         $sf->setDisabled(true);
         $sf->setInfo($this->lng->txt('ps_cdf_is_sub_field_info'));
 
-        $poss_parents = ilCourseDefinedFieldDefinition::_getPossibleParentFields($this->getObjId(), $_REQUEST['field_id']);
+        $field_id = $_REQUEST['field_id'] ?? null;
+        $poss_parents = ilCourseDefinedFieldDefinition::_getPossibleParentFields($this->getObjId(), $field_id);
         if (!empty($poss_parents)) {
             $sf->setDisabled(false);
             $pa = new ilRadioGroupInputGUI($this->lng->txt('ps_cdf_parent_field'), 'pa');
