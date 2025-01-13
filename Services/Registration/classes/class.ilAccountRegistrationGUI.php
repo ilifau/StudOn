@@ -49,6 +49,11 @@ class ilAccountRegistrationGUI
     protected ILIAS\Refinery\Factory $refinery;
     protected \ILIAS\HTTP\Services $http;
 
+    // fau: regCodes - class variables
+    protected ?ilRegistrationCode $codeObj = null;
+    // fau.
+
+
     public function __construct()
     {
         global $DIC;
@@ -67,12 +72,27 @@ class ilAccountRegistrationGUI
         $this->ui_factory = $DIC->ui()->factory();
         $this->ui_renderer = $DIC->ui()->renderer();
 
-        $this->registration_settings = new ilRegistrationSettings();
+        // fau: regCodes - initialize an already entered code and save in settings
+        $this->registration_settings = ilRegistrationSettings::getInstance();
         $this->code_enabled = ($this->registration_settings->registrationCodeRequired() ||
             $this->registration_settings->getAllowCodes());
 
         $this->recommended_content_manager = new ilRecommendedContentManager();
+        if ($this->code_enabled) {
+            if (!empty($_GET['code'])) {
+                $this->codeObj = new ilRegistrationCode($_GET['code']);
+                if ($this->codeObj->isUsable()) {
+                    $_SESSION['ilAccountRegistrationGUI:code'] = $this->codeObj->code;
+                }
+            } elseif ($_SESSION['ilAccountRegistrationGUI:code']) {
+                $this->codeObj = new ilRegistrationCode(($_SESSION['ilAccountRegistrationGUI:code']));
+            }
 
+            if (isset($this->codeObj)) {
+                $this->registration_settings->setCodeObject($this->codeObj);
+            }
+        }
+        // fau.
         $this->user_profile = new ilUserProfile();
 
         $this->http = $DIC->http();
@@ -88,20 +108,112 @@ class ilAccountRegistrationGUI
         $cmd = $this->ctrl->getCmd();
         switch ($cmd) {
             case 'saveForm':
+            // fau: regCodes - add commands for code form
+            case 'saveCodeForm':
+                case 'cancelForm':
+                // fau.                
                 $tpl = $this->$cmd();
                 break;
             default:
-                $tpl = $this->displayForm();
+                // fau: regCodes - determine default command based on code entry
+                if (!$this->code_enabled) {
+                    $tpl = $this->displayForm();
+                } elseif (!isset($this->codeObj)) {
+                    $tpl = $this->displayCodeForm();
+                } elseif (!$this->codeObj->isUsable()) {
+                    $tpl = $this->displayCodeForm();
+                } else {
+                    $tpl = $this->displayForm();
+                }
+            // fau.            
         }
 
         $this->tpl->setPermanentLink('usr', null, 'registration');
         ilStartUpGUI::printToGlobalTemplate($tpl);
     }
 
+    // fau: regCodes - handle separate form for code entry
+    public function displayCodeForm()
+    {
+        if (!$this->form) {
+            $this->__initCodeForm();
+        }
+
+        $tpl = ilStartUpGUI::initStartUpTemplate(array('tpl.usr_registration.html', 'Services/Registration'), true);
+
+        ilStartUpGUI::initStartUpTemplate(array('tpl.usr_registration.html', 'Services/Registration'), true);
+        $tpl->setVariable('TXT_PAGEHEADLINE', $this->lng->txt('registration'));
+        if ((bool) $this->registration_settings->registrationCodeRequired()) {
+            $tpl->setVariable('DESCRIPTION', $this->lng->txt("registration_code_required_info"));
+        } else {
+            $tpl->setVariable('DESCRIPTION', $this->lng->txt("registration_code_optional_info"));
+        }
+
+        $tpl->setVariable('FORM', $this->form->getHTML());
+
+        return $tpl;
+    }
+
+
+    protected function __initCodeForm()
+    {
+        include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+        $this->form = new ilPropertyFormGUI();
+        $this->form->setFormAction($this->ctrl->getFormAction($this));
+
+        include_once 'Services/Registration/classes/class.ilRegistrationCode.php';
+        $code = new ilTextInputGUI($this->lng->txt("registration_code"), "usr_registration_code");
+        $code->setSize(40);
+        $code->setMaxLength(ilRegistrationCode::CODE_LENGTH);
+        $code->setRequired((bool) $this->registration_settings->registrationCodeRequired());
+        $this->form->addItem($code);
+
+        $this->form->addCommandButton("saveCodeForm", $this->lng->txt("register"));
+        $this->form->addCommandButton("cancelForm", $this->lng->txt("cancel"));
+    }
+
+
+    public function saveCodeForm()
+    {
+        $this->__initCodeForm();
+
+        $valid = $this->form->checkInput();
+
+        if ($this->form->getInput('usr_registration_code')) {
+            $codeObj = new ilRegistrationCode($this->form->getInput('usr_registration_code'));
+            if (!$codeObj->isUsable()) {
+                $codeItem = $this->form->getItemByPostVar('usr_registration_code');
+                $codeItem->setAlert($this->lng->txt('registration_code_not_valid'));
+                $valid = false;
+
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('form_input_not_valid'));
+            } else {
+                $_SESSION['ilAccountRegistrationGUI:code'] = $codeObj->code;
+            }
+        }
+
+        if (!$valid) {
+            return $this->displayCodeForm();
+        } else {
+            $this->ctrl->redirect($this, 'displayForm');
+        }
+    }
+    // fau.
+
     public function displayForm(): ilGlobalTemplateInterface
     {
         $tpl = ilStartUpGUI::initStartUpTemplate(['tpl.usr_registration.html', 'Services/Registration'], true);
-        $tpl->setVariable('TXT_PAGEHEADLINE', $this->lng->txt('registration'));
+        // fau: regCodes - show customized title and headline of registration code
+        if (isset($this->codeObj) && !empty($this->codeObj->title)) {
+            $tpl->setVariable('TXT_PAGEHEADLINE', $this->codeObj->title);
+        } else {
+            $tpl->setVariable('TXT_PAGEHEADLINE', $this->lng->txt('registration'));
+        }
+
+        if (isset($this->codeObj) && !empty($this->codeObj->description)) {
+            $tpl->setVariable('DESCRIPTION', $this->codeObj->description);
+        }
+        // fau.
 
         if (!$this->form) {
             $this->initForm();
@@ -121,22 +233,8 @@ class ilAccountRegistrationGUI
         $this->form = new ilPropertyFormGUI();
         $this->form->setFormAction($this->ctrl->getFormAction($this));
 
-        // code handling
-        if ($this->code_enabled) {
-            $field = new ilFormSectionHeaderGUI();
-            $field->setTitle($this->lng->txt('registration_codes_type_reg'));
-            $this->form->addItem($field);
-            $code = new ilTextInputGUI($this->lng->txt("registration_code"), "usr_registration_code");
-            $code->setSize(40);
-            $code->setMaxLength(ilRegistrationCode::CODE_LENGTH);
-            if ($this->registration_settings->registrationCodeRequired()) {
-                $code->setRequired(true);
-                $code->setInfo($this->lng->txt("registration_code_required_info"));
-            } else {
-                $code->setInfo($this->lng->txt("registration_code_optional_info"));
-            }
-            $this->form->addItem($code);
-        }
+        // fau: regCodes - don't show code field in the registration form
+        // fau.
 
         // user defined fields
         $user_defined_data = $this->globalUser->getUserDefinedData();
@@ -196,18 +294,35 @@ class ilAccountRegistrationGUI
         }
 
         // #14272
-        if ($this->registration_settings->getRegistrationType() === ilRegistrationSettings::IL_REG_ACTIVATION) {
+        // fau: regCodes - check for registration type and code to set email required
+//        if ($this->registration_settings->getRegistrationType() === ilRegistrationSettings::IL_REG_ACTIVATION) {
             $mail_obj = $this->form->getItemByPostVar('usr_email');
             if ($mail_obj) { // #16087
                 $mail_obj->setRequired(true);
             }
-        }
+  //      }
+        // fau.
 
         global $DIC;
         array_map($this->form->addItem(...), $DIC['legalDocuments']->selfRegistration()->legacyInputGUIs());
 
         $this->form->addCommandButton("saveForm", $this->lng->txt("register"));
+        // fau: regCodes - add cancel button
+        $this->form->addCommandButton("cancelForm", $this->lng->txt("cancel"));
+        // fau.
     }
+
+    // fau: regCodes - new function cancelForm()
+    /**
+     * Cancel the account registration and unset the registration code
+     */
+    public function cancelForm()
+    {
+        global $DIC;
+        unset($_SESSION['ilAccountRegistrationGUI:code']);
+        $DIC->ctrl()->redirectToURL('index.php');
+    }
+    // fau.    
 
     public function saveForm(): ilGlobalTemplateInterface
     {
@@ -220,27 +335,22 @@ class ilAccountRegistrationGUI
         // code
         if ($this->code_enabled) {
             $code = $this->form->getInput('usr_registration_code');
+            // fau: regCodes - take the code object instead of form input
             // could be optional
-            if (
-                $code !== '' ||
-                $this->registration_settings->registrationCodeRequired()
-            ) {
-                // code validation
-                if (!ilRegistrationCode::isValidRegistrationCode($code)) {
-                    $code_obj = $this->form->getItemByPostVar('usr_registration_code');
-                    $code_obj->setAlert($this->lng->txt('registration_code_not_valid'));
-                    $form_valid = false;
-                } else {
-                    $valid_code = true;
+            // could be optional
+            if ($this->codeObj) {
+                // code has been checked in executeCommand
+                $valid_code = true;
 
-                    // get role from code, check if (still) valid
-                    $role_id = ilRegistrationCode::getCodeRole($code);
-                    if ($role_id && $this->rbacreview->isGlobalRole($role_id)) {
-                        $valid_role = $role_id;
-                    }
+                // get role from code, check if (still) valid
+                global $DIC;
+                $role_id = $this->codeObj->global_role;
+                if ($role_id && $DIC->rbac()->review()->isGlobalRole($role_id)) {
+                    $valid_role = $role_id;
                 }
             }
         }
+        // fau.
 
         // valid codes override email domain check
         if (!$valid_code) {
@@ -318,12 +428,14 @@ class ilAccountRegistrationGUI
         // validate username
         $login_obj = $this->form->getItemByPostVar('username');
         $login = $this->form->getInput("username");
-        if (!ilUtil::isLogin($login)) {
-            $login_obj->setAlert($this->lng->txt("login_invalid"));
-            $form_valid = false;
+        // fau: regCodes - use login generation types
+        if ($this->registration_settings->loginGenerationType() != ilRegistrationSettings::LOGIN_GEN_MANUAL) {
+            $login = $this->__generateLogin();
+            $_POST['username'] = $login;
+            $this->form->getItemByPostVar('username')->setValue($login);
         }
-
-        if ($form_valid) {
+        elseif ($form_valid) {
+            // fau.
             if (ilObjUser::_loginExists($login)) {
                 $login_obj->setAlert($this->lng->txt("login_exists"));
                 $form_valid = false;
@@ -340,7 +452,9 @@ class ilAccountRegistrationGUI
         } else {
             $password = $this->createUser($valid_role);
             $this->distributeMails($password);
-            return $this->login();
+            // fau: regCodes - call login with password
+            return $this->login($password);
+            // fau.
         }
         $this->form->setValuesByPost();
         return $this->displayForm();
@@ -390,10 +504,15 @@ class ilAccountRegistrationGUI
         $this->userObj->setTitle($this->userObj->getFullname());
         $this->userObj->setDescription($this->userObj->getEmail());
 
-        if ($this->registration_settings->passwordGenerationEnabled()) {
-            $password = ilSecuritySettingsChecker::generatePasswords(1);
+        // fau: regCodes: respect the password generation type
+        if ($this->registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_AUTO) {
+            $password = ilUtil::generatePasswords(1);
             $password = $password[0];
-        } else {
+        } elseif ($this->registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_LOGIN) {
+            $password = $this->userObj->getLogin();
+        }
+        // fau.
+        else {
             $password = $this->form->getInput("usr_password");
         }
         $this->userObj->setPasswd($password);
@@ -421,37 +540,35 @@ class ilAccountRegistrationGUI
         if ($this->code_enabled) {
             $code_local_roles = $code_has_access_limit = null;
 
-            // #10853 - could be optional
-            $code = $this->form->getInput('usr_registration_code');
-            if ($code) {
+            // fau: regCodes - take the code object instead of form input
+            if (isset($this->codeObj)) {
                 // set code to used
-                ilRegistrationCode::useCode($code);
+                $this->codeObj->addUsage();
                 $this->code_was_used = true;
-
+                
                 // handle code attached local role(s) and access limitation
-                $code_data = ilRegistrationCode::getCodeData($code);
-                if ($code_data["role_local"]) {
-                    // need user id before we can assign role(s)
-                    $code_local_roles = explode(";", $code_data["role_local"]);
-                }
-                if ($code_data["alimit"]) {
+                $code_local_roles = $this->codeObj->local_roles;
+
+                if ($this->codeObj->limit_type) {
                     // see below
                     $code_has_access_limit = true;
-
-                    switch ($code_data["alimit"]) {
+                    
+                    switch ($this->codeObj->limit_type) {
                         case "absolute":
-                            $abs = date_parse($code_data["alimitdt"]);
+                            $abs = date_parse($this->codeObj->limit_date->get(IL_CAL_DATE));
                             $access_limit = mktime(23, 59, 59, $abs['month'], $abs['day'], $abs['year']);
                             break;
-
+                        
                         case "relative":
-                            $rel = unserialize($code_data["alimitdt"], ['allowed_classes' => false]);
-                            $access_limit = (int) ($rel["d"] * 86400 + $rel["m"] * 2592000 + $rel["y"] * 31536000 + time());
+                            $rel = $this->codeObj->limit_duration;
+                            $access_limit = $rel["d"] * 86400 + $rel["m"] * 2592000 +
+                                $rel["y"] * 31536000 + time();
                             break;
                     }
                 }
             }
         }
+        // fau.
 
         // code access limitation will override any other access limitation setting
         if (!($this->code_was_used && $code_has_access_limit) &&
@@ -484,15 +601,19 @@ class ilAccountRegistrationGUI
 
         $this->userObj->create();
 
-        if ($this->registration_settings->getRegistrationType() === ilRegistrationSettings::IL_REG_DIRECT ||
-            $this->registration_settings->getRegistrationType() === ilRegistrationSettings::IL_REG_CODES ||
-            $this->code_was_used) {
-            $this->userObj->setActive(true, 0);
-        } elseif ($this->registration_settings->getRegistrationType() === ilRegistrationSettings::IL_REG_ACTIVATION) {
+        // fau: regCodes - 	check with code for activation
+        if ($this->registration_settings->activationEnabled()) {
+            // account has to be activated by email
             $this->userObj->setActive(false, 0);
+        } elseif ($this->registration_settings->getRegistrationType() == IL_REG_DIRECT ||
+            isset($this->codeObj)) {
+            // account can directly be activated
+            $this->userObj->setActive(true, 0);
         } else {
+            // account has to e approved by admin
             $this->userObj->setActive(false, 0);
         }
+        // fau.
 
         // set a timestamp for last_password_change
         // this ts is needed by ilSecuritySettings
@@ -528,6 +649,11 @@ class ilAccountRegistrationGUI
         }
         $this->userObj->setPref('bs_allow_to_contact_me', $this->settings->get('bs_allow_to_contact_me', 'n'));
         $this->userObj->setPref('chat_osc_accept_msg', $this->settings->get('chat_osc_accept_msg', 'n'));
+        // fau: regCodes - save used registration code in preferences
+        if ($this->codeObj) {
+            $this->userObj->setPref('registration_code', $this->codeObj->code);
+        }
+        // fau.
         $this->userObj->setPref('chat_broadcast_typing', $this->settings->get('chat_broadcast_typing', 'n'));
         $this->userObj->writePrefs();
 
@@ -551,6 +677,9 @@ class ilAccountRegistrationGUI
                             // deactivated for now, see discussion at
                             // https://docu.ilias.de/goto_docu_wiki_wpage_5620_1357.html
                             // $this->recommended_content_manager->addObjectRecommendation($this->userObj->getId(), $role_ref);
+                            // fau: regCodes - add courses and groups to the recommended contents
+                            $this->recommended_content_manager->addObjectRecommendation($this->userObj->getId(), $role_ref);
+                            // fau.
                             break;
                     }
                 }
@@ -560,6 +689,50 @@ class ilAccountRegistrationGUI
         return (string) $password;
     }
 
+    // fau: regCodes - new function __generateLogin
+    protected function __generateLogin()
+    {
+        global $DIC;
+        $base_login = '';
+
+        switch ($this->registration_settings->loginGenerationType()) {
+            case ilRegistrationSettings::LOGIN_GEN_MANUAL:
+                $base_login = $this->form->getInput('username');
+                break;
+
+            case ilRegistrationSettings::LOGIN_GEN_FIRST_LASTNAME:
+                $base_login = ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_firstname'))) . '.'
+                    . ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_lastname')));
+                break;
+
+            case ilRegistrationSettings::LOGIN_GEN_GUEST_LISTENER:
+                $semester = $DIC->fau()->study()->getCurrentTerm()->toString();
+                $base_login = 'gh'
+                    . (substr($semester, 4, 1) == '1' ? 's' : 'w')
+                    . substr($semester, 2, 2)
+                    . substr(ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_firstname'))), 0, 2)
+                    . substr(ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_lastname'))), 0, 4);
+                break;
+
+            case ilRegistrationSettings::LOGIN_GEN_GUEST_SELFREG:
+                $prefix = ilCust::get("regbycode_prefix");
+                if($prefix == '')
+                    $prefix = "gsr";
+                $base_login = $prefix . rand(10000, 99999);
+                break;
+        }
+
+        // append a number to get an unused login
+        $login = $base_login;
+        $i = 0;
+        while (ilObjUser::_loginExists($login)) {
+            $i++;
+            $login = $base_login . $i;
+        }
+
+        return $login;
+    }
+    // fau.    
     protected function distributeMails(string $password): void
     {
         // Send mail to approvers, if they are defined
@@ -578,8 +751,9 @@ class ilAccountRegistrationGUI
         }
         // Send mail to new user
         // Registration with confirmation link ist enabled
-        if (!$this->code_was_used &&
-            $this->registration_settings->getRegistrationType() === ilRegistrationSettings::IL_REG_ACTIVATION) {
+        // fau: regCodes - extended check for enabled activation (code or gloval)
+        if ($this->registration_settings->activationEnabled()) {
+            // fau.
             $mail = new ilRegistrationMimeMailNotification();
             $mail->setType(ilRegistrationMimeMailNotification::TYPE_NOTIFICATION_ACTIVATION);
             $mail->setRecipients([$this->userObj]);
@@ -600,7 +774,9 @@ class ilAccountRegistrationGUI
         }
     }
 
-    public function login(): ilGlobalTemplateInterface
+    // fau: regCodes - optional password parameter
+    public function login($password = ''): ilGlobalTemplateInterface
+    // fau.
     {
         $tpl = ilStartUpGUI::initStartUpTemplate(['tpl.usr_registered.html', 'Services/Registration'], false);
         $this->tpl->setVariable('TXT_PAGEHEADLINE', $this->lng->txt('registration'));
@@ -614,15 +790,22 @@ class ilAccountRegistrationGUI
             ) &&
             !$this->registration_settings->passwordGenerationEnabled()
         ) {
-            $tpl->setVariable('TXT_REGISTERED', $this->lng->txt('txt_registered'));
+            // fau: regCodes - merge the username and password in the welcome text
+            // create a hidden form to allow a direct login
+            // set a timeout url to the starting page in order to prevent the password from being shown too long
+            global $DIC;
+            $ctrl = $DIC->ctrl();
+            $ctrl->setParameterByClass('ilstartupgui', 'lang', $this->userObj->getLanguage());
+            $ctrl->setParameterByClass('ilstartupgui', 'target', ilUtil::stripSlashes($_GET['target']));
 
-            $login_link = $this->ui_renderer->render(
-                $this->ui_factory->link()->standard(
-                    $this->lng->txt('login_to_ilias'),
-                    './login.php?cmd=force_login&lang=' . $this->userObj->getLanguage()
-                )
-            );
-            $tpl->setVariable('LOGIN_LINK', $login_link);
+            $tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
+            $tpl->setVariable('FORMACTION', $ctrl->getFormActionByClass('ilstartupgui'));
+            $tpl->setVariable('COMMAND', 'doStandardAuthentication');
+            $tpl->setVariable('USERNAME', $this->userObj->getLogin());
+            $tpl->setVariable('PASSWORD', $password);
+            $tpl->setVariable('TXT_LOGIN', $this->lng->txt('local_login_to_ilias_registered'));
+            $tpl->setVariable('TIMEOUT_URL', 'index.php');
+            // fau.
         } elseif ($this->registration_settings->getRegistrationType() === ilRegistrationSettings::IL_REG_APPROVE) {
             $tpl->setVariable('TXT_REGISTERED', $this->lng->txt('txt_submitted'));
         } elseif ($this->registration_settings->getRegistrationType() === ilRegistrationSettings::IL_REG_ACTIVATION) {

@@ -47,6 +47,19 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->addColumn("", "", "1", true);
+        // fau: regCodes - use selectable headrs, add actions column
+        $columns = $this->getSelectableColumns();
+        foreach ($this->getSelectedColumns() as $c => $caption) {
+            if ($c == "role_local" || $c == "alimit") {
+                $c = "";
+            }
+            if (isset($columns[$caption]))
+                $this->addColumn($columns[$caption]['txt'], $c);
+        }
+
+        $this->addColumn($this->lng->txt('actions'));
+        // fau.
+        
         foreach ($this->getSelectedColumns() as $c => $caption) {
             if ($c === "role_local" || $c === "alimit") {
                 $c = "";
@@ -68,6 +81,9 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
 
         $this->setSelectAllCheckbox("id[]");
         $this->setTopCommands(true);
+        // fau: regCodes - add excel export
+        $this->setExportFormats(array(self::EXPORT_EXCEL));
+        // fau.        
 
         if ($this->access->checkAccess("write", '', $a_parent_obj->ref_id)) {
             $this->addMultiCommand("deleteConfirmation", $this->lng->txt("delete"));
@@ -121,13 +137,38 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
             }
         }
 
+        // fau: regCodes - extend table items
+        ilDatePresentation::setUseRelativeDates(false);
+        $login_types = ilRegistrationSettings::getLoginGenerationTypes();        
+        
         $result = [];
         foreach ($codes_data["set"] as $k => $code) {
             $result[$k]["code"] = $code["code"];
             $result[$k]["code_id"] = $code["code_id"];
 
+            $result[$k]["title"] = $code["title"];
+            $result[$k]["description"] = $code["description"];
+            
             $result[$k]["generated"] = ilDatePresentation::formatDate(new ilDateTime($code["generated"], IL_CAL_UNIX));
 
+            $result[$k]["use_limit"] = empty($code["use_limit"]) ? $this->lng->txt('reg_code_use_unlimited') : $code["use_limit"];
+            $result[$k]["use_count"] = $code["use_count"];
+
+
+            $logins = array();
+            foreach (explode(";", $code["notification_users"]) as $id) {
+                if ($login = ilObjUser::_lookupLogin((int) trim($id))) {
+                    $logins[] = $login;
+                }
+            }
+
+            $result[$k]["login_generation_type"] = $login_types[$code["login_generation_type"]];
+            $result[$k]["password_generation"] = $code["password_generation"] ? $this->lng->txt('yes') : $this->lng->txt('no');
+            $result[$k]["captcha_required"] = $code["captcha_required"] ? $this->lng->txt('yes') : $this->lng->txt('no');
+            $result[$k]["email_verification"] = $code["email_verification"] ? $this->lng->txt('yes') : $this->lng->txt('no');
+            $result[$k]["email_verification_time"] = $code["email_verification_time"];
+            $result[$k]["notification_logins"] = implode(", ", $logins);
+            // fau.
             if ($code["used"]) {
                 $result[$k]["used"] = ilDatePresentation::formatDate(new ilDateTime($code["used"], IL_CAL_UNIX));
             } else {
@@ -260,11 +301,95 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
         ];
     }
 
+    // fau: regCodes - define selectable columns
+    public function getSelectableColumns(): array
+    {
+        return array(
+            'code' => array(
+                'txt' => $this->lng->txt("registration_code"),
+                'default' => true
+            ),
+            'title' => array(
+                'txt' => $this->lng->txt("title"),
+                'default' => true
+            ),
+            'generated' => array(
+                'txt' => $this->lng->txt("registration_generated"),
+                'default' => true
+            ),
+            'use_limit' => array(
+                'txt' => $this->lng->txt("reg_code_use_limit"),
+                'default' => true
+            ),
+            'use_count' => array(
+                'txt' => $this->lng->txt("reg_code_use_count"),
+                'default' => true
+            ),
+            'used' => array(
+                'txt' => $this->lng->txt("reg_code_last_used"),
+                'default' => true
+            ),
+            'role' => array(
+                'txt' => $this->lng->txt("registration_codes_roles"),
+                'default' => true
+            ),
+            'role_local' => array(
+                'txt' => $this->lng->txt("registration_codes_roles_local"),
+                'default' => true
+            ),
+            'alimit' => array(
+                'txt' => $this->lng->txt("reg_access_limitations"),
+                'default' => true
+            ),
+            'description' => array(
+                'txt' => $this->lng->txt("description"),
+                'default' => false
+            ),
+            'login_generation_type' => array(
+                'txt' => $this->lng->txt("reg_login_generation_type"),
+                'default' => false
+            ),
+            'password_generation' => array(
+                'txt' => $this->lng->txt("passwd_generation"),
+                'default' => false
+            ),
+            'captcha_required' => array(
+                'txt' => $this->lng->txt("adm_captcha_anonymous_short"),
+                'default' => false
+            ),
+            'email_verification' => array(
+                'txt' => $this->lng->txt("reg_type_confirmation"),
+                'default' => false
+            ),
+            'email_verification_time' => array(
+                'txt' => $this->lng->txt("reg_confirmation_hash_life_time"),
+                'default' => false
+            ),
+            'notification_logins' => array(
+                'txt' => $this->lng->txt("reg_notification"),
+                'default' => false
+            ),
+        );
+    }
+    // fau.    
+
+    // fau: regCodes - show selected columns and edit link
     protected function fillRow(array $a_set): void
     {
+        /** @var ilCtrl $ilCtrl */
+        global $ilCtrl;
+
         $this->tpl->setVariable("ID", $a_set["code_id"]);
         foreach (array_keys($this->getSelectedColumns()) as $c) {
-            $this->tpl->setVariable("VAL_" . strtoupper($c), $a_set[$c] ?? "");
+            $this->tpl->setCurrentBlock('column');
+            $this->tpl->setVariable("VAL", $a_set[$c] . ' ');
+            $this->tpl->parseCurrentBlock();
         }
+
+        $ilCtrl->setParameter($this->parent_obj, 'code', $a_set['code']);
+        $this->tpl->setVariable('LINK_EDIT', $ilCtrl->getLinkTarget($this->parent_obj, 'editCode'));
+        $this->tpl->setVariable('TXT_EDIT', $this->lng->txt('edit'));
     }
+    // fau.
+
 }

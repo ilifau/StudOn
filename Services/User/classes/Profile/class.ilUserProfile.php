@@ -127,7 +127,9 @@ class ilUserProfile
     ): void {
         $registration_settings = null;
         if ($this->mode == self::MODE_REGISTRATION) {
-            $registration_settings = new ilRegistrationSettings();
+            // fau: regCodes - get registration settings instance that may have a code injected
+           $registration_settings = ilRegistrationSettings::getInstance();
+            // fau.
             $this->addRegistrationFieldsToFieldArray();
         }
 
@@ -507,8 +509,14 @@ class ilUserProfile
         ?ilObjUser $user
     ): ilFormPropertyGUI {
         $login_input = new ilNonEditableValueGUI($this->lng->txt('username'), 'ne_un');
-
-        if ((int) $this->settings->get('allow_change_loginname') || $this->mode == self::MODE_REGISTRATION) {
+        // fau: regCodes - get registration settings instance that may have a code injected
+        $registration_settings = ilRegistrationSettings::getInstance();
+        if (self::$mode == self::MODE_REGISTRATION
+            && $registration_settings->loginGenerationType() != ilRegistrationSettings::LOGIN_GEN_MANUAL) {
+            $val = new ilNonEditableValueGUI($this->lng->txt('username'), 'username');
+            $val->setValue($this->lng->txt('reg_login_is_generated'));
+        }// fau.
+        elseif ((int) $this->settings->get('allow_change_loginname') || $this->mode == self::MODE_REGISTRATION) {
             $login_input = new ilTextInputGUI($this->lng->txt('username'), 'username');
             $login_input->setMaxLength((int) $field_definition['maxlength']);
             $login_input->setSize(255);
@@ -659,7 +667,23 @@ class ilUserProfile
         string $lang_var,
         ilRegistrationSettings $registration_settings
     ): ilFormPropertyGUI {
-        if ($registration_settings->passwordGenerationEnabled()) {
+        // fau: regCodes - respect the password generation types
+        if ($registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_MANUAL) {
+            $password_input = new ilPasswordInputGUI($this->lng->txt($lang_var, "usr_" . $field_id));
+            $password_input->setUseStripSlashes(false);
+            $password_input->setRequired(true);
+
+            $password_input->setInfo($this->lng->txt('reg_choose_password'));
+            return $password_input;
+
+        // $ta->setDisabled($ilSetting->get("usr_settings_disable_".$f));
+        } elseif ($registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_LOGIN) {
+            $password_input = new ilNonEditableValueGUI($this->lng->txt($lang_var));
+            $password_input->setValue($this->lng->txt("reg_password_is_login"));
+            return $password_input;
+        }
+        // fau.
+        elseif ($registration_settings->passwordGenerationEnabled()) {
             $password_input = new ilNonEditableValueGUI($this->lng->txt($lang_var));
             $password_input->setValue($this->lng->txt('reg_passwd_via_mail'));
             return $password_input;
