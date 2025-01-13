@@ -158,7 +158,7 @@ class ilObjExerciseAccess extends ilObjectAccess implements ilConditionHandling
      * @param bool $is_reference
      * @return bool
      */
-    public static function d($a_id, $is_reference = true): bool
+    public static function checkExtendedGradingAccess($a_id, $is_reference = true): bool
     {
         global $DIC;
 
