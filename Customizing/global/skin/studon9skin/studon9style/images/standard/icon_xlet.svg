@@ -1,23 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 26.5.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 320 320" style="enable-background:new 0 0 320 320;" xml:space="preserve">
-<style type="text/css">
-	.st0{clip-path:url(#SVGID_00000055670547035609721530000013545258826716744382_);fill:#4C6586;}
-</style>
-<g>
-	<g>
-		<defs>
-			<rect id="SVGID_1_" y="0" width="320" height="320"/>
-		</defs>
-		<clipPath id="SVGID_00000164483988432058247990000012276147518454836912_">
-			<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
-		</clipPath>
-		<path style="clip-path:url(#SVGID_00000164483988432058247990000012276147518454836912_);fill:#4C6586;" d="M70,240l-20,15h220
-			l-20-15H70z M179.4,126.2L168,138.8l31.6,28.5l0,0h0.4l40.6-54.4L227,102.7l-29.8,39.6L179.4,126.2z M150,155h-15v15h15V155z
-			 M150,127.5h-15v15h15V127.5z M150,100h-15v15h15V100z M100,155H85v15h15V155z M100,127.5H85v15h15V127.5z M100,100H85v15h15V100z
-			 M255,200.4H65v-120h190V200.4z M270,213V68.9c0,0,0-4.3-4.3-4.3H54.3c0,0-4.3,0-4.3,4.3V213c0,0,0,4.3,4.3,4.3h211.4
-			C265.7,217.3,270,217.3,270,213"/>
-	</g>
-</g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #041e42;
+      }
+
+      .cls-2 {
+        fill: #a7e2fa;
+      }
+
+      .cls-3 {
+        fill: none;
+      }
+
+      .cls-4 {
+        clip-path: url(#clippath);
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-3" width="320" height="320"/>
+    </clipPath>
+  </defs>
+  <rect class="cls-2" x="65" y="80.4" width="190" height="120"/>
+  <g class="cls-4">
+    <path class="cls-1" d="M70,240l-20,15h220l-20-15H70ZM179.4,126.2l-11.4,12.6,31.6,28.5h.4l40.6-54.4-13.6-10.2-29.8,39.6-17.8-16.1ZM150,155h-15v15h15v-15ZM150,127.5h-15v15h15v-15ZM150,100h-15v15h15v-15ZM100,155h-15v15h15v-15ZM100,127.5h-15v15h15v-15ZM100,100h-15v15h15v-15ZM255,200.4H65v-120h190v120ZM270,213V68.9s0-4.3-4.3-4.3H54.3s-4.3,0-4.3,4.3v144.1s0,4.3,4.3,4.3h211.4s4.3,0,4.3-4.3"/>
+  </g>
 </svg>

@@ -6164,7 +6164,7 @@ footer {
 }
 .il-mainbar-triggers .btn-bulky,
 .il-mainbar-triggers .il-link.link-bulky {
-  background: #002F6D;
+  background: #041E42;
 }
 .il-mainbar-triggers .btn-bulky .bulky-label,
 .il-mainbar-triggers .il-link.link-bulky .bulky-label {
@@ -6316,7 +6316,7 @@ footer {
 }
 
 .il-maincontrols-mainbar {
-  background-color: #002F6D;
+  background-color: #041E42;
 }
 
 .il-maincontrols-mainbar .il-item-shy,
@@ -6533,7 +6533,7 @@ footer {
 }
 footer {
   text-align: left;
-  background-color: #002F6D;
+  background-color: #041E42;
   padding: 10px 0 10px 5px;
   border-top: 1px solid #dddddd;
 }
@@ -6544,22 +6544,24 @@ footer {
   padding: 3px 12px;
 }
 .il-maincontrols-footer .il-footer-content div {
-  display: inline-block;
+  
 }
 .il-maincontrols-footer .il-footer-links ul {
   list-style: none;
   padding: 0px;
   margin: 0px;
+  float:right;
 }
 .il-maincontrols-footer .il-footer-links li {
   display: inline-block;
   margin-right: 3px;
 }
 .il-maincontrols-footer .il-footer-links li a, .il-maincontrols-footer .il-footer-links li button {
-  color: #4c6586;
+  color: white;
 }
 .il-maincontrols-footer .il-footer-links li a:hover, .il-maincontrols-footer .il-footer-links li button:hover {
-  color: #3a4c65;
+  color: white;
+  text-decoration:underline;
 }
 .il-maincontrols-footer .il-footer-links li button {
   vertical-align: baseline;
@@ -6580,6 +6582,12 @@ footer {
 }
 .il-maincontrols-footer .il-footer-text {
   margin: 3px 3px 6px 0px;
+  display:inline;
+}
+
+.il-maincontrols-footer .il-footer-text img{
+  float:left;
+  margin-right:10px;
 }
 
 /*
