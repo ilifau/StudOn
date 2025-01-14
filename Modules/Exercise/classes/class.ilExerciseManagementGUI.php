@@ -1309,7 +1309,18 @@ class ilExerciseManagementGUI
     {
         $ilCtrl = $this->ctrl;
         $tpl = $this->tpl;
+        //global $DIC;
+        //$tpl = $DIC['tpl'];
         $lng = $this->lng;
+
+        // fau: exMemDelete - check edit permission
+        if (!$this->exercise->isMemberDeleteAllowed()) {
+            $tpl->setOnScreenMessage('failure', $this->lng->txt("exc_mem_delete_perm_failure"), true);
+            $this->ctrl->redirect($this, "members");
+        }
+        // fau.
+
+
 
         $members = $this->getMultiActionUserIds();
 
