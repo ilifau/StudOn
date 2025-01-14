@@ -84,7 +84,7 @@ class ilAccountRegistrationGUI
                 if ($this->codeObj->isUsable()) {
                     $_SESSION['ilAccountRegistrationGUI:code'] = $this->codeObj->code;
                 }
-            } elseif ($_SESSION['ilAccountRegistrationGUI:code']) {
+            } elseif (isset($_SESSION['ilAccountRegistrationGUI:code']) && $_SESSION['ilAccountRegistrationGUI:code']) {
                 $this->codeObj = new ilRegistrationCode(($_SESSION['ilAccountRegistrationGUI:code']));
             }
 

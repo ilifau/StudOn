@@ -511,7 +511,7 @@ class ilUserProfile
         $login_input = new ilNonEditableValueGUI($this->lng->txt('username'), 'ne_un');
         // fau: regCodes - get registration settings instance that may have a code injected
         $registration_settings = ilRegistrationSettings::getInstance();
-        if (self::$mode == self::MODE_REGISTRATION
+        if ($this->mode == self::MODE_REGISTRATION
             && $registration_settings->loginGenerationType() != ilRegistrationSettings::LOGIN_GEN_MANUAL) {
             $val = new ilNonEditableValueGUI($this->lng->txt('username'), 'username');
             $val->setValue($this->lng->txt('reg_login_is_generated'));

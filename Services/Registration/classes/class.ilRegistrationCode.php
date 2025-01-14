@@ -517,7 +517,7 @@ class ilRegistrationCode
             $this->reg_enabled = (bool) $row['reg_enabled'];
             $this->ext_enabled = (bool) $row['ext_enabled'];
             $this->login_generation_type = (string) $row['login_generation_type'];
-            $this->password_generation = (int) $row['password_generation'];
+            $this->password_generation = (bool) $row['password_generation'];
             $this->captcha_required = (bool) $row['captcha_required'];
             $this->email_verification = (bool) $row['email_verification'];
             $this->email_verification_time = (integer) $row['email_verification_time'];
@@ -604,7 +604,7 @@ class ilRegistrationCode
     {
         $logins = array();
         foreach ($this->notification_users as $id) {
-            if ($login = ilObjUser::_lookupLogin($id)) {
+            if ($login = ilObjUser::_lookupLogin((int) $id)) {
                 $logins[] = $login;
             }
         }

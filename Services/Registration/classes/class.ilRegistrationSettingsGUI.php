@@ -1063,7 +1063,7 @@ class ilRegistrationSettingsGUI
         $code_types = (array) $this->form_gui->getInput('code_type');
         $codeObj->reg_enabled = in_array(self::CODE_TYPE_REGISTRATION, $code_types);
         $codeObj->ext_enabled = in_array(self::CODE_TYPE_EXTENSION, $code_types);
-        $codeObj->use_limit = $this->form_gui->getInput('use_limit');
+        $codeObj->use_limit = (int) $this->form_gui->getInput('use_limit');
 
         // code options
         $codeObj->login_generation_type = $this->form_gui->getInput('login_generation_type');
@@ -1074,7 +1074,7 @@ class ilRegistrationSettingsGUI
         $codeObj->setNotificationLogins($this->form_gui->getInput('notification_logins'));
 
         // global role
-        $codeObj->global_role = $this->form_gui->getInput('reg_codes_role');
+        $codeObj->global_role = (int) $this->form_gui->getInput('reg_codes_role');
 
         // local roles
         $role_ids = array();
