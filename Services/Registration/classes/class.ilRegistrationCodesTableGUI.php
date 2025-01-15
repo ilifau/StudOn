@@ -57,16 +57,9 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
                 $this->addColumn($columns[$caption]['txt'], $c);
         }
 
-        $this->addColumn($this->lng->txt('actions'));
+        //$this->addColumn($this->lng->txt('actions'));
         // fau.
         
-        foreach ($this->getSelectedColumns() as $c => $caption) {
-            if ($c === "role_local" || $c === "alimit") {
-                $c = "";
-            }
-            $this->addColumn($this->lng->txt($caption), $c);
-        }
-
         $this->setExternalSorting(true);
         $this->setExternalSegmentation(true);
         $this->setEnableHeader(true);
@@ -289,6 +282,7 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
         $this->filter["generated"] = $si->getValue();
     }
 
+    /* fau: regCodes
     public function getSelectedColumns(): array
     {
         return [
@@ -300,6 +294,7 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
             "used" => "registration_used"
         ];
     }
+    */ 
 
     // fau: regCodes - define selectable columns
     public function getSelectableColumns(): array
@@ -352,11 +347,11 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
             'password_generation' => array(
                 'txt' => $this->lng->txt("passwd_generation"),
                 'default' => false
-            ),
+            ),/*
             'captcha_required' => array(
                 'txt' => $this->lng->txt("adm_captcha_anonymous_short"),
                 'default' => false
-            ),
+            ),*/
             'email_verification' => array(
                 'txt' => $this->lng->txt("reg_type_confirmation"),
                 'default' => false
@@ -382,7 +377,7 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
         $this->tpl->setVariable("ID", $a_set["code_id"]);
         foreach (array_keys($this->getSelectedColumns()) as $c) {
             $this->tpl->setCurrentBlock('column');
-            $this->tpl->setVariable("VAL", $a_set[$c] . ' ');
+            $this->tpl->setVariable("VAL", $a_set[$c] ?? "" . ' ');
             $this->tpl->parseCurrentBlock();
         }
 

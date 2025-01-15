@@ -513,8 +513,8 @@ class ilUserProfile
         $registration_settings = ilRegistrationSettings::getInstance();
         if ($this->mode == self::MODE_REGISTRATION
             && $registration_settings->loginGenerationType() != ilRegistrationSettings::LOGIN_GEN_MANUAL) {
-            $val = new ilNonEditableValueGUI($this->lng->txt('username'), 'username');
-            $val->setValue($this->lng->txt('reg_login_is_generated'));
+            $login_input = new ilNonEditableValueGUI($this->lng->txt('username'), 'username');
+            $login_input->setValue($this->lng->txt('reg_login_is_generated'));
         }// fau.
         elseif ((int) $this->settings->get('allow_change_loginname') || $this->mode == self::MODE_REGISTRATION) {
             $login_input = new ilTextInputGUI($this->lng->txt('username'), 'username');

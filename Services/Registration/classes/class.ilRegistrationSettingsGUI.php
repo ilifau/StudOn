@@ -792,7 +792,7 @@ class ilRegistrationSettingsGUI
         $this->tpl->setContent($ctab->getHTML());
 
         // fau: regCodes - show codes info
-        $this->tpl->setOnScreenMessage('info', str_replace('{URL}', ilLink::_getShortlinkBase(), $this->lng->txt('registration_codes_info')), false);
+        //$this->tpl->setOnScreenMessage('info', str_replace('{URL}', ilLink::_getShortlinkBase(), $this->lng->txt('registration_codes_info')), false);
         // fau.        
     }
 
