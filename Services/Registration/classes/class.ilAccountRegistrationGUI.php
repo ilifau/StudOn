@@ -51,6 +51,7 @@ class ilAccountRegistrationGUI
 
     // fau: regCodes - class variables
     protected ?ilRegistrationCode $codeObj = null;
+    private ?string $login = null;
     // fau.
 
 
@@ -430,9 +431,10 @@ class ilAccountRegistrationGUI
         $login = $this->form->getInput("username");
         // fau: regCodes - use login generation types
         if ($this->registration_settings->loginGenerationType() != ilRegistrationSettings::LOGIN_GEN_MANUAL) {
-            $login = $this->__generateLogin();
+            $this->login = $this->__generateLogin();
             $_POST['username'] = $login;
             $this->form->getItemByPostVar('username')->setValue($login);
+
         }
         elseif ($form_valid) {
             // fau.
@@ -450,7 +452,7 @@ class ilAccountRegistrationGUI
         if (!$form_valid) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt('form_input_not_valid'));
         } else {
-            $password = $this->createUser($valid_role);
+            $password = $this->createUser((int) $valid_role);
             $this->distributeMails($password);
             // fau: regCodes - call login with password
             return $this->login($password);
@@ -505,6 +507,7 @@ class ilAccountRegistrationGUI
         $this->userObj->setDescription($this->userObj->getEmail());
 
         // fau: regCodes: respect the password generation type
+        $this->userObj->setLogin($this->login);
         if ($this->registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_AUTO) {
             $password = ilUtil::generatePasswords(1);
             $password = $password[0];
@@ -605,7 +608,7 @@ class ilAccountRegistrationGUI
         if ($this->registration_settings->activationEnabled()) {
             // account has to be activated by email
             $this->userObj->setActive(false, 0);
-        } elseif ($this->registration_settings->getRegistrationType() == IL_REG_DIRECT ||
+        } elseif ($this->registration_settings->getRegistrationType() == ilRegistrationSettings::IL_REG_DIRECT ||
             isset($this->codeObj)) {
             // account can directly be activated
             $this->userObj->setActive(true, 0);
@@ -694,15 +697,15 @@ class ilAccountRegistrationGUI
     {
         global $DIC;
         $base_login = '';
-
+        
         switch ($this->registration_settings->loginGenerationType()) {
             case ilRegistrationSettings::LOGIN_GEN_MANUAL:
                 $base_login = $this->form->getInput('username');
                 break;
 
             case ilRegistrationSettings::LOGIN_GEN_FIRST_LASTNAME:
-                $base_login = ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_firstname'))) . '.'
-                    . ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_lastname')));
+                $base_login = ilFileUtils::getASCIIFilename(strtolower($this->form->getInput('usr_firstname'))) . '.'
+                    . ilFileUtils::getASCIIFilename(strtolower($this->form->getInput('usr_lastname')));
                 break;
 
             case ilRegistrationSettings::LOGIN_GEN_GUEST_LISTENER:
@@ -710,8 +713,8 @@ class ilAccountRegistrationGUI
                 $base_login = 'gh'
                     . (substr($semester, 4, 1) == '1' ? 's' : 'w')
                     . substr($semester, 2, 2)
-                    . substr(ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_firstname'))), 0, 2)
-                    . substr(ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_lastname'))), 0, 4);
+                    . substr(ilFileUtils::getASCIIFilename(strtolower($this->form->getInput('usr_firstname'))), 0, 2)
+                    . substr(ilFileUtils::getASCIIFilename(strtolower($this->form->getInput('usr_lastname'))), 0, 4);
                 break;
 
             case ilRegistrationSettings::LOGIN_GEN_GUEST_SELFREG:
@@ -796,7 +799,7 @@ class ilAccountRegistrationGUI
             global $DIC;
             $ctrl = $DIC->ctrl();
             $ctrl->setParameterByClass('ilstartupgui', 'lang', $this->userObj->getLanguage());
-            $ctrl->setParameterByClass('ilstartupgui', 'target', ilUtil::stripSlashes($_GET['target']));
+            $ctrl->setParameterByClass('ilstartupgui', 'target', ilUtil::stripSlashes($_GET['target'] ?? ""));
 
             $tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
             $tpl->setVariable('FORMACTION', $ctrl->getFormActionByClass('ilstartupgui'));

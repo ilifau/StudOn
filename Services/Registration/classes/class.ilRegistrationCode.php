@@ -521,7 +521,7 @@ class ilRegistrationCode
             $this->captcha_required = (bool) $row['captcha_required'];
             $this->email_verification = (bool) $row['email_verification'];
             $this->email_verification_time = (integer) $row['email_verification_time'];
-            $this->notification_users = explode(';', (string) $row['notification_users']);
+            $this->notification_users = ($row['notification_users'] == "") ? [] : explode(';', (string) $row['notification_users']);
         }
     }
 
