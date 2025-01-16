@@ -96,5 +96,31 @@ class ilLink
 
         return $link_host == $ilias_host;
     }
+    // fau.  
+    
+    // fau: linkPermaShort - new function to get the base url for sortened perma links
+    /**
+     * Get the base for shortened permanent links
+     * @param	string		$protocol 	full prefix to force a protocol (http:// or https://)
+     * 									the default is the protocol of ILIAS_HTTP_PATH
+     * @return	string					Url with server path and trailing slash (/ or /dev/ ...)
+     */
+    public static function _getShortlinkBase($protocol = '')
+    {
+        $parsed = parse_url(ILIAS_HTTP_PATH);
+
+        // determine host and protocol
+        $protocol = empty($protocol) ? $parsed['scheme'] . '://' : $protocol;
+        $host = strtolower($parsed['host']);
+
+        // determine shortlink path (/ for studon, /dev/ for studon-dev)
+        $path = $parsed['path'];
+        $path = str_replace('/VHBSSO', '', $path);      //if error raised from vhb authenticaion
+        $path = str_replace('/studon-', '', $path);
+        $path = str_replace('/studon', '', $path);
+        $path = empty($path) ? '/' : '/' . $path . '/';
+
+        return $protocol . $host . $path;
+    }
     // fau.    
 }

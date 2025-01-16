@@ -3810,7 +3810,13 @@ class ilObjUser extends ilObject
             [$a_hash]
         );
         while ($row = $ilDB->fetchAssoc($res)) {
-            $oRegSettigs = new ilRegistrationSettings();
+            // fau: regCodes - inject code into registration settings
+            $oRegSettigs = ilRegistrationSettings::getInstance();
+            $oRegCode = new ilRegistrationCode(self::_lookupPref($row['usr_id'], 'registration_code'));
+            if (isset($oRegCode->code_id)) {
+                $oRegSettigs->setCodeObject($oRegCode);
+            }
+            // fau.
 
             if ($oRegSettigs->getRegistrationHashLifetime() != 0 &&
                 time() - $oRegSettigs->getRegistrationHashLifetime() > strtotime($row['create_date'])) {
@@ -3829,6 +3835,9 @@ class ilObjUser extends ilObject
                 ['', (int) $row['usr_id']]
             );
 
+            // fau: regCodes - delete registration code from preferences when it is not longer needed
+            self::_deletePref($row['usr_id'], 'registration_code');
+            // fau.
             return (int) $row['usr_id'];
         }
 

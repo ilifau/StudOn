@@ -40,7 +40,22 @@ class ilRegistrationSettings
     public const IL_REG_ROLES_EMAIL = 2;
     public const IL_REG_ERROR_UNKNOWN = 1;
     public const IL_REG_ERROR_NO_PERM = 2;
+    // fau: regCodes - new constants for login generation
+    public const LOGIN_GEN_MANUAL = 'manual';
+    public const LOGIN_GEN_FIRST_LASTNAME = 'firstlastname';
+    public const LOGIN_GEN_GUEST_LISTENER = 'guestlistener';
+    public const LOGIN_GEN_GUEST_SELFREG = 'guestselfreg';
+    // fau.
 
+    // fau: regCodes - new constants for password generation
+    public const PW_GEN_MANUAL = 0;
+    public const PW_GEN_AUTO = 1;
+    public const PW_GEN_LOGIN = 2;
+    // fau.
+
+    // fau: regCodes - variable for code object
+    protected ilRegistrationCode $codeObj;
+    // fau.
     private int $registration_type;
     private bool $password_generation_enabled = false;
     private bool $access_limitation = false;
@@ -65,6 +80,66 @@ class ilRegistrationSettings
         $this->settings = $settings;
         $this->read();
     }
+
+    // fau: regCodes - new function getInstance
+    public static function getInstance()
+    {
+        /** @var ilRegistrationSettings $instance */
+        static $instance;
+
+        if (!isset($instance)) {
+            $instance = new ilRegistrationSettings();
+        }
+        return $instance;
+    }
+    // fau.
+
+    // fau: regCodes - new function setCodeObject
+    /**
+     * Inject a registration code object
+     * The settings of the will override the generalsettings
+     *
+     * @param ilRegistrationCode $codeObj
+     */
+    public function setCodeObject(ilRegistrationCode $codeObj)
+    {
+        $this->codeObj = $codeObj;
+    }
+    // fau.
+    
+    // fau: regCodes - new function getLoginGenerationTypes
+    /**
+     * Get a list of selectable login generation types
+     * @return array
+     */
+    public static function getLoginGenerationTypes()
+    {
+        global $lng;
+        $lng->loadLanguageModule('registration');
+
+        return array(
+            self::LOGIN_GEN_MANUAL => $lng->txt('reg_login_gen_manual'),
+            self::LOGIN_GEN_FIRST_LASTNAME => $lng->txt('reg_login_gen_first_lastname'),
+            self::LOGIN_GEN_GUEST_SELFREG => $lng->txt('reg_login_gen_guest_selfreg'),
+            self::LOGIN_GEN_GUEST_LISTENER => $lng->txt('reg_login_gen_guest_listener')
+        );
+    }
+    // fau.
+    
+    // fau: regCodes - new function loginGenerationType
+    /**
+     * Get the login generation type (with or without code)
+     * @return string
+     */
+    public function loginGenerationType()
+    {
+        if (isset($this->codeObj)) {
+            return $this->codeObj->login_generation_type;
+        } else {
+            return self::LOGIN_GEN_MANUAL;
+        }
+    }
+    // fau.
 
     public function getRegistrationType(): int
     {
@@ -107,6 +182,11 @@ class ilRegistrationSettings
 
     public function activationEnabled(): bool
     {
+        // fau: regCodes - take code settings for email verification with precedence
+        if (isset($this->codeObj)) {
+            return $this->codeObj->email_verification;
+        }
+        // fau.        
         return $this->registration_type === self::IL_REG_ACTIVATION;
     }
 
@@ -117,6 +197,11 @@ class ilRegistrationSettings
 
     public function passwordGenerationEnabled(): bool
     {
+        // fau: regCodes - take code settings for password generation with precedence
+        if (isset($this->codeObj)) {
+            return ($this->codeObj->password_generation == self::PW_GEN_AUTO);
+        }
+        // fau.
         return $this->password_generation_enabled;
     }
 
@@ -129,6 +214,35 @@ class ilRegistrationSettings
     {
         return $this->access_limitation;
     }
+
+    // fau: regCodes - new function passwordGenerationType()
+    public function passwordGenerationType()
+    {
+        if (isset($this->codeObj)) {
+            return ($this->codeObj->password_generation);
+        }
+        return ($this->password_generation_enabled ? self::PW_GEN_AUTO : self::PW_GEN_MANUAL);
+    }
+    // fau.
+
+
+    // fau: regCodes - new function getPasswordGenerationTypes
+    /**
+     * Get a list of selectable password generation types
+     * @return array
+     */
+    public static function getPasswordGenerationTypes()
+    {
+        global $lng;
+        $lng->loadLanguageModule('registration');
+
+        return array(
+            self::PW_GEN_MANUAL => $lng->txt('reg_pw_gen_manual'),
+            self::PW_GEN_AUTO => $lng->txt('reg_pw_gen_auto'),
+            // self::PW_GEN_LOGIN => $lng->txt('reg_pw_gen_login'),
+        );
+    }
+    // fau.
 
     public function setAccessLimitation(bool $a_access_limitation): void
     {
@@ -155,6 +269,11 @@ class ilRegistrationSettings
 
     public function getApproveRecipients(): array
     {
+        // fau: regCodes - take the code settings for approve recipients with precedence
+        if (isset($this->codeObj)) {
+            return $this->codeObj->notification_users;
+        }
+        // fau.
         return $this->approve_recipient_ids;
     }
 
@@ -186,6 +305,12 @@ class ilRegistrationSettings
 
     public function getRegistrationHashLifetime(): int
     {
+        // fau: regCodes - take the code settings for approve recipients with precedence
+        if (isset($this->codeObj)) {
+            return max($this->codeObj->email_verification_time, self::REG_HASH_LIFETIME_MIN_VALUE);
+        }
+        // fau.
+
         return max($this->reg_hash_life_time, self::REG_HASH_LIFETIME_MIN_VALUE);
     }
 
@@ -215,6 +340,11 @@ class ilRegistrationSettings
 
     public function getAllowedDomains(): array
     {
+        // fau: regCodes - don't restrict email domains with a code
+        if (isset($this->codeObj)) {
+            return array();
+        }
+        // fau.        
         return $this->allowed_domains;
     }
 

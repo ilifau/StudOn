@@ -1679,12 +1679,14 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
         }
 
         try {
-            $oRegSettings = new ilRegistrationSettings();
-
-            $usr_id = ilObjUser::_verifyRegistrationHash(trim($regitration_hash));
-            /** @var ilObjUser $user */
+            // fau: regCodes - get settings instance after hash verification (code my be injected)
+            $usr_id = ilObjUser::_verifyRegistrationHash(trim($_GET['rh']));
+            /** @var \ilObjUser $user */
             $user = ilObjectFactory::getInstanceByObjId($usr_id);
             $user->setActive(true);
+
+            $oRegSettings = ilRegistrationSettings::getInstance();
+            // fau.
             $password = '';
             if ($oRegSettings->passwordGenerationEnabled()) {
                 $passwords = ilSecuritySettingsChecker::generatePasswords(1);

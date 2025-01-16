@@ -291,11 +291,13 @@ class ilUserProfileDefaultFields
         'studydata' => [
             'input' => 'studydata',
             'lists_hide' => false,
-            'group' => 'other'],
+            'group' => 'other',
+            'method' => ''],
         'educations' => [
             'input' => 'educations',
             'lists_hide' => false,
-            'group' => 'other'],
+            'group' => 'other',
+            'method' => ''],
         // fau.        
         'language' => [
             'input' => 'language',
