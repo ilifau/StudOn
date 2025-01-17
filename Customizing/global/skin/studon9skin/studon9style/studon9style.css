@@ -6581,13 +6581,13 @@ footer {
   margin-right: 3px;
 }
 .il-maincontrols-footer .il-footer-text {
-  margin: 3px 3px 6px 0px;
+  margin: 3px 0px 6px 0px;
   display:inline;
 }
 
 .il-maincontrols-footer .il-footer-text img{
   float:left;
-  margin-right:10px;
+  margin-right:50px;
 }
 
 /*
