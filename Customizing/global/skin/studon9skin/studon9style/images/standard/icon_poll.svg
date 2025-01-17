@@ -7,7 +7,7 @@
       }
 
       .cls-2 {
-        fill: #a7e2fa;
+        fill: #c0cbda;
       }
 
       .cls-3 {
@@ -23,18 +23,10 @@
       }
 
       .cls-6 {
-        fill: #ebabae;
-      }
-
-      .cls-7 {
-        fill: #c0cbda;
-      }
-
-      .cls-8 {
         clip-path: url(#clippath-2);
       }
 
-      .cls-9 {
+      .cls-7 {
         clip-path: url(#clippath);
       }
     </style>
@@ -51,14 +43,14 @@
       <rect class="cls-3" width="320" height="320"/>
     </clipPath>
   </defs>
-  <g class="cls-9">
+  <g class="cls-7">
     <path class="cls-2" d="M175,70c0-2.8-2.2-5-5-5h-80c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h80c2.8,0,5-2.2,5-5v-40Z"/>
   </g>
   <g class="cls-4">
-    <path class="cls-7" d="M275,140c0-2.8-2.2-5-5-5H90c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h180c2.8,0,5-2.2,5-5v-40Z"/>
+    <path class="cls-2" d="M275,140c0-2.8-2.2-5-5-5H90c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h180c2.8,0,5-2.2,5-5v-40Z"/>
   </g>
-  <g class="cls-8">
-    <path class="cls-6" d="M235,210c0-2.8-2.2-5-5-5H90c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h140c2.8,0,5-2.2,5-5v-40Z"/>
+  <g class="cls-6">
+    <path class="cls-2" d="M235,210c0-2.8-2.2-5-5-5H90c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h140c2.8,0,5-2.2,5-5v-40Z"/>
   </g>
   <g class="cls-5">
     <path class="cls-1" d="M65,45c0-2.8-2.2-5-5-5h-10c-2.8,0-5,2.2-5,5v230c0,2.8,2.2,5,5,5h10c2.8,0,5-2.2,5-5V45Z"/>

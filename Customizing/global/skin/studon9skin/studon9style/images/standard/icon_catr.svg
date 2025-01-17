@@ -7,11 +7,11 @@
       }
 
       .cls-2 {
-        fill: none;
+        fill: #c0cbda;
       }
 
       .cls-3 {
-        fill: #ebabae;
+        fill: none;
       }
 
       .cls-4 {
@@ -19,12 +19,12 @@
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" x="30" y="60" width="250" height="200"/>
+      <rect class="cls-3" x="30" y="60" width="250" height="200"/>
     </clipPath>
   </defs>
   <g class="cls-4">
     <path class="cls-1" d="M280,250V90c0-5.5-4.5-10-10-10H126.7l-6.7-20H40v82h15v-67h50l6.7,20h153.3v150H55v-37h-15v42c0,5.5,4.5,10,10,10h220c5.5,0,10-4.5,10-10"/>
   </g>
-  <polygon class="cls-3" points="90 157 30 157 30 193 90 193 90 225 135 175 90 125 90 157"/>
-  <rect class="cls-2" width="320" height="320"/>
+  <polygon class="cls-2" points="90 157 30 157 30 193 90 193 90 225 135 175 90 125 90 157"/>
+  <rect class="cls-3" width="320" height="320"/>
 </svg>

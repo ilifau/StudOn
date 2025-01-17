@@ -7,23 +7,19 @@
       }
 
       .cls-2 {
-        fill: none;
-      }
-
-      .cls-3 {
         fill: #c0cbda;
       }
 
-      .cls-4 {
-        fill: #deedcb;
+      .cls-3 {
+        fill: none;
       }
     </style>
   </defs>
-  <rect class="cls-4" x="40" y="105" width="210" height="150"/>
-  <path class="cls-3" d="M280,220h-15v-120c0-5.5-4.5-10-10-10H70v-20h210v150Z"/>
-  <rect class="cls-2" x="25" y="55" width="270" height="215"/>
-  <rect class="cls-2" x="25" y="55" width="270" height="215"/>
-  <rect class="cls-2" width="320" height="320"/>
+  <rect class="cls-2" x="40" y="105" width="210" height="150"/>
+  <path class="cls-2" d="M280,220h-15v-120c0-5.5-4.5-10-10-10H70v-20h210v150Z"/>
+  <rect class="cls-3" x="25" y="55" width="270" height="215"/>
+  <rect class="cls-3" x="25" y="55" width="270" height="215"/>
+  <rect class="cls-3" width="320" height="320"/>
   <g>
     <polygon class="cls-1" points="144.7 230.7 144.7 230.7 145.3 230.7 214.9 137.5 191.6 120 140.6 187.7 110.1 160.2 90.5 181.9 144.7 230.7"/>
     <path class="cls-1" d="M285,55H65c-5.5,0-10,4.5-10,10v25h-20c-5.5,0-10,4.5-10,10v160c0,5.5,4.5,10,10,10h220c5.5,0,10-4.5,10-10v-25h20c5.5,0,10-4.5,10-10V65c0-5.5-4.5-10-10-10ZM250,255H40V105h210v150ZM280,220h-15v-120c0-5.5-4.5-10-10-10H70v-20h210v150Z"/>

@@ -7,11 +7,11 @@
       }
 
       .cls-2 {
-        fill: none;
+        fill: #c0cbda;
       }
 
       .cls-3 {
-        fill: #dedede;
+        fill: none;
       }
 
       .cls-4 {
@@ -19,12 +19,12 @@
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" x="57" y="40" width="206" height="240"/>
+      <rect class="cls-3" x="57" y="40" width="206" height="240"/>
     </clipPath>
   </defs>
-  <rect class="cls-3" x="72" y="140" width="176" height="125"/>
+  <rect class="cls-2" x="72" y="140" width="176" height="125"/>
   <g class="cls-4">
     <path class="cls-1" d="M151.1,201.2l-5.3,31.8h28.3l-5.3-31.8c4.3-2.9,7.2-7.5,7.2-13.1,0-8.9-7.2-16.1-16.1-16.1s-16.1,7.2-16.1,16.1c.1,5.6,3.1,10.2,7.3,13.1M248,265H72v-125h176v125ZM224.5,125.5H95.5c7.4-28.2,33.5-49.2,64.5-49.2s57.2,21,64.5,49.2M263,264.5v-123.5s0-.5-.1-1.2c-1-55.2-46.8-99.8-102.9-99.8s-102.3,45-102.9,100.5c0,.2-.1.3-.1.4v123.6s0,15.5,15.5,15.5h175.1c-.1,0,15.4,0,15.4-15.5"/>
   </g>
-  <rect class="cls-2" width="320" height="320"/>
+  <rect class="cls-3" width="320" height="320"/>
 </svg>

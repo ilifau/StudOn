@@ -7,22 +7,22 @@
       }
 
       .cls-2 {
-        fill: none;
+        fill: #c0cbda;
       }
 
       .cls-3 {
-        fill: #ebabae;
+        fill: none;
       }
 
       .cls-4 {
-        fill: #fee4b2;
+        fill: #041e42;
       }
     </style>
   </defs>
   <rect class="cls-1" x="110" y="40" width="15" height="240"/>
-  <polygon class="cls-3" points="140 40 140 110 260 110 235 75 260 40 140 40"/>
-  <rect class="cls-2" x="110" y="40" width="150" height="240"/>
+  <polygon class="cls-4" points="140 40 140 110 260 110 235 75 260 40 140 40"/>
+  <rect class="cls-3" x="110" y="40" width="150" height="240"/>
   <path class="cls-1" d="M260,195h-120v-70h120l-25,35,25,35ZM155,180h75.8l-14.3-20,14.3-20h-75.8v40Z"/>
-  <rect class="cls-2" width="320" height="320"/>
-  <polygon class="cls-4" points="155 180 230.8 180 216.5 160 230.8 140 155 140 155 180"/>
+  <rect class="cls-3" width="320" height="320"/>
+  <polygon class="cls-2" points="155 180 230.8 180 216.5 160 230.8 140 155 140 155 180"/>
 </svg>

@@ -7,30 +7,26 @@
       }
 
       .cls-2 {
-        fill: none;
-      }
-
-      .cls-3 {
         fill: #c0cbda;
       }
 
-      .cls-4 {
-        fill: #deedcb;
+      .cls-3 {
+        fill: none;
       }
 
-      .cls-5 {
+      .cls-4 {
         clip-path: url(#clippath);
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" width="320" height="320"/>
+      <rect class="cls-3" width="320" height="320"/>
     </clipPath>
   </defs>
   <g>
-    <path class="cls-3" d="M280.01,220.01h-15v-120c0-5.5-4.5-10-10-10H70.01v-20h210v150Z"/>
-    <rect class="cls-4" x="40.01" y="105.01" width="210" height="150"/>
+    <path class="cls-2" d="M280.01,220.01h-15v-120c0-5.5-4.5-10-10-10H70.01v-20h210v150Z"/>
+    <rect class="cls-2" x="40.01" y="105.01" width="210" height="150"/>
   </g>
-  <g class="cls-5">
+  <g class="cls-4">
     <path class="cls-1" d="M145.3,230.7l69.6-93.2-23.3-17.5-51,67.7-30.5-27.5-19.5,21.7,54.2,48.8h.5ZM280,220h-15v-120c0-5.5-4.5-10-10-10H70v-20h210v150ZM250,255H40V105h210v150ZM295,225V65c0-5.5-4.5-10-10-10H65c-5.5,0-10,4.5-10,10v25h-20c-5.5,0-10,4.5-10,10v160c0,5.5,4.5,10,10,10h220c5.5,0,10-4.5,10-10v-25h20c5.5,0,10-4.5,10-10"/>
   </g>
 </svg>

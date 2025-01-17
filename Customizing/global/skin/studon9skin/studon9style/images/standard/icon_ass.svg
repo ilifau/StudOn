@@ -7,15 +7,15 @@
       }
 
       .cls-2 {
-        fill: none;
+        fill: #c0cbda;
       }
 
       .cls-3 {
-        fill: #deedcb;
+        fill: none;
       }
     </style>
   </defs>
   <path class="cls-1" d="M153.1,219.1H63.1V69.1h90v150ZM201.9,135.9l-33.7,62.6V54.1H48.2v180h100.8l-17.1,31.8h140l-70-130Z"/>
-  <rect class="cls-2" width="320" height="320"/>
-  <rect class="cls-3" x="63.1" y="69.1" width="90" height="150"/>
+  <rect class="cls-3" width="320" height="320"/>
+  <rect class="cls-2" x="63.1" y="69.1" width="90" height="150"/>
 </svg>

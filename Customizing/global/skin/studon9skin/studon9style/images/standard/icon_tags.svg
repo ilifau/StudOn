@@ -7,11 +7,11 @@
       }
 
       .cls-2 {
-        fill: none;
+        fill: #c0cbda;
       }
 
       .cls-3 {
-        fill: #fee4b2;
+        fill: none;
       }
 
       .cls-4 {
@@ -19,12 +19,12 @@
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" x="13" y="13" width="294" height="294"/>
+      <rect class="cls-3" x="13" y="13" width="294" height="294"/>
     </clipPath>
   </defs>
   <g class="cls-4">
-    <path class="cls-1" d="M271.7,196.7l-75,75L61.2,136.1l75-75,135.5,135.6ZM82.7,82.7c-6.8,6.8-17.9,6.8-24.7,0s-6.8-17.9,0-24.7c6.8-6.8,17.9-6.8,24.7,0,6.8,6.8,6.9,17.9,0,24.7M307,196.7L143.2,32.9,66.5,13,13,66.5l19.9,76.7,163.8,163.8,110.3-110.3Z"/>
+    <path class="cls-1" d="M271.7,196.7l-75,75L61.2,136.1l75-75,135.5,135.6h0ZM82.7,82.7c-6.8,6.8-17.9,6.8-24.7,0s-6.8-17.9,0-24.7,17.9-6.8,24.7,0,6.9,17.9,0,24.7M307,196.7L143.2,32.9,66.5,13,13,66.5l19.9,76.7,163.8,163.8,110.3-110.3Z"/>
   </g>
-  <rect class="cls-2" width="320" height="320"/>
-  <rect class="cls-3" x="113.63" y="70.02" width="106.07" height="191.7" transform="translate(-68.47 166.43) rotate(-45)"/>
+  <rect class="cls-3" width="320" height="320"/>
+  <rect class="cls-2" x="113.63" y="70.02" width="106.07" height="191.7" transform="translate(-68.47 166.43) rotate(-45)"/>
 </svg>
