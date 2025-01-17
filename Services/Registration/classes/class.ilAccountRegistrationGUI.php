@@ -803,9 +803,9 @@ class ilAccountRegistrationGUI
 
             $tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
             $tpl->setVariable('FORMACTION', $ctrl->getFormActionByClass('ilstartupgui'));
-            $tpl->setVariable('COMMAND', 'doStandardAuthentication');
-            $tpl->setVariable('USERNAME', $this->userObj->getLogin());
-            $tpl->setVariable('PASSWORD', $password);
+            $tpl->setVariable('COMMAND', 'showLoginPage');
+            //$tpl->setVariable('USERNAME', $this->userObj->getLogin());
+            //$tpl->setVariable('PASSWORD', $password);
             $tpl->setVariable('TXT_LOGIN', $this->lng->txt('local_login_to_ilias_registered'));
             $tpl->setVariable('TIMEOUT_URL', 'index.php');
             // fau.
