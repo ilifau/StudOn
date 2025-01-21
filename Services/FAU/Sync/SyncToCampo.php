@@ -90,8 +90,6 @@ class SyncToCampo extends SyncBase
         $this->info('sync StudOnMembers for Term ' . $term->toString() . '...');
         // get the members noted in the staging database
         $existing = $this->staging->repo()->getStudOnMembersInTerm($term);
-        // get the sending setting of courses in the term (course_id => send_passed)
-        $sending = $this->sync->repo()->getCourseSendPassedToSyncBack($term);
         // get the module ids of modules for which a 'passed' status of members should be sent to campo
         $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
         
@@ -99,13 +97,20 @@ class SyncToCampo extends SyncBase
             $member = $this->rememberStatusChangedFromStaging($member);
 
             if ($member->getStatus() == StudOnMember::STATUS_PASSED) {
-                
-                // don't send a 'passed' status if neither the module nor the course allows it
-                if (!in_array($member->getModuleId(), $passing_module_ids)
-                    && (!isset($sending[$member->getCourseId()]) || $sending[$member->getCourseId()] != Course::SEND_PASSED_LP)) {
-                    
+                // don't send a 'passed' status if the module does not allow it and a module is set
+                if (!in_array($member->getModuleId(), $passing_module_ids) && $member->getModuleId() != null)
+                {                
                     $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
                 }
+
+                // if module is not set, we need to find out if the course has event_id fitting to passing modules
+                if($member->getModuleId() == null)
+                {
+                    $course_id = $member->getCourseId();
+                    if(!$this->sendPassedCourseId($course_id, $passing_module_ids)){
+                        $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
+                    }
+                }                
             }
             
             if (!isset($existing[$member->key()]) || $existing[$member->key()]->hash() != $member->hash()) {
@@ -119,13 +124,30 @@ class SyncToCampo extends SyncBase
         // delete remaining existing members in campo that are no longer assigned in studon
         // don't delete those of older courses where the studon object is deleted or connected with another course
         foreach ($existing as $member) {
-            if (isset($sending[$member->getCourseId()])) {
-                $this->staging->repo()->delete($member);
-                $this->increaseItemsDeleted();
-            }
+            $this->staging->repo()->delete($member);
+            $this->increaseItemsDeleted();
         }
     }
 
+    /**
+     *  Find out if the course has event_id fitting to passing modules
+     */
+    private function sendPassedCourseId(int $course_id, array $passing_module_ids): bool 
+    {
+        $course_event_id = $this->study->repo()->getCourse($course_id)->getEventId();
+        $event_modules = $this->staging->repo()->getEventModulesWithEventID($course_event_id);
+
+        foreach($event_modules as $event_module)
+        {
+            if($event_module->getEventId() == $course_event_id)
+            {
+                if(in_array($event_module->getModuleId(), $passing_module_ids))
+                    return true;
+            }
+        }
+
+        return false;
+    }    
 
     /**
      * Update all passed members in the staging table, regardless of the term

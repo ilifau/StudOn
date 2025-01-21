@@ -1194,12 +1194,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->tpl->setOnScreenMessage('failure', $GLOBALS['DIC']->language()->txt('err_check_input'));
             $this->editObject($form);
             return;
-        }
-
-        // fau: syncToCampo - save the campo settings from the form
-        global $DIC;
-        $DIC->fau()->ilias()->getCourseSettingsGUI()->saveCampoSettingsFromForm($form, $this->object);
-        // fau.        
+        }     
 
         // 29589
         if (
@@ -1817,9 +1812,7 @@ class ilObjCourseGUI extends ilContainerGUI
         // Edit ecs export settings
         $ecs = new ilECSCourseSettings($this->object);
         $ecs->addSettingsToForm($form, 'crs');
-        // fau: campoSub - add the campo settings to the form
-        $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addCampoSettingsToForm($form, $this->object);
-        // fau.
+
         return $form;
     }
 
