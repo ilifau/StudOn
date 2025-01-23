@@ -797,6 +797,7 @@ table.mceToolbar tbody, table.mceToolbar tr, table.mceToolbar td {
     width: auto !important;
   }
 }
+
 @font-face {
   font-family: "Open Sans";
   src: url("./fonts/OpenSansWeb/OpenSans-Regular.woff2") format("woff2"), url("./fonts/OpenSansWeb/OpenSans-Regular.woff") format("woff");
@@ -2018,8 +2019,13 @@ html {
   }
 }
 
+@font-face{
+  font-family: 'Roboto-StudOn';
+  src: url("./fonts/Roboto/Roboto-Regular.ttf") format('truetype');
+}
+
 body {
-  font-family: "Open Sans", Verdana, Arial, Helvetica, sans-serif;
+  font-family: 'Roboto-StudOn', Verdana, Arial, Helvetica, sans-serif;
   font-size: 0.875rem;
   line-height: 1.428571429;
   color: #161616;
@@ -2114,7 +2120,7 @@ tr, td {
 
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: "Open Sans", Verdana, Arial, Helvetica, sans-serif;
+  font-family: 'Roboto-StudOn', Verdana, Arial, Helvetica, sans-serif;
   font-weight: 500;
   line-height: 1.33;
   color: inherit;
@@ -2531,7 +2537,7 @@ ol.breadcrumb > li + li:before {
      -moz-user-select: none;
           user-select: none;
   touch-action: manipulation;
-  font-family: "Open Sans", Verdana, Arial, Helvetica, sans-serif;
+  font-family: 'Roboto-StudOn', Verdana, Arial, Helvetica, sans-serif;
   text-align: center;
   line-height: inherit;
   font-size: inherit;
@@ -2707,7 +2713,7 @@ input.btn, input.il-link.link-bulky,
      -moz-user-select: none;
           user-select: none;
   touch-action: manipulation;
-  font-family: "Open Sans", Verdana, Arial, Helvetica, sans-serif;
+  font-family: 'Roboto-StudOn', Verdana, Arial, Helvetica, sans-serif;
   text-align: center;
   line-height: inherit;
   font-size: inherit;
@@ -6158,7 +6164,7 @@ footer {
 }
 .il-mainbar-triggers .btn-bulky,
 .il-mainbar-triggers .il-link.link-bulky {
-  background: #2c2c2c;
+  background: #041E42;
 }
 .il-mainbar-triggers .btn-bulky .bulky-label,
 .il-mainbar-triggers .il-link.link-bulky .bulky-label {
@@ -6310,7 +6316,7 @@ footer {
 }
 
 .il-maincontrols-mainbar {
-  background-color: #2c2c2c;
+  background-color: #041E42;
 }
 
 .il-maincontrols-mainbar .il-item-shy,
@@ -6527,7 +6533,7 @@ footer {
 }
 footer {
   text-align: left;
-  background-color: #002F6D;
+  background-color: #041E42;
   padding: 10px 0 10px 5px;
   border-top: 1px solid #dddddd;
 }
@@ -6538,22 +6544,24 @@ footer {
   padding: 3px 12px;
 }
 .il-maincontrols-footer .il-footer-content div {
-  display: inline-block;
+  
 }
 .il-maincontrols-footer .il-footer-links ul {
   list-style: none;
   padding: 0px;
   margin: 0px;
+  float:right;
 }
 .il-maincontrols-footer .il-footer-links li {
   display: inline-block;
   margin-right: 3px;
 }
 .il-maincontrols-footer .il-footer-links li a, .il-maincontrols-footer .il-footer-links li button {
-  color: #4c6586;
+  color: white;
 }
 .il-maincontrols-footer .il-footer-links li a:hover, .il-maincontrols-footer .il-footer-links li button:hover {
-  color: #3a4c65;
+  color: white;
+  text-decoration:underline;
 }
 .il-maincontrols-footer .il-footer-links li button {
   vertical-align: baseline;
@@ -6573,7 +6581,13 @@ footer {
   margin-right: 3px;
 }
 .il-maincontrols-footer .il-footer-text {
-  margin: 3px 3px 6px 0px;
+  margin: 3px 0px 6px 0px;
+  display:inline;
+}
+
+.il-maincontrols-footer .il-footer-text img{
+  float:left;
+  margin-right:50px;
 }
 
 /*
