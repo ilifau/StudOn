@@ -20,6 +20,10 @@ use ILIAS\DI\UIServices;
 use ILIAS\Exercise\InternalService;
 use ILIAS\Exercise\Assignment\Mandatory\MandatoryAssignmentsManager;
 
+// fau: exAssHook - require the extended type gui interface
+require_once "./Modules/Exercise/AssignmentTypes/GUI/classes/interface.ilExAssignmentTypeExtendedGUIInterface.php";
+// fau.
+
 /**
  * GUI class for exercise assignments
  *
@@ -38,6 +42,9 @@ class ilExAssignmentGUI
     protected MandatoryAssignmentsManager $mandatory_manager;
     protected UIServices $ui;
     protected int $requested_ass_id;
+    // fau: exAssHook - assignment type gui
+    protected ilExAssignmentTypeGUIInterface $type_gui;
+    // fau.    
 
 
     /**
@@ -174,6 +181,10 @@ class ilExAssignmentGUI
 
         $this->current_ass_id = $a_ass->getId();
 
+        // fau: exAssHook - set type gui
+        $this->type_gui = ilExAssignmentTypesGUI::getInstance()->getById($a_ass->getType());
+        // fau.        
+
         $tpl = new ilTemplate("tpl.assignment_body.html", true, true, "Modules/Exercise");
 
         $state = ilExcAssMemberState::getInstanceByIds($a_ass->getId(), $ilUser->getId());
@@ -208,6 +219,12 @@ class ilExAssignmentGUI
             $a_info->addSection($inst["instruction"]["txt"]);
             $a_info->addProperty("", $inst["instruction"]["value"]);
         }
+
+        // fau: exAssHook - additional instructions
+        if ($this->type_gui instanceof ilExAssignmentTypeExtendedGUIInterface) {
+            $this->type_gui->getOverviewAdditionalInstructions($a_info, $a_ass);
+        }
+        // fau.        
     }
 
     /**
@@ -374,6 +391,28 @@ class ilExAssignmentGUI
 
         $submission = new ilExSubmission($a_ass, $ilUser->getId());
 
+        // fau: exAssHook - add own submission section
+        if ($this->type_gui instanceof ilExAssignmentTypeExtendedGUIInterface && $this->type_gui->hasOwnOverviewSubmission()) {
+            $this->type_gui->getOverviewSubmission($a_info, $submission);
+            if ($submission->hasSubmitted()) {
+                // needed for $show_global_feedback below
+                $last_sub = $submission->getLastSubmission();
+            }
+        }
+        else {
+            ilExSubmissionGUI::getOverviewContent($a_info, $submission, $this->exc);
+
+            $last_sub = null;
+            if ($submission->hasSubmitted()) {
+                $last_sub = $submission->getLastSubmission();
+                if ($last_sub) {
+                    $last_sub = ilDatePresentation::formatDate(new ilDateTime($last_sub, IL_CAL_DATETIME));
+                    $a_info->addProperty($lng->txt("exc_last_submission"), $last_sub);
+                }
+            }
+        }
+        // fau.
+
         ilExSubmissionGUI::getOverviewContent($a_info, $submission, $this->exc);
 
         $last_sub = null;
@@ -392,6 +431,11 @@ class ilExAssignmentGUI
         ilExPeerReviewGUI::getOverviewContent($a_info, $submission);
 
         // global feedback / sample solution
+
+        // fau: exAssHook - extended check for global fedback file
+        $has_global_feedback = $a_ass->getFeedbackFile() ||
+            ($this->type_gui instanceof ilExAssignmentTypeExtendedGUIInterface && $this->type_gui->hasOwnOverviewGeneralFeedback());
+
         if ($a_ass->getFeedbackDate() == ilExAssignment::FEEDBACK_DATE_DEADLINE) {
             $show_global_feedback = ($state->hasSubmissionEndedForAllUsers() && $a_ass->getFeedbackFile());
         }
@@ -400,25 +444,46 @@ class ilExAssignmentGUI
         //we can check in the elseif $submission->hasSubmitted()
         elseif ($a_ass->getFeedbackDate() == ilExAssignment::FEEDBACK_DATE_CUSTOM) {
             $show_global_feedback = ($a_ass->afterCustomDate() && $a_ass->getFeedbackFile());
+        }
+        // fau: exFeedbackNever - suppress feedback generally
+        elseif($a_ass->getFeedbackDate() == ilExAssignment::FEEDBACK_DATE_NEVER) {
+            $show_global_feedback = false;
+            // fau.            
         } else {
             $show_global_feedback = ($last_sub && $a_ass->getFeedbackFile());
         }
-        $this->addSubmissionFeedback($a_info, $a_ass, $submission->getFeedbackId(), $show_global_feedback);
+        // fau.
+        // fau: exResTime - show tutor feedback section after result time
+        // fau: exAssHook - provide submission instead of feedback id
+        if ((int) $a_ass->getResultTime() <= time()) {
+            $this->addSubmissionFeedback($a_info, $a_ass, $submission, $show_global_feedback);
+        }
+        // fau.
     }
 
+    // fau: exAssHook - change feedback id parameter to submission (avoid multiple instantiation)
     protected function addSubmissionFeedback(
         ilInfoScreenGUI $a_info,
         ilExAssignment $a_ass,
-        string $a_feedback_id,
+        ilExSubmission $a_submission,
         bool $a_show_global_feedback
-    ): void {
+    ) // .fau
+    : void {
         $lng = $this->lng;
 
-        $feedback_file_manager = $this->service->domain()->assignment()->tutorFeedbackFile($a_ass->getId());
-        $cnt_files = $feedback_file_manager->count($this->user->getId());
+        //keep for debugging purpose COR
+        //$feedback_file_manager = $this->service->domain()->assignment()->tutorFeedbackFile($a_ass->getId());
+        //$cnt_files = $feedback_file_manager->count($this->user->getId());
+        // fau: exAssHook - use submission
+        $storage = new ilFSStorageExercise($a_ass->getExerciseId(), $a_ass->getId());
+        $cnt_files = $storage->countFeedbackFiles($a_submission->getFeedbackId());
+        // fau.        
+
         $lpcomment = $a_ass->getMemberStatus()->getComment();
-        $mark = $a_ass->getMemberStatus()->getMark();
-        $status = $a_ass->getMemberStatus()->getStatus();
+        // fau: exPlag -get the effective mark and status
+        $mark = $a_ass->getMemberStatus()->getEffectiveMark($a_ass->hasNumericPoints());
+        $status = $a_ass->getMemberStatus()->getEffectiveStatus();
+        // fau.
 
         if ($lpcomment != "" ||
             $mark != "" ||
@@ -429,15 +494,34 @@ class ilExAssignmentGUI
             if ($lpcomment != "") {
                 $a_info->addProperty(
                     $lng->txt("exc_comment"),
-                    nl2br($lpcomment)
+                    // fau: exFeedbackHtml - allow secure html output
+                    nl2br(ilUtil::secureString(htmlentities($lpcomment)))
+                    // fau.
                 );
             }
             if ($mark != "") {
                 $a_info->addProperty(
                     $lng->txt("exc_mark"),
-                    $mark
+                    // fau: exMaxPoints - show extended mark
+                    $a_ass->getMemberStatus()->getMarkWithInfo($a_ass)
+                    // fau.
                 );
             }
+
+            // fau: exPlag - show plagiarism info
+            if ($a_ass->getMemberStatus()->isPlagDetected()) {
+                $a_info->addProperty(
+                    $lng->txt("exc_plagiarism"),
+                    $a_ass->getMemberStatus()->getPlagInfo($a_ass)
+                );
+                if ($a_ass->getMemberStatus()->getPlagComment()) {
+                    $a_info->addProperty(
+                        $lng->txt("exc_plag_comment"),
+                        nl2br(ilUtil::secureString($a_ass->getMemberStatus()->getPlagComment()))
+                    );
+                }
+            }
+            // fau.            
 
             if ($status != "" && $status != "notgraded") {
                 $img = $this->getIconForStatus($status);
@@ -447,34 +531,82 @@ class ilExAssignmentGUI
                 );
             }
 
+            // fau: exAssHook - additional feedback
+            if ($this->type_gui instanceof ilExAssignmentTypeExtendedGUIInterface) {
+                $this->type_gui->getOverviewAdditionalFeedback( $a_info, $a_submission);
+            }
+            // fau.            
+
             if ($cnt_files > 0) {
                 $a_info->addSection($lng->txt("exc_fb_files") .
                     '<a id="fb' . $a_ass->getId() . '"></a>');
 
                 if ($cnt_files > 0) {
-                    $files = $feedback_file_manager->getFiles($this->user->getId());
-                    foreach ($files as $file) {
-                        $a_info->addProperty(
-                            $file,
-                            $lng->txt("download"),
-                            $this->getSubmissionLink("downloadFeedbackFile", array("file" => urlencode($file)))
-                        );
-                    }
+                  // fau: exAssHook - use submission
+                  $files = $storage->getFeedbackFiles($a_submission->getFeedbackId());
+                  // fau.
+                  // fau: exMultiFeedbackStructure - better listing of nested files
+                  $i = 1;
+                  foreach ($files as $file) {
+                      $a_info->addProperty(
+                          $lng->txt("file") . ' ' . $i++,
+                          $this->getFeedbackFileDisplay($file),
+                          $this->getSubmissionLink("downloadFeedbackFile", array("file" => urlencode($file)))
+                      );
+                  }
+                  // fau.
                 }
             }
 
             // #15002 - global feedback
             if ($a_show_global_feedback) {
                 $a_info->addSection($lng->txt("exc_global_feedback_file"));
+                // fau: exAssHook - show own general feedback
+                if ($this->type_gui instanceof ilExAssignmentTypeExtendedGUIInterface && $this->type_gui->hasOwnOverviewGeneralFeedback()) {
+                    $this->type_gui->getOverviewGeneralFeedback($a_info, $a_ass);
+                }
+                elseif ($a_ass->getFeedbackFile()) {
 
-                $a_info->addProperty(
-                    $a_ass->getFeedbackFile(),
-                    $lng->txt("download"),
-                    $this->getSubmissionLink("downloadGlobalFeedbackFile")
-                );
+                    $a_info->addProperty(
+                        $a_ass->getFeedbackFile(),
+                        $lng->txt("download"),
+                        $this->getSubmissionLink("downloadGlobalFeedbackFile")
+                    );
+                }
+                // fau.
             }
         }
     }
+
+    // fau: exMultiFeedbackStructure - new function getFeedbackFileDisplay()
+    /**
+     * Get the display title of a feedback file (extracting the member from the sub folder name)
+     * @param string $file
+     * @return string
+     * @see ilExAssignment::getMemberListData()
+     */
+    public function getFeedbackFileDisplay($file) {
+        //  $mem_dir = $name["lastname"] . "_" . $name["firstname"] . "_" . $name["login"] . "_" . $name["user_id"];
+
+        $pi = pathinfo($file);
+        $dirname = $pi['dirname'];
+        $basename = $pi['basename'];
+        $parts = explode('_', $dirname);
+
+
+        if (count($parts) == 4) {
+            $lastname = $parts[0];
+            $firstname = $parts[1];
+            $user_id = $parts[3];
+            $login = $parts[2];
+
+            return $basename . ' (' . $firstname . ' ' . $lastname . ')';
+        }
+        else {
+            return $file;
+        }
+    }
+    // fau.
 
     /**
      * Get time string for deadline

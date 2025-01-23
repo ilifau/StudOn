@@ -63,6 +63,15 @@ class ilExAssignmentEditorGUI
     private \ILIAS\ResourceStorage\Services $irss;
     private \ILIAS\FileUpload\FileUpload $upload;
 
+    // fau: exAssHook - indicator that type has its own submission
+    protected bool $type_has_own_submission = false;
+    // fau.
+
+
+    // fau: exAssHook - indicator that type has its own general feedback
+    protected bool $type_has_own_feedback = false;
+    // fau.
+
     public function __construct(
         int $a_exercise_id,
         bool $a_enable_peer_review_completion_settings,

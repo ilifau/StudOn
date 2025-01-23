@@ -1590,6 +1590,13 @@ class ilExerciseManagementGUI
                 foreach ($group as $user_id) {
                     $team->removeTeamMember($user_id);
                 }
+                // fau: exAssHook - handle dissolving of old teams when new team is formed
+                $assignmentType = $this->assignment->getAssignmentType();
+                if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                    // removed members will be added to the new team
+                    $assignmentType->getTeamHandler($this->assignment,true)->handleTeamRemovedUsers($team, $group);
+                }
+                // fau.                
             } else {
                 $new_members[] = $group;
             }
@@ -1604,6 +1611,13 @@ class ilExerciseManagementGUI
                 $team->addTeamMember($user_id);
             }
 
+            // fau: exAssHook - handle the addition of users to the new team
+            $assignmentType = $this->assignment->getAssignmentType();
+            if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                $assignmentType->getTeamHandler($this->assignment, true)->handleTeamAddedUsers($team, $new_members);
+            }
+            // fau.            
+
             // re-evaluate complete team, as some members might have had submitted
             $submission = new ilExSubmission($this->assignment, $first_user);
             $this->exercise->processExerciseStatus(
@@ -1612,6 +1626,14 @@ class ilExerciseManagementGUI
                 $submission->hasSubmitted(),
                 $submission->validatePeerReviews()
             );
+
+            // fau: exAssHook - handle the creation of the new team
+            // (do this after standard processExerciseStatus)
+            $assignmentType = $this->assignment->getAssignmentType();
+            if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                $assignmentType->getTeamHandler($this->assignment, true)->handleTeamCreated($team);
+            }
+            // fau.            
         }
 
         $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
@@ -1645,6 +1667,15 @@ class ilExerciseManagementGUI
                     $group,
                     false
                 );
+
+                // fau: exAssHook - handle the removing of team users
+                // don't form new single teams - this should be done by the manager
+                $assignmentType = $this->assignment->getAssignmentType();
+                if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                    $handler = $assignmentType->getTeamHandler($this->assignment, true);
+                    $handler->handleTeamRemovedUsers($team, $group);
+                }
+                // fau.                
             }
         }
 
@@ -1784,6 +1815,21 @@ class ilExerciseManagementGUI
                         foreach ($members as $user_id) {
                             $team->addTeamMember($user_id);
                         }
+
+                        // fau: exAssHook - handle the addition of members to the team
+                        $assignmentType = $this->assignment->getAssignmentType();
+                        if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                            $assignmentType->getTeamHandler($this->assignment, true)->handleTeamAddedUsers($team, $members);
+                        }
+                        // fau.    
+                        
+                        // fau: exAssHook - handle the creation of team from groups
+                        // necessary? TODO: only handleteamcreated is new to code before?!
+                        $assignmentType = $this->assignment->getAssignmentType();
+                        if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                            $assignmentType->getTeamHandler($this->assignment, true)->handleTeamCreated($team);
+                        }
+                        // fau.                        
                     }
 
                     $mess = array();
