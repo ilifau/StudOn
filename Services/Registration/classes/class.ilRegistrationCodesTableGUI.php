@@ -149,11 +149,16 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
 
 
             $logins = array();
-            foreach (explode(";", $code["notification_users"]) as $id) {
-                if ($login = ilObjUser::_lookupLogin((int) trim($id))) {
-                    $logins[] = $login;
-                }
-            }
+            if(isset($code["notification_users"]))
+	        {
+		        foreach (explode(";", $code["notification_users"]) as $id) {
+                	if ($login = ilObjUser::_lookupLogin((int) trim($id))) 
+                    {
+                    		$logins[] = $login;
+                	}
+            	}
+	        }
+
 
             $result[$k]["login_generation_type"] = $login_types[$code["login_generation_type"]];
             $result[$k]["password_generation"] = $code["password_generation"] ? $this->lng->txt('yes') : $this->lng->txt('no');
