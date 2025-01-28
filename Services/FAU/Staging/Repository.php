@@ -36,6 +36,7 @@ use FAU\Staging\Data\StudOnCourse;
 use FAU\Study\Data\Term;
 use FAU\RecordData;
 use FAU\Staging\Data\StudyTerm;
+use FAU\Study\Data\Module;
 
 /**
  * Repository for accessing the staging database
@@ -131,6 +132,15 @@ class Repository extends RecordRepo
         return $this->getAllRecords(EventModule::model(), false);
     }
 
+     /**
+     * @return EventModule[]
+     */
+    public function getEventModulesWithEventID(int $event_id) : array
+    {
+        $query = "SELECT * FROM campo_module WHERE event_id = " . $this->db->quote($event_id, 'integer');
+        return $this->queryRecords($query, EventModule::model());
+    }
+        
     /**
      * @return EventOrgunit[]
      */
