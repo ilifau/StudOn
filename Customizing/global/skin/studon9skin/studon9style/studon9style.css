@@ -2641,20 +2641,20 @@ input.btn, input.il-link.link-bulky,
   font-size: 0.75rem;
   padding: 3px 6px;
   gap: 6px;
-  background-color: #557b2e;
+  background-color: #041E42;
   color: white;
   border-width: 1px;
   border-style: solid;
-  border-color: #557b2e;
+  border-color: #041E42;
   border-radius: 0px;
 }
 .btn-primary:hover {
   text-decoration: none;
-  background-color: #3b5620;
+  background-color: #04316A;
   color: white;
   border-width: 1px;
   border-style: solid;
-  border-color: #3b5620;
+  border-color: #04316A;
 }
 .btn-primary:active {
   transform: none;
@@ -18240,7 +18240,7 @@ a.ilMediaLightboxClose:hover {
   padding: 0;
   margin: 3px 0;
   border: 0 none;
-  border-bottom: 2px solid #161616;
+  border-bottom: 2px solid #041E42;
 }
 #ilTab > li {
   float: left;
@@ -18298,7 +18298,7 @@ a.ilMediaLightboxClose:hover {
 #ilTab > li.active > a, #ilTab > li.active > a:hover, #ilTab > li.active > a:focus {
   color: white;
   cursor: default;
-  background-color: #161616;
+  background-color: #041E42;
   border: 0 none;
   border-bottom-color: transparent;
 }
