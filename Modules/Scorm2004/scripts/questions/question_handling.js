@@ -876,7 +876,9 @@ ilias.questions.showFeedback = function(a_id) {
 				}
 
 				if( jQuery.inArray(questions[a_id].type, ilias.questions.enhancedQuestionTypes) == -1 ) {
-					ilias.questions.showCorrectAnswers(a_id);
+					// fau: lmGapFeedback - add parameters
+					ilias.questions.showCorrectAnswers(a_id, answers, true);
+					// fau.
 				}
 			} else {
 				if (ilias.questions.default_feedback) {
@@ -886,7 +888,9 @@ ilias.questions.showFeedback = function(a_id) {
 					fbtext += questions[a_id].feedback['allcorrect'];
 				}
 
-				ilias.questions.showCorrectAnswers(a_id);
+				// fau: lmGapFeedback - add parameters
+				ilias.questions.showCorrectAnswers(a_id, answers, true);
+				// fau.
 			}
 
 			ilias.questions.scormHandler(a_id,"correct",ilias.questions.toJSONString(answers[a_id]));
@@ -902,7 +906,9 @@ ilias.questions.showFeedback = function(a_id) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
-			ilias.questions.showCorrectAnswers(a_id);
+			// fau: lmGapFeedback - add answers parameter
+			ilias.questions.showCorrectAnswers(a_id, answers, true);
+			// fau.
 
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		}
@@ -922,6 +928,12 @@ ilias.questions.showFeedback = function(a_id) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
+			// fau: lmGapFeedback - show intermediate feedback for gap questions
+			if (questions[a_id].type == "assClozeTest")
+				{
+					ilias.questions.showCorrectAnswers(a_id, answers, false);
+				}
+			// fau.			
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		} else {
 			jQuery('#feedback'+a_id).addClass("ilc_qfeedw_FeedbackWrong");
@@ -933,7 +945,12 @@ ilias.questions.showFeedback = function(a_id) {
 			if (questions[a_id].feedback['onenotcorrect']) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
-
+			// fau: lmGapFeedback - show intermediate feedback for gap questions
+			if (questions[a_id].type == "assClozeTest")
+				{
+					ilias.questions.showCorrectAnswers(a_id, answers, false);
+				}
+			// fau.
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		}
 	}
@@ -1042,8 +1059,9 @@ ilias.questions.determineSuccessStatus = function()
 	}
 	return status;
 }
-
-ilias.questions.showCorrectAnswers =function(a_id) {
+// fau: lmGapFeedback - add given_answers and is_final parameter
+ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
+// fau.
 
 	switch (questions[a_id].type) {
 		case 'assSingleChoice':
@@ -1167,36 +1185,58 @@ ilias.questions.showCorrectAnswers =function(a_id) {
 		//end assMatchingQuestion
 
 		case 'assClozeTest':
+			// fau: lmGapFeedback - show all correct solutions behind the input field
+			// this can be treated for all gap types in the same way
 			for (var i=0;i<questions[a_id].gaps.length;i++) {
 				var type = questions[a_id].gaps[i].type;
-				if (type==1) {
-					var cid;
-					//look for correct solution
-					for (var j=0;j<questions[a_id].gaps[i].item.length;j++)
+
+				var cvalue = '';
+				var elem_type = type==1 ? 'select' : 'input';
+
+				//look for correct solutions
+				for (var j=0;j<questions[a_id].gaps[i].item.length;j++)
+				{
+					if (questions[a_id].gaps[i].item[j].points > 0)
 					{
-						if (questions[a_id].gaps[i].item[j].points>=1)
-						{
-							cid=j;
-						}
+						cvalue += cvalue.length ?  ' | ' : '';
+						cvalue += questions[a_id].gaps[i].item[j].value;
 					}
-					//jQuery('select#'+a_id+"_"+i+" option[id="+cid+"]").attr("selected","selected");
-					jQuery('select#'+a_id+"_"+i+" option[id="+cid+"]").prop('selected', true);
-					jQuery('select#'+a_id+"_"+i).prop("disabled",true);
 				}
-				if (type==0 || type==2) {
-					var cvalue;
-					//look for correct solution
-						for (var j=0;j<questions[a_id].gaps[i].item.length;j++)
-						{
-							if (questions[a_id].gaps[i].item[j].points > 0)
-							{
-								cvalue = questions[a_id].gaps[i].item[j].value;
-							}
-						}
-					jQuery('input#'+a_id+"_"+i).val(cvalue);
-					jQuery('input#'+a_id+"_"+i).prop("disabled",true);
+
+				// delete last check symbol
+				jQuery('#ilAnswerCheck_'+a_id+'_'+i).remove();
+
+				// check if gap is correctly answered
+				// note that when the page is refreshed, all choices get lost
+				if (given_answers[a_id].answer[i] || given_answers[a_id].passed) {
+					var is_correct = true;
+					var checkchar = '<span id="ilAnswerCheck_'+a_id+'_'+i+'" style="color:green;">&#10004;</span>'; // or: 10003
+				}
+				else {
+					var is_correct = false;
+					var checkchar = '<span id="ilAnswerCheck_'+a_id+'_'+i+'" style="color:red;">&#10008;</span>'; // or: 10007
+				}
+
+				// disable final or already correct gaps
+				if (is_final || is_correct) {
+					jQuery(elem_type+'#'+a_id+"_"+i).prop("disabled", true);
+				}
+
+				// add inline feedback
+				if (is_final) {
+					// show solution when final
+					jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar + ' <em> ['+ cvalue+ '] </em>');
+				}
+				else {
+					// sho only symbol when not final
+					jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar)
 				}
 			}
+
+			if (typeof MathJax != "undefined") {
+				MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+			}
+			// fau.
 		break;
 		//end assClozeTest
 
