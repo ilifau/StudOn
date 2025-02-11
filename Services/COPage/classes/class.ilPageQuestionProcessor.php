@@ -321,7 +321,35 @@ class ilPageQuestionProcessor
             "passed" => false
         ];
     }
+    // fau: lmQStat - new query function for answers in an lm
+    public static function getAnswersForLm($a_lm_id, $a_user_ids = array())
+    {
+        global $ilDB;
 
+        // basic query
+        $query = "
+			SELECT pa.* FROM page_qst_answer pa
+			INNER JOIN page_question pq ON pq.question_id = pa.qst_id
+			INNER JOIN lm_tree t ON (
+				t.lm_id = " . $ilDB->quote($a_lm_id, "integer") . "
+				AND pq.page_id = t.child
+				AND pq.page_parent_type = " . $ilDB->quote("lm", "text") . "
+			)
+			WHERE t.lm_id = " . $ilDB->quote($a_lm_id, "integer");
+
+        if (!empty($a_user_ids)) {
+            $query .= " AND " . $ilDB->in("user_id", $a_user_ids, false, "integer");
+        }
+
+        $set = $ilDB->query($query);
+        $recs = array();
+        while ($rec = $ilDB->fetchAssoc($set)) {
+            $recs[$rec["user_id"]][$rec["qst_id"]] = $rec;
+        }
+        return $recs;
+    }
+    // fau.
+    
     /**
      * Reset tries for user and question
      */
