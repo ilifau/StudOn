@@ -86,7 +86,7 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
         }
 
         // get more question information
-        $qlist = new ilAssQuestionList($ilDB, $lng, $ilPluginAdmin, component_repository: $DIC["component.repository"]);
+        $qlist = new ilAssQuestionList($ilDB, $lng, $DIC["refinery"], component_repository: $DIC["component.repository"]);
         $qlist->addFieldFilter('question_id', $question_ids);
         $qlist->load();
         $qdata = $qlist->getQuestionDataArray();
