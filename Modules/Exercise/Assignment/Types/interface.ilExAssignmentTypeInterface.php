@@ -27,7 +27,14 @@ interface ilExAssignmentTypeInterface
     public function isActive(): bool;
 
     public function usesTeams(): bool;
-
+    // fau: exAssHook - new function hasFiles()
+    /**
+     * Has files for a submission (uploaded or generated)
+     *
+     * @return bool
+     */
+    public function hasFiles();
+    // fau.
     public function usesFileUpload(): bool;
 
     // Get title of type
