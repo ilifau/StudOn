@@ -1633,7 +1633,43 @@ class ilObjContentObjectGUI extends ilObjectGUI
         $tpl->setContent($table->getHTML());
     }
 
-    public function listBlockedUsers(): void
+    // fau: lmQStat - new command functions
+
+    /**
+     * List users answering the questions
+     */
+    public function listQuestionUsers()
+    {
+        global $tpl;
+
+        $this->setTabs("questions");
+        $this->setQuestionsSubTabs("question_users");
+
+        $table = new ilLMQuestionUsersTableGUI($this, "listQuestionUsers", $this->object);
+        $tpl->setContent($table->getHTML());
+    }
+
+    /**
+     * List users answering the questions
+     */
+    public function listQuestionUserDetails()
+    {
+        global $tpl;
+
+        $this->setTabs("questions");
+        $this->setQuestionsSubTabs("question_users");
+        $this->ctrl->saveParameter($this, 'user_id');
+
+        $table = new ilLMQuestionUserDetailsTableGUI($this, "listQuestionUserDetails", $this->object, $_GET['user_id']);
+
+        $tpl->setContent($table->getHTML() . ilLearningProgressBaseGUI::__getLegendHTMLStatic());
+    }
+    // fau.
+
+    /**
+     * List blocked users
+     */
+    public function listBlockedUsers()
     {
         $tpl = $this->tpl;
 
@@ -1833,6 +1869,14 @@ class ilObjContentObjectGUI extends ilObjectGUI
             $ilCtrl->getLinkTarget($this, "listQuestions")
         );
 
+        // fau: lmQStat - tab for user answers
+        // answering users
+        $ilTabs->addSubTab(
+            "question_users",
+            $lng->txt("cont_users_answered"),
+            $ilCtrl->getLinkTarget($this, "listQuestionUsers")
+        );
+        // fau.
         // blocked users
         $ilTabs->addSubTab(
             "blocked_users",
