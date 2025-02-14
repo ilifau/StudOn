@@ -4,7 +4,7 @@
 		<xi:include href="../../Services/Object/LuceneDataSource.xml" />
 		<xi:include href="../../Services/Tagging/LuceneDataSource.xml" />
 		<xi:include href="../../Services/MetaData/LuceneDataSource.xml" />
-		<DataSource type="JDBC" action="append">
+<!-- FAU		<DataSource type="JDBC" action="append">
 			<Query>
 				SELECT 1 as offline FROM glossary
 				WHERE is_online = 'n'
@@ -40,5 +40,6 @@
 				</Field>
 			</DataSource>
 		</DataSource>		
+fau. -->  
 	</Document>
 </ObjectDefinition>

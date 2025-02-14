@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ObjectDefinition xmlns:xi="http://www.w3.org/2001/XInclude" type="usr">
 	<Document type="default">
+	<!--FAU 
 		<DataSource type="JDBC" action="create">
 			<Query>
 				SELECT obj_id, type
@@ -235,7 +236,9 @@
                     <Param format="list" type="int" value="objId" />
                     <Field store="YES" index="ANALYZED" column="ref_id" type="integer" name="orgUnit" />
                 </DataSource>
+					fau. -->  
 	</Document>
+
 	<Document type="subItem">
 		<xi:include href="../../Services/Mail/LuceneDataSource.xml" />
 	</Document>

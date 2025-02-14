@@ -14,7 +14,7 @@
 			</Field>
 		</DataSource>
 	</Document>
-	<Document type="subItem">
+<!--- Fau	<Document type="subItem">
 		<DataSource type="JDBC" action="create">
 			<Query>
 				SELECT 'frm' type,thr_subject,thr_author_id, thr_pk, top_frm_fk
@@ -42,5 +42,7 @@
 				<Field store="YES" index="NOT_ANALYZED" column="pos_author_id" type="integer" name="owner" />
 			</DataSource>
 		</DataSource>
+
 	</Document>
+	fau. -->  
 </ObjectDefinition>
