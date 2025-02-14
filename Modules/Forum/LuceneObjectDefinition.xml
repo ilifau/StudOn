@@ -14,6 +14,7 @@
 			</Field>
 		</DataSource>
 	</Document>
+<!--- fau: reduceIndexv2
 	<Document type="subItem">
 		<DataSource type="JDBC" action="create">
 			<Query>
@@ -42,5 +43,7 @@
 				<Field store="YES" index="NOT_ANALYZED" column="pos_author_id" type="integer" name="owner" />
 			</DataSource>
 		</DataSource>
+
 	</Document>
+	fau. -->  
 </ObjectDefinition>

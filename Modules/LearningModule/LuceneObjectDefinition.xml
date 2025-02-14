@@ -5,6 +5,7 @@
 		<xi:include href="../../Services/Tagging/LuceneDataSource.xml" />
 		<xi:include href="../../Services/MetaData/LuceneDataSource.xml" />
 	</Document>
+<!--fau: reduceIndexv2
 	<Document type="subItem">
 		<xi:include href="../../Modules/File/LuceneFileListDataSource.xml" />
 		<DataSource type="JDBC" action="create">
@@ -61,4 +62,5 @@
 			<Field store="YES" index="NOT_ANALYZED" column="metaType" type="text" name="type" global="NO"/>
 		</DataSource>		
 	</Document>
+fau. -->  
 </ObjectDefinition>

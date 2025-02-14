@@ -64,12 +64,14 @@ fau. -->
             <Field store="YES" index="ANALYZED" column="file_name" type="text" name="mimeType">
                 <Transformer name="MimeTypeExtractor"/>
             </Field>
-            <DataSource type="File" action="append">
+<!--fau: reduceIndexv2            <DataSource type="File" action="append">
                 <PathCreator name="FileObjectPathCreator7"/>
                 <Field store="YES" index="ANALYZED" name="content">
                     <Transformer name="LinefeedSanitizer"/>
                 </Field>
+
             </DataSource>
+                fau. -->  
         </DataSource>
     </Document>
 </ObjectDefinition>

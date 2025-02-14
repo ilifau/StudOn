@@ -4,6 +4,7 @@
         <xi:include href="../../Services/Object/LuceneDataSource.xml"/>
         <xi:include href="../../Services/Tagging/LuceneDataSource.xml"/>
         <xi:include href="../../Modules/LearningModule/LucenePageEditorDataSource.xml"/>
+<!--fau: reduceIndexv2
         <DataSource type="JDBC" action="append">
             <Query>
                 SELECT 1 as offline FROM il_dcl_data
@@ -13,5 +14,6 @@
             <Param format="list" type="int" value="objId"/>
             <Field store="YES" index="NOT_ANALYZED" column="offline" type="text" name="offline"/>
         </DataSource>
+  fau. -->  
     </Document>
 </ObjectDefinition>
