@@ -4,7 +4,8 @@
         <xi:include href="../../Services/Object/LuceneDataSource.xml"/>
         <xi:include href="../../Services/Tagging/LuceneDataSource.xml"/>
         <xi:include href="../../Modules/LearningModule/LucenePageEditorDataSource.xml"/>
-<!--Fau        <DataSource type="JDBC" action="append">
+<!--fau: reduceIndexv2
+        <DataSource type="JDBC" action="append">
             <Query>
                 SELECT 1 as offline FROM il_dcl_data
                 WHERE is_online = 0

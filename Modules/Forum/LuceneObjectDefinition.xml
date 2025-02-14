@@ -14,7 +14,8 @@
 			</Field>
 		</DataSource>
 	</Document>
-<!--- Fau	<Document type="subItem">
+<!--- fau: reduceIndexv2
+	<Document type="subItem">
 		<DataSource type="JDBC" action="create">
 			<Query>
 				SELECT 'frm' type,thr_subject,thr_author_id, thr_pk, top_frm_fk
