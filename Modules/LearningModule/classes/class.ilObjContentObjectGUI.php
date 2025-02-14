@@ -1645,7 +1645,6 @@ class ilObjContentObjectGUI extends ilObjectGUI
         $this->setTabs("questions");
         $this->setQuestionsSubTabs("question_users");
 
-        include_once("./Modules/LearningModule/classes/class.ilLMQuestionUsersTableGUI.php");
         $table = new ilLMQuestionUsersTableGUI($this, "listQuestionUsers", $this->object);
         $tpl->setContent($table->getHTML());
     }
@@ -1661,10 +1660,8 @@ class ilObjContentObjectGUI extends ilObjectGUI
         $this->setQuestionsSubTabs("question_users");
         $this->ctrl->saveParameter($this, 'user_id');
 
-        include_once("./Modules/LearningModule/classes/class.ilLMQuestionUserDetailsTableGUI.php");
         $table = new ilLMQuestionUserDetailsTableGUI($this, "listQuestionUserDetails", $this->object, $_GET['user_id']);
 
-        include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
         $tpl->setContent($table->getHTML() . ilLearningProgressBaseGUI::__getLegendHTMLStatic());
     }
     // fau.

@@ -577,11 +577,10 @@ class ilLearningProgressBaseGUI
     // fau: lmQStat - provide static version of the legend    
     public function __getLegendHTML(int $variant = ilLPStatusIcons::ICON_VARIANT_LONG): string
     {
-        return self::__getLegendHTMLStatic($variant);
+        return ilLearningProgressBaseGUI::__getLegendHTMLStatic($variant);
     }
 
     public static function __getLegendHTMLStatic(int $variant = ilLPStatusIcons::ICON_VARIANT_LONG) : string
-// fau.
     {
         global $DIC;
         $lng = $DIC['lng'];
@@ -611,19 +610,19 @@ class ilLearningProgressBaseGUI
         );
         $tpl->setVariable(
             "TXT_NOT_ATTEMPTED",
-            $this->lng->txt("trac_not_attempted")
+            $DIC['lng']->txt("trac_not_attempted")
         );
         $tpl->setVariable(
             "TXT_IN_PROGRESS",
-            $this->lng->txt("trac_in_progress")
+            $DIC['lng']->txt("trac_in_progress")
         );
         $tpl->setVariable(
             "TXT_COMPLETED",
-            $this->lng->txt("trac_completed")
+            $DIC['lng']->txt("trac_completed")
         );
         $tpl->setVariable(
             "TXT_FAILED",
-            $this->lng->txt("trac_failed")
+            $DIC['lng']->txt("trac_failed")
         );
 
         $panel = ilPanelGUI::getInstance();
@@ -632,6 +631,7 @@ class ilLearningProgressBaseGUI
 
         return $panel->getHTML();
     }
+// fau.
 
     protected function initEditUserForm(
         int $a_user_id,
