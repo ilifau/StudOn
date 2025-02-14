@@ -13,6 +13,7 @@
  */
 class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
 {
+    protected \ILIAS\TestQuestionPool\QuestionInfoService $questioninfo;    
     private int $user_id;
     private ilObjLearningModule $lm;
     
@@ -22,7 +23,7 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
     */
     public function __construct($a_parent_obj, $a_parent_cmd, $a_lm, $a_user_id)
     {
-        global $ilCtrl, $lng, $ilAccess, $lng, $rbacsystem;
+        global $ilCtrl, $lng, $ilAccess, $lng, $rbacsystem, $DIC;
 
         $this->lm = $a_lm;
         $this->user_id = $a_user_id;
@@ -30,6 +31,8 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
         $this->setId('lm_qst_usr_det' . $this->lm->getId());
 
         $lng->loadLanguageModule('trac');
+
+        $this->questioninfo = $DIC->testQuestionPool()->questionInfo();
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
@@ -133,10 +136,11 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
         global $lng;
 
         $this->tpl->setVariable('PAGE_TITLE', ilLMObject::_lookupTitle($a_set['page_id']));
-        $this->tpl->setVariable('QUESTION', assQuestion::_getQuestionText($a_set['question_id']));
-
-        $this->tpl->setVariable($tpl_prefix . 'STATUS_IMG', ilLearningProgressBaseGUI::_getImagePathForStatus($a_set['status']));
-        $this->tpl->setVariable($tpl_prefix . 'STATUS_ALT', $lng->txt($a_set['status']));
+        $this->tpl->setVariable('QUESTION', $this->questioninfo->getQuestionText($a_set['question_id']));
+        
+        $icons = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_SHORT);
+        $this->tpl->setVariable('STATUS_IMG', $icons->getImagePathForStatus($a_set['status']));
+        $this->tpl->setVariable('STATUS_ALT', $lng->txt($a_set['status']));
 
         $this->tpl->setVariable('VAL_TRIES', $a_set['tries']);
         $this->tpl->setVariable('VAL_UNLOCKED', $a_set['unlocked'] ? $lng->txt('yes') : $lng->txt('no'));
