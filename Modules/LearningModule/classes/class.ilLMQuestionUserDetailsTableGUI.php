@@ -139,7 +139,7 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
         $this->tpl->setVariable('QUESTION', $this->questioninfo->getQuestionText($a_set['question_id']));
         
         $icons = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_SHORT);
-        $this->tpl->setVariable('STATUS_IMG', $icons->getImagePathForStatus($a_set['status']));
+        $this->tpl->setVariable('STATUS_IMG', $icons->getImagePathForStatus((int) $a_set['status']));
         $this->tpl->setVariable('STATUS_ALT', $lng->txt($a_set['status']));
 
         $this->tpl->setVariable('VAL_TRIES', $a_set['tries']);
