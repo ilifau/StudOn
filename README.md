@@ -1,5 +1,8 @@
 [![checks](https://github.com/ILIAS-eLearning/ILIAS/actions/workflows/checks.yml/badge.svg?branch=trunk)](https://github.com/ILIAS-eLearning/ILIAS/actions/workflows/checks.yml)
 [![Supported PHP Version](https://img.shields.io/badge/php-8.1%20%7C%208.2-8892BF.svg)](https://php.net/)
+# StudOn
+
+StudOn is FAU’s platform for online learning and course management. Students can register for courses via StudOn and access or store seminar handouts, reading lists and general information. StudOn also allows direct exchange between students and lecturers in forums, chats and Wikis. StudOn is also used for online examinations. Students can log on with their University user account: www.studon.fau.de.
 
 # ILIAS
 
