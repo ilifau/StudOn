@@ -6,7 +6,7 @@ StudOn is FAU’s platform for online learning and course management. Students c
 
 Authors: 
   * Fred Neumann
-  * Christina Fuchs
+  * Christina Fuchs <chr.fuchs@fau.de>
 
 # ILIAS
 
