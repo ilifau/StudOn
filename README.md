@@ -4,6 +4,10 @@
 
 StudOn is FAU’s platform for online learning and course management. Students can register for courses via StudOn and access or store seminar handouts, reading lists and general information. StudOn also allows direct exchange between students and lecturers in forums, chats and Wikis. StudOn is also used for online examinations. Students can log on with their University user account: www.studon.fau.de.
 
+Authors: 
+  * Fred Neumann
+  * Christina Fuchs
+
 # ILIAS
 
 ILIAS is a powerful Open Source Learning Management System for developing and realising web-based e-learning. The software was developed to reduce the costs of using new media in education and further training and to ensure the maximum level of customer influence in the implementation of the software. ILIAS is published under the General Public Licence and free of charge.
