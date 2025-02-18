@@ -104,10 +104,13 @@ class ilStyleDataSet extends ilDataSet
                 case "5.1.0":
                 case "8.0":
                     return array(
+// fau: customCss - add custom css to data set definition
                         "Id" => "integer",
                         "Title" => "text",
                         "Description" => "text",
-                        "ImagesDir" => "directory"
+                        "ImagesDir" => "directory",
+                        "CustomCss" => "text"
+// fau.
                     );
             }
         }
@@ -258,6 +261,10 @@ class ilStyleDataSet extends ilDataSet
         if ($a_entity == "sty") {
             $dir = ilObjStyleSheet::_getImagesDirectory($a_set["Id"]);
             $a_set["ImagesDir"] = $dir;
+            // fau: customCss - export the custom css
+            $custom_css = ilObjStyleSheet::lookupCustomCss($a_set["Id"]);
+            $a_set["CustomCss"] = $custom_css;
+            // fau.
         }
 
         return $a_set;
@@ -483,6 +490,11 @@ class ilStyleDataSet extends ilDataSet
 
                 $newObj->setTitle($a_rec["Title"]);
                 $newObj->setDescription($a_rec["Description"]);
+// fau: customCss - import custom css
+                if (isset($a_rec["CustomCss"])) {
+                    $newObj->setCustomCss($a_rec["CustomCss"]);
+                }
+// fau.
                 $newObj->update(true);
 
                 $this->current_obj = $newObj;
