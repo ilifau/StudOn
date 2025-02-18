@@ -1128,6 +1128,8 @@ class ilMembershipGUI
         include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
         // fau: extendedAccess - show export tab even if general export permission is not given to the user (permission is handled on the tab)
         global $DIC;
+        $enabled = false;
+
         $privacy = ilPrivacySettings::getInstance();
         if ($this->getParentObject() instanceof ilObjCourse) {
             $enabled = $privacy->enabledCourseExport();
