@@ -139,7 +139,28 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
         $this->tpl->setVariable('QUESTION', $this->questioninfo->getQuestionText($a_set['question_id']));
         
         $icons = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_SHORT);
-        $this->tpl->setVariable('STATUS_IMG', $icons->getImagePathForStatus((int) $a_set['status']));
+    
+        $status = ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM;
+        switch($a_set['status'])
+        {
+            case ilLPStatus::LP_STATUS_NOT_ATTEMPTED: 
+                $status = ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM;
+                break;
+            case ilLPStatus::LP_STATUS_IN_PROGRESS: 
+                $status = ilLPStatus::LP_STATUS_IN_PROGRESS_NUM;
+                break;    
+            case ilLPStatus::LP_STATUS_COMPLETED: 
+                $status = ilLPStatus::LP_STATUS_COMPLETED_NUM;
+                break;      
+            case ilLPStatus::LP_STATUS_FAILED: 
+                $status = ilLPStatus::LP_STATUS_FAILED_NUM;
+                break;         
+            default: 
+                break;           
+
+        }
+
+        $this->tpl->setVariable('STATUS_IMG', $icons->getImagePathForStatus($status));
         $this->tpl->setVariable('STATUS_ALT', $lng->txt($a_set['status']));
 
         $this->tpl->setVariable('VAL_TRIES', $a_set['tries']);
