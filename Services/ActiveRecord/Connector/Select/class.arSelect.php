@@ -30,13 +30,13 @@ class arSelect extends arStatement
      *
      * @return string
      */
-    public function asSQLStatement(ActiveRecord $ar)
+    public function asSQLStatement(ActiveRecord $ar, ilDBInterface $db)
     {
         $return = '';
         if ($this->getTableName()) {
             $return .= $this->getTableName() . '.';
         }
-        $return .= $this->getFieldName();
+        $return .= $this->wrapField($this->getFieldName(), $db);
         if ($this->getAs() and $this->getFieldName() != '*') {
             $return .= ' AS ' . $this->getAs();
         }
