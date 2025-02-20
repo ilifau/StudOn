@@ -152,16 +152,79 @@ class ilExAssignmentGUI
         if ($this->mandatory_manager->isMandatoryForUser($a_ass->getId(), $this->user->getId())) {
             $mand = " (" . $lng->txt("exc_mandatory") . ")";
         }
-        $tpl->setVariable("TITLE", $a_ass->getTitle() . $mand);
+        // fau: exGradeTime - add info about grade time
+        if ($a_ass->getGradeStart() > 0) {
+            $tpl->setCurrentBlock("prop");
+            $tpl->setVariable("PROP", $lng->txt("exc_grade_start"));
+            $tpl->setVariable(
+                "PROP_VAL",
+                ilDatePresentation::formatDate(new ilDateTime($a_ass->getGradeStart(), IL_CAL_UNIX))
+            );
+            $tpl->parseCurrentBlock();
+        }
+        // fau.
+
+        // fau: exResTime - add info about result availability
+        if ($a_ass->getResultTime() > 0) {
+            $tpl->setCurrentBlock("prop");
+            $tpl->setVariable("PROP", $lng->txt("exc_result_available_after"));
+            $tpl->setVariable(
+                "PROP_VAL",
+                ilDatePresentation::formatDate(new ilDateTime($a_ass->getResultTime(), IL_CAL_UNIX))
+            );
+            $tpl->parseCurrentBlock();
+        }
+        // fau.
+
+        // fau: exMaxPoints - add info about maximum points and reached points
+        // fau: exPlag - add info about plagiarism
+        if ((int) $a_ass->getResultTime() <= time()) {
+
+            if ($tag1 = $a_ass->getMemberStatus()->getMarkWithInfo($a_ass)) {
+                $tag1 = ' <span class="ilTag">'. $this->lng->txt('exc_mark') . ': ' . $tag1.'</span>';
+            }
+
+            if ($tag2 = $a_ass->getMemberStatus()->getPlagInfo($a_ass)) {
+                $tag2 = ' <span class="ilTag">'. $tag2.'</span>';
+            }
+        }
+        $tpl->setVariable("TITLE", $a_ass->getTitleWithInfo() . $tag1 . $tag2);
+        // fau.
 
         // status icon
+        // fau: exResTime - don't show the result status before the result time is reached
+        // fau: exPlag - use effective status and icon
+        // fau: exAssTest - check a status that is set without submission
+        if ((int) $a_ass->getResultTime() <= time()) {
+            // after result time: show real status
+            $stat = $a_ass->getMemberStatus()->getEffectiveStatus();
+            //$pic = $a_ass->getMemberStatus()->getStatusIcon();
+        }
+        else {
+            // before result time: show real status
+            $submission = new ilExSubmission($a_ass, $this->user->getId());
+            if ($submission->hasSubmitted()
+                || $a_ass->getMemberStatus()->getEffectiveStatus() != "notgraded") {
+                $stat = "notgraded";
+                //$pic = "scorm/running.svg";
+            }
+            else {
+                $stat = "not_attempted";
+                //$pic = "scorm/not_attempted.svg";
+            }
+        }
+        $pic = $this->getIconForStatus(
+            $stat,
+            ilLPStatusIcons::ICON_VARIANT_SHORT
+        );
+
+        //$tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
+        //$tpl->setVariable("ALT_STATUS", $lng->txt("exc_" . $stat));
         $tpl->setVariable(
             "ICON_STATUS",
-            $this->getIconForStatus(
-                $a_ass->getMemberStatus()->getStatus(),
-                ilLPStatusIcons::ICON_VARIANT_SHORT
-            )
+            $pic
         );
+        // fau.
 
         return $tpl->get();
     }

@@ -2,8 +2,10 @@
 
 /* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Modules/Exercise/AssignmentTypes/GUI/classes/interface.ilExAssignmentTypeGUIInterface.php");
-include_once("./Modules/Exercise/AssignmentTypes/GUI/traits/trait.ilExAssignmentTypeGUIBase.php");
+use ILIAS\Exercise\Assignment\PropertyAndActionBuilderUI;
+
+include_once("./Modules/Exercise/Assignment/Types/GUI/classes/interface.ilExAssignmentTypeGUIInterface.php");
+include_once("./Modules/Exercise/Assignment/Types/GUI/traits/trait.ilExAssignmentTypeGUIBase.php");
 
 /**
  * fau: exAssHook - Inactive type gui implementations
@@ -42,4 +44,17 @@ class ilExAssTypeInactiveGUI implements ilExAssignmentTypeGUIInterface
         global $DIC;
         $a_info->addProperty($DIC->language()->txt("exc_type_inactive"), $DIC->language()->txt("exc_type_inactive_info"));
     }
+
+    public function setSubmission(ilExSubmission $a_submission): void
+    {
+    }
+    
+    public function setExercise(ilObjExercise $a_exercise): void
+    {
+    }
+    
+    public function buildSubmissionPropertiesAndActions(PropertyAndActionBuilderUI $builder): void
+    {
+    }
+    
 }

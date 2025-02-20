@@ -14,8 +14,8 @@ abstract class ilAssignmentHookPlugin extends ilPlugin
     /**
      * @inheritDoc
      */
-    final public function getComponentType() {
-        return IL_COMP_MODULE;
+    final public function getComponentType(): mixed {
+        return 'Modules';
     }
 
     /**

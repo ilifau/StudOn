@@ -4,7 +4,7 @@
 /**
  * ILIAS test result as assignment type type
  */
-class ilExAssTypeTestResult implements ilExAssignmentTypeInterface
+class ilExAssTypeTestResultTeam implements ilExAssignmentTypeInterface
 {
     /**
      * @var ilLanguage
@@ -38,7 +38,7 @@ class ilExAssTypeTestResult implements ilExAssignmentTypeInterface
      */
     public function usesTeams(): bool
     {
-        return false;
+        return true;
     }
 
     // fau: exAssHook - new function hasFiles()
@@ -63,7 +63,7 @@ class ilExAssTypeTestResult implements ilExAssignmentTypeInterface
     {
         $lng = $this->lng;
 
-        return $lng->txt("exc_type_test_result");
+        return $lng->txt("exc_type_test_result_team");
     }
 
     /**
@@ -71,7 +71,7 @@ class ilExAssTypeTestResult implements ilExAssignmentTypeInterface
      */
     public function getSubmissionType(): string
     {
-        return ilExSubmission::TYPE_TEST_RESULT;
+        return ilExSubmission::TYPE_TEST_RESULT_TEAM;
     }
 
     /**
@@ -105,12 +105,12 @@ class ilExAssTypeTestResult implements ilExAssignmentTypeInterface
 
     public function supportsWebDirAccess() : bool
     {
-       return false;
+        return false;
     }
 
     public function getStringIdentifier() : string
     {
-        return '';
         // TODO: Implement getStringIdentifier() method.
+        return '';
     }
 }

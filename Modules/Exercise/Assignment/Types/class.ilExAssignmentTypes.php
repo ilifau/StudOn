@@ -32,16 +32,25 @@ class ilExAssignmentTypes
 
     /** @var ilAssignmentHookPlugin[] */
     protected $plugins;
-
+    protected ilComponentRepository $component_repository;
+    protected ilComponentFactory $component_factory;
     /**
      * Get the active plugins
      */
     protected function getActivePlugins() {
         if (!isset($this->plugins)) {
             $this->plugins = [];
-            $names = ilPluginAdmin::getActivePluginsForSlot(IL_COMP_MODULE, 'Exercise', 'exashk');
+            global $DIC;
+            $this->component_repository = $DIC["component.repository"];
+            $this->component_factory = $DIC["component.factory"];
+            if($this->component_repository->hasPluginSlotId("exahsk")) {
+                $names = $this->component_factory->getActivePluginsInSlot('exashk');
+            }
+            else {
+                $names = [];
+            }
             foreach ($names as $name) {
-                $this->plugins[] = ilPlugin::getPluginObject(IL_COMP_MODULE, 'Exercise','exashk', $name);
+                $this->plugins[] = $this->component_repository->getPluginById($name);
             }
         }
         return $this->plugins;

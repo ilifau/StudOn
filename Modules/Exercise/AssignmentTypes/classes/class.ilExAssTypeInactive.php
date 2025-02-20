@@ -2,8 +2,7 @@
 
 /* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Modules/Exercise/AssignmentTypes/classes/interface.ilExAssignmentTypeInterface.php");
-
+include_once("./Modules/Exercise/Assignment/Types/interface.ilExAssignmentTypeInterface.php");
 /**
  * fau: exAssHook - dummy type for inactive plugins.
  */
@@ -72,7 +71,7 @@ class ilExAssTypeInactive implements ilExAssignmentTypeInterface
     /**
      * @inheritdoc
      */
-    public function getSubmissionType(): void
+    public function getSubmissionType(): string
     {
         return ilExSubmission::TYPE_INACTIVE;
     }

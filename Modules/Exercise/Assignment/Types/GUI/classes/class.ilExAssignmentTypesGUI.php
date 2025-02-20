@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -25,19 +24,28 @@
 class ilExAssignmentTypesGUI
 {
     // fau: exAssHook - load the plugins
-
     /** @var ilAssignmentHookPlugin[] */
     protected $plugins;
-
+    protected ilComponentRepository $component_repository;
+    protected ilComponentFactory $component_factory;
     /**
      * Get the active plugins
      */
     protected function getActivePlugins() {
         if (!isset($this->plugins)) {
             $this->plugins = [];
-            $names = ilPluginAdmin::getActivePluginsForSlot(IL_COMP_MODULE, 'Exercise', 'exashk');
+            global $DIC;
+            $this->component_repository = $DIC["component.repository"];
+            $this->component_factory = $DIC["component.factory"];
+            if($this->component_repository->hasPluginSlotId("exahsk")) {
+                $names = $this->component_factory->getActivePluginsInSlot('exashk');
+            }
+            else {
+                $names = [];
+            }
+                
             foreach ($names as $name) {
-                $this->plugins[] = ilPlugin::getPluginObject(IL_COMP_MODULE, 'Exercise','exashk', $name);
+                $this->plugins[] = $this->component_repository->getPluginById($name);
             }
         }
 
@@ -50,7 +58,11 @@ class ilExAssignmentTypesGUI
         ilExAssignment::TYPE_PORTFOLIO => "ilExAssTypePortfolioGUI",
         ilExAssignment::TYPE_UPLOAD_TEAM => "ilExAssTypeUploadTeamGUI",
         ilExAssignment::TYPE_TEXT => "ilExAssTypeTextGUI",
-        ilExAssignment::TYPE_WIKI_TEAM => "ilExAssTypeWikiTeamGUI"
+        ilExAssignment::TYPE_WIKI_TEAM => "ilExAssTypeWikiTeamGUI",
+        // fau: exAssTest - add test result type gui
+        ilExAssignment::TYPE_TEST_RESULT => "ilExAssTypeTestResultGUI",
+        ilExAssignment::TYPE_TEST_RESULT_TEAM => "ilExAssTypeTestResultTeamGUI"
+        // fau.        
     );
 
     /**
@@ -103,6 +115,16 @@ class ilExAssignmentTypesGUI
 
             case ilExAssignment::TYPE_WIKI_TEAM:
                 return new ilExAssTypeWikiTeamGUI();
+            // fau: exAssTest - get instance for type test result gui
+            case ilExAssignment::TYPE_TEST_RESULT:
+                include_once("./Modules/Exercise/AssignmentTypes/GUI/classes/class.ilExAssTypeTestResultGUI.php");
+                return new ilExAssTypeTestResultGUI();
+
+            case ilExAssignment::TYPE_TEST_RESULT_TEAM:
+                include_once("./Modules/Exercise/AssignmentTypes/GUI/classes/class.ilExAssTypeTestResultTeamGUI.php");
+                return new ilExAssTypeTestResultTeamGUI();
+
+            // fau.                
             // fau: exAssHook - return the type of a plugin for the id
             default:
                 foreach ($this->getActivePlugins() as $plugin) {
