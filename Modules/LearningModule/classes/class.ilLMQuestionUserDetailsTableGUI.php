@@ -111,7 +111,7 @@ class ilLMQuestionUserDetailsTableGUI extends ilTable2GUI
 
                 if ($status['passed']) {
                     $question['status'] = ilLPStatus::LP_STATUS_COMPLETED;
-                } elseif ($qdata[$question_id]['nr_of_tries'] > 0 and $status['try'] >= $qdata[$question_id]['nr_of_tries']) {
+                } elseif (isset($qdata[$question_id]) && ($qdata[$question_id]['nr_of_tries'] > 0 and $status['try'] >= $qdata[$question_id]['nr_of_tries'])) {
                     $question['status'] = ilLPStatus::LP_STATUS_FAILED;
                 } else {
                     $question['status'] = ilLPStatus::LP_STATUS_IN_PROGRESS;
