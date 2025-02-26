@@ -42,7 +42,7 @@ fau_author_role_template_id = ""        ;id of the author role template for cate
 fau_manager_role_template_id = ""       ;id of the manager role template for categories
 
 ilias_guest_role_id = "5"				;Role Id of Guests
-ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects
+ilias_copy_by_soap = "0"				;fau: copyBySoap - setting to use SOAP client to copy container objects
 ilias_copy_always_mail ="0"             ;fau: copyBySoap - always send an e-mail confirmation
 ilias_log_request_ips = ""              ;fau: requestLog - comma separates list of ip adresses for which a request log should be written
 ilias_show_roles_info = "0"             ;Show roles with permissions on info screen
