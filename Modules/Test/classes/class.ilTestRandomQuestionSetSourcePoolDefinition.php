@@ -46,8 +46,8 @@ class ilTestRandomQuestionSetSourcePoolDefinition
     private array $type_filter = [];
     private array $lifecycle_filter = [];
    // fau: taxGroupFilter - new class variables
-   private ?int $originalGroupTaxId = null;
-   private ?int $mappedGroupTaxId = null;
+   private ?string $originalGroupTaxId = null;
+   private ?string $mappedGroupTaxId = null;
    // fau.
     // fau: randomSetOrder - new class variable
     private $orderBy = null;
