@@ -142,12 +142,12 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
         // fau.
         // fau: taxGroupFilter - set group taxonomy label
         if ($a_set['group_tax_id']) {
-            $this->tpl->setVariable('GROUP_TAXONOMY', "<br />" . $this->taxonomyLabelTranslater->getGroupTaxonomyLabel($set['group_tax_id']));
+            $this->tpl->setVariable('GROUP_TAXONOMY', "<br />" . $this->taxonomyLabelTranslater->getGroupTaxonomyLabel($a_set['group_tax_id']));
         }
         // fau.        
         // fau: randomSetOrder - get the order criteria
-        if (!empty($set['order_by'])) {
-            $this->tpl->setVariable('ORDER_BY', $this->lng->txt('tst_filter_order_' . $set['order_by']));
+        if (!empty($a_set['order_by'])) {
+            $this->tpl->setVariable('ORDER_BY', $this->lng->txt('tst_filter_order_' . $a_set['order_by']));
         }
         //	fau.        
     }
