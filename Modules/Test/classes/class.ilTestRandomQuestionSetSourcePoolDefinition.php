@@ -277,7 +277,7 @@ class ilTestRandomQuestionSetSourcePoolDefinition
     // fau: taxGroupFilter - setters and getters
     public function setOriginalGroupTaxId($originalGroupTaxId)
     {
-        $this->originalGroupTaxId = $originalGroupTaxId;
+        $this->originalGroupTaxId = (string) $originalGroupTaxId;
     }
 
     public function getOriginalGroupTaxId()
@@ -287,7 +287,7 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 
     public function setMappedGroupTaxId($mappedGroupTaxId)
     {
-        $this->mappedGroupTaxId = $mappedGroupTaxId;
+        $this->mappedGroupTaxId = (string) $mappedGroupTaxId;
     }
 
     public function getMappedGroupTaxId()
