@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
-      }
-
-      .cls-2 {
-        fill: #c0cbda;
-      }
-
-      .cls-3 {
         fill: none;
       }
 
-      .cls-4 {
+      .cls-2 {
+        fill: #04316a;
+      }
+
+      .cls-3 {
         clip-path: url(#clippath);
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-3" width="320" height="320"/>
+      <rect class="cls-1" y="0" width="320" height="320"/>
     </clipPath>
   </defs>
-  <rect class="cls-2" x="57.5" y="106.2" width="205" height="148.8"/>
-  <g class="cls-4">
-    <path class="cls-1" d="M262.5,255H57.5v-76.2h75v7.1c0,5.5,4.5,10,10,10h35c5.5,0,10-4.5,10-10v-7.1h75v76.2ZM262.5,106.2v57.6h-75c0-5.5-4.5-10-10-10h-35c-5.5,0-10,4.5-10,10H57.5v-57.6s205,0,205,0ZM177.5,91.2h-35v-25.8c.2-8.5,8-15.4,17.5-15.4s17.3,6.9,17.5,15.5v25.7M277.5,260V101.2c0-5.5-4.5-10-10-10h-75v-25.7c-.1-16.8-14.7-30.5-32.5-30.5s-32.4,13.7-32.5,30.5v25.7H52.5c-5.5,0-10,4.5-10,10v158.8c0,5.5,4.5,10,10,10h215c5.5,0,10-4.5,10-10"/>
+  <g class="cls-3">
+    <path class="cls-2" d="M262.5,255H57.5v-76.2h75v7.1c0,5.5,4.5,10,10,10h35c5.5,0,10-4.5,10-10v-7.1h75v76.2ZM262.5,106.2v57.6h-75c0-5.5-4.5-10-10-10h-35c-5.5,0-10,4.5-10,10H57.5v-57.6s205,0,205,0ZM177.5,91.2h-35v-25.8c.2-8.5,8-15.4,17.5-15.4s17.3,6.9,17.5,15.5v25.7M277.5,260V101.2c0-5.5-4.5-10-10-10h-75v-25.7c-.1-16.8-14.7-30.5-32.5-30.5s-32.4,13.7-32.5,30.5v25.7H52.5c-5.5,0-10,4.5-10,10v158.8c0,5.5,4.5,10,10,10h215c5.5,0,10-4.5,10-10"/>
   </g>
 </svg>

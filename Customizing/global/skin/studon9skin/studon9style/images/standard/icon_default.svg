@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
+        fill: none;
       }
 
       .cls-2 {
-        fill: none;
+        fill: #04316a;
       }
 
       .cls-3 {
@@ -15,10 +15,10 @@
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" width="320" height="320"/>
+      <rect class="cls-1" y="0" width="320" height="320"/>
     </clipPath>
   </defs>
   <g class="cls-3">
-    <path class="cls-1" d="M90,50h-30c-5.5,0-10,4.5-10,10v200c0,5.5,4.5,10,10,10h30v-15h-25V65h25v-15ZM270,260V60c0-5.5-4.5-10-10-10h-30v15h25v190h-25v15h30c5.5,0,10-4.5,10-10"/>
+    <path class="cls-2" d="M90,50h-30c-5.5,0-10,4.5-10,10v200c0,5.5,4.5,10,10,10h30v-15h-25V65h25v-15ZM270,260V60c0-5.5-4.5-10-10-10h-30v15h25v190h-25v15h30c5.5,0,10-4.5,10-10"/>
   </g>
 </svg>

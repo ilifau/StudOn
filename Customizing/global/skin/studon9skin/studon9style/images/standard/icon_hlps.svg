@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
+        fill: none;
       }
 
       .cls-2 {
-        fill: none;
+        fill: #04316a;
       }
 
       .cls-3 {
@@ -15,11 +15,11 @@
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" x="20" y="20" width="280" height="280"/>
+      <rect class="cls-1" x="20" y="20" width="280" height="280"/>
     </clipPath>
   </defs>
   <g class="cls-3">
-    <path class="cls-1" d="M209,121.3c0,37.7-42.9,41.2-42.9,76.4v3.8h-29.6v-3.3c0-43.7,36.7-43.7,36.7-72.1,0-14.3-13.6-20.1-26.4-20.1-11.5,0-23.3,3-34.1,7l-1.7-26.1c14.1-4.3,26.6-7.3,42.9-7.3,26.5,0,55.1,11.8,55.1,41.7M134.4,219.5h33.6v30.1h-33.6v-30.1ZM300,160c0-77.3-62.7-140-140-140S20,82.7,20,160s62.7,140,140,140,140-62.7,140-140"/>
+    <path class="cls-2" d="M209,121.3c0,37.7-42.9,41.2-42.9,76.4v3.8h-29.6v-3.3c0-43.7,36.7-43.7,36.7-72.1,0-14.3-13.6-20.1-26.4-20.1-11.5,0-23.3,3-34.1,7l-1.7-26.1c14.1-4.3,26.6-7.3,42.9-7.3,26.5,0,55.1,11.8,55.1,41.7M134.4,219.5h33.6v30.1h-33.6v-30.1ZM300,160c0-77.3-62.7-140-140-140S20,82.7,20,160s62.7,140,140,140,140-62.7,140-140"/>
   </g>
-  <rect class="cls-2" width="320" height="320"/>
+  <rect class="cls-1" y="0" width="320" height="320"/>
 </svg>

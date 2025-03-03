@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
+        fill: none;
       }
 
       .cls-2 {
-        fill: none;
+        fill: #04316a;
       }
 
       .cls-3 {
@@ -15,16 +15,16 @@
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" x="30" y="62.5" width="260" height="195"/>
+      <rect class="cls-1" x="30" y="62.5" width="260" height="195"/>
     </clipPath>
   </defs>
   <g class="cls-3">
-    <path class="cls-1" d="M245,187.5H75v-110h170v110ZM260,197.5V67.5c0-2.8-2.2-5-5-5H65c-2.8,0-5,2.2-5,5v130c0,2.8,2.2,5,5,5h190c2.8,0,5-2.3,5-5"/>
+    <path class="cls-2" d="M245,187.5H75v-110h170v110ZM260,197.5V67.5c0-2.8-2.2-5-5-5H65c-2.8,0-5,2.2-5,5v130c0,2.8,2.2,5,5,5h190c2.8,0,5-2.3,5-5"/>
   </g>
-  <polygon class="cls-1" points="69 217.5 30 257.5 290 257.5 251 217.5 69 217.5"/>
-  <polygon class="cls-1" points="161.2 172.5 161.2 124.2 151 117.4 131.9 143.7 114.8 134.5 90.4 167.8 90.4 172.5 161.2 172.5"/>
-  <rect class="cls-1" x="174.6" y="97.5" width="55" height="15"/>
-  <rect class="cls-1" x="174.6" y="127.5" width="45" height="15"/>
-  <rect class="cls-1" x="174.6" y="157.5" width="55" height="15"/>
-  <rect class="cls-2" width="320" height="320"/>
+  <polygon class="cls-2" points="69 217.5 30 257.5 290 257.5 251 217.5 69 217.5"/>
+  <polygon class="cls-2" points="161.2 172.5 161.2 124.2 151 117.4 131.9 143.7 114.8 134.5 90.4 167.8 90.4 172.5 161.2 172.5"/>
+  <rect class="cls-2" x="174.6" y="97.5" width="55" height="15"/>
+  <rect class="cls-2" x="174.6" y="127.5" width="45" height="15"/>
+  <rect class="cls-2" x="174.6" y="157.5" width="55" height="15"/>
+  <rect class="cls-1" y="0" width="320" height="320"/>
 </svg>

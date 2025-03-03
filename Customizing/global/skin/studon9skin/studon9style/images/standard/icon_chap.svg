@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
-      }
-
-      .cls-2 {
-        fill: #c0cbda;
-      }
-
-      .cls-3 {
         fill: none;
       }
 
-      .cls-4 {
+      .cls-2 {
+        fill: #04316a;
+      }
+
+      .cls-3 {
         clip-path: url(#clippath);
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-3" x="40" y="60" width="240" height="200"/>
+      <rect class="cls-1" x="40" y="60" width="240" height="200"/>
     </clipPath>
   </defs>
-  <g class="cls-4">
-    <path class="cls-1" d="M265,245H55V75h50l6.7,20h153.3v150ZM280,250V90c0-5.5-4.5-10-10-10H126.7l-6.7-20H40v190c0,5.5,4.5,10,10,10h220c5.5,0,10-4.5,10-10"/>
+  <g class="cls-3">
+    <path class="cls-2" d="M265,245H55V75h50l6.7,20h153.3v150ZM280,250V90c0-5.5-4.5-10-10-10H126.7l-6.7-20H40v190c0,5.5,4.5,10,10,10h220c5.5,0,10-4.5,10-10"/>
   </g>
-  <rect class="cls-3" width="320" height="320"/>
-  <polygon class="cls-2" points="265 245 55 245 55 105 55 75 105 75 111.7 95 265 95 265 245"/>
+  <rect class="cls-1" y="0" width="320" height="320"/>
 </svg>
