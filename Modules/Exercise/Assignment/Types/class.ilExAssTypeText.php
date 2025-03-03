@@ -48,6 +48,13 @@ class ilExAssTypeText implements ilExAssignmentTypeInterface
         return false;
     }
 
+    // fau: exAssHook - new function hasFiles()
+    public function hasFiles(): bool
+    {
+        return false;
+    }
+    // fau.    
+
     public function usesFileUpload(): bool
     {
         return false;
@@ -89,4 +96,14 @@ class ilExAssTypeText implements ilExAssignmentTypeInterface
     {
         return 0;
     }
+
+    // fau: exAssHook - new function isManualGradingSupported()
+    /**
+     * @inheritdoc
+     */
+    public function isManualGradingSupported($a_ass) : bool
+    {
+        return true;
+    }
+    //fau.    
 }

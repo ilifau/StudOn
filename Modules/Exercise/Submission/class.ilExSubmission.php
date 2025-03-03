@@ -29,6 +29,15 @@ class ilExSubmission
     public const TYPE_OBJECT = "Object";	// Blogs in WSP/Portfolio
     public const TYPE_TEXT = "Text";
     public const TYPE_REPO_OBJECT = "RepoObject";	// Wikis
+
+    // fau: exAssTest - add test result submission type
+    public const TYPE_TEST_RESULT = "TestResult";
+    public const TYPE_TEST_RESULT_TEAM = "TestResultTeam";
+    // fau.
+
+    // fau: exAssHook - add inactive submission type
+    public const TYPE_INACTIVE = "Inactive";
+    // fau.    
     protected \ILIAS\Exercise\InternalDomainService $domain;
 
     protected ilObjUser $user;
@@ -1456,8 +1465,11 @@ class ilExSubmission
         // #16994
         $ilCtrl->setParameterByClass("ilexsubmissionfilegui", "member_id", $this->getUserId());
 
-        // assignment type specific
-        switch ($this->assignment->getType()) {
+        $check_type = $this->assignment->getType();
+        if ($this->assignment->getAssignmentType()->usesFileUpload()) {
+            $check_type = ilExAssignment::TYPE_UPLOAD;
+        }
+        switch ($check_type) {
             case ilExAssignment::TYPE_UPLOAD_TEAM:
                 // data is merged by team - see above
                 // fallthrough

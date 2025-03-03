@@ -28,6 +28,35 @@ class ilExAssignmentTypes
 {
     protected Exercise\InternalService $service;
 
+    // fau: exAssHook - load the plugins
+
+    /** @var ilAssignmentHookPlugin[] */
+    protected $plugins;
+    protected ilComponentRepository $component_repository;
+    protected ilComponentFactory $component_factory;
+    /**
+     * Get the active plugins
+     */
+    protected function getActivePlugins() {
+        if (!isset($this->plugins)) {
+            $this->plugins = [];
+            global $DIC;
+            $this->component_repository = $DIC["component.repository"];
+            $this->component_factory = $DIC["component.factory"];
+            if($this->component_repository->hasPluginSlotId("exahsk")) {
+                $names = $this->component_factory->getActivePluginsInSlot('exashk');
+            }
+            else {
+                $names = [];
+            }
+            foreach ($names as $name) {
+                $this->plugins[] = $this->component_repository->getPluginById($name);
+            }
+        }
+        return $this->plugins;
+    }
+    // fau.
+
     protected function __construct(Exercise\InternalService $service = null)
     {
         global $DIC;
@@ -44,19 +73,33 @@ class ilExAssignmentTypes
 
     public function getAllIds(): array
     {
-        return [
+        // fau: exAssHook - add dummy plugin ids to the type ids
+        // fau: exAssTest - add type for test results
+        $ids = [
             ilExAssignment::TYPE_UPLOAD,
             ilExAssignment::TYPE_UPLOAD_TEAM,
             ilExAssignment::TYPE_TEXT,
             ilExAssignment::TYPE_BLOG,
             ilExAssignment::TYPE_PORTFOLIO,
-            ilExAssignment::TYPE_WIKI_TEAM
+            ilExAssignment::TYPE_WIKI_TEAM,
+            ilExAssignment::TYPE_TEST_RESULT,
+            ilExAssignment::TYPE_TEST_RESULT_TEAM
         ];
+
+        foreach ($this->getActivePlugins() as $plugin) {
+            $ids = array_merge($ids, $plugin->getAssignmentTypeIds());
+        }
+
+        return $ids;
+        // fau.
     }
 
     public function isValidId($a_id): bool
     {
-        return in_array($a_id, $this->getAllIds());
+        // fau: exAssHook - allow type ids of inactive plugins
+        return true;
+        // return in_array($a_id, $this->getAllIds());
+        // fau.        
     }
 
 
@@ -124,6 +167,10 @@ class ilExAssignmentTypes
      */
     public function getById(int $a_id): ilExAssignmentTypeInterface
     {
+        // fau: exAssHook - include ilExAssignmentTypeExtendedInterface
+        include_once "./Modules/Exercise/AssignmentTypes/classes/interface.ilExAssignmentTypeExtendedInterface.php";
+        // fau.        
+
         switch ($a_id) {
             case ilExAssignment::TYPE_UPLOAD:
                 return new ilExAssTypeUpload();
@@ -142,6 +189,30 @@ class ilExAssignmentTypes
 
             case ilExAssignment::TYPE_WIKI_TEAM:
                 return new ilExAssTypeWikiTeam();
+
+            // fau: exAssTest - get assignment type instance
+            case ilExAssignment::TYPE_TEST_RESULT:
+                include_once("./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResult.php");
+                return new ilExAssTypeTestResult();
+                break;
+
+            case ilExAssignment::TYPE_TEST_RESULT_TEAM:
+                include_once("./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultTeam.php");
+                return new ilExAssTypeTestResultTeam();
+                break;
+            // fau.                
+
+                // fau: exAssHook - return the type of a plugin for the id
+                default:
+                foreach ($this->getActivePlugins() as $plugin) {
+                    if (in_array($a_id, $plugin->getAssignmentTypeIds())) {
+                        return $plugin->getAssignmentTypeById($a_id);
+                    }
+                }
+
+                include_once("./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeInactive.php");
+                return new ilExAssTypeInactive();
+                // fau.                
         }
 
         throw new ilExcUnknownAssignmentTypeException("Unknown Assignment Type ($a_id).");

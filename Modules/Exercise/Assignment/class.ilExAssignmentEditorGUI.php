@@ -63,6 +63,15 @@ class ilExAssignmentEditorGUI
     private \ILIAS\ResourceStorage\Services $irss;
     private \ILIAS\FileUpload\FileUpload $upload;
 
+    // fau: exAssHook - indicator that type has its own submission
+    protected bool $type_has_own_submission = false;
+    // fau.
+
+
+    // fau: exAssHook - indicator that type has its own general feedback
+    protected bool $type_has_own_feedback = false;
+    // fau.
+
     public function __construct(
         int $a_exercise_id,
         bool $a_enable_peer_review_completion_settings,
@@ -103,6 +112,15 @@ class ilExAssignmentEditorGUI
                 'ref_id',
                 $DIC->refinery()->kindlyTo()->int()
             ) : null;
+
+            // fau: exAssHook - set type specific indicators
+            $type = ($_POST['type'] ?? (isset($a_ass) ? $a_ass->getType() :  0));
+            $type_gui = ilExAssignmentTypesGUI::getInstance()->getById($type);
+            if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface ) {
+                $this->type_has_own_submission = $type_gui->hasOwnOverviewSubmission();
+                $this->type_has_own_feedback = $type_gui->hasOwnOverviewGeneralFeedback();
+            }
+            // fau.    
     }
 
     /**
@@ -167,6 +185,14 @@ class ilExAssignmentEditorGUI
                 break;
 
             default:
+                // fau: exAssHook - forward to type gui (analogous to ilExSubmissionGUI)
+                if ($this->type_guis->isExAssTypeGUIClass($class)) {
+                    $this->setAssignmentHeader();
+                    $type_gui = $this->type_guis->getByClassName($class);
+                    $type_gui->setAssignment($this->assignment);
+                    $ilCtrl->forwardCommand($type_gui);
+                }
+                // fau.
                 $this->{$cmd . "Object"}();
                 break;
         }
@@ -264,16 +290,34 @@ class ilExAssignmentEditorGUI
         $form->addItem($ti);
 
         // type
-        $ty = $this->getTypeDropdown();
-        $ty->setValue($a_type);
-        $ty->setDisabled(true);
-        $form->addItem($ty);
+        // fau: exAssHook - use hidden field for inactive type
+        if ($ass_type->isActive()) {
+            $ty = $this->getTypeDropdown();
+            $ty->setValue($a_type);
+            $ty->setDisabled(true);
+            $form->addItem($ty);
+        }
+        else {
+            $ty = new ilHiddenInputGUI('type');
+            $ty->setValue($a_type);
+            $form->addItem($ty);
+
+            $tyi = new ilNonEditableValueGUI($lng->txt("exc_assignment_type"));
+            $tyi->setValue($lng->txt("exc_type_inactive"));
+            $tyi->setInfo($lng->txt("exc_type_inactive_info"));
+            $form->addItem($tyi);
+        }
 
         //
         // type specific start
         //
 
+        // fau: exAssHook - set assignment and exercise_id for type gui to allow form customization
+        if (isset($this->assignment)) {
+            $ass_type_gui->setAssignment($this->assignment);
+        }
         $ass_type_gui->addEditFormCustomProperties($form);
+        // fau.
 
         //
         // type specific end
@@ -522,7 +566,9 @@ class ilExAssignmentEditorGUI
 
 
         // max number of files
-        if ($ass_type->usesFileUpload()) {
+        // fau: exAssHook: don't add upload settings if type has its own submission
+        if ($ass_type->usesFileUpload() && ! $this->type_has_own_submission) {
+            // fau.
             $sub_header = new ilFormSectionHeaderGUI();
             $sub_header->setTitle($ass_type->getTitle());
             $form->addItem($sub_header);
@@ -552,8 +598,21 @@ class ilExAssignmentEditorGUI
 
         // global feedback
 
-        $fb = new ilCheckboxInputGUI($lng->txt("exc_global_feedback_file"), "fb");
-        $form->addItem($fb);
+        // fau: exAssHook - don't add feedback upload if type has its own feedback
+        if ($this->type_has_own_feedback) {
+            $fb = new ilNonEditableValueGUI($lng->txt("exc_global_feedback_file"), "fb");
+            $form->addItem($fb);
+        }
+        else {
+            $fb = new ilCheckboxInputGUI($lng->txt("exc_global_feedback_file"), "fb");
+            $form->addItem($fb);
+
+            $fb_file = new ilFileInputGUI($lng->txt("file"), "fb_file");
+            $fb_file->setRequired(true); // will be disabled on update if file exists - see getAssignmentValues()
+            // $fb_file->setAllowDeletion(true); makes no sense if required (overwrite or keep)
+            $fb->addSubItem($fb_file);
+        }
+        // fau.
 
         $fb_file = new ilFileInputGUI($lng->txt("file"), "fb_file");
         $fb_file->setRequired(true); // will be disabled on update if file exists - see getAssignmentValues()
@@ -648,9 +707,11 @@ class ilExAssignmentEditorGUI
                 }
             }
 
-            if ($this->assignment->getFeedbackFile()) {
+            // fau: exAssHook - change feedback upload only if it is included
+            if ($this->assignment->getFeedbackFile() && !empty($a_form->getItemByPostVar("fb_file"))) {
                 $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
             }
+            // fau.
         }
 
         $valid = $a_form->checkInput();
@@ -834,7 +895,8 @@ class ilExAssignmentEditorGUI
                 }
 
                 // global feedback
-                if ($a_form->getInput("fb")) {
+                // fau: exAssHook - allow feedback date settings if own feedback is provided
+                if ($a_form->getInput("fb") || $this->type_has_own_feedback) {
                     $res["fb"] = true;
                     $res["fb_cron"] = $a_form->getInput("fb_cron");
                     $res["fb_date"] = $a_form->getInput("fb_date");
@@ -844,6 +906,7 @@ class ilExAssignmentEditorGUI
                         $res["fb_file"] = $_FILES["fb_file"];
                     }
                 }
+                // fau.
                 if ($a_form->getInput("rmd_submit_status")) {
                     $res["rmd_submit_status"] = true;
                     $res["rmd_submit_start"] = $a_form->getInput("rmd_submit_start");
@@ -893,7 +956,6 @@ class ilExAssignmentEditorGUI
 
         $a_ass->setMaxFile($a_input["max_file"]);
         $a_ass->setTeamTutor((bool) ($a_input["team_creator"] ?? false));
-
         //$a_ass->setPortfolioTemplateId($a_input['template_id']);
 
         //$a_ass->setMinCharLimit($a_input['min_char_limit']);
@@ -914,11 +976,15 @@ class ilExAssignmentEditorGUI
             $a_ass->setPeerReviewRating(true);
         }
 
-        if (isset($a_input["fb"])) {
-            $a_ass->setFeedbackCron((bool) $a_input["fb_cron"]); // #13380
-            $a_ass->setFeedbackDate((int) $a_input["fb_date"]);
-            $a_ass->setFeedbackDateCustom((int) $a_input["fb_date_custom"]);
+        // fau: exAssHook - allow feedback date settings for own feedback
+        if (isset($_POST["fb"]) ? $_POST["fb"] : 0 || $this->type_has_own_feedback) {
+            var_dump("komm ich hierher?");
+            exit();
+            $a_ass->setFeedbackCron($a_input["fb_cron"]); // #13380
+            $a_ass->setFeedbackDate($a_input["fb_date"]);
+            $a_ass->setFeedbackDateCustom($a_input["fb_date_custom"]);
         }
+        // fau.
 
         // id needed for file handling
         if ($is_create) {
@@ -1112,7 +1178,8 @@ class ilExAssignmentEditorGUI
         $a_form->setValuesByArray($values);
 
         // global feedback
-        if ($this->assignment->getFeedbackFile()) {
+        // fau: exAssHook - don't check feedback file it type has its own general feedback
+        if (!$this->type_has_own_feedback && $this->assignment->getFeedbackFile()) {
             $a_form->getItemByPostVar("fb")->setChecked(true);
             $a_form->getItemByPostVar("fb_file")->setValue(basename($this->assignment->getGlobalFeedbackFilePath()));
             $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
@@ -1122,6 +1189,7 @@ class ilExAssignmentEditorGUI
                 $lng->txt("download") . '</a>'
             );
         }
+        // fau.
         $a_form->getItemByPostVar("fb_cron")->setChecked($this->assignment->hasFeedbackCron());
         $a_form->getItemByPostVar("fb_date")->setValue($this->assignment->getFeedbackDate());
 
@@ -1345,6 +1413,11 @@ class ilExAssignmentEditorGUI
             $lng->txt("exc_instruction_files"),
             $ilCtrl->getLinkTargetByClass(array("ilexassignmenteditorgui", ilResourceCollectionGUI::class))
         );
+        // fau: exAssHook - handle the editor tabs
+        $typeGUI = $this->type_guis->getById($this->assignment->getType());
+        $typeGUI->setAssignment($this->assignment);
+        $typeGUI->handleEditorTabs($this->tabs);
+        // fau.
     }
 
     public function downloadGlobalFeedbackFileObject(): void

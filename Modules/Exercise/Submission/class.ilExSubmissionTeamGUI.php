@@ -397,6 +397,14 @@ class ilExSubmissionTeamGUI
                 $this->submission->hasSubmitted(),
                 $this->submission->validatePeerReviews()
             );
+
+            // fau: exAssHook - handle the adding of new users to the team
+            $assignmentType = $this->assignment->getAssignmentType();
+            if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                $assignmentType->getTeamHandler($this->assignment)->handleTeamAddedUsers($this->team, $new_users);
+            }
+            // fau.            
+            
             // :TODO: notification?
             $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
         }

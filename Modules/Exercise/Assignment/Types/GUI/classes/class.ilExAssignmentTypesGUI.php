@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -24,20 +23,60 @@
  */
 class ilExAssignmentTypesGUI
 {
+    // fau: exAssHook - load the plugins
+    /** @var ilAssignmentHookPlugin[] */
+    protected $plugins;
+    protected ilComponentRepository $component_repository;
+    protected ilComponentFactory $component_factory;
+    /**
+     * Get the active plugins
+     */
+    protected function getActivePlugins() {
+        if (!isset($this->plugins)) {
+            $this->plugins = [];
+            global $DIC;
+            $this->component_repository = $DIC["component.repository"];
+            $this->component_factory = $DIC["component.factory"];
+            if($this->component_repository->hasPluginSlotId("exahsk")) {
+                $names = $this->component_factory->getActivePluginsInSlot('exashk');
+            }
+            else {
+                $names = [];
+            }
+                
+            foreach ($names as $name) {
+                $this->plugins[] = $this->component_repository->getPluginById($name);
+            }
+        }
+
+        return $this->plugins;
+    }
+    // fau.
     protected array $class_names = array(
         ilExAssignment::TYPE_UPLOAD => "ilExAssTypeUploadGUI",
         ilExAssignment::TYPE_BLOG => "ilExAssTypeBlogGUI",
         ilExAssignment::TYPE_PORTFOLIO => "ilExAssTypePortfolioGUI",
         ilExAssignment::TYPE_UPLOAD_TEAM => "ilExAssTypeUploadTeamGUI",
         ilExAssignment::TYPE_TEXT => "ilExAssTypeTextGUI",
-        ilExAssignment::TYPE_WIKI_TEAM => "ilExAssTypeWikiTeamGUI"
+        ilExAssignment::TYPE_WIKI_TEAM => "ilExAssTypeWikiTeamGUI",
+        // fau: exAssTest - add test result type gui
+        ilExAssignment::TYPE_TEST_RESULT => "ilExAssTypeTestResultGUI",
+        ilExAssignment::TYPE_TEST_RESULT_TEAM => "ilExAssTypeTestResultTeamGUI"
+        // fau.        
     );
 
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct()    
     {
+        // fau: exAssHook - add plugins to the class names
+        foreach ($this->getActivePlugins() as $plugin) {
+            foreach ($plugin->getAssignmentTypeGuiClassNames() as $id => $name ) {
+                $this->class_names[$id] = $name;
+            }
+        }
+        // fau.        
     }
 
     /**
@@ -56,7 +95,7 @@ class ilExAssignmentTypesGUI
      *
      * @param int $a_id type id
      */
-    public function getById(int $a_id): ilExAssignmentTypeGUIInterface
+    public function getById(int $a_id): ilExAssignmentTypeGUIInterface | ilExAssTypeInactiveGUI
     {
         switch ($a_id) {
             case ilExAssignment::TYPE_UPLOAD:
@@ -76,10 +115,35 @@ class ilExAssignmentTypesGUI
 
             case ilExAssignment::TYPE_WIKI_TEAM:
                 return new ilExAssTypeWikiTeamGUI();
+            // fau: exAssTest - get instance for type test result gui
+            case ilExAssignment::TYPE_TEST_RESULT:
+                include_once("./Modules/Exercise/AssignmentTypes/GUI/classes/class.ilExAssTypeTestResultGUI.php");
+                return new ilExAssTypeTestResultGUI();
+
+            case ilExAssignment::TYPE_TEST_RESULT_TEAM:
+                include_once("./Modules/Exercise/AssignmentTypes/GUI/classes/class.ilExAssTypeTestResultTeamGUI.php");
+                return new ilExAssTypeTestResultTeamGUI();
+
+            // fau.                
+            // fau: exAssHook - return the type of a plugin for the id
+            default:
+                foreach ($this->getActivePlugins() as $plugin) {
+                    if (in_array($a_id, $plugin->getAssignmentTypeIds())) {
+                        return $plugin->getAssignmentTypeGuiById($a_id);
+                    }
+                }
+
+                include_once("./Modules/Exercise/AssignmentTypes/GUI/classes/class.ilExAssTypeInactiveGUI.php");
+                return new ilExAssTypeInactiveGUI();
+
+            // fau.                
         }
 
+        
         // we should throw some exception here
-        throw new ilExcUnknownAssignmentTypeException("Unkown Assignment Type ($a_id).");
+        // fau: exAssHook -> code not reachable -> commented out
+        // throw new ilExcUnknownAssignmentTypeException("Unkown Assignment Type ($a_id).");
+        // .fau
     }
 
     /**

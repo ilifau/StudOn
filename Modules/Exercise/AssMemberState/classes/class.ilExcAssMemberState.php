@@ -50,6 +50,12 @@ class ilExcAssMemberState
     protected ilExAssignment $assignment;
     protected int $time;
     protected ilLanguage $lng;
+    // fau: exAssTest - class variable for team
+    /**
+     * @var ilExAssignmentTeam|null
+     */
+    protected $team;
+    // fau.    
 
     /**
      * either user id or team id, if this is a team assignment
@@ -78,7 +84,9 @@ class ilExcAssMemberState
 
         // check team status
         $this->is_team = false;
-        if ($this->assignment->getType() == ilExAssignment::TYPE_UPLOAD_TEAM) {
+        // fau: exAssTest - newer check for teams, set team property
+        if ($this->assignment->getAssignmentType()->usesTeams() && isset($a_team)) {
+            $this->team = $a_team;
             if ($a_team->getId()) {
                 $this->member_id = $a_team->getId();
                 $this->team_id = $a_team->getId();
@@ -106,7 +114,9 @@ class ilExcAssMemberState
         $member_id = $user->getId();
         $is_team = false;
         $team = null;
-        if ($ass->getType() == ilExAssignment::TYPE_UPLOAD_TEAM) {		// better move this to ilExcIndividualDeadline
+        // fau: exAssTest - newer check for teams
+        if ($ass->getAssignmentType()->usesTeams()) {		// better move this to ilExcIndividualDeadline
+        // fau.
             $team = ilExAssignmentTeam::getInstanceByUserId($a_ass_id, $user->getId());
             if ($team->getId()) {
                 $member_id = $team->getId();
@@ -138,6 +148,25 @@ class ilExcAssMemberState
     {
         return $this->idl;
     }
+    // fau: exAssTest - new function to tet the team from the member state
+    /**
+     * Check if user is in team
+     * @return bool
+     */
+    public function isInTeam(): bool
+    {
+        return !empty($this->team_id);
+    }
+
+    /**
+     * Get the team object
+     * @return ilExAssignmentTeam | null
+     */
+    public function getTeamObject(): ilExAssignmentTeam|null
+    {
+        return $this->team;
+    }
+    // fau.    
 
     public function getGeneralStart(): ?int
     {

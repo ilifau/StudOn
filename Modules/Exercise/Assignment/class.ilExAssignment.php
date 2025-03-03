@@ -42,7 +42,13 @@ class ilExAssignment
     public const TYPE_UPLOAD_TEAM = 4;
     public const TYPE_TEXT = 5;
     public const TYPE_WIKI_TEAM = 6;
-
+    // fau: exAssHook - dummy type id for inactive type
+    public const TYPE_INACTIVE = -1;
+    // fau.    
+    // fau: exAssTest - type for test results
+    const TYPE_TEST_RESULT = 11;
+    const TYPE_TEST_RESULT_TEAM = 12;
+    // fau.
     public const FEEDBACK_DATE_DEADLINE = 1;
     public const FEEDBACK_DATE_SUBMISSION = 2;
     public const FEEDBACK_DATE_CUSTOM = 3;
@@ -167,6 +173,33 @@ class ilExAssignment
 
         return $data;
     }
+
+    // fau: exAssHook - new function getInstancesForGrading()
+    // fau: exAssTest - new function getInstancesForGrading()
+    // fau: exGradeTime - new function getInstancesForGrading()
+    /**
+     * Get the assignments that are allowed for grading
+     * @param int $a_exc_id
+     * @return ilExAssignment[]
+     */
+    public static function getInstancesForGrading($a_exc_id) {
+        /** @var ilExAssignment[] $assignments */
+        $assignments = self::getInstancesByExercise($a_exc_id);
+        $allowed = [];
+        foreach ($assignments as $ass) {
+
+            $type = $ass->getAssignmentType();
+            if (!$type->isManualGradingSupported($ass)) {
+                    continue;
+            }
+
+            if ($ass->checkInGradeTime() ||ilObjExerciseAccess::checkExtendedGradingAccess($a_exc_id, false)) {
+                $allowed[] = $ass;
+            }
+        }
+        return $allowed;
+    }
+    // fau.    
 
     /**
      * @param array $a_file_data

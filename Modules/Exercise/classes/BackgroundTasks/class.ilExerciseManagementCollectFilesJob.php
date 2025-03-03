@@ -253,17 +253,31 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
             $submission->updateTutorDownloadTime();
 
             // get member object (ilObjUser)
+            // fau: exAssHook - use implementation from ilExerciseManagementGUI::downloadAllObject()
             if (ilObject::_exists($member_id)) {
+                $storage_id = "";
                 // adding file metadata
                 foreach ($submission->getFiles() as $file) {
-                    $members[$file["user_id"]]["files"][$file["returned_id"]] = $file;
-                }
+                    if ($this->assignment->getAssignmentType()->isSubmissionAssignedToTeam()) {
+                        $storage_id = $file["team_id"];
+                    } else {
+                        $storage_id = $file["user_id"];
+                    }
 
-                /** @var $tmp_obj ilObjUser */
-                $tmp_obj = ilObjectFactory::getInstanceByObjId($member_id);
-                $members[$member_id]["name"] = $tmp_obj->getFirstname() . " " . $tmp_obj->getLastname();
+                    $members[$storage_id]["files"][$file["returned_id"]] = $file;
+                }
+                if ($this->assignment->getAssignmentType()->isSubmissionAssignedToTeam()) {
+                    $name = "Team " . $submission->getTeam()->getId();
+                } else {
+                    $tmp_obj = ilObjectFactory::getInstanceByObjId($member_id);
+                    $name = $tmp_obj->getFirstname() . " " . $tmp_obj->getLastname();
+                }
+                if ($storage_id > 0) {
+                    $members[$storage_id]["name"] = $name;
+                }
                 unset($tmp_obj);
             }
+            // fau.
         }
         ilExSubmission::downloadAllAssignmentFiles($this->assignment, $members, $this->submissions_directory);
     }
@@ -477,10 +491,12 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
         $this->createTargetDirectory();
 
         //Collect submission files if needed by assignment type.
-        if (in_array($assignment_type, $this->ass_types_with_files)) {
+        // fau: exAssHook - use hasFiles() function
+        if ($this->assignment->getAssignmentType()->hasFiles()) {
             $this->createSubmissionsDirectory();
             $this->collectSubmissionFiles();
         }
+        // fau.
 
         $first_excel_column_for_review = 0;
         $col = 0;
@@ -569,7 +585,9 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
                     $this->excel->setCell($row, self::PARTICIPANT_LOGIN_COLUMN, $participant_name['login']);
 
                     //Get the submission Text
-                    if (!in_array($assignment_type, $this->ass_types_with_files)) {
+                    // fau: exAssHook: use function hasFiles()
+                    if (!$this->assignment->getAssignmentType()->hasFiles()) {
+                        // fau.
                         foreach ($submission_files as $submission_file) {
                             $this->excel->setCell($row, self::SUBMISSION_DATE_COLUMN, $submission_file['timestamp']);
                             $this->excel->setCell($row, self::FIRST_DEFAULT_SUBMIT_COLUMN, $submission_file['atext']);
