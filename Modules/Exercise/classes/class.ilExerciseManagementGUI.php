@@ -488,6 +488,17 @@ class ilExerciseManagementGUI
                 }
             }
 
+            // fau: exTeamSingles - button to create single user teams
+            if (ilObjExerciseAccess::checkExtendedGradingAccess($this->exercise->getRefId())
+                && $this->assignment->getAssignmentType()->usesTeams()) {
+                $ilToolbar->addButton(
+                    $this->lng->txt("exc_create_single_teams"),
+                    $this->ctrl->getLinkTarget($this, "confirmCreateSingleTeams")
+                );
+                $ilToolbar->addSeparator();
+            }
+            // fau.
+
             $submission_repository = $this->service->repo()->submission();
 
             if ($submission_repository->hasSubmissions($this->assignment->getId()) !== 0) {
@@ -1808,6 +1819,91 @@ class ilExerciseManagementGUI
         $form->setValuesByPost();
         $this->adoptTeamsFromGroupObject($form);
     }
+
+    // fau: exTeamSingles - new functions
+    /**
+     * Show confirmation to create single user teams for all users without a team
+     */
+    public function confirmCreateSingleTeamsObject(): void
+    {
+        if (!$this->exercise->isMemberDeleteAllowed()) {
+            $this->tpl->setOnScreenMessage('failure',$this->lng->txt("exc_mem_delete_perm_failure"), true);
+            $this->ctrl->redirect($this, "members");
+        }
+
+        // get the members without a team
+        $all_members  = ilExerciseMembers::_getMembers($this->exercise->getId());
+        $team_members = array_keys(ilExAssignmentTeam::getAssignmentTeamMap($this->assignment->getId()));
+        $members = array_diff($all_members, $team_members);
+
+        if (empty($members)) {
+            $this->tpl->setOnScreenMessage('failure',$this->lng->txt("exc_create_single_teams_empty"), true);
+            $this->ctrl->redirect($this, "members");
+        }
+
+        include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
+        $cgui = new ilConfirmationGUI();
+        $cgui->setFormAction($this->ctrl->getFormAction($this));
+        $cgui->setHeaderText( $this->lng->txt("exc_create_single_teams_confirmation"));
+        $cgui->setCancel( $this->lng->txt("cancel"), "members");
+        $cgui->setConfirm( $this->lng->txt("create"), "createSingleTeams");
+
+        include_once("./Services/User/classes/class.ilUserUtil.php");
+        foreach ($members as $usr_id) {
+            $cgui->addItem(
+                "member[]",
+                $usr_id,
+                ilUserUtil::getNamePresentation((int) $usr_id, false, false, "", true)
+            );
+        }
+
+        $this->tpl->setContent($cgui->getHTML());
+    }
+
+    /**
+     * Create single user teams for all users without a team
+     */
+    public function createSingleTeamsObject(): void
+    {
+        if (!$this->exercise->isMemberDeleteAllowed()) {
+            $this->tpl->setOnScreenMessage('failure',$this->lng->txt("exc_mem_delete_perm_failure"), true);
+            $this->ctrl->redirect($this, "members");
+        }
+
+        // ensure now new teams have been created
+        $selected_members = (array) $_POST['member'];
+        $team_members = array_keys(ilExAssignmentTeam::getAssignmentTeamMap($this->assignment->getId()));
+        $members = array_diff($selected_members, $team_members);
+
+        if (empty($members)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("exc_create_single_teams_empty"), true);
+            $this->ctrl->redirect($this, "members");
+        }
+
+        foreach ($members as $user_id) {
+            $team = ilExAssignmentTeam::getInstanceByUserId($this->assignment->getId(), (int) $user_id, true);
+
+            // re-evaluate the user submission
+            $submission = new ilExSubmission($this->assignment,  (int) $user_id);
+            $this->exercise->processExerciseStatus(
+                $this->assignment,
+                $team->getMembers(),
+                $submission->hasSubmitted(),
+                $submission->validatePeerReviews()
+            );
+
+            // fau: exAssHook - handle creation of the single user team
+            $assignmentType = $this->assignment->getAssignmentType();
+            if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                $assignmentType->getTeamHandler($this->assignment)->handleTeamCreated($team);
+            }
+            // fau.
+        }
+
+        $this->tpl->setOnScreenMessage('success',$this->lng->txt("exc_create_single_teams_finished"), true);
+        $this->ctrl->redirect($this, "members");
+    }
+    // fau.    
 
 
     ////
