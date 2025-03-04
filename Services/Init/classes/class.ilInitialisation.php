@@ -1180,7 +1180,12 @@ class ilInitialisation
      */
     protected static function handleDevMode(): void
     {
+        // fau: ExtDevMode - Extend Dev Mode possibilities
+        if(DEVMODE == 2)
+        error_reporting(6133);
+        else
         error_reporting(-1);
+        // fau.
     }
 
     protected static bool $already_initialized = false;
