@@ -1182,9 +1182,9 @@ class ilInitialisation
     {
         // fau: ExtDevMode - Extend Dev Mode possibilities
         if(DEVMODE == 2)
-        error_reporting(6133);
+            error_reporting(6133);
         else
-        error_reporting(-1);
+            error_reporting(-1);
         // fau.
     }
 
