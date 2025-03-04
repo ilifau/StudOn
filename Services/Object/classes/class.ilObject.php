@@ -17,7 +17,9 @@
  *********************************************************************/
 
 declare(strict_types=1);
+// fau: fixErrRep - set error-reporting if php.ini settings are
 error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
+// fau.
 use ILIAS\Object\ilObjectDIC;
 use ILIAS\Object\Properties\ObjectReferenceProperties\ObjectReferenceProperties;
 
