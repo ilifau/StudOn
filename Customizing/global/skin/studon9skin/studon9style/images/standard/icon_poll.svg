@@ -1,58 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
-      }
-
-      .cls-2 {
-        fill: #c0cbda;
-      }
-
-      .cls-3 {
         fill: none;
       }
 
-      .cls-4 {
+      .cls-2 {
         clip-path: url(#clippath-1);
       }
 
-      .cls-5 {
+      .cls-3 {
         clip-path: url(#clippath-3);
       }
 
-      .cls-6 {
+      .cls-4 {
+        fill: #04316a;
+      }
+
+      .cls-5 {
         clip-path: url(#clippath-2);
       }
 
-      .cls-7 {
+      .cls-6 {
         clip-path: url(#clippath);
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-3" width="320" height="320"/>
+      <rect class="cls-1" y="0" width="320" height="320"/>
     </clipPath>
     <clipPath id="clippath-1">
-      <rect class="cls-3" width="320" height="320"/>
+      <rect class="cls-1" y="0" width="320" height="320"/>
     </clipPath>
     <clipPath id="clippath-2">
-      <rect class="cls-3" width="320" height="320"/>
+      <rect class="cls-1" y="0" width="320" height="320"/>
     </clipPath>
     <clipPath id="clippath-3">
-      <rect class="cls-3" width="320" height="320"/>
+      <rect class="cls-1" y="0" width="320" height="320"/>
     </clipPath>
   </defs>
-  <g class="cls-7">
-    <path class="cls-2" d="M175,70c0-2.8-2.2-5-5-5h-80c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h80c2.8,0,5-2.2,5-5v-40Z"/>
-  </g>
-  <g class="cls-4">
-    <path class="cls-2" d="M275,140c0-2.8-2.2-5-5-5H90c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h180c2.8,0,5-2.2,5-5v-40Z"/>
-  </g>
   <g class="cls-6">
-    <path class="cls-2" d="M235,210c0-2.8-2.2-5-5-5H90c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h140c2.8,0,5-2.2,5-5v-40Z"/>
+    <path class="cls-4" d="M175,70c0-2.8-2.2-5-5-5h-80c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h80c2.8,0,5-2.2,5-5v-40Z"/>
+  </g>
+  <g class="cls-2">
+    <path class="cls-4" d="M275,140c0-2.8-2.2-5-5-5H90c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h180c2.8,0,5-2.2,5-5v-40Z"/>
   </g>
   <g class="cls-5">
-    <path class="cls-1" d="M65,45c0-2.8-2.2-5-5-5h-10c-2.8,0-5,2.2-5,5v230c0,2.8,2.2,5,5,5h10c2.8,0,5-2.2,5-5V45Z"/>
+    <path class="cls-4" d="M235,210c0-2.8-2.2-5-5-5H90c-2.8,0-5,2.2-5,5v40c0,2.8,2.2,5,5,5h140c2.8,0,5-2.2,5-5v-40Z"/>
+  </g>
+  <g class="cls-3">
+    <path class="cls-4" d="M65,45c0-2.8-2.2-5-5-5h-10c-2.8,0-5,2.2-5,5v230c0,2.8,2.2,5,5,5h10c2.8,0,5-2.2,5-5V45Z"/>
   </g>
 </svg>

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
+        fill: none;
       }
 
       .cls-2 {
-        fill: none;
+        fill: #04316a;
       }
     </style>
   </defs>
-  <rect class="cls-1" x="97.5" y="107.5" width="170" height="30"/>
-  <rect class="cls-1" x="97.5" y="172.5" width="170" height="30"/>
-  <rect class="cls-1" x="97.5" y="237.5" width="170" height="30"/>
-  <rect class="cls-1" x="52.5" y="107.5" width="30" height="30"/>
-  <rect class="cls-1" x="52.5" y="172.5" width="30" height="30"/>
-  <rect class="cls-1" x="52.5" y="237.5" width="30" height="30"/>
-  <rect class="cls-1" x="30" y="52.5" width="260" height="15"/>
-  <rect class="cls-2" width="320" height="320"/>
+  <rect class="cls-2" x="97.5" y="107.5" width="170" height="30"/>
+  <rect class="cls-2" x="97.5" y="172.5" width="170" height="30"/>
+  <rect class="cls-2" x="97.5" y="237.5" width="170" height="30"/>
+  <rect class="cls-2" x="52.5" y="107.5" width="30" height="30"/>
+  <rect class="cls-2" x="52.5" y="172.5" width="30" height="30"/>
+  <rect class="cls-2" x="52.5" y="237.5" width="30" height="30"/>
+  <rect class="cls-2" x="30" y="52.5" width="260" height="15"/>
+  <rect class="cls-1" y="0" width="320" height="320"/>
 </svg>

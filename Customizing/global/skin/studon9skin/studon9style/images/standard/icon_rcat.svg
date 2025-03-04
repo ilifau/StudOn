@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
-      }
-
-      .cls-2 {
         fill: none;
       }
 
-      .cls-3 {
+      .cls-2 {
         clip-path: url(#clippath-1);
+      }
+
+      .cls-3 {
+        fill: #04316a;
       }
 
       .cls-4 {
@@ -19,19 +19,19 @@
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" x="40" y="60" width="240" height="200"/>
+      <rect class="cls-1" x="40" y="60" width="240" height="200"/>
     </clipPath>
     <clipPath id="clippath-1">
-      <rect class="cls-2" x="40" y="60" width="240" height="200"/>
+      <rect class="cls-1" x="40" y="60" width="240" height="200"/>
     </clipPath>
   </defs>
   <g>
     <g class="cls-4">
-      <path class="cls-1" d="M167.3,80h-40.7l-6.6-20H40v190c0,5.5,4.5,10,10,10h220c5.5,0,10-4.5,10-10v-105.4c-4,6.4-9.1,12-15,16.6v83.8H55V75h50l6.7,20h50.1c1.2-5.3,3.1-10.3,5.5-15"/>
+      <path class="cls-3" d="M167.3,80h-40.7l-6.6-20H40v190c0,5.5,4.5,10,10,10h220c5.5,0,10-4.5,10-10v-105.4c-4,6.4-9.1,12-15,16.6v83.8H55V75h50l6.7,20h50.1c1.2-5.3,3.1-10.3,5.5-15"/>
     </g>
-    <g class="cls-3">
-      <path class="cls-1" d="M261.1,105.7c0,10.7-21.4,32.1-21.4,21.4,0-21.4-21.4-21.4-21.4-32.1s10.7,0,21.4-10.7c7.6-7.5,21.4,10.7,21.4,21.4M210.5,109.4c-.9,11.2-.4,13-3.9,19-6.1,10.6-6.6,8.9-8.4,2.2-2.2-8.4-11.3-19.8-6.7-25.1,4.6-5.2,19.8-5.9,19,3.9M275,110c0-27.6-22.4-50-50-50s-50,22.4-50,50,22.4,50,50,50,50-22.4,50-50"/>
+    <g class="cls-2">
+      <path class="cls-3" d="M261.1,105.7c0,10.7-21.4,32.1-21.4,21.4,0-21.4-21.4-21.4-21.4-32.1s10.7,0,21.4-10.7c7.6-7.5,21.4,10.7,21.4,21.4M210.5,109.4c-.9,11.2-.4,13-3.9,19-6.1,10.6-6.6,8.9-8.4,2.2-2.2-8.4-11.3-19.8-6.7-25.1,4.6-5.2,19.8-5.9,19,3.9M275,110c0-27.6-22.4-50-50-50s-50,22.4-50,50,22.4,50,50,50,50-22.4,50-50"/>
     </g>
   </g>
-  <rect class="cls-2" width="320" height="320"/>
+  <rect class="cls-1" y="0" width="320" height="320"/>
 </svg>

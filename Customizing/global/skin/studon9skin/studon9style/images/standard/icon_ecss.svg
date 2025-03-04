@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
+        fill: none;
       }
 
       .cls-2 {
-        fill: #c0cbda;
+        fill: #04316a;
       }
 
       .cls-3 {
-        fill: none;
+        clip-path: url(#clippath);
       }
     </style>
+    <clipPath id="clippath">
+      <rect class="cls-1" y="0" width="320" height="320"/>
+    </clipPath>
   </defs>
-  <rect class="cls-3" width="320" height="320"/>
-  <polygon class="cls-1" points="172.5 270 150 300 300 300 277.5 270 172.5 270"/>
-  <polygon class="cls-2" points="95 205 55 205 55 235 95 235 95 265 135 220 95 175 95 205"/>
-  <path class="cls-1" d="M162.5,105V25c0-2.8-2.2-5-5-5H32.5c-2.8,0-5,2.2-5,5v80c0,2.8,2.2,5,5,5h125c2.8,0,5-2.2,5-5"/>
-  <polygon class="cls-1" points="20 150 170 150 147.5 120 42.5 120 20 150"/>
-  <polygon class="cls-2" points="225 95 265 95 265 65 225 65 225 35 185 80 225 125 225 95"/>
-  <path class="cls-1" d="M292.5,255v-80c0-2.8-2.2-5-5-5h-125c-2.8,0-5,2.2-5,5v80c0,2.8,2.2,5,5,5h125c2.8,0,5-2.2,5-5"/>
-  <rect class="cls-2" x="42.5" y="35" width="105" height="60"/>
-  <rect class="cls-2" x="172.5" y="185" width="105" height="60"/>
+  <g class="cls-3">
+    <path class="cls-2" d="M172.5,270l-22.5,30h150l-22.5-30h-105ZM95,205h-40v30h40v30l40-45-40-45v30ZM147.5,95H42.5v-60h105v60ZM162.5,105V25c0-2.8-2.2-5-5-5H32.5c-2.8,0-5,2.2-5,5v80c0,2.8,2.2,5,5,5h125c2.8,0,5-2.2,5-5M20,150h150l-22.5-30H42.5l-22.5,30ZM225,95h40v-30h-40v-30l-40,45,40,45v-30ZM277.5,245h-105v-60h105v60ZM292.5,255v-80c0-2.8-2.2-5-5-5h-125c-2.8,0-5,2.2-5,5v80c0,2.8,2.2,5,5,5h125c2.8,0,5-2.2,5-5"/>
+  </g>
 </svg>

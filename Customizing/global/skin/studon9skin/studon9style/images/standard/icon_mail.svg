@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="320" height="320" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="112.89mm" height="112.89mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320">
   <defs>
     <style>
       .cls-1 {
-        fill: #041e42;
+        fill: none;
       }
 
       .cls-2 {
-        fill: none;
+        fill: #04316a;
       }
 
       .cls-3 {
@@ -15,11 +15,11 @@
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-2" x="13.7" y="38" width="292.6" height="243.9"/>
+      <rect class="cls-1" x="13.7" y="38" width="292.6" height="243.9"/>
     </clipPath>
   </defs>
   <g class="cls-3">
-    <path class="cls-1" d="M41.5,166.9l-18.2-4.7,46.3,111.7c2.4,5.8,9.2,10.2,17,7l211.5-87.6c5.8-2.4,10.3-9.2,7.1-17l-46.3-111.7-9.5,16.2,41.2,99.4-207.9,86.1-41.2-99.4ZM226.2,60.6l-62.8,106.6-119.8-31L226.2,60.6ZM249.9,42.7c-1.6-3.8-6-5.6-9.8-4.1L18.3,130.5c-3.8,1.6-5.6,6-4.1,9.8.1.1,1.7,4.2,1.7,4.2l149.2,38.7c3.2.8,6.6-.6,8.3-3.5L251.5,46.9c.1-.1-1.6-4.1-1.6-4.2"/>
+    <path class="cls-2" d="M41.5,166.9l-18.2-4.7,46.3,111.7c2.4,5.8,9.2,10.2,17,7l211.5-87.6c5.8-2.4,10.3-9.2,7.1-17l-46.3-111.7-9.5,16.2,41.2,99.4-207.9,86.1-41.2-99.4ZM226.2,60.6l-62.8,106.6-119.8-31L226.2,60.6ZM249.9,42.7c-1.6-3.8-6-5.6-9.8-4.1L18.3,130.5c-3.8,1.6-5.6,6-4.1,9.8.1.1,1.7,4.2,1.7,4.2l149.2,38.7c3.2.8,6.6-.6,8.3-3.5L251.5,46.9c.1-.1-1.6-4.1-1.6-4.2"/>
   </g>
-  <rect class="cls-2" width="320" height="320"/>
+  <rect class="cls-1" y="0" width="320" height="320"/>
 </svg>
