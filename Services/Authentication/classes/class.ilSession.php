@@ -540,7 +540,9 @@ class ilSession
             $users = $row['users'];
 
             // next query after 1 minute
+            $ilSetting->delete('session_count_users_online_expire_' . $seconds);
             $ilSetting->set('session_count_users_online_expire_' . $seconds, (string) (time() + 60));
+            $ilSetting->delete('session_count_users_online_' . $seconds);
             $ilSetting->set('session_count_users_online_' . $seconds, (string) $row['users']);
         }
 
