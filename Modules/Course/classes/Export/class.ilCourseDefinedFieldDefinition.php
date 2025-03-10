@@ -476,8 +476,8 @@ class ilCourseDefinedFieldDefinition
 
         $this->setName($row->field_name);
         $this->setType($row->field_type);
-        $this->setValues(unserialize($row->field_values));
-        $this->setValueOptions(unserialize($row->field_values_opt));
+        $this->setValues(unserialize($row->field_values) ?: []);
+        $this->setValueOptions(unserialize($row->field_values_opt) ?: []);
         $this->enableRequired($row->field_required);
         // fau: courseUdf - read additional properties
         $this->setDescription($row->field_desc);
