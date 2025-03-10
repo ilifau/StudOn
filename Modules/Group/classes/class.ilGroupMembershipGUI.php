@@ -136,7 +136,7 @@ class ilGroupMembershipGUI extends ilMembershipGUI
     protected function updateParticipantsStatus(): void
     {
         // fau: setPassedFlag - get the posted values
-        $passed = (array) $_POST['passed'];
+        $passed = isset($_POST['passed']) ? (array) $_POST['passed'] : [];
         // fau.
 
         $participants = [];
