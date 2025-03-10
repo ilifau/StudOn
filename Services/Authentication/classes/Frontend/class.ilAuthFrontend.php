@@ -412,9 +412,9 @@ class ilAuthFrontend
                 'auth_action' => array('text', $a_action),
                 'auth_mode' => array('text', $this->getCredentials()->getAuthMode()),
                 'username' => array('text', $a_username),
-                'remote_addr' => array('text', $_SERVER['REMOTE_ADDR']),
-                'server_addr' => array('text', $_SERVER['SERVER_ADDR']),
-                'user_agent' => array('text', $_SERVER['HTTP_USER_AGENT'])
+                'remote_addr' => array('text', $_SERVER['REMOTE_ADDR'] ?? NULL),
+                'server_addr' => array('text', $_SERVER['SERVER_ADDR'] ?? NULL),
+                'user_agent' => array('text', $_SERVER['HTTP_USER_AGENT'] ?? NULL)
             )
         );
     }
