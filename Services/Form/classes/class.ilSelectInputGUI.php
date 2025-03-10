@@ -125,7 +125,7 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
                 return false;
             }
             // fau: campoSub: improved display of restrictions and module selection
-            elseif (in_array($_POST[$this->getPostVar()], $this->disabled_values)) {
+            elseif (isset($_POST[$this->getPostVar()]) && in_array($_POST[$this->getPostVar()], $this->disabled_values)) {
                 $this->setAlert($lng->txt('msg_invalid_post_input'));
                 return false;
             // fau.
