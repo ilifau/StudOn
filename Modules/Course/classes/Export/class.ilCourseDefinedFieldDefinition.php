@@ -28,7 +28,7 @@ class ilCourseDefinedFieldDefinition
     public const IL_CDF_TYPE_SELECT = 2;
     // fau: courseUdf - add type email and checkbox
     public const IL_CDF_TYPE_EMAIL = 10;
-    public const IL_CDF_TYPE_CHECKBOX = 10;
+    public const IL_CDF_TYPE_CHECKBOX = 11;
     // fau.
 
     protected ilDBInterface $db;
@@ -474,11 +474,11 @@ class ilCourseDefinedFieldDefinition
         $res = $this->db->query($query);
         $row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT);
 
-        $this->setName($row->field_name);
-        $this->setType($row->field_type);
+        $this->setName((string) $row->field_name);
+        $this->setType((int) $row->field_type);
         $this->setValues(unserialize($row->field_values) ?: []);
         $this->setValueOptions(unserialize($row->field_values_opt) ?: []);
-        $this->enableRequired($row->field_required);
+        $this->enableRequired((bool) $row->field_required);
         // fau: courseUdf - read additional properties
         $this->setDescription($row->field_desc);
         $this->setEmailAuto($row->field_email_auto);
