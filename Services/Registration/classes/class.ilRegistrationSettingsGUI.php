@@ -997,7 +997,7 @@ class ilRegistrationSettingsGUI
         $dur->setShowMinutes(false);
         if ($codeObj->limit_type == 'relative') {
             $duration = $codeObj->limit_duration;
-            $dur->setDays($duration['d']);
+            $dur->setDays((int) $duration['d']);
             $dur->setMonths((int) $duration['m'] + (int) $duration['y'] * 12);
         }
         $opt->addSubItem($dur);

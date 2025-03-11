@@ -564,8 +564,8 @@ class ilAccountRegistrationGUI
                         
                         case "relative":
                             $rel = $this->codeObj->limit_duration;
-                            $access_limit = $rel["d"] * 86400 + $rel["m"] * 2592000 +
-                                $rel["y"] * 31536000 + time();
+                            $access_limit = (int)($rel["d"] * 86400 + $rel["m"] * 2592000 +
+                                $rel["y"] * 31536000 + time());
                             break;
                     }
                 }
