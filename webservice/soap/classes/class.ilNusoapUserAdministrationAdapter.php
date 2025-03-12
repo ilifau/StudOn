@@ -801,6 +801,28 @@ class ilNusoapUserAdministrationAdapter
             'Returns 0 => not assigned, 1 => group admin, 2 => group member'
         );
 
+        // fau: sendSimpleResults - register function to send user mails
+        $this->server->register(
+            'sendUserMail',
+            array('sid' => 'xsd:string',
+                                      'rcp_to' => 'xsd:string',
+                                      'rcp_cc' => 'xsd:string',
+                                      'rcp_bcc' => 'xsd:string',
+                                      'sender' => 'xsd:string',
+                                      'subject' => 'xsd:string',
+                                      'message' => 'xsd:string',
+                                      'attachments' => 'xsd:string',
+                                      'type' => 'xsd:string',
+                                      'use_placholders' => 'xsd:boolean'),
+            array('status' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#sendUserMail',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS sendUserMail(): Send internal mails according to xml description. Only for internal usage ' .
+                                'Syntax, parameters may change in future releases'
+        );
+        // fau.        
 
         // Clone functions
         $this->server->register(

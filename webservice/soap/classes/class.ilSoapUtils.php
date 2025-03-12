@@ -532,4 +532,46 @@ class ilSoapUtils extends ilSoapAdministration
 
         return true;
     }
+
+    // fau: sendSimpleResults - new function sendUserMail()
+    public function sendUserMail($sid, $to, $cc, $bcc, $sender, $subject, $message, $attach, $type, $use_placeholders)
+    {
+        $this->initAuth($sid);
+        $this->initIlias();
+
+        if (!$this->checkSession($sid)) {
+            return $this->raiseError($this->getMessage(), $this->getMessageCode());
+        }
+
+        include_once("./Services/Mail/classes/class.ilMail.php");
+        if (!$sender_id = ilObjUser::_lookupId($sender)) {
+            $sender_id = ANONYMOUS_USER_ID;
+        }
+
+        $mail = new ilMail($sender_id);
+        $mail_data = new MailDeliveryData(
+            $to, 					// to
+                    $cc, 					// cc
+                    $bcc, 					// bcc
+                    $subject, 				// subject
+                    $message, 				// message
+                    array(),				// attachments (TODO)
+                    //explode(',', $type), 	// type
+                    $use_placeholders     	// use placeholders
+        );        
+        $error = $mail->sendMail(
+            $mail_data
+        );
+
+        if ($error) {
+            return $this->raiseError($error['mail_send_error']->getLanguageVariable(), 'mail');
+        }
+
+
+        global $ilLog;
+        $ilLog->write('SOAP: sendUserMail(): ' . $to . ', ' . $cc . ', ' . $bcc);
+
+        return true;
+    }
+    // fau.    
 }
