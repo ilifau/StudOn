@@ -55,6 +55,13 @@ class ilFeedbackConfirmationTable2GUI extends ilTable2GUI
 
         $this->setLimit(9999);
         $this->setTitle($lng->txt("exc_multi_feedback_files"));
+        // fau: exMultiFeedbackStructure - show warning if submission structure is detected
+        //TODO Cornel: sendquestion ersetzen mit was anderem
+        if ($this->ass->isMultiFeedbackBySubmissionsDownload()) {
+            //ilUtil::sendQuestion($this->lng->txt('exc_multi_feedback_by_submissions_warning'));
+            $this->tpl->setOnScreenMessage("info", $this->lng->txt("exc_multi_feedback_by_submissions_warning"));            
+            
+        }        
         $this->setSelectAllCheckbox("file[]");
 
         $this->addColumn("", "", "1px", true);

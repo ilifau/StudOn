@@ -92,7 +92,7 @@ class GUIService
                 $this->tpl->setOnScreenMessage('failure', $lng->txt("mob_no_extraction_possible"), true);
             }
         } catch (\ilException $e) {
-            if (DEVMODE === 1) {
+            if (DEVMODE >= 1) {
                 $ret = \ilFFmpeg::getLastReturnValues();
                 $add = (is_array($ret) && count($ret) > 0)
                     ? "<br />" . implode("<br />", $ret)

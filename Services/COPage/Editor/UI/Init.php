@@ -55,7 +55,7 @@ class Init
             $lng->toJS($l);
         }
 
-        if (DEVMODE == 1) {
+        if (DEVMODE >= 1) {
             $main_tpl->addJavaScript("./node_modules/tinymce/tinymce.js");
         } else {
             $main_tpl->addJavaScript("./node_modules/tinymce/tinymce.min.js");

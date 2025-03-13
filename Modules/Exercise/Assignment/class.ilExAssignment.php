@@ -101,6 +101,9 @@ class ilExAssignment
     protected int $feedback_date_custom = 0;
     protected bool $team_tutor = false;
     protected ?int $max_file = null;
+   // fau: exMultiFeedbackStructure - variable that indicates that a submission download is uploaded for multi feedback
+   protected $multi_feedback_by_submissions_download = false;
+   // fau.
     protected int $portfolio_template = 0;
     protected int $min_char_limit = 0;
     protected int $max_char_limit = 0;
