@@ -447,7 +447,7 @@ class ilMemberAgreementGUI
             if (isset($fields[$field_obj->getParentFieldId()])) {
                 list($field_id, $option_id) = explode('_', $form->getInput('cdf_' . $field_obj->getParentFieldId()));
                 if (empty($field_id) || $option_id != $field_obj->getParentValueId()) {
-                    $value = null;
+                    $value = "";
                 }
             }
             // fau.
