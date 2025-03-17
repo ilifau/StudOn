@@ -66,6 +66,17 @@ class ilObjCourseGroupingGUI
 
     public function executeCommand(): void
     {
+        // fau: groupingSelector - forward command to property form
+        global $DIC;
+        $class = $DIC->ctrl()->getNextClass($this);
+        switch ($class) {
+            case "ilpropertyformgui":
+                $form = $this->initForm(false);
+                $DIC->ctrl()->forwardCommand($form);
+                return;
+        }
+        // fau.
+
         $this->tabs->setTabActive('crs_groupings');
         $cmd = $this->ctrl->getCmd();
         if (!$cmd = $this->ctrl->getCmd()) {
@@ -121,6 +132,17 @@ class ilObjCourseGroupingGUI
             return;
         }
 
+        // fau: groupingSelector - check if groupings can be deleted
+        foreach ($_POST['grouping'] as $grouping_id) {
+            if (!$this->allItemsWritable($grouping_id)) {
+                //ilUtil::sendFailure($this->lng->txt('groupings_assigned_obj_not_writable_' . $this->content_obj->getType()));
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('groupings_assigned_obj_not_writable_' . $this->content_obj->getType()));
+                $this->listGroupings();
+                return;
+            }
+        }
+        // fau.
+
         // display confirmation message
         $cgui = new ilConfirmationGUI();
         $cgui->setFormAction($this->ctrl->getFormAction($this));
@@ -141,6 +163,15 @@ class ilObjCourseGroupingGUI
         if (!$this->access->checkAccess('write', '', $this->content_obj->getRefId())) {
             $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
         }
+
+        // fau: groupingSelector - check if groupings can be deleted
+        foreach ($_POST['grouping'] as $grouping_id) {
+            if (!$this->allItemsWritable($grouping_id)) {
+                $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
+            }
+        }
+        // fau.
+
         $grouping = [];
         if ($this->http->wrapper()->post()->has('grouping')) {
             $grouping = $this->http->wrapper()->post()->retrieve(
@@ -198,33 +229,37 @@ class ilObjCourseGroupingGUI
         $uniq->setOptions($options);
         $form->addItem($uniq);
 
+        // fau: groupingSelector - add a repository picker to the form
+        $selector = new ilRepositorySelector2InputGUI($this->lng->txt('groupings_assigned_obj_' . $this->getContentType()), 'items', true);
+        /** @var ilRepositorySelectorExplorerGUI $explorer */
+        $explorer = $selector->explorer_gui;
+        $explorer->setSelectableTypes([$this->getContentType()]);
+        $explorer->setWriteRequired(true);
+        $selector->setInfo($this->lng->txt('groupings_assigned_obj_info_' . $this->getContentType()));
+        $form->addItem($selector);
+
         if ($a_create) {
+            $title->setValue($this->lng->txt('groupings_of') . ': ' . $this->content_obj->getTitle());
+            $selector->setValue([$this->content_obj->getRefId()]);
             $form->setTitle($this->lng->txt('crs_add_grouping'));
             $form->addCommandButton('add', $this->lng->txt('btn_add'));
         } else {
-            $grouping = new ilObjCourseGrouping($this->id);
+            $grouping = new ilObjCourseGrouping($_REQUEST['obj_id']);
             $title->setValue($grouping->getTitle());
             $desc->setValue($grouping->getDescription());
             $uniq->setValue($grouping->getUniqueField());
 
-            $ass = new ilCustomInputGUI($this->lng->txt('groupings_assigned_obj_' . $this->getContentType()));
-            $form->addItem($ass);
-
             // assignments
             $items = array();
             foreach ($grouping->getAssignedItems() as $cond_data) {
-                $items[] = ilObject::_lookupTitle($cond_data['target_obj_id']);
+                $items[] = $cond_data['target_ref_id'];
             }
-            if ($items !== []) {
-                $ass->setHtml(implode("<br />", $items));
-            } else {
-                $ass->setHtml($this->lng->txt('crs_grp_no_courses_assigned'));
-            }
-
+            $selector->setValue($items);
+            
             $form->setTitle($this->lng->txt('edit_grouping'));
             $form->addCommandButton('update', $this->lng->txt('save'));
-            $form->addCommandButton('selectCourse', $this->lng->txt('grouping_change_assignment'));
         }
+        // fau.
         $form->addCommandButton('listGroupings', $this->lng->txt('cancel'));
         return $form;
     }
@@ -238,6 +273,9 @@ class ilObjCourseGroupingGUI
             $this->grp_obj->setUniqueField($form->getInput('unique'));
 
             $this->grp_obj->create($this->content_obj->getRefId(), $this->content_obj->getId());
+            // fau: groupingSelector - assign items when grouping is added
+            $this->assignItems($this->grp_obj, $_POST['items']);
+            // fau.
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('crs_grp_added_grouping'), true);
             $this->ctrl->redirect($this, 'listGroupings');
         }
