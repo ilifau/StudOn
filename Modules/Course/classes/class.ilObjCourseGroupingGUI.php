@@ -288,6 +288,14 @@ class ilObjCourseGroupingGUI
         if (!$this->access->checkAccess('write', '', $this->content_obj->getRefId())) {
             $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
         }
+
+        // fau: groupingSelector - check if all assigned objects are writeable
+        if (!$this->allItemsWritable($_REQUEST['obj_id'])) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('groupings_assigned_obj_not_writable_' . $this->content_obj->getType()), true);
+            $this->ctrl->redirect($this, 'listGroupings');
+        }
+        // fau.
+
         if (!$a_form) {
             $a_form = $this->initForm(false);
         }
@@ -299,6 +307,12 @@ class ilObjCourseGroupingGUI
         if (!$this->access->checkAccess('write', '', $this->content_obj->getRefId())) {
             $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
         }
+
+        // fau: groupingSelector - check if all assigned objects are writeable
+        if (!$this->allItemsWritable($_REQUEST['obj_id'])) {
+            $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
+        }
+        // fau.
 
         $obj_id = 0;
         if ($this->http->wrapper()->query()->has('obj_id')) {
@@ -315,6 +329,10 @@ class ilObjCourseGroupingGUI
             $tmp_grouping->setUniqueField($form->getInput('unique'));
             $tmp_grouping->update();
 
+            // fau: groupingSelector - assign items when grouping is updated
+            $this->assignItems($tmp_grouping, $_POST['items']);
+            // fau.
+
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'), true);
             $this->ctrl->redirect($this, 'listGroupings');
         }
@@ -322,6 +340,28 @@ class ilObjCourseGroupingGUI
         $form->setValuesByPost();
         $this->edit($form);
     }
+
+    // fau: groupingSelector - new function alItemsWritable()
+    /**
+     * Cceck if all items of a grouping are writable
+     * @param int $obj_id
+     * @return bool
+     */
+    protected function allItemsWritable($obj_id): bool
+    {
+        global $DIC;
+
+        $grouping = new ilObjCourseGrouping($obj_id);
+        foreach ($grouping->getAssignedItems() as $cond_data) {
+            $ref_id = $cond_data['target_ref_id'];
+
+            if (!ilObject::_isInTrash($ref_id) && !$DIC->access()->checkAccess('write', '', $ref_id)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    // fau.
 
     public function selectCourse(): void
     {
@@ -394,4 +434,55 @@ class ilObjCourseGroupingGUI
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'), true);
         $this->ctrl->redirect($this, 'edit');
     }
+
+    // fau: groupingSelector - new function assignItems()
+    /**
+     * Assign items to a grouping
+     *
+     * @param ilObjCourseGrouping $grpObj
+     * @param int[] $ref_ids
+     */
+    protected function assignItems(ilObjCourseGrouping $grpObj, $ref_ids = [])
+    {
+        global $DIC;
+
+        // delete all existing conditions
+        $condh = new ilConditionHandler();
+        $condh->deleteByObjId($grpObj->getId());
+
+        // create the new condition
+        $rejected = [];
+        foreach ($ref_ids as $ref_id) {
+            $ref_id = (int) $ref_id;
+            $obj_id = ilObject::_lookupObjId($ref_id);
+            $type = ilObject::_lookupType($obj_id);
+
+            if ($type != $this->getContentType() || !$DIC->access()->checkAccess('write', '', $ref_id)) {
+                $rejected[] = ilObject::_lookupTitle($obj_id);
+                continue;
+            }
+
+            $tmp_condh = new ilConditionHandler();
+            $tmp_condh->enableAutomaticValidation(false);
+
+            $tmp_condh->setTargetRefId($ref_id);
+            $tmp_condh->setTargetObjId($obj_id);
+            $tmp_condh->setTargetType($this->getContentType());
+            $tmp_condh->setTriggerRefId(0);
+            $tmp_condh->setTriggerObjId($grpObj->getId());
+            $tmp_condh->setTriggerType('crsg');
+            $tmp_condh->setOperator('not_member');
+            $tmp_condh->setValue($grpObj->getUniqueField());
+
+            if (!$tmp_condh->checkExists()) {
+                $tmp_condh->storeCondition();
+            }
+        }
+
+        if (!empty($rejected)) {
+            $this->tpl->setOnScreenMessage('Info', $this->lng->txt('permission_denied_for') . '<br />' . implode('<br />', $rejected), true);        
+        }
+    }
+    // fau.
+
 } // END class.ilObjCourseGrouping

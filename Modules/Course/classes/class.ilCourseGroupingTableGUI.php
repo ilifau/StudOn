@@ -52,7 +52,9 @@ class ilCourseGroupingTableGUI extends ilTable2GUI
 
     protected function getItems(ilObject $a_content_obj): void
     {
-        $items = ilObjCourseGrouping::_getVisibleGroupings($a_content_obj->getId());
+        // fau: groupingSelector - use simplified getting of groupings (better performance)
+        $items = ilObjCourseGrouping::_getRelatedGroupings($a_content_obj->getId());
+        // fau.
 
         $data = array();
         foreach ($items as $grouping_id) {

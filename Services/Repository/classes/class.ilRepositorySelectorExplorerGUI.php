@@ -35,6 +35,9 @@ class ilRepositorySelectorExplorerGUI extends ilTreeExplorerGUI
     protected array $session_materials = [];
     protected string $highlighted_node = "";
     protected array $clickable_types = [];
+    // fau: groupingSelector - new variable	write_required
+    protected bool $write_required = false;
+    // fau.
     protected array $selectable_types = [];
     protected ilAccessHandler $access;
     protected ?Closure $nc_modifier = null;
@@ -281,7 +284,25 @@ class ilRepositorySelectorExplorerGUI extends ilTreeExplorerGUI
     {
         return $this->highlighted_node;
     }
+    // fau: groupingSelector - getter/setter for write_required
+    /**
+     * Set if write permission is required for selecting nodes
+     * @param bool $a_required
+     */
+    public function setWriteRequired($a_reqired): void
+    {
+        $this->write_required = (bool) $a_reqired;
+    }
 
+    /**
+     * Get if write Permission is required for selecting nodes
+     * @return bool
+     */
+    public function getWriteRequired(): bool
+    {
+        return $this->write_required;
+    }
+    // fau.
     public function setClickableTypes(array $a_types): void
     {
         $this->clickable_types = $a_types;
@@ -305,8 +326,15 @@ class ilRepositorySelectorExplorerGUI extends ilTreeExplorerGUI
     protected function isNodeSelectable($a_node): bool
     {
         if (count($this->getSelectableTypes())) {
-            return in_array($a_node['type'], $this->getSelectableTypes(), true);
-        }
+            // fau: groupingSelector - check for write permission, if required
+            if (!in_array($a_node['type'], $this->getSelectableTypes())) {
+                return false;
+            } elseif (!$this->getWriteRequired()) {
+                return true;
+            } else {
+                return $this->access->checkAccess("write", "", $a_node['child']);
+            }
+            // fau.
         return true;
     }
 }
