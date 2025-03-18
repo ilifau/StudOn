@@ -232,7 +232,7 @@ class ilObjCourseGroupingGUI
         // fau: groupingSelector - add a repository picker to the form
         $selector = new ilRepositorySelector2InputGUI($this->lng->txt('groupings_assigned_obj_' . $this->getContentType()), 'items', true);
         /** @var ilRepositorySelectorExplorerGUI $explorer */
-        $explorer = $selector->explorer_gui;
+        $explorer = $selector->getExplorerGUI();
         $explorer->setSelectableTypes([$this->getContentType()]);
         $explorer->setWriteRequired(true);
         $selector->setInfo($this->lng->txt('groupings_assigned_obj_info_' . $this->getContentType()));

@@ -335,6 +335,7 @@ class ilRepositorySelectorExplorerGUI extends ilTreeExplorerGUI
                 return $this->access->checkAccess("write", "", $a_node['child']);
             }
             // fau.
+        }
         return true;
     }
 }
