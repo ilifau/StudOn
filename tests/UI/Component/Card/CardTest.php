@@ -148,4 +148,60 @@ class CardTest extends ILIAS_UI_TestBase
 
         $this->assertHTMLEquals($this->brutallyTrimHTML($expected_html), $html);
     }
+
+    public function getRefinery()
+    {
+        $refinery = $this->getMockBuilder(\ILIAS\Refinery\Factory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $group_mock = $this->getMockBuilder(\ILIAS\Refinery\String\Group::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $allowed_tags = ['b','i'];
+        $group_mock
+            ->method('htmlSpecialChars')
+            ->willReturn(
+                new \ILIAS\Refinery\String\HtmlSpecialChars($allowed_tags)
+            );
+
+        $refinery
+            ->method('string')
+            ->willReturn($group_mock);
+
+        return $refinery;
+    }
+
+    public function titleProvider(): array
+    {
+        return [
+            ['standard', false],
+            ['<b>bold</b>', false],
+            ['<b >bold</b>', true],
+            ['<b >bold</b >', true],
+            ['<i>italic<i>', false],
+            ['<a href="http://ilias.de">link</a>', true],
+            ['<b onclick="alert(1);">click</b>', true],
+            ['<b onclick=alert(1)>click</b>', true],
+        ];
+    }
+
+    /**
+     * @dataProvider titleProvider
+     */
+    public function testStripTagsFromTitle(string $title, bool $expected_to_strip): void
+    {
+        $r = $this->getDefaultRenderer();
+        $c = $this->getBaseCard()->withTitle($title);
+
+        $html = $this->brutallyTrimHTML($r->render($c));
+
+        if($expected_to_strip) {
+            $this->assertStringNotContainsString($title, $html);
+        } else {
+            $this->assertStringContainsString($title, $html);
+        }
+    }
+
 }
