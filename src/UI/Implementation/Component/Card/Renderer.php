@@ -8,22 +8,9 @@ use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Standard as StandardIcon;
-use ILIAS\UI\Component\Button\Shy;
 
 class Renderer extends AbstractComponentRenderer
 {
-    protected const ALLOWED_TAGS_IN_TITLE = [
-        'b',
-        'i',
-        'strong',
-        'em',
-        'sub',
-        'sup',
-        'pre',
-        'strike',
-        'bdo'
-    ];
-
     /**
      * @inheritdocs
      */
@@ -35,21 +22,8 @@ class Renderer extends AbstractComponentRenderer
         $this->checkComponent($component);
         $tpl = $this->getTemplate("tpl.card.html", true, true);
 
-        $title = $component->getTitle();
-        if ($title instanceof Shy) {
-            $image_alt = $title->getLabel();
-            $title = $default_renderer->render($title);
-        } else {
-            $title = $this->getRefinery()->string()->htmlSpecialChars(
-                self::ALLOWED_TAGS_IN_TITLE
-            )->transform($title);
-            $image_alt = $title;
-        }
-
         if ($component->getImage()) {
-            $tpl->setVariable("IMAGE", $default_renderer->render(
-                $component->getImage()->withAlt($this->txt("open") . " " . strip_tags($image_alt))
-            ));
+            $tpl->setVariable("IMAGE", $default_renderer->render($component->getImage()));
         }
 
         if ($component->isHighlighted()) {
@@ -58,6 +32,7 @@ class Renderer extends AbstractComponentRenderer
             $tpl->touchBlock("no_highlight");
         }
 
+        $title = $component->getTitle();
         $id = $this->bindJavaScript($component);
         if (!$id) {
             $id = $this->createId();

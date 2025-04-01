@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace ILIAS\Refinery\String;
 
 use ILIAS\Data\Factory;
-use ILIAS\Refinery\Transformation;
 
 class Group
 {
@@ -121,15 +120,4 @@ class Group
     {
         return new Levenshtein();
     }
-
-    /**
-     * Creates a transformation that converts special chars strips tags from a string.
-     *
-     * Uses php's htmlspecialchars under the hood
-     */
-    public function htmlSpecialChars(array $allowed_tags): Transformation
-    {
-        return new HtmlSpecialChars($allowed_tags);
-    }
-
 }
