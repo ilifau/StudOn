@@ -323,20 +323,20 @@ class arConnectorDB extends arConnector
         $method = 'asSQLStatement';
 
         // SELECTS
-        $q = $arl->getArSelectCollection()->{$method}();
+        $q = $arl->getArSelectCollection()->{$method}($this->returnDB());
         // Concats
-        $q .= $arl->getArConcatCollection()->{$method}();
+        $q .= $arl->getArConcatCollection()->{$method}($this->returnDB());
         $q .= ' FROM ' . $arl->getAR()->getConnectorContainerName();
         // JOINS
-        $q .= $arl->getArJoinCollection()->{$method}();
+        $q .= $arl->getArJoinCollection()->{$method}($this->returnDB());
         // WHERE
-        $q .= $arl->getArWhereCollection()->{$method}();
+        $q .= $arl->getArWhereCollection()->{$method}($this->returnDB());
         // HAVING
-        $q .= $arl->getArHavingCollection()->{$method}();
+        $q .= $arl->getArHavingCollection()->{$method}($this->returnDB());
         // ORDER
-        $q .= $arl->getArOrderCollection()->{$method}();
+        $q .= $arl->getArOrderCollection()->{$method}($this->returnDB());
         // LIMIT
-        $q .= $arl->getArLimitCollection()->{$method}();
+        $q .= $arl->getArLimitCollection()->{$method}($this->returnDB());
 
         //TODO: using template in the model.
         if ($arl->getDebug()) {

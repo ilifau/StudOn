@@ -10,8 +10,8 @@
 * @package ilias-core
 */
 // lts-patch: begin version
-define("ILIAS_VERSION", "7.30.3 2024-12-11");
-define("ILIAS_VERSION_NUMERIC", "7.30.3");
+define("ILIAS_VERSION", "7.30.4 2025-04-01");
+define("ILIAS_VERSION_NUMERIC", "7.30.4");
 //define("ILIAS_VERSION", "7.30 2024-05-14");
 //define("ILIAS_VERSION_NUMERIC", "7.30");			// since version ILIAS 6 this must be always x.y: x and y are numbers
 // lts-patch: end version

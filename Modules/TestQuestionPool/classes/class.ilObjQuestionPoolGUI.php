@@ -782,6 +782,11 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
     */
     public function importVerifiedFileObject()
     {
+        if (!$this->checkPermissionBool('create', '', $_GET["new_type"])) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
+            $this->ctrl->redirect($this, 'create');
+            return;
+        }
         $title = '';
         $description = null;
         if ($_POST['questions_only'] == 1) {
@@ -1497,7 +1502,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
             return;
         }
         if (!$this->checkPermissionBool("create", "", $_REQUEST["new_type"])) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_create_permission"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
             $this->ctrl->redirect($this, 'create');
             return;
         }
