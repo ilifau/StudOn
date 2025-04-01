@@ -35,6 +35,8 @@ class ilObjectTranslationGUI
      * @var ilObjUser
      */
     protected $user;
+    /** @var ilAccessHandler */
+    protected $access;
 
     protected $obj_trans;
     protected $title_descr_only = true;
@@ -56,6 +58,7 @@ class ilObjectTranslationGUI
         $lng = $DIC->language();
         $ilCtrl = $DIC->ctrl();
         $tpl = $DIC["tpl"];
+        $this->access = $DIC['ilAccess'];
 
         $this->lng = $lng;
         $this->ctrl = $ilCtrl;
@@ -111,6 +114,11 @@ class ilObjectTranslationGUI
      */
     public function executeCommand()
     {
+        if (!$this->access->checkAccess('write', '', $this->obj_gui->object->getRefId())) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('no_permission'));
+            $this->ctrl->redirect($this->obj_gui);
+        }
+
         $next_class = $this->ctrl->getNextClass($this);
 
         switch ($next_class) {
