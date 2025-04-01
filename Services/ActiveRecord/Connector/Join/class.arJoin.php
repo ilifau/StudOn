@@ -57,16 +57,16 @@ class arJoin extends arStatement
      * @param string $as
      * @return string
      */
-    protected function asStatementText(ActiveRecord $ar, $as = ' AS ')
+    protected function asStatementText(ActiveRecord $ar, ilDBInterface $db, $as = ' AS ')
     {
         $return = ' ' . $this->getType() . ' ';
         $return .= ' JOIN ' . $this->getTableName() . $as . $this->getTableNameAs();
         if ($this->getBothExternal()) {
-            $return .= ' ON ' . $this->getOnFirstField() . ' ' . $this->getOperator() . ' ';
+            $return .= ' ON ' . $db->quoteIdentifier($this->getOnFirstField()) . ' ' . $this->getOperator() . ' ';
         } else {
-            $return .= ' ON ' . $ar->getConnectorContainerName() . '.' . $this->getOnFirstField() . ' ' . $this->getOperator() . ' ';
+            $return .= ' ON ' . $db->quoteIdentifier($ar->getConnectorContainerName()) . '.' . $this->getOnFirstField() . ' ' . $this->getOperator() . ' ';
         }
-        $return .= $this->getTableNameAs() . '.' . $this->getOnSecondField();
+        return $return . $db->quoteIdentifier($this->getTableNameAs()) . '.' . $db->quoteIdentifier($this->getOnSecondField());
 
         return $return;
     }
@@ -77,9 +77,9 @@ class arJoin extends arStatement
      *
      * @return string
      */
-    public function asSQLStatement(ActiveRecord $ar)
+    public function asSQLStatement(ActiveRecord $ar, ilDBInterface $db)
     {
-        return $this->asStatementText($ar, ' AS ');
+        return $this->asStatementText($ar, $db, ' AS ');
     }
 
 

@@ -52,12 +52,12 @@ class arJoinCollection extends arStatementCollection
     /**
      * @return string
      */
-    public function asSQLStatement()
+    public function asSQLStatement(ilDBInterface $db)
     {
         $return = '';
         if ($this->hasStatements()) {
             foreach ($this->getJoins() as $join) {
-                $return .= $join->asSQLStatement($this->getAr());
+                $return .= $join->asSQLStatement($this->getAr(), $db);
             }
         }
 

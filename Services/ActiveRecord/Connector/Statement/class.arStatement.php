@@ -21,7 +21,7 @@ abstract class arStatement
      *
      * @return string
      */
-    abstract public function asSQLStatement(ActiveRecord $ar);
+    abstract public function asSQLStatement(ActiveRecord $ar, ilDBInterface $db);
 
 
     /**
@@ -39,5 +39,30 @@ abstract class arStatement
     public function setTableNameAs($table_name_as)
     {
         $this->table_name_as = $table_name_as;
+    }
+
+    protected function wrapFields(array $fields, ilDBInterface $db) : array
+    {
+        $wrapped_fields = [];
+        foreach ($fields as $field) {
+            $wrapped_fields[] = $this->wrapField($field, $db);
+        }
+
+        return $wrapped_fields;
+    }
+
+    protected function wrapField(string $field, ilDBInterface $db) : string
+    {
+        $splitted = explode('.', $field);
+
+        if (count($splitted) === 1 && $splitted[0] === '*') {
+            return $field;
+        }
+
+        if (count($splitted) === 2) {
+            return $db->quoteIdentifier($splitted[0]) . '.' . $db->quoteIdentifier($splitted[1]);
+        }
+
+        return $db->quoteIdentifier($field);
     }
 }
