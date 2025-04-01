@@ -14,13 +14,13 @@ class arConcatCollection extends arStatementCollection
     /**
      * @return string
      */
-    public function asSQLStatement()
+    public function asSQLStatement(ilDBInterface $db)
     {
         $return = '';
         if ($this->hasStatements()) {
             $return = ', ';
             foreach ($this->getConcats() as $concat) {
-                $return .= $concat->asSQLStatement($this->getAr());
+                $return .= $concat->asSQLStatement($this->getAr(), $db);
                 if ($concat != end($this->getConcats())) {
                     $return .= ', ';
                 }

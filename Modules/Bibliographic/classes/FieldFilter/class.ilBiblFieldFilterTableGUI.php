@@ -65,7 +65,7 @@ class ilBiblFieldFilterTableGUI extends ilTable2GUI
 
     protected function initColumns()
     {
-        $this->addColumn($this->lng()->txt('field'), 'field');
+        $this->addColumn($this->lng()->txt('field'), 'field_id');
         $this->addColumn($this->lng()->txt('filter_type'), 'filter_type');
         $this->addColumn($this->lng()->txt('actions'), '', '150px');
     }

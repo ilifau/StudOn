@@ -45,7 +45,7 @@ class arWhere extends arStatement
      * @throws arException
      * @return string
      */
-    public function asSQLStatement(ActiveRecord $ar)
+    public function asSQLStatement(ActiveRecord $ar, ilDBInterface $db)
     {
         if ($this->getType() == self::TYPE_REGULAR) {
             $arField = $ar->getArFieldList()->getFieldByName($this->getFieldname());
