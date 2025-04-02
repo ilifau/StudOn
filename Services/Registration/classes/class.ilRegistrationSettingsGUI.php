@@ -1036,7 +1036,7 @@ class ilRegistrationSettingsGUI
                     $date = array(
                         "d" => $date["dd"],
                         "m" => $date["MM"] % 12,
-                        "y" => floor($date["MM"] / 12)
+                        "y" => (int) floor($date["MM"] / 12)
                     );
                 }
                 break;
@@ -1101,20 +1101,18 @@ class ilRegistrationSettingsGUI
                 $codeObj->limit_duration = array();
                 break;
 
-            case "relative":
-                $date = $this->form_gui->getInput("rel_date");
-                if (is_array($date) && array_sum($date) > 0) {
-                    $date = array(
-                        "d" => $date["dd"],
-                        "m" => $date["MM"] % 12,
-                        "y" => floor($date["MM"] / 12)
-                    );
-
-                    $codeObj->limit_type = "relative";
-                    $codeObj->limit_date = new ilDateTime();
-                    $codeObj->limit_duration = $date;
-                }
-                break;
+                case "relative":
+                    $date = $this->form_gui->getInput("rel_date");
+                    if (!array_sum($date)) {
+                        $valid = false;
+                    } else {
+                        $date = serialize([
+                            "d" => $date["dd"],
+                            "m" => $date["MM"] % 12,
+                            "y" => (int) floor($date["MM"] / 12)
+                        ]);
+                    }
+                    break;
 
             case "unlimited":
                 $codeObj->limit_type = "unlimited";

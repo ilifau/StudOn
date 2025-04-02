@@ -238,7 +238,6 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
                     if ($userdata->getUserID() !== null) {
                         $userfields = ilObjUser::_lookupFields($userdata->getUserID());
                     }
-                    $evaluationrow['gender'] = $userfields['gender'] ?? '';
                     $evaluationrow['email'] = $userfields['email'] ?? '';
                     $evaluationrow['institution'] = $userfields['institution'] ?? '';
                     $evaluationrow['street'] = $userfields['street'] ?? '';
@@ -448,7 +447,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
                         'counter' => ++$counter,
                         'id' => $question['id'],
                         'id_txt' => $this->lng->txt('question_id_short'),
-                        'title' => $data->getQuestionTitle($question['id'])
+                        'title' => htmlspecialchars($data->getQuestionTitle($question['id']))
                     );
 
                     $answeredquestion = $data->getParticipant($active_id)->getPass($pass)->getAnsweredQuestionByQuestionId($question["id"]);
@@ -478,7 +477,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
     {
         $question_id = $this->testrequest->int('qid');
         $question_content = $this->getQuestionResultForTestUsers($question_id, $this->object->getTestId());
-        $question_title = assQuestion::instantiateQuestion($question_id)->getTitle();
+        $question_title = assQuestion::instantiateQuestion($question_id)->getTitleForHTMLOutput();
         $page = $this->prepareContentForPrint($question_title, $question_content);
         $this->sendPage($page);
     }
@@ -618,7 +617,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
                 $rows,
                 [
                     'qid' => $question_id,
-                    'title' => $question_title,
+                    'title' => htmlspecialchars($question_title),
                     'points' => $points_reached,
                     'points_reached' => $points_reached,
                     'points_max' => $points_max,
@@ -862,7 +861,6 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
     public function outParticipantsPassDetails()
     {
         $ilTabs = $this->tabs;
-        $ilObjDataCache = $this->obj_cache;
 
         $active_id = (int) $this->testrequest->raw("active_id");
 
@@ -1498,7 +1496,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             }
             $rows[] = [
                 'qid' => $question_id,
-                'question_title' => $question_title,
+                'question_title' => htmlspecialchars($question_title),
                 'number_of_answers' => $answered,
                 'output' => "<a target='_blank' href=\"" . $this->ctrl->getLinkTarget($this, "exportQuestionForAllParticipants") . "\">" . $this->lng->txt("print") . "</a>",
                 'file_uploads' => $download
@@ -1925,7 +1923,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             $this->object->getId()
         );
 
-        $this->finishTestPass($active_id, $this->object->getId());
+        $this->finishTestPass($active_id);
 
         $this->redirectBackToParticipantsScreen();
     }
@@ -1997,18 +1995,21 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
                 $this->object->getId()
             );
 
-            $this->finishTestPass($participant->getActiveId(), $this->object->getId());
+            $this->finishTestPass($participant->getActiveId());
         }
 
 
         $this->redirectBackToParticipantsScreen();
     }
 
-    protected function finishTestPass(int $active_id, int $obj_id)
+    protected function finishTestPass(int $active_id)
     {
         $process_locker = $this->processLockerFactory->withContextId($active_id)->getLocker();
 
-        $test_pass_finisher = new ilTestPassFinishTasks($this->testSessionFactory->getSession($active_id), $obj_id);
+        $test_pass_finisher = new ilTestPassFinishTasks(
+            $this->testSessionFactory->getSession($active_id),
+            $this->object,
+        );
         $test_pass_finisher->performFinishTasks($process_locker);
     }
 

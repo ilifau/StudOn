@@ -136,7 +136,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
             $form->getItemByPostVar('selection_limit')->setMaxValue(count((array) $_POST['choice']['answer']));
 
             $form->setValuesByPost();
-            $errors = !$form->checkInput();
+            $errors = !$this->checkMaxPointsNotNegative($form) || !$form->checkInput();
             if ($errors) {
                 $checkonly = false;
             }
@@ -146,6 +146,28 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
             $this->tpl->setVariable("QUESTION_DATA", $form->getHTML());
         }
         return $errors;
+    }
+
+    private function checkMaxPointsNotNegative(ilPropertyFormGUI $form): bool
+    {
+        $choice = $form->getItemByPostVar('choice');
+        if (!$choice instanceof ilMultipleChoiceWizardInputGUI) {
+            return true;
+        }
+
+        $answers = $choice->getValues();
+        $total_max_points = 0;
+        /** @var ASS_AnswerMultipleResponseImage $answer */
+        foreach ($answers as $answer) {
+            $total_max_points += max($answer->getPointsChecked(), $answer->getPointsUnchecked());
+        }
+
+        if ($total_max_points < 0) {
+            $choice->setAlert($this->lng->txt('total_max_points_cannot_be_negative'));
+            return false;
+        }
+
+        return true;
     }
 
     public function addBasicQuestionFormProperties(ilPropertyFormGUI $form): void
@@ -221,30 +243,56 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
         $show_question_text = true,
         $show_inline_feedback = true
     ): string {
-        // shuffle output
-        $keys = $this->getChoiceKeys();
-
-
-        // get the solution of the user for the active pass or from the last pass if allowed
-        $user_solution = [];
-        if (($active_id > 0) && (!$show_correct_solution)) {
-            $solutions = $this->object->getSolutionValues($active_id, $pass);
-            foreach ($solutions as $idx => $solution_value) {
-                array_push($user_solution, $solution_value["value1"]);
-            }
+        if ($active_id > 0 && !$show_correct_solution) {
+            $user_solution = $this->object->getSolutionValues($active_id, $pass);
         } else {
-            // take the correct solution instead of the user solution
+            $user_solution = [];
             foreach ($this->object->answers as $index => $answer) {
                 $points_checked = $answer->getPointsChecked();
                 $points_unchecked = $answer->getPointsUnchecked();
-                if ($points_checked > $points_unchecked) {
-                    if ($points_checked > 0) {
-                        array_push($user_solution, $index);
-                    }
+                if ($points_checked > $points_unchecked && $points_checked > 0) {
+                    $user_solution[] = ['value1' => $index];
                 }
             }
         }
 
+        return $this->renderSolutionOutput(
+            $user_solution,
+            $active_id,
+            $pass,
+            $graphicalOutput,
+            $result_output,
+            $show_question_only,
+            $show_feedback,
+            $show_correct_solution,
+            $show_manual_scoring,
+            $show_question_text,
+            false,
+            $show_inline_feedback,
+        );
+    }
+
+    public function renderSolutionOutput(
+        mixed $user_solutions,
+        int $active_id,
+        ?int $pass,
+        bool $graphical_output = false,
+        bool $result_output = false,
+        bool $show_question_only = true,
+        bool $show_feedback = false,
+        bool $show_correct_solution = false,
+        bool $show_manual_scoring = false,
+        bool $show_question_text = true,
+        bool $show_autosave_title = false,
+        bool $show_inline_feedback = false,
+    ): ?string {
+        $user_solution = [];
+
+        foreach ($user_solutions as $idx => $solution_value) {
+            array_push($user_solution, $solution_value['value1']);
+        }
+
+        $keys = $this->getChoiceKeys();
         $template = new ilTemplate("tpl.il_as_qpl_mc_mr_output_solution.html", true, true, "Modules/TestQuestionPool");
         $solutiontemplate = new ilTemplate("tpl.il_as_tst_solution_output.html", true, true, "Modules/TestQuestionPool");
         foreach ($keys as $answer_id) {
