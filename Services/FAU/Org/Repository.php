@@ -43,6 +43,15 @@ class Repository extends RecordRepo
     /**
      * @return Orgunit[]
      */
+    public function getAssignableOrgunitsByTerm(string $term) : array
+    {
+        $query = "SELECT * FROM fau_org_orgunits WHERE assignable = 1 AND ( fauorg_nr LIKE '%$term%' OR `longtext` LIKE '%$term%')"  ;
+        return $this->queryRecords($query, Orgunit::model(), false);
+    }  
+
+    /**
+     * @return Orgunit[]
+     */
     public function getAssignableOrgunits() : array
     {
         $query = "SELECT * FROM fau_org_orgunits WHERE assignable = 1";

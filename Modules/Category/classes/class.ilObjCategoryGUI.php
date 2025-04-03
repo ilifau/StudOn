@@ -927,9 +927,9 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
     protected function getOrgunitsObject()
     {
         global $DIC;
-
-        $result = ['' => $this->lng->txt('please_select')];
-        foreach ($DIC->fau()->org()->repo()->getAssignableOrgunits() as $unit)
+        $term = $_REQUEST['term'];
+        $result = ['0' => $this->lng->txt('please_select')];
+        foreach ($DIC->fau()->org()->repo()->getAssignableOrgunitsByTerm($term) as $unit)
         {
             $entry = new stdClass();
             $entry->value = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
