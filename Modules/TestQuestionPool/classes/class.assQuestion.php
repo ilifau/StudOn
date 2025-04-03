@@ -384,7 +384,7 @@ abstract class assQuestion
 
     public function getTitleForHTMLOutput(): string
     {
-        return $this->refinery->string()->stripTags()->transform($this->title);
+        return htmlspecialchars($this->title);
     }
 
     public function getTitleFilenameCompliant(): string
@@ -414,7 +414,7 @@ abstract class assQuestion
 
     public function getDescriptionForHTMLOutput(): string
     {
-        return $this->refinery->string()->stripTags()->transform($this->comment);
+        return htmlspecialchars($this->comment);
     }
 
     public function getThumbSize(): int
@@ -1312,9 +1312,9 @@ abstract class assQuestion
                 "question_id" => array("integer", $next_id),
                 "question_type_fi" => array("integer", $this->getQuestionTypeID()),
                 "obj_fi" => array("integer", $this->getObjId()),
-                "title" => array("text", $this->getTitle()),
-                "description" => array("text", $this->getComment()),
-                "author" => array("text", $this->getAuthor()),
+                "title" => ["text", mb_substr($this->getTitle(), 0, 124)],
+                "description" => ["text", mb_substr($this->getComment(), 0, 1000)],
+                "author" => ["text", mb_substr($this->getAuthor(), 0, 512)],
                 "owner" => array("integer", $this->getOwner()),
                 "question_text" => array("clob", ilRTE::_replaceMediaObjectImageSrc($this->getQuestion(), 0)),
                 "points" => array("float", $this->getMaximumPoints()),
@@ -1332,9 +1332,9 @@ abstract class assQuestion
             // Vorhandenen Datensatz aktualisieren
             $this->db->update("qpl_questions", array(
                 "obj_fi" => array("integer", $this->getObjId()),
-                "title" => array("text", $this->getTitle()),
-                "description" => array("text", $this->getComment()),
-                "author" => array("text", $this->getAuthor()),
+                "title" => ["text", mb_substr($this->getTitle(), 0, 124)],
+                "description" => ["text", mb_substr($this->getComment(), 0, 1000)],
+                "author" => ["text", mb_substr($this->getAuthor(), 0, 512)],
                 "question_text" => array("clob", ilRTE::_replaceMediaObjectImageSrc($this->getQuestion(), 0)),
                 "points" => array("float", $this->getMaximumPoints()),
                 "nr_of_tries" => array("integer", $this->getNrOfTries()),

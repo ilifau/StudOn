@@ -1465,7 +1465,7 @@ class ilObjStyleSheet extends ilObject
                 }
                 if (in_array($tag[0]["tag"], array("h1", "h2", "h3"))) {
                     fwrite($css_file, ",div.ilc_text_block_" . $tag[0]["class"] . "\n");
-                    fwrite($css_file, ",html.il-no-tiny-bg body#tinymce.ilc_text_block_" . $tag[0]["class"] . "\n");
+                    fwrite($css_file, ",html.il-no-tiny-bg body#tinymce.ilc_text_block_" . $tag[0]["class"] . " > p \n");
                 }
                 if ($tag[0]["type"] == "section") {	// sections can use a tags, if links are used
                     fwrite($css_file, ",div a.ilc_" . $tag[0]["type"] . "_" . $tag[0]["class"] . "\n");
@@ -1477,7 +1477,7 @@ class ilObjStyleSheet extends ilObject
                     fwrite($css_file, ",span.ilc_text_inline_" . $tag[0]["class"] . "\n");
                 }
                 if ($tag[0]["type"] == "text_block") {
-                    fwrite($css_file, ",html.il-no-tiny-bg body#tinymce.ilc_text_block_" . $tag[0]["class"] . "\n");
+                    fwrite($css_file, ",html.il-no-tiny-bg body#tinymce.ilc_text_block_" . $tag[0]["class"] . " > p, #copg-editor-slate-content p.ilc_text_block_" . $tag[0]["class"] . "\n");
                 }
                 if ($tag[0]["class"] == "VAccordCntr") {
                     fwrite($css_file, ",div.ilc_va_cntr_AccordCntr\n");
@@ -1506,8 +1506,8 @@ class ilObjStyleSheet extends ilObject
                 $t_border = array();
 
                 foreach ($tag as $par) {
-                    $cur_par = $par["parameter"];
-                    $cur_val = $par["value"];
+                    $cur_par = $par["parameter"] ?? '';
+                    $cur_val = $par["value"] ?? '';
 
                     // replace named colors
                     if (is_int(strpos($cur_par, "color")) && substr(trim($cur_val), 0, 1) == "!") {
