@@ -26,9 +26,9 @@ class arOrder extends arStatement
      *
      * @return string
      */
-    public function asSQLStatement(ActiveRecord $ar)
+    public function asSQLStatement(ActiveRecord $ar, ilDBInterface $db)
     {
-        return ' ' . $this->getFieldname() . ' ' . strtoupper($this->getDirection());
+        return ' ' . $this->wrapField($this->getFieldname(), $db) . ' ' . $this->getDirection();
     }
 
 

@@ -14,13 +14,13 @@ class arSelectCollection extends arStatementCollection
     /**
      * @return string
      */
-    public function asSQLStatement()
+    public function asSQLStatement(ilDBInterface $db)
     {
         $return = 'SELECT ';
         if ($this->hasStatements()) {
             $activeRecord = $this->getAr();
-            $selectSQLs = array_map(function ($select) use ($activeRecord) {
-                return $select->asSQLStatement($activeRecord);
+            $selectSQLs = array_map(function ($select) use ($activeRecord, $db) {
+                return $select->asSQLStatement($activeRecord, $db);
             }, $this->getSelects());
             $return .= join(', ', $selectSQLs);
         }
