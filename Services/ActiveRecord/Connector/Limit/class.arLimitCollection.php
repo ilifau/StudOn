@@ -14,7 +14,7 @@ class arLimitCollection extends arStatementCollection
     /**
      * @return string
      */
-    public function asSQLStatement()
+    public function asSQLStatement(ilDBInterface $db)
     {
         if ($this->hasStatements()) {
             /**
@@ -22,7 +22,7 @@ class arLimitCollection extends arStatementCollection
              */
             $last = end($this->getStatements());
 
-            return $last->asSQLStatement($this->getAr());
+            return $last->asSQLStatement($this->getAr(), $db);
         }
     }
 }

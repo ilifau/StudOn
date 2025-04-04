@@ -1208,14 +1208,14 @@ class ilObjTestGUI extends ilObjectGUI
     protected function importFileObject($parent_id = null, $a_catch_errors = true)
     {
         if (!$this->checkPermissionBool("create", "", $_REQUEST["new_type"])) {
-            $this->error->raiseError($this->lng->txt("no_create_permission"));
+            $this->redirectAfterMissingWrite();
         }
         // fau: fixTestImportType - set new type parameter before form is initialized
         $this->ctrl->setParameter($this, "new_type", $this->type);
         $form = $this->initImportForm($_REQUEST["new_type"]);
         if ($form->checkInput()) {
             $this->ctrl->setParameter($this, "new_type", $this->type);
-            $this->uploadTstObject();
+            $this->uploadTst();
             return;
         }
         // fau.
@@ -1292,7 +1292,7 @@ class ilObjTestGUI extends ilObjectGUI
     /**
     * imports test and question(s)
     */
-    public function uploadTstObject()
+    public function uploadTst()
     {
         if ($_FILES["xmldoc"]["error"] > UPLOAD_ERR_OK) {
             $this->lng->loadLanguageModule('file');
@@ -1471,6 +1471,9 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function importVerifiedFileObject()
     {
+        if (!$this->checkPermissionBool('create', '', $_GET["new_type"])) {
+            $this->redirectAfterMissingWrite();
+        }
         include_once "./Modules/Test/classes/class.ilObjTest.php";
         // create new questionpool object
         $newObj = new ilObjTest(0, true);
@@ -1559,7 +1562,10 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function uploadObject($redirect = true)
     {
-        $this->uploadTstObject();
+        if (!$this->checkPermissionBool('create', '', $_GET["new_type"])) {
+            $this->redirectAfterMissingWrite();
+        }
+        $this->uploadTst();
     }
 
     /**
@@ -1660,6 +1666,9 @@ class ilObjTestGUI extends ilObjectGUI
 
     public function randomselectObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
         $this->getTabsManager()->getQuestionsSubTabs();
         $this->getTabsManager()->activateSubTab(ilTestTabsManager::SUBTAB_ID_QST_LIST_VIEW);
 
@@ -1704,6 +1713,9 @@ class ilObjTestGUI extends ilObjectGUI
 
     public function createRandomSelectionObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
         $this->getTabsManager()->getQuestionsSubTabs();
         $this->getTabsManager()->activateSubTab(ilTestTabsManager::SUBTAB_ID_QST_LIST_VIEW);
 
@@ -1725,6 +1737,9 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function insertRandomSelectionObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
         $selected_array = explode(",", $_POST["chosen_questions"]);
         if (!count($selected_array)) {
             ilUtil::sendInfo($this->lng->txt("tst_insert_missing_question"));
@@ -1758,6 +1773,9 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function executeCreateQuestionObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
         $qpl_ref_id = $_REQUEST["sel_qpl"];
 
         $qpl_mode = 1;
@@ -1837,6 +1855,11 @@ class ilObjTestGUI extends ilObjectGUI
     {
         global $DIC;
         $ilUser = $DIC['ilUser'];
+
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+        
         $this->getTabsManager()->getQuestionsSubTabs();
         $this->getTabsManager()->activateSubTab(ilTestTabsManager::SUBTAB_ID_QST_LIST_VIEW);
         //$this->tpl->addBlockFile("ADM_CONTENT", "adm_content", "tpl.il_as_tst_qpl_select.html", "Modules/Test");
@@ -1936,6 +1959,10 @@ class ilObjTestGUI extends ilObjectGUI
      */
     public function confirmRemoveQuestionsObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         $removeQuestionIds = (array) $_POST["q_id"];
 
         $questions = $this->object->getQuestionTitlesAndIndexes();
@@ -2011,6 +2038,10 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function removeQuestionsForm($checked_questions)
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         $total = $this->object->evalTotalPersons();
         if ($total) {
             // the test was executed previously
@@ -2059,6 +2090,10 @@ class ilObjTestGUI extends ilObjectGUI
      */
     public function removeQuestionsObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         $this->getTabsManager()->getQuestionsSubTabs();
 
         $checked_questions = $_REQUEST["q_id"];
@@ -2084,6 +2119,10 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function moveQuestionsObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         $selected_questions = null;
         $selected_questions = $_POST['q_id'];
         if ($selected_questions === null && is_numeric($_GET['q_id'])) {
@@ -2103,6 +2142,10 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function insertQuestionsBeforeObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         // get all questions to move
         $move_questions = $_SESSION['tst_qst_move_' . $this->object->getTestId()];
 
@@ -2126,6 +2169,10 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function insertQuestionsAfterObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         // get all questions to move
         $move_questions = $_SESSION['tst_qst_move_' . $this->object->getTestId()];
         if (!is_array($_POST['q_id']) || 0 === count($_POST['q_id'])) {
@@ -2150,6 +2197,10 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function insertQuestionsObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         $selected_array = (is_array($_POST['q_id'])) ? $_POST['q_id'] : array();
         if (!count($selected_array)) {
             ilUtil::sendInfo($this->lng->txt("tst_insert_missing_question"), true);
@@ -2182,6 +2233,10 @@ class ilObjTestGUI extends ilObjectGUI
         $tpl = $DIC['tpl'];
         global $DIC; /* @var \ILIAS\DI\Container $DIC */
         $ilHelp = $DIC['ilHelp']; /* @var ilHelpGUI $ilHelp */
+
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
 
         $this->getTabsManager()->getQuestionsSubTabs();
         $this->getTabsManager()->activateSubTab(ilTestTabsManager::SUBTAB_ID_QST_LIST_VIEW);
@@ -2494,6 +2549,10 @@ class ilObjTestGUI extends ilObjectGUI
     public function historyObject()
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
+
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
 
         $DIC->tabs()->activateTab(ilTestTabsManager::TAB_ID_HISTORY);
 
@@ -2815,6 +2874,10 @@ class ilObjTestGUI extends ilObjectGUI
      */
     public function deleteDefaultsObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         if (isset($_POST['chb_defaults']) && is_array($_POST['chb_defaults']) && count($_POST['chb_defaults'])) {
             foreach ($_POST['chb_defaults'] as $test_default_id) {
                 $this->object->deleteDefaults($test_default_id);
@@ -2830,6 +2893,10 @@ class ilObjTestGUI extends ilObjectGUI
      */
     public function confirmedApplyDefaultsObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         $this->applyDefaultsObject(true);
         return;
     }
@@ -2927,6 +2994,10 @@ class ilObjTestGUI extends ilObjectGUI
     */
     public function addDefaultsObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         if (strlen($_POST["name"]) > 0) {
             $this->object->addDefaults($_POST['name']);
         } else {
@@ -3153,6 +3224,10 @@ class ilObjTestGUI extends ilObjectGUI
 
     protected function removeImportFailsObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssQuestionSkillAssignmentImportFails.php';
         $qsaImportFails = new ilAssQuestionSkillAssignmentImportFails($this->object->getId());
         $qsaImportFails->deleteRegisteredImportFails();
@@ -3226,6 +3301,10 @@ class ilObjTestGUI extends ilObjectGUI
     public function certificateObject()
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
+
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
 
         $DIC->tabs()->activateTab(ilTestTabsManager::TAB_ID_SETTINGS);
 
@@ -3498,6 +3577,10 @@ class ilObjTestGUI extends ilObjectGUI
 
     public function copyQuestionsToPoolObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         $this->copyQuestionsToPool($_REQUEST['q_id'], $_REQUEST['sel_qpl']);
         $this->ctrl->redirect($this, 'questions');
     }
@@ -3541,6 +3624,10 @@ class ilObjTestGUI extends ilObjectGUI
     {
         global $DIC;
         $ilObjDataCache = $DIC['ilObjDataCache'];
+
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
 
         if (!(int) $_REQUEST['sel_qpl']) {
             ilUtil::sendFailure($this->lng->txt("questionpool_not_selected"));
@@ -3594,6 +3681,10 @@ class ilObjTestGUI extends ilObjectGUI
 
     public function copyToQuestionpoolObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
+
         $this->createQuestionpoolTargetObject('copyQuestionsToPool');
     }
 
@@ -3603,6 +3694,10 @@ class ilObjTestGUI extends ilObjectGUI
         $lng = $DIC['lng'];
 
         require_once 'Modules/TestQuestionPool/classes/class.assQuestion.php';
+
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
 
         // #13761; All methods use for this request should be revised, thx japo ;-)
         if (
@@ -3634,6 +3729,11 @@ class ilObjTestGUI extends ilObjectGUI
 
     public function createQuestionPoolAndCopyObject()
     {
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())
+            || !$this->checkPermissionBool('create', '', 'qpl')) {
+            $this->redirectAfterMissingWrite();
+        }
+
         if ($_REQUEST['title']) {
             $title = $_REQUEST['title'];
         } else {
@@ -3667,6 +3767,10 @@ class ilObjTestGUI extends ilObjectGUI
     public function createQuestionpoolTargetObject($cmd)
     {
         global $DIC; /* @var \ILIAS\DI\Container $DIC */
+
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
 
         $this->getTabsManager()->getQuestionsSubTabs();
         $this->getTabsManager()->activateSubTab(ilTestTabsManager::SUBTAB_ID_QST_LIST_VIEW);
@@ -3940,6 +4044,10 @@ class ilObjTestGUI extends ilObjectGUI
         $lng = $DIC['lng'];
         $ilCtrl = $DIC['ilCtrl'];
         $tpl = $DIC['tpl'];
+
+        if (!$this->access->checkAccess('write', '', $this->object->getRefId())) {
+            $this->redirectAfterMissingWrite();
+        }
 
         include_once "Services/Form/classes/class.ilPropertyFormGUI.php";
         $form = new ilPropertyFormGUI();

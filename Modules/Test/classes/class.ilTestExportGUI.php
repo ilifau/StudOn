@@ -82,8 +82,14 @@ class ilTestExportGUI extends ilExportGUI
          * @var $ilCtrl ilCtrl
          */
         global $DIC;
+        $ilAccess = $DIC['ilAccess'];
         $lng = $DIC['lng'];
         $ilCtrl = $DIC['ilCtrl'];
+
+        if (!$ilAccess->checkAccess('write', '', $this->obj->getRefId())) {
+            $this->tpl->setOnScreenMessage('info', "cannot_export_archive", true);
+            $ilCtrl->redirectByClass('iltestexportgui');
+        }
 
         require_once 'Modules/Test/classes/class.ilTestExportFactory.php';
         $expFactory = new ilTestExportFactory($this->obj);
@@ -104,8 +110,14 @@ class ilTestExportGUI extends ilExportGUI
          * @var $ilCtrl ilCtrl
          */
         global $DIC;
+        $ilAccess = $DIC['ilAccess'];
         $lng = $DIC['lng'];
         $ilCtrl = $DIC['ilCtrl'];
+
+        if (!$ilAccess->checkAccess('write', '', $this->obj->getRefId())) {
+            $this->tpl->setOnScreenMessage('info', "cannot_export_archive", true);
+            $ilCtrl->redirectByClass('iltestexportgui');
+        }
 
         require_once 'Modules/Test/classes/class.ilTestExportFactory.php';
         $expFactory = new ilTestExportFactory($this->obj);
@@ -181,10 +193,16 @@ class ilTestExportGUI extends ilExportGUI
     public function listExportFiles()
     {
         global $DIC;
+        $ilAccess = $DIC['ilAccess'];
         $tpl = $DIC['tpl'];
         $ilToolbar = $DIC['ilToolbar'];
         $ilCtrl = $DIC['ilCtrl'];
         $lng = $DIC['lng'];
+
+        if (!$ilAccess->checkAccess('write', '', $this->obj->getRefId())) {
+            $this->tpl->setOnScreenMessage('info', "cannot_export_archive", true);
+            $ilCtrl->redirectByClass(ilObjTestGUI::class);
+        }
 
         $ilToolbar->setFormAction($ilCtrl->getFormAction($this));
 
@@ -271,8 +289,14 @@ class ilTestExportGUI extends ilExportGUI
          * @var $ilCtrl ilCtrl
          */
         global $DIC;
+        $ilAccess = $DIC['ilAccess'];
         $lng = $DIC['lng'];
         $ilCtrl = $DIC['ilCtrl'];
+
+        if (!$ilAccess->checkAccess('write', '', $this->obj->getRefId())) {
+            $this->tpl->setOnScreenMessage('info', "cannot_export_archive", true);
+            $ilCtrl->redirectByClass(ilObjTestGUI::class);
+        }
 
         if (isset($_GET['file']) && $_GET['file']) {
             $_POST['file'] = array($_GET['file']);
@@ -316,8 +340,14 @@ class ilTestExportGUI extends ilExportGUI
          * @var $ilCtrl ilCtrl
          */
         global $DIC;
+        $ilAccess = $DIC['ilAccess'];
         $lng = $DIC['lng'];
         $ilCtrl = $DIC['ilCtrl'];
+
+        if (!$ilAccess->checkAccess('write', '', $this->obj->getRefId())) {
+            $this->tpl->setOnScreenMessage('info', "cannot_export_archive", true);
+            $ilCtrl->redirectByClass(ilObjTestGUI::class);
+        }
 
         require_once 'class.ilTestArchiver.php';
         $archiver = new ilTestArchiver($this->getParentGUI()->object->getId());

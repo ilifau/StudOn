@@ -64,7 +64,7 @@ abstract class arStatementCollection
     /**
      * @return string
      */
-    abstract public function asSQLStatement();
+    abstract public function asSQLStatement(ilDBInterface $db);
 
 
 

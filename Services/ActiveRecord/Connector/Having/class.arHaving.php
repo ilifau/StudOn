@@ -44,13 +44,13 @@ class arHaving extends arStatement
      * @throws arException
      * @return string
      */
-    public function asSQLStatement(ActiveRecord $ar)
+    public function asSQLStatement(ActiveRecord $ar, ilDBInterface $db)
     {
         $statement = '';
         if ($this->getTableName()) {
             $statement .= $this->getTableName() . '.';
         }
-        $statement .= $this->getFieldname() . ' ' . $this->getOperator() . ' "' . $this->getValue() . '"';
+        $statement .= $db->quoteIdentifier($this->getFieldname()) . ' ' . $this->getOperator() . ' ' . $db->quote($this->getValue()) . ' ';
         $this->setStatement($statement);
 
         return $this->getStatement();

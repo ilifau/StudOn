@@ -14,7 +14,7 @@ class arWhereCollection extends arStatementCollection
     /**
      * @return string
      */
-    public function asSQLStatement()
+    public function asSQLStatement(ilDBInterface $db)
     {
         $return = '';
         if ($this->hasStatements()) {
@@ -22,7 +22,7 @@ class arWhereCollection extends arStatementCollection
             $wheres = $this->getWheres();
             $last = end($wheres);
             foreach ($wheres as $arWhere) {
-                $return .= $arWhere->asSQLStatement($this->getAr());
+                $return .= $arWhere->asSQLStatement($this->getAr(), $db);
                 if ($arWhere != $last) {
                     $return .= ' ' . $arWhere->getLink() . ' ';
                 }

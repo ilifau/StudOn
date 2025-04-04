@@ -238,9 +238,11 @@ class ilObjLearningSequenceGUI extends ilContainerGUI
                 $this->permissions($cmd);
                 break;
             case "ilobjlearningsequencesettingsgui":
+                $this->denyAccessIfNotWritePermission();
                 $this->settings($cmd);
                 break;
             case "ilobjlearningsequencecontentgui":
+                $this->denyAccessIfNotWritePermission();
                 $this->manageContent($cmd);
                 break;
             case "ilobjlearningsequencelearnergui":
@@ -297,6 +299,13 @@ class ilObjLearningSequenceGUI extends ilContainerGUI
                     case self::CMD_CREATE:
                     case self::CMD_LP:
                     case self::CMD_UNPARTICIPATE:
+                        if (!$this->checkAccess("read")) {
+                            ilUtil::sendInfo(sprintf(
+                                $this->lng->txt('msg_no_perm_read_item'),
+                                $this->object->getTitle()
+                            ), true);
+                            break;
+                        }
                         $this->$cmd();
                         break;
                     case self::CMD_CANCEL:
@@ -786,5 +795,16 @@ class ilObjLearningSequenceGUI extends ilContainerGUI
         }
 
         return $res_data;
+    }
+
+    private function denyAccessIfNotWritePermission(): void
+    {
+        if (!$this->checkAccess("write")) {
+            ilUtil::sendInfo(sprintf(
+                $this->lng->txt('msg_no_perm_read_item'),
+                $this->object->getTitle()
+            ), true);
+            $this->ctrl->redirect($this, self::CMD_VIEW);
+        }
     }
 }
