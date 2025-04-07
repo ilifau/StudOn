@@ -29,12 +29,13 @@ class ilTestEvaluationDataTest extends ilTestBaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        global $DIC;
-        $this->addGlobal_ilDB();
-
-        $this->testObj = new ilTestEvaluationData($DIC['ilDB']);
+        $user_data = [
+            new ilTestEvaluationUserData(0),
+            new ilTestEvaluationUserData(1),
+        ];
+        $this->testObj = new ilTestEvaluationData($user_data);
     }
+
 
     public function test_instantiateObject_shouldReturnInstance(): void
     {
@@ -46,22 +47,6 @@ class ilTestEvaluationDataTest extends ilTestBaseTestCase
         $expected = ['question_titles', 'participants', 'statistics', 'arr_filter', 'datasets', 'test'];
 
         $this->assertEquals($expected, $this->testObj->__sleep());
-    }
-
-    public function testAccessFilteredParticipantList(): void
-    {
-        $value_mock = $this->createMock(ilTestParticipantList::class);
-        $this->testObj->setAccessFilteredParticipantList($value_mock);
-
-        $this->assertEquals($value_mock, $this->testObj->getAccessFilteredParticipantList());
-    }
-
-    public function testTest(): void
-    {
-        $value_mock = $this->createMock(ilObjTest::class);
-        $this->testObj->setTest($value_mock);
-
-        $this->assertEquals($value_mock, $this->testObj->getTest());
     }
 
     public function testDatasets(): void

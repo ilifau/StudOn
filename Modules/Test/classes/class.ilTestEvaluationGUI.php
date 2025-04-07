@@ -166,7 +166,12 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             }
         }
 
-        $eval = new ilTestEvaluationData($this->db, $this->object);
+        $factory = new ilTestEvaluationFactory(
+            $this->db,
+            $this->object
+        );
+        $eval = $factory->getEvaluationData();
+
         $eval->setFilterArray($filter_array);
         $found_participants = $eval->getParticipants();
 
@@ -650,7 +655,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             }
         }
 
-        if($cmd == '') {
+        if ($cmd == '') {
             $cmd = $this->testrequest->raw("export_type");
         }
         switch ($cmd) {
@@ -988,7 +993,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $content = [];
         $anchors = [];
 
-        foreach($show_user_results as $selected_user) {
+        foreach ($show_user_results as $selected_user) {
             $active_id = (int) $selected_user;
             $pass = ilObjTest::_getResultPass($active_id);
 

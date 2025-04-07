@@ -2431,7 +2431,7 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
             $max_points += $question_gui->object->getMaximumPoints();
         }
 
-        $template->setVariable("TITLE", strip_tags($this->object->getTitle(), ilObjectGUI::ALLOWED_TAGS_IN_TITLE_AND_DESCRIPTION));
+        $template->setVariable("TITLE", strip_tags($this->object->getTitleForHTMLOutput(), ilObjectGUI::ALLOWED_TAGS_IN_TITLE_AND_DESCRIPTION));
         $template->setVariable("PRINT_TEST", ilLegacyFormElementsUtil::prepareFormOutput($this->lng->txt("tst_print")));
         $template->setVariable("TXT_PRINT_DATE", ilLegacyFormElementsUtil::prepareFormOutput($this->lng->txt("date")));
         $template->setVariable(
@@ -2593,9 +2593,9 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
         }
 
         if (!$confirmed) {
-            $defaults = $this->object->getTestDefaults($_POST["chb_defaults"][0]);
+            $defaults = $this->object->getTestDefaults((int) $_POST["chb_defaults"][0]);
         } else {
-            $defaults = $this->object->getTestDefaults($_POST["confirmed_defaults_id"][0]);
+            $defaults = $this->object->getTestDefaults((int) $_POST["confirmed_defaults_id"]);
         }
 
         $defaultSettings = unserialize($defaults["defaults"]);
@@ -2729,7 +2729,6 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
             $this->trackTestObjectReadEvent();
         }
         $info = new ilInfoScreenGUI($this);
-        $info->setOpenFormTag(false);
 
         if ($this->isCommandClassAnyInfoScreenChild()) {
             return $this->ctrl->forwardCommand($info);
