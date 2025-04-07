@@ -241,7 +241,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
         $show_correct_solution = false,
         $show_manual_scoring = false,
         $show_question_text = true,
-        $show_inline_feedback = true
+        bool $show_inline_feedback = true
     ): string {
         if ($active_id > 0 && !$show_correct_solution) {
             $user_solution = $this->object->getSolutionValues($active_id, $pass);
@@ -298,7 +298,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
         foreach ($keys as $answer_id) {
             $answer = $this->object->answers[$answer_id];
             if (($active_id > 0) && (!$show_correct_solution)) {
-                if ($graphicalOutput) {
+                if ($graphical_output) {
                     // output of ok/not ok icons for user entered solutions
                     $ok = false;
                     $checked = false;
@@ -572,12 +572,12 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
             // hey.
             foreach ($solutions as $idx => $solution_value) {
                 // fau: testNav - don't add the dummy entry for 'none of the above' to the user options
-                if ($solution_value["value1"] == 'mc_none_above') {
+                if ($solution_value['value1'] == 'mc_none_above') {
                     $this->setUseEmptySolutionInputChecked(true);
                     continue;
                 }
 
-                $user_solution[] = $solution_value["value1"];
+                $user_solution[] = $solution_value['value1'];
                 // fau.
             }
 
