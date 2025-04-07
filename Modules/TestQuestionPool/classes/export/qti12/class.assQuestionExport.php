@@ -251,7 +251,7 @@ class assQuestionExport
                     continue;
                 }
             } else {
-            $data = $hint->getText();
+                $data = $hint->getText();
             }
 
             $writer->xmlElement(self::ITEM_SOLUTIONHINT, $attrs, $data);
@@ -280,12 +280,12 @@ class assQuestionExport
             ));
         } else {
             if (!preg_match('/il_(\d*?)_(\w+)_(\d+)/', $solution->getInternalLink(), $matches)) {
-            return $writer;
-        }
+                return $writer;
+            }
             $mattext['value'] = 'il_' . IL_INST_ID . '_' . $matches[2] . '_' . $matches[3];
             if ($matches[1] !== '') {
                 $mattext['value'] = $solution['internal_link'];
-        }
+            }
 
         }
 

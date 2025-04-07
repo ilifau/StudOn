@@ -409,10 +409,10 @@ class ilTestScoringGUI extends ilTestServiceGUI
                     false
                 );
                 if ($aresult_output) {
-                $cust = new ilCustomInputGUI($this->lng->txt('autosavecontent'));
-                $cust->setHtml($aresult_output);
-                $form->addItem($cust);
-            }
+                    $cust = new ilCustomInputGUI($this->lng->txt('autosavecontent'));
+                    $cust->setHtml($aresult_output);
+                    $form->addItem($cust);
+                }
             }
 
 

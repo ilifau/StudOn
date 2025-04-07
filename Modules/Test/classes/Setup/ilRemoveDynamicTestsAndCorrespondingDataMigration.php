@@ -64,9 +64,6 @@ class ilRemoveDynamicTestsAndCorrespondingDataMigration implements Setup\Migrati
         $this->io = $environment->getResource(Environment::RESOURCE_ADMIN_INTERACTION);
     }
 
-    /**
-     * @throws Exception
-     */
     public function step(Environment $environment): void
     {
         if (!$this->ilias_is_initialized) {
@@ -78,9 +75,9 @@ class ilRemoveDynamicTestsAndCorrespondingDataMigration implements Setup\Migrati
         $row_test_info = $this->db->fetchObject(
             $this->db->query(
                 'SELECT obj_fi, test_id FROM tst_tests '
-            . 'WHERE '
+                . 'WHERE '
                 . $this->db->equals('question_set_type', 'DYNAMIC_QUEST_SET', \ilDBConstants::T_TEXT, true)
-            . 'Limit 1'
+                . 'Limit 1'
             )
         );
 

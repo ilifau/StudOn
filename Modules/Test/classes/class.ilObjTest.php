@@ -1207,9 +1207,11 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware
 
         if (count($participantData->getUserIds())) {
             /* @var ilTestLP $testLP */
-            $testLP = ilObjectLP::getInstance($this->getId());
-            $testLP->setTestObject($this);
-            $testLP->resetLPDataForUserIds($participantData->getUserIds(), false);
+            $test_lp = ilObjectLP::getInstance($this->getId());
+            if ($test_lp instanceof ilTestLP) {
+                $test_lp->setTestObject($this);
+                $test_lp->resetLPDataForUserIds($participantData->getUserIds(), false);
+            }
         }
 
         if (count($participantData->getActiveIds())) {
