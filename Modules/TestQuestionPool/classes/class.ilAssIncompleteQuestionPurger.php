@@ -84,8 +84,15 @@ class ilAssIncompleteQuestionPurger
     private function purgeQuestionIds($questionIds): void
     {
         foreach ($questionIds as $questionId) {
-            $question = assQuestion::instantiateQuestion($questionId);
-            $question->delete($questionId);
+            // fau: temporary fix for studon test environment. Remove when pluigins are available
+            global $DIC;
+            $questioninfo = $DIC->testQuestionPool()->questionInfo();
+            $question_type = $questioninfo->getQuestionType($questionId);
+            if ($question_type != 'assSQLQuestion'){
+                $question = assQuestion::instantiateQuestion($questionId);
+                $question->delete($questionId);
+            }
+            // fau.
         }
     }
 
