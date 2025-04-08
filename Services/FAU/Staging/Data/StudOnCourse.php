@@ -29,7 +29,7 @@ class StudOnCourse extends RecordData
         ?int $attendee_maximum,
         int $term_year,
         int $term_type_id,
-        ?int $studon_ref_id = false
+        ?int $studon_ref_id
     )
     {
         $this->course_id = $course_id;
