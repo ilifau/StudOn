@@ -5,8 +5,10 @@ namespace FAU\Sync;
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
 use FAU\Staging\Data\StudOnMember;
+use FAU\Staging\Data\StudOnCourse;
 use FAU\Study\Data\Course;
 use ilLPMarks;
+use ilObject;
 
 /**
  * Synchronisation of course settings and members from StudOn to campo
@@ -31,6 +33,12 @@ class SyncToCampo extends SyncBase
 
         // sync the date of changing passed status for all members in studon_members
         $this->syncStatusChanged();
+
+        // sync the studon ref_id for courses in studon_courses
+        foreach ($this->sync->getTermsToSync(true) as $term) {
+        
+            $this->syncStudOnRefId($term);
+        }
     }
 
     /**
@@ -57,6 +65,32 @@ class SyncToCampo extends SyncBase
     }
 
     /**
+     * sync studon ref_id flag for parallel groups (courses)
+     */
+    public function syncStudOnRefId(Term $term) : void
+    {
+        $this->info('sync studon ref_id flag for parallel groups...');
+        // get the courses in the staging database
+        $existing = $this->staging->repo()->getStudOnCourses($term);
+        foreach($existing as $course)
+        {
+            $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());
+            $obj_id = $study_course->getIliasObjId() ?? null;
+            if($obj_id != null)
+            {
+                $ref_ids = ilObject::_getAllReferences((int) $obj_id);
+                $ref_id = null;
+                if(isset($ref_ids) && count($ref_ids) == 1)
+                {
+                    $ref_id = end($ref_ids);      
+                }     
+                $course = $course->withStudOnRefId($ref_id);
+                $this->staging->repo()->save($course);
+            }
+        }
+    }    
+
+    /**
      * Update all courses in a term in the staging table
      */
     public function syncCourses(Term $term) : void
@@ -65,6 +99,8 @@ class SyncToCampo extends SyncBase
         $existing = $this->staging->repo()->getStudOnCourses($term);
 
         foreach ($this->sync->repo()->getCoursesToSyncBack($term) as $course) {
+            $course = $this->rememberStudOnRefIdFromStaging($course);
+
             if (!isset($existing[$course->key()])) {
                 $this->staging->repo()->save($course);
             }
@@ -172,7 +208,7 @@ class SyncToCampo extends SyncBase
     }
 
     /**
-     * avoid sync overwrites status_changed with NULL
+     * avoid sync overwrites status_changed with NULL 
      */
     private function rememberStatusChangedFromStaging(StudOnMember $member): StudOnMember
     {
@@ -180,5 +216,12 @@ class SyncToCampo extends SyncBase
         $member = ($member_in_staging != null) ? $member->withStatusChanged($member_in_staging->getStatusChanged()) : $member;
         return $member;
     }    
+
+    private function rememberStudOnRefIdFromStaging(StudOnCourse $course): StudOnCourse
+    {
+        $course_in_staging = $this->staging->repo()->getStudOnCourse($course->getCourseId());
+        $course = ($course_in_staging != null) ? $course->withStudOnRefId($course_in_staging->getStudOnRefId()) : $course;
+        return $course;
+    }      
 }
 

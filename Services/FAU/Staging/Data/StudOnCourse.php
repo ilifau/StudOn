@@ -15,30 +15,33 @@ class StudOnCourse extends RecordData
         'attendee_maximum' => 'integer',
         'term_year' => 'integer',
         'term_type_id' => 'integer',
+        'studon_ref_id' => 'integer'
     ];
 
     protected int $course_id;
     protected ?int $attendee_maximum;
     protected int $term_year;
     protected int $term_type_id;
+    protected ?int $studon_ref_id; 
 
     public function __construct(
         int $course_id,
         ?int $attendee_maximum,
         int $term_year,
-        int $term_type_id
+        int $term_type_id,
+        ?int $studon_ref_id
     )
     {
         $this->course_id = $course_id;
         $this->attendee_maximum = $attendee_maximum;
         $this->term_year = $term_year;
         $this->term_type_id = $term_type_id;
-
+        $this->studon_ref_id = $studon_ref_id;
     }
 
     public static function model(): self
     {
-        return new self(0,0,0,0);
+        return new self(0,0,0,0, NULL);
     }
 
     /**
@@ -84,4 +87,22 @@ class StudOnCourse extends RecordData
         return $clone;
     }
 
+    /**
+     * @return ?int
+     */
+    public function getStudOnRefId() : ?int
+    {
+        return $this->studon_ref_id;
+    }    
+
+    /**
+     * @param int|null $ref_id
+     * @return StudOnCourse
+     */
+    public function withStudOnRefId(?int $ref_id): StudOnCourse
+    {
+        $clone = clone $this;
+        $clone->studon_ref_id = $ref_id;
+        return $clone;
+    }
 }
