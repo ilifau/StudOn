@@ -78,8 +78,12 @@ class SyncToCampo extends SyncBase
             $obj_id = $study_course->getIliasObjId() ?? null;
             if($obj_id != null)
             {
-                $ilias_object = new ilObject($obj_id, false);
-                $ref_id = $ilias_object->getRefId();           
+                $ref_ids = ilObject::_getAllReferences((int) $obj_id);
+                $ref_id = null;
+                if(isset($ref_ids) && count($ref_ids) == 1)
+                {
+                    $ref_id = end($ref_ids);      
+                }     
                 $course = $course->withStudOnRefId($ref_id);
                 $this->staging->repo()->save($course);
             }
