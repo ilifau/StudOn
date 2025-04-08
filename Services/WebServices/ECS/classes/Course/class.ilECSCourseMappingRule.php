@@ -192,7 +192,7 @@ class ilECSCourseMappingRule
         $res = $ilDB->query($query);
 
         $level = 1;
-        $last_level_category = [];
+        $last_level_category = array();
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             $rule = new ilECSCourseMappingRule((int) $row->rid);
             if ($level === 1) {
@@ -200,7 +200,7 @@ class ilECSCourseMappingRule
             }
 
             $found_new_level = false;
-            $new_level_cats = [];
+            $new_level_cats = array();
             foreach ($last_level_category as $cat_ref_id) {
                 $refs = $rule->doMapping($course, (int) $cat_ref_id);
                 foreach ($refs as $new_ref_id) {
@@ -231,11 +231,11 @@ class ilECSCourseMappingRule
         $category_references = [];
         foreach ($values as $value) {
             $found = false;
-            foreach ($children as $child) {
+            foreach ($childs as $child) {
                 // category already created
                 if (strcmp($child['title'], $value) === 0) {
                     $found = true;
-                    $category_references[] = (int) $child['child'];
+                    $category_references[] = $child['child'];
                     break;
                 }
             }
@@ -279,6 +279,7 @@ class ilECSCourseMappingRule
     {
         if ($this->isFilterEnabled()) {
             $values = ilECSMappingUtils::getCourseValueByMappingAttribute($course, $this->getAttribute());
+            $this->logger->dump($values);
             $index = 0;
             foreach ($values as $value) {
                 $index++;

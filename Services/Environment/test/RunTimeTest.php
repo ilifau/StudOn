@@ -18,8 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 use PHPUnit\Framework\TestCase;
 
 class RunTimeTest extends TestCase

@@ -31,9 +31,9 @@ class ilECSCourseMemberAssignment
     private int $server;
     private int $mid;
     private int $cms_id;
-    private ?int $cms_sub_id = 0;
+    private int $cms_sub_id = 0;
     private int $obj_id;
-    private ?string $uid;
+    private string $uid;
     private bool $status = false;
 
 
@@ -113,7 +113,7 @@ class ilECSCourseMemberAssignment
         $ilDB = $DIC['ilDB'];
 
         if (is_null($a_cms_sub_id)) {
-            $cms_sub_id_query = 'AND (cms_sub_id IS NULL or cms_sub_id = 0) ';
+            $cms_sub_id_query = 'AND cms_sub_id IS NULL ';
         } else {
             $cms_sub_id_query = 'AND cms_sub_id = ' . $ilDB->quote($a_cms_sub_id, 'integer') . ' ';
         }
@@ -141,7 +141,7 @@ class ilECSCourseMemberAssignment
         $ilDB = $DIC['ilDB'];
 
         if (is_null($a_cms_sub_id)) {
-            $cms_sub_id_query = 'AND (cms_sub_id IS NULL or cms_sub_id = 0) ';
+            $cms_sub_id_query = 'AND cms_sub_id IS NULL ';
         } else {
             $cms_sub_id_query = 'AND cms_sub_id = ' . $ilDB->quote($a_cms_sub_id, 'integer') . ' ';
         }
@@ -275,7 +275,7 @@ class ilECSCourseMemberAssignment
     }
 
     /**
-     * Update assignment
+     * Update assignemt
      */
     public function update(): bool
     {
