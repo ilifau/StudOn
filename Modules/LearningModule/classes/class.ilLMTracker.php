@@ -388,7 +388,7 @@ class ilLMTracker
 
         $correct_answered = 0;
         foreach ($this->all_questions as $q_id) {
-            if (is_array($this->answer_status[$q_id]) && $this->answer_status[$q_id]["passed"]) {
+            if (isset($this->answer_status[$q_id]) && is_array($this->answer_status[$q_id]) && $this->answer_status[$q_id]["passed"]) {
                 $correct_answered++;
             }
         }
