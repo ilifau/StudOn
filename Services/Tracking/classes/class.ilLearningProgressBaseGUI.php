@@ -406,6 +406,11 @@ class ilLearningProgressBaseGUI
                     (string) ilLPObjSettings::_lookupVisits($details_id)
                 );
             }
+            // fau: lpQuestionsPercent - add info propery
+            if ($mode == ilLPObjSettings::LP_MODE_QUESTIONS) {
+                $info->addProperty($this->lng->txt('trac_required_questions_percent'), ilLPObjSettings::_lookupQuestionsPercent($details_id));
+            }
+            // fau.            
 
             if ($seconds = ilMDEducational::_getTypicalLearningTimeSeconds(
                 $details_id

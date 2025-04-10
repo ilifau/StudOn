@@ -29,13 +29,17 @@ class ilLPStatusQuestions extends ilLPStatus
 
         $users = ilChangeEvent::lookupUsersInProgress($a_obj_id);
 
+        // fau: lpQuestionsPercent - calculate completed status by correct percent
+        $required_percent = ilLPObjSettings::_lookupQuestionsPercent($a_obj_id);
         foreach ($users as $user_id) {
             // :TODO: this ought to be optimized
             $tracker = ilLMTracker::getInstanceByObjId($a_obj_id, $user_id);
-            if ($tracker->getAllQuestionsCorrect()) {
+            $correct_percent = $tracker->getQuestionsCorrectPercent() + 0.0000001;
+            if ($correct_percent >= $required_percent) {
                 $usr_ids[] = $user_id;
             }
         }
+        // fau.
 
         return $usr_ids;
     }
@@ -51,9 +55,13 @@ class ilLPStatusQuestions extends ilLPStatus
             $status = self::LP_STATUS_IN_PROGRESS_NUM;
 
             $tracker = ilLMTracker::getInstanceByObjId($a_obj_id, $a_usr_id);
-            if ($tracker->getAllQuestionsCorrect()) {
+            // fau: lpQuestionsPercent - determine status by correct percent
+            $required_percent = ilLPObjSettings::_lookupQuestionsPercent($a_obj_id);
+            $correct_percent = $tracker->getQuestionsCorrectPercent() + 0.0000001;
+            if ($correct_percent >= $required_percent) {
                 $status = self::LP_STATUS_COMPLETED_NUM;
             }
+            // fau.
         }
 
         return $status;

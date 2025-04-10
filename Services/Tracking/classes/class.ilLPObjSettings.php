@@ -29,6 +29,9 @@ class ilLPObjSettings
     protected string $obj_type;
     protected int $obj_mode;
     protected int $visits = self::LP_DEFAULT_VISITS;
+    // fau: lpQuestionsPercent -  class variable
+    public $questions_percent = null;
+    // fau.
 
     protected bool $is_stored = false;
 
@@ -297,13 +300,16 @@ class ilLPObjSettings
 
         $ilDB = $DIC['ilDB'];
 
-        $query = "INSERT INTO ut_lp_settings (obj_id,obj_type,u_mode,visits) " .
-            "VALUES( " .
-            $this->db->quote($a_new_obj_id, 'integer') . ", " .
-            $this->db->quote($this->getObjType(), 'text') . ", " .
-            $this->db->quote($this->getMode(), 'integer') . ", " .
-            $this->db->quote($this->getVisits(), 'integer') .
-            ")";
+        // fau: lpQuestionsPercent - clone questions percent
+        $query = "REPLACE INTO ut_lp_settings (obj_id,obj_type,u_mode,questions_percent,visits) " .
+        "VALUES( " .
+        $this->db->quote($a_new_obj_id, 'integer') . ", " .
+        $this->db->quote($this->getObjType(), 'text') . ", " .
+        $this->db->quote($this->getMode(), 'integer') . ", " .
+        $this->db->quote($this->getQuestionsPercent(), 'float') . ", " .
+        $this->db->quote($this->getVisits(), 'integer') .
+        ")";
+        // fau.        
         $res = $this->db->manipulate($query);
         return true;
     }
@@ -317,7 +323,17 @@ class ilLPObjSettings
     {
         $this->visits = $a_visits;
     }
+    // fau: lpQuestionsPercent - getter/setter
+    public function getQuestionsPercent(): float
+    {
+        return (float) (!empty($this->questions_percent) ? $this->questions_percent : 100);
+    }
 
+    public function setQuestionsPercent($a_percent): void
+    {
+        $this->questions_percent = $a_percent;
+    }
+    // fau.
     public function setMode(int $a_mode): void
     {
         $this->obj_mode = $a_mode;
@@ -349,6 +365,9 @@ class ilLPObjSettings
             $this->obj_type = (string) $row->obj_type;
             $this->obj_mode = (int) $row->u_mode;
             $this->visits = (int) $row->visits;
+            // fau: lpQuestionsPercent - read questions percent
+            $this->questions_percent = $row->questions_percent;
+            // fau.            
             return true;
         }
         return false;
@@ -363,6 +382,9 @@ class ilLPObjSettings
             $this->getMode(),
             'integer'
         ) . ", " .
+        // fau: lpQuestionsPercent - update questions percent
+        "questions_percent = " . $this->db->quote($this->getQuestionsPercent(), 'float') . ", " .
+        // fau.        
             "visits = " . $this->db->quote(
                 $this->getVisits(),
                 'integer'
@@ -379,13 +401,16 @@ class ilLPObjSettings
 
     public function insert(): bool
     {
-        $query = "INSERT INTO ut_lp_settings (obj_id,obj_type,u_mode,visits) " .
+        // fau: lpQuestionsPercent - insert questions percent
+        $query = "INSERT INTO ut_lp_settings (obj_id,obj_type,u_mode,questions_percent,visits) " .
             "VALUES(" .
             $this->db->quote($this->getObjId(), 'integer') . ", " .
             $this->db->quote($this->getObjType(), 'text') . ", " .
             $this->db->quote($this->getMode(), 'integer') . ", " .
+            $this->db->quote($this->getQuestionsPercent(), 'float') . ", " .
             $this->db->quote($this->getVisits(), 'integer') .  // #12482
             ")";
+        // fau.
         $res = $this->db->manipulate($query);
         $this->read();
         $this->doLPRefresh();
@@ -425,7 +450,22 @@ class ilLPObjSettings
         }
         return self::LP_DEFAULT_VISITS;
     }
+    // fau: lpQuestionsPercent - lookup questions percent
+    public static function _lookupQuestionsPercent($a_obj_id): float|int
+    {
+        global $DIC;
 
+        $ilDB = $DIC['ilDB'];        
+        $query = "SELECT questions_percent FROM ut_lp_settings " .
+            "WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer');
+
+        $res = $ilDB->query($query);
+        while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+            return (float) (!empty($row->questions_percent) ? $row->questions_percent : 100);
+        }
+        return 100;
+    }
+    // fau.
     public static function _lookupDBModeForObjects(array $a_obj_ids): array
     {
         global $DIC;

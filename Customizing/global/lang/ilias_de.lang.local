@@ -953,6 +953,7 @@ survey#:#anonymize_with_captcha#:#Anonyme Umfrage mit CAPTCHA
 survey#:#anonymize_with_captcha_info#:#Die Umfrage kann von anonymen Benutzern nach manueller Eingabe von Zeichen aus einer generierten Grafik gestartet werden. Diese Option ist nicht mit Zugangsschlüsseln kombinierbar!
 trac#:#lp_info_users_to_refresh#:#Es wurden soeben %s Lernfortschritte aktualisiert. Von %s Nutzern muss der Lernfortschritt noch aktualisiert werden. Bitte laden Sie die Seite gegebenenfalls neu.###fau: lpRefreshesLimit
 trac#:#trac_required_questions_percent#:#Anteil richtig beantworteter Fragen (%)
+trac#:#trac_mode_questions_percent#:#Anteil (%)
 user#:#user_error_auth_settings_wrong#:#Die Authentifizierungsdaten sind nicht gültig.
 user#:#user_error_shib_with_empty_ext_account#:#Der Authentifizierungsmodus "Shibboleth" benötigt eine gültige IDM-Kennung als externes Benutzerkonto.
 user#:#user_error_local_with_ext_account#:#Beim Authentifizierungsmodus "StudOn-Datenbank" darf kein externes Benutzerkonto eingetragen sein (Ausname: *@vhb.org).
