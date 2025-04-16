@@ -187,7 +187,7 @@ class ilRbacSystem
             // a grant overrules the rbac access
             global $DIC;
             if ($operation == "read" or $operation == "visible") {
-                if ($DIC->fau()->cond()->soft()->checkAccess($a_ref_id, $a_user_id)) {
+                if (isset($DIC["fau"]) && $DIC->fau()->cond()->soft()->checkAccess($a_ref_id, $a_user_id)) {
                     continue;
                 }
             }
