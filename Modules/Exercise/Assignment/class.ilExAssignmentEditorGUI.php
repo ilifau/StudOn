@@ -614,11 +614,6 @@ class ilExAssignmentEditorGUI
         }
         // fau.
 
-        $fb_file = new ilFileInputGUI($lng->txt("file"), "fb_file");
-        $fb_file->setRequired(true); // will be disabled on update if file exists - see getAssignmentValues()
-        // $fb_file->setAllowDeletion(true); makes no sense if required (overwrite or keep)
-        $fb->addSubItem($fb_file);
-
         $fb_date = new ilRadioGroupInputGUI($lng->txt("exc_global_feedback_file_date"), "fb_date");
         $fb_date->setRequired(true);
         $fb_date->setValue(ilExAssignment::FEEDBACK_DATE_DEADLINE);
@@ -978,8 +973,6 @@ class ilExAssignmentEditorGUI
 
         // fau: exAssHook - allow feedback date settings for own feedback
         if (isset($_POST["fb"]) ? $_POST["fb"] : 0 || $this->type_has_own_feedback) {
-            var_dump("komm ich hierher?");
-            exit();
             $a_ass->setFeedbackCron($a_input["fb_cron"]); // #13380
             $a_ass->setFeedbackDate($a_input["fb_date"]);
             $a_ass->setFeedbackDateCustom($a_input["fb_date_custom"]);
