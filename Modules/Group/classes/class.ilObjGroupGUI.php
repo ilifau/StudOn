@@ -726,6 +726,9 @@ class ilObjGroupGUI extends ilContainerGUI
             }
             // fau.
 
+            // update object settings
+            $this->object->update();
+            
             // fau: fairSub - validate group object
             global $DIC;
             $ilErr = $DIC['ilErr'];
@@ -787,10 +790,6 @@ class ilObjGroupGUI extends ilContainerGUI
 
             // list presentation
             $this->saveListPresentation($form);
-
-            // update object settings
-            $this->object->update();
-
 
             ilObjectServiceSettingsGUI::updateServiceSettingsForm(
                 $this->object->getId(),
