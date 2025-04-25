@@ -94,7 +94,7 @@ class ilObjUser extends ilObject
     public int $last_password_change_ts = 0;
     protected bool $passwd_policy_reset = false;
     public int $login_attempts = 0;
-    public array $user_defined_data = array(); // Missing array type.
+    public array $user_defined_data = []; // Missing array type.
     // fau: samlChange - new class variable idle_ext_account
     protected ?string $idle_ext_account = null;
     // fau.
@@ -333,6 +333,9 @@ class ilObjUser extends ilObject
         // fau.
 
         $this->setIsSelfRegistered((bool) ($a_data['is_self_registered'] ?? false));
+
+        // Avatar
+        $this->avatar_rid = (string) ($a_data['rid'] ?? self::NO_AVATAR_RID);
     }
 
     /**
