@@ -263,7 +263,7 @@ class ilErrorHandling
 
     protected function isDevmodeActive(): bool
     {
-        return defined('DEVMODE') && (int) DEVMODE === 1;
+        return defined('DEVMODE') && (int) DEVMODE >= 1;
     }
 
     protected function defaultHandler(): HandlerInterface
