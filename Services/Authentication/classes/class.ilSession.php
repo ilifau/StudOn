@@ -532,12 +532,21 @@ class ilSession
 
         $ilDB = $DIC->database();
         $ilSetting = $DIC->settings();
+        $logger = \ilLoggerFactory::getRootLogger();        
 
         // ensure integer
         $seconds = (int) $seconds;
 
-        if (time() < $ilSetting->get('session_count_users_online_expire_' . $seconds)) {
-            $users = $ilSetting->get('session_count_users_online_' . $seconds);
+        $expire_key = 'session_count_users_online_expire_' . $seconds;
+        $count_key = 'session_count_users_online_' . $seconds;
+
+        $expire = (int) $ilSetting->get($expire_key);
+
+        $expire_key = 'session_count_users_online_expire_' . $seconds;
+        $count_key = 'session_count_users_online_' . $seconds;
+
+        if (time() < $expire) {
+            $users = $ilSetting->get($count_key);
         } else {
             $query = "SELECT COUNT(DISTINCT user_id) users FROM usr_session u WHERE expires > UNIX_TIMESTAMP() AND ctime + $seconds > UNIX_TIMESTAMP();";
             $result = $ilDB->query($query);
@@ -545,10 +554,23 @@ class ilSession
             $users = $row['users'];
 
             // next query after 1 minute
-            $ilSetting->delete('session_count_users_online_expire_' . $seconds);
-            $ilSetting->set('session_count_users_online_expire_' . $seconds, (string) (time() + 60));
-            $ilSetting->delete('session_count_users_online_' . $seconds);
-            $ilSetting->set('session_count_users_online_' . $seconds, (string) $row['users']);
+            try {
+                #$ilSetting->delete('session_count_users_online_expire_' . $seconds);
+                $ilSetting->set($expire_key, (string) (time() + 60));
+            } catch (\ilDatabaseException $e) {
+                if (!str_contains($e->getMessage(), 'Duplicate entry')) {
+                    $logger->error("UsersOnline: Fehler beim Setzen von $expire_key – " . $e->getMessage());
+                }
+            }
+
+            try {
+                #$ilSetting->delete('session_count_users_online_' . $seconds);
+                $ilSetting->set($count_key, (string) $users);
+            } catch (\ilDatabaseException $e) {
+                if (!str_contains($e->getMessage(), 'Duplicate entry')) {
+                    $logger->error("UsersOnline: Fehler beim Setzen von $count_key – " . $e->getMessage());
+                }
+            }
         }
 
         if ($store && time() > (int) $ilSetting->get('session_count_users_online_store_' . $seconds)) {
@@ -572,7 +594,13 @@ class ilSession
             }
 
             // next store after 5 minutes
-            $ilSetting->set('session_count_users_online_store_'. $seconds, (string) (time() + 300));
+            try {
+                $ilSetting->set('session_count_users_online_store_' . $seconds, (string)(time() + 300));
+            } catch (\ilDatabaseException $e) {
+                if (!str_contains($e->getMessage(), 'Duplicate entry')) {
+                    $logger->error("UsersOnline: Fehler beim Setzen von store_$seconds – " . $e->getMessage());
+                }
+            }
         }
 
         return $users;
