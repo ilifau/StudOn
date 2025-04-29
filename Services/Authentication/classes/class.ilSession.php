@@ -542,9 +542,6 @@ class ilSession
 
         $expire = (int) $ilSetting->get($expire_key);
 
-        $expire_key = 'session_count_users_online_expire_' . $seconds;
-        $count_key = 'session_count_users_online_' . $seconds;
-
         if (time() < $expire) {
             $users = $ilSetting->get($count_key);
         } else {
