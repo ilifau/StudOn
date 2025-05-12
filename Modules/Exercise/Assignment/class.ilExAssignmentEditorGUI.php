@@ -975,7 +975,9 @@ class ilExAssignmentEditorGUI
         if (isset($_POST["fb"]) ? $_POST["fb"] : 0 || $this->type_has_own_feedback) {
             $a_ass->setFeedbackCron($a_input["fb_cron"]); // #13380
             $a_ass->setFeedbackDate($a_input["fb_date"]);
-            $a_ass->setFeedbackDateCustom($a_input["fb_date_custom"]);
+            if (isset($a_input["fb_date_custom"])) {
+                $a_ass->setFeedbackDateCustom($a_input["fb_date_custom"]);
+            }
         }
         // fau.
 
