@@ -69,14 +69,14 @@ abstract class ilExSubmissionTestResultBaseGUI extends ilExSubmissionBaseGUI
             $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($a_submission->getAssignment()->getId());
 
             if ($a_submission->canSubmit() && !empty($assTest->getTestRefId())) {
-                $link = $gui->link($lng->txt("exc_ass_type_test_open"), $DIC->ctrl()->getLinkTargetByClass(['ilexsubmissiongui',strtolower(get_called_class())], 'callTest'));
-                $a_info->addProperty($lng->txt("exc_ass_type_test_open_label"), '<p>' .$lng->txt("exc_ass_type_test_open_info"). '</p>'. $link->render());
+                #$link = $gui->link($lng->txt("exc_ass_type_test_open"), $DIC->ctrl()->getLinkTargetByClass(['ilexsubmissiongui',strtolower(get_called_class())], 'callTest'), false);
+                #$a_info->addProperty($lng->txt("exc_ass_type_test_open_label"), '<p>' .$lng->txt("exc_ass_type_test_open_info"). '</p>'. $link->render());
             }
         }
 
         if (ilObjExerciseAccess::checkExtendedGradingAccess($a_submission->getAssignment()->getExerciseId(), false)) {
-            $link = $gui->link($lng->txt("exc_ass_type_test_sync"), $DIC->ctrl()->getLinkTargetByClass(['ilexsubmissiongui',strtolower(get_called_class())], 'syncTestResults'));
-            $a_info->addProperty($lng->txt("exc_ass_type_test_sync_label"),  $link->render() .'<p class="info">' .$lng->txt("exc_ass_type_test_sync_info"). '</p>');
+            #$link = $gui->link($lng->txt("exc_ass_type_test_sync"), $DIC->ctrl()->getLinkTargetByClass(['ilexsubmissiongui',strtolower(get_called_class())], 'syncTestResults'), false);
+            #$a_info->addProperty($lng->txt("exc_ass_type_test_sync_label"),  $link->render() .'<p class="info">' .$lng->txt("exc_ass_type_test_sync_info"). '</p>');
         }
     }
 
