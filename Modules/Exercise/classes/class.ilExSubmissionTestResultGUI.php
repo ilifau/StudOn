@@ -31,7 +31,7 @@ class ilExSubmissionTestResultGUI extends ilExSubmissionTestResultBaseGUI
      * @inheritdoc
      */
     public function executeCommand(): void
-    {
+    {        
         parent::executeCommand();
     }
 
@@ -41,5 +41,11 @@ class ilExSubmissionTestResultGUI extends ilExSubmissionTestResultBaseGUI
     public static function getOverviewContent(ilInfoScreenGUI $a_info, ilExSubmission $a_submission): void
     {
         parent::getOverviewContent( $a_info,  $a_submission);
+    }
+
+    
+    public function callTest(): void
+    {
+        parent::callTest();
     }
 }

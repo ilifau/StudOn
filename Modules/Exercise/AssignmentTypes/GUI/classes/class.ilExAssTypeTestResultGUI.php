@@ -54,6 +54,6 @@ class ilExAssTypeTestResultGUI extends ilExAssTypeTestResultBaseGUI implements i
      * @inheritdoc
      */    
     public function buildSubmissionPropertiesAndActions(PropertyAndActionBuilderUI $builder): void {
-        
+        parent::buildSubmissionPropertiesAndActions($builder);
     }
 }

@@ -25,7 +25,7 @@ use ILIAS\Exercise\GUIRequest;
  * @author Alexander Killing <killing@leifos.de>
  * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTeamGUI, ilExSubmissionFileGUI
  * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTextGUI, ilExSubmissionObjectGUI
- * @ilCtrl_Calls ilExSubmissionGUI: ilExPeerReviewGUI
+ * @ilCtrl_Calls ilExSubmissionGUI: ilExPeerReviewGUI, ilExSubmissionTestResultGUI
  */
 class ilExSubmissionGUI
 {
@@ -105,6 +105,10 @@ class ilExSubmissionGUI
         $cmd = $ilCtrl->getCmd("listPublicSubmissions");
 
         switch ($class) {
+            case "ilexsubmissiontestresultgui":
+                $gui = new ilExSubmissionTestResultGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
             case "ilexsubmissionteamgui":
                 // team gui has no base gui - see we have to handle tabs here
 
