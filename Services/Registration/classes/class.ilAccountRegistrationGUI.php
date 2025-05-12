@@ -430,6 +430,7 @@ class ilAccountRegistrationGUI
         $login_obj = $this->form->getItemByPostVar('username');
         $login = $this->form->getInput("username");
         // fau: regCodes - use login generation types
+        $this->login = $login;
         if ($this->registration_settings->loginGenerationType() != ilRegistrationSettings::LOGIN_GEN_MANUAL) {
             $this->login = $this->__generateLogin();
             $_POST['username'] = $login;
