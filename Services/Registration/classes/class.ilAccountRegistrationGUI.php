@@ -510,7 +510,7 @@ class ilAccountRegistrationGUI
         $this->userObj->setDescription($this->userObj->getEmail());
 
         // fau: regCodes: respect the password generation type
-        $this->userObj->setLogin($this->login);
+        $this->userObj->setLogin($this->login ?? "");
         if ($this->registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_AUTO) {
             $password = ilSecuritySettingsChecker::generatePasswords(1);
             $password = $password[0];
