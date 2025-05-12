@@ -432,10 +432,10 @@ class ilAccountRegistrationGUI
         // fau: regCodes - use login generation types
         $this->login = $login;
         if ($this->registration_settings->loginGenerationType() != ilRegistrationSettings::LOGIN_GEN_MANUAL) {
-            $this->login = $this->__generateLogin();
-            $_POST['username'] = $login;
+            $login = $this->__generateLogin();
+            $_POST['username'] =  $login;
             $this->form->getItemByPostVar('username')->setValue($login);
-
+            $this->login = $login;
         }
         elseif ($form_valid) {
             // fau.
