@@ -391,7 +391,7 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
         $this->addFilterItem($ri);
         $ri->readFromSession();
         if (empty($ri->getValue())) {
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt('tst_question_browse_root_message'), true);
+            $this->main_tpl->setOnScreenMessage('info', $this->lng->txt('tst_question_browse_root_message'), true);
             $ri->setValue($this->getValidRoot());
         }
         // fau.
