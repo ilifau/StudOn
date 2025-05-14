@@ -72,6 +72,9 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
         parent::__construct($this, self::CMD_BROWSE_QUESTIONS);
         $this->setFilterCommand(self::CMD_APPLY_FILTER);
         $this->setResetCommand(self::CMD_RESET_FILTER);
+        // fau: testQuestionBrowserRoot - always show the filters
+        $this->setDisableFilterHiding(true);
+        // fau.
 
         $this->setFormName('questionbrowser');
         $this->setStyle('table', 'fullwidth');
@@ -375,19 +378,40 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
         $ti->readFromSession();
         $this->filter['parent_title'] = $ti->getValue();
 
-        $ri = new ilRepositorySelectorInputGUI($this->lng->txt('repository'), 'repository_root_node');
+        // repo root node
+        // fau: testQuestionBrowserRoot - set the default root and show message if no filter is set
+        require_once 'Services/Form/classes/class.ilRepositorySelectorInputGUI.php';
+        $ri = new ilRepositorySelectorInputGUI($this->lng->txt('container'), 'repository_root_node');
         $ri->setHeaderMessage($this->lng->txt('question_browse_area_info'));
-        if ($this->fetchModeParameter() === self::MODE_BROWSE_TESTS) {
-            $ri->setClickableTypes(['tst']);
+        if ($this->fetchModeParameter() == self::MODE_BROWSE_TESTS) {
+            $ri->setClickableTypes(array('tst'));
         } else {
-            $ri->setClickableTypes(['qpl']);
+            $ri->setClickableTypes(array('qpl'));
         }
         $this->addFilterItem($ri);
         $ri->readFromSession();
+        if (empty($ri->getValue())) {
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt('tst_question_browse_root_message'), true);
+            $ri->setValue($this->getValidRoot());
+        }
+        // fau.
         $this->filter['repository_root_node'] = $ri->getValue();
     }
 
-    private function getParentObjectLabel(): string
+    // fau: testQuestionBrowserRoot - use the test object container as default
+    private function getValidRoot($a_value = null)
+    {
+        global $tree;
+
+        if (!empty($a_value)) {
+            return $a_value;
+        } else {
+            return $tree->getParentId($this->test_obj->getRefId());
+        }
+    }
+    // fau.
+
+    private function getParentObjectLabel()
     {
         switch ($this->fetchModeParameter()) {
             case self::MODE_BROWSE_POOLS:
@@ -510,6 +534,9 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
             $repositoryRootNode = self::REPOSITORY_ROOT_NODE_ID;
         }
 
+        // fau: testQuestionBrowserRoot - use the default root if no filter is set
+        $repositoryRootNode = $this->getValidRoot($repositoryRootNode);
+        // fau.
         $parentObjectIds = $this->getQuestionParentObjIds($repositoryRootNode);
 
         if (!count($parentObjectIds)) {
@@ -533,43 +560,51 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
         return ilAssQuestionList::QUESTION_INSTANCE_TYPE_ORIGINALS;
     }
 
-    /**
-     * @param int $repositoryRootNode
-     * @return int[]
-     */
-    private function getQuestionParentObjIds(int $repositoryRootNode): array
+    private function getQuestionParentObjIds($repositoryRootNode)
     {
+        // fau: testQuestionBrowserRoot - avoid a duplicate scan for question pools
+        if ($this->fetchModeParameter() == self::MODE_BROWSE_POOLS) {
+            return array_map('intval', array_keys(ilObjQuestionPool::_getAvailableQuestionpools(
+                true,
+                false,
+                false,
+                false,
+                false,
+                "read",
+                "",
+                $repositoryRootNode
+            )));
+        } elseif ($this->fetchModeParameter() == self::MODE_BROWSE_TESTS) {
         $parents = $this->tree->getSubTree(
             $this->tree->getNodeData($repositoryRootNode),
             true,
-            [$this->getQuestionParentObjectType()]
+                array($this->getQuestionParentObjectType())
         );
 
-        $parentIds = [];
+            $parentIds = array();
 
         foreach ($parents as $nodeData) {
-            if ((int) $nodeData['obj_id'] === $this->test_obj->getId()) {
+            if ($nodeData['obj_id'] == $this->test_obj->getId()) {
                 continue;
             }
 
-            $parentIds[$nodeData['obj_id']] = $nodeData['obj_id'];
+            $parentIds[ $nodeData['obj_id'] ] = $nodeData['obj_id'];
         }
 
         $parentIds = array_map('intval', array_values($parentIds));
 
-        if ($this->fetchModeParameter() === self::MODE_BROWSE_POOLS) {
-            $available_pools = array_map('intval', array_keys(ilObjQuestionPool::_getAvailableQuestionpools(true)));
-            return array_intersect($parentIds, $available_pools);
-        } elseif ($this->fetchModeParameter() === self::MODE_BROWSE_TESTS) {
-            return array_filter($parentIds, function ($obj_id): bool {
+            $access = $this->access;
+
+            return array_filter($parentIds, function ($obj_id) use ($access) {
                 $refIds = ilObject::_getAllReferences($obj_id);
                 $refId = current($refIds);
                 return $this->access->checkAccess('write', '', $refId);
             });
         }
+        // fau.
 
         // Return no parent ids if the user wants to hack...
-        return [];
+        return array();
     }
 
     private function getQuestionParentObjectType(): string
