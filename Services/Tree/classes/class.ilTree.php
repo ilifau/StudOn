@@ -2197,4 +2197,20 @@ class ilTree
     {
         return $this->table_tree == 'tree';
     }
+
+    // fau: treeQuery - new function getGrandChildCondition()
+    /**
+     * Get an SQL condition for selecting grand childs of a node
+     * this is used by ilUtil::_getObjectsByOperations()
+     * @param int		$a_node_id
+     * @param string	$a_alias for the tree table
+     * @return string	sql condition
+     */
+    public function getGrandChildCondition($a_node_id, $a_alias = "tree")
+    {
+        $node = $this->getNodeData($a_node_id);
+
+        return $this->getTreeImplementation()->getGrandChildCondition($node, $a_alias);
+    }
+    // fau.    
 } // END class.tree

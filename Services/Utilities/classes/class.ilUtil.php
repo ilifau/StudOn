@@ -1054,16 +1054,21 @@ class ilUtil
      * @param string    permission to check e.g. 'visible' or 'read'
      * @param int id of user in question
      * @param int limit of results. if not given it defaults to search max hits.If limit is -1 limit is unlimited
+     * @param	int ref_id of the sub tree node to search in
      * @return    array of ref_ids
      * @static
      *
      */
-    public static function _getObjectsByOperations(
+    // fau: treeQuery - add root as optional parameter to allow selection in sub tree
+        public static function _getObjectsByOperations(
         $a_obj_type,
         string $a_operation,
         int $a_usr_id = 0,
-        int $limit = 0
-    ): array {
+        int $limit = 0,
+        int $a_root_id = 0
+    ): array 
+    // fau.
+    {
         global $DIC;
 
         $ilDB = $DIC->database();
@@ -1078,6 +1083,19 @@ class ilUtil
         } else {
             $where = "WHERE " . $ilDB->in("type", $a_obj_type, false, "text") . " ";
         }
+
+        // fau: treeQuery - respect the root id parameter
+        // fau: optimizeRandomRuleSelect - check for node and grand childs
+        if ($a_root_id) {
+            $where .= ' AND (tree.child = ' . $ilDB->quote((int) $a_root_id, 'integer') . ' OR ' . $tree->getGrandChildCondition((int) $a_root_id) . ")  ";
+
+            $tree_join = " LEFT JOIN tree ON obr.ref_id = tree.child ";
+            $tree_cond = " AND tree = 1 ";
+        } else {
+            $tree_join = "";
+            $tree_cond = "";
+        }
+        // fau.
 
         // limit number of results default is search result limit
         if (!$limit) {
@@ -1129,14 +1147,18 @@ class ilUtil
 
         $and = "AND ((" . $ilDB->in("rol_id", $a_roles, false, "integer") . " ";
 
+        // fau: treeQuery - respect the root conditions
         $query = "SELECT DISTINCT(obr.ref_id),obr.obj_id,type FROM object_reference obr " .
             "JOIN object_data obd ON obd.obj_id = obr.obj_id " .
             "LEFT JOIN rbac_pa  ON obr.ref_id = rbac_pa.ref_id " .
+            $tree_join .
             $where .
+            $tree_cond .
             $and .
             "AND (" . $ilDB->like("ops_id", "text", "%i:" . $ops_id . "%") . " " .
             "OR " . $ilDB->like("ops_id", "text", "%:\"" . $ops_id . "\";%") . ")) " .
             $check_owner;
+        // fau.
 
         $res = $ilDB->query($query);
         $counter = 0;

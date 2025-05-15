@@ -2869,10 +2869,12 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware
     * @return array The available question pools
     * @access public
     */
-    public function getAvailableQuestionpools($use_object_id = false, $equal_points = false, $could_be_offline = false, $show_path = false, $with_questioncount = false, $permission = "read"): array
+    // fau: testQuestionBrowserRoot - added parameter for root id to get available question pools    
+    public function getAvailableQuestionpools($use_object_id = false, $equal_points = false, $could_be_offline = false, $show_path = false, $with_questioncount = false, $permission = "read", $root_id = 0): array
     {
-        return ilObjQuestionPool::_getAvailableQuestionpools($use_object_id, $equal_points, $could_be_offline, $show_path, $with_questioncount, $permission);
+        return ilObjQuestionPool::_getAvailableQuestionpools($use_object_id, $equal_points, $could_be_offline, $show_path, $with_questioncount, $permission, "", $root_id);
     }
+    // fau.
 
     /**
     * Returns the image path for web accessable images of a test

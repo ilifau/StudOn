@@ -959,24 +959,21 @@ class ilObjQuestionPool extends ilObject
      * @return array The available question pools
      * @access public
      */
-    public static function _getAvailableQuestionpools(
-        $use_object_id = false,
-        $equal_points = false,
-        $could_be_offline = false,
-        $showPath = false,
-        $with_questioncount = false,
-        $permission = 'read',
-        $usr_id = ''
-    ): array {
+    // fau: testQuestionBrowserRoot - add root id as param to find question pools
+    public static function _getAvailableQuestionpools($use_object_id = false, $equal_points = false, $could_be_offline = false, $showPath = false, $with_questioncount = false, $permission = "read", $usr_id = "", $root_id = 0)
+// fau.
+    {
         global $DIC;
         $ilUser = $DIC['ilUser'];
         $ilDB = $DIC['ilDB'];
         $lng = $DIC['lng'];
 
-        $result_array = [];
-        $permission = (strlen($permission) == 0) ? 'read' : $permission;
-        $qpls = ilUtil::_getObjectsByOperations('qpl', $permission, (strlen($usr_id)) ? $usr_id : $ilUser->getId(), -1);
-        $obj_ids = [];
+        $result_array = array();
+        $permission = (strlen($permission) == 0) ? "read" : $permission;
+        // fau: testQuestionBrowserRoot - use root id param to find question pools
+        $qpls = ilUtil::_getObjectsByOperations("qpl", $permission, (strlen($usr_id)) ? $usr_id : $ilUser->getId(), -1, $root_id);
+        // fau.
+        $obj_ids = array();
         foreach ($qpls as $ref_id) {
             $obj_id = ilObject::_lookupObjId($ref_id);
             $obj_ids[$ref_id] = $obj_id;
