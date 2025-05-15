@@ -599,4 +599,21 @@ class ilMaterializedPathTree implements ilTreeImplementation
         }
         return $failures;
     }
+
+    // fau: treeQuery - new function getGrandChildCondition()
+    /**
+     * Get an SQL condition for selecting grand childs of a node
+     * this is used by ilUtil::_getObjectsByOperations()
+     * @param array		$node data
+     * @param string	$a_alias for the tree table
+     * @return string	sql condition
+     */
+    public function getGrandChildCondition($node, $a_alias = "tree")
+    {
+        global $ilDB;
+
+        return '(' . $a_alias . '.path BETWEEN ' . $ilDB->quote($node['path'], 'text') . ' AND ' . $ilDB->quote($node['path'] . '.Z', 'text')
+        . ' AND ' . $a_alias . '.child != ' . $ilDB->quote($node['child'], 'integer') . ')';
+    }
+    // fau.
 }
