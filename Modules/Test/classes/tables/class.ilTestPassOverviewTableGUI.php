@@ -40,6 +40,13 @@ class ilTestPassOverviewTableGUI extends ilTable2GUI
 
     protected string $passDeletionCommand = '';
 
+    // fau: deleteTestPass - variable for maintenance context
+    /**
+     * @var bool context pf participants maintenance
+     */
+    protected $participantsContext = false;
+    // fau.
+
     public function __construct(ilTestEvaluationGUI $parent, string $cmd)
     {
         $this->setId('tst_pass_overview_' . $parent->getObject()->getId());
@@ -228,6 +235,13 @@ class ilTestPassOverviewTableGUI extends ilTable2GUI
         $this->passDeletionCommand = $passDeletionCommand;
     }
 
+    // fau: deleteTestPass - set the context of participants maintenance
+    public function setParticipantsContext()
+    {
+        $this->participantsContext = true;
+    }
+    // fau.    
+
     private function formatDate($date): string
     {
         $oldValue = ilDatePresentation::useRelativeDates();
@@ -255,7 +269,9 @@ class ilTestPassOverviewTableGUI extends ilTable2GUI
             $actions[$this->getPassDetailsCommand()] = $this->lng->txt('tst_pass_details');
         }
 
-        if (!is_null($isScoredPass) && !$isScoredPass && $this->getPassDeletionCommand()) {
+        // fau: deleteTestPass - allow to delete the scored pass
+        if ((!$isScoredPass || $this->participantsContext) && $this->getPassDeletionCommand()) {
+            // fau.
             $actions[$this->getPassDeletionCommand()] = $this->lng->txt('delete');
         }
 

@@ -1089,6 +1089,10 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $passOverViewTableGUI->setActiveId($testSession->getActiveId());
         $passOverViewTableGUI->setResultPresentationEnabled(true);
         $passOverViewTableGUI->setPassDetailsCommand('outParticipantsPassDetails');
+        // fau: deleteTestPass - add command to results overview table
+        $passOverViewTableGUI->setPassDeletionCommand('confirmDeletePass');
+        $passOverViewTableGUI->setParticipantsContext();
+        // fau.
         $passOverViewTableGUI->init();
         $passOverViewTableGUI->setData($this->getPassOverviewTableData($testSession, $testPassesSelector->getExistingPasses(), true));
         $passOverViewTableGUI->setTitle($testResultHeaderLabelBuilder->getPassOverviewHeaderLabel());
@@ -1531,15 +1535,24 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
     public function confirmDeletePass()
     {
+        // fau: deleteTestPass - use cconfirmation gui in context of test admin
+        global $DIC;
+        $write_access = $DIC->access()->checkAccess('write', '', $this->ref_id);
         if ($this->testrequest->isset('context') && strlen($this->testrequest->raw('context'))) {
             $context = $this->testrequest->raw('context');
         } else {
             $context = ilTestPassDeletionConfirmationGUI::CONTEXT_PASS_OVERVIEW;
         }
 
-        if (!$this->object->isPassDeletionAllowed()) {
+        $this->ctrl->saveParameter($this, 'active_id');
+        if (!$write_access && !$this->object->isPassDeletionAllowed()) {
             $this->redirectToPassDeletionContext($context);
         }
+
+        if ((int) $_GET['pass'] == $this->object->_getResultPass($_GET['active_id'])) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('warning_delete_scored_pass'));
+        }
+        // fau.
 
         $confirm = new ilTestPassDeletionConfirmationGUI($this->ctrl, $this->lng, $this);
         $confirm->build((int) $this->testrequest->raw("active_id"), (int) $this->testrequest->raw("pass"), $context);
@@ -1554,11 +1567,22 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
     private function redirectToPassDeletionContext($context)
     {
+        // fau: deleteTestPass - use redirection in context of test admin
+        global $DIC;
+        $write_access = $DIC->access()->checkAccess('write', '', $this->ref_id);
+
+        require_once 'Modules/Test/classes/confirmations/class.ilTestPassDeletionConfirmationGUI.php';
+
         switch ($context) {
             case ilTestPassDeletionConfirmationGUI::CONTEXT_PASS_OVERVIEW:
 
+                if ($write_access && !empty($_GET['active_id'])) {
+                    $this->ctrl->saveParameter($this, 'active_id');
+                    $this->ctrl->redirect($this, 'outParticipantsResultsOverview');
+                } else {
                 $this->ctrl->redirect($this, 'outUserResultsOverview');
-
+                }
+// fau.
                 // no break
             case ilTestPassDeletionConfirmationGUI::CONTEXT_INFO_SCREEN:
 
@@ -1568,13 +1592,18 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
     public function performDeletePass()
     {
+        // fau: deleteTestPass - perform pass deletion in context of test admin
+        global $DIC;
+        $write_access = $DIC->access()->checkAccess('write', '', $this->ref_id);
+        $this->ctrl->saveParameter($this, 'active_id');
+
         if (isset($_POST['context']) && strlen($_POST['context'])) {
             $context = $_POST['context'];
         } else {
             $context = ilTestPassDeletionConfirmationGUI::CONTEXT_PASS_OVERVIEW;
         }
 
-        if (!$this->object->isPassDeletionAllowed()) {
+        if (!$write_access && !$this->object->isPassDeletionAllowed()) {
             $this->redirectToPassDeletionContext($context);
         }
 
@@ -1595,10 +1624,10 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             $this->ctrl->redirect($this, 'outUserResultsOverview');
         }
 
-        if ($pass == $this->object->_getResultPass($active_fi)) {
+        if (!$write_access && $pass == $this->object->_getResultPass($active_fi)) {
             $this->ctrl->redirect($this, 'outUserResultsOverview');
         }
-
+        // fau.
         // Get information
         $result = $ilDB->query("
 				SELECT tst_active.tries, tst_active.last_finished_pass, tst_sequence.pass
@@ -1628,12 +1657,21 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         } elseif ($pass == $row['pass']) {
             $isActivePass = true;
             $must_renumber = false;
-        } else {
+        }
+        // fau: deleteTestPass - treat special case of phantom pass without sequence created by race condition
+        elseif (is_null($row['pass'])) {
+            $isActivePass = false;
+            $must_renumber = false;
+        }
+        // fau.
+        else {
             throw new ilTestException('This should not happen, please contact Bjoern Heyser to clean up this pass salad!');
         }
 
         if ($isActivePass) {
-            $this->ctrl->redirect($this, 'outUserResultsOverview');
+            // fau: deleteTestPass -  treat special case of phantom pass - allow to delete the active pass
+//			$this->ctrl->redirect($this, 'outUserResultsOverview');
+// fau.
         }
 
         if ($pass == 0 && (
