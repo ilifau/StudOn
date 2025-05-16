@@ -238,9 +238,9 @@ class PageContentProvider extends AbstractModificationProvider
 
           
             $footer = $f->mainControls()->footer($links, $text);
-            // fau: countUsersOnline - call the counter
-            $users_online = \ilSession::_getUsersOnline(600, true) . ' (10min) ⸱ ' . \ilSession::_getUsersOnline(3600). ' (1h)';
-            // fau.
+
+            $users_online = count(\ilObjUser::_getUsersOnline());
+
 
             $texts[] = $this->dic->language()->txt('footer_server') . ' ' . current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR'])));
             $texts[] = $this->dic->language()->txt('footer_active_users') . ' ' . $users_online;
@@ -263,10 +263,10 @@ class PageContentProvider extends AbstractModificationProvider
                         "XDebug Peak Memory Usage: " . round(xdebug_peak_memory_usage() / (1024 * 1024)) . " MB";
                 }
              }
-             // fau.
+
             
              $footer = $f->mainControls()->footer($links, $texts[0].'<br/>'.$texts[1]);
-
+             // fau.
              $footer = $this->dic['legalDocuments']->modifyFooter($footer);
  
              if (self::$perma_link !== "") {
