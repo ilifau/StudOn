@@ -54,8 +54,9 @@ class Init
         foreach ($lang_vars as $l) {
             $lng->toJS($l);
         }
-
-        if (DEVMODE == 1) {
+        // fau: ExtDevMode - integrate devmode 2
+        if (DEVMODE >= 1) {
+        // fau. 
             $main_tpl->addJavaScript("./node_modules/tinymce/tinymce.js");
         } else {
             $main_tpl->addJavaScript("./node_modules/tinymce/tinymce.min.js");

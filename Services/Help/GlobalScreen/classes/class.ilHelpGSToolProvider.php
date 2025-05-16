@@ -115,7 +115,9 @@ class ilHelpGSToolProvider extends AbstractDynamicToolProvider
         $help_gui->initHelp($main_tpl, $ctrl->getLinkTargetByClass("ilhelpgui", "", "", true));
 
         $html = "";
-        if ((defined("OH_REF_ID") && (int) OH_REF_ID > 0) || (defined('DEVMODE') && (int) DEVMODE === 1)) {
+        // fau: ExtDevMode - integrate devmode 2
+        if ((defined("OH_REF_ID") && (int) OH_REF_ID > 0) || (defined('DEVMODE') && (int) DEVMODE >= 1)) {
+        // fau.
             $html = "<div class='ilHighlighted small'>Screen ID: " . $help_gui->getScreenId() . "</div>";
         }
 
