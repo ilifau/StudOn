@@ -74,7 +74,7 @@ class ilAttendanceList
 
         // fau: extendedAccess - show email only with extended export rights
         if (ilPrivacySettings::_checkExtendedAccess()) {
-            $this->presets['email'] = array($DIC->language()->txt('email'));
+            $this->presets['email'] = array($DIC->language()->txt('email'), true);
         }
         // fau.
 
