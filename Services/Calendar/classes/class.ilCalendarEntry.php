@@ -333,9 +333,7 @@ class ilCalendarEntry implements ilDatePeriod
              * The title needs to be truncated to fit into the table column. This is a pretty
              * brute force method for doing so, but right now I can't find a better place for it.
              */
-            /* fau: fauService - fix Incorrect string value: '\xC3',' for column"*/
             "SET title = " . $this->db->quote(mb_substr($this->getTitle(), 0, 128), 'text') . ", " .
-            /* fau. */
             "last_update = " . $this->db->quote($utc_timestamp, 'timestamp') . ", " .
             "subtitle = " . $this->db->quote($this->getSubtitle(), 'text') . ", " .
             "description = " . $this->db->quote($this->getDescription(), 'text') . ", " .
@@ -367,9 +365,7 @@ class ilCalendarEntry implements ilDatePeriod
              * The title needs to be truncated to fit into the table column. This is a pretty
              * brute force method for doing so, but right now I can't find a better place for it.
              */
-            /* fau: fauService - fix Incorrect string value: '\xC3',' for column"*/
             $this->db->quote(mb_substr($this->getTitle(), 0, 128), 'text') . ", " .
-            /* fau. */
             $this->db->quote($utc_timestamp, 'timestamp') . ", " .
             $this->db->quote($this->getSubtitle(), 'text') . ", " .
             $this->db->quote($this->getDescription(), 'text') . ", " .

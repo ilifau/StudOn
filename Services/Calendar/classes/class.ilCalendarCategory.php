@@ -247,9 +247,7 @@ class ilCalendarCategory
              * The title needs to be truncated to fit into the table column. This is a pretty
              * brute force method for doing so, but right now I can't find a better place for it.
              */
-            /* fau: fauService - fix Incorrect string value: '\xC3',' for column"*/
             $this->db->quote(mb_substr($this->getTitle(), 0, 128), 'text') . ", " .
-            /* fau. */    
             $this->db->quote($this->getLocationType(), 'integer') . ', ' .
             $this->db->quote($this->getRemoteUrl(), 'text') . ', ' .
             $this->db->quote($this->getRemoteUser(), 'text') . ', ' .
@@ -276,9 +274,7 @@ class ilCalendarCategory
              * The title needs to be truncated to fit into the table column. This is a pretty
              * brute force method for doing so, but right now I can't find a better place for it.
              */
-            /* fau: fauService - fix Incorrect string value: '\xC3',' for column"*/
             "title = " . $this->db->quote(mb_substr($this->getTitle(), 0, 128), 'text') . ", " .
-            /* fau. */
             "loc_type = " . $this->db->quote($this->getLocationType(), 'integer') . ', ' .
             "remote_url = " . $this->db->quote($this->getRemoteUrl(), 'text') . ', ' .
             "remote_user = " . $this->db->quote($this->getRemoteUser(), 'text') . ', ' .
