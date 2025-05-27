@@ -146,7 +146,9 @@ class ilTestParticipantsTableGUI extends ilTable2GUI
             $this->addColumn($this->lng->txt("clientip"), 'clientip', '');
         }
 
-        $this->addColumn($this->lng->txt("tst_started"), 'started', '');
+        // fau: showStartingTime - use started_time for sorting
+        $this->addColumn($this->lng->txt("tst_started"), 'started_time', '');
+        // fau.
         $this->addColumn($this->lng->txt("tst_nr_of_tries_of_user"), 'tries', '');
 
         $this->addColumn($this->lng->txt("unfinished_passes"), 'unfinished', '');
@@ -215,7 +217,9 @@ class ilTestParticipantsTableGUI extends ilTable2GUI
         $this->tpl->setVariable("LOGIN", $a_set['login']);
         $this->tpl->setVariable("FULLNAME", $a_set['name']);
 
-        $this->tpl->setVariable("STARTED", ($a_set['started']) ? $this->buildOkIcon() : '');
+        // fau: showStartingTime - show actual starting time instead of icon in participants list
+        $this->tpl->setVariable("STARTED", ($a_set['started_time']) ? ilDatePresentation::formatDate(new ilDateTime($a_set['started_time'], IL_CAL_DATETIME)) : '');
+        // fau.
         $this->tpl->setVariable("TRIES", $this->fetchTriesValue($a_set));
         $this->tpl->setVariable("UNFINISHED_PASSES", $this->buildUnfinishedPassesStatusString($a_set));
 
