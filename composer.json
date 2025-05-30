@@ -296,10 +296,10 @@
 		},
 		"guzzlehttp/guzzle" : {
 			"source": "https://github.com/guzzle/guzzle",
-			"used_version": "v7.6.1",
+			"used_version": "v6.3.3",
 			"added_by": "Stefan Schneider <schneider@hrz.uni-marburg.de>",
 			"wrapped_by": "",
-			"last_update": "2023-05-16",
+			"last_update": "2019-07-23",
 			"last_update_by": "Stefan Schneider <schneider@hrz.uni-marburg.de>",
 			"approved-by": "Jour Fixe",
 			"approved-date": "YYYY-MM-DD"
