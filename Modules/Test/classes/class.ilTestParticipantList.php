@@ -259,6 +259,9 @@ class ilTestParticipantList implements Iterator
     {
         $rows = [];
 
+        // fau: showStartingTime - get starting time of all participants
+        $times = $this->getTestObj()->getStartingTimeOfParticipants();
+        // fau.
         foreach ($this as $participant) {
             $row = [
                 'usr_id' => $participant->getUsrId(),
@@ -269,6 +272,9 @@ class ilTestParticipantList implements Iterator
                 'lastname' => $participant->getLastname(),
                 'name' => $this->buildFullname($participant),
                 'started' => ($participant->getActiveId() > 0) ? 1 : 0,
+// fau: showStartingTime - add started_time to the data row of a participant
+                'started_time' => $times[$participant->getActiveId()],
+// fau.
                 'unfinished' => $participant->hasUnfinishedPasses() ? 1 : 0,
                 'finished' => $participant->isTestFinished() ? 1 : 0,
                 'access' => $this->lookupLastAccess($participant->getActiveId()),
@@ -308,7 +314,11 @@ class ilTestParticipantList implements Iterator
                 $row['percent_result'] = $participant->getScoring()->getPercentResult();
                 $row['passed_status'] = $participant->getScoring()->isPassed();
                 $row['final_mark'] = $participant->getScoring()->getFinalMark();
-                $row['scored_pass_finished_timestamp'] = ilObjTest::lookupLastTestPassAccess(
+                // fau: testParticipantsResultsTable - add the max pass
+                $row['max_pass'] = ilObjTest::_getMaxPass($participant->getActiveId());
+                // fau.
+
+                $row['last_scored_access'] = ilObjTest::lookupLastTestPassAccess(
                     $participant->getActiveId(),
                     $participant->getScoring()->getScoredPass()
                 );

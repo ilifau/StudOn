@@ -745,8 +745,8 @@ class HardRestrictions
     protected function checkModule(Module $module, Person $person, Term $term) : bool
     {
         // don't allow modules which are not valid any more (first option - no longer available in select dropdown)
-        // if(!$module->getIsValid())
-        //      return false;
+        if(!$module->getIsValid())
+            return false;
 
         // prepare a clone of the module that gets the check result
         // only the failed restrictions will be added
