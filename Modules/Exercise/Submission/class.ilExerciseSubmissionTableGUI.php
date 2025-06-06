@@ -295,7 +295,11 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                 if (!$ilAccess->checkAccessOfUser($a_user_id, "read", "", $this->exc->getRefId()) &&
                     is_array($info = $ilAccess->getInfo())) {
                     $this->tpl->setCurrentBlock('access_warning');
-                    $this->tpl->setVariable('PARENT_ACCESS', $info[0]["text"]);
+                    // fau: fix error when $info has no elements
+                    if(!empty($info) && array_key_exists(0, $info)) {
+                        $this->tpl->setVariable('PARENT_ACCESS', $info[0]["text"]);
+                    }
+                    // fau.
                     $this->tpl->parseCurrentBlock();
                 }
             } else {
@@ -322,7 +326,11 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                     if (!$ilAccess->checkAccessOfUser($team_member_id, "read", "", $this->exc->getRefId()) &&
                         is_array($info = $ilAccess->getInfo())) {
                         $this->tpl->setCurrentBlock('team_access_warning');
-                        $this->tpl->setVariable('TEAM_PARENT_ACCESS', $info[0]["text"]);
+                    // fau: fix error when $info has no elements
+                    if(!empty($info) && array_key_exists(0, $info)) {
+                        $this->tpl->setVariable('PARENT_ACCESS', $info[0]["text"]);
+                    }
+                    // fau.
                         $this->tpl->parseCurrentBlock();
                     }
 
