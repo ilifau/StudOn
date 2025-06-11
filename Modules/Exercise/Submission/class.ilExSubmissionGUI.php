@@ -25,6 +25,9 @@ use ILIAS\Exercise\GUIRequest;
  * @author Alexander Killing <killing@leifos.de>
  * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTeamGUI, ilExSubmissionFileGUI
  * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTextGUI, ilExSubmissionObjectGUI
+ * fau: exAssTest - add GUI to control structure
+ * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTestResultGUI, ilExSubmissionTestResultTeamGUI
+ * fau.
  * @ilCtrl_Calls ilExSubmissionGUI: ilExPeerReviewGUI, ilExSubmissionTestResultGUI
  */
 class ilExSubmissionGUI
@@ -175,6 +178,20 @@ class ilExSubmissionGUI
                 $peer_gui = new ilExPeerReviewGUI($this->assignment, $this->submission);
                 $this->ctrl->forwardCommand($peer_gui);
                 break;
+
+            // fau: exAssTest - forward to submission gui
+            case "ilexsubmissiontestresultgui":
+                include_once "Modules/Exercise/classes/class.ilExSubmissionTestResultGUI.php";
+                $gui = new ilExSubmissionTestResultGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
+
+            case "ilexsubmissiontestresultteamgui":
+                include_once "Modules/Exercise/classes/class.ilExSubmissionTestResultTeamGUI.php";
+                $gui = new ilExSubmissionTestResultTeamGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
+            // fau.
 
             default:
 

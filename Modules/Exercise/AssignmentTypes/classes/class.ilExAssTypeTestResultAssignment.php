@@ -171,6 +171,8 @@ class ilExAssTypeTestResultAssignment extends ActiveRecord
             $status = new ilExAssignmentMemberStatus($this->getId(), $user_id);
             $status->setStatus($results['passed'] ? 'passed' : 'failed');
             $status->setReturned(1);
+            $status->setSent(false); // needed to trigger sent time update
+            $status->setSent(true);
             $status->setMark($results['reached_points']);
             $status->setComment(implode(' | ', $comments));
             $status->setNotice($results['mark_official']);

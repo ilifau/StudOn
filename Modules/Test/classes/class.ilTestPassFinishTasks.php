@@ -58,7 +58,7 @@ class ilTestPassFinishTasks
         $this->updateLearningProgressAfterPassFinishedIsWritten();
 
         // fau: exAssTest - call update of exercise submissions
-        // $this->updateExerciseSubmissionsAfterPassFinishedIsWritten();
+        $this->updateExerciseSubmissionsAfterPassFinishedIsWritten();
         // fau.        
     }
 
@@ -85,12 +85,11 @@ class ilTestPassFinishTasks
     /**
      * Update exercise submissions assigned to this test
      */
-   /* public function updateExerciseSubmissionsAfterPassFinishedIsWritten(): void
+   public function updateExerciseSubmissionsAfterPassFinishedIsWritten(): void
     {
-        require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
-        $test = new ilObjTest($this->obj_id, false);
+        $test = new ilObjTest($this->obj_test->getId(), false);
         ilExAssTypeTestResultAssignment::updateAssignments($test, $this->test_session);
-    }*/
+    }
     // fau.    
 
     protected function getCaller()

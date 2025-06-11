@@ -59,24 +59,29 @@ abstract class ilExSubmissionTestResultBaseGUI extends ilExSubmissionBaseGUI
     {
         global $DIC;
         $lng = $DIC->language();
-        $gui = $DIC->exercise()->internal()->gui();        
 
         // no team yet
         if ($a_submission->getSubmissionType() == ilExSubmission::TYPE_TEST_RESULT_TEAM && $a_submission->hasNoTeamYet()) {
             $a_info->addProperty($lng->txt("exc_ass_type_test_open_label"), $lng->txt("exc_ass_type_test_open_no_team"));
         }
         else {
-            $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($a_submission->getAssignment()->getId());
+            $assTest =  $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($a_submission->getAssignment()->getId());
 
             if ($a_submission->canSubmit() && !empty($assTest->getTestRefId())) {
-                #$link = $gui->link($lng->txt("exc_ass_type_test_open"), $DIC->ctrl()->getLinkTargetByClass(['ilexsubmissiongui',strtolower(get_called_class())], 'callTest'), false);
-                #$a_info->addProperty($lng->txt("exc_ass_type_test_open_label"), '<p>' .$lng->txt("exc_ass_type_test_open_info"). '</p>'. $link->render());
+                $button = ilLinkButton::getInstance();
+                $button->setPrimary(true);
+                $button->setCaption("exc_ass_type_test_open");
+                $button->setTarget('_blank');
+                $button->setUrl($DIC->ctrl()->getLinkTargetByClass(['ilexsubmissiongui',strtolower(get_called_class())], 'callTest'));
+                $a_info->addProperty($lng->txt("exc_ass_type_test_open_label"), '<p>' .$lng->txt("exc_ass_type_test_open_info"). '</p>'. $button->render());
             }
         }
 
         if (ilObjExerciseAccess::checkExtendedGradingAccess($a_submission->getAssignment()->getExerciseId(), false)) {
-            #$link = $gui->link($lng->txt("exc_ass_type_test_sync"), $DIC->ctrl()->getLinkTargetByClass(['ilexsubmissiongui',strtolower(get_called_class())], 'syncTestResults'), false);
-            #$a_info->addProperty($lng->txt("exc_ass_type_test_sync_label"),  $link->render() .'<p class="info">' .$lng->txt("exc_ass_type_test_sync_info"). '</p>');
+            $button = ilLinkButton::getInstance();
+            $button->setCaption("exc_ass_type_test_sync");
+            $button->setUrl($DIC->ctrl()->getLinkTargetByClass(['ilexsubmissiongui',strtolower(get_called_class())], 'syncTestResults'));
+            $a_info->addProperty($lng->txt("exc_ass_type_test_sync_label"),  $button->render() .'<p class="info">' .$lng->txt("exc_ass_type_test_sync_info"). '</p>');
         }
     }
 
@@ -108,7 +113,6 @@ abstract class ilExSubmissionTestResultBaseGUI extends ilExSubmissionBaseGUI
      */
     public function syncTestResults() {
         if (!ilObjExerciseAccess::checkExtendedGradingAccess($this->assignment->getExerciseId(), false)) {
-            //ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
             $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);            
 
             $this->returnToParentObject();
@@ -141,8 +145,7 @@ abstract class ilExSubmissionTestResultBaseGUI extends ilExSubmissionBaseGUI
                 $synced[$affected_id] = $tstamp;
             }
         }
-
-        //ilUtil::sendSuccess($this->lng->txt('exc_ass_type_test_synced'), true);
+        
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("exc_ass_type_test_synced"), true);                    
         
         $this->returnToParentObject();

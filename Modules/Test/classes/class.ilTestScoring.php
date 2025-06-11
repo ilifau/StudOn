@@ -91,24 +91,33 @@ class ilTestScoring
     /**
      * @return array<int, ilTestEvaluationUserData>
      */
-    public function recalculateSolutions(): array
+    // fau: provideRecalc - add parameter for selected users, also update the learning progress
+    // fau: exAssTest - update the result of connected exercise assignments
+    public function recalculateSolutions($a_active_ids = null): array
     {
         $factory = new ilTestEvaluationFactory($this->db, $this->test);
         $this->participants = $factory->getCorrectionsEvaluationData()->getParticipants();
 
         foreach ($this->participants as $active_id => $userdata) {
+            if (is_array($a_active_ids) && !in_array($active_id, $a_active_ids)) {
+                continue;
+            }
             if (is_object($userdata) && is_array($userdata->getPasses())) {
                 $this->recalculatePasses($userdata, $active_id);
-                ilLPStatusWrapper::_updateStatus(
-                    $this->test->getId(),
-                    $userdata->getUserID()
-                );
+                assQuestion::_updateTestResultCache($active_id);
+
+                /** @var  ilTestEvaluationUserData $userdata */
+                include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
+                ilLPStatusWrapper::_updateStatus($this->test->getId(), $userdata->getUserID());
+
+                require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
+                ilExAssTypeTestResultAssignment::updateAssignments($this->test, $factory->getSession($active_id));
             }
         }
 
         return $this->participants;
     }
-
+    // fau.
     public function recalculateSolution(int $active_id, int $pass): void
     {
         $user_data = $this
