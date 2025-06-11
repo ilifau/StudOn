@@ -12534,7 +12534,7 @@ td.il_ScormTableValue {
     border-style: inset;
     border-width: 1px;
     display: inline-block;
-    width: 400px;
+    width: auto; /* fau: showGapSolutionComplete */
   }
   .horizontal {
     width: 80px;
@@ -12751,6 +12751,7 @@ div.ilc_Question {
   padding-right: 5px;
   border-style: inset;
   border-width: 1px;
+  width: auto; /* fau: showGapSolutionComplete */
 }
 
 td.middle {
