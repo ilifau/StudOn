@@ -32,6 +32,14 @@ class ilTestQuestionFilterLabelTranslater
     private array $taxonomyTreeLabels = [];
     private array $taxonomyNodeLabels = [];
 
+    // fau: taxDesc - class variable for node descriptions
+    private $taxonomyNodeDescriptions = [];
+    // fau.
+
+    // fau: taxDesc - class variable for parent relation
+    private $taxononyTreeParentIds = [];
+    // fau.
+
     private array $typeLabels = [];
 
     /**
@@ -83,23 +91,31 @@ class ilTestQuestionFilterLabelTranslater
 
     private function loadTaxonomyTreeLabels()
     {
-        $IN_taxIds = $this->db->in('obj_id', $this->taxonomyTreeIds, false, 'integer');
+        // fau: taxDesc - load tax node descriptions and parents for full taxonomies
+
+        $IN_tree_ids = $this->db->in('tax_tree.tax_tree_id', array_unique($this->taxonomyTreeIds), false, 'integer');
+        $IN_nodeIds = $this->db->in('tax_node.obj_id', $this->taxonomyNodeIds, false, 'integer');
 
         $query = "
-			SELECT		obj_id tax_tree_id,
-						title tax_tree_title
+					SELECT		tax_node.obj_id tax_node_id,
+								tax_node.title tax_node_title,
+								tax_node.description tax_node_description,
+								tax_tree.parent tax_tree_parent
 
-			FROM		object_data
+					FROM		tax_node
+					INNER JOIN  tax_tree ON (tax_tree.tax_tree_id = tax_node.tax_id AND tax_tree.child = tax_node.obj_id)
 
-			WHERE		$IN_taxIds
-			AND			type = %s
-		";
+					WHERE		$IN_tree_ids
+				";
 
-        $res = $this->db->queryF($query, array('text'), array('tax'));
+        $res = $this->db->query($query);
 
         while ($row = $this->db->fetchAssoc($res)) {
-            $this->taxonomyTreeLabels[ $row['tax_tree_id'] ] = $row['tax_tree_title'];
+            $this->taxonomyNodeLabels[ $row['tax_node_id'] ] = $row['tax_node_title'];
+            $this->taxonomyNodeDescriptions[ $row['tax_node_id'] ] = $row['tax_node_description'];
+            $this->taxononyTreeParentIds[ $row['tax_node_id'] ] = $row['tax_tree_parent'];
         }
+        // fau.
     }
 
     private function loadTaxonomyNodeLabels()
@@ -136,8 +152,23 @@ class ilTestQuestionFilterLabelTranslater
 
     public function getTaxonomyNodeLabel($taxonomyTreeId)
     {
-        return $this->taxonomyNodeLabels[$taxonomyTreeId];
+        // fau: taxDesc - get the path as taxonomy label
+        $nodeId = $taxonomyTreeId;
+        $path = [];
+        while ($parentId = $this->taxononyTreeParentIds[$nodeId]) {
+            $path[] = $this->taxonomyNodeLabels[$nodeId];
+            $nodeId = $parentId;
+        }
+        return implode(' / ', array_reverse($path));
+        // fau.
     }
+
+    // fau: taxDesc - get node description
+    public function getTaxonomyNodeDescription($taxonomyTreeId)
+    {
+        return $this->taxonomyNodeDescriptions[$taxonomyTreeId];
+    }
+    // fau.    
 
     public function loadLabelsFromTaxonomyIds($taxonomyIds)
     {
@@ -159,9 +190,21 @@ class ilTestQuestionFilterLabelTranslater
         $labels = array();
         foreach ($filter as $taxId => $nodeIds) {
             $nodes = array();
-            foreach ($nodeIds as $nodeId) {
-                $nodes[] = $this->getTaxonomyNodeLabel($nodeId);
+            foreach ($nodeIds as $nodeId)  {
+                // fau: taxDesc - add taxonomy  description tooltip
+                $description = $this->getTaxonomyNodeDescription($nodeId);
+
+                if (!empty($description)) {
+                    require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+                    ilTooltipGUI::addTooltip('ilTaxonomyNode' . $nodeId, $description);
+
+                    $nodes[] = '<span id="ilTaxonomyNode' . $nodeId . '">' . $this->getTaxonomyNodeLabel($nodeId)
+                        . ' <small><span class="glyphicon glyphicon-info-sign"></span></small></span>';
+                } else {
+                    $nodes[] = $this->getTaxonomyNodeLabel($nodeId);
+                }
             }
+            // fau.
             $labels[] .= $this->getTaxonomyTreeLabel($taxId) . $taxNodeDelimiter . implode($nodesDelimiter, $nodes);
         }
         return implode($filterDelimiter, $labels);
