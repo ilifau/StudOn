@@ -331,4 +331,20 @@ class ilObjRootFolderGUI extends ilContainerGUI
     {
         ilObjectGUI::_gotoRepositoryRoot(true);
     }
+
+    // fau: fauServive - provide missing framesetObject function
+    /**
+    * output tree frameset
+    */
+    
+    public function framesetObject()
+    {
+        $lng = $this->lng;
+        $ilCtrl = $this->ctrl;
+        $ilAccess = $this->access;
+        
+        $ilCtrl->redirectByClass("ilrepositorygui", "");
+    }
+    // fau.
+
 }
