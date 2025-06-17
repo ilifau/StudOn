@@ -226,8 +226,8 @@ class ilTaxonomyDataSet extends ilDataSet
 // fau: taxDesc - import description
                         $node->setDescription($a_rec["Description"]);
 // fau.
-                        $node->setOrderNr($a_rec["OrderNr"]);
-                        $node->setTaxonomyId($tax_id);
+                        $node->setOrderNr((int) $a_rec["OrderNr"]);
+                        $node->setTaxonomyId((int) $tax_id);
                         $node->create();
                         ilTaxonomyNode::putInTree((int) $tax_id, $node, (int) $parent, 0, (int) $a_rec["OrderNr"]);
                         $a_mapping->addMapping(
