@@ -91,6 +91,27 @@ class ilTestQuestionFilterLabelTranslater
 
     private function loadTaxonomyTreeLabels()
     {
+        $IN_taxIds = $this->db->in('obj_id', $this->taxonomyTreeIds, false, 'integer');
+
+        $query = "
+			SELECT		obj_id tax_tree_id,
+						title tax_tree_title
+
+			FROM		object_data
+
+			WHERE		$IN_taxIds
+			AND			type = %s
+		";
+
+        $res = $this->db->queryF($query, array('text'), array('tax'));
+
+        while ($row = $this->db->fetchAssoc($res)) {
+            $this->taxonomyTreeLabels[ $row['tax_tree_id'] ] = $row['tax_tree_title'];
+        }
+    }
+
+    private function loadTaxonomyNodeLabels()
+    {
         // fau: taxDesc - load tax node descriptions and parents for full taxonomies
 
         $IN_tree_ids = $this->db->in('tax_tree.tax_tree_id', array_unique($this->taxonomyTreeIds), false, 'integer');
@@ -116,26 +137,6 @@ class ilTestQuestionFilterLabelTranslater
             $this->taxononyTreeParentIds[ $row['tax_node_id'] ] = $row['tax_tree_parent'];
         }
         // fau.
-    }
-
-    private function loadTaxonomyNodeLabels()
-    {
-        $IN_nodeIds = $this->db->in('tax_node.obj_id', $this->taxonomyNodeIds, false, 'integer');
-
-        $query = "
-					SELECT		tax_node.obj_id tax_node_id,
-								tax_node.title tax_node_title
-
-					FROM		tax_node
-
-					WHERE		$IN_nodeIds
-				";
-
-        $res = $this->db->query($query);
-
-        while ($row = $this->db->fetchAssoc($res)) {
-            $this->taxonomyNodeLabels[ $row['tax_node_id'] ] = $row['tax_node_title'];
-        }
     }
 
     private function loadTypeLabels()

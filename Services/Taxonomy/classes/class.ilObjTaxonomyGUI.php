@@ -598,7 +598,7 @@ class ilObjTaxonomyGUI extends ilObject2GUI
         }
         // fau.
         
-        ilUtil::sendSuccess($lng->txt("msg_obj_modified"));
+        $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"));
         $ilCtrl->redirect($this, "listNodes");
     }
 
