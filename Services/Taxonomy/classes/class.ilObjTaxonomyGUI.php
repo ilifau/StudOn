@@ -372,6 +372,12 @@ class ilObjTaxonomyGUI extends ilObject2GUI
         $ti = new ilTextInputGUI($this->lng->txt("title"), "title");
         $form->addItem($ti);
 
+        // fau: taxDesc - add form element for description
+        // description
+        $de = new ilTextAreaInputGUI($this->lng->txt("description"), "description");
+        $form->addItem($de);
+        // fau.
+
         // order nr
         $tax = $this->getCurrentTaxonomy();
         $or = null;
@@ -420,6 +426,9 @@ class ilObjTaxonomyGUI extends ilObject2GUI
             // create node
             $node = new ilTaxonomyNode();
             $node->setTitle($form->getInput("title"));
+            // fau: taxDesc - save description from form
+            $node->setDescription($form->getInput("description"));
+            // fau.
 
             $tax = $this->getCurrentTaxonomy();
             $order_nr = "";
@@ -461,6 +470,9 @@ class ilObjTaxonomyGUI extends ilObject2GUI
             // create node
             $node = new ilTaxonomyNode($this->current_tax_node);
             $node->setTitle($form->getInput("title"));
+            // fau: taxDesc - update description from form
+            $node->setDescription($form->getInput("description"));
+            // fau.
 
             $tax = $this->getCurrentTaxonomy();
             if ($tax->getSortingMode() == ilObjTaxonomy::SORT_MANUAL) {
@@ -573,6 +585,19 @@ class ilObjTaxonomyGUI extends ilObject2GUI
                 );
             }
         }
+
+        // fau: taxDesc - save description
+        // save descriptions
+        if (is_array($_POST["description"])) {
+            foreach ($_POST["description"] as $k => $v) {
+                ilTaxonomyNode::writeDescription(
+                    (int) $k,
+                    ilUtil::stripSlashes($v)
+                );
+            }
+        }
+        // fau.
+        
         $this->tpl->setOnScreenMessage('success', $lng->txt("msg_obj_modified"));
         $ilCtrl->redirect($this, "listNodes");
     }

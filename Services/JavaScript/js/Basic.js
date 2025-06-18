@@ -638,7 +638,13 @@ il.UICore = {
   // load content from wrapper element into right panel
   loadWrapperToRightPanel(wrapper_id) {
     this.right_panel_wrapper = wrapper_id;
-    $(`#${wrapper_id}`).children().appendTo('#ilRightPanel');
+		$("#" + wrapper_id).children().appendTo('#ilRightPanel');
+
+// fau: taxDesc - enable tooltips for nodes in taxonomy selector
+        if (il.Tooltip) {
+            il.Tooltip.init();
+        }
+// fau.
   },
 
   // move the right panel content back to wrapper
