@@ -218,6 +218,7 @@ class ilObjGlossaryGUI extends ilObjectGUI
                 break;
 
             case "ilobjtaxonomygui":
+                $this->checkPermission("write");
                 $this->getTemplate();
                 $this->setTabs();
                 $this->setLocator();
@@ -234,6 +235,7 @@ class ilObjGlossaryGUI extends ilObjectGUI
                 break;
 
             case "ilexportgui":
+                $this->checkPermission("write");
                 $this->getTemplate();
                 $this->setTabs();
                 $this->tabs->activateTab("export");
@@ -263,6 +265,7 @@ class ilObjGlossaryGUI extends ilObjectGUI
                 break;
 
             case "ilglossaryforeigntermcollectorgui":
+                $this->checkPermission("write");
                 $this->ctrl->setReturn($this, "");
                 $this->getTemplate();
                 $this->setTabs();
@@ -296,6 +299,13 @@ class ilObjGlossaryGUI extends ilObjectGUI
                                 $cmd = "redrawHeaderActionObject";
                             }
                         }
+                    }
+                    if ($cmd === 'redrawHeaderActionObject') {
+                        $this->checkPermission('read');
+                    } elseif ($cmd === 'showInfoScreen') {
+                        $this->checkPermission('visible');
+                    } elseif (!$this->getCreationMode()) {
+                        $this->checkPermission('write');
                     }
                     $ret = $this->$cmd();
                 }
