@@ -273,7 +273,7 @@ class ilTestParticipantList implements Iterator
                 'name' => $this->buildFullname($participant),
                 'started' => ($participant->getActiveId() > 0) ? 1 : 0,
 // fau: showStartingTime - add started_time to the data row of a participant
-                'started_time' => $times[$participant->getActiveId()],
+                'started_time' => $times[$participant->getActiveId()] ?? '',
 // fau.
                 'unfinished' => $participant->hasUnfinishedPasses() ? 1 : 0,
                 'finished' => $participant->isTestFinished() ? 1 : 0,
