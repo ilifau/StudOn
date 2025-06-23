@@ -132,6 +132,12 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
     public function fillRow(array $a_set): void
     {
         ilDatePresentation::setUseRelativeDates(false);
+        // fau: questionPrint - add page break
+        if ($_POST['pagebreak']) {
+            $this->tpl->touchBlock('pagebreak');
+            $this->tpl->setVariable("STYLE_PAGEBREAK", "page-break-before:always");
+        }
+        // fau.
         $this->tpl->setVariable("TITLE", ilLegacyFormElementsUtil::prepareFormOutput($a_set['title']));
         foreach ($this->getSelectedColumns() as $c) {
             if (strcmp($c, 'description') == 0) {
@@ -168,12 +174,18 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
                 $this->tpl->parseCurrentBlock();
             }
         }
-        if ((strcmp($this->outputmode, "detailed_output_solutions") == 0) || (strcmp($this->outputmode, "detailed_output_printview") == 0)) {
+
+        // fau: questionPrint - optionally show the scoring
+        $scoring = (strcmp($this->outputmode, "detailed_output_scoring") == 0);
+        if ((strcmp($this->outputmode, "detailed_output_solutions") == 0) 
+        || (strcmp($this->outputmode, "detailed_output_printview") == 0) 
+        || (strcmp($this->outputmode, "detailed_output_scoring") == 0)) {
             $this->tpl->setCurrentBlock("overview_row_detail");
             $question_gui = assQuestion::instantiateQuestionGUI($a_set["question_id"]);
             $question_gui->setRenderPurpose(assQuestionGUI::RENDER_PURPOSE_PREVIEW);
-            if (strcmp($this->outputmode, "detailed_output_solutions") == 0) {
-                $solutionoutput = $question_gui->getSolutionOutput(0, null, false, false, false, false, true, false);
+            if (strcmp($this->outputmode, "detailed_output_solutions") == 0 
+             or strcmp($this->outputmode, "detailed_output_scoring") == 0) {
+                $solutionoutput = $question_gui->getSolutionOutput(0, null, false, $scoring, false, false, true, false);
                 if (strlen($solutionoutput) == 0) {
                     $solutionoutput = $question_gui->getPreview();
                 }
@@ -185,6 +197,7 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
             }
             $this->tpl->parseCurrentBlock();
         }
+        // fau.
         ilDatePresentation::setUseRelativeDates(true);
     }
 

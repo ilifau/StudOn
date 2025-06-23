@@ -1383,10 +1383,17 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         $output_link_detailed = $this->ctrl->getLinkTarget($this, 'print');
         $this->ctrl->setParameter($this, 'output', 'detailed_output_printview');
         $output_link_printview = $this->ctrl->getLinkTarget($this, 'print');
-
+        // fau: questionPrint - add option for detailed view with scoring
+        $this->ctrl->setParameter($this, 'output', 'detailed_output_scoring');
+        $output_link_scoring = $this->ctrl->getLinkTarget($this, 'print');
+        // fau. 
+        
         $mode = $this->ui_factory->dropdown()->standard([
             $this->ui_factory->button()->shy($this->lng->txt('overview'), $output_link),
-            $this->ui_factory->button()->shy($this->lng->txt('detailed_output_solutions'), $output_link_detailed),
+            $this->ui_factory->button()->shy($this->lng->txt('detailed_output_solutions'), $output_link_detailed),            
+            // fau: questionPrint - add option for detailed view with scoring
+            $this->ui_factory->button()->shy($this->lng->txt('detailed_output_scoring'), $output_link_scoring),
+            // fau.
             $this->ui_factory->button()->shy($this->lng->txt('detailed_output_printview'), $output_link_printview)
         ])->withLabel($this->lng->txt('output_mode'));
 

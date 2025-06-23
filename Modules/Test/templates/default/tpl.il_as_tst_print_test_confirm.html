@@ -2,6 +2,9 @@
 <div id="dontprint">
 	<p>
         <a href="javascript:window.print();" class="btn btn-default">{BUTTON_PRINT}</a>
+		<!-- fau: questionPrint - add button to print with page breaks -->
+        <a href="{HREF_PRINT_PAGEBREAKS}" class="btn btn-default">{BUTTON_PRINT_PAGEBREAKS}</a>
+        <!-- fau. -->
     </p>
 </div>
 <!-- END navigation_buttons -->
@@ -10,7 +13,17 @@
 <p>{TXT_PRINT_DATE}:&nbsp;{VALUE_PRINT_DATE}&nbsp;&nbsp;{TXT_MAXIMUM_POINTS}:&nbsp;{VALUE_MAXIMUM_POINTS}</p>
 <!-- BEGIN question -->
 <div class="questionPrintview clearfix">
+<!-- fau: questionPrint - add page break style -->
+<div class="questionPrintview clearfix" style="{STYLE_PRINT_PAGEBREAKS}">
+<!-- fau. -->	
 	<div class="questionTitle">{QUESTION_HEADER}<!-- BEGIN id_info_block --> [{TXT_QUESTION_ID}: {QUESTION_ID}]<!-- END id_info_block --></div>
 	{SOLUTION_OUTPUT}
 </div>
 <!-- END question -->
+<!-- fau: questionPrint - add print script -->
+<!-- BEGIN print -->
+<script language="JavaScript">
+	window.print();
+</script>
+<!-- END print -->
+<!-- fau. -->

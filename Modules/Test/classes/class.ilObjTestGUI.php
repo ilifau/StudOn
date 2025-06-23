@@ -2414,6 +2414,11 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
 
         foreach ($this->object->questions as $question) {
             $template->setCurrentBlock("question");
+            // fau: questionPrint - handle page breaks
+            if ($_GET['break'] == 'questions') {
+                $template->setVariable("STYLE_PRINT_PAGEBREAKS", "page-break-before:always;");
+            }
+            // fau.
             $question_gui = $this->object->createQuestionGUI("", $question);
             $question_gui->setPresentationContext(assQuestionGUI::PRESENTATION_CONTEXT_TEST);
 
@@ -2430,6 +2435,12 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
             $counter++;
             $max_points += $question_gui->object->getMaximumPoints();
         }
+
+        // fau: questionPrint - handle page breaks
+        if ($_GET['break']) {
+            $template->touchBlock('print');
+        }
+        // fau.        
 
         $template->setVariable("TITLE", strip_tags($this->object->getTitle(), ilObjectGUI::ALLOWED_TAGS_IN_TITLE_AND_DESCRIPTION));
         $template->setVariable("PRINT_TEST", ilLegacyFormElementsUtil::prepareFormOutput($this->lng->txt("tst_print")));
@@ -2506,7 +2517,18 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
         $template->setVariable("VALUE_MAXIMUM_POINTS", ilLegacyFormElementsUtil::prepareFormOutput($max_points));
 
         $template->setCurrentBlock("navigation_buttons");
-        $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
+
+            // fau: questionPrint - add page breaks button
+            $this->ctrl->setParameter($this, "break", "none");
+            $template->setVariable("HREF_PRINT", $this->ctrl->getLinkTarget($this, "print"));
+            $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
+
+            $this->ctrl->setParameter($this, "break", "questions");
+            $template->setVariable("HREF_PRINT_PAGEBREAKS", $this->ctrl->getLinkTarget($this, "print"));
+            $template->setVariable("BUTTON_PRINT_PAGEBREAKS", $this->lng->txt("print_pagebreaks"));
+            $this->ctrl->setParameter($this, "break", "");
+            // fau.
+
         $template->parseCurrentBlock();
 
         $this->tpl->setVariable("PRINT_CONTENT", $template->get());
