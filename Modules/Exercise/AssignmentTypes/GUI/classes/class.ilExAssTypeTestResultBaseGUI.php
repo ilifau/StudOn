@@ -85,6 +85,7 @@ abstract class ilExAssTypeTestResultBaseGUI implements ilExAssignmentTypeGUIInte
 
     public function buildSubmissionPropertiesAndActions(\ILIAS\Exercise\Assignment\PropertyAndActionBuilderUI $builder): void
     {
+        
         global $DIC;
 
         $service = $DIC->exercise()->internal();
@@ -104,34 +105,33 @@ abstract class ilExAssTypeTestResultBaseGUI implements ilExAssignmentTypeGUIInte
                 $builder::SEC_SUBMISSION,
                 $button
             );
-            $builder->addView(
-                "submission",
-                $lng->txt("exc_submission"),
+        } 
+
+
+        if(ilObjExerciseAccess::checkExtendedGradingAccess($submission->getAssignment()->getExerciseId(), false)) {
+            $url = $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class,
+                                                        "ilExSubmissionGUI",
+                                                        "ilExSubmissionTestResultGUI"
+            ), "syncTestResults");
+            $link = $f->button()->standard(
+                $this->lng->txt("exc_ass_type_test_sync"),
                 $url
             );
-        } else {
-            if ($submission->hasSubmitted()) {
-                $url = $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class,
-                                                           "ilExSubmissionGUI",
-                                                           "ilExSubmissionTestResultGUI"
-                ), "callTest");
-                $link = $f->link()->standard(
-                    $this->lng->txt("exc_ass_type_test_sync_info"),
-                    $url
-                );
-                $builder->addAction(
-                    $builder::SEC_SUBMISSION,
-                    $link
-                );
-                $builder->addView(
-                    "submission",
-                    $lng->txt("exc_submission"),
-                    $url
-                );
-            }
-        }
-
-        //$a_info->addProperty($lng->txt("exc_files_returned_text"), $files_str);
-
+            $builder->addAction(
+                $builder::SEC_SUBMISSION,
+                $link
+            );
+            #exc_ass_type_test_sync_info -> info text für test-sync        
+            $builder->addProperty(
+                $builder::SEC_SUBMISSION,
+                $lng->txt("exc_ass_type_test_sync_label"),
+                $lng->txt("")
+            );                
+            $builder->addProperty(
+                $builder::SEC_SUBMISSION,
+                $lng->txt("exc_ass_type_test_sync"),
+                $lng->txt("exc_ass_type_test_sync_info")
+            );        
+        }        
     }    
 }

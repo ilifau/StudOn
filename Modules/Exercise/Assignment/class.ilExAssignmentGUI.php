@@ -465,21 +465,23 @@ class ilExAssignmentGUI
         else {
             ilExSubmissionGUI::getOverviewContent($a_info, $submission, $this->exc);
 
+            $isSubmTypeTestResults = $submission->getSubmissionType() === \ilExSubmission::TYPE_TEST_RESULT || 
+                                     $submission->getSubmissionType() === \ilExSubmission::TYPE_TEST_RESULT_TEAM;
             $last_sub = null;
-            // fau: excAssTest
-            if ($submission->hasSubmitted() && $submission->getSubmissionType() !== \ilExSubmission::TYPE_TEST_RESULT) {
-                $last_sub = $submission->getLastSubmission();
+            // fau: exAssTest
+            if ($submission->hasSubmitted() && !$isSubmTypeTestResults) {
+                $last_sub = $submission->getLastSubmission();           
                 if ($last_sub) {
                     $last_sub = ilDatePresentation::formatDate(new ilDateTime($last_sub, IL_CAL_DATETIME));
                     $a_info->addProperty($lng->txt("exc_last_submission"), $last_sub);
                 }
             }
-            elseif($submission->getSubmissionType() === \ilExSubmission::TYPE_TEST_RESULT && $a_ass->getMemberStatus($ilUser->getId())->getReturned())
+            elseif($isSubmTypeTestResults && $a_ass->getMemberStatus($ilUser->getId())->getReturned())
             {
-                $last_sub = $submission->getLastSubmission();
+                $last_sub = $a_ass->getMemberStatus($ilUser->getId())->getSentTime();
                 if ($last_sub) {
                     $last_sub = ilDatePresentation::formatDate(new ilDateTime($last_sub, IL_CAL_DATETIME));
-                    $a_info->addProperty($lng->txt("exc_last_submission"), $a_ass->getMemberStatus($ilUser->getId())->getSentTime());
+                    $a_info->addProperty($lng->txt("exc_last_submission"), $last_sub);
                 }
             } //fau.
         }

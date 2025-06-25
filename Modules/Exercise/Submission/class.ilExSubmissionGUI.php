@@ -108,10 +108,6 @@ class ilExSubmissionGUI
         $cmd = $ilCtrl->getCmd("listPublicSubmissions");
 
         switch ($class) {
-            case "ilexsubmissiontestresultgui":
-                $gui = new ilExSubmissionTestResultGUI($this->exercise, $this->submission);
-                $ilCtrl->forwardCommand($gui);
-                break;
             case "ilexsubmissionteamgui":
                 // team gui has no base gui - see we have to handle tabs here
 

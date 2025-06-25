@@ -65,7 +65,7 @@ abstract class ilExSubmissionTestResultBaseGUI extends ilExSubmissionBaseGUI
             $a_info->addProperty($lng->txt("exc_ass_type_test_open_label"), $lng->txt("exc_ass_type_test_open_no_team"));
         }
         else {
-            $assTest =  $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($a_submission->getAssignment()->getId());
+            $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($a_submission->getAssignment()->getId());
 
             if ($a_submission->canSubmit() && !empty($assTest->getTestRefId())) {
                 $button = ilLinkButton::getInstance();
@@ -112,15 +112,18 @@ abstract class ilExSubmissionTestResultBaseGUI extends ilExSubmissionBaseGUI
      * Synchronize the test results of all participants
      */
     public function syncTestResults() {
+        
+        global $DIC;
+
         if (!ilObjExerciseAccess::checkExtendedGradingAccess($this->assignment->getExerciseId(), false)) {
             $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);            
 
             $this->returnToParentObject();
         }
 
-        $assTest =  $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($this->assignment->getId());
+        $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($this->assignment->getId());
         $testObj = new ilObjTest($assTest->getTestRefId());
-        $sessionFactory = new ilTestSessionFactory($testObj);
+        $sessionFactory = new ilTestSessionFactory($testObj, $DIC->database(), $DIC->user());
 
         $partList = $testObj->getActiveParticipantList();
         $members = new ilExerciseMembers($this->exercise);
