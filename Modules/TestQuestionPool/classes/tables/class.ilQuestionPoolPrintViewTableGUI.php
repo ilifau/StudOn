@@ -30,6 +30,10 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
 
     protected $totalPoints;
 
+    // fau: questionPrint - add page break option
+    private $pagebreak = false;
+    // fau. 
+
     public function __construct($a_parent_obj, $a_parent_cmd, $outputmode = '')
     {
         $this->setId("qpl_print");
@@ -133,7 +137,7 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
     {
         ilDatePresentation::setUseRelativeDates(false);
         // fau: questionPrint - add page break
-        if ($_POST['pagebreak']) {
+        if ($this->getPageBreak()) {
             $this->tpl->touchBlock('pagebreak');
             $this->tpl->setVariable("STYLE_PAGEBREAK", "page-break-before:always");
         }
@@ -223,4 +227,16 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
     {
         $this->totalPoints = $totalPoints;
     }
+
+    // fau: questionPrint - add page break option
+    public function getPageBreak(): bool
+    {
+        return $this->pagebreak;
+    }
+
+    public function setPageBreak(bool $pagebreak): void
+    {
+        $this->pagebreak = $pagebreak;
+    }    
+    // fau.
 }

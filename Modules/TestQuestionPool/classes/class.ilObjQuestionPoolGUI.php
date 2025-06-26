@@ -73,6 +73,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
     protected URLBuilder $url_builder;
     protected URLBuilderToken $action_parameter_token;
     protected URLBuilderToken $row_id_token;
+    // fau: questionPrint - add page break option
+    protected ?ilQuestionPoolPrintViewTableGUI $printViewTableGUI = null;
+    // fau.
 
     public function __construct()
     {
@@ -125,6 +128,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         $this->row_id_token = $row_id_token;
 
         $this->notes_service->gui()->initJavascript();
+        // fau: questionPrint - add page break option
+        $this->printViewTableGUI = new ilQuestionPoolPrintViewTableGUI($this, 'print', $this->qplrequest->raw('output') ?? '');
+        // fau.
     }
 
     protected function getQueryParamString(string $param): ?string
@@ -1399,7 +1405,13 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
 
         $output = $this->qplrequest->raw('output') ?? '';
 
-        $table_gui = new ilQuestionPoolPrintViewTableGUI($this, 'print', $output);
+        // fau: questionPrint - add page break option
+        $table_gui = $this->printViewTableGUI;
+        $toggle_pagebreak = $this->ui_factory->button()->toggle($this->lng->txt("print_pagebreaks"), $this->ctrl->getFormActionByClass(self::class, "pageBreakOn"), $this->ctrl->getFormActionByClass(self::class, "pageBreakOff") , $table_gui->getPageBreak())
+            ->withAriaLabel($this->lng->txt("print_pagebreaks"));
+        $this->toolbar->addComponent($mode);
+        $this->toolbar->addComponent($toggle_pagebreak);
+        // fau.
         $data = $this->object->getPrintviewQuestions();
         $totalPoints = 0;
         foreach ($data as $d) {
@@ -1408,7 +1420,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         $table_gui->setTotalPoints($totalPoints);
         $table_gui->initColumns();
         $table_gui->setData($data);
-        $this->tpl->setContent($this->ui_renderer->render($mode) . $table_gui->getHTML());
+        // fau: questionPrint - add page break option
+        $this->tpl->setContent($table_gui->getHTML());
+        // fau.
     }
 
     public function updateObject(): void
@@ -1958,4 +1972,19 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
             ->withRequest($this->request)
         ]);
     }
+
+    // fau: questionPrint - add page break option
+    private function pageBreakOnObject(): void
+    {
+        $this->printViewTableGUI->setPageBreak(true);
+        $this->printObject();
+        //$this->ctrl->redirect($this, 'print');
+    }
+
+    private function pageBreakOffObject(): void
+    {
+        $this->printViewTableGUI->setPageBreak(false);
+        $this->printObject();
+    }
+    // fau.
 }
