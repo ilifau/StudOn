@@ -2400,8 +2400,17 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
         $this->getTabsManager()->getQuestionsSubTabs();
         $template = new ilTemplate("tpl.il_as_tst_print_test_confirm.html", true, true, "Modules/Test");
 
-        $template->setCurrentBlock("navigation_buttons");
+        $template->setCurrentBlock("navigation_buttons");            
+        // fau: questionPrint - add page breaks button
+        $this->ctrl->setParameter($this, "break", "none");
+        $template->setVariable("HREF_PRINT", $this->ctrl->getLinkTarget($this, "print"));
         $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
+
+        $this->ctrl->setParameter($this, "break", "questions");
+        $template->setVariable("HREF_PRINT_PAGEBREAKS", $this->ctrl->getLinkTarget($this, "print"));
+        $template->setVariable("BUTTON_PRINT_PAGEBREAKS", $this->lng->txt("print_pagebreaks"));
+        //$this->ctrl->setParameter($this, "break", "");
+        // fau.
         $template->parseCurrentBlock();
 
         $this->tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_print.css", "Modules/Test"), "print");
@@ -2415,8 +2424,8 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
         foreach ($this->object->questions as $question) {
             $template->setCurrentBlock("question");
             // fau: questionPrint - handle page breaks
-            if ($_GET['break'] == 'questions') {
-                $template->setVariable("STYLE_PRINT_PAGEBREAKS", "page-break-before:always;");
+            if (isset($_GET['break']) && $_GET['break'] == 'questions') {
+                $template->setVariable("STYLE_PRINT_PAGEBREAKS", 'style="page-break-before:always;"');
             }
             // fau.
             $question_gui = $this->object->createQuestionGUI("", $question);
@@ -2437,7 +2446,7 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
         }
 
         // fau: questionPrint - handle page breaks
-        if ($_GET['break']) {
+        if (isset($_GET['break']) && ($_GET['break'] == 'questions')) {
             $template->touchBlock('print');
         }
         // fau.        
@@ -2518,16 +2527,15 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
 
         $template->setCurrentBlock("navigation_buttons");
 
-            // fau: questionPrint - add page breaks button
-            $this->ctrl->setParameter($this, "break", "none");
-            $template->setVariable("HREF_PRINT", $this->ctrl->getLinkTarget($this, "print"));
-            $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
+        // fau: questionPrint - add page breaks button
+        $this->ctrl->setParameter($this, "break", "none");
+        $template->setVariable("HREF_PRINT", $this->ctrl->getLinkTarget($this, "print"));
+        $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
 
-            $this->ctrl->setParameter($this, "break", "questions");
-            $template->setVariable("HREF_PRINT_PAGEBREAKS", $this->ctrl->getLinkTarget($this, "print"));
-            $template->setVariable("BUTTON_PRINT_PAGEBREAKS", $this->lng->txt("print_pagebreaks"));
-            $this->ctrl->setParameter($this, "break", "");
-            // fau.
+        $this->ctrl->setParameter($this, "break", "questions");
+        $template->setVariable("HREF_PRINT_PAGEBREAKS", $this->ctrl->getLinkTarget($this, "print"));
+        $template->setVariable("BUTTON_PRINT_PAGEBREAKS", $this->lng->txt("print_pagebreaks"));
+        // fau.
 
         $template->parseCurrentBlock();
 
