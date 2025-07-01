@@ -523,7 +523,7 @@ class ilParticipantsTestResultsGUI
         foreach ($participantData->getActiveIds() as $activeId) {
             $cgui->addItem(
                 "chbUser[]",
-                $activeId,
+                (string) $activeId,
                 $participantData->getFormatedFullnameByActiveId($activeId),
                 ilUtil::getImagePath("icon_usr.svg"),
                 $DIC->language()->txt("usr")
