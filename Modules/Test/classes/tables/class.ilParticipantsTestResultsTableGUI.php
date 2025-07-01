@@ -147,6 +147,9 @@ class ilParticipantsTestResultsTableGUI extends ilTable2GUI
         }
 
         if ($this->isManageResultsCommandsEnabled()) {
+            // fau: sendSimpleResults - add command to send simple results to participants
+            $this->addMultiCommand('sendSimpleResultsToParticipants', $this->lng->txt('send_simple_results_to_participants'));
+            // fau.            
             $this->addMultiCommand('deleteSingleUserResults', $this->lng->txt('delete_user_data'));
         }
     }
