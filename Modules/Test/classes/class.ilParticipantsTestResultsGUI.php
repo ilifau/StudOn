@@ -494,4 +494,199 @@ class ilParticipantsTestResultsGUI
 
         return $template;
     }
+
+    // fau: sendSimpleResults - new function confirmSendSimpleResultsToParticipantsCmd()
+    /**
+     * Show confirmation screen to send the results messages to the participants as e-mail
+     */
+    public function sendSimpleResultsToParticipantsCmd()
+    {
+        global $DIC;
+        
+        if (!isset($_POST["chbUser"]) || !is_array($_POST["chbUser"]) || !count($_POST["chbUser"])) {
+            $this->main_tpl->setOnScreenMessage('info',    $DIC->language()->txt("select_one_user"), true);
+            $DIC->ctrl()->redirect($this, self::CMD_SHOW_PARTICIPANTS);
+        }
+        
+        $cgui = new ilConfirmationGUI();
+        $cgui->setFormAction($DIC->ctrl()->getFormAction($this));
+        $cgui->setHeaderText($DIC->language()->txt('send_simple_results_to_participants_confirm'));
+        $cgui->setCancel($DIC->language()->txt('cancel'), self::CMD_SHOW_PARTICIPANTS);
+        $cgui->setConfirm($DIC->language()->txt('confirm'), 'confirmedSendSimpleResultsToParticipants');
+        
+        $accessFilter = $this->participant_access_filter_factory->getManageParticipantsUserFilter($this->getTestObj()->getRefId());
+        $participantData = new ilTestParticipantData($DIC->database(), $DIC->language());
+        $participantData->setParticipantAccessFilter($accessFilter);
+        $participantData->setActiveIdsFilter((array) $_POST["chbUser"]);
+        $participantData->load($this->getTestObj()->getTestId());
+        
+        foreach ($participantData->getActiveIds() as $activeId) {
+            $cgui->addItem(
+                "chbUser[]",
+                (string) $activeId,
+                $participantData->getFormatedFullnameByActiveId($activeId),
+                ilUtil::getImagePath("icon_usr.svg"),
+                $DIC->language()->txt("usr")
+            );
+        }
+        
+        $DIC->ui()->mainTemplate()->setContent($cgui->getHTML());
+    }
+    // fau.
+
+    // fau: sendSimpleResults - new function confirmedSendSimpleResultsToParticipantsCmd()
+    /**
+     * Actually send the result messages to the participants (confirmation is done)
+     * The e-mails are not sent directly but distributes via SOAP function of a confighred installation
+     * This allows to send the e-mails from the exam instance and distribute them in the lms instance
+     * Students will get the e-mail in ilias if haven't configured a forwarding
+     */
+    public function confirmedSendSimpleResultsToParticipantsCmd()
+    {
+        global $DIC;
+        
+        if (!isset($_POST["chbUser"]) || !is_array($_POST["chbUser"]) || !count($_POST["chbUser"])) {
+            $this->main_tpl->setOnScreenMessage('info',$DIC->language()->txt("select_one_user"), true);
+            $DIC->ctrl()->redirect($this, self::CMD_SHOW_PARTICIPANTS);
+        }
+        
+        // init remote notification
+        if (ilCust::get('tst_notify_remote')) {
+            include_once 'Services/WebServices/SOAP/classes/class.ilRemoteIliasClient.php';
+            $soap_client = ilRemoteIliasClient::_getInstance();
+            if (!$soap_sid = $soap_client->login()) {
+                $this->main_tpl->setOnScreenMessage('info',$DIC->language()->txt("ilias_remote_soap_login_failed"), true);
+                $DIC->ctrl()->redirect($this, self::CMD_SHOW_PARTICIPANTS);
+            }
+        }
+        
+        $accessFilter = $this->participant_access_filter_factory->getManageParticipantsUserFilter($this->getTestObj()->getRefId());
+        $participantData = new ilTestParticipantData($DIC->database(), $DIC->language());
+        $participantData->setParticipantAccessFilter($accessFilter);
+        $participantData->setActiveIdsFilter((array) $_POST["chbUser"]);
+        $participantData->load($this->getTestObj()->getTestId());
+        
+        $sent = array();
+        $failed = array();
+        foreach ($participantData->getActiveIds() as $active_id) {
+            $user_id = $participantData->getUserIdByActiveId($active_id);
+            $uname = $participantData->getFormatedFullnameByActiveId($active_id);
+            $user = new ilObjUser($user_id);
+            
+            $gradingMessageBuilder = new ilTestGradingMessageBuilder($DIC->language(), $this->main_tpl, $this->getTestObj());
+            $gradingMessageBuilder->setActiveId($active_id);
+            $gradingMessageBuilder->buildMessage();
+            $message = $gradingMessageBuilder->buildGradingMarkMsg();
+            
+            // create a new factory because the session is a singleton in it
+            $factory = new ilTestSessionFactory($this->getTestObj(), $this->db, $this->user);
+            $session = $factory->getSession($active_id);
+            $timestamp = $session->getSubmittedTimestamp();
+            if (!$timestamp) {
+                $timestamp = $this->getTestObj()->_getLastAccess($active_id);
+            }
+            $time = strftime("%d.%m.%Y %H:%M", strtotime($timestamp));
+            
+            $subject = sprintf(
+                str_replace('\n', "\n", $DIC->language()->txt('send_simple_results_subject')),
+                $this->getTestObj()->getTitle(),
+                $time
+            );
+            
+            // make breaks to newlines
+            $message = str_replace('<br />', "\n", $message);
+            $message = preg_replace('/<a.*href="([^"]*)".*>(.*)<\/a>/', '$2 ($1)', $message);
+            $message = strip_tags($message);
+            $message = htmlspecialchars_decode($message, ENT_QUOTES);
+            
+            $body = sprintf(
+                str_replace('\n', "\n", $DIC->language()->txt('send_simple_results_body')),
+                $message,
+                $uname,
+                $user->getMatriculation(),
+                $time
+            );
+            
+            if (ilCust::get('tst_notify_remote')) {
+                // send as mail in remote platform
+                
+                $success = $soap_client->call('sendUserMail', array(
+                    $soap_sid,				// session id
+                    $user->getLogin(),      // to
+                    "",                     // cc
+                    "",                     // bcc
+                    "anonymous",    		// sender
+                    $subject,               // subject
+                    $body,                  // message
+                    "",                     // attachments (imploded with ',')
+                    "system",               // type (imploded with ',')
+                    0                       // use placholders
+                ));
+                
+                if (!$success) {
+                    if ($user->getEmail()) {
+                        $success = $soap_client->call('sendUserMail', array(
+                            $soap_sid,				// session id
+                            $user->getEmail(),      // to
+                            "",                     // cc
+                            "",                     // bcc
+                            "anonymous",    		// sender
+                            $subject,               // subject
+                            $body,                  // message
+                            "",                     // attachments (imploded with ',')
+                            "system",               // type (imploded with ',')
+                            0                       // use placholders
+                        ));
+                    }
+                }
+                
+                if ($success) {
+                    $sent[] = $uname;
+                } else {
+                    $failed[] = $uname;
+                }
+            } else {
+                // send as mail in local platform
+                $mail = new ilMail(ANONYMOUS_USER_ID);
+                $mail_data = new MailDeliveryData(
+                    $user->getLogin(),		// to
+                    "", 					// cc
+                    "", 					// bcc
+                    $subject, 				// subject
+                    $body, 				    // message
+                    array(),				// attachments 
+                    //explode(',', $type), 	// type
+                    false                   // use placeholders
+                );
+                
+                if ($error) {
+                    $failed[] = $uname;
+                } else {
+                    $sent[] = $uname;
+                }
+            }
+        }
+        
+        // close remote notification
+        if (ilCust::get('tst_notify_remote')) {
+            $soap_client->logout();
+        }
+        
+        if (count($failed)) {
+            $this->main_tpl->setOnScreenMessage('failure', sprintf(
+                $DIC->language()->txt("send_simple_results_to_participants_failed"),
+                implode(', ', $failed)
+            ), true);
+        }
+        if (count($sent)) {
+            $this->main_tpl->setOnScreenMessage('failure', sprintf(
+                $DIC->language()->txt("send_simple_results_to_participants_success"),
+                implode(', ', $sent)
+            ), true);
+        }
+        
+        $DIC->ctrl()->redirect($this, self::CMD_SHOW_PARTICIPANTS);
+    }
+    // fau.
+        
 }
