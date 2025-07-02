@@ -919,6 +919,14 @@ class ilExAssignment
         // delete resource collections and resources
         $this->domain->assignment()->instructionFiles($this->getId())
             ->deleteCollection();
+
+        // fau: exAssTest - cleanup test relationship
+        if ($this->getType() == self::TYPE_TEST_RESULT || $this->getType() == self::TYPE_TEST_RESULT_TEAM)
+        {
+            $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($this->getId());
+            $assTest->delete();
+        }
+        // fau.    
     }
 
 

@@ -43,11 +43,8 @@ class ilExAssTypeTestResultTeamGUI extends ilExAssTypeTestResultBaseGUI implemen
     /**
      * @inheritdoc
      */
-    public function getOverviewContent(ilInfoScreenGUI $a_info, ilExSubmission $a_submission): void
-    {
-        parent::getOverviewContent($a_info, $a_submission);
-    }
-    public function buildSubmissionPropertiesAndActions(\ILIAS\Exercise\Assignment\PropertyAndActionBuilderUI $builder): void
-    {
+    public function getOverviewContent(ilInfoScreenGUI $a_info, ilExSubmission $a_submission): void {}
+    public function buildSubmissionPropertiesAndActions(\ILIAS\Exercise\Assignment\PropertyAndActionBuilderUI $builder): void {
+        parent::buildSubmissionPropertiesAndActions($builder);
     }
 }

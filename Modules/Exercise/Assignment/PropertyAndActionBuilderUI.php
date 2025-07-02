@@ -375,7 +375,7 @@ class PropertyAndActionBuilderUI
         }
 
         // submission property
-        if ($this->submission->hasSubmitted()) {
+        if ($this->submission->hasSubmitted() && !$this->isSubmissionTypeTestResult()) { 
             $last_sub = $this->submission->getLastSubmission();
             if ($last_sub) {
                 $last_sub = \ilDatePresentation::formatDate(new \ilDateTime($last_sub, IL_CAL_DATETIME));
@@ -385,7 +385,17 @@ class PropertyAndActionBuilderUI
                     $last_sub
                 );
             }
-        } else {
+        } 
+        // fau: excAssTest
+        elseif($this->isSubmissionTypeTestResult() && $this->ex_ass->getMemberStatus($this->user_id)->getReturned())
+        {
+            $this->setHeadProperty(
+                self::PROP_SUBMISSION,
+                $this->lng->txt("exc_last_submission"),
+                \ilDatePresentation::formatDate(new \ilDateTime($this->ex_ass->getMemberStatus($this->user_id)->getSentTime(), IL_CAL_DATETIME))
+            );
+        } //fau.
+        else {
             $this->setHeadProperty(
                 self::PROP_SUBMISSION,
                 $this->lng->txt("exc_last_submission"),
@@ -709,8 +719,9 @@ class PropertyAndActionBuilderUI
         $type_gui->setExercise($this->exc);
         $type_gui->buildSubmissionPropertiesAndActions($this);
 
+        // fau: exAssTest
         $last_sub = null;
-        if ($this->submission->hasSubmitted()) {
+        if ($this->submission->hasSubmitted() && !$this->isSubmissionTypeTestResult()) {
             $last_sub = $this->submission->getLastSubmission();
             if ($last_sub) {
                 $last_sub = \ilDatePresentation::formatDate(new \ilDateTime($last_sub, IL_CAL_DATETIME));
@@ -720,7 +731,16 @@ class PropertyAndActionBuilderUI
                     $last_sub
                 );
             }
-        } else {
+        }
+        elseif($this->isSubmissionTypeTestResult() && $this->ex_ass->getMemberStatus($this->user_id)->getReturned())
+        {      
+            $this->addProperty(
+                self::SEC_SUBMISSION,
+                $this->lng->txt("exc_last_submission"),
+                \ilDatePresentation::formatDate(new \ilDateTime($this->ex_ass->getMemberStatus($this->user_id)->getSentTime(), IL_CAL_DATETIME))
+            );
+        } //fau.
+        else {
             $this->addProperty(
                 self::SEC_SUBMISSION,
                 $this->lng->txt("exc_last_submission"),
@@ -925,4 +945,14 @@ class PropertyAndActionBuilderUI
                 );
         }
     }
+
+    // fau: exAssTest - check if submission is of type test result
+    protected function isSubmissionTypeTestResult(): bool
+    {
+        return in_array(
+            $this->submission->getSubmissionType(),
+            [\ilExSubmission::TYPE_TEST_RESULT, \ilExSubmission::TYPE_TEST_RESULT_TEAM]
+        );
+    }
+    // fau.
 }
