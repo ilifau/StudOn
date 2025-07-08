@@ -378,6 +378,8 @@ class ilObjLinkResourceGUI extends ilObject2GUI implements ilLinkCheckerGUIRowHa
 
         $ilCtrl = $DIC['ilCtrl'];
 
+        $this->checkPermission('write');
+
         $this->initFormLink(self::LINK_MOD_EDIT);
         $valid = $this->form->checkInput();
         if ($this->checkLinkInput(self::LINK_MOD_EDIT, $valid, $this->object->getId(), (int) $_REQUEST['link_id'])) {
