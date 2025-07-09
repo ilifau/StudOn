@@ -849,6 +849,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
      */
     public function saveAndAssignMaterialsObject()
     {
+        $this->checkPermission('manage_materials');
         $this->saveObject(false);
         
         $this->ctrl->setParameter($this, 'ref_id', $this->object->getRefId());
@@ -866,7 +867,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
     public function saveObject($a_redirect_on_success = true)
     {
         global $DIC;
-
+        $this->checkPermission('write');
         $ilErr = $DIC['ilErr'];
         $ilUser = $DIC['ilUser'];
         
@@ -1082,6 +1083,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
      */
     public function editObject()
     {
+        $this->checkPermission('write');
         $this->tabs_gui->setTabActive('settings');
         
         $this->initForm('edit');
@@ -1119,7 +1121,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
     public function updateObject() : bool
     {
         global $DIC;
-
+        $this->checkPermission('write');
         $ilErr = $DIC['ilErr'];
 
         $old_autofill = $this->object->hasWaitingListAutoFill();
@@ -1224,6 +1226,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
      */
     public function updateSessionTypeObject() : void
     {
+        $this->checkPermission('write');
         ilDidacticTemplateUtils::switchTemplate(
             $this->object->getRefId(),
             $this->http->request()->getParsedBody()['sess_type']
@@ -1266,6 +1269,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
      */
     public function confirmDeleteFilesObject()
     {
+        $this->checkPermission('write');
         $this->tabs_gui->setTabActive('settings');
 
         if (!count($_POST['file_id'])) {
@@ -1307,6 +1311,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
      */
     public function deleteFilesObject()
     {
+        $this->checkPermission('write');
         if (!count($_POST['file_id'])) {
             ilUtil::sendFailure($this->lng->txt('select_one'));
             $this->editObject();
@@ -1363,7 +1368,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
     public function materialsObject()
     {
         global $DIC;
-
+        $this->checkPermission('manage_materials');
         $tree = $DIC['tree'];
         $objDefinition = $DIC['objDefinition'];
 
@@ -1434,6 +1439,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
      */
     public function removeMaterialsObject()
     {
+        $this->checkPermission('manage_materials');
         $items_checked = is_array($_POST['items']) ? $_POST['items'] : array();
 
         $this->event_items = new ilEventItems($this->object->getId());
@@ -1450,6 +1456,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
      */
     public function saveMaterialsObject()
     {
+        $this->checkPermission('manage_materials');
         include_once './Modules/Session/classes/class.ilEventItems.php';
         
         $this->event_items = new ilEventItems($this->object->getId());
