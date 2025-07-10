@@ -18,16 +18,6 @@
 
 declare(strict_types=1);
 
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-
-class ilDclTextSelectionRecordFieldModel extends ilDclSelectionRecordFieldModel
+class ilDclException extends ilException
 {
-    /**
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
-     */
-    public function fillExcelExport(ilExcel $worksheet, int &$row, int &$col): void
-    {
-        $worksheet->setCell($row, $col, $this->getExportValue(), DataType::TYPE_STRING);
-        $col++;
-    }
 }
