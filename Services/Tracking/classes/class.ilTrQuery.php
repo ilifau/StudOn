@@ -461,6 +461,8 @@ class ilTrQuery
             if (!$a_check_agreement or in_array($row["usr_id"], $agreements)) {
                 $a_result["set"][$idx]['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $row["usr_id"]);
                 $a_result["set"][$idx]['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $row["usr_id"], $a_ref_id);
+                $a_result["set"][$idx]['memberships'] = $DIC->fau()->user()->getMembershipsAsText((int) $row["usr_id"]);
+                $a_result["set"][$idx]['waitinglists'] = $DIC->fau()->user()->getWaitingListsAsText((int) $row["usr_id"]);
             }
             // fau.
 
@@ -1414,6 +1416,8 @@ class ilTrQuery
                 // fau: userData - don't get the studydata and educations directly from user table
                         case "studydata":
                         case "educations":
+                        case "memberships":
+                        case "waitinglists":
                             break;
                         // fau.
 

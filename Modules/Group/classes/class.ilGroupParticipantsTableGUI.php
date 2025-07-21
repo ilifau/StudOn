@@ -221,7 +221,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                     break;
                 // fau.
 
-                // fau: userData - format table output of studydata and educations
+                // fau: userData - format table output of studydata, educations, memberships and waitinglists
                 case 'studydata':
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
@@ -239,6 +239,24 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                     ));
                     $this->tpl->parseCurrentBlock();
                     break;
+                case 'memberships':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['memberships']),
+                        $this->lng->txt('fau_memberships_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                case 'waitinglists':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['waitinglists']),
+                        $this->lng->txt('fau_waitinglists_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;                       
                 // fau.
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');

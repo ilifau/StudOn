@@ -287,7 +287,7 @@ class ilUserProfileDefaultFields
             'method' => 'getMatriculation',
             'group' => 'other'
         ],
-        // fau: userData - add studydata and educations to profile fields
+        // fau: userData - add studydata, educations, memberships and waitinglists to profile fields
         'studydata' => [
             'input' => 'studydata',
             'lists_hide' => false,
@@ -298,6 +298,16 @@ class ilUserProfileDefaultFields
             'lists_hide' => false,
             'group' => 'other',
             'method' => ''],
+        'memberships' => [
+            'input' => 'memberships',
+            'lists_hide' => false,
+            'group' => 'other',
+            'method' => ''],        
+        'waitinglists' => [
+            'input' => 'waitinglists',
+            'lists_hide' => false,
+            'group' => 'other',
+            'method' => ''],                  
         // fau.        
         'language' => [
             'input' => 'language',

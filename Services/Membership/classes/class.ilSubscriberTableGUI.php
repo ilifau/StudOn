@@ -191,8 +191,12 @@ class ilSubscriberTableGUI extends ilTable2GUI
                 // fau: userData - format table output of studydata and educations
                     case 'studydata':
                     case 'educations':
+                    case 'memberships':
+                    case 'waitinglists':
                         $a_set['studydata'] = nl2br($a_set['studydata']);
                         $a_set['educations'] = nl2br($a_set['educations']);
+                        $a_set['memberships'] = nl2br($a_set['memberships']);
+                        $a_set['waitinglists'] = nl2br($a_set['waitinglists']);                        
                     // fau.
                     // no break
                 default:

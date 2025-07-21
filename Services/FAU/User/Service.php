@@ -10,6 +10,8 @@ use FAU\User\Data\Study;
 use FAU\User\Data\Person;
 use FAU\Study\Data\Term;
 use FAU\User\Data\UserData;
+use ilUserUtil;
+use ilUtil;
 
 /**
  * Service for FAU user related data
@@ -210,6 +212,62 @@ class Service extends SubService
     }
 
     /**
+     * Get the memberships of a user as text
+     * A memberships is given as Title: Text
+     * Memberships are separated by newlines
+     * @param int $user_id
+     * @param int|null $ref_id  filter memberships from orgunits along the ilias path to the ref_id
+     * @return string
+     */
+    public function getMembershipsAsText(int $user_id, ?int $ref_id = null) : string
+    {        
+        $ref_id = $this->dic->fau()->org()->repo()->getRefIdByOrgUnit('1011180000');
+        if(count($ref_id) > 1) {
+            return '';
+        }
+        $ref_id = (int) $ref_id[0];
+        
+        $currentUserHasWriteAccess = $this->dic->access()->checkAccess('write', '', $ref_id);
+        
+        if (!$currentUserHasWriteAccess) {
+            return '';
+        }
+
+        foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id) as $container) 
+        {
+            $containers[$container->getObjId()] = $container;
+        }
+
+        $users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($containers));        
+        return $this->getContainersAsText($users_member[$user_id] ?? [], $ref_id);
+    }    
+
+    /**
+     * Get the waitinglists of a user as text
+     * An waitinglists is given as Title: Text
+     * waitinglists are separated by newlines
+     * @param int $user_id
+     * @param int|null $ref_id  filter waitinglists from orgunits along the ilias path to the ref_id
+     * @return string
+     */
+    public function getWaitingListsAsText(int $user_id, ?int $ref_id = null) : string
+    {
+        $ref_id = $this->dic->fau()->org()->repo()->getRefIdByOrgUnit('1011180000');
+        if(count($ref_id) > 1) {
+            return '';
+        }
+        $ref_id = (int) $ref_id[0];
+    
+        foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id) as $container) 
+        {
+            $containers[$container->getObjId()] = $container;
+        }
+
+        $users_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($containers));        
+        return $this->getContainersAsText($users_waiting[$user_id] ?? [], $ref_id);
+    }    
+
+    /**
      * Get a textual representation of a person's studies
      * Studies are separated by newlines
      */
@@ -374,4 +432,20 @@ class Service extends SubService
             $this->repo()->delete($member);
         }
     }
+
+    /**
+     * Get e text list of events
+     * @param array $obj_ids
+     * @return string
+     */
+    private function getContainersAsText(array $obj_ids, ?int $ref_id = null) : string
+    {
+        $containers = $this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id);
+        $texts = [];
+        foreach ($obj_ids as $obj_id) {
+            $container = $containers[$obj_id];
+            $texts[] = $container->getTitle() . ' [' . \ilLink::_getStaticLink($container->getRefId()) . ']';
+        }
+        return implode("\n", $texts);
+    }    
 }
