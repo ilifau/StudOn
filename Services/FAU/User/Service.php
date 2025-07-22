@@ -10,9 +10,10 @@ use FAU\User\Data\Study;
 use FAU\User\Data\Person;
 use FAU\Study\Data\Term;
 use FAU\User\Data\UserData;
+use ilObject;
 use ilUserUtil;
 use ilUtil;
-
+use ilObjRole;
 /**
  * Service for FAU user related data
  */
@@ -222,15 +223,14 @@ class Service extends SubService
     public function getMembershipsAsText(int $user_id, ?int $ref_id = null) : string
     {        
         $ref_id = $this->dic->fau()->org()->repo()->getRefIdByOrgUnit('1011180000');
-        if(count($ref_id) > 1) {
+        if(count($ref_id) != 1) {
             return '';
         }
         $ref_id = (int) $ref_id[0];
-        
-        $currentUserHasWriteAccess = $this->dic->access()->checkAccess('write', '', $ref_id);
-        
-        if (!$currentUserHasWriteAccess) {
-            return '';
+
+        if(!$this->dic->rbac()->review()->isAssignedToAtLeastOneGivenRole($this->dic->user()->getId(), $this->dic->fau()->tools()->settings()->getViewMembershipRoles())) 
+        {
+            return $this->dic->language()->txt('fau_not_allowed_to_view_memberships');
         }
 
         foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id) as $container) 
@@ -253,10 +253,15 @@ class Service extends SubService
     public function getWaitingListsAsText(int $user_id, ?int $ref_id = null) : string
     {
         $ref_id = $this->dic->fau()->org()->repo()->getRefIdByOrgUnit('1011180000');
-        if(count($ref_id) > 1) {
+        if(count($ref_id) != 1) {
             return '';
         }
         $ref_id = (int) $ref_id[0];
+
+        if(!$this->dic->rbac()->review()->isAssignedToAtLeastOneGivenRole($this->dic->user()->getId(), $this->dic->fau()->tools()->settings()->getViewWaitinglistRoles())) 
+        {
+            return $this->dic->language()->txt('fau_not_allowed_to_view_waitinglists');
+        }
     
         foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id) as $container) 
         {

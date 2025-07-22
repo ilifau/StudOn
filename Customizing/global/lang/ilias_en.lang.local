@@ -553,6 +553,10 @@ exc#:#label_scored_pass#:#Evaluated test run:
 exc#:#label_started_pass#:#Most recently commenced test run:
 exc#:#label_time_transfer#:#Transferred results:
 exercise#:#exc_mark#:#Grade/points
+fau#:#memberships#:#Memberships
+fau#:#waitinglists#:#On waiting lists
+fau#:#fau_memberships_of#:#Memberships of
+fau#:#fau_waitinglists_of#:#Waitinglists of
 fau#:#educations#:#Formations
 fau#:#fau_educations#:#Formations
 fau#:#fau_educations_of#:#Formations of
@@ -855,6 +859,8 @@ fau#:#fau_send_members_success#:#The members have been made available for campo.
 fau#:#fau_send_members_exceptions#:#The following members cannot be entered in campo as they are not registered there:
 fau#:#fau_campo_close_modal#:#Close###
 fau#:#fau_module_expired#:#Module expired###
+fau#:#fau_not_allowed_to_view_memberships#:#You are not allowed to view memberships
+fau#:#fau_not_allowed_to_view_waitinglists#:#You are not allowed to view waitinglists
 grp#:#crs_grp_info_reg#:#You can only become a member in one of the following courses:
 grp#:#group_req_direct_studycond#:#Direct access (otherwise application for admission) for the following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Accepted into group "%s"
