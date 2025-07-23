@@ -217,7 +217,6 @@ class Settings
     public function getViewMembershipsWaitinglistsTerm() : Term
     {
         return $this->getCachedValue(self::VIEW_MEMBERHIPS_WAITINGLISTS_TERM, function() {
-            $term = $this->dic->fau()->study()->getCurrentTerm();
             return $term->fromString((string) ilCust::get(self::VIEW_MEMBERHIPS_WAITINGLISTS_TERM));
         });
     }     

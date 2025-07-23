@@ -277,7 +277,7 @@ class Service extends SubService
     
         if(!isset($this->coursesOrGroups))
         {
-            $this->coursesOrGroups = $this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id, $this->dic->fau()->study()->getCurrentTerm());
+            $this->coursesOrGroups = $this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id, $this->dic->fau()->tools()->settings()->getViewMembershipsWaitinglistsTerm());
             $this->containers = [];
             foreach ($this->coursesOrGroups as $container) 
             {
