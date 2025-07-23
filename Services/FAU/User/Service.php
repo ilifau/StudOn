@@ -20,6 +20,10 @@ use ilObjRole;
 class Service extends SubService
 {
     protected Repository $repository;
+    private ?array $coursesOrGroups = null;
+    private array $containers = [];
+    private ?array $users_member = null;
+    private ?array $users_waiting = null;
 
     /**
      * Get the repository for user data
@@ -233,13 +237,21 @@ class Service extends SubService
             return $this->dic->language()->txt('fau_not_allowed_to_view_memberships');
         }
 
-        foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id) as $container) 
+        if(!isset($this->coursesOrGroups))
         {
-            $containers[$container->getObjId()] = $container;
+            $this->coursesOrGroups = $this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id, $this->dic->fau()->tools()->settings()->getViewMembershipsWaitinglistsTerm());
+            $this->containers = [];
+            foreach ($this->coursesOrGroups as $container) 
+            {
+                $this->containers[$container->getObjId()] = $container;
+            }
+        }
+        if(!isset($this->users_member)) {
+            $this->users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($this->containers));   
         }
 
-        $users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($containers));        
-        return $this->getContainersAsText($users_member[$user_id] ?? [], $ref_id);
+             
+        return $this->getContainersAsText2( $this->users_member[$user_id] ?? [], $this->containers);
     }    
 
     /**
@@ -263,13 +275,20 @@ class Service extends SubService
             return $this->dic->language()->txt('fau_not_allowed_to_view_waitinglists');
         }
     
-        foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id) as $container) 
+        if(!isset($this->coursesOrGroups))
         {
-            $containers[$container->getObjId()] = $container;
+            $this->coursesOrGroups = $this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id, $this->dic->fau()->study()->getCurrentTerm());
+            $this->containers = [];
+            foreach ($this->coursesOrGroups as $container) 
+            {
+                $this->containers[$container->getObjId()] = $container;
+            }
+        }
+        if(!isset($this->users_waiting)) {
+            $this->users_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($this->containers));   
         }
 
-        $users_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($containers));        
-        return $this->getContainersAsText($users_waiting[$user_id] ?? [], $ref_id);
+        return $this->getContainersAsText2($this->users_waiting[$user_id] ?? [], $this->containers);
     }    
 
     /**
@@ -453,4 +472,19 @@ class Service extends SubService
         }
         return implode("\n", $texts);
     }    
+
+    /**
+     * Get e text list of events
+     * @param array $obj_ids
+     * @return string
+     */
+    private function getContainersAsText2(array $obj_ids, array $containers) : string
+    {
+        $texts = [];
+        foreach ($obj_ids as $obj_id) {
+            $container = $containers[$obj_id];
+            $texts[] = $container->getTitle() . ' [' . \ilLink::_getStaticLink($container->getRefId()) . ']';
+        }
+        return implode("\n", $texts);
+    }      
 }

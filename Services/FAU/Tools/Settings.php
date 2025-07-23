@@ -2,10 +2,12 @@
 
 namespace FAU\Tools;
 
+use Dom\Text;
 use ILIAS\DI\Container;
 use ilCust;
 use ilObjUser;
 use ilObject;
+use FAU\Study\Data\Term;
 
 class Settings
 {
@@ -20,6 +22,7 @@ class Settings
     const MANAGER_ROLE_TEMPLATE_ID = 'fau_manager_role_template_id';
     const VIEW_MEMBERSHIPS_ROLES = 'fau_view_memberships_roles';
     const VIEW_WAITINGLISTS_ROLES = 'fau_view_waitinglists_roles';
+    const VIEW_MEMBERHIPS_WAITINGLISTS_TERM = 'fau_view_memberships_waitinglists_term';
 
     protected Container $dic;
 
@@ -206,4 +209,16 @@ class Settings
             return $ids;
         });
     }      
+
+    /**
+     * Get the term for view memberships and roles
+     * @return Term
+     */
+    public function getViewMembershipsWaitinglistsTerm() : Term
+    {
+        return $this->getCachedValue(self::VIEW_MEMBERHIPS_WAITINGLISTS_TERM, function() {
+            $term = $this->dic->fau()->study()->getCurrentTerm();
+            return $term->fromString((string) ilCust::get(self::VIEW_MEMBERHIPS_WAITINGLISTS_TERM));
+        });
+    }     
 }
