@@ -428,6 +428,8 @@ class ilObjLinkResourceGUI extends ilObject2GUI
 
     public function updateLink(): void
     {
+        $this->checkPermission('write');
+
         $form = $this->initFormLink(self::LINK_MOD_EDIT);
         $valid = $form->checkInput();
         $link_id = 0;
