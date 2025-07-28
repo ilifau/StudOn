@@ -145,6 +145,16 @@ class Repository extends RecordRepo
             . " WHERE collected_exports > 0";
         return $this->getIntegerList($query, 'ilias_ref_id', $useCache);
     }
+
+      /**
+     * Get the ilias ref_ids of a orgunit
+     * @return int[]
+     */
+    public function getRefIdByOrgUnit(string $orgUnit, bool $useCache = true) : array
+    {
+        $query = "SELECT ilias_ref_id FROM fau_org_orgunits WHERE fauorg_nr = " . $this->db->quote($orgUnit, 'text');
+        return $this->getIntegerList($query, 'ilias_ref_id', $useCache);
+    }  
     
     /**
      * Save record data of an allowed type

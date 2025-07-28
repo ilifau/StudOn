@@ -295,13 +295,21 @@ class ilUserQuery
                 continue;
             }
 
-            // fau: userData - don't query for studydata and educations directly, add them later
+            // fau: userData - don't query for studydata, educations, memberships, waitinglists directly, add them later
             if ($field == 'studydata') {
                 $add_studydata = true;
                 continue;
             }
             if ($field == 'educations') {
                 $add_educations = true;
+                continue;
+            }            
+            if ($field == 'memberships') {
+                $add_memberships = true;
+                continue;
+            }
+            if ($field == 'waitinglists') {
+                $add_waitinglists = true;
                 continue;
             }
             // fau.
@@ -493,9 +501,11 @@ class ilUserQuery
                 }
                 break;
 
-            // fau: userData - don't order by studydata or educations
+            // fau: userData - don't order by studydata, educations, memberships or waitinglists
             case "studydata":
             case "educations":
+            case "memberships":
+            case "waitinglists":
                 break;
             // fau.
 
@@ -546,12 +556,18 @@ class ilUserQuery
         $result = [];
 
         while ($rec = $ilDB->fetchAssoc($set)) {
-            // fau: userData - optionally add the studydata and educations
+            // fau: userData - optionally add the studydata, educations, memberships and waitinglists
             if (isset($add_studydata) && $add_studydata) {
                 $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
             }
             if (isset($add_educations) && $add_educations) {
                 $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id'], $this->getEducationsRefId());
+            }
+            if (isset($add_memberships) && $add_memberships) {
+                $rec['memberships'] = $DIC->fau()->user()->getMembershipsAsText((int) $rec['usr_id']);
+            }
+            if (isset($add_waitinglists) && $add_waitinglists) {
+                $rec['waitinglists'] = $DIC->fau()->user()->getWaitingListsAsText((int) $rec['usr_id']);
             }
             // fau.            
             $result[] = $rec;

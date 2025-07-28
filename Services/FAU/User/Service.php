@@ -10,13 +10,20 @@ use FAU\User\Data\Study;
 use FAU\User\Data\Person;
 use FAU\Study\Data\Term;
 use FAU\User\Data\UserData;
-
+use ilObject;
+use ilUserUtil;
+use ilUtil;
+use ilObjRole;
 /**
  * Service for FAU user related data
  */
 class Service extends SubService
 {
     protected Repository $repository;
+    private ?array $coursesOrGroups = null;
+    private array $containers = [];
+    private ?array $users_member = null;
+    private ?array $users_waiting = null;
 
     /**
      * Get the repository for user data
@@ -210,6 +217,81 @@ class Service extends SubService
     }
 
     /**
+     * Get the memberships of a user as text
+     * A memberships is given as Title: Text
+     * Memberships are separated by newlines
+     * @param int $user_id
+     * @param int|null $ref_id  filter memberships from orgunits along the ilias path to the ref_id
+     * @return string
+     */
+    public function getMembershipsAsText(int $user_id, ?int $ref_id = null) : string
+    {        
+        $ref_id = $this->dic->fau()->org()->repo()->getRefIdByOrgUnit('1011180000');
+        if(count($ref_id) != 1) {
+            return '';
+        }
+        $ref_id = (int) $ref_id[0];
+
+        if(!$this->dic->rbac()->review()->isAssignedToAtLeastOneGivenRole($this->dic->user()->getId(), $this->dic->fau()->tools()->settings()->getViewMembershipRoles())) 
+        {
+            return $this->dic->language()->txt('fau_not_allowed_to_view_memberships');
+        }
+
+        if(!isset($this->coursesOrGroups))
+        {
+            $this->coursesOrGroups = $this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id, $this->dic->fau()->tools()->settings()->getViewMembershipsWaitinglistsTerm());
+            $this->containers = [];
+            foreach ($this->coursesOrGroups as $container) 
+            {
+                $this->containers[$container->getObjId()] = $container;
+            }
+        }
+        if(!isset($this->users_member)) {
+            $this->users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($this->containers));   
+        }
+
+             
+        return $this->getContainersAsText2( $this->users_member[$user_id] ?? [], $this->containers);
+    }    
+
+    /**
+     * Get the waitinglists of a user as text
+     * An waitinglists is given as Title: Text
+     * waitinglists are separated by newlines
+     * @param int $user_id
+     * @param int|null $ref_id  filter waitinglists from orgunits along the ilias path to the ref_id
+     * @return string
+     */
+    public function getWaitingListsAsText(int $user_id, ?int $ref_id = null) : string
+    {
+        $ref_id = $this->dic->fau()->org()->repo()->getRefIdByOrgUnit('1011180000');
+        if(count($ref_id) != 1) {
+            return '';
+        }
+        $ref_id = (int) $ref_id[0];
+
+        if(!$this->dic->rbac()->review()->isAssignedToAtLeastOneGivenRole($this->dic->user()->getId(), $this->dic->fau()->tools()->settings()->getViewWaitinglistRoles())) 
+        {
+            return $this->dic->language()->txt('fau_not_allowed_to_view_waitinglists');
+        }
+    
+        if(!isset($this->coursesOrGroups))
+        {
+            $this->coursesOrGroups = $this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id, $this->dic->fau()->tools()->settings()->getViewMembershipsWaitinglistsTerm());
+            $this->containers = [];
+            foreach ($this->coursesOrGroups as $container) 
+            {
+                $this->containers[$container->getObjId()] = $container;
+            }
+        }
+        if(!isset($this->users_waiting)) {
+            $this->users_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($this->containers));   
+        }
+
+        return $this->getContainersAsText2($this->users_waiting[$user_id] ?? [], $this->containers);
+    }    
+
+    /**
      * Get a textual representation of a person's studies
      * Studies are separated by newlines
      */
@@ -374,4 +456,35 @@ class Service extends SubService
             $this->repo()->delete($member);
         }
     }
+
+    /**
+     * Get e text list of events
+     * @param array $obj_ids
+     * @return string
+     */
+    private function getContainersAsText(array $obj_ids, ?int $ref_id = null) : string
+    {
+        $containers = $this->dic->fau()->ilias()->repo()->findCoursesOrGroups($ref_id);
+        $texts = [];
+        foreach ($obj_ids as $obj_id) {
+            $container = $containers[$obj_id];
+            $texts[] = $container->getTitle() . ' [' . \ilLink::_getStaticLink($container->getRefId()) . ']';
+        }
+        return implode("\n", $texts);
+    }    
+
+    /**
+     * Get e text list of events
+     * @param array $obj_ids
+     * @return string
+     */
+    private function getContainersAsText2(array $obj_ids, array $containers) : string
+    {
+        $texts = [];
+        foreach ($obj_ids as $obj_id) {
+            $container = $containers[$obj_id];
+            $texts[] = $container->getTitle() . ' [' . \ilLink::_getStaticLink($container->getRefId()) . ']';
+        }
+        return implode("\n", $texts);
+    }      
 }

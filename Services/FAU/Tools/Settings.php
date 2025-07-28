@@ -2,9 +2,12 @@
 
 namespace FAU\Tools;
 
+use Dom\Text;
 use ILIAS\DI\Container;
 use ilCust;
 use ilObjUser;
+use ilObject;
+use FAU\Study\Data\Term;
 
 class Settings
 {
@@ -17,6 +20,9 @@ class Settings
     const RESTRICT_CREATE_ORG_IDS = 'fau_restrict_create_org_ids';
     const AUTHOR_ROLE_TEMPLATE_ID = 'fau_author_role_template_id';
     const MANAGER_ROLE_TEMPLATE_ID = 'fau_manager_role_template_id';
+    const VIEW_MEMBERSHIPS_ROLES = 'fau_view_memberships_roles';
+    const VIEW_WAITINGLISTS_ROLES = 'fau_view_waitinglists_roles';
+    const VIEW_MEMBERHIPS_WAITINGLISTS_TERM = 'fau_view_memberships_waitinglists_term';
 
     protected Container $dic;
 
@@ -160,5 +166,59 @@ class Settings
         });
     }
 
+    /**
+     * Get the roles which are allowed to view memberships
+     * @return int[]
+     */
+    public function getViewMembershipRoles() : array
+    {
+        return $this->getCachedValue(self::VIEW_MEMBERSHIPS_ROLES, function() {
+            $ids = [];
+            foreach (explode(',', (string) ilCust::get(self::VIEW_MEMBERSHIPS_ROLES)) as $role) {
+                $role = trim($role);
+                if (!empty($role)) {       
+                    $role_ids = ilObject::_getIdsForTitle((string) trim($role), 'role');
+                    if($role_ids != []) 
+                    {
+                        $ids[] = $role_ids[0];
+                    }
+                }
+            }
+            return $ids;
+        });
+    }    
 
+    /**
+     * Get the roles which are allowed to view waitinglists
+     * @return int[]
+     */
+    public function getViewWaitinglistRoles() : array
+    {
+        return $this->getCachedValue(self::VIEW_WAITINGLISTS_ROLES, function() {
+            $ids = [];
+            foreach (explode(',', (string) ilCust::get(self::VIEW_WAITINGLISTS_ROLES)) as $role) {
+                $role = trim($role);
+                if (!empty($role)) {       
+                    $role_ids = ilObject::_getIdsForTitle((string) trim($role), 'role');
+                    if($role_ids != []) 
+                    {
+                        $ids[] = $role_ids[0];
+                    }
+                }
+            }
+            return $ids;
+        });
+    }      
+
+    /**
+     * Get the term for view memberships and roles
+     * @return Term
+     */
+    public function getViewMembershipsWaitinglistsTerm() : Term
+    {
+        return $this->getCachedValue(self::VIEW_MEMBERHIPS_WAITINGLISTS_TERM, function() {
+            $term =new Term(null, null, null);
+            return $term->fromString((string) ilCust::get(self::VIEW_MEMBERHIPS_WAITINGLISTS_TERM));
+        });
+    }     
 }
