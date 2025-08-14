@@ -1443,15 +1443,6 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
             ]
         );
 
-        // fau: samlAuth - do SAML logout when auth mode is Shibboleth
-        if ($used_external_auth_mode && (int) $this->user->getAuthMode(true) === ilAuthUtils::AUTH_SHIBBOLETH) {
-            $this->logger->info('Redirecting user to SAML logout script');
-            $this->ctrl->redirectToURL(
-                'saml.php?action=logout&logout_url=' . urlencode(ilUtil::_getHttpPath() . '/login.php')
-            );
-        }
-        // fau.
-
         // reset cookie
         ilUtil::setCookie("ilClientId", "");
 
