@@ -112,7 +112,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
             $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);
             $status->setAuthenticatedUserId($user->getId());
-            ilSession::set('used_external_auth', true);
+            ilSession::set('used_external_auth_mode', $this->getTriggerAuthMode());
             return true;
         } catch (\ilException $e) {
             $this->getLogger()->error($e->getMessage());
