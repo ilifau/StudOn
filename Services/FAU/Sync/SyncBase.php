@@ -157,7 +157,7 @@ abstract class SyncBase
     protected function info(?string $text)
     {
         if (!\ilContext::usesHTTP()) {
-            echo $text . "\n";
+            // echo $text . "\n";
         }
         $this->dic->logger()->fau()->info($text);
     }
