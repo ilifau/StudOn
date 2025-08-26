@@ -15,7 +15,9 @@ class StudOnCourse extends RecordData
         'attendee_maximum' => 'integer',
         'term_year' => 'integer',
         'term_type_id' => 'integer',
-        'studon_ref_id' => 'integer'
+        'studon_ref_id' => 'integer',
+        'reg_period' => 'text',
+        'tutors' => 'text'
     ];
 
     protected int $course_id;
@@ -23,13 +25,17 @@ class StudOnCourse extends RecordData
     protected int $term_year;
     protected int $term_type_id;
     protected ?int $studon_ref_id; 
+    protected ?string $reg_period;
+    protected ?string $tutors;
 
     public function __construct(
         int $course_id,
         ?int $attendee_maximum,
         int $term_year,
         int $term_type_id,
-        ?int $studon_ref_id
+        ?int $studon_ref_id,
+        ?string $reg_period,
+        ?string $tutors
     )
     {
         $this->course_id = $course_id;
@@ -37,11 +43,13 @@ class StudOnCourse extends RecordData
         $this->term_year = $term_year;
         $this->term_type_id = $term_type_id;
         $this->studon_ref_id = $studon_ref_id;
+        $this->reg_period = $reg_period;
+        $this->tutors = $tutors;
     }
 
     public static function model(): self
     {
-        return new self(0,0,0,0, NULL);
+        return new self(0,0,0,0, NULL, '', '');
     }
 
     /**
@@ -105,4 +113,42 @@ class StudOnCourse extends RecordData
         $clone->studon_ref_id = $ref_id;
         return $clone;
     }
+
+    /**
+     * @return string
+     */
+    public function getRegPeriod() : string
+    {
+        return $this->reg_period;
+    }    
+
+    /**
+     * @param string $reg_period
+     * @return StudOnCourse
+     */
+    public function withRegPeriod(string $reg_period): StudOnCourse
+    {
+        $clone = clone $this;
+        $clone->reg_period = $reg_period;
+        return $clone;
+    }    
+
+    /**
+     * @return string
+     */
+    public function getTutors() : string
+    {
+        return $this->tutors;
+    }    
+
+    /**
+     * @param string $tutors
+     * @return StudOnCourse
+     */
+    public function withTutors(string $tutors): StudOnCourse
+    {
+        $clone = clone $this;
+        $clone->tutors = $tutors;
+        return $clone;
+    }      
 }
