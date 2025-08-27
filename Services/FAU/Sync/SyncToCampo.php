@@ -93,12 +93,8 @@ class SyncToCampo extends SyncBase
             $obj_id = $study_course->getIliasObjId() ?? null;
             if($obj_id != null)
             {
-                $ref_ids = ilObject::_getAllReferences((int) $obj_id);
                 $ref_id = null;
-                if(isset($ref_ids) && count($ref_ids) == 1)
-                {
-                    $ref_id = end($ref_ids);      
-                }     
+                $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
                 $course = $course->withStudOnRefId($ref_id);
                 $this->staging->repo()->save($course);
             }
@@ -121,12 +117,11 @@ class SyncToCampo extends SyncBase
             if($obj_id != null)
             {
                 $obj_type = ilObject::_lookupType($obj_id);
-                $ref_ids = ilObject::_getAllReferences((int) $obj_id);
-                $ref_id = null;
-                if(isset($ref_ids) && count($ref_ids) == 1)
-                {
-                    $ref_id = end($ref_ids);      
-                }     
+                $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
+                
+                if ($ref_id == null)
+                    continue;
+
                 if ($obj_type == 'grp') 
                     $ref_id = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);
                 
@@ -167,15 +162,12 @@ class SyncToCampo extends SyncBase
             if($obj_id != null)
             {
                 $obj_type = ilObject::_lookupType($obj_id);
-                $ref_ids = ilObject::_getAllReferences((int) $obj_id);
-                $ref_id = null;
+                $ref_id = $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
                 $tutor_names = [];
                 $tutors = "";
 
-                if(isset($ref_ids) && count($ref_ids) == 1)
+                if($ref_id != null)
                 {
-                    $ref_id = end($ref_ids);   
-
                     $tutor_ids = [];
                     if ($obj_type == 'crs') 
                         $tutor_ids = ilParticipants::getInstance($ref_id)->getTutors();
