@@ -225,7 +225,7 @@ class Objects
         // set the data fields needed for getContainerInfo
         $info['reg_info_members'] = $members;
         $info['reg_info_subscribers'] = $waiting;
-        $info['reg_info_free_places'] = $free_places;
+        $info['reg_info_free_places'] = $this->refHasParallelGroups($ref_id) ? "" : $free_places;
         $info['reg_info_is_assigned'] = $partObj->isAssigned();
         
         // decide if info about free places should be shown in properties
@@ -250,8 +250,8 @@ class Objects
             if ($show_hidden_notice) {
                 $limits[] = $this->dic->language()->txt("mem_max_users_hidden");
             }
-            $limits[] = $lng->txt("mem_max_users") . $max_members;
-            $limits[] = $lng->txt("mem_free_places") . ': ' . $free_places;
+            $limits[] = $this->refHasParallelGroups($ref_id) ? "" : $lng->txt("mem_max_users") . $max_members;
+            $limits[] = $this->refHasParallelGroups($ref_id) ? "" : $lng->txt("mem_free_places") . ': ' . $free_places;
             if ($waiting > 0) {
                 $limits[] = $lng->txt("subscribers_or_waiting_list") . ': ' . (string) ($waiting);
             }
