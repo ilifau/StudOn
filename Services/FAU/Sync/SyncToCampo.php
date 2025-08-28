@@ -176,8 +176,9 @@ class SyncToCampo extends SyncBase
 
                     foreach($tutor_ids as $tutor_id)
                     {
-                        $user = new ilObjUser($tutor_id);
-                        $tutor_names[] = $user->getFirstname() . " " . $user->getLastname();
+                        $tutor_fullname = ilObjUser::_lookupName($tutor_id);
+                        if(!empty($tutor_fullname))                        
+                            $tutor_names[] = $tutor_fullname;
                     }
 
                     // Join array elements with comma
