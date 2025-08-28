@@ -90,6 +90,8 @@ class SyncToCampo extends SyncBase
         foreach($existing as $course)
         {
             $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());
+            if($study_course == null)
+                continue;
             $obj_id = $study_course->getIliasObjId() ?? null;
             if($obj_id != null)
             {
@@ -112,6 +114,8 @@ class SyncToCampo extends SyncBase
         foreach($existing as $course)
         {
             $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());  
+            if($study_course == null)
+                continue;
             $obj_id = $study_course->getIliasObjId() ?? null;
             $reg_period = "";
             if($obj_id != null)
@@ -157,6 +161,8 @@ class SyncToCampo extends SyncBase
         foreach($existing as $course)
         {
             $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());
+            if($study_course == null)
+                continue;
             $obj_id = $study_course->getIliasObjId() ?? null;
 
             if($obj_id != null)
