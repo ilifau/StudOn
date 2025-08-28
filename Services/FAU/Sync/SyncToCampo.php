@@ -9,6 +9,9 @@ use FAU\Staging\Data\StudOnCourse;
 use FAU\Study\Data\Course;
 use ilLPMarks;
 use ilObject;
+use ilParticipants;
+use ilObjUser;
+use ilDatePresentation;
 
 /**
  * Synchronisation of course settings and members from StudOn to campo
@@ -39,6 +42,18 @@ class SyncToCampo extends SyncBase
         
             $this->syncStudOnRefId($term);
         }
+
+        // sync the registration period for courses in studon_courses
+        foreach ($this->sync->getTermsToSync(true) as $term) {
+        
+            $this->syncRegPeriod($term);
+        }        
+
+        // sync the registration period for courses in studon_courses
+        foreach ($this->sync->getTermsToSync(true) as $term) {
+        
+            $this->syncTutors($term);
+        }          
     }
 
     /**
@@ -65,11 +80,11 @@ class SyncToCampo extends SyncBase
     }
 
     /**
-     * sync studon ref_id flag for parallel groups (courses)
+     * sync studon ref_id for parallel groups (courses)
      */
     public function syncStudOnRefId(Term $term) : void
     {
-        $this->info('sync studon ref_id flag for parallel groups...');
+        $this->info('sync studon ref_id for parallel groups...');
         // get the courses in the staging database
         $existing = $this->staging->repo()->getStudOnCourses($term);
         foreach($existing as $course)
@@ -78,18 +93,105 @@ class SyncToCampo extends SyncBase
             $obj_id = $study_course->getIliasObjId() ?? null;
             if($obj_id != null)
             {
-                $ref_ids = ilObject::_getAllReferences((int) $obj_id);
                 $ref_id = null;
-                if(isset($ref_ids) && count($ref_ids) == 1)
-                {
-                    $ref_id = end($ref_ids);      
-                }     
+                $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
                 $course = $course->withStudOnRefId($ref_id);
                 $this->staging->repo()->save($course);
             }
         }
     }    
 
+    /**
+     * sync studon registration period for parallel groups (courses)
+     */
+    public function syncRegPeriod(Term $term) : void
+    {
+        $this->info('sync registration period for parallel groups...');
+        // get the courses in the staging database
+        $existing = $this->staging->repo()->getStudOnCourses($term);
+        foreach($existing as $course)
+        {
+            $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());  
+            $obj_id = $study_course->getIliasObjId() ?? null;
+            $reg_period = "";
+            if($obj_id != null)
+            {
+                $obj_type = ilObject::_lookupType($obj_id);
+                $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
+                
+                if ($ref_id == null)
+                    continue;
+
+                if ($obj_type == 'grp') 
+                    $ref_id = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);
+                
+                $container_info = $this->dic->fau()->ilias()->objects()->getContainerInfo($ref_id);
+                
+                // registration period
+                if (!$container_info->getRegEnabled()) {
+                    $reg_period = $this->lng->txt('crs_list_reg_noreg', 'de');
+                }
+                elseif (!$container_info->hasTimeLimit()) {
+                    $this->lng->loadLanguageModule('crs');
+                    $reg_period = $this->lng->txt('crs_unlimited', 'de');
+                }
+                else {
+                    ilDatePresentation::setUseRelativeDates(false);
+                    $reg_period = ilDatePresentation::formatDate($container_info->getRegStart()) . ' - ' . ilDatePresentation::formatDate($container_info->getRegEnd());
+                    ilDatePresentation::setUseRelativeDates(true);
+                }
+            }
+            $course = $course->withRegPeriod($reg_period);
+            $this->staging->repo()->save($course);
+        }
+    }      
+
+    /**
+     * sync studon tutors for parallel groups (courses)
+     */
+    public function syncTutors(Term $term) : void
+    {
+        $this->info('sync tutors for parallel groups...');
+        // get the courses in the staging database
+        $existing = $this->staging->repo()->getStudOnCourses($term);
+        foreach($existing as $course)
+        {
+            $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());
+            $obj_id = $study_course->getIliasObjId() ?? null;
+
+            if($obj_id != null)
+            {
+                $obj_type = ilObject::_lookupType($obj_id);
+                $ref_id = $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
+                $tutor_names = [];
+                $tutors = "";
+
+                if($ref_id != null)
+                {
+                    $tutor_ids = [];
+                    if ($obj_type == 'crs') 
+                        $tutor_ids = ilParticipants::getInstance($ref_id)->getTutors();
+                    else if ($obj_type == 'grp') 
+                        $tutor_ids = ilParticipants::getInstance($ref_id)->getAdmins();
+
+                    foreach($tutor_ids as $tutor_id)
+                    {
+                        $tutor_fullname = ilObjUser::_lookupName($tutor_id);
+                        if($tutor_fullname["user_id"] === $tutor_id)                        
+                            $tutor_names[] = $tutor_fullname["firstname"] . " " . $tutor_fullname["lastname"];
+                    }
+
+                    // Join array elements with comma
+                    $tutors = implode(", ", $tutor_names);
+                }   
+                
+                $course = $course->withTutors($tutors);
+                $this->staging->repo()->save($course);
+            }
+        }
+    } 
+    
+    
     /**
      * Update all courses in a term in the staging table
      */
@@ -99,7 +201,7 @@ class SyncToCampo extends SyncBase
         $existing = $this->staging->repo()->getStudOnCourses($term);
 
         foreach ($this->sync->repo()->getCoursesToSyncBack($term) as $course) {
-            $course = $this->rememberStudOnRefIdFromStaging($course);
+            $course = $this->rememberFromStaging($course);
 
             if (!isset($existing[$course->key()])) {
                 $this->staging->repo()->save($course);
@@ -217,10 +319,19 @@ class SyncToCampo extends SyncBase
         return $member;
     }    
 
-    private function rememberStudOnRefIdFromStaging(StudOnCourse $course): StudOnCourse
+    /**
+     * avoid sync overwrites new fields
+     * 
+    */
+    private function rememberFromStaging(StudOnCourse $course): StudOnCourse
     {
         $course_in_staging = $this->staging->repo()->getStudOnCourse($course->getCourseId());
-        $course = ($course_in_staging != null) ? $course->withStudOnRefId($course_in_staging->getStudOnRefId()) : $course;
+   
+        if ($course_in_staging != null) {
+            $course = $course->withStudOnRefId($course_in_staging->getStudOnRefId())
+                ->withRegPeriod($course_in_staging->getRegPeriod())
+                ->withTutors($course_in_staging->getTutors());
+        }
         return $course;
     }      
 }
