@@ -119,7 +119,7 @@ class StudOnCourse extends RecordData
      */
     public function getRegPeriod() : string
     {
-        return $this->reg_period;
+        return $this->reg_period ?? "";
     }    
 
     /**
@@ -138,7 +138,7 @@ class StudOnCourse extends RecordData
      */
     public function getTutors() : string
     {
-        return $this->tutors;
+        return $this->tutors ?? "";
     }    
 
     /**
