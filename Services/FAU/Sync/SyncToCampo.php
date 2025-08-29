@@ -113,9 +113,14 @@ class SyncToCampo extends SyncBase
         $existing = $this->staging->repo()->getStudOnCourses($term);
         foreach($existing as $course)
         {
+            $reg_period = "Anmeldezeitraum konnte nicht ermittelt werden.";
             $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());  
             if($study_course == null)
+            {
+                $course = $course->withRegPeriod($reg_period);
+                $this->staging->repo()->save($course);
                 continue;
+            }
             $obj_id = $study_course->getIliasObjId() ?? null;
             $reg_period = "";
             if($obj_id != null)
@@ -124,13 +129,21 @@ class SyncToCampo extends SyncBase
                 $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
                 
                 if ($ref_id == null)
+                {
+                    $course = $course->withRegPeriod($reg_period);
+                    $this->staging->repo()->save($course);
                     continue;
+                }
 
                 if ($obj_type == 'grp') 
                 {
                     $ref_id = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);
                     if ($ref_id == null)
+                    {
+                        $course = $course->withRegPeriod($reg_period);
+                        $this->staging->repo()->save($course);
                         continue;
+                    }
                 }
                 $container_info = $this->dic->fau()->ilias()->objects()->getContainerInfo($ref_id);
                 
@@ -163,9 +176,14 @@ class SyncToCampo extends SyncBase
         $existing = $this->staging->repo()->getStudOnCourses($term);
         foreach($existing as $course)
         {
+            $tutors = "Tutoren konnten nicht ermittelt werden.";
             $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());
             if($study_course == null)
+            {
+                $course = $course->withTutors($tutors);
+                $this->staging->repo()->save($course);
                 continue;
+            }
             $obj_id = $study_course->getIliasObjId() ?? null;
 
             if($obj_id != null)
@@ -193,10 +211,9 @@ class SyncToCampo extends SyncBase
                     // Join array elements with comma
                     $tutors = implode(", ", $tutor_names);
                 }   
-                
-                $course = $course->withTutors($tutors);
-                $this->staging->repo()->save($course);
             }
+            $course = $course->withTutors($tutors);
+            $this->staging->repo()->save($course);
         }
     } 
     
