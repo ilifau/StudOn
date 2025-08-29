@@ -127,8 +127,11 @@ class SyncToCampo extends SyncBase
                     continue;
 
                 if ($obj_type == 'grp') 
+                {
                     $ref_id = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);
-                
+                    if ($ref_id == null)
+                        continue;
+                }
                 $container_info = $this->dic->fau()->ilias()->objects()->getContainerInfo($ref_id);
                 
                 // registration period
@@ -168,7 +171,7 @@ class SyncToCampo extends SyncBase
             if($obj_id != null)
             {
                 $obj_type = ilObject::_lookupType($obj_id);
-                $ref_id = $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
+                $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
                 $tutor_names = [];
                 $tutors = "";
 
