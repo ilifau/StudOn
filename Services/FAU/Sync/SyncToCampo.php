@@ -122,7 +122,7 @@ class SyncToCampo extends SyncBase
                 continue;
             }
             $obj_id = $study_course->getIliasObjId() ?? null;
-            $reg_period = "";
+            
             if($obj_id != null)
             {
                 $obj_type = ilObject::_lookupType($obj_id);
