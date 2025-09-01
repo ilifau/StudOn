@@ -197,7 +197,7 @@ class SyncToCampo extends SyncBase
                 {
                     $tutor_ids = [];
                     if ($obj_type == 'crs') 
-                        $tutor_ids = ilParticipants::getInstance($ref_id)->getTutors();
+                        $tutor_ids = array_merge(ilParticipants::getInstance($ref_id)->getTutors(), ilParticipants::getInstance($ref_id)->getAdmins());
                     else if ($obj_type == 'grp') 
                         $tutor_ids = ilParticipants::getInstance($ref_id)->getAdmins();
 
