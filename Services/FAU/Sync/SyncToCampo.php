@@ -90,16 +90,17 @@ class SyncToCampo extends SyncBase
         foreach($existing as $course)
         {
             $study_course = $this->dic->fau()->study()->repo()->getCourse($course->getCourseId());
-            if($study_course == null)
-                continue;
-            $obj_id = $study_course->getIliasObjId() ?? null;
+            $ref_id = null;
+            if($study_course != null)
+            {
+                $obj_id = $study_course->getIliasObjId() ?? null;
+            }
             if($obj_id != null)
             {
-                $ref_id = null;
                 $ref_id = $this->ilias->objects()->getUntrashedReference(($obj_id));
-                $course = $course->withStudOnRefId($ref_id);
-                $this->staging->repo()->save($course);
             }
+            $course = $course->withStudOnRefId($ref_id);
+            $this->staging->repo()->save($course);
         }
     }    
 
