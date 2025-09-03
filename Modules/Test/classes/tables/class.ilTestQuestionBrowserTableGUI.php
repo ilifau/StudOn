@@ -395,7 +395,13 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
             $ri->setValue($this->getValidRoot());
         }
         // fau.
-        $this->filter['repository_root_node'] = $ri->getValue();
+
+        if (!$this->tree->isDeleted($ri->getValue())
+            && $this->tree->isInTree($ri->getValue())) {
+            $this->filter['repository_root_node'] = $ri->getValue();
+        } else {
+            $ri->setValue(self::REPOSITORY_ROOT_NODE_ID);
+        }
     }
 
     // fau: testQuestionBrowserRoot - use the test object container as default

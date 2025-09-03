@@ -44,6 +44,11 @@ class PHPResponseBuilder implements ResponseBuilder
     ): ResponseInterface {
         $response = $this->buildHeaders($response, $stream);
         $server_params = $request->getServerParams();
+
+        if ($request->getMethod() === 'HEAD') {
+            return $response->withStatus(200);
+        }
+
         if (isset($server_params['HTTP_RANGE']) && $this->supportPartial()) {
             return $this->deliverPartial($request, $response, $stream);
         }
@@ -108,15 +113,14 @@ class PHPResponseBuilder implements ResponseBuilder
         }
 
         $response = $response->withStatus(206);
-        $response = $response->withHeader(
-            ResponseHeader::CONTENT_RANGE,
-            "bytes {$start}-{$end}/{$content_length}"
-        );
 
         $length = $end - $start + 1;
         $fh = $stream->detach();
-        $buffer_size = 8048 * 10;
 
+        // set $buffer_size to 8MB
+        $buffer_size = 8048 * 1000; // 8,048,000 bytes
+
+        $output_length = 0;
         if ($stream->isSeekable()) {
             fseek($fh, $start);
             while (!feof($fh) && $length > 0) {
@@ -130,13 +134,19 @@ class PHPResponseBuilder implements ResponseBuilder
                 $output_length = strlen($content);
             }
         } else {
-            $length = $buffer_size;
+            $length = min($length, $buffer_size);
             $content = stream_get_contents($fh, $length, $start);
             $output_length = strlen($content);
             $response = $response->withBody(
                 Streams::ofString($content)
             );
+            $end = $start + $output_length - 1;
         }
+
+        $response = $response->withHeader(
+            ResponseHeader::CONTENT_RANGE,
+            "bytes {$start}-{$end}/{$content_length}"
+        );
 
         return $response->withHeader(ResponseHeader::CONTENT_LENGTH, $output_length);
     }
