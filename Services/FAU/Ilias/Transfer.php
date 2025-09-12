@@ -323,7 +323,7 @@ class Transfer
      */
     protected function moveCampoReferences(?ilObject $source, ilObject $target)
     {
-        $target->setImportId($source ? $source->getImportId() : null);
+        $target->setImportId($source ? $source->getImportId() : "");
         $target->update();
         
         // set target as transferred object for its previous campo course (only one)
