@@ -54,9 +54,19 @@ class ilTestManScoringParticipantsTableGUITest extends ilTestBaseTestCase
         $this->setGlobalVariable("component.factory", $component_factory);
         $this->setGlobalVariable("ilDB", $this->createMock(ilDBInterface::class));
 
-        $this->parentObj_mock = $this->getMockBuilder(ilTestScoringGUI::class)->disableOriginalConstructor()->onlyMethods(array('getObject'))->getMock();
-        $this->parentObj_mock->expects($this->any())->method('getObject')->willReturn($this->createMock(ilObjTest::class));
-        $this->tableGui = new ilTestManScoringParticipantsTableGUI($this->parentObj_mock, "");
+        $this->parentObj_mock = $this->getMockBuilder(ilTestScoringGUI::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(array('getObject', 'getTestAccess'))
+            ->getMock();
+        $this->parentObj_mock
+            ->expects($this->any())
+            ->method('getObject')
+            ->willReturn($this->createMock(ilObjTest::class));
+        $this->parentObj_mock
+            ->expects($this->any())
+            ->method('getTestAccess')
+            ->willReturn($this->createMock(ilTestAccess::class));
+        $this->tableGui = new ilTestManScoringParticipantsTableGUI($this->parentObj_mock, []);
     }
 
     public function test_instantiateObject_shouldReturnInstance(): void

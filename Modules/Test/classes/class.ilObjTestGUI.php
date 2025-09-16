@@ -499,7 +499,10 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
                 break;
 
             case "iltestscoringgui":
-                if ((!$this->access->checkAccess("read", "", $this->testrequest->getRefId()))) {
+                if (
+                    !$this->access->checkAccess("read", "", $this->testrequest->getRefId())
+                    && !$this->access->checkAccess("score_anon", "", $this->testrequest->getRefId())
+                ) {
                     $this->redirectAfterMissingRead();
                 }
                 $this->prepareOutput();

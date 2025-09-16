@@ -39,8 +39,11 @@ class ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI extends ilTa
     protected bool $first_row = true;
     protected array $filter = [];
 
-    public function __construct(ilTestScoringByQuestionsGUI $parent_obj, private ilAccess $access)
-    {
+    public function __construct(
+        ilTestScoringByQuestionsGUI $parent_obj,
+        private ilAccess $access,
+        protected array $anon_only_user_ids
+    ) {
         global $DIC;
         $this->questioninfo = $DIC->testQuestionPool()->questionInfo();
 
@@ -65,7 +68,12 @@ class ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI extends ilTa
 
     private function initColumns(): void
     {
-        $this->addColumn($this->lng->txt('name'), 'name');
+        $this->addColumn($this->lng->txt('exam_id_label'), 'examid');
+        if (!$this->parent_obj->getObject()->getAnonymity()
+            && $this->parent_obj->getTestAccess()->checkScoreParticipantsAccess()
+        ) {
+            $this->addColumn($this->lng->txt('name'), 'name');
+        }
         $this->addColumn($this->lng->txt('tst_reached_points'), 'reached_points');
         $this->addColumn($this->lng->txt('tst_maximum_points'), 'maximum_points');
         $this->addColumn($this->lng->txt('tst_feedback'), 'feedback', '30%');
@@ -151,17 +159,18 @@ class ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI extends ilTa
 
     public function fillRow(array $a_set): void
     {
-        if (
-            $this->getParentObject()->getObject()->getAnonymity() == 1 ||
-            (
-                $this->getParentObject()->getObject()->getAnonymity() == 2 &&
-                false == $this->access->checkAccess('write', '', $this->getParentObject()->getObject()->getRefId())
-            )
+        $exam_id = $this->getParentObject()->getUserExamId(
+            $a_set['active_id'],
+            (string) $a_set['pass_id'],
+        );
+        $this->tpl->setVariable('VAL_EXAMID', $exam_id);
+
+        if ($this->parent_obj->getObject()->getAnonymity()
+            || in_array($a_set['usr_id'], $this->anon_only_user_ids)
         ) {
-            $this->tpl->setVariable('VAL_NAME', $this->lng->txt("anonymous"));
-        } else {
-            $this->tpl->setVariable('VAL_NAME', $a_set['name']);
+            $a_set['name'] = '';
         }
+        $this->tpl->setVariable('VAL_NAME', $a_set['name']);
 
         if (!$this->first_row_rendered) {
             $this->first_row_rendered = true;
@@ -208,7 +217,15 @@ class ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI extends ilTa
         $this->ctrl->setParameter($this->getParentObject(), 'active_id', '');
         $this->ctrl->setParameter($this->getParentObject(), 'pass_id', '');
         $this->tpl->setVariable('VAL_TXT_ANSWER', $this->lng->txt('tst_eval_show_answer'));
-        $this->tpl->setVariable('ANSWER_TITLE', $this->lng->txt('answer_of') . ': ' . $a_set['name']);
+
+        $participant_name = $this->getParentObject()->getUserNamePresentation(
+            $a_set['active_id'],
+            $a_set['pass_id'],
+            $a_set['name']
+        );
+        $this->tpl->setVariable('ANSWER_TITLE', $this->lng->txt('answer_of') . ': ' . $participant_name);
+
+
     }
 
     public function getCurQuestionMaxPoints(): ?float

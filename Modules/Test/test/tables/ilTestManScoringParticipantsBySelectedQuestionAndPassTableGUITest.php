@@ -69,10 +69,19 @@ class ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUITest extends 
             });
 
         $this->parentObj_mock = $this->getMockBuilder(ilTestScoringByQuestionsGUI::class)
-            ->disableOriginalConstructor()->onlyMethods(['getObject'])->getMock();
-        $this->parentObj_mock->expects($this->any())->method('getObject')->willReturn($objTest_mock);
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getObject', 'getTestAccess'])
+            ->getMock();
+        $this->parentObj_mock
+            ->expects($this->any())
+            ->method('getObject')
+            ->willReturn($objTest_mock);
+        $this->parentObj_mock
+            ->expects($this->any())
+            ->method('getTestAccess')
+            ->willReturn($this->createMock(ilTestAccess::class));
 
-        $this->tableGui = new ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI($this->parentObj_mock, $DIC['ilAccess']);
+        $this->tableGui = new ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI($this->parentObj_mock, $DIC['ilAccess'], []);
     }
 
     public function test_instantiateObject_shouldReturnInstance(): void

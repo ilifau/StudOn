@@ -91,7 +91,14 @@ class ilObjTestAccess extends ilObjectAccess implements ilConditionHandling
             $user_id = $this->user->getId();
         }
 
-        $is_admin = $this->rbac_system->checkAccessOfUser($user_id, 'write', $ref_id);
+        $is_admin = $this->rbac_system->checkAccessOfUser($user_id, 'write', $ref_id)
+            || $this->rbac_system->checkAccessOfUser($user_id, 'score_anon', $ref_id);
+
+        $is_online = !ilObject::lookupOfflineStatus($obj_id);
+
+        if (!$is_admin && !$is_online) {
+            return false;
+        }
 
 
         switch ($permission) {
@@ -366,6 +373,7 @@ class ilObjTestAccess extends ilObjectAccess implements ilConditionHandling
             ["permission" => "write", "cmd" => "questionsTabGateway", "lang_var" => "tst_edit_questions"],
             ["permission" => "write", "cmd" => "ilObjTestSettingsMainGUI::showForm", "lang_var" => "settings"],
             ["permission" => "read", "cmd" => "ilTestScreenGUI::testScreen", "lang_var" => "tst_run", "default" => true],
+            //["permission" => "score_anon", "cmd" => "ILIAS\Test\Scoring\Manual\TestScoringByQuestionGUI::showManScoringByQuestionParticipantsTable", "lang_var" => "manscoring", "default" => true],
             ["permission" => "tst_statistics", "cmd" => "outEvaluation", "lang_var" => "tst_statistical_evaluation"],
             ["permission" => "read", "cmd" => "userResultsGateway", "lang_var" => "tst_user_results"],
             ["permission" => "write", "cmd" => "testResultsGateway", "lang_var" => "results"],
@@ -378,6 +386,14 @@ class ilObjTestAccess extends ilObjectAccess implements ilConditionHandling
     //
     // object specific access related methods
     //
+
+    public static function getBypassActivationCheckForPermissions(): array
+    {
+        return [
+            'write',
+            'score_anon'
+        ];
+    }
 
     /**
     * checks wether all necessary parts of the test are given

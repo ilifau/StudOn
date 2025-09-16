@@ -114,7 +114,9 @@ class ilTestScoringGUI extends ilTestServiceGUI
     */
     public function executeCommand()
     {
-        if (!$this->getTestAccess()->checkScoreParticipantsAccess()) {
+        if (!$this->getTestAccess()->checkScoreParticipantsAccess()
+            && !$this->getTestAccess()->checkScoreParticipantsAccessAnon()
+        ) {
             ilObjTestGUI::accessViolationRedirect();
         }
 
@@ -187,7 +189,12 @@ class ilTestScoringGUI extends ilTestServiceGUI
 
         $user_id = $this->object->_getUserIdFromActiveId($active_id);
         $user_fullname = $this->object->userLookupFullName($user_id, false, true);
-        $table_title = sprintf($this->lng->txt('tst_pass_overview_for_participant'), $user_fullname);
+        $participant_name = $this->getUserNamePresentation(
+            $active_id,
+            $pass,
+            $user_fullname
+        );
+        $table_title = sprintf($this->lng->txt('tst_pass_overview_for_participant'), $participant_name);
         $table->setTitle($table_title);
 
         $passOverviewData = $this->service->getPassOverviewData($active_id);
@@ -315,7 +322,9 @@ class ilTestScoringGUI extends ilTestServiceGUI
         $scorer->setPreserveManualScores(true);
         $scorer->recalculateSolution($active_id, $pass);
 
-        if ($this->object->getAnonymity() == 0) {
+        if ($this->object->getAnonymity() == 0
+            && $this->getTestAccess()->checkScoreParticipantsAccess()
+        ) {
             $user_name = ilObjUser::_lookupName(ilObjTestAccess::_getParticipantId($active_id));
             $name_real_or_anon = $user_name['firstname'] . ' ' . $user_name['lastname'];
         } else {
@@ -480,7 +489,10 @@ class ilTestScoringGUI extends ilTestServiceGUI
 
     private function buildManScoringParticipantsTable(bool $withData = false): ilTestManScoringParticipantsTableGUI
     {
-        $table = new ilTestManScoringParticipantsTableGUI($this);
+        $table = new ilTestManScoringParticipantsTableGUI(
+            $this,
+            $this->object->getAnonOnlyParticipantIds()
+        );
 
         if ($withData) {
             $participantStatusFilterValue = $table->getFilterItemByPostVar('participant_status')->getValue();
@@ -499,5 +511,24 @@ class ilTestScoringGUI extends ilTestServiceGUI
         }
 
         return $table;
+    }
+
+    public function getUserNamePresentation(
+        int $active_id,
+        int|string $pass,
+        ?string $name = null
+    ): string {
+        $anon_only_usr_ids = $this->object->getAnonOnlyParticipantIds();
+        $user_id = $this->object->_getUserIdFromActiveId($active_id);
+        if ($name !== null && !in_array($user_id, $anon_only_usr_ids)) {
+            return $name;
+        }
+
+        return $this->getUserExamId($active_id, (string) $pass);
+    }
+
+    public function getUserExamId(int $active_id, string $pass): string
+    {
+        return ilObjTest::buildExamId($active_id, $pass, $this->object->getId());
     }
 }

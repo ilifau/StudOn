@@ -305,7 +305,8 @@ class ilTestTabsManager
      */
     protected function checkScoreParticipantsTabAccess(): bool
     {
-        return $this->test_access->checkScoreParticipantsAccess();
+        return $this->test_access->checkScoreParticipantsAccess()
+            || $this->test_access->checkScoreParticipantsAccessAnon();
     }
 
     /**
