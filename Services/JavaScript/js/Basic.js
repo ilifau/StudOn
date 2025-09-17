@@ -375,10 +375,15 @@ il.Object = {
 	setRatingUrl: function(url) {
 		this.url_rating = url;
 	},
-			
-	saveRating: function(mark) {
-		il.Util.sendAjaxGetRequestToUrl(this.url_rating + "&rating=" + mark, {}, {url_redraw: this.url_redraw_ah}, this.redrawAfterRating);
-	},
+
+    saveRating: function (mark) {
+        il.Util.sendAsyncAjaxPostRequestToUrl(
+            this.url_rating,
+            'rating=' + mark,
+            {url_redraw: this.url_redraw_ah},
+            this.redrawAfterRating
+        );
+    },
 			
 	redrawAfterRating: function(o) {
 		var ah = document.getElementById("il_head_action");
@@ -387,9 +392,14 @@ il.Object = {
 			il.Util.ajaxReplaceInner(o.argument.url_redraw, "il_head_action");
 		}
 	},
-			
-	saveRatingFromListGUI: function(ref_id, hash, mark) {		
-		il.Util.sendAjaxGetRequestToUrl(this.url_rating + "&rating=" + mark + "&child_ref_id=" + ref_id + "&cadh= " + hash, {}, {url_redraw: this.url_redraw_li, ref_id: ref_id}, this.redrawAfterRatingFromListGUI);
+
+	saveRatingFromListGUI: function (ref_id, hash, mark) {
+		il.Util.sendAsyncAjaxPostRequestToUrl(
+			this.url_rating + "&child_ref_id=" + ref_id + "&cadh= " + hash,
+			'rating=' + mark,
+			{url_redraw: this.url_redraw_li, ref_id: ref_id},
+			this.redrawAfterRatingFromListGUI
+		);
 	},
 			
 	redrawAfterRatingFromListGUI: function(o) {	
