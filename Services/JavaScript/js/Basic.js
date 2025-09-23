@@ -160,6 +160,22 @@ il.Util = {
 	sendAjaxPostRequestToUrl: function(url, data, succ_cb) {
 		$.post(url, data, succ_cb);
 	},
+
+    /**
+     *
+     * @param {string} url
+     * @param {string} data
+     * @param {array} args
+     * @param {callback} succ_cb
+     */
+    sendAsyncAjaxPostRequestToUrl(url, data, args, succ_cb) {
+        const cb = {
+            success: succ_cb,
+            failure: this.handleAjaxFailure,
+            argument: args,
+        };
+        const request = YAHOO.util.Connect.asyncRequest('POST', url, cb, data);
+    },
 	
 	// FailureHandler
 	handleAjaxFailure: function(o)
@@ -383,6 +399,25 @@ il.Object = {
             {url_redraw: this.url_redraw_ah},
             this.redrawAfterRating
         );
+    },
+
+    saveRatingByPOST: function (mark, obj_id, obj_type, sub_obj_id = 0, sub_obj_type = "") {
+        $.ajax({
+            url: this.url_rating,
+            dataType: 'text',
+            type: 'POST',
+            data: {
+                rating: mark,
+                obj_id: obj_id,
+                obj_type: obj_type,
+                sub_obj_id: sub_obj_id,
+                sub_obj_type: sub_obj_type
+            },
+            // reload
+            success: function(data) {
+                location.reload();
+            }
+        });
     },
 			
 	redrawAfterRating: function(o) {

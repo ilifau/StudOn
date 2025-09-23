@@ -655,7 +655,7 @@ class ilRatingGUI
         }
     }
 
-    public function getBlockHTML($a_title)
+    public function getBlockHTML($a_title, $onclick = '')
     {
         $ui = $this->ui;
 
@@ -670,7 +670,7 @@ class ilRatingGUI
         $panel = $ui->factory()->panel()->secondary()->legacy(
             $a_title,
             $ui->factory()->legacy(
-                $this->renderDetails("rtsb_", $may_rate, $categories, null, true, true)
+                $this->renderDetails("rtsb_", $may_rate, $categories, $onclick, true, true)
             )
         );
 
@@ -683,43 +683,49 @@ class ilRatingGUI
     public function saveRating()
     {
         $ilCtrl = $this->ctrl;
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            $this->obj_id = (int) ($_POST["obj_id"] ?? $this->obj_id);
+            $this->obj_type = ilUtil::stripSlashes($_POST["obj_type"] ?? $this->obj_type);
+            $this->sub_obj_id = (int) ($_POST["sub_obj_id"] ?? $this->sub_obj_id);
+            $this->sub_obj_type = ilUtil::stripSlashes($_POST["sub_obj_type"] ?? $this->sub_obj_type);
 
-        if (!is_array($_REQUEST["rating"])) {
-            $rating = (int) ilUtil::stripSlashes($_GET["rating"]);
-            if (!$rating) {
-                $this->resetUserRating();
+            if (!is_array($_REQUEST["rating"])) {
+                $rating = (int) ilUtil::stripSlashes($_GET["rating"] ?? $_POST["rating"]);
+                if (!$rating) {
+                    $this->resetUserRating();
+                } else {
+                    ilRating::writeRatingForUserAndObject(
+                        $this->obj_id,
+                        $this->obj_type,
+                        $this->sub_obj_id,
+                        $this->sub_obj_type,
+                        $this->getUserId(),
+                        $rating
+                    );
+                }
             } else {
-                ilRating::writeRatingForUserAndObject(
+                foreach ($_POST["rating"] as $cat_id => $rating) {
+                    ilRating::writeRatingForUserAndObject(
+                        $this->obj_id,
+                        $this->obj_type,
+                        $this->sub_obj_id,
+                        $this->sub_obj_type,
+                        $this->getUserId(),
+                        $rating,
+                        $cat_id
+                    );
+                }
+            }
+
+            if ($this->update_callback) {
+                call_user_func(
+                    $this->update_callback,
                     $this->obj_id,
                     $this->obj_type,
                     $this->sub_obj_id,
-                    $this->sub_obj_type,
-                    $this->getUserId(),
-                    $rating
+                    $this->sub_obj_type
                 );
             }
-        } else {
-            foreach ($_POST["rating"] as $cat_id => $rating) {
-                ilRating::writeRatingForUserAndObject(
-                    $this->obj_id,
-                    $this->obj_type,
-                    $this->sub_obj_id,
-                    $this->sub_obj_type,
-                    $this->getUserId(),
-                    $rating,
-                    $cat_id
-                );
-            }
-        }
-                
-        if ($this->update_callback) {
-            call_user_func(
-                $this->update_callback,
-                $this->obj_id,
-                $this->obj_type,
-                $this->sub_obj_id,
-                $this->sub_obj_type
-            );
         }
         
         if ($ilCtrl->isAsynch()) {

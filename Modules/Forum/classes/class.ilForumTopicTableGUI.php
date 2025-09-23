@@ -229,7 +229,17 @@ class ilForumTopicTableGUI extends ilTable2GUI
                 $rating = new ilRatingGUI();
                 $rating->setObject($this->parent_obj->object->getId(), $this->parent_obj->object->getType(), $thread->getId(), 'thread');
                 $rating->setUserId($this->user->getId());
-                $this->tpl->setVariable('VAL_RATING', $rating->getHTML());
+                $this->mainTemplate->addOnLoadCode("il.Object.setRatingUrl('" .
+                    $this->ctrl->getFormActionByClass("ilRatingGUI", "saveRating") . "');");
+                $this->tpl->setVariable('VAL_RATING', $rating->getHTML(
+                    true,
+                    true,
+                    'il.Object.saveRatingByPOST(%rating%, ' .
+                    $this->parent_obj->object->getId() . ', '
+                    . '\'' . $this->parent_obj->object->getType() . '\', ' .
+                    $thread->getId() . ', ' .
+                    '\'thread \')'
+                ));
             }
         } else {
             if ($thread->isSticky()) {
