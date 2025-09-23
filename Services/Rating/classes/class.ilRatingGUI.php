@@ -35,6 +35,8 @@ class ilRatingGUI
     protected $export_callback;
     protected $export_subobj_title;
     protected $ctrl_path;
+    protected int $requested_rating = 0;
+    protected array $requested_ratings = [];
 
     /**
      * @var \ILIAS\DI\UIServices
@@ -51,7 +53,20 @@ class ilRatingGUI
         $lng = $DIC->language();
 
         $this->ui = $DIC->ui();
-        
+
+        $params = $DIC->http()->request()->getQueryParams();
+        $body = $DIC->http()->request()->getParsedBody();
+
+        if (isset($body['rating'])) {
+            if (is_array($body['rating'])) {
+                $this->requested_ratings = ($body['rating'] ?? null);
+            } else {
+                $this->requested_rating = (int) ($body['rating'] ?? 0);
+            }
+        } else {
+            $this->requested_rating = (int) ($params['rating'] ?? 0);
+        }
+
         $lng->loadLanguageModule("rating");
     }
     
@@ -181,8 +196,7 @@ class ilRatingGUI
         $a_onclick = null,
         $a_average = false,
         bool $add_tooltip = false
-    )
-    {
+    ) {
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
         
@@ -234,9 +248,9 @@ class ilRatingGUI
                     } else {
                         $ilCtrl->setParameter($this, "rating", $i);
                         if (!$this->ctrl_path) {
-                            $url_save = $ilCtrl->getLinkTarget($this, "saveRating");
+                            $url_save = $ilCtrl->getFormAction($this, "saveRating");
                         } else {
-                            $url_save = $ilCtrl->getLinkTargetByClass($this->ctrl_path, "saveRating");
+                            $url_save = $ilCtrl->getFormActionByClass($this->ctrl_path, "saveRating");
                         }
                     }
                     $ttpl->setVariable("HREF_RATING", $url_save);
@@ -263,7 +277,8 @@ class ilRatingGUI
                             ilUtil::getImagePath("icon_rate_off.svg")
                         );
                     }
-                    $ttpl->setVariable("ALT_ICON",
+                    $ttpl->setVariable(
+                        "ALT_ICON",
                         sprintf($lng->txt("rating_rate_x_of_5"), $i)
                     );
                     $ttpl->parseCurrentBlock();
@@ -279,9 +294,9 @@ class ilRatingGUI
                     } else {
                         $ilCtrl->setParameter($this, "rating", 0);
                         if (!$this->ctrl_path) {
-                            $url_save = $ilCtrl->getLinkTarget($this, "saveRating");
+                            $url_save = $ilCtrl->getFormAction($this, "saveRating");
                         } else {
-                            $url_save = $ilCtrl->getLinkTargetByClass($this->ctrl_path, "saveRating");
+                            $url_save = $ilCtrl->getFormActionByClass($this->ctrl_path, "saveRating");
                         }
                     }
                     $ttpl->setVariable("HREF_RATING_DEL", $url_save);
@@ -610,8 +625,7 @@ class ilRatingGUI
         int $cnt = 0,
         float $avg = 0,
         int $user = 0
-    ) : void
-    {
+    ) : void {
         $lng = $this->lng;
 
         $tt = "";
@@ -623,11 +637,11 @@ class ilRatingGUI
             } else {
                 $tt = sprintf($lng->txt("rat_nr_ratings"), $cnt);
             }
-            $tt.= "<br>".$lng->txt("rating_avg_rating").": ".round($avg, 1);
+            $tt .= "<br>" . $lng->txt("rating_avg_rating") . ": " . round($avg, 1);
         }
 
         if ($user > 0) {
-            $tt.= "<br>".$lng->txt("rating_personal_rating").": ".$user;
+            $tt .= "<br>" . $lng->txt("rating_personal_rating") . ": " . $user;
         }
         if ($tt !== "") {
             ilTooltipGUI::addTooltip(
@@ -641,7 +655,7 @@ class ilRatingGUI
         }
     }
 
-    public function getBlockHTML($a_title)
+    public function getBlockHTML($a_title, $onclick = '')
     {
         $ui = $this->ui;
 
@@ -656,7 +670,7 @@ class ilRatingGUI
         $panel = $ui->factory()->panel()->secondary()->legacy(
             $a_title,
             $ui->factory()->legacy(
-                $this->renderDetails("rtsb_", $may_rate, $categories, null, true, true)
+                $this->renderDetails("rtsb_", $may_rate, $categories, $onclick, true, true)
             )
         );
 
@@ -669,43 +683,49 @@ class ilRatingGUI
     public function saveRating()
     {
         $ilCtrl = $this->ctrl;
-        
-        if (!is_array($_REQUEST["rating"])) {
-            $rating = (int) ilUtil::stripSlashes($_GET["rating"]);
-            if (!$rating) {
-                $this->resetUserRating();
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            $this->obj_id = (int) ($_POST["obj_id"] ?? $this->obj_id);
+            $this->obj_type = ilUtil::stripSlashes($_POST["obj_type"] ?? $this->obj_type);
+            $this->sub_obj_id = (int) ($_POST["sub_obj_id"] ?? $this->sub_obj_id);
+            $this->sub_obj_type = ilUtil::stripSlashes($_POST["sub_obj_type"] ?? $this->sub_obj_type);
+
+            if (!is_array($_REQUEST["rating"])) {
+                $rating = (int) ilUtil::stripSlashes($_GET["rating"] ?? $_POST["rating"]);
+                if (!$rating) {
+                    $this->resetUserRating();
+                } else {
+                    ilRating::writeRatingForUserAndObject(
+                        $this->obj_id,
+                        $this->obj_type,
+                        $this->sub_obj_id,
+                        $this->sub_obj_type,
+                        $this->getUserId(),
+                        $rating
+                    );
+                }
             } else {
-                ilRating::writeRatingForUserAndObject(
+                foreach ($_POST["rating"] as $cat_id => $rating) {
+                    ilRating::writeRatingForUserAndObject(
+                        $this->obj_id,
+                        $this->obj_type,
+                        $this->sub_obj_id,
+                        $this->sub_obj_type,
+                        $this->getUserId(),
+                        $rating,
+                        $cat_id
+                    );
+                }
+            }
+
+            if ($this->update_callback) {
+                call_user_func(
+                    $this->update_callback,
                     $this->obj_id,
                     $this->obj_type,
                     $this->sub_obj_id,
-                    $this->sub_obj_type,
-                    $this->getUserId(),
-                    $rating
+                    $this->sub_obj_type
                 );
             }
-        } else {
-            foreach ($_POST["rating"] as $cat_id => $rating) {
-                ilRating::writeRatingForUserAndObject(
-                    $this->obj_id,
-                    $this->obj_type,
-                    $this->sub_obj_id,
-                    $this->sub_obj_type,
-                    $this->getUserId(),
-                    $rating,
-                    $cat_id
-                );
-            }
-        }
-                
-        if ($this->update_callback) {
-            call_user_func(
-                $this->update_callback,
-                $this->obj_id,
-                $this->obj_type,
-                $this->sub_obj_id,
-                $this->sub_obj_type
-            );
         }
         
         if ($ilCtrl->isAsynch()) {

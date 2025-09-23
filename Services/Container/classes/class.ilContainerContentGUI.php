@@ -278,7 +278,7 @@ abstract class ilContainerContentGUI
             $ilCtrl->getLinkTarget($this->container_gui, "redrawListItem", "", true) . "');");
 
         $tpl->addOnLoadCode("il.Object.setRatingUrl('" .
-            $ilCtrl->getLinkTargetByClass(
+            $ilCtrl->getFormActionByClass(
                 array(get_class($this->container_gui), "ilcommonactiondispatchergui", "ilratinggui"),
                 "saveRating",
                 "",

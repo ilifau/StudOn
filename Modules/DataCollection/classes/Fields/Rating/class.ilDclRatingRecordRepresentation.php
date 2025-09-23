@@ -22,8 +22,18 @@ class ilDclRatingRecordRepresentation extends ilDclBaseRecordRepresentation
         $rgui->setObject($this->getRecordField()->getRecord()->getId(), "dcl_record", $this->getRecordField()->getField()->getId(), "dcl_field");
         $ilCtrl->setParameterByClass("ilratinggui", "field_id", $this->getRecordField()->getField()->getId());
         $ilCtrl->setParameterByClass("ilratinggui", "record_id", $this->getRecordField()->getRecord()->getId());
-        $html = $rgui->getHTML();
-
+        $DIC->ui()->mainTemplate()->addOnLoadCode(
+            "il.Object.setRatingUrl('" . $this->ctrl->getFormActionByClass("ilRatingGUI", "saveRating") . "');"
+        );
+        $html = $rgui->getHTML(
+            true,
+            true,
+            'il.Object.saveRatingByPOST(%rating%, ' .
+            $this->getRecordField()->getRecord()->getId() . ', ' .
+            '\'dcl_record\', ' .
+            $this->getRecordField()->getField()->getId() . ', ' .
+            '\'dcl_field\');'
+        );
         return $html;
     }
 
