@@ -1535,7 +1535,7 @@ class ilObjWikiGUI extends ilObjectGUI
                     $wiki_id . ', ' .
                     '\'wiki\', ' .
                     $a_wpg_id . ', ' .
-                    '\'wpg \')'
+                    '\'wpg \');'
                 );
             }
         

@@ -238,7 +238,7 @@ class ilForumTopicTableGUI extends ilTable2GUI
                     $this->parent_obj->object->getId() . ', '
                     . '\'' . $this->parent_obj->object->getType() . '\', ' .
                     $thread->getId() . ', ' .
-                    '\'thread \')'
+                    '\'thread \');'
                 ));
             }
         } else {

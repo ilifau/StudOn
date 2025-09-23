@@ -32,7 +32,7 @@ class ilDclRatingRecordRepresentation extends ilDclBaseRecordRepresentation
             $this->getRecordField()->getRecord()->getId() . ', ' .
             '\'dcl_record\', ' .
             $this->getRecordField()->getField()->getId() . ', ' .
-            '\'dcl_field\''
+            '\'dcl_field\');'
         );
         return $html;
     }
