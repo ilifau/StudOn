@@ -613,19 +613,19 @@ class ilParticipantsTestResultsGUI
 		        $email = $user->getEmail();
 		        $success = false;
                 if(filter_var($email, FILTER_VALIDATE_EMAIL)){
-                $success = $soap_client->call('sendUserMail', array(
-                    $soap_sid,				// session id
-                    $email,      // to
-                    "",                     // cc
-                    "",                     // bcc
-                    "anonymous",    		// sender
-                    $subject,               // subject
-                    $body,                  // message
-                    "",                     // attachments (imploded with ',')
-                    "system",               // type (imploded with ',')
-                    0                       // use placholders
-                ));
-                
+                    $success = $soap_client->call('sendUserMail', array(
+                        $soap_sid,				// session id
+                        $email,      // to
+                        "",                     // cc
+                        "",                     // bcc
+                        "anonymous",    		// sender
+                        $subject,               // subject
+                        $body,                  // message
+                        "",                     // attachments (imploded with ',')
+                        "system",               // type (imploded with ',')
+                        0                       // use placholders
+                    ));
+                }
                 if ($success) {
                     $sent[] = $uname;
                 } else {
