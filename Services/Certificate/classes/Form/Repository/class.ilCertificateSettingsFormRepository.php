@@ -117,7 +117,6 @@ class ilCertificateSettingsFormRepository implements ilCertificateFormRepository
         $this->certificatePath = $certificatePath;
         $this->hasAdditionalElements = $hasAdditionalElements;
         $this->globalCertificateSettings = new ilObjCertificateSettings();
-
         $database = $DIC->database();
 
 
@@ -201,10 +200,18 @@ class ilCertificateSettingsFormRepository implements ilCertificateFormRepository
         if (strlen($_FILES["certificate_import"]["name"])) {
             if ($import->checkInput()) {
                 $result = $this->importAction->import($_FILES["certificate_import"]["tmp_name"], $_FILES["certificate_import"]["name"]);
-                if ($result == false) {
-                    $import->setAlert($this->language->txt("certificate_error_import"));
+                if ($result === false) {
+                    ilUtil::sendFailure(
+                        $this->language->txt('certificate_error_import'),
+                        true
+                    );
+                    $this->controller->redirect($certificateGUI, 'certificateEditor');
                 } else {
-                    $this->controller->redirect($certificateGUI, "certificateEditor");
+                    ilUtil::sendSuccess(
+                        $this->language->txt('saved_successfully'),
+                        true
+                    );
+                    $this->controller->redirect($certificateGUI, 'certificateEditor');
                 }
             }
         }

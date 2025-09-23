@@ -1527,7 +1527,16 @@ class ilObjWikiGUI extends ilObjectGUI
                 $rgui->setObject($wiki_id, "wiki", $a_wpg_id, "wpg");
                 $rgui->enableCategories(ilObjWiki::_lookupRatingCategories($wiki_id));
                 $rgui->setYourRatingText("#");
-                $rcontent .= $rgui->getBlockHTML($lng->txt("wiki_rate_page"));
+                $tpl->addOnLoadCode("il.Object.setRatingUrl('" .
+                    $ilCtrl->getFormActionByClass("ilRatingGUI", "saveRating") . "');");
+                $rcontent = $rgui->getBlockHTML(
+                    $lng->txt("wiki_rate_page"),
+                    'il.Object.saveRatingByPOST(%rating%, ' .
+                    $wiki_id . ', ' .
+                    '\'wiki\', ' .
+                    $a_wpg_id . ', ' .
+                    '\'wpg \');'
+                );
             }
         
             // advanced metadata
