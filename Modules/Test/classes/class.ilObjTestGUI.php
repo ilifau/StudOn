@@ -602,7 +602,7 @@ class ilObjTestGUI extends ilObjectGUI
                 break;
 
             case 'ilobjectcopygui':
-                if ((!$ilAccess->checkAccess("read", "", $_GET["ref_id"]))) {
+                if ((!$ilAccess->checkAccess("copy", "", $_GET["ref_id"]))) {
                     $this->redirectAfterMissingRead();
                     return;
                 }
@@ -616,8 +616,8 @@ class ilObjTestGUI extends ilObjectGUI
 
             case 'ilpageeditorgui':
             case 'iltestexpresspageobjectgui':
-            if ((!$ilAccess->checkAccess("read", "", $_GET["ref_id"]))) {
-                $this->redirectAfterMissingRead();
+            if ((!$ilAccess->checkAccess("write", "", $_GET["ref_id"]))) {
+                $this->redirectAfterMissingWrite();
                 return;
             }
                 $this->getTabsManager()->getQuestionsSubTabs();
@@ -767,8 +767,8 @@ class ilObjTestGUI extends ilObjectGUI
                 break;
 
             case 'ilassspecfeedbackpagegui':
-                if ((!$ilAccess->checkAccess("read", "", $_GET["ref_id"]))) {
-                    $this->redirectAfterMissingRead();
+                if ((!$ilAccess->checkAccess("write", "", $_GET["ref_id"]))) {
+                    $this->redirectAfterMissingWrite();
                     return;
                 }
                 require_once "./Modules/TestQuestionPool/classes/feedback/class.ilAssSpecFeedbackPageGUI.php";
@@ -777,8 +777,8 @@ class ilObjTestGUI extends ilObjectGUI
                 break;
 
             case 'ilassgenfeedbackpagegui':
-                if ((!$ilAccess->checkAccess("read", "", $_GET["ref_id"]))) {
-                    $this->redirectAfterMissingRead();
+                if ((!$ilAccess->checkAccess("write", "", $_GET["ref_id"]))) {
+                    $this->redirectAfterMissingWrite();
                     return;
                 }
                 require_once "./Modules/TestQuestionPool/classes/feedback/class.ilAssGenFeedbackPageGUI.php";
@@ -787,8 +787,8 @@ class ilObjTestGUI extends ilObjectGUI
                 break;
 
             case 'illocalunitconfigurationgui':
-                if ((!$ilAccess->checkAccess("read", "", $_GET["ref_id"]))) {
-                    $this->redirectAfterMissingRead();
+                if ((!$ilAccess->checkAccess("write", "", $_GET["ref_id"]))) {
+                    $this->redirectAfterMissingWrite();
                     return;
                 }
                 $this->prepareSubGuiOutput();
