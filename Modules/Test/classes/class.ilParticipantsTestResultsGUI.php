@@ -610,9 +610,12 @@ class ilParticipantsTestResultsGUI
             if (ilCust::get('tst_notify_remote')) {
                 // send as mail in remote platform
                 
+		        $email = $user->getEmail();
+		        $success = false;
+                if(filter_var($email, FILTER_VALIDATE_EMAIL)){
                 $success = $soap_client->call('sendUserMail', array(
                     $soap_sid,				// session id
-                    $user->getLogin(),      // to
+                    $email,      // to
                     "",                     // cc
                     "",                     // bcc
                     "anonymous",    		// sender
@@ -622,23 +625,6 @@ class ilParticipantsTestResultsGUI
                     "system",               // type (imploded with ',')
                     0                       // use placholders
                 ));
-                
-                if (!$success) {
-                    if ($user->getEmail()) {
-                        $success = $soap_client->call('sendUserMail', array(
-                            $soap_sid,				// session id
-                            $user->getEmail(),      // to
-                            "",                     // cc
-                            "",                     // bcc
-                            "anonymous",    		// sender
-                            $subject,               // subject
-                            $body,                  // message
-                            "",                     // attachments (imploded with ',')
-                            "system",               // type (imploded with ',')
-                            0                       // use placholders
-                        ));
-                    }
-                }
                 
                 if ($success) {
                     $sent[] = $uname;
@@ -679,7 +665,7 @@ class ilParticipantsTestResultsGUI
             ), true);
         }
         if (count($sent)) {
-            $this->main_tpl->setOnScreenMessage('failure', sprintf(
+            $this->main_tpl->setOnScreenMessage('success', sprintf(
                 $DIC->language()->txt("send_simple_results_to_participants_success"),
                 implode(', ', $sent)
             ), true);
