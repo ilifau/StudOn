@@ -875,7 +875,8 @@ class ilObjUserGUI extends ilObjectGUI
         // system information
         $data['create_date'] = ilDatePresentation::formatDate(new ilDateTime(
             $this->object->getCreateDate(),
-            IL_CAL_DATETIME
+            IL_CAL_DATETIME,
+            'UTC'
         ));
         $data['owner'] = ilObjUser::_lookupLogin($this->object->getOwner());
         $data['approve_date'] = ($this->object->getApproveDate() != '')
