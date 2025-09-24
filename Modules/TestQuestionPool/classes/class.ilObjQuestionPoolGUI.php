@@ -475,7 +475,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                     $this->redirectAfterMissingWrite();
                 }
 
-                if ($cmd === 'assessment' &&
+                if (in_array($cmd, ['assessment', 'questions']) &&
                     $this->object->getType() === 'tst' &&
                     !$ilAccess->checkAccess('write', '', $this->object->getRefId())) {
                     $this->redirectAfterMissingWrite();
@@ -520,7 +520,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         ilUtil::sendFailure($this->lng->txt("no_permission"), true);
         $target_class = get_class($this->object) . "GUI";
         $this->ctrl->setParameterByClass($target_class, 'ref_id', $this->ref_id);
-        $this->ctrl->redirectByClass($target_class);
+        $this->ctrl->redirectByClass([ilRepositoryGUI::class, $target_class]);
     }
 
     /**

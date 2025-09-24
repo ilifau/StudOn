@@ -1559,7 +1559,7 @@ class ilLMPresentationGUI
 
             $this->ctrl->setParameter($this, "pgid", $this->getCurrentPageId());
             $this->tpl->addOnLoadCode("il.LearningModule.setRatingUrl('" .
-                $this->ctrl->getLinkTarget($this, "updatePageRating", "", true, false) .
+                $this->ctrl->getFormActionByClass($this, "updatePageRating", "", true, false) .
                 "')");
             $this->ctrl->setParameter($this, "pgid", "");
 
