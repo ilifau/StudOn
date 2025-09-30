@@ -160,6 +160,22 @@ il.Util = {
 	sendAjaxPostRequestToUrl: function(url, data, succ_cb) {
 		$.post(url, data, succ_cb);
 	},
+
+    /**
+     *
+     * @param {string} url
+     * @param {string} data
+     * @param {array} args
+     * @param {callback} succ_cb
+     */
+    sendAsyncAjaxPostRequestToUrl(url, data, args, succ_cb) {
+        const cb = {
+            success: succ_cb,
+            failure: this.handleAjaxFailure,
+            argument: args,
+        };
+        const request = YAHOO.util.Connect.asyncRequest('POST', url, cb, data);
+    },
 	
 	// FailureHandler
 	handleAjaxFailure: function(o)
@@ -375,10 +391,34 @@ il.Object = {
 	setRatingUrl: function(url) {
 		this.url_rating = url;
 	},
-			
-	saveRating: function(mark) {
-		il.Util.sendAjaxGetRequestToUrl(this.url_rating + "&rating=" + mark, {}, {url_redraw: this.url_redraw_ah}, this.redrawAfterRating);
-	},
+
+    saveRating: function (mark) {
+        il.Util.sendAsyncAjaxPostRequestToUrl(
+            this.url_rating,
+            'rating=' + mark,
+            {url_redraw: this.url_redraw_ah},
+            this.redrawAfterRating
+        );
+    },
+
+    saveRatingByPOST: function (mark, obj_id, obj_type, sub_obj_id = 0, sub_obj_type = "") {
+        $.ajax({
+            url: this.url_rating,
+            dataType: 'text',
+            type: 'POST',
+            data: {
+                rating: mark,
+                obj_id: obj_id,
+                obj_type: obj_type,
+                sub_obj_id: sub_obj_id,
+                sub_obj_type: sub_obj_type
+            },
+            // reload
+            success: function(data) {
+                location.reload();
+            }
+        });
+    },
 			
 	redrawAfterRating: function(o) {
 		var ah = document.getElementById("il_head_action");
@@ -387,9 +427,14 @@ il.Object = {
 			il.Util.ajaxReplaceInner(o.argument.url_redraw, "il_head_action");
 		}
 	},
-			
-	saveRatingFromListGUI: function(ref_id, hash, mark) {		
-		il.Util.sendAjaxGetRequestToUrl(this.url_rating + "&rating=" + mark + "&child_ref_id=" + ref_id + "&cadh= " + hash, {}, {url_redraw: this.url_redraw_li, ref_id: ref_id}, this.redrawAfterRatingFromListGUI);
+
+	saveRatingFromListGUI: function (ref_id, hash, mark) {
+		il.Util.sendAsyncAjaxPostRequestToUrl(
+			this.url_rating + "&child_ref_id=" + ref_id + "&cadh= " + hash,
+			'rating=' + mark,
+			{url_redraw: this.url_redraw_li, ref_id: ref_id},
+			this.redrawAfterRatingFromListGUI
+		);
 	},
 			
 	redrawAfterRatingFromListGUI: function(o) {	
