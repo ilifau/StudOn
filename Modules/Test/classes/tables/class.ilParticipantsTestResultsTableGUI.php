@@ -123,6 +123,10 @@ class ilParticipantsTestResultsTableGUI extends ilTable2GUI
         $this->addColumn($this->lng->txt("name"), 'name');
         $this->addColumn($this->lng->txt("login"), 'login');
 
+        // fau: testParticipantsResultsTable - add column for started ppasses
+        $this->addColumn($this->lng->txt("tst_tbl_col_started_passes"), 'max_pass');
+        // fau.
+                
         $this->addColumn($this->lng->txt("tst_tbl_col_scored_pass"), 'scored_pass');
         $this->addColumn($this->lng->txt("tst_tbl_col_pass_finished"), 'scored_pass_finished_timestamp');
 
