@@ -176,6 +176,10 @@ class ilParticipantsTestResultsTableGUI extends ilTable2GUI
         $this->tpl->setVariable("LOGIN", $a_set['login']);
         $this->tpl->setVariable("FULLNAME", $a_set['name']);
 
+        // fau: testParticipantsResultsTable - fill column for started passes
+        $this->tpl->setVariable("STARTED_PASSES", isset($a_set['max_pass']) ? $a_set['max_pass'] + 1 : 0);
+        // fau.
+
         $this->tpl->setVariable("SCORED_PASS", $this->buildScoredPassString($a_set));
         $this->tpl->setVariable("SCORED_PASS_FINISHED", $this->buildScoredPassFinishedString($a_set));
 
