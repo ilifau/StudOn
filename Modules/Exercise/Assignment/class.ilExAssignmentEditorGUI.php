@@ -191,6 +191,7 @@ class ilExAssignmentEditorGUI
                     $type_gui = $this->type_guis->getByClassName($class);
                     $type_gui->setAssignment($this->assignment);
                     $ilCtrl->forwardCommand($type_gui);
+                    return;
                 }
                 // fau.
                 $this->{$cmd . "Object"}();
@@ -703,8 +704,11 @@ class ilExAssignmentEditorGUI
             }
 
             // fau: exAssHook - change feedback upload only if it is included
-            if ($this->assignment->getFeedbackFile() && !empty($a_form->getItemByPostVar("fb_file"))) {
-                $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
+            if ($this->assignment->getFeedbackFile()) {
+                $fb_file_item = $a_form->getItemByPostVar("fb_file");
+                if ($fb_file_item !== null) {
+                    $fb_file_item->setRequired(false); // #15467
+                }
             }
             // fau.
         }
@@ -897,7 +901,8 @@ class ilExAssignmentEditorGUI
                     $res["fb_date"] = $a_form->getInput("fb_date");
                     $res["fb_date_custom"] = $time_fb_custom_date;
 
-                    if ($_FILES["fb_file"]["tmp_name"]) {
+                    // Nur wenn fb_file auch existiert (nicht bei deinem Plugin)
+                    if (isset($_FILES["fb_file"]) && $_FILES["fb_file"]["tmp_name"]) {
                         $res["fb_file"] = $_FILES["fb_file"];
                     }
                 }
@@ -1175,14 +1180,16 @@ class ilExAssignmentEditorGUI
         // global feedback
         // fau: exAssHook - don't check feedback file it type has its own general feedback
         if (!$this->type_has_own_feedback && $this->assignment->getFeedbackFile()) {
-            $a_form->getItemByPostVar("fb")->setChecked(true);
-            $a_form->getItemByPostVar("fb_file")->setValue(basename($this->assignment->getGlobalFeedbackFilePath()));
-            $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
-            $a_form->getItemByPostVar("fb_file")->setInfo(
-                // #16400
-                '<a href="' . $ilCtrl->getLinkTarget($this, "downloadGlobalFeedbackFile") . '">' .
-                $lng->txt("download") . '</a>'
-            );
+            $fb_file_item = $a_form->getItemByPostVar("fb_file");
+            if ($fb_file_item !== null) {
+                $fb_file_item->setValue(basename($this->assignment->getGlobalFeedbackFilePath()));
+                $fb_file_item->setRequired(false); // #15467
+                $fb_file_item->setInfo(
+                    // #16400
+                    '<a href="' . $ilCtrl->getLinkTarget($this, "downloadGlobalFeedbackFile") . '">' .
+                    $lng->txt("download") . '</a>'
+                );
+            }
         }
         // fau.
         $a_form->getItemByPostVar("fb_cron")->setChecked($this->assignment->hasFeedbackCron());

@@ -33,22 +33,68 @@ class ilExAssignmentTypesGUI
      */
     protected function getActivePlugins() {
         if (!isset($this->plugins)) {
-            $this->plugins = [];
             global $DIC;
-            $this->component_repository = $DIC["component.repository"];
-            $this->component_factory = $DIC["component.factory"];
-            if($this->component_repository->hasPluginSlotId("exahsk")) {
-                $names = $this->component_factory->getActivePluginsInSlot('exashk');
-            }
-            else {
-                $names = [];
-            }
+            
+            $this->plugins = [];
+            
+            try {
+                // Methode 1: Über Component Repository
+                $component_repo = $DIC["component.repository"];
                 
-            foreach ($names as $name) {
-                $this->plugins[] = $this->component_repository->getPluginById($name);
+                // Versuche verschiedene Ansätze
+                if (method_exists($component_repo, 'getPlugins')) {
+                    $plugins_generator = $component_repo->getPlugins();
+                    $all_plugins = iterator_to_array($plugins_generator);
+                    
+                    foreach ($all_plugins as $plugin_info) {
+                        // Versuche verschiedene Eigenschaften zu lesen
+                        $plugin_id = method_exists($plugin_info, 'getId') ? $plugin_info->getId() : 'unknown';
+                        $plugin_name = method_exists($plugin_info, 'getName') ? $plugin_info->getName() : 'unknown';
+                        $is_active = method_exists($plugin_info, 'isActive') ? $plugin_info->isActive() : false;
+                        
+                        // Suche nach ExAutoScore
+                        if (strpos(strtolower($plugin_id), 'exautoscore') !== false || 
+                            strpos(strtolower($plugin_name), 'exautoscore') !== false) {
+                            
+                            if ($is_active) {
+                                try {
+                                    $component_factory = $DIC["component.factory"];
+                                    $plugin_instance = $component_factory->getPlugin($plugin_id);
+                                    $this->plugins[] = $plugin_instance;
+                                } catch (Exception $e) {
+                                    // Plugin-Instanziierung fehlgeschlagen
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            } catch (Exception $e) {
+                // Component Repository Ansatz fehlgeschlagen
+            }
+            
+            // Fallback: Direkte Plugin-Instanziierung
+            if (empty($this->plugins)) {
+                $plugin_path = ILIAS_ABSOLUTE_PATH . '/Customizing/global/plugins/Modules/Exercise/AssignmentHook/ExAutoScore/classes/class.ilExAutoScorePlugin.php';
+                
+                if (file_exists($plugin_path)) {
+                    require_once($plugin_path);
+                    
+                    if (class_exists('ilExAutoScorePlugin')) {
+                        try {
+                            $plugin = ilExAutoScorePlugin::getInstance();
+                            
+                            // Prüfe Plugin-Status
+                            if (method_exists($plugin, 'isActive') && $plugin->isActive()) {
+                                $this->plugins[] = $plugin;
+                            }
+                        } catch (Exception $e) {
+                            // Direkte Plugin-Instanziierung fehlgeschlagen
+                        }
+                    }
+                }
             }
         }
-
         return $this->plugins;
     }
     // fau.
