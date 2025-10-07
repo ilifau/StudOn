@@ -327,7 +327,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
     {
         // fau: objectSub - fill registration by separate object
         if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
-           // return $this->fillRegistrationTypeObject($this->container->getRegistrationRefId());
+           $this->fillRegistrationTypeObject($this->container->getRegistrationRefId());
            return;
         }
         // fau.        
