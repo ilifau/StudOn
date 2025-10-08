@@ -109,9 +109,12 @@ class ilTestScoring
                 /** @var  ilTestEvaluationUserData $userdata */
                 include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
                 ilLPStatusWrapper::_updateStatus($this->test->getId(), $userdata->getUserID());
-
+                
                 require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
-                ilExAssTypeTestResultAssignment::updateAssignments($this->test, $factory->getSession($active_id));
+                global $DIC;
+                $testSession = new ilTestSession($this->db, $DIC->user());
+                $testSession->loadFromDb($active_id);
+                ilExAssTypeTestResultAssignment::updateAssignments($this->test, $testSession);
             }
         }
 
