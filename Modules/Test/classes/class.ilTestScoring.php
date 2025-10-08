@@ -104,7 +104,7 @@ class ilTestScoring
             }
             if (is_object($userdata) && is_array($userdata->getPasses())) {
                 $this->recalculatePasses($userdata, $active_id);
-                assQuestion::_updateTestResultCache($active_id);
+                $this->test->updateTestResultCache($active_id);
 
                 /** @var  ilTestEvaluationUserData $userdata */
                 include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
