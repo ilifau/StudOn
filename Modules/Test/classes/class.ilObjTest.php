@@ -6170,6 +6170,9 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware
             'EnableProcessingTime' => (int) $main_settings->getTestBehaviourSettings()->getProcessingTimeEnabled(),
             'ProcessingTime' => $main_settings->getTestBehaviourSettings()->getProcessingTime(),
             'ResetProcessingTime' => $main_settings->getTestBehaviourSettings()->getResetProcessingTime(),
+            // uni-bonn-patch: begin
+            'force_final_save' => (int) $main_settings->getTestBehaviourSettings()->getForceFinalSaveEnabled(),
+            // uni-bonn-patch: end
             'Kiosk' => $main_settings->getTestBehaviourSettings()->getKioskMode(),
             'examid_in_test_pass' => (int) $main_settings->getTestBehaviourSettings()->getExamIdInTestPassEnabled(),
 
@@ -6309,6 +6312,9 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware
                 ->withProcessingTimeEnabled((bool) $testsettings['EnableProcessingTime'])
                 ->withProcessingTime($testsettings['ProcessingTime'])
                 ->withResetProcessingTime((bool) $testsettings['ResetProcessingTime'])
+                // uni-bonn-patch: begin
+                ->withForceFinalSaveEnabled((bool) $testsettings['force_final_save'])
+                // uni-bonn-patch: end
                 ->withExamIdInTestPassEnabled((bool) ($testsettings['examid_in_test_pass'] ?? 0))
             )
             ->withQuestionBehaviourSettings(

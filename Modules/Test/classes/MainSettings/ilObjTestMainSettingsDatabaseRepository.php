@@ -73,6 +73,9 @@ class ilObjTestMainSettingsDatabaseRepository implements MainSettingsRepository
             . 'title_output,' . PHP_EOL
             . 'autosave,' . PHP_EOL
             . 'autosave_ival,' . PHP_EOL
+            // uni-bonn-patch: begin
+            . 'force_final_save,' . PHP_EOL
+            // uni-bonn-patch: end
             . 'shuffle_questions,' . PHP_EOL
             . 'offer_question_hints,' . PHP_EOL
             . 'answer_feedback_points,' . PHP_EOL
@@ -147,6 +150,9 @@ class ilObjTestMainSettingsDatabaseRepository implements MainSettingsRepository
                 (bool) $row['enable_processing_time'],
                 $row['processing_time'],
                 (bool) $row['reset_processing_time'],
+                // uni-bonn-patch: begin
+                (bool) $row['force_final_save'],
+                // uni-bonn-patch: end
                 $row['kiosk'],
                 (bool) $row['examid_in_test_pass']
             ),

@@ -34,6 +34,9 @@ class ilObjTestSettingsTestBehaviour extends TestSettings
         protected bool $processing_time_enabled = false,
         protected ?string $processing_time = null,
         protected bool $reset_processing_time = false,
+        // uni-bonn-patch: begin
+        protected bool $force_final_save = false,
+        // uni-bonn-patch: end
         protected int $kiosk_mode = 0,
         protected bool $examid_in_test_pass_enabled = false
     ) {
@@ -235,7 +238,10 @@ class ilObjTestSettingsTestBehaviour extends TestSettings
                     return [
                         'processing_time_limit' => false,
                         'time_limit_for_completion_value' => null,
-                        'reset_time_limit_for_completion_by_attempt' => false
+                        // uni-bonn-patch: begin
+                        'reset_time_limit_for_completion_by_attempt' => false,
+                        'force_final_save' => false
+                        // uni-bonn-patch: end
                     ];
                 }
 
@@ -263,6 +269,12 @@ class ilObjTestSettingsTestBehaviour extends TestSettings
             $lng->txt('tst_reset_processing_time'),
             $lng->txt('tst_reset_processing_time_desc')
         );
+        // uni-bonn-patch: begin
+        $sub_inputs_time_limit_for_completion['force_final_save'] = $f->checkbox(
+            $lng->txt('tst_force_final_save'),
+            $lng->txt('tst_force_final_save_desc')
+        );
+        // uni-bonn-patch: end
 
         $time_limit_for_completion = $f->optionalGroup(
             $sub_inputs_time_limit_for_completion,
@@ -275,7 +287,10 @@ class ilObjTestSettingsTestBehaviour extends TestSettings
             $time_limit_for_completion = $time_limit_for_completion->withValue(
                 [
                     'time_limit_for_completion_value' => (int) $this->getProcessingTimeAsMinutes(),
-                    'reset_time_limit_for_completion_by_attempt' => (bool) $this->getResetProcessingTime()
+                    // uni-bonn-patch: begin
+                    'reset_time_limit_for_completion_by_attempt' => (bool) $this->getResetProcessingTime(),
+                    'force_final_save' => (bool) $this->getForceFinalSaveEnabled(),
+                    // uni-bonn-patch: end
                 ]
             );
         }
@@ -348,6 +363,9 @@ class ilObjTestSettingsTestBehaviour extends TestSettings
             'enable_processing_time' => ['integer', (int) $this->getProcessingTimeEnabled()],
             'processing_time' => ['string', $this->getProcessingTime()],
             'reset_processing_time' => ['integer', (int) $this->getResetProcessingTime()],
+            // uni-bonn-patch: begin
+            'force_final_save' => ['integer', (int) $this->getForceFinalSaveEnabled()],
+            // uni-bonn-patch: end
             'kiosk' => ['integer', $this->getKioskMode()],
             'examid_in_test_pass' => ['integer', (int) $this->getExamIdInTestPassEnabled()]
         ];
@@ -484,4 +502,18 @@ class ilObjTestSettingsTestBehaviour extends TestSettings
         $clone->examid_in_test_pass_enabled = $exam_id_in_test_pass_enabled;
         return $clone;
     }
+
+    // uni-bonn-patch: begin
+    public function getForceFinalSaveEnabled(): bool
+    {
+        return $this->force_final_save;
+    }
+
+    public function withForceFinalSaveEnabled(bool $force_final_save): self
+    {
+        $clone = clone $this;
+        $clone->force_final_save = $force_final_save;
+        return $clone;
+    }
+    // uni-bonn-patch: end
 }

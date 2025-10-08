@@ -624,7 +624,10 @@ class ilObjTestSettingsMainGUI extends ilTestSettingsGUI
             ->withPassWaiting($section['force_waiting_between_attempts'])
             ->withProcessingTimeEnabled($section['time_limit_for_completion']['processing_time_limit'])
             ->withProcessingTime($section['time_limit_for_completion']['time_limit_for_completion_value'])
-            ->withResetProcessingTime($section['time_limit_for_completion']['reset_time_limit_for_completion_by_attempt']);
+        // uni-bonn-patch: begin
+            ->withResetProcessingTime($section['time_limit_for_completion']['reset_time_limit_for_completion_by_attempt'])
+            ->withForceFinalSaveEnabled($section['time_limit_for_completion']['force_final_save']);
+        // uni-bonn-patch: end
     }
 
     private function getQuestionBehaviourSettingsForStorage(array $section): ilObjTestSettingsQuestionBehaviour

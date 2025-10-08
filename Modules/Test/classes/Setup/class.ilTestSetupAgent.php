@@ -36,7 +36,14 @@ class ilTestSetupAgent extends NullAgent
 
     public function getUpdateObjective(ILIAS\Setup\Config $config = null): Objective
     {
-        return new ilDatabaseUpdateStepsExecutedObjective(new ilTest9DBUpdateSteps());
+        // uni-bonn-patch: begin
+        return new Setup\ObjectiveCollection(
+            'ilTestUpdateCollection',
+            false,
+            new ilDatabaseUpdateStepsExecutedObjective(new ilTest9DBUpdateSteps()),
+            new ilDatabaseUpdateStepsExecutedObjective(new ilTest9DBPatchUpdateSteps())
+        );
+        // uni-bonn-patch: end
     }
 
     public function getStatusObjective(Metrics\Storage $storage): Objective

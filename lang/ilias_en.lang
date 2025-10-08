@@ -1422,6 +1422,8 @@ assessment#:#tst_finish_notification_desc#:#Sends an e-mail to the test owner fo
 assessment#:#tst_finish_notification_no#:#No e-mail
 assessment#:#tst_finish_notification_simple#:#Send username and finish date
 assessment#:#tst_finished#:#Finished
+assessment#:#tst_force_final_save#:#Save answers as authorized at the end of processing time
+assessment#:#tst_force_final_save_desc#:#Automatically saves the last selected answer as authorized as soon as the processing time has expired.
 assessment#:#tst_form_dynamic_question_set_config#:#Continues Question Selection
 assessment#:#tst_gap_analysis#:#Gap Analysis
 assessment#:#tst_general_properties#:#General Settings

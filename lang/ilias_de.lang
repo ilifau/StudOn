@@ -1422,6 +1422,8 @@ assessment#:#tst_finish_notification_desc#:#Für jede Person, die einen Test bee
 assessment#:#tst_finish_notification_no#:#Keine Benachrichtigung
 assessment#:#tst_finish_notification_simple#:#Nur Anmeldename und Datum des Beendens
 assessment#:#tst_finished#:#Beendet
+assessment#:#tst_force_final_save#:#Antworten bei Ablauf der Bearbeitungszeit autorisiert speichern
+assessment#:#tst_force_final_save_desc#:#Speichert automatisch die zuletzt ausgewählte Antwort als autorisiert, sobald die Bearbeitungszeit abgelaufen ist.
 assessment#:#tst_form_dynamic_question_set_config#:#Fortlaufende Fragenauswahl
 assessment#:#tst_gap_analysis#:#Gap-Analyse
 assessment#:#tst_general_properties#:#Einstellungen des Tests
