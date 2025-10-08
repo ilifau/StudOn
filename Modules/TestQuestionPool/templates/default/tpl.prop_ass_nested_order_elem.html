@@ -5,6 +5,9 @@
         <!-- END item_text -->
         <!-- BEGIN item_image -->
             <img class="ilc_qimg_QuestionImage" border="0" src="{ITEM_SOURCE}" alt="{ITEM_CONTENT}" title="{ITEM_CONTENT}" />
+            <!-- fau: imageBox - use colorbox for ordering element -->
+            <a class="ilc_qimgd_ImageDetailsLink dd-nodrag" onmousedown="event.preventDefault(); $.colorbox({href:'{ENLARGE_SOURCE}', maxWidth:'100%', maxHeight:'100%'}); return false;" target="_new" href="{ENLARGE_SOURCE}"><img border="0" src="{ENLARGE_HREF}" alt="{ENLARGE_ALT}" title="{ENLARGE_TITLE}" /></a>
+            <!-- fau. -->
         <!-- END item_image -->
     </span>
     <input type="hidden" name="{ITEM_POSTVAR}" value="{ITEM_CONTENT}" />
