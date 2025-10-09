@@ -38,4 +38,25 @@ class FAUIliasSteps
         $this->db->addIndex('fau_ilias_reglog', ['user_id'], 'i3');
         $this->db->addIndex('fau_ilias_reglog', ['obj_id'], 'i4');
     }
+
+public function custom_step_132() {
+        $this->createAttMaxLogTable(false);
+    }
+    
+    protected function createAttMaxLogTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_ilias_attmaxlog', [
+            'id'            => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'attendee_max'  => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'timestamp'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'action'        => ['type' => 'text',       'length' => 250,    'notnull' => true],
+            'obj_id'        => ['type' => 'integer',    'length' => 4,      'notnull' => true]
+            ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_ilias_attmaxlog', ['id']);
+        $this->db->createSequence('fau_ilias_attmaxlog');
+        $this->db->addIndex('fau_ilias_attmaxlog', ['timestamp'], 'i1');
+        $this->db->addIndex('fau_ilias_attmaxlog', ['obj_id'], 'i2');
+    }    
 }

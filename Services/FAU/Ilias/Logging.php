@@ -2,6 +2,7 @@
 
 namespace FAU\Ilias;
 
+use FAU\Ilias\Data\AttendeeMaximumLog;  
 use ILIAS\DI\Container;
 use FAU\Ilias\Data\RegLog;
 use FAU\Ilias\Helper\WaitingListConstantsHelper;
@@ -170,4 +171,26 @@ class Logging
     {
         return \ilDatePresentation::formatDate(new \ilDateTime($timestamp, IL_CAL_UNIX), false, false, true);
     }
+
+    /**
+     * Add an entry to the attendee maximum log
+     */
+    public function addAttMaxLog(
+        string $action, 
+        int $attendee_max,
+        int $obj_id, 
+        ?int $timestamp = null
+    ) {
+        
+        $entry = new AttendeeMaximumLog(
+            0,
+            $attendee_max,
+            $timestamp ?? time(),
+            $action,
+            $obj_id
+        );
+        
+        $this->repository->save($entry);
+    }
+
 }

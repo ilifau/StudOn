@@ -2,6 +2,7 @@
 
 namespace FAU\Ilias;
 
+use FAU\Ilias\Data\AttendeeMaximumLog;
 use FAU\Study\Data\ImportId;
 use ILIAS\DI\Container;
 use ilObject;
@@ -579,6 +580,11 @@ class Objects
             if (!empty($stagingCourse = $this->dic->fau()->staging()->repo()->getStudOnCourse((int) $course_id))) {
                 $this->dic->fau()->staging()->repo()->save(
                     $stagingCourse->withAttendeeMaximum($maximum)
+                );
+                $this->dic->fau()->ilias()->logging()->addAttMaxLog(
+                    AttendeeMaximumLog::ACTION_ATTENDEE_MAXIMUM_CHANGED, 
+                    $maximum,
+                    (int) $course_id
                 );
             }
 
