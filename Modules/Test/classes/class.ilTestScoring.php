@@ -112,9 +112,11 @@ class ilTestScoring
                 
                 require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
                 global $DIC;
-                $testSession = new ilTestSession($this->db, $DIC->user());
-                $testSession->loadFromDb($active_id);
-                ilExAssTypeTestResultAssignment::updateAssignments($this->test, $testSession);
+                $user = $DIC->user();
+                $session_factory = new ilTestSessionFactory($this->test, $this->db, $user);
+
+                require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
+                ilExAssTypeTestResultAssignment::updateAssignments($this->test, $session_factory->getSession($active_id));
             }
         }
 
