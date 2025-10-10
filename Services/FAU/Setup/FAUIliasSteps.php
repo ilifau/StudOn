@@ -50,7 +50,8 @@ public function custom_step_132() {
             'attendee_max'  => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'timestamp'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'action'        => ['type' => 'text',       'length' => 250,    'notnull' => true],
-            'obj_id'        => ['type' => 'integer',    'length' => 4,      'notnull' => true]
+            'obj_id'        => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'user_id'       => ['type' => 'integer',    'length' => 4,      'notnull' => true]
             ],
             $drop
         );
@@ -58,5 +59,6 @@ public function custom_step_132() {
         $this->db->createSequence('fau_ilias_attmaxlog');
         $this->db->addIndex('fau_ilias_attmaxlog', ['timestamp'], 'i1');
         $this->db->addIndex('fau_ilias_attmaxlog', ['obj_id'], 'i2');
+        $this->db->addIndex('fau_ilias_attmaxlog', ['user_id'], 'i3');
     }    
 }

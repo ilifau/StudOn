@@ -18,19 +18,22 @@ class AttendeeMaximumLog extends RecordData
         'timestamp' => 'integer',
         'action' => 'text',
         'obj_id' => 'integer',
+        'user_id' => 'integer'
     ];
     protected int $id;
     protected int $attendee_max;
     protected int $timestamp;
     protected string $action;
     protected int $obj_id;
+    protected int $user_id;
 
     public function __construct(
         int $id,
         int $attendee_max,
         int $timestamp,
         string $action,
-        int $obj_id
+        int $obj_id,
+        int $user_id
     )
     {
         $this->id = $id;
@@ -38,11 +41,12 @@ class AttendeeMaximumLog extends RecordData
         $this->timestamp = $timestamp;
         $this->action = $action;
         $this->obj_id = $obj_id;
+        $this->user_id = $user_id;
     }
 
     public static function model(): self
     {
-        return new self(0,0,0,'',0);
+        return new self(0,0,0,'',0, 0);
     }
 
     /**
@@ -82,5 +86,13 @@ class AttendeeMaximumLog extends RecordData
     public function getAttendeeMax() : int
     {
         return $this->attendee_max;
-    }    
+    }   
+    
+    /**
+     * @return int
+     */
+    public function getUserId() : int
+    {
+        return $this->user_id;
+    }     
 }

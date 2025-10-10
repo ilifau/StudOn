@@ -179,6 +179,7 @@ class Logging
         string $action, 
         int $attendee_max,
         int $obj_id, 
+        int $user_id,
         ?int $timestamp = null
     ) {
         
@@ -187,7 +188,8 @@ class Logging
             $attendee_max,
             $timestamp ?? time(),
             $action,
-            $obj_id
+            $obj_id,
+            $user_id
         );
         
         $this->repository->save($entry);

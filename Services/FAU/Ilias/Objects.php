@@ -584,7 +584,8 @@ class Objects
                 $this->dic->fau()->ilias()->logging()->addAttMaxLog(
                     AttendeeMaximumLog::ACTION_ATTENDEE_MAXIMUM_CHANGED, 
                     $maximum,
-                    (int) $course_id
+                    (int) $course_id,
+                    $this->dic->user()->getId()
                 );
             }
 
