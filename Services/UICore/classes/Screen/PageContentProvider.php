@@ -239,11 +239,11 @@ class PageContentProvider extends AbstractModificationProvider
           
             $footer = $f->mainControls()->footer($links, $text);
 
-            $users_online = count(\ilObjUser::_getUsersOnline());
+            // $users_online = count(\ilObjUser::_getUsersOnline());
 
 
             $texts[] = $this->dic->language()->txt('footer_server') . ' ' . current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR'])));
-            $texts[] = $this->dic->language()->txt('footer_active_users') . ' ' . $users_online;
+            // $texts[] = $this->dic->language()->txt('footer_active_users') . ' ' . $users_online;
 
             // fau: devmodeFooter - show memory usage as MB
             if (DEVMODE) {
@@ -265,7 +265,7 @@ class PageContentProvider extends AbstractModificationProvider
              }
 
             
-             $footer = $f->mainControls()->footer($links, $texts[0].'<br/>'.$texts[1]);
+             $footer = $f->mainControls()->footer($links, $texts[0]);
              // fau.
              $footer = $this->dic['legalDocuments']->modifyFooter($footer);
  
