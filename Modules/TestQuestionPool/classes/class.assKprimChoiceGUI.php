@@ -360,11 +360,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $use_post_solutions = false,
         $showInlineFeedback = false
     ): string {
-        // fau: imageBox - init colorbox
-        include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
-        iljQueryUtil::initjQuery();
-        iljQueryUtil::initColorbox();
-        // fau. 
+
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();
 
@@ -459,12 +455,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      * @param bool $showInlineFeedback
      */
     public function getPreview($show_question_only = false, $showInlineFeedback = false): string
-    {
-        // fau: imageBox - init colorbox
-        include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
-        iljQueryUtil::initjQuery();
-        iljQueryUtil::initColorbox();
-        // fau.        
+    {       
         $user_solution = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : [];
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();

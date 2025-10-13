@@ -1530,14 +1530,6 @@ class ilPageObjectGUI
         // ensure no cache hit, if included files/media objects have been changed
         $params["incl_elements_date"] = $this->obj->getLastUpdateOfIncludedElements();
 
-        // fau: imageBox - init colorbox and add parameter to open fullscreen in box
-        if ($this instanceof ilAssQuestionPageGUI) {
-            iljQueryUtil::initColorbox();
-            $params["fullscreen_in_colorbox"] = true;
-        } else {
-            $params["fullscreen_in_colorbox"] = false;
-        }
-        // fau.
 
         // should be modularized
         $md5_adds = ilPCSection::getCacheTriggerString($this->getPageObject());

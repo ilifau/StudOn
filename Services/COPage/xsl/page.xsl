@@ -94,10 +94,6 @@
 <xsl:param name="activated_protection"/>
 <xsl:param name="protection_text"/>
 <xsl:param name="acc_save_url"/>
-<!-- fau: imageBox - add parameter to show fullscreen media with colorbox -->
-<xsl:param name="fullscreen_in_colorbox"/>
-<!-- fau. -->
-
 
 <xsl:template match="PageObject">
 	<xsl:if test="$mode != 'edit'">
