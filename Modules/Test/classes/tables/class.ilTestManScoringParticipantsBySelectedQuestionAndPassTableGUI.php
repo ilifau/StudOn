@@ -165,12 +165,12 @@ class ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI extends ilTa
         );
         $this->tpl->setVariable('VAL_EXAMID', $exam_id);
 
-        if ($this->parent_obj->getObject()->getAnonymity()
-            || in_array($a_set['usr_id'], $this->anon_only_user_ids)
-        ) {
+        if (in_array($a_set['usr_id'], $this->anon_only_user_ids)) {
             $a_set['name'] = '';
         }
-        $this->tpl->setVariable('VAL_NAME', $a_set['name']);
+        if (! $this->parent_obj->getObject()->getAnonymity()) {
+            $this->tpl->setVariable('VAL_NAME', $a_set['name']);
+        }
 
         if (!$this->first_row_rendered) {
             $this->first_row_rendered = true;
