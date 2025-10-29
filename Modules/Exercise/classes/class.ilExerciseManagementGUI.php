@@ -1891,7 +1891,7 @@ class ilExerciseManagementGUI
             $this->ctrl->redirect($this, "members");
         }
 
-        include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
+        include_once("./Services/UIComponent/Confirmation/class.ilConfirmationGUI.php");
         $cgui = new ilConfirmationGUI();
         $cgui->setFormAction($this->ctrl->getFormAction($this));
         $cgui->setHeaderText( $this->lng->txt("exc_create_single_teams_confirmation"));
