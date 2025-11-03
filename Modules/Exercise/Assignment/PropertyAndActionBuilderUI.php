@@ -240,6 +240,24 @@ class PropertyAndActionBuilderUI
 
     protected function buildHead(): void
     {
+        // fau: exAssTest - Auto-Publish & SCRUB FIRST (before Head Properties!)
+        // Must run here because overview calls getMemberStatus() (lines 416, 428)
+        if ($this->isSubmissionTypeTestResult()) {
+            $did_publish = $this->handleTestResultEvaluationVisibility($this->ex_ass, $this->submission);
+
+            // CRITICAL: If we just published results, redirect to get a fresh page load
+            // This is the same pattern used by standard assignment types (File, Text)
+            // Without redirect, the cached state from build() would still show old data
+            if ($did_publish) {
+                global $DIC;
+                // Redirect to current controller to force fresh page load with new data
+                // Use getCmdClass() to get the active controller, then redirect to it
+                $current_class = $DIC->ctrl()->getCmdClass();
+                $DIC->ctrl()->redirectByClass($current_class, $DIC->ctrl()->getCmd());
+            }
+        }
+        // fau.
+
         $state = $this->state;
         $lng = $this->lng;
 
@@ -807,6 +825,23 @@ class PropertyAndActionBuilderUI
         $feedback_file_manager = $this->domain->assignment()->tutorFeedbackFile($ass->getId());
         $cnt_files = $feedback_file_manager->count($this->user_id);
 
+        // fau: exAssTest - Auto-Publish & SCRUB for test result assignments
+        // IMPORTANT: This must run BEFORE reading member status!
+        if ($this->isSubmissionTypeTestResult()) {
+            $did_publish = $this->handleTestResultEvaluationVisibility($ass, $this->submission);
+
+            // CRITICAL: If we just published results, redirect to get a fresh page load
+            // This is the same pattern used by standard assignment types (File, Text)
+            // Without redirect, the cached state from build() would still show old data
+            if ($did_publish) {
+                global $DIC;
+                // Redirect to current controller to force fresh page load with new data
+                // Use getCmdClass() to get the active controller, then redirect to it
+                $current_class = $DIC->ctrl()->getCmdClass();
+                $DIC->ctrl()->redirectByClass($current_class, $DIC->ctrl()->getCmd());
+            }
+        }
+        // fau.
 
         $lpcomment = $ass->getMemberStatus()->getComment();
         $mark = $ass->getMemberStatus()->getMark();
@@ -953,6 +988,123 @@ class PropertyAndActionBuilderUI
             $this->submission->getSubmissionType(),
             [\ilExSubmission::TYPE_TEST_RESULT, \ilExSubmission::TYPE_TEST_RESULT_TEAM]
         );
+    }
+
+    // fau.
+
+    // fau: exAssTest - handleVisibility
+    /**
+     * Handle evaluation visibility for test result assignments (Auto-Publish & SCRUB)
+     *
+     * Two-layer protection pattern:
+     * - Auto-Publish: Write evaluation AFTER all deadlines are reached
+     * - SCRUB: Delete evaluation BEFORE deadline (e.g., if deadline is extended)
+     *
+     * This method runs BEFORE getMemberStatus() is called to ensure fresh data.
+     * Returns true if publishing happened, which triggers a redirect for fresh page load.
+     *
+     * @param \ilExAssignment $ass The assignment
+     * @param \ilExSubmission $sub The submission
+     * @return bool True if Auto-Publish happened (triggers redirect)
+     */
+    protected function handleTestResultEvaluationVisibility(\ilExAssignment $ass, \ilExSubmission $sub): bool
+    {
+        try {
+            // Get affected users (team or individual)
+            $affected_user_ids = [];
+            if ($ass->hasTeam()) {
+                $team = $sub->getTeam();
+                if ($team) {
+                    $affected_user_ids = $team->getMembers();
+                }
+            } else {
+                $affected_user_ids = [$this->user_id];
+            }
+
+            if (empty($affected_user_ids)) {
+                return false;
+            }
+
+            $is_tutor = \ilObjExerciseAccess::checkExtendedGradingAccess($this->exc->getId(), false);
+
+            // STEP 1: Auto-Publish (write after deadline)
+            $all_deadlines_reached = $this->checkAllDeadlinesReached($ass, $affected_user_ids);
+
+            if ($all_deadlines_reached) {
+                require_once("./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php");
+                $assTest = \ilExAssTypeTestResultAssignment::findOrGetInstance($ass->getId());
+
+                if (!empty($assTest->getTestRefId())) {
+                    $test_ref_id = $assTest->getTestRefId();
+                    $first_user = $affected_user_ids[0];
+                    $current_status = $ass->getMemberStatus($first_user);
+
+                    // Publish if not yet published
+                    if ($current_status->getStatus() === 'notgraded' || empty($current_status->getMark())) {
+                        try {
+                            global $DIC;
+                            $test = new \ilObjTest($test_ref_id, true);
+                            $session_factory = new \ilTestSessionFactory($test, $DIC->database(), $DIC->user());
+
+                            foreach ($affected_user_ids as $uid) {
+                                $active_id = $test->getActiveIdOfUser($uid);
+                                if ($active_id > 0) {
+                                    $session = $session_factory->getSession($active_id);
+                                    $assTest->storeResult($test, $session);
+
+                                    // Return true to trigger redirect (like standard assignment types do)
+                                    return true;
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            // Test not available - skip silently (don't show error to user)
+                            global $DIC;
+                            $DIC->logger()->root()->warning('ExAssTest: Could not load test ' . $test_ref_id . ': ' . $e->getMessage());
+                        }
+                    }
+                }
+            }
+
+            // STEP 2: SCRUB (delete before deadline)
+            if (!$all_deadlines_reached && !$is_tutor) {
+                foreach ($affected_user_ids as $uid) {
+                    $status = new \ilExAssignmentMemberStatus($ass->getId(), $uid);
+                    $status->setStatus('notgraded');
+                    $status->setMark('');
+                    $status->setNotice('');
+                    $status->update();
+                }
+            }
+
+        } catch (\Throwable $e) {
+            global $DIC;
+            $DIC->logger()->root()->error('ExAssTest: handleTestResultEvaluationVisibility failed: ' . $e->getMessage());
+        }
+
+        return false;
+    }
+    // fau.
+
+    // fau: exAssTest - checkAllDeadlinesReached
+    /**
+     * Check if all deadlines reached for given users
+     * Supports general deadline, personal deadlines, and no deadline
+     */
+    protected function checkAllDeadlinesReached(\ilExAssignment $ass, array $user_ids): bool
+    {
+        $now = time();
+
+        foreach ($user_ids as $uid) {
+            $personal_deadline = (int) $ass->getPersonalDeadline($uid);
+            $general_deadline = (int) $ass->getDeadline();
+            $effective_deadline = $personal_deadline > 0 ? $personal_deadline : $general_deadline;
+
+            if ($effective_deadline > 0 && $now < $effective_deadline) {
+                return false;
+            }
+        }
+
+        return true;
     }
     // fau.
 }
