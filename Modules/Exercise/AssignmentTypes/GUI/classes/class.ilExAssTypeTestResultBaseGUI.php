@@ -94,7 +94,8 @@ abstract class ilExAssTypeTestResultBaseGUI implements ilExAssignmentTypeGUIInte
         $lng = $DIC->language();
         $ilCtrl = $DIC->ctrl();
         $submission = $this->getSubmission();
-
+        
+        // fau: exAssTest 
         // Check if user needs to create a team first (for team assignments)
         if ($submission->getAssignment()->hasTeam() && $submission->hasNoTeamYet()) {
             $ilCtrl->setParameterByClass(ilExSubmissionTeamGUI::class, 'ass_id', $submission->getAssignment()->getId());
@@ -108,6 +109,7 @@ abstract class ilExAssTypeTestResultBaseGUI implements ilExAssignmentTypeGUIInte
 
             return;
         }
+        // fau.
 
         if ($submission->canSubmit()) {
             $url = $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTestResultGUI"), "callTest");
