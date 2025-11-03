@@ -85,7 +85,7 @@ abstract class ilExAssTypeTestResultBaseGUI implements ilExAssignmentTypeGUIInte
 
     public function buildSubmissionPropertiesAndActions(\ILIAS\Exercise\Assignment\PropertyAndActionBuilderUI $builder): void
     {
-        
+
         global $DIC;
 
         $service = $DIC->exercise()->internal();
@@ -94,6 +94,22 @@ abstract class ilExAssTypeTestResultBaseGUI implements ilExAssignmentTypeGUIInte
         $lng = $DIC->language();
         $ilCtrl = $DIC->ctrl();
         $submission = $this->getSubmission();
+        
+        // fau: exAssTest 
+        // Check if user needs to create a team first (for team assignments)
+        if ($submission->getAssignment()->hasTeam() && $submission->hasNoTeamYet()) {
+            $ilCtrl->setParameterByClass(ilExSubmissionTeamGUI::class, 'ass_id', $submission->getAssignment()->getId());
+            $url = $ilCtrl->getLinkTargetByClass(
+                [ilAssignmentPresentationGUI::class, ilExSubmissionGUI::class, ilExSubmissionTeamGUI::class],
+                'createSingleMemberTeam'
+            );
+
+            $builder->setMainAction($builder::SEC_SUBMISSION, $f->button()->primary($lng->txt('exc_create_team'), $url));
+            $builder->addView('submission', $lng->txt('exc_submission'), $url);
+
+            return;
+        }
+        // fau.
 
         if ($submission->canSubmit()) {
             $url = $ilCtrl->getLinkTargetByClass(array(ilAssignmentPresentationGUI::class, "ilExSubmissionGUI", "ilExSubmissionTestResultGUI"), "callTest");
