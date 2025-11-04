@@ -735,7 +735,14 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->error->setMessage('');
             if (!$this->object->validate()) {
                 $this->tpl->setOnScreenMessage('failure', $ilErr->getMessage());
-                $form->setValuesByPost();
+                $form->setValuesByPost(); 
+                $item = $form->getItemByPostVar('registration_membership_limited');
+                $item_min = $item->getItemByPostVar('registration_min_members');
+                $item_min->setValue($this->object->getMinMembers() ?: '');
+                //$form->setItems([$item]);
+                $item_max = $item->getItemByPostVar('registration_max_members');
+                $item_max->setValue($this->object->getMaxMembers() ?: '');
+               // $form->setItems([$item]);
                 $this->editObject($form);
                 return;
             }

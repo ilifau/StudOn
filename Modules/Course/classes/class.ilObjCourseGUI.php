@@ -1505,10 +1505,10 @@ class ilObjCourseGUI extends ilContainerGUI
             $lim->setValue('<small>' . $this->lng->txt('fau_sub_group_by_course_limit_info') . '</small>');
 
             $min = new ilHiddenInputGUI('subscription_min');
-            $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
+            $min->setValue($this->object->getSubscriptionMinMembers() ?: '');
 
             $max = new ilHiddenInputGUI('subscription_max');
-            $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
+            $max->setValue($this->object->getSubscriptionMaxMembers() ?: '');
         }
         else {
             $lim = new ilCheckboxInputGUI($this->lng->txt('crs_subscription_max_members_short'), 'subscription_membership_limitation');
@@ -1520,7 +1520,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $min->setSubmitFormOnEnter(true);
             $min->setSize(4);
             $min->setMaxLength(4);
-            $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
+            $min->setValue($this->object->getSubscriptionMinMembers() ?: '');
             $min->setTitle($this->lng->txt('crs_subscription_min_members'));
             $min->setInfo($this->lng->txt('crs_subscription_min_members_info'));
             $lim->addSubItem($min);
@@ -1529,7 +1529,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $max->setSubmitFormOnEnter(true);
             $max->setSize(4);
             $max->setMaxLength(4);
-            $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
+            $max->setValue($this->object->getSubscriptionMaxMembers() ?: '');
             $max->setTitle($this->lng->txt('crs_subscription_max_members'));
             $max->setInfo($this->lng->txt('crs_reg_max_info'));
 

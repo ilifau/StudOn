@@ -229,6 +229,8 @@ class SyncToCampo extends SyncBase
 
         foreach ($this->sync->repo()->getCoursesToSyncBack($term) as $course) {
             $course = $this->rememberFromStaging($course);
+            if($course->getAttendeeMaximum() === 0)
+                $course = $course->withAttendeeMaximum(null);
 
             if (!isset($existing[$course->key()])) {
                 $this->staging->repo()->save($course);
