@@ -999,6 +999,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         }
         ilFileUtils::delDir(dirname(ilObjQuestionPool::_getImportDirectory()));
 
+        if ($newObj->getId() > 0) {
+            $this->callCreationCallback($newObj, $this->obj_definition, $this->requested_crtcb);
+        }
+
         if ($_POST['questions_only'] == 1) {
             $this->ctrl->redirect($this, 'questions');
         } else {
@@ -1459,14 +1463,20 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
 
     public function moveQuestions(array $ids): void
     {
-        if ($ids) {
-            foreach ($ids as $id) {
-                $this->object->moveToClipboard($id);
-            }
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt('qpl_move_insert_clipboard'), true);
-        } else {
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt('qpl_move_select_none'), true);
+        if ($this->checkPermission('write')) {
+            $this->tpl->setOnScreenMessage('failure', 'permission_denied');
+            return;
         }
+
+        if ($ids === []) {
+            $this->tpl->setOnScreenMessage('info', $this->lng->txt('qpl_move_select_none'), true);
+            return;
+        }
+
+        foreach ($ids as $id) {
+            $this->object->moveToClipboard($id);
+        }
+        $this->tpl->setOnScreenMessage('info', $this->lng->txt('qpl_move_insert_clipboard'), true);
     }
 
     public function createExportExcel(): void

@@ -145,7 +145,10 @@ class ilObjTestSettingsMainGUI extends ilTestSettingsGUI
         );
 
         $this->tpl->setContent(
-            $this->main_settings->getIntroductionSettings()->getIntroductionText()
+            ilRTE::_replaceMediaObjectImageSrc(
+                $this->main_settings->getIntroductionSettings()->getIntroductionText(),
+                1
+            )
         );
     }
 
@@ -159,7 +162,10 @@ class ilObjTestSettingsMainGUI extends ilTestSettingsGUI
         );
 
         $this->tpl->setContent(
-            $this->main_settings->getFinishingSettings()->getConcludingRemarksText()
+            ilRTE::_replaceMediaObjectImageSrc(
+                $this->main_settings->getFinishingSettings()->getConcludingRemarksText(),
+                1
+            )
         );
     }
 
@@ -214,8 +220,14 @@ class ilObjTestSettingsMainGUI extends ilTestSettingsGUI
 
     private function saveForm(): void
     {
-        $form = $this->buildForm()->withRequest($this->request);
-        $data = $form->getData();
+        try {
+            $form = $this->buildForm()->withRequest($this->request);
+            $data = $form->getData();
+        } catch (InvalidArgumentException) {
+            $this->ctrl->redirect($this, self::CMD_SHOW_FORM);
+            return;
+        }
+
         if ($data === null) {
             $this->showForm($form);
             return;
@@ -227,7 +239,7 @@ class ilObjTestSettingsMainGUI extends ilTestSettingsGUI
 
         if ($new_question_set_type === null) {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt('tst_settings_form_reload_needed'));
-            $this->showForm();
+            $this->ctrl->redirect($this, self::CMD_SHOW_FORM);
             return;
         }
 
@@ -247,7 +259,7 @@ class ilObjTestSettingsMainGUI extends ilTestSettingsGUI
         $this->removeAllParticipantsIfRequired();
 
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('msg_obj_modified'), true);
-        $this->showForm();
+        $this->ctrl->redirect($this, self::CMD_SHOW_FORM);
     }
 
     private function buildForm(): StandardForm

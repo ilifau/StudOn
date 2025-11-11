@@ -3810,40 +3810,52 @@ class ilObjUser extends ilObject
     ): int {
         global $DIC;
 
-        $ilDB = $DIC['ilDB'];
+        $db = $DIC['ilDB'];
 
-        $res = $ilDB->queryf(
-            '
-			SELECT usr_id, create_date FROM usr_data
-			WHERE reg_hash = %s',
-            ['text'],
+        $utc_clock = (new DataFactory())->clock()->utc();
+        $lifetime = (new ilRegistrationSettings())->getRegistrationHashLifetime();
+
+        $res = $db->queryf(
+            'SELECT usr_id, create_date FROM usr_data WHERE reg_hash = %s',
+            [ilDBConstants::T_TEXT],
             [$a_hash]
         );
-        while ($row = $ilDB->fetchAssoc($res)) {
-            // fau: regCodes - inject code into registration settings
-            $oRegSettigs = ilRegistrationSettings::getInstance();
-            $oRegCode = new ilRegistrationCode(self::_lookupPref($row['usr_id'], 'registration_code'));
-            if (isset($oRegCode->code_id)) {
-                $oRegSettigs->setCodeObject($oRegCode);
-            }
-            // fau.
 
-            if ($oRegSettigs->getRegistrationHashLifetime() != 0 &&
-                time() - $oRegSettigs->getRegistrationHashLifetime() > strtotime($row['create_date'])) {
+        $row = $db->fetchAssoc($res);
+        if (!$row) {
+            throw new ilRegistrationHashNotFoundException('reg_confirmation_hash_not_found');
+        }
+
+        // fau: regCodes - inject code into registration settings
+        $oRegSettigs = ilRegistrationSettings::getInstance();
+        $oRegCode = new ilRegistrationCode(self::_lookupPref($row['usr_id'], 'registration_code'));
+        if (isset($oRegCode->code_id)) {
+            $oRegSettigs->setCodeObject($oRegCode);
+        }
+        // fau.
+
+        if ($lifetime > 0) {
+            $cutoff = $utc_clock->now()->sub(new DateInterval('PT' . $lifetime . 'S'));
+
+            $created = DateTimeImmutable::createFromFormat(
+                self::DATABASE_DATE_FORMAT,
+                (string) $row['create_date'],
+                new DateTimeZone('UTC')
+            );
+
+            if ($created === false || $created < $cutoff) {
                 throw new ilRegConfirmationLinkExpiredException(
                     'reg_confirmation_hash_life_time_expired',
                     (int) $row['usr_id']
                 );
             }
+        }
 
-            $ilDB->manipulateF(
-                '
-				UPDATE usr_data
-				SET reg_hash = %s
-				WHERE usr_id = %s',
-                ['text', 'integer'],
-                ['', (int) $row['usr_id']]
-            );
+        $db->manipulateF(
+            'UPDATE usr_data SET reg_hash = NULL WHERE usr_id = %s',
+            [ilDBConstants::T_INTEGER],
+            [(int) $row['usr_id']]
+        );
 
             // fau: regCodes - delete registration code from preferences when it is not longer needed
             self::_deletePref($row['usr_id'], 'registration_code');

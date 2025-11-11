@@ -649,6 +649,7 @@ assessment#:#errFormulaQuestion#:#A Formula Question contains incorrect informat
 assessment#:#errRecursionInResult#:#The formula contains an infinite recursion.
 assessment#:#err_category_in_use#:#At least one category cannot be deleted. One or more units of the category are already in use.
 assessment#:#err_divider_too_big#:#The divider of one of the variables in this question is too big.
+assessment#:#err_divider_too_big_specific#:#The divider of this variable is too big.
 assessment#:#err_division#:#The value you chose would make it impossible to generate a valid value for the variable.
 assessment#:#err_duplicate_results#:#You used a result variable more than once. This is not allowed in the question text.
 assessment#:#err_no_formula#:#You must enter a formula
@@ -1115,8 +1116,11 @@ assessment#:#redirectAfterSave#:#The maximum working time has been reached. In a
 assessment#:#redirect_after_finishing_rule#:#Redirect
 assessment#:#redirect_after_finishing_tst#:#Redirect
 assessment#:#redirect_after_finishing_tst_desc#:#After completing the test, each participant is automatically redirected to a specific webpage of your choosing. This will only happen if participants do not have direct access to their test results. When entering the address of an external webpage, use the complete URL (including ‘https://’). When redirecting to an Object in ILIAS, use the permalink that can be found in the footer of the Object in question.
-assessment#:#redirect_always#:#always to the webpage specified below
-assessment#:#redirect_in_kiosk_mode#:#only when ‘Exam View’ is activated
+assessment#:#redirect_always#:#Always to the specified webpage
+assessment#:#redirect_always_to_logout#:#Always to the logout screen
+assessment#:#redirect_in_kiosk_mode#:#When ‘Exam View’ is activated to the specified webpage
+assessment#:#redirect_url_invalid#:#Please enter a valid url of the target webpage.
+assessment#:#redirect_url_required_for_rule#:#The url of the webpage is required when "%s" is selected.
 assessment#:#redirection_url#:#URL of webpage
 assessment#:#region#:#Region
 assessment#:#remove_as_participant#:#Remove as Fixed Participant
@@ -1495,7 +1499,6 @@ assessment#:#tst_instant_feedback_answer_specific#:#Specific Feedback for Each A
 assessment#:#tst_instant_feedback_answer_specific_desc#:#On clicking the ‘Check’-button, ILIAS will show a specific feedback for every answer option selected by the participant. The feedback has to be prepared along with the question. This specific feedback is not supported for all question types.
 assessment#:#tst_instant_feedback_contents#:#Included Contents
 assessment#:#tst_instant_feedback_desc#:#When questions are configured with feedback it is provided to participants during the test attempt.
-assessment#:#tst_instant_feedback_forced#:#Force Instant Feedback
 assessment#:#tst_instant_feedback_results#:#Points Attained
 assessment#:#tst_instant_feedback_results_desc#:#On clicking the ‘Check’ button ILIAS will display how many points were attained by answering this question.
 assessment#:#tst_instant_feedback_solution#:#Show Best Possible Answer
@@ -2536,7 +2539,7 @@ book#:#book_no_objects#:#No Bookings
 book#:#book_no_of_objects#:#No. of Units
 book#:#book_no_pools_selected#:#No booking pools have been assigned to this course. Booking pools can be assigned via the course's 'Resources' tab.
 book#:#book_no_preferences_for_you#:#No preferences have been recorded for you.
-book#:#book_no_recurrence#:#Book only this date
+book#:#book_no_recurrence#:#Book only this dateDer Java-Server wird durch Angabe von Netzwerk-Host und -Port über das ILIAS-Setup konfiguriert und ist unter anderem für die Generierung von PDF-Dateien erforderlich.
 book#:#book_not#:#Not
 book#:#book_not_enough_preferences#:#You have not selected enough preferences. Your preferences have not been saved.
 book#:#book_notification#:#Send Booking Notifications
@@ -2788,7 +2791,7 @@ certificate#:#certificate_short_name_description#:#Please enter a short title fo
 certificate#:#certificate_text#:#Certificate Text
 certificate#:#certificate_text_info#:#Please enter the certificate text. If the WYSIWYG editor is disabled in the ILIAS administration, you can still use valid XHTML to format the text.<br><br>
 certificate#:#certificate_unit_description#:#Enter units of measure as VALUE[cm|mm|in|pt|pc|px|em], e.g. 10mm or 3in
-certificate#:#certificate_usage#:#Please note that the usage of certificates is only available if the ILIAS Java-Server is running. The configuration for Java-Server is available in Administration » General Settings » Server, sub-tab Java-Server.
+certificate#:#certificate_usage#:#Please note that the use and creation of certificates is only possible if you use the ILIAS Java server. The Java server is configured by specifying the network host and port via the ILIAS Setup and is required, among other things, for generating PDF files.
 certificate#:#certificate_var_max_points#:#Maximum number of points in the test used
 certificate#:#certificate_var_result_mark_long#:#Achieved mark presented in 'official form'
 certificate#:#certificate_var_result_mark_short#:#Achieved mark presented in 'short form'
@@ -4726,7 +4729,7 @@ common#:#msg_link_clipboard_p#:#Now, please select the desired location, where t
 common#:#msg_link_clipboard_s#:#Now, please select the desired location, where the selected object should be linked to and click the button Paste.
 common#:#msg_linked#:#Selected object(s) linked.
 common#:#msg_may_not_contain#:#This object may not contain objects of type:
-common#:#msg_min_one_role#:#Each user must have at least one global role!
+common#:#msg_min_one_role#:#Each user must have at least one global role.
 common#:#msg_multi_language_selected#:#You selected the same language for different translations!
 common#:#msg_no_default_language#:#No default language specified! You must define one translation as default translation.
 common#:#msg_no_delete_yourself#:#You cannot delete your own user account.
@@ -6722,7 +6725,7 @@ content#:#cont_lrs_settings#:#Settings
 content#:#cont_lvalue#:#Data element
 content#:#cont_maintenance#:#Maintenance
 content#:#cont_manifest#:#Manifest
-content#:#cont_manual_item_group#:#Manually Create Item Group
+content#:#cont_manual_item_group#:#Manually Created Item Group
 content#:#cont_map_file_not_generated#:#Sorry. Unable to generate map file for editing.
 content#:#cont_marker#:#Marker
 content#:#cont_master_language_only#:#Master Language for Translation
@@ -9162,8 +9165,10 @@ etal#:#etal_date_series_edit#:#Date of Talk Series
 etal#:#etal_delete_confirmation_msg#:#Are you sure that you want to delete the following talk?
 etal#:#etal_edit#:#General
 etal#:#etal_invalid_user#:#This user either does not exist or can't be invited.
+etal#:#etal_location#:#Location
 etal#:#etal_new#:#New Talk
 etal#:#etal_open#:#Open Employee Talk
+etal#:#etal_recurrence#:#Recurrence
 etal#:#etal_status_all#:#All
 etal#:#etal_status_completed#:#Completed
 etal#:#etal_status_pending#:#Pending
@@ -10950,7 +10955,6 @@ lso#:#lso_print_list#:#Generate list
 lso#:#lso_read#:#User has read access to Learning Sequence
 lso#:#lso_search_users#:#Search Users
 lso#:#lso_settings_availability#:#Availability
-lso#:#lso_settings_availability_error#:#The end date can not be earlier than the start date
 lso#:#lso_settings_extro#:#Edit Exit Page
 lso#:#lso_settings_intro#:#Edit Intro Page
 lso#:#lso_settings_old_extro#:#View Old Exit Page
@@ -13052,7 +13056,7 @@ pdesk#:#bookmark_select_target#:#Please select target.
 poll#:#poll_absolute#:#Current Votes
 poll#:#poll_activation_online_info#:#Activate this setting to make the poll accessible to users.
 poll#:#poll_add#:#Add Poll
-poll#:#poll_anonymous_warning#:#Your name is not visible in the poll results.
+poll#:#poll_anonymous_warning#:#Individual votes are recorded, but your name will not be shown in the poll results.
 poll#:#poll_answer#:#Answer
 poll#:#poll_answer_selected_alt_text#:#Selected
 poll#:#poll_answers#:#Possible Answers
@@ -13075,7 +13079,7 @@ poll#:#poll_max_number_of_answers#:#Max. Answers
 poll#:#poll_max_number_of_answers_info#:#You may choose up to %s answers.
 poll#:#poll_mode#:#Mode
 poll#:#poll_mode_anonymous#:#Without Names / Anonymous
-poll#:#poll_mode_anonymous_info#:#In the tab ‘Results’ the names of participants are omitted.
+poll#:#poll_mode_anonymous_info#:#The names of poll participants are not shown in the 'Results' tab. Please note: participant user IDs are, however, recorded in the database.
 poll#:#poll_mode_personal#:#With Names
 poll#:#poll_mode_personal_info#:#In the tab ‘Results’ the names of participants and their respective answers are listed. Users with access to this tab can inspect who has given which answer.
 poll#:#poll_new#:#Add New Poll
