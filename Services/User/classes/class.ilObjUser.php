@@ -3857,13 +3857,10 @@ class ilObjUser extends ilObject
             [(int) $row['usr_id']]
         );
 
-            // fau: regCodes - delete registration code from preferences when it is not longer needed
-            self::_deletePref($row['usr_id'], 'registration_code');
-            // fau.
-            return (int) $row['usr_id'];
-        }
-
-        throw new ilRegistrationHashNotFoundException('reg_confirmation_hash_not_found');
+        // fau: regCodes - delete registration code from preferences when it is not longer needed
+        self::_deletePref($row['usr_id'], 'registration_code');
+        // fau.
+        return (int) $row['usr_id'];
     }
 
     public function setBirthday(?string $a_birthday): void
