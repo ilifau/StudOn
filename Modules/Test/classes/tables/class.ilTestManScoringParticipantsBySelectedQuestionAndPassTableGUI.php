@@ -168,7 +168,9 @@ class ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI extends ilTa
         if (in_array($a_set['usr_id'], $this->anon_only_user_ids)) {
             $a_set['name'] = '';
         }
-        if (! $this->parent_obj->getObject()->getAnonymity()) {
+        if (! $this->parent_obj->getObject()->getAnonymity()
+            && $this->parent_obj->getTestAccess()->checkScoreParticipantsAccess()
+        ) {
             $this->tpl->setVariable('VAL_NAME', $a_set['name']);
         }
 
