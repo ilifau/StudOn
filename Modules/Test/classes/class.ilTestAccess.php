@@ -92,15 +92,16 @@ class ilTestAccess
      */
     public function checkScoreParticipantsAccess(): bool
     {
-        if ($this->getAccess()->checkAccess('write', '', $this->getRefId())) {
-            return true;
-        }
+        return
+            $this->getAccess()->checkAccess('write', '', $this->getRefId())
+            || $this->getAccess()->checkPositionAccess(ilOrgUnitOperation::OP_SCORE_PARTICIPANTS, $this->getRefId())
+        ;
+    }
 
-        if ($this->getAccess()->checkPositionAccess(ilOrgUnitOperation::OP_SCORE_PARTICIPANTS, $this->getRefId())) {
-            return true;
-        }
 
-        return false;
+    public function checkScoreParticipantsAccessAnon(): bool
+    {
+        return $this->getAccess()->checkAccess('score_anon', '', $this->getRefId());
     }
 
     /**

@@ -34,8 +34,12 @@ class ilTestManScoringParticipantsTableGUI extends ilTable2GUI
 
     public const PARENT_EDIT_SCORING_CMD = 'showManScoringParticipantScreen';
 
-    public function __construct(ilTestScoringGUI $parent_obj)
-    {
+    protected bool $has_name_columns = false;
+
+    public function __construct(
+        ilTestScoringGUI $parent_obj,
+        protected array $anon_only_user_ids
+    ) {
         $this->setPrefix('manScorePartTable');
         $this->setId('manScorePartTable');
 
@@ -61,9 +65,12 @@ class ilTestManScoringParticipantsTableGUI extends ilTable2GUI
 
     private function initColumns(): void
     {
-        if ($this->parent_obj->getObject()->getAnonymity()) {
-            $this->addColumn($this->lng->txt("name"), 'lastname', '100%');
-        } else {
+        $this->addColumn($this->lng->txt("exam_id_label"), 'examid', '');
+
+        if (!$this->parent_obj->getObject()->getAnonymity()
+            && $this->parent_obj->getTestAccess()->checkScoreParticipantsAccess()
+        ) {
+            $this->has_name_columns = true;
             $this->addColumn($this->lng->txt("lastname"), 'lastname', '');
             $this->addColumn($this->lng->txt("firstname"), 'firstname', '');
             $this->addColumn($this->lng->txt("login"), 'login', '');
@@ -106,14 +113,24 @@ class ilTestManScoringParticipantsTableGUI extends ilTable2GUI
     {
         $this->ctrl->setParameter($this->parent_obj, 'active_id', $a_set['active_id']);
 
-        if (!$this->parent_obj->getObject()->getAnonymity()) {
+        $participant_examid = $this->getParentObject()->getUserExamId(
+            $a_set['active_id'],
+            'x'
+        );
+        $this->tpl->setVariable("PARTICIPANT_EXAMID", $participant_examid);
+
+        if (in_array($a_set['usr_id'], $this->anon_only_user_ids)) {
+            $a_set['lastname'] = '';
+            $a_set['firstname'] = '';
+            $a_set['login'] = '';
+        }
+        if ($this->has_name_columns) {
             $this->tpl->setCurrentBlock('personal');
+            $this->tpl->setVariable("PARTICIPANT_LASTNAME", $a_set['lastname']);
             $this->tpl->setVariable("PARTICIPANT_FIRSTNAME", $a_set['firstname']);
             $this->tpl->setVariable("PARTICIPANT_LOGIN", $a_set['login']);
             $this->tpl->parseCurrentBlock();
         }
-
-        $this->tpl->setVariable("PARTICIPANT_LASTNAME", $a_set['lastname']);
 
         $this->tpl->setVariable("HREF_SCORE_PARTICIPANT", $this->ctrl->getLinkTarget($this->parent_obj, self::PARENT_EDIT_SCORING_CMD));
         $this->tpl->setVariable("TXT_SCORE_PARTICIPANT", $this->lng->txt('tst_edit_scoring'));
