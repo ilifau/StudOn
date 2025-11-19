@@ -36,7 +36,20 @@ class ilTestSetupAgent extends NullAgent
 
     public function getUpdateObjective(ILIAS\Setup\Config $config = null): Objective
     {
-        return new ilDatabaseUpdateStepsExecutedObjective(new ilTest9DBUpdateSteps());
+        return new Setup\ObjectiveCollection(
+            'Complete objectives from Test & Assessment',
+            false,
+            new ilDatabaseUpdateStepsExecutedObjective(new ilTest9DBUpdateSteps()),
+            new ilAccessCustomRBACOperationAddedObjective(
+                'score_anon',
+                'Score Pseudonymously',
+                'object',
+                5000,
+                ['tst']
+            ),
+        );
+
+
     }
 
     public function getStatusObjective(Metrics\Storage $storage): Objective

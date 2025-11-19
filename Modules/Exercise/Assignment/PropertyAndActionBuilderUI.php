@@ -1040,7 +1040,8 @@ class PropertyAndActionBuilderUI
                     $current_status = $ass->getMemberStatus($first_user);
 
                     // Publish if not yet published
-                    if ($current_status->getStatus() === 'notgraded' || empty($current_status->getMark())) {
+                    // Note: Use strict comparison against empty string, not empty(), because mark can be "0"
+                    if ($current_status->getStatus() === 'notgraded' || $current_status->getMark() === '') {
                         try {
                             global $DIC;
                             $test = new \ilObjTest($test_ref_id, true);
