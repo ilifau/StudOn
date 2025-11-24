@@ -23,6 +23,7 @@ class Settings
     const VIEW_MEMBERSHIPS_ROLES = 'fau_view_memberships_roles';
     const VIEW_WAITINGLISTS_ROLES = 'fau_view_waitinglists_roles';
     const VIEW_MEMBERHIPS_WAITINGLISTS_TERM = 'fau_view_memberships_waitinglists_term';
+    const FAU_INTERNATIONAL_ROLE = 'fau_international_role';
 
     protected Container $dic;
 
@@ -221,4 +222,29 @@ class Settings
             return $term->fromString((string) ilCust::get(self::VIEW_MEMBERHIPS_WAITINGLISTS_TERM));
         });
     }     
+
+    /**
+     * Get the international role
+     * @return ?int
+     */
+    public function getFAUInternationalRole() : ?int
+    {
+        return $this->getCachedValue(self::FAU_INTERNATIONAL_ROLE, function() {
+            $role = (string) ilCust::get(self::FAU_INTERNATIONAL_ROLE);
+            $role = trim($role);
+            $ids = [];
+            if (!empty($role)) {       
+                $role_ids = ilObject::_getIdsForTitle((string) trim($role), 'role');
+                if($role_ids != []) 
+                {
+                    $ids[] = $role_ids[0];
+                }
+            }
+
+            if(count($ids) == 1) {
+                return $ids[0];
+            }
+            else return null;
+        });
+    }      
 }

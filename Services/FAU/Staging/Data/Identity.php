@@ -28,6 +28,7 @@ class Identity extends RecordData
         'fau_studydata' => 'clob',
         'fau_studydata_next' => 'clob',
         'fau_orgdata' => 'clob',
+        'international' => 'int'
     ];
     protected string $pk_persistent_id;
     protected ?string $last_change;
@@ -46,6 +47,7 @@ class Identity extends RecordData
     protected ?string $fau_studydata;
     protected ?string $fau_studydata_next;
     protected ?string $fau_orgdata;
+    protected ?int $international;
 
     public function __construct(
         string $pk_persistent_id,
@@ -64,7 +66,8 @@ class Identity extends RecordData
         ?int $fau_campo_person_id,
         ?string $fau_studydata,
         ?string $fau_studydata_next,
-        ?string $fau_orgdata
+        ?string $fau_orgdata,
+        ?int $international
     )
     {
         $this->pk_persistent_id = $pk_persistent_id;
@@ -84,6 +87,7 @@ class Identity extends RecordData
         $this->fau_studydata = $fau_studydata;
         $this->fau_studydata_next = $fau_studydata_next;
         $this->fau_orgdata = $fau_orgdata;
+        $this->international = $international;
     }
 
     public static function model(): self
@@ -91,7 +95,7 @@ class Identity extends RecordData
         return new self('',null,null,null,null,null,
             null,null,null,null,null,
             null,null,null,null,
-            null,null);
+            null,null, null);
     }
 
     /**
@@ -228,6 +232,14 @@ class Identity extends RecordData
     public function getFauOrgdata() : ?string
     {
         return $this->fau_orgdata;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getInternational() : ?int
+    {
+        return $this->international;
     }
 
     /**

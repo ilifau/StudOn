@@ -267,6 +267,14 @@ class SyncWithIdm extends SyncBase
             // ignore exception
         }
 
+        // always update the international role of a person
+        try {
+            $this->sync->roles()->updateUserInternationalRole($person);
+        }
+        catch (Exception $e) {
+            // ignore exception
+        }        
+
         // set the responsible or instructor roles if a person_id is newly assigned
         // (update for existing users is done in the sync of courses and would be too time consuming here)
         if ($has_new_person_id) {
