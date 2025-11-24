@@ -414,6 +414,29 @@ class Repository extends RecordRepo
         return $this->getSingleRecord($query, Course::model(), $default);
     }
 
+    /**
+     * Get shorttexts for multiple courses by their IDs
+     * This is a performance-optimized method that only loads the shorttext field
+     *
+     * @param int[] $course_ids Array of course IDs to load shorttexts for
+     * @return string[] Array indexed by course_id containing the shorttext (empty string if NULL)
+     */
+    public function getCoursesShorttexts(array $course_ids) : array
+    {
+        if (empty($course_ids)) {
+            return [];
+        }
+
+        $query = "SELECT course_id, shorttext FROM fau_study_courses WHERE "
+            . $this->db->in('course_id', $course_ids, false, 'integer');
+
+        $shorttexts = [];
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $shorttexts[(int) $row['course_id']] = (string) ($row['shorttext'] ?? '');
+        }
+        return $shorttexts;
+    }
 
     /**
      * Get the course of a planned date

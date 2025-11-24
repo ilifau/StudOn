@@ -569,6 +569,10 @@ fau#:#fau_export_course_members_base_info#:#Area in StudOn magazine for which th
 fau#:#fau_export_course_members_with_groups#:#With Groups###
 fau#:#fau_export_course_members_with_groups_info#:#Exports also the participants of groups in this area or within the courses###
 fau#:#fau_export_course_members_failed#:#The course participants could not be exported.
+fau#:#fau_export_column_short_text#:#Member Short Text
+fau#:#fau_export_sheet_persons#:#By Persons
+fau#:#fau_export_sheet_courses#:#By Courses
+fau#:#fau_export_sheet_waiting#:#By Waiting List
 fau#:#fair_autofill_cron#:#Allocate places to applications for admission with equal chances of gaining a place
 fau#:#fair_autofill_cron_info#:#After the end of the phase during which all applicants have equal chances of obtaining a place, free places in groups and courses are allocated automatically.
 fau#:#fair_autofill_cron_result#:#Allocated places: %s
