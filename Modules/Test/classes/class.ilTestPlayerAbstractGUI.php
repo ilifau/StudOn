@@ -115,7 +115,7 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
     protected function initProcessLocker($activeId)
     {
         $ilDB = $this->db;
-        $processLockerFactory = new ilTestProcessLockerFactory($this->assSettings, $ilDB);
+        $processLockerFactory = new ilTestProcessLockerFactory($this->assSettings, $ilDB, ilLoggerFactory::getLogger('tst'));
         $this->processLocker = $processLockerFactory->withContextId((int) $activeId)->getLocker();
     }
 
@@ -758,16 +758,21 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
         }
 
         // redirect after test
-        $redirection_url = $this->object->getMainSettings()->getFinishingSettings()->getRedirectionUrl();
-        if (!empty($redirection_url)
-            && !$this->object->canShowTestResults($this->test_session)
+        if (!$this->object->canShowTestResults($this->test_session)
             && $this->object->getMainSettings()->getFinishingSettings()->getRedirectionMode() !== ilObjTest::REDIRECT_NONE) {
-            if ($this->object->isRedirectModeKiosk()) {
-                if ($this->object->getKioskMode()) {
+            $redirection_url = $this->object->getMainSettings()->getFinishingSettings()->getRedirectionUrl();
+            if ($this->object->getMainSettings()->getFinishingSettings()->getRedirectionMode() === ilObjTest::REDIRECT_ALWAYS_TO_LOGOUT) {
+                $redirection_url = ilStartUpGUI::logoutUrl();
+            }
+
+            if (!empty($redirection_url)) {
+                if ($this->object->isRedirectModeKiosk()) {
+                    if ($this->object->getKioskMode()) {
+                        ilUtil::redirect($redirection_url);
+                    }
+                } else {
                     ilUtil::redirect($redirection_url);
                 }
-            } else {
-                ilUtil::redirect($redirection_url);
             }
         }
 
@@ -2144,7 +2149,7 @@ JS;
         $question = assQuestion::instantiateQuestion($question_id);
         $ass_settings = new ilSetting('assessment');
 
-        $process_locker_factory = new ilAssQuestionProcessLockerFactory($ass_settings, $this->db);
+        $process_locker_factory = new ilAssQuestionProcessLockerFactory($ass_settings, $this->db, ilLoggerFactory::getLogger('tst'));
         $process_locker_factory->setQuestionId($question->getId());
         $process_locker_factory->setUserId($this->user->getId());
         $process_locker_factory->setAssessmentLogEnabled(ilObjAssessmentFolder::_enabledAssessmentLogging());
