@@ -382,7 +382,14 @@ break;
             {
                 $data = $value;
             }
-            $isInternational = $this->dic->fau()->staging()->repo()->getIdentity($data->getExtAccount())->getInternational();
+            
+            $identity = $this->dic->fau()->staging()->repo()->getIdentity($data->getExtAccount());
+            
+            $isInternational = null;
+            if($identity !== null)
+            {
+                $isInternational = $identity->getInternational();
+            }
         
             if($isInternational !== null && $isInternational !== 0 && $role_id !== null) {
                 $this->dic->rbac()->admin()->assignUser($role_id, $person->getUserId());
