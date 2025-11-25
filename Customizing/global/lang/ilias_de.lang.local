@@ -567,6 +567,10 @@ fau#:#fau_export_course_members_base_info#:#Bereich im StudOn-Magazin, für den 
 fau#:#fau_export_course_members_with_groups#:#Mit Gruppen
 fau#:#fau_export_course_members_with_groups_info#:#Exportiert auch die Teilnehmer/innen von Gruppen in diesem Bereich oder innerhalb der Kurse
 fau#:#fau_export_course_members_failed#:#Die Kursteilnehmer/innen konnten nicht exportiert werden!
+fau#:#fau_export_column_short_text#:#Mitglied Kurztext
+fau#:#fau_export_sheet_persons#:#Nach Personen
+fau#:#fau_export_sheet_courses#:#Nach Lehrveranstaltungen
+fau#:#fau_export_sheet_waiting#:#Nach Warteliste
 fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
 fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
