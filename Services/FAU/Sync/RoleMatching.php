@@ -77,7 +77,7 @@ class RoleMatching
         if (isset($parent_ref_id) && isset($event_id) && isset($term)) {
             $this->updateRolesInIliasObject($parent_ref_id, null, null, $event_id, $term);
         }
-        }
+    }
 
     /**
      * Update the roles of responsibilities and instructors in a single ilias course or group
@@ -369,6 +369,29 @@ break;
         }
     }
 
+    /**
+     * Update the international role of a person
+     */
+    public function updateUserInternationalRole(Person $person)
+    {
+        $role_id = $this->dic->fau()->tools()->settings()->getFAUInternationalRole();
+        $userData = $this->dic->fau()->user()->repo()->getUserData([$person->getUserId()]);
+        if(count($userData) == 1)
+        {
+            foreach($userData as $key => $value)
+            {
+                $data = $value;
+            }
+            $isInternational = $this->dic->fau()->staging()->repo()->getIdentity($data->getExtAccount())->getInternational();
+        
+            if($isInternational !== null && $isInternational !== 0 && $role_id !== null) {
+                $this->dic->rbac()->admin()->assignUser($role_id, $person->getUserId());
+            }
+            else if($role_id !== null) {
+                $this->dic->rbac()->admin()->deassignUser($role_id, $person->getUserId());
+            }
+        }
+    }
 
     /**
      * Find the author role in an ilias category
