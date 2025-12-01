@@ -79,7 +79,7 @@ class ContainerData
     /**
      * @return ImportId
      */
-    public function getImportId(): string
+    public function getImportId(): ImportId
     {
         return $this->import_id;
     }
