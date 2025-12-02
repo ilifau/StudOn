@@ -128,7 +128,7 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
                     $table_data[] = [
                         'pass_id' => $passNr - 1,
                         'active_id' => $active_id,
-                        'usr_id' => $participant->getUserID(),
+                        'usr_id' => $participant->getUsrID(),
                         'qst_id' => $questionData['qid'],
                         'reached_points' => assQuestion::_getReachedPoints(
                             $active_id,
