@@ -337,7 +337,7 @@ class ilAssNestedOrderingElementsInputGUI extends ilMultipleNestedOrderingElemen
                 $tpl->setVariable("ITEM_CONTENT", $this->getThumbnailFilename($element));
 // fau: imageBox - add enlarge icon
                 $tpl->setVariable("ENLARGE_SOURCE", $this->getEnlargeSource($element));
-                $tpl->setVariable("ENLARGE_HREF", ilUtil::getImagePath('enlarge.svg'));
+                $tpl->setVariable("ENLARGE_HREF", ilUtil::getImagePath('media/enlarge.svg'));
                 $tpl->setVariable("ENLARGE_ALT", $this->lng->txt('enlarge'));
                 $tpl->setVariable("ENLARGE_TITLE", $this->lng->txt('enlarge'));
 // fau.
