@@ -1789,29 +1789,33 @@ class ilObjGroupGUI extends ilContainerGUI
             $opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'), (string) ilGroupConstants::GRP_REGISTRATION_DEACTIVATED, $this->lng->txt('grp_reg_disabled_info'));
             $reg_type->addOption($opt_deact);
 
-            // Registration codes
-            $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
-            $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
-            $reg_code->setValue('1');
-            $reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
-            // fau: paraSub - disable the reg type for parallel groups
-            if (!$this->object->isParallelGroup()) {
-                $form->addItem($reg_type);
-            }
+            // fau: courseGroupRegCodes - customize use of registration codes
+            if (ilCust::get('grp_enable_reg_codes')) {
+                // Registration codes
+                $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
+                $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
+                $reg_code->setValue('1');
+                $reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
+                // fau: paraSub - disable the reg type for parallel groups
+                if (!$this->object->isParallelGroup()) {
+                    $form->addItem($reg_type);
+                }
 
-            // Registration codes
-            if (!$this->object->getRegistrationAccessCode()) {
-                $this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
-            }
-            $reg_link = new ilHiddenInputGUI('reg_code');
-            $reg_link->setValue($this->object->getRegistrationAccessCode());
-            $form->addItem($reg_link);
+                // Registration codes
+                if (!$this->object->getRegistrationAccessCode()) {
+                    $this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
+                }
+                $reg_link = new ilHiddenInputGUI('reg_code');
+                $reg_link->setValue($this->object->getRegistrationAccessCode());
+                $form->addItem($reg_link);
 
-            $link = new ilCustomInputGUI($this->lng->txt('grp_reg_code_link'));
-            $val = ilLink::_getLink($this->object->getRefId(), $this->object->getType(), array(), 'rcode' . $this->object->getRegistrationAccessCode());
-            $link->setHTML('<span class="small">' . $val . '</span>');
-            $reg_code->addSubItem($link);
-            $form->addItem($reg_code);
+                $link = new ilCustomInputGUI($this->lng->txt('grp_reg_code_link'));
+                $val = ilLink::_getLink($this->object->getRefId(), $this->object->getType(), array(), 'rcode' . $this->object->getRegistrationAccessCode());
+                $link->setHTML('<span class="small">' . $val . '</span>');
+                $reg_code->addSubItem($link);
+                $form->addItem($reg_code);
+            }
+            // fau.
 
             // time limit
             $this->lng->loadLanguageModule('dateplaner');

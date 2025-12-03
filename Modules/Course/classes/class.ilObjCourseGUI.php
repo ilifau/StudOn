@@ -1451,31 +1451,36 @@ class ilObjCourseGUI extends ilContainerGUI
         $reg_proc_subscription_reg_type->addOption($opt_self_enrollment_disabled);
         $form->addItem($reg_proc_subscription_reg_type);
 
-        // Registration codes
-        $reg_code = new ilCheckboxInputGUI($this->lng->txt('crs_reg_code'), 'reg_code_enabled');
-        $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
-        $reg_code->setValue('1');
-        $reg_code->setInfo($this->lng->txt('crs_reg_code_enabled_info'));
+        // fau: courseGroupRegCodes - customize use of registration codes
+        if (ilCust::get('crs_enable_reg_codes')) 
+        {
+            // Registration codes
+            $reg_code = new ilCheckboxInputGUI($this->lng->txt('crs_reg_code'), 'reg_code_enabled');
+            $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
+            $reg_code->setValue('1');
+            $reg_code->setInfo($this->lng->txt('crs_reg_code_enabled_info'));
 
-        // Create default access code
-        if (!$this->object->getRegistrationAccessCode()) {
-            $this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
+            // Create default access code
+            if (!$this->object->getRegistrationAccessCode()) {
+                $this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
+            }
+            $reg_link = new ilHiddenInputGUI('reg_code');
+            $reg_link->setValue($this->object->getRegistrationAccessCode());
+            $form->addItem($reg_link);
+
+            $link = new ilCustomInputGUI($this->lng->txt('crs_reg_code_link'));
+            $val = ilLink::_getLink(
+                $this->object->getRefId(),
+                $this->object->getType(),
+                array(),
+                'rcode' . $this->object->getRegistrationAccessCode()
+            );
+            $link->setHtml('<span class="small">' . $val . '</span>');
+            $reg_code->addSubItem($link);
+
+            $form->addItem($reg_code);
         }
-        $reg_link = new ilHiddenInputGUI('reg_code');
-        $reg_link->setValue($this->object->getRegistrationAccessCode());
-        $form->addItem($reg_link);
-
-        $link = new ilCustomInputGUI($this->lng->txt('crs_reg_code_link'));
-        $val = ilLink::_getLink(
-            $this->object->getRefId(),
-            $this->object->getType(),
-            array(),
-            'rcode' . $this->object->getRegistrationAccessCode()
-        );
-        $link->setHtml('<span class="small">' . $val . '</span>');
-        $reg_code->addSubItem($link);
-
-        $form->addItem($reg_code);
+        // fau.
 
         // cancellation limit
         $cancel = new ilDateTimeInputGUI($this->lng->txt('crs_cancellation_end'), 'cancel_end');
