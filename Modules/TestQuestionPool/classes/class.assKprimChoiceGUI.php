@@ -355,7 +355,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $is_postponed = false,
         $use_post_solutions = false,
         $showInlineFeedback = false
-    ) {
+    ): string {
 
         // fau: imageBox - init lightbox
         iljQueryUtil::initjQuery();
