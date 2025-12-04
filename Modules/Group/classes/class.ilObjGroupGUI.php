@@ -1789,6 +1789,11 @@ class ilObjGroupGUI extends ilContainerGUI
             $opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'), (string) ilGroupConstants::GRP_REGISTRATION_DEACTIVATED, $this->lng->txt('grp_reg_disabled_info'));
             $reg_type->addOption($opt_deact);
 
+            // fau: paraSub - disable the reg type for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($reg_type);
+            }
+
             // fau: courseGroupRegCodes - customize use of registration codes
             if (ilCust::get('grp_enable_reg_codes')) {
                 // Registration codes
