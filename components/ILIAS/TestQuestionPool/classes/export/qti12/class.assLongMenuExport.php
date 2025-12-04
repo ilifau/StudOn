@@ -1,0 +1,259 @@
+<?php
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+class assLongMenuExport extends assQuestionExport
+{
+    /**
+     * @var assLongMenu
+     */
+    public $object;
+
+    public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false): string
+    {
+        global $DIC;
+        $ilias = $DIC['ilias'];
+
+        $correct_answers = $this->object->getCorrectAnswers();
+        $answers = $this->object->getAnswers();
+
+        $xml = new ilXmlWriter();
+        // set xml header
+        $xml->xmlHeader();
+        $xml->xmlStartTag("questestinterop");
+        // add question description
+        $attrs = [
+            "ident" => "il_" . IL_INST_ID . "_qst_" . $this->object->getId(),
+            "title" => $this->object->getTitle(),
+            "maxattempts" => $this->object->getNrOfTries()
+        ];
+        $xml->xmlStartTag("item", $attrs);
+        // add question description
+        $xml->xmlElement("qticomment", null, $this->object->getComment());
+        $xml->xmlStartTag("itemmetadata");
+        $xml->xmlStartTag("qtimetadata");
+        $xml->xmlStartTag("qtimetadatafield");
+        $xml->xmlElement("fieldlabel", null, "ILIAS_VERSION");
+        $xml->xmlElement("fieldentry", null, $ilias->getSetting("ilias_version"));
+        $xml->xmlEndTag("qtimetadatafield");
+        $xml->xmlStartTag("qtimetadatafield");
+        $xml->xmlElement("fieldlabel", null, "QUESTIONTYPE");
+        $xml->xmlElement("fieldentry", null, $this->object->getQuestionType());
+        $xml->xmlEndTag("qtimetadatafield");
+        $xml->xmlStartTag("qtimetadatafield");
+        $xml->xmlElement("fieldlabel", null, "AUTHOR");
+        $xml->xmlElement("fieldentry", null, $this->object->getAuthor());
+        $xml->xmlEndTag("qtimetadatafield");
+
+        $xml->xmlStartTag("qtimetadatafield");
+        $xml->xmlElement("fieldlabel", null, "minAutoCompleteLength");
+        $xml->xmlElement("fieldentry", null, $this->object->getMinAutoComplete());
+        $xml->xmlEndTag("qtimetadatafield");
+        $xml->xmlStartTag("qtimetadatafield");
+        $xml->xmlElement("fieldlabel", null, "identical_scoring");
+        $xml->xmlElement("fieldentry", null, $this->object->getIdenticalScoring());
+        $xml->xmlEndTag("qtimetadatafield");
+
+        $xml->xmlStartTag("qtimetadatafield");
+        $xml->xmlElement("fieldlabel", null, "gapTypes");
+        $gap_types = [];
+        if (is_array($correct_answers)) {
+            foreach ($correct_answers as $key => $value) {
+                $gap_types[] = $value[2];
+            }
+        }
+        $xml->xmlElement("fieldentry", null, json_encode($gap_types));
+        $xml->xmlEndTag("qtimetadatafield");
+
+        // additional content editing information
+        $this->addAdditionalContentEditingModeInformation($xml);
+        $this->addGeneralMetadata($xml);
+
+        $xml->xmlStartTag("qtimetadatafield");
+        $xml->xmlElement("fieldlabel", null, "feedback_setting");
+        $xml->xmlElement("fieldentry", null, $this->object->getSpecificFeedbackSetting());
+        $xml->xmlEndTag("qtimetadatafield");
+
+        $xml->xmlEndTag("qtimetadata");
+        $xml->xmlEndTag("itemmetadata");
+        $xml->xmlStartTag("presentation");
+        // add flow to presentation
+        $xml->xmlStartTag("flow");
+
+
+        $this->addQTIMaterial($xml, $this->object->getQuestion());
+        $this->addQTIMaterial($xml, $this->object->getLongMenuTextValue());
+
+        foreach ($answers as $key => $values) {
+            $real_id = $key + 1;
+            $attrs = [
+                    "ident" => "LongMenu_" . $real_id,
+                    "rcardinality" => "Single"
+                ];
+            $xml->xmlStartTag("response_str", $attrs);
+            foreach ($values as $index => $value) {
+                $xml->xmlStartTag("response_label", ['ident' => $index]);
+                $xml->xmlStartTag("material");
+                $xml->xmlElement("fieldentry", null, $value);
+                $xml->xmlEndTag("material");
+                $xml->xmlEndTag("response_label");
+            }
+            $xml->xmlEndTag("response_str");
+        }
+        $xml->xmlEndTag("flow");
+        $xml = $this->addSuggestedSolution($xml);
+        $xml->xmlEndTag("presentation");
+
+        $xml->xmlStartTag("resprocessing");
+        $xml->xmlStartTag("outcomes");
+        $xml->xmlElement("decvar");
+        $xml->xmlEndTag("outcomes");
+        foreach ($answers as $key => $values) {
+            $real_id = $key + 1;
+            foreach ($values as $index => $value) {
+                $xml->xmlStartTag("respcondition", ['continue' => 'Yes']);
+                $xml->xmlStartTag("conditionvar");
+                $xml->xmlElement("varequal", ['respident' => "LongMenu_" . $real_id], $value);
+                $xml->xmlEndTag("conditionvar");
+
+                if (in_array($value, $correct_answers[$key][0])) {
+                    $xml->xmlElement("setvar", ['action' => "Add"], $correct_answers[$key][1]);
+                } else {
+                    $xml->xmlElement("setvar", ['action' => "Add"], 0);
+                }
+                $xml->xmlElement("displayfeedback", ['feedbacktype' => "Response", 'linkrefid' => $key . '_Response_' . $index]);
+                $xml->xmlEndTag("respcondition");
+            }
+        }
+        $feedback_allcorrect = $this->object->feedbackOBJ->getGenericFeedbackExportPresentation(
+            $this->object->getId(),
+            true
+        );
+        if (strlen($feedback_allcorrect) > 0) {
+            $xml->xmlStartTag("respcondition", ['continue' => 'Yes']);
+            $xml->xmlStartTag("conditionvar");
+            foreach ($correct_answers as $key => $values) {
+                $real_id = $key + 1;
+                if ($key > 0) {
+                    $xml->xmlStartTag("and");
+                }
+
+                foreach ($values[0] as $index => $value) {
+                    if ($index > 0) {
+                        $xml->xmlStartTag("or");
+                    }
+                    $xml->xmlElement("varequal", ['respident' => "LongMenu_" . $real_id], $value);
+                    if ($index > 0) {
+                        $xml->xmlEndTag("or");
+                    }
+                }
+                if ($key > 0) {
+                    $xml->xmlEndTag("and");
+                }
+            }
+            $xml->xmlEndTag("conditionvar");
+            $xml->xmlElement("displayfeedback", ['feedbacktype' => "Response", 'linkrefid' => 'response_allcorrect']);
+            $xml->xmlEndTag("respcondition");
+        }
+
+        $feedback_onenotcorrect = $this->object->feedbackOBJ->getGenericFeedbackExportPresentation(
+            $this->object->getId(),
+            false
+        );
+        if (strlen($feedback_onenotcorrect)) {
+            $xml->xmlStartTag("respcondition", ['continue' => 'Yes']);
+            $xml->xmlStartTag("conditionvar");
+            $xml->xmlStartTag("not");
+            foreach ($correct_answers as $key => $values) {
+                $real_id = $key + 1;
+                if ($key > 0) {
+                    $xml->xmlStartTag("and");
+                }
+
+                foreach ($values[0] as $index => $value) {
+                    if ($index > 0) {
+                        $xml->xmlStartTag("or");
+                    }
+                    $xml->xmlElement("varequal", ['respident' => "LongMenu_" . $real_id], $value);
+                    if ($index > 0) {
+                        $xml->xmlEndTag("or");
+                    }
+                }
+                if ($key > 0) {
+                    $xml->xmlEndTag("and");
+                }
+            }
+            $xml->xmlEndTag("not");
+            $xml->xmlEndTag("conditionvar");
+            $xml->xmlElement("displayfeedback", ['feedbacktype' => "Response", 'linkrefid' => 'response_onenotcorrect']);
+            $xml->xmlEndTag("respcondition");
+        }
+
+        $xml->xmlEndTag("resprocessing");
+
+
+
+
+        for ($i = 0; $i < sizeof($correct_answers); $i++) {
+            $attrs = [
+                "ident" => $i,
+                "view" => "All"
+            ];
+            $xml->xmlStartTag("itemfeedback", $attrs);
+            // qti flow_mat
+            $xml->xmlStartTag("flow_mat");
+            $fb = $this->object->feedbackOBJ->getSpecificAnswerFeedbackExportPresentation(
+                $this->object->getId(),
+                0,
+                $i
+            );
+            $this->addQTIMaterial($xml, $fb);
+            $xml->xmlEndTag("flow_mat");
+            $xml->xmlEndTag("itemfeedback");
+        }
+
+        if (strlen($feedback_allcorrect) > 0) {
+            $xml->xmlStartTag("itemfeedback", ['ident' => 'response_allcorrect','view' => 'All']);
+            $xml->xmlStartTag("flow_mat");
+            $xml->xmlStartTag("material");
+            $xml->xmlElement("mattext", ['texttype' => 'text/xhtml'], $feedback_allcorrect);
+            $xml->xmlEndTag("material");
+            $xml->xmlEndTag("flow_mat");
+            $xml->xmlEndTag("itemfeedback");
+        }
+        if (strlen($feedback_onenotcorrect) > 0) {
+            $xml->xmlStartTag("itemfeedback", ['ident' => 'response_onenotcorrect', 'view' => 'All']);
+            $xml->xmlStartTag("flow_mat");
+            $xml->xmlStartTag("material");
+            $xml->xmlElement("mattext", ['texttype' => 'text/xhtml'], $feedback_onenotcorrect);
+            $xml->xmlEndTag("material");
+            $xml->xmlEndTag("flow_mat");
+            $xml->xmlEndTag("itemfeedback");
+        }
+
+        $xml = $this->addSolutionHints($xml);
+
+        $xml->xmlEndTag("item");
+        $xml->xmlEndTag("questestinterop");
+
+        $xml = $xml->xmlDumpMem(false);
+        if (!$a_include_header) {
+            $pos = strpos($xml, "?>");
+            $xml = substr($xml, $pos + 2);
+        }
+        return $xml;
+    }
+}

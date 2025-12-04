@@ -1,0 +1,118 @@
+<script id="pers-chat-settings-js">
+document.addEventListener('DOMContentLoaded', () => {
+  (function (root) {
+    const templates = {
+      error: '<div class="help-block alert alert-danger"><span></span></div>',
+    };
+
+    const emptyErrorMessages = function (parent) {
+      const errorElements = parent.querySelectorAll('.dynamic-errors');
+      errorElements.forEach((el) => el.remove());
+    };
+
+    const hasErrorMessages = function (parent) {
+      return parent.querySelectorAll('.dynamic-errors').length > 0;
+    };
+
+    const showErrorMessage = function (parent, languageVariable) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = templates.error;
+      const warning = tempDiv.firstChild;
+
+      warning.classList.add('dynamic-errors');
+      emptyErrorMessages(parent);
+      parent.prepend(warning);
+      warning.querySelector('span').innerHTML = il.Language.txt(languageVariable);
+    };
+
+    const deselectAndLockCheckbox = function (elm) {
+      elm.disabled = true;
+      elm.checked = false;
+    };
+
+    const findNotificationToggle = function (form, label) {
+      const textNodes = Array.from(form.querySelectorAll('*'))
+        .flatMap((el) => Array.from(el.childNodes))
+        .filter((node) => node.nodeType === Node.TEXT_NODE
+          && node.textContent.trim() === label);
+
+      if (textNodes.length === 1) {
+        const checkboxes = textNodes[0].parentNode.closest('fieldset').querySelectorAll('input[type="checkbox"]');
+        if (checkboxes.length === 1) {
+          return checkboxes[0];
+        }
+      }
+
+      return null;
+    };
+
+    const handleNotificationStateChange = function (container, notificationToggle) {
+      if (il.BrowserNotifications.isBlocked()) {
+        if (!hasErrorMessages(container)) {
+          showErrorMessage(container, 'osc_browser_noti_no_permission_error');
+          deselectAndLockCheckbox(notificationToggle);
+        }
+      } else {
+        notificationToggle.disabled = false;
+        emptyErrorMessages(container);
+      }
+    };
+
+    const setupNotificationToggle = function (notificationToggle, container) {
+      notificationToggle.addEventListener('change', () => {
+        const currentValue = notificationToggle.checked;
+
+        if (currentValue) {
+          il.BrowserNotifications.requestPermission().then(() => {
+            notificationToggle.disabled = false;
+          }).catch(() => {
+            if (!il.BrowserNotifications.isGranted()) {
+              showErrorMessage(container, 'osc_browser_noti_req_permission_error');
+              deselectAndLockCheckbox(notificationToggle);
+            }
+          });
+        }
+      });
+    };
+
+    il.Util.addOnLoad(() => {
+      // Nesting the addOnLoad code is required because otherwise we cannot use il.Language.txt
+      il.Util.addOnLoad(() => {
+        const BROWSER_NOTIFICATION_TOGGLE_LABEL = '{BROWSER_NOTIFICATION_TOGGLE_LABEL}';
+
+        const form = document.querySelector('#pers-chat-settings-js').parentElement.querySelector('form:first-of-type');
+        if (!form) {
+          console.error('[Chat Notifications] Incompatible DOM structure: Form element not found as a sibling of the script.');
+          return;
+        }
+
+        const notificationToggle = findNotificationToggle(form, BROWSER_NOTIFICATION_TOGGLE_LABEL);
+        if (notificationToggle === null) {
+          console.error('[Chat Notifications] Incompatible DOM structure: No checkboxes found to add event listeners to.');
+          return;
+        }
+
+        const container = notificationToggle.parentNode;
+
+        if (!il.BrowserNotifications.isSupported()) {
+          showErrorMessage(container, 'osc_browser_noti_no_support_error');
+          deselectAndLockCheckbox(notificationToggle);
+        } else {
+          handleNotificationStateChange(container, notificationToggle);
+
+          /**
+           * Firefox blocks permission requests temporarily. In this case a "default" permission means "blocked",
+           * so we MUST NOT check it continuously.
+           * See: https://stackoverflow.com/questions/2324944/in-javascript-how-do-i-determine-if-my-current-browser-is-firefox-on-a-computer
+           */
+          if (!navigator.userAgent.includes('Firefox')) {
+            root.setInterval(() => handleNotificationStateChange(container, notificationToggle), 1000);
+          }
+        }
+
+        setupNotificationToggle(notificationToggle, container);
+      });
+    });
+  }(window));
+});
+</script>

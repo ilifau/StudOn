@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\Implementation\Render;
+
+use ILIAS\UI\Component\Component;
+use ILIAS\UI\Implementation\Component\Symbol\Glyph\Glyph;
+use ILIAS\UI\Implementation\Component\Symbol\Icon\Icon;
+use ILIAS\UI\Implementation\Component\Input\Field\FormInput;
+use ILIAS\UI\Implementation\Component\MessageBox\MessageBox;
+use ILIAS\UI\Implementation\Component\Input\Container\Form\Form;
+
+/**
+ * Loads renderers for components from the file system.
+ *
+ * To introduce a component that may react on the context of the rendering, you need to:
+ *
+ * * create a new implementation of RendererFactory in the implementation folder of that
+ *   component
+ * * introduce it as a dependency of this loader (and load at ilInitialisation::initUIFramework)
+ * * make a special case for the components the new factory may create renderers for in
+ *   FSLoader::getRendererFactoryFor
+ */
+class FSLoader implements Loader
+{
+    use LoaderHelper;
+
+    public function __construct(
+        private RendererFactory $default_renderer_factory,
+        private RendererFactory $glyph_renderer_factory,
+        private RendererFactory $field_renderer_factory,
+        private RendererFactory $message_box_renderer_factory,
+        private RendererFactory $form_renderer_factory,
+    ) {
+    }
+
+    /**
+     * @inheritdocs
+     */
+    public function getRendererFor(Component $component, array $contexts): ComponentRenderer
+    {
+        $context_names = $this->getContextNames($contexts);
+        $factory = $this->getRendererFactoryFor($component);
+        return $factory->getRendererInContext($component, $context_names);
+    }
+
+    /**
+     * @inheritdocs
+     */
+    public function getRendererFactoryFor(Component $component): RendererFactory
+    {
+        if ($component instanceof Glyph) {
+            return $this->glyph_renderer_factory;
+        }
+        if ($component instanceof FormInput) {
+            return $this->field_renderer_factory;
+        }
+        if ($component instanceof MessageBox) {
+            return $this->message_box_renderer_factory;
+        }
+        if ($component instanceof Form) {
+            return $this->form_renderer_factory;
+        }
+
+        return $this->default_renderer_factory;
+    }
+}

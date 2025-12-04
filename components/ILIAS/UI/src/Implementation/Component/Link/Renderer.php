@@ -1,0 +1,129 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\Implementation\Component\Link;
+
+use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
+use ILIAS\UI\Implementation\Render\TooltipRenderer;
+use ILIAS\UI\Implementation\Render\Template;
+use ILIAS\UI\Renderer as RendererInterface;
+use ILIAS\UI\Component;
+use LogicException;
+
+class Renderer extends AbstractComponentRenderer
+{
+    /**
+     * @inheritdoc
+     */
+    public function render(Component\Component $component, RendererInterface $default_renderer): string
+    {
+        if ($component instanceof Component\Link\Standard) {
+            return $this->renderStandard($component);
+        }
+        if ($component instanceof Component\Link\Bulky) {
+            return $this->renderBulky($component, $default_renderer);
+        }
+        $this->cannotHandleComponent($component);
+    }
+
+    protected function setStandardVars(
+        string $tpl_name,
+        Component\Link\Link $component
+    ): Template {
+        $tpl = $this->getTemplate($tpl_name, true, true);
+        $action = $component->getAction();
+        $label = $component->getLabel();
+        if ($component->getOpenInNewViewport()) {
+            $tpl->touchBlock("open_in_new_viewport");
+        }
+        if (null !== $component->getContentLanguage()) {
+            $tpl->setVariable("CONTENT_LANGUAGE", $component->getContentLanguage());
+        }
+        if (null !== $component->getLanguageOfReferencedResource()) {
+            $tpl->setVariable("HREF_LANGUAGE", $component->getLanguageOfReferencedResource());
+        }
+
+        $rel_strings = [];
+        foreach ($component->getRelationshipsToReferencedResource() as $rel) {
+            $rel_strings[] = $rel->value;
+        }
+        if (!empty($rel_strings)) {
+            $tpl->setVariable("RELS", implode(' ', $rel_strings));
+        }
+
+        $tpl->setVariable("LABEL", $label);
+        if($component->isDisabled()) {
+            $tpl->touchBlock("ariadisabled", $action);
+        } else {
+            $tpl->setVariable("HREF", $action);
+        }
+        return $tpl;
+    }
+
+    protected function maybeRenderWithTooltip(Component\Link\Link $component, Template $tpl): string
+    {
+        $tooltip_embedding = $this->getTooltipRenderer()->maybeGetTooltipEmbedding(...$component->getHelpTopics());
+        if (! $tooltip_embedding) {
+            $id = $this->bindJavaScript($component);
+            $tpl->setVariable("ID", $id);
+            return $tpl->get();
+        }
+        $component = $component->withAdditionalOnLoadCode($tooltip_embedding[1]);
+        $tooltip_id = $this->createId();
+        $tpl->setCurrentBlock("with_aria_describedby");
+        $tpl->setVariable("ARIA_DESCRIBED_BY", $tooltip_id);
+        $tpl->parseCurrentBlock();
+        $id = $this->bindJavaScript($component);
+        $tpl->setVariable("ID", $id);
+        return $tooltip_embedding[0]($tooltip_id, $tpl->get());
+    }
+
+    protected function renderStandard(
+        Component\Link\Standard $component
+    ): string {
+        $tpl_name = "tpl.standard.html";
+        $tpl = $this->setStandardVars($tpl_name, $component);
+        return $this->maybeRenderWithTooltip($component, $tpl);
+    }
+
+    protected function renderBulky(
+        Component\Link\Bulky $component,
+        RendererInterface $default_renderer
+    ): string {
+        $tpl_name = "tpl.bulky.html";
+        $tpl = $this->setStandardVars($tpl_name, $component);
+
+        $symbol = $component->getSymbol();
+        if($symbol !== null) {
+            if ($component->getLabel() !== '') {
+                $symbol = $symbol->withLabel('');
+            }
+            $tpl->setVariable("SYMBOL", $default_renderer->render($symbol));
+        }
+
+        $aria_role = $component->getAriaRole();
+        if ($aria_role != null) {
+            $tpl->setCurrentBlock("with_aria_role");
+            $tpl->setVariable("ARIA_ROLE", $aria_role);
+            $tpl->parseCurrentBlock();
+        }
+        return $this->maybeRenderWithTooltip($component, $tpl);
+    }
+}

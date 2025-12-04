@@ -1,0 +1,56 @@
+<script type='text/javascript'>
+document.addEventListener('DOMContentLoaded', () => {
+  (function (scope) {
+    const table = document.querySelector('#{TABLE_ID}');
+    const filterInput = document.querySelector('#{FILTER_ELM_ID}');
+    const filterVal = !filterInput ? '' : filterInput.value;
+    const noEntriesText = '{NO_ENTRIES_TEXT}';
+
+    const stateChangedListener = function (event) {
+      const { buddyId, newState, oldState } = event.detail;
+
+      if (newState === 'ilBuddySystemUnlinkedRelationState'
+        || (filterVal !== '' && newState !== filterVal)) {
+        const rows = table.querySelectorAll('tr[data-buddy-id="' + buddyId + '"]');
+        const numCells = rows.length ? rows[0].querySelectorAll('td').length : 0;
+
+        rows.forEach((row) => row.remove());
+
+        if (!table.querySelector('.ilBuddySystemRelationRow')) {
+          const tform = table.closest('form');
+
+          // Add no entries message
+          const tbody = table.querySelector('tbody');
+          const noEntriesRow = document.createElement('tr');
+          noEntriesRow.className = 'tblrow1';
+          noEntriesRow.innerHTML = '<td class="ilCenter" colspan="' + numCells + '">' + noEntriesText
+          tbody.appendChild(noEntriesRow);
+
+          // Remove unnecessary elements
+          const thead = table.querySelector('thead');
+          if (thead) thead.remove();
+
+          const tableSelectAll = tform.querySelector('.ilTableSelectAll');
+          if (tableSelectAll) tableSelectAll.remove();
+
+          const commandRowTop = tform.querySelector('.ilTableCommandRowTop');
+          if (commandRowTop) commandRowTop.remove();
+
+          const commandRow = tform.querySelector('.ilTableCommandRow');
+          if (commandRow) commandRow.remove();
+
+          const nav = tform.querySelector('.ilTableNav');
+          if (nav && !nav.querySelector('label')) {
+            nav.remove();
+          }
+        }
+      }
+
+      return true;
+    };
+
+    scope.addEventListener('il.bs.stateChange.afterStateChangePerformed', stateChangedListener);
+  }(window));
+});
+
+</script>

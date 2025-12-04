@@ -1,0 +1,207 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+namespace ILIAS\Setup;
+
+use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\Data;
+
+/**
+ * Using the AgentFinder as EntryPoint is an exception/abomination for 10 only.
+ * Do not copy or use as example!
+ * The Finder is needed in ilObjSystemFolderGUI to get the installation's status.
+ * There is a better bridge in 11.
+ */
+class ImplementationOfAgentFinder implements AgentFinder, \ILIAS\Component\EntryPoint
+{
+    protected array|AgentCollection $component_agents;
+
+    public function __construct(
+        protected Refinery $refinery,
+        protected Data\Factory $data_factory,
+        protected \ILIAS\Language\Language $lng,
+        protected ImplementationOfInterfaceFinder $interface_finder,
+        $component_agents
+    ) {
+        $this->component_agents = $component_agents;
+    }
+
+    /**
+     * Collect all agents from the system, core and plugin, bundled in a collection.
+     *
+     * @param string[]  $ignore folders to be ignored.
+     */
+    public function getAgents(): AgentCollection
+    {
+        $agents = $this->getComponentAgents();
+
+        // Get a list of existing plugins in the system.
+        $plugins = $this->getPluginNames();
+
+        foreach ($plugins as $plugin_name) {
+            $agents = $agents->withAdditionalAgent(
+                $plugin_name,
+                $this->getPluginAgent($plugin_name)
+            );
+        }
+
+        return $agents;
+    }
+
+
+    /**
+     * Collect core agents from the system bundled in a collection.
+     */
+    public function getComponentAgents(): AgentCollection
+    {
+        if ($this->component_agents instanceof AgentCollection) {
+            return $this->component_agents;
+        }
+
+        $agents = new AgentCollection($this->refinery, []);
+
+        foreach ($this->component_agents as $agent) {
+            $agents = $agents->withAdditionalAgent(
+                $this->getAgentNameByClassName(get_class($agent)),
+                $agent
+            );
+        }
+
+        $this->component_agents = $agents;
+        return $this->component_agents;
+    }
+
+    /**
+     * Get a agent from a specific plugin.
+     *
+     * If there is no plugin agent, this would the default agent.
+     * If the plugin contains multiple agents, these will be collected.
+     *
+     * @param string $name of the plugin to get the agent from
+     */
+    public function getPluginAgent(string $name): Agent
+    {
+        // TODO: This seems to be something that rather belongs to Services/Component/
+        // but we put it here anyway for the moment. This seems to be something that
+        // could go away when we unify Services/Modules/Plugins to one common concept.
+        $path = "[/]public/Customizing/global/plugins/.*/.*/" . $name . "/.*";
+        $agent_classes = iterator_to_array($this->interface_finder->getMatchingClassNames(
+            Agent::class,
+            [],
+            $path
+        ));
+
+        if ($agent_classes === []) {
+            return new class ($name) extends \ilPluginDefaultAgent {
+            };
+        }
+
+        $agents = [];
+        foreach ($agent_classes as $class_name) {
+            $agents[] = new $class_name(
+                $this->refinery,
+                $this->data_factory,
+                $this->lng
+            );
+        }
+
+        if (count($agents) === 1) {
+            return $agents[0];
+        }
+
+        return new AgentCollection(
+            $this->refinery,
+            $agents
+        );
+    }
+
+    public function getAgentByClassName(string $class_name): Agent
+    {
+        if (!class_exists($class_name)) {
+            throw new \InvalidArgumentException("Class '" . $class_name . "' not found.");
+        }
+
+        return new $class_name(
+            $this->refinery,
+            $this->data_factory,
+            $this->lng
+        );
+    }
+
+    /**
+     * Derive a name for the agent based on a class name.
+     */
+    public function getAgentNameByClassName(string $class_name): string
+    {
+        // We assume that the name of an agent in the class ilXYZSetupAgent really
+        // is XYZ. If that does not fit we just use the class name.
+        $match = [];
+        if (preg_match("/il(\w+)SetupAgent/", $class_name, $match)) {
+            return strtolower($match[1]);
+        }
+        return $class_name;
+    }
+
+    /**
+     * @return \Generator <string>
+     */
+    protected function getPluginNames(): \Generator
+    {
+        $directories =
+            new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator(__DIR__ . "/../../../../public/Customizing/global/plugins")
+            );
+        $names = [];
+        foreach ($directories as $dir) {
+            $groups = [];
+            if (preg_match("%^" . __DIR__ . "/[.][.]/[.][.]/[.][.]/[.][.]/public/Customizing/global/plugins/(Services|Modules)/((\\w+/){2})([^/\.]+)(/|$)%", (string) $dir, $groups)) {
+                $name = $groups[4];
+                if (isset($names[$name])) {
+                    continue;
+                }
+                $names[$name] = true;
+                yield $name;
+            }
+        }
+    }
+
+    /**
+     * Using the AgentFinder as EntryPoint is an exception/abomination for 10 only.
+     * Do not copy or use as example!
+     * @deprecated will be removed in 11
+     */
+    public function getName(): string
+    {
+        return 'Agent Finder Adapter';
+    }
+
+    /**
+     * Using the AgentFinder as EntryPoint is an exception/abomination for 10 only.
+     * Do not copy or use as example!
+     * @deprecated will be removed in 11
+     */
+    public function enter(): int
+    {
+        global $DIC;
+        $DIC['setup.agentfinder'] = fn() => $this;
+        return 0;
+    }
+
+}

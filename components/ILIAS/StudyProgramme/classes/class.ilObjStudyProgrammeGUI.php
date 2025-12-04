@@ -1,0 +1,810 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Container\Content\ViewManager;
+use ILIAS\Refinery;
+use ILIAS\HTTP\Wrapper\RequestWrapper;
+
+/**
+ * Class ilObjStudyProgrammeGUI class
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilPermissionGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilInfoScreenGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilCommonActionDispatcherGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilColumnGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjStudyProgrammeSettingsGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjStudyProgrammeMembersGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjStudyProgrammeAutoMembershipsGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjectCopyGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjectTranslationGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilCertificateGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjStudyProgrammeAutoCategoriesGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilContainerGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilContainerPageGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjStyleSheetGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilObjectContentStyleSettingsGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilPRGPageObjectGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilPRGMembersExportGUI
+ * @ilCtrl_Calls ilObjStudyProgrammeGUI: ilPropertyFormGUI
+ * @ilCtrl_isCalledBy ilObjStudyProgrammeGUI: ilRepositoryGUI
+ */
+class ilObjStudyProgrammeGUI extends ilContainerGUI
+{
+    private const TAB_VIEW_CONTENT = "view_content";
+    private const SUBTAB_VIEW_MANAGE = "manage";
+    private const TAB_INFO = "info_short";
+    private const TAB_SETTINGS = "settings";
+    private const TAB_MEMBERS = "members";
+    private const TAB_METADATA = "edit_advanced_settings";
+    private const SUBTAB_PAGE_EDIT = "page";
+    private const ASYNC_CALLS = [
+        ilObjStudyProgrammeAutoCategoriesGUI::CMD_GET_ASYNC_MODAL,
+        ilObjStudyProgrammeAutoMembershipsGUI::CMD_GET_ASYNC_MODAL_OUTPUT,
+        ilObjStudyProgrammeAutoMembershipsGUI::CMD_NEXT_STEP,
+    ];
+
+    protected ilLocatorGUI $ilLocator;
+    protected ilComponentLogger $ilLog;
+    protected ilHelpGUI $help;
+    protected ilObjStudyProgrammeSettingsGUI $settings_gui;
+    protected ilObjStudyProgrammeMembersGUI $members_gui;
+    protected ilObjStudyProgrammeAutoMembershipsGUI $memberships_gui;
+    protected ilStudyProgrammeTypeGUI $type_gui;
+    protected ilStudyProgrammeTypeRepository $type_repository;
+    protected ilObjStudyProgrammeAutoCategoriesGUI $autocategories_gui;
+    protected ?ilPRGPermissionsHelper $permissions = null;
+    protected Refinery\Factory $refinery;
+    protected RequestWrapper $request_wrapper;
+    protected ILIAS\UI\Factory $ui_factory;
+
+    /**
+     * @var ilObjStudyProgramme
+     */
+    public ?ilObject $object;
+
+    protected ILIAS\Container\Content\DomainService $internal_domain_service;
+    protected ViewManager $container_view_manager;
+
+    public function __construct()
+    {
+        global $DIC;
+        $this->tpl = $DIC['tpl'];
+        $this->ctrl = $DIC['ilCtrl'];
+        $this->ilLocator = $DIC['ilLocator'];
+        $this->tree = $DIC['tree'];
+        $this->toolbar = $DIC['ilToolbar'];
+        $this->ilLog = $DIC['ilLog'];
+        $this->ilias = $DIC['ilias'];
+        $this->type = "prg";
+        $this->help = $DIC['ilHelp'];
+        $this->user = $DIC['ilUser'];
+        $this->refinery = $DIC->refinery();
+        $this->request_wrapper = $DIC->http()->wrapper()->query();
+
+        $ref_id = $this->request_wrapper->retrieve("ref_id", $this->refinery->kindlyTo()->int());
+        parent::__construct([], $ref_id, true, false);
+
+        $lng = $DIC['lng'];
+        $lng->loadLanguageModule("prg");
+
+        $dic = ilStudyProgrammeDIC::dic();
+        $this->settings_gui = $dic['ilObjStudyProgrammeSettingsGUI'];
+        $this->members_gui = $dic['ilObjStudyProgrammeMembersGUI'];
+        $this->memberships_gui = $dic['ilObjStudyProgrammeAutoMembershipsGUI'];
+        $this->type_gui = $dic['ilStudyProgrammeTypeGUI'];
+        $this->autocategories_gui = $dic['ilObjStudyProgrammeAutoCategoriesGUI'];
+        $this->type_repository = $dic['model.Type.ilStudyProgrammeTypeRepository'];
+        $this->ui_factory = $dic['ui.factory'];
+
+        $this->internal_domain_service = $DIC->container()->internal()->domain()->content();
+        $this->container_view_manager = $this->internal_domain_service->view($this->object);
+    }
+
+    public function executeCommand(): void
+    {
+        $cmd = $this->ctrl->getCmd(self::SUBTAB_VIEW_MANAGE);
+        $next_class = $this->ctrl->getNextClass($this);
+
+        if (!in_array($cmd, self::ASYNC_CALLS)) {
+            $this->addToNavigationHistory();
+            parent::prepareOutput();
+            $this->addHeaderAction();
+        }
+
+        switch ($next_class) {
+            case "ilinfoscreengui":
+                $this->tabs_gui->activateTab(self::TAB_INFO);
+                $this->denyAccessIfNotAnyOf([
+                    ilPRGPermissionsHelper::ROLEPERM_VIEW,
+                    ilPRGPermissionsHelper::ROLEPERM_READ
+                ]);
+                $info = new ilInfoScreenGUI($this);
+                $this->fillInfoScreen($info);
+                $this->ctrl->forwardCommand($info);
+
+                // I guess this is how it was supposed to work,
+                // but it doesn't... it won't respect our sub-id and sub-type when creating the objects!
+                // So we reimplemented the stuff in the method parseInfoScreen()
+                //                $info = new ilInfoScreenGUI($this);
+                //                $amd_gui = new ilAdvancedMDRecordGUI(
+                //                  ilAdvancedMDRecordGUI::MODE_INFO,
+                //                  'orgu',
+                //                  $this->object->getId(),
+                //                  'orgu_type',
+                //                  $this->object->getOrgUnitTypeId()
+                //                );
+                //                $amd_gui->setInfoObject($info);
+                //                $amd_gui->setSelectedOnly(true);
+                //                $amd_gui->parse();
+                //                $this->ctrl->forwardCommand($info);
+                break;
+            case 'ilpermissiongui':
+                $this->tabs_gui->activateTab('perm_settings');
+                $ilPermissionGUI = new ilPermissionGUI($this);
+                $this->ctrl->forwardCommand($ilPermissionGUI);
+                break;
+            case "ilcommonactiondispatchergui":
+                $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
+                $this->ctrl->forwardCommand($gui);
+                break;
+            case "ilobjstudyprogrammesettingsgui":
+                $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_WRITE);
+                $this->getSubTabs('settings');
+                $this->tabs_gui->activateTab(self::TAB_SETTINGS);
+                $this->tabs_gui->activateSubTab('settings');
+                $this->settings_gui->setRefId($this->ref_id);
+                $this->ctrl->forwardCommand($this->settings_gui);
+                break;
+            case "ilobjstudyprogrammeautocategoriesgui":
+                $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_WRITE);
+                $this->getSubTabs('settings');
+                $this->tabs_gui->activateTab(self::TAB_SETTINGS);
+                $this->tabs_gui->activateSubTab('auto_content');
+                $this->autocategories_gui->setRefId($this->ref_id);
+                $this->initTreeJS();
+                $this->ctrl->forwardCommand($this->autocategories_gui);
+                break;
+            case "ilobjstudyprogrammemembersgui":
+                $this->denyAccessIfNot(ilOrgUnitOperation::OP_VIEW_MEMBERS);
+                $this->getSubTabs('members');
+                $this->tabs_gui->activateTab(self::TAB_MEMBERS);
+                $this->tabs_gui->activateSubTab('edit_participants');
+                $this->members_gui->setParentGUI($this);
+                $this->members_gui->setRefId($this->ref_id);
+                $this->ctrl->forwardCommand($this->members_gui);
+                break;
+            case 'ilprgmembersexportgui':
+                $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_MANAGE_MEMBERS);
+                $this->getSubTabs('members');
+                $this->tabs_gui->activateTab(self::TAB_MEMBERS);
+                $this->tabs_gui->activateSubTab('export_memberships');
+
+                $specific_dic = ilStudyProgrammeDIC::specificDicFor($this->object);
+                $export_gui = new ilPRGMembersExportGUI(
+                    $this->ref_id,
+                    $specific_dic['ilStudyProgrammeUserTable'],
+                    $specific_dic['DataFactory']
+                );
+                $this->ctrl->forwardCommand($export_gui);
+                break;
+            case "ilobjstudyprogrammeautomembershipsgui":
+                $this->denyAccessIfNot(ilOrgUnitOperation::OP_MANAGE_MEMBERS);
+                $this->getSubTabs('members');
+                $this->tabs_gui->activateTab(self::TAB_MEMBERS);
+                $this->tabs_gui->activateSubTab('auto_memberships');
+                $this->memberships_gui->setParentGUI($this);
+                $this->memberships_gui->setRefId($this->ref_id);
+                $this->ctrl->forwardCommand($this->memberships_gui);
+                break;
+            case 'ilstudyprogrammetypegui':
+                $this->tabs_gui->activateTab('subtypes');
+                $this->type_gui->setParentGUI($this);
+                $this->ctrl->forwardCommand($this->type_gui);
+                break;
+            case 'ilobjectcopygui':
+                $gui = new ilobjectcopygui($this);
+                $this->ctrl->forwardCommand($gui);
+                break;
+            case 'ilobjecttranslationgui':
+                $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_WRITE);
+                $this->getSubTabs('settings');
+                $this->tabs_gui->activateTab(self::TAB_SETTINGS);
+                $this->tabs_gui->activateSubTab('settings_trans');
+                $transgui = new ilObjectTranslationGUI($this);
+                $this->ctrl->forwardCommand($transgui);
+                break;
+            case "ilcertificategui":
+                $this->getSubTabs('settings');
+                $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_WRITE);
+                $this->tabs_gui->activateTab(self::TAB_SETTINGS);
+                $this->tabs_gui->activateSubTab('certificate');
+                $guiFactory = new ilCertificateGUIFactory();
+                $output_gui = $guiFactory->create($this->object);
+                $this->ctrl->forwardCommand($output_gui);
+                break;
+            case "ilprgpageobjectgui":
+                $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_WRITE);
+                if (!$this->object->hasContentPage()) {
+                    $this->object->createContentPage();
+                }
+                $gui = new ilPRGPageObjectGUI($this->object->getId());
+                $gui->setItemPresentationManager(
+                    $this->internal_domain_service
+                        ->itemPresentation(
+                            $this->object,
+                            null,
+                            false
+                        )
+                );
+                $this->content_style_gui->addCss($this->tpl, $this->object->getRefId());
+                $out = $this->ctrl->forwardCommand($gui);
+                if (!is_null($out)) {
+                    $this->tpl->setContent($out);
+                }
+                break;
+            case "ilobjstylesheetgui":
+                $this->forwardToStyleSheet();
+                break;
+            case "ilobjectcontentstylesettingsgui":
+                $this->tabs_gui->activateTab(self::TAB_VIEW_CONTENT);
+                $settings_gui = $this->content_style_gui
+                    ->objectSettingsGUIForRefId(null, $this->object->getRefId());
+                $this->ctrl->forwardCommand($settings_gui);
+                break;
+            case strtolower(ilPropertyFormGUI::class):
+                /*
+                 * Only used for async loading of the repository tree in custom md
+                 * internal links (see #28060, #37974). This is necessary since StudyProgrammes don't
+                 * use ilObjectMetaDataGUI.
+                 */
+                $form = $this->initAdvancedSettingsForm();
+                $gui = new ilAdvancedMDRecordGUI(
+                    ilAdvancedMDRecordGUI::MODE_EDITOR,
+                    'prg',
+                    $this->object->getId(),
+                    'prg_type',
+                    $this->object->getSettings()->getTypeSettings()->getTypeId()
+                );
+                $gui->setPropertyForm($form);
+                $gui->parse();
+                $this->ctrl->forwardCommand($form);
+                break;
+            case false:
+                $this->getSubTabs($cmd);
+                switch ($cmd) {
+                    case "cancelDelete":
+                    case "cancel":
+                        $cmd = "view";
+                        // no break
+                    case "create":
+                    case "save":
+                    case "edit":
+                        $this->$cmd();
+                        break;
+                    case "view":
+                        $this->getModeManager()->setContentMode();
+                        $this->view();
+                        break;
+                    case self::SUBTAB_VIEW_MANAGE: //manage
+                        $this->getModeManager()->setAdminMode();
+                        $this->view();
+                        break;
+                    case "delete":
+                        parent::deleteObject();
+                        break;
+                    case 'confirmedDelete':
+                        parent::confirmedDeleteObject();
+                        break;
+                    case 'editAdvancedSettings':
+                        $this->tabs_gui->activateTab('edit_advanced_settings');
+                        $this->editAdvancedSettings();
+                        break;
+                    case 'updateAdvancedSettings':
+                        $this->tabs_gui->activateTab('edit_advanced_settings');
+                        $this->updateAdvancedSettings();
+                        break;
+                    case "infoScreen":
+                        $this->ctrl->redirectByClass("ilInfoScreenGUI", "showSummary");
+                        break;
+                    case 'editPageFrame':
+                        $this->ctrl->redirectToURL($this->getLinkTarget('edit_page'));
+                        break;
+                    case 'editStyleProperties':
+                        $this->editStylePropertiesObject();
+                        break;
+
+                    case 'render':
+                    case 'disableAdministrationPanel':
+                    case 'enableAdministrationPanel':
+                    case 'saveSorting':
+                    case 'editOrder':
+                    case 'trash':
+                    case 'undelete':
+                    case 'confirmRemoveFromSystem':
+                    case 'removeFromSystem':
+                    case 'deliverCertificate':
+                    case 'addToDesk':
+                    case 'removeFromDesk':
+                    case 'paste':
+                    case 'clear':
+                    case 'performPasteIntoMultipleObjects':
+                    case 'cancelMoveLink':
+                    case 'keepObjectsInClipboard':
+                    case 'link':
+                    case 'copy':
+                        $this->getSubTabs(self::TAB_VIEW_CONTENT);
+                        $cmd .= "Object";
+                        $this->$cmd();
+                        break;
+
+                    case 'editAvailabilityPeriod':
+                    case 'saveAvailabilityPeriod':
+                        $this->tpl->setOnScreenMessage('failure', $this->lng->txt('prg_availability_action_not_allowed'));
+                        $this->view();
+                        break;
+                    case 'cut':
+                        $this->tpl->setOnScreenMessage('failure', $this->lng->txt('prg_cut_action_not_allowed'));
+                        $this->view();
+                        break;
+                    case 'routeImportCmd':
+                        $this->tpl->setOnScreenMessage('failure', $this->lng->txt('prg_import_action_not_allowed'));
+                        $this->view();
+                        break;
+
+                    default:
+                        throw new ilException("ilObjStudyProgrammeGUI: Command not supported: $cmd");
+                }
+                break;
+            default:
+                throw new ilException("ilObjStudyProgrammeGUI: Can't forward to next class $next_class");
+        }
+    }
+
+    protected function create(): void
+    {
+        parent::createObject();
+    }
+
+    protected function save(): void
+    {
+        parent::saveObject();
+    }
+
+    /**
+     * Sets the sorting of the container correctly. If it's an async call, a json string is returned.
+     */
+    protected function afterSave(ilObject $new_object): void
+    {
+        // set default sort to manual
+        $settings = new ilContainerSortingSettings($new_object->getId());
+        $settings->setSortMode(ilContainer::SORT_MANUAL);
+        $settings->setSortDirection(ilContainer::SORT_DIRECTION_ASC);
+        $settings->setSortNewItemsOrder(ilContainer::SORT_NEW_ITEMS_ORDER_CREATION);
+        $settings->setSortNewItemsPosition(ilContainer::SORT_NEW_ITEMS_POSITION_BOTTOM);
+        $settings->save();
+
+        $this->tpl->setOnScreenMessage("success", $this->lng->txt("object_added"), true);
+
+        $this->ctrl->setParameter($this, "ref_id", $new_object->getRefId());
+        $this->ctrl->redirectToURL($this->getReturnLocation(
+            "save",
+            $this->ctrl->getLinkTarget($this, "edit", "", false, false)
+        ));
+    }
+
+    protected function getPermissionsHelper(): ilPRGPermissionsHelper
+    {
+        if (!$this->permissions) {
+            if (!$this->object || !$this->object->getRefId()) {
+                throw new LogicException('Cannot ask for permission when not in tree!');
+            }
+
+            $this->permissions = ilStudyProgrammeDIC::specificDicFor($this->object)['permissionhelper'];
+        }
+        return $this->permissions;
+    }
+
+    protected function view(): void
+    {
+        $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_READ);
+        $this->tabs_gui->activateTab(self::TAB_VIEW_CONTENT);
+        parent::renderObject();
+    }
+
+    protected function initAdvancedSettingsForm(): ilPropertyFormGUI
+    {
+        $form = new ilPropertyFormGUI();
+        $form->setFormAction($this->ctrl->getFormAction($this));
+        $form->addCommandButton('updateAdvancedSettings', $this->lng->txt('save'));
+        $form->addCommandButton('editAdvancedSettings', $this->lng->txt('cancel'));
+
+        return $form;
+    }
+
+    protected function editAdvancedSettings(): void
+    {
+        if (!$this->checkAccess(ilPRGPermissionsHelper::ROLEPERM_WRITE)) {
+            $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
+            $this->ctrl->redirect($this);
+        }
+        $form = $this->initAdvancedSettingsForm();
+        $gui = new ilAdvancedMDRecordGUI(
+            ilAdvancedMDRecordGUI::MODE_EDITOR,
+            'prg',
+            $this->object->getId(),
+            'prg_type',
+            $this->object->getSettings()->getTypeSettings()->getTypeId()
+        );
+        $gui->setPropertyForm($form);
+        $gui->parse();
+        $this->tpl->setContent($form->getHTML());
+    }
+
+    protected function updateAdvancedSettings(): void
+    {
+        if (!$this->checkAccess(ilPRGPermissionsHelper::ROLEPERM_WRITE)) {
+            $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
+            $this->ctrl->redirect($this);
+        }
+        $form = $this->initAdvancedSettingsForm();
+        $gui = new ilAdvancedMDRecordGUI(
+            ilAdvancedMDRecordGUI::MODE_EDITOR,
+            'prg',
+            $this->object->getId(),
+            'prg_type',
+            $this->object->getSettings()->getTypeSettings()->getTypeId()
+        );
+        $gui->setPropertyForm($form);
+        $gui->parse();
+        $form->checkInput();
+
+        if ($gui->importEditFormPostValues()) {
+            $gui->writeEditForm();
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt('settings_saved'), true);
+            $this->ctrl->redirect($this, 'editAdvancedSettings');
+        } else {
+            $this->tpl->setContent($form->getHTML());
+        }
+    }
+
+    /**
+     * Method for implementing async windows-output
+     * Should be moved into core to enable async requests on creation-form
+     */
+    public function getAsyncCreationForm(): ilAsyncPropertyFormGUI
+    {
+        $asyncForm = new ilAsyncPropertyFormGUI($this->request_wrapper);
+
+        $asyncForm->cloneForm(
+            $this->initCreateForm('prg')
+        );
+        $asyncForm->setAsync(true);
+
+        return $asyncForm;
+    }
+
+    ////////////////////////////////////
+    // HELPERS
+    ////////////////////////////////////
+
+    protected function checkAccess(string $permission): bool
+    {
+        return $this->getPermissionsHelper()->may($permission);
+    }
+
+    protected function denyAccessIfNot(string $permission): void
+    {
+        $this->denyAccessIfNotAnyOf([$permission]);
+    }
+
+    protected function denyAccessIfNotAnyOf(array $permissions): void
+    {
+        if (!$this->getPermissionsHelper()->mayAnyOf($permissions)) {
+            if ($this->getPermissionsHelper()->may(ilPRGPermissionsHelper::ROLEPERM_VIEW)) {
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("msg_no_perm_write"));
+                $this->ctrl->redirectByClass('ilinfoscreengui', '');
+            } else {
+                $this->ilias->raiseError($this->lng->txt("msg_no_perm_read"), $this->ilias->error_obj->WARNING);
+            }
+        }
+    }
+
+    protected function getTabs(): void
+    {
+        $this->help->setScreenIdComponent("prg");
+        if ($this->checkAccess(ilPRGPermissionsHelper::ROLEPERM_READ)) {
+            $this->tabs_gui->addTab(self::TAB_VIEW_CONTENT, $this->lng->txt("content"), $this->getLinkTarget("view"));
+        }
+
+        if ($this->checkAccess(ilPRGPermissionsHelper::ROLEPERM_READ)) {
+            $this->tabs_gui->addTab(
+                self::TAB_INFO,
+                $this->lng->txt("info_short"),
+                $this->getLinkTarget("info_short")
+            );
+        }
+
+        if ($this->checkAccess(ilPRGPermissionsHelper::ROLEPERM_WRITE)) {
+            $this->tabs_gui->addTab(
+                self::TAB_SETTINGS,
+                $this->lng->txt("settings"),
+                $this->getLinkTarget("settings")
+            );
+        }
+
+        if ($this->checkAccess(ilOrgUnitOperation::OP_VIEW_MEMBERS)) {
+            $this->tabs_gui->addTab(
+                self::TAB_MEMBERS,
+                $this->lng->txt("assignments"),
+                $this->getLinkTarget("members")
+            );
+        }
+
+        if ($this->object->hasAdvancedMetadata()
+            && $this->checkAccess(ilPRGPermissionsHelper::ROLEPERM_WRITE)
+        ) {
+            $this->tabs_gui->addTab(
+                self::TAB_METADATA,
+                $this->lng->txt('meta_data'),
+                $this->ctrl->getLinkTarget($this, 'editAdvancedSettings')
+            );
+        }
+
+        parent::getTabs();
+    }
+
+    /**
+     * Adds subtabs based on the parent tab
+     * @param $parent_tab | string of the parent tab-id
+     */
+    public function getSubTabs(string $parent_tab): void
+    {
+        switch ($parent_tab) {
+            case self::TAB_VIEW_CONTENT:
+            case self::SUBTAB_VIEW_MANAGE:
+            case 'view':
+            case 'delete':
+                $this->addStandardContainerSubTabs(true);
+                break;
+
+            case 'settings':
+                $this->tabs_gui->addSubTab(
+                    'settings',
+                    $this->lng->txt('general'),
+                    $this->getLinkTarget('settings')
+                );
+
+                if ($this->object->isAutoContentApplicable()) {
+                    $this->tabs_gui->addSubTab(
+                        "auto_content",
+                        $this->lng->txt("content_automation"),
+                        $this->getLinkTarget("auto_content")
+                    );
+                }
+
+                $this->tabs_gui->addSubTab(
+                    "settings_trans",
+                    $this->lng->txt("obj_multilinguality"),
+                    $this->ctrl->getLinkTargetByClass("ilobjecttranslationgui", "")
+                );
+
+                $validator = new ilCertificateActiveValidator();
+                if (true === $validator->validate()) {
+                    $this->tabs_gui->addSubTabTarget(
+                        "certificate",
+                        $this->ctrl->getLinkTargetByClass("ilcertificategui", "certificateeditor"),
+                        "",
+                        "ilcertificategui"
+                    );
+                }
+
+                if ($this->permissions->isOrguAccessEnabledGlobally()) {
+                    $this->tabs_gui->addSubTab(
+                        'commonSettings',
+                        $this->lng->txt("obj_features"),
+                        $this->getLinkTarget("commonSettings")
+                    );
+                }
+
+                break;
+
+            case 'members':
+                $this->tabs_gui->addSubTab(
+                    'edit_participants',
+                    $this->lng->txt('edit_participants'),
+                    $this->getLinkTarget('members')
+                );
+
+                if ($this->getPermissionsHelper()->may(ilOrgUnitOperation::OP_MANAGE_MEMBERS)) {
+                    $this->tabs_gui->addSubTab(
+                        'auto_memberships',
+                        $this->lng->txt('auto_memberships'),
+                        $this->getLinkTarget('memberships')
+                    );
+                }
+
+                if ($this->getPermissionsHelper()->may(ilPRGPermissionsHelper::ROLEPERM_MANAGE_MEMBERS)) {
+                    $this->tabs_gui->addSubTab(
+                        'export_memberships',
+                        $this->lng->txt('export_memberships'),
+                        $this->getLinkTarget('export_memberships')
+                    );
+                }
+                break;
+        }
+    }
+
+    /**
+     * Disable default content subtabs
+     */
+    public function setContentSubTabs(): void
+    {
+    }
+
+    /**
+     * Generates a link based on a cmd
+     */
+    protected function getLinkTarget(string $cmd): string
+    {
+        if ($cmd === "info_short") {
+            return $this->ctrl->getLinkTargetByClass("ilinfoscreengui", "showSummary");
+        }
+        if ($cmd === "settings") {
+            return $this->ctrl->getLinkTargetByClass("ilobjstudyprogrammesettingsgui", "view");
+        }
+        if ($cmd === "auto_content") {
+            return $this->ctrl->getLinkTargetByClass("ilObjStudyProgrammeAutoCategoriesGUI", "view");
+        }
+        if ($cmd === self::SUBTAB_VIEW_MANAGE) {
+            return $this->ctrl->getLinkTarget($this, self::SUBTAB_VIEW_MANAGE);
+        }
+
+        if ($cmd === "members") {
+            return $this->ctrl->getLinkTargetByClass("ilobjstudyprogrammemembersgui", "view");
+        }
+        if ($cmd === "memberships") {
+            return $this->ctrl->getLinkTargetByClass("ilobjstudyprogrammeautomembershipsgui", "view");
+        }
+        if ($cmd == "export_memberships") {
+            return $this->ctrl->getLinkTargetByClass('ilprgmembersexportgui', 'show');
+        }
+        if ($cmd === "subtypes") {
+            return $this->ctrl->getLinkTargetByClass("ilstudyprogrammetypegui", "listTypes");
+        }
+        if ($cmd === "commonSettings") {
+            return $this->ctrl->getLinkTargetByClass(
+                [
+                    "ilobjstudyprogrammesettingsgui",
+                    "ilStudyProgrammeCommonSettingsGUI"
+                ],
+                "editSettings"
+            );
+        }
+        if ($cmd == "edit_page") {
+            return $this->ctrl->getLinkTargetByClass(
+                ["ilObjStudyProgrammeGUI", "ilPRGPageObjectGUI"],
+                'edit'
+            );
+        }
+
+        return $this->ctrl->getLinkTarget($this, $cmd);
+    }
+
+    /**
+     * Adding meta-data to the info-screen
+     */
+    protected function fillInfoScreen($info_screen): void
+    {
+        if (!$this->object->getSettings()->getTypeSettings()->getTypeId() ||
+            !ilStudyProgrammeDIC::dic()['model.Type.ilStudyProgrammeTypeRepository']
+                ->getType($this->object->getSettings()->getTypeSettings()->getTypeId())
+        ) {
+            return;
+        }
+
+        $record_gui = new ilAdvancedMDRecordGUI(
+            ilAdvancedMDRecordGUI::MODE_INFO,
+            'prg',
+            $this->object->getId(),
+            'prg_type',
+            $this->object->getSettings()->getTypeSettings()->getTypeId()
+        );
+        $record_gui->setInfoObject($info_screen);
+        $record_gui->parse();
+    }
+
+    protected function edit(): void
+    {
+        $this->denyAccessIfNot(ilPRGPermissionsHelper::ROLEPERM_WRITE);
+        $link = $this->ctrl->getLinkTargetByClass(ilObjStudyProgrammeSettingsGUI::class, 'view');
+        $this->ctrl->redirectToURL($link);
+    }
+
+    public static function _goto(string $target): void
+    {
+        global $DIC;
+        $ilCtrl = $DIC['ilCtrl'];
+        $ilCtrl->setTargetScript('ilias.php');
+        $ilCtrl->setParameterByClass("ilobjstudyprogrammegui", "ref_id", $target);
+        $ilCtrl->redirectByClass(array("ilRepositoryGUI", "ilobjstudyprogrammegui"), "view");
+    }
+
+    public function addToNavigationHistory(): void
+    {
+        global $DIC;
+        $ilNavigationHistory = $DIC['ilNavigationHistory'];
+
+        if (!$this->getCreationMode() && $this->checkAccess(ilPRGPermissionsHelper::ROLEPERM_READ)) {
+            $ref_id = $this->request_wrapper->retrieve("ref_id", $this->refinery->kindlyTo()->int());
+            $link = ilLink::_getLink($ref_id, "prg");
+            $ilNavigationHistory->addItem($ref_id, $link, 'prg');
+        }
+    }
+
+    protected function initHeaderAction(?string $sub_type = null, ?int $sub_id = null): ?ilObjectListGUI
+    {
+        $lg = parent::initHeaderAction($sub_type, $sub_id);
+        $validator = new ilCertificateDownloadValidator();
+        if ($lg && true === $validator->isCertificateDownloadable($this->user->getId(), $this->object->getId())) {
+            $cert_url = $this->ctrl->getLinkTarget($this, "deliverCertificate");
+            $this->lng->loadLanguageModule("certificate");
+            $lg->addCustomCommand($cert_url, "download_certificate");
+            $lg->addHeaderIcon(
+                "cert_icon",
+                ilUtil::getImagePath("standard/icon_cert.svg"),
+                $this->lng->txt("download_certificate"),
+                null,
+                null,
+                $cert_url
+            );
+        }
+        return $lg;
+    }
+
+    protected function deliverCertificateObject(): void
+    {
+        $this->lng->loadLanguageModule('cert');
+
+        $user_id = (int) $this->user->getId();
+        $obj_id = $this->object->getId();
+
+        $validator = new ilCertificateDownloadValidator();
+        if (false === $validator->isCertificateDownloadable($user_id, $obj_id)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
+            $this->ctrl->redirect($this);
+        }
+        $repository = new ilUserCertificateRepository();
+        $pdf_action = new ilCertificatePdfAction(
+            new ilPdfGenerator($repository),
+            new ilCertificateUtilHelper(),
+            $this->lng->txt('error_creating_certificate_pdf')
+        );
+        $pdf_action->downloadPdf($user_id, $obj_id);
+    }
+
+    protected function initTreeJS(): void
+    {
+        ilExplorerBaseGUI::init();
+    }
+
+    protected function supportsPageEditor(): bool
+    {
+        return true;
+    }
+}

@@ -1,0 +1,78 @@
+<!-- BEGIN placeholder_box -->
+<div class="option_value" id="placeholders_box">
+	<div class="il_Description">
+		<strong>{TXT_USE_PLACEHOLDERS}</strong>:<br /><!-- BEGIN placeholder_advise -->
+		{TXT_PLACEHOLDERS_ADVISE}<br /><!-- END placeholder_advise -->
+		<!-- BEGIN man_placeholder -->
+		<strong><a href="#" title="{PLACEHOLDER_INTERACTION_INFO}">{PLACEHOLDER}</a></strong>: {PLACEHOLDER_DESCRIPTION}<br />
+		<!-- END man_placeholder -->
+		<script>
+			document.addEventListener("DOMContentLoaded", (event) => {
+				il.Mail.initMailPlaceholderSelection(document.querySelectorAll('#placeholders_box a'), '{DEPENDENCY_ELM_ID_OUTER}');
+			});
+		</script>
+	</div>
+</div>
+<!-- END placeholder_box -->
+<!-- BEGIN js_block -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  function getValue(elements) {
+    if (!elements || elements.length === 0) {
+      return '';
+    }
+
+    const firstElement = elements[0];
+
+    if (firstElement.tagName.toLowerCase() === 'select') {
+      return firstElement.value;
+    }
+
+    for (const element of elements) {
+      if (element.checked) {
+        return element.value;
+      }
+    }
+
+    return '';
+  }
+
+  const triggerElements = document.querySelectorAll('[name="{RERENDER_TRIGGER_ELM_NAME}"]');
+
+  if (triggerElements.length > 0) {
+    const onMailTemplateContextChanged = () => {
+      const value = getValue(Array.from(triggerElements));
+
+      if (value) {
+        fetch(`{RERENDER_URL}&triggerValue=${encodeURIComponent(value)}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.text();
+          })
+          .then((placeholders) => {
+            const placeholdersBox = document.getElementById('placeholders_box');
+            if (placeholdersBox) {
+              placeholdersBox.innerHTML = placeholders;
+              il.Mail.initMailPlaceholderSelection(
+                placeholdersBox.querySelectorAll('a'),
+                '{RERENDER_DEPENDENCY_ELM_ID_OUTER}',
+              );
+            }
+          })
+          .catch((error) => {
+            console.error('Error during fetch:', error);
+          });
+      }
+    };
+
+    triggerElements.forEach((element) => {
+      element.addEventListener('change', onMailTemplateContextChanged);
+    });
+
+    onMailTemplateContextChanged();
+  }
+});
+</script>
+<!-- END js_block -->

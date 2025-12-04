@@ -1,0 +1,223 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Unit tests
+ *
+ * @author Guido Vollbach <gvollbachdatabay.de>
+ *
+ * @ingroup components\ILIASTestQuestionPool
+ */
+class assLongmenuTest extends assBaseTestCase
+{
+    protected $backupGlobals = false;
+
+
+    protected static function getMethod($name): ReflectionMethod
+    {
+        $class = new ReflectionClass(assLongMenu::class);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method;
+    }
+
+    protected function setUp(): void
+    {
+        chdir(__DIR__ . '/../../../../');
+
+        parent::setUp();
+
+        $ilCtrl_mock = $this->createMock('ilCtrl');
+        $ilCtrl_mock->expects($this->any())->method('saveParameter');
+        $ilCtrl_mock->expects($this->any())->method('saveParameterByClass');
+        $this->setGlobalVariable('ilCtrl', $ilCtrl_mock);
+
+        $lng_mock = $this->createMock('ilLanguage', ['txt'], [], '', false);
+        //$lng_mock->expects( $this->once() )->method( 'txt' )->will( $this->returnValue('Test') );
+        $this->setGlobalVariable('lng', $lng_mock);
+
+        $this->setGlobalVariable('ilias', $this->getIliasMock());
+        $this->setGlobalVariable('ilDB', $this->getDatabaseMock());
+    }
+
+    public function test_instantiateObject_shouldReturnInstance(): void
+    {
+        $instance = new assLongMenu();
+        $this->assertInstanceOf(assLongMenu::class, $instance);
+    }
+
+    public function test_getAdditionalTableName_shouldReturnString(): void
+    {
+        $instance = new assLongMenu();
+        $this->assertEquals('qpl_qst_lome', $instance->getAdditionalTableName());
+    }
+
+    public function test_getQuestionType_shouldReturnString(): void
+    {
+        $instance = new assLongMenu();
+        $this->assertEquals('assLongMenu', $instance->getQuestionType());
+    }
+
+    public function test_getAnswerTableName_shouldReturnString(): void
+    {
+        $instance = new assLongMenu();
+        $this->assertEquals('qpl_a_lome', $instance->getAnswerTableName());
+    }
+
+    public function test_correctAnswerDoesNotExistInAnswerOptions_shouldReturnTrue(): void
+    {
+        $method = self::getMethod('correctAnswerDoesNotExistInAnswerOptions');
+        $obj = new assLongMenu();
+        $value = $method->invokeArgs($obj, [[[5],1,1], [1,2,3,4]]);
+        $this->assertEquals(true, $value);
+    }
+
+    public function test_correctAnswerDoesNotExistInAnswerOptions_shouldReturnFalse(): void
+    {
+        $method = self::getMethod('correctAnswerDoesNotExistInAnswerOptions');
+        $obj = new assLongMenu();
+        $value = $method->invokeArgs($obj, [[[1],1,1], [1,2,3,4]]);
+        $this->assertEquals(false, $value);
+    }
+
+    public function test_getMaximumPoints_shouldBeFour(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => [0 => 'answer'], 1 => '2', 2 => '1'], 1 => [0 => [0 => 'answer'], 1 => '2', 2 => '1']]);
+        $value = $obj->getMaximumPoints();
+        $this->assertEquals(4, $value);
+    }
+
+    public function test_getMaximumPoints_shouldBeFourPointFive(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1'], 1 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1']]);
+        $value = $obj->getMaximumPoints();
+        $this->assertEquals(4.5, $value);
+    }
+
+    public function test_isComplete_shouldBeFalse(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1'], 1 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1']]);
+        $obj->setAnswers([[1,2,3,4]]);
+        $this->assertEquals($obj->isComplete(), false);
+    }
+
+    /* Removed by @kergomard 17 NOV 2022, we should introduce this again
+    public function test_isComplete_shouldBeTrue(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1'], 1 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1']]);
+        $obj->setAnswers([[1,2,3,4]]);
+        $obj->setAuthor("Tester");
+        $obj->setPoints(4.5);
+        $obj->setTitle('LongMenu Title');
+        $obj->setLongMenuTextValue('LongMenu Question');
+        $this->assertEquals($obj->isComplete(), true);
+    } */
+
+    public function test_checkQuestionCustomPart_shouldBeFalseBecauseNoCustomPart(): void
+    {
+        $obj = new assLongMenu();
+        $this->assertEquals($obj->checkQuestionCustomPart(), false);
+    }
+
+    public function test_checkQuestionCustomPart_shouldBeFalseBecauseOnlyAnswers(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setAnswers([[1,2,3,4]]);
+        $this->assertEquals($obj->checkQuestionCustomPart(), false);
+    }
+
+    public function test_checkQuestionCustomPart_shouldBeFalseBecauseOnlyCorrectAnswers(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1'], 1 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1']]);
+        $this->assertEquals($obj->checkQuestionCustomPart(), false);
+    }
+    public function test_checkQuestionCustomPart_shouldBeFalseBecauseToManyCorrectAnswers(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1'], 1 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1']]);
+        $obj->setAnswers([['answer']]);
+        $this->assertEquals($obj->checkQuestionCustomPart(), false);
+    }
+    public function test_checkQuestionCustomPart_shouldBeFalseBecauseCorrectAnswerDoesNotExistsInAnswers(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => [0 => 'answer'], 1 => '2.25', 2 => '1']]);
+        $obj->setAnswers([[1]]);
+        $this->assertEquals($obj->checkQuestionCustomPart(), false);
+    }
+
+    public function test_checkQuestionCustomPart_shouldBeFalseBecauseCorrectAnswerHasNoAnswers(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => [], 1 => '2.25', 2 => '1']]);
+        $obj->setAnswers([['answer']]);
+        $this->assertEquals($obj->checkQuestionCustomPart(), false);
+    }
+
+    public function test_checkQuestionCustomPart_shouldBeFalseBecauseCorrectAnswerHasNoPoints(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => []]]);
+        $obj->setAnswers([['answer']]);
+        $this->assertEquals($obj->checkQuestionCustomPart(), false);
+    }
+
+    public function test_checkQuestionCustomPart_shouldBeFalseBecauseCorrectAnswerPointsAreZero(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => ['answer'], 1 => 0, 2 => '1']]);
+        $obj->setAnswers([['answer']]);
+        $this->assertEquals($obj->checkQuestionCustomPart(), false);
+    }
+
+    public function test_checkQuestionCustomPart_shouldBeTrue(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setCorrectAnswers([0 => [0 => ['answer'], 1 => 1, 2 => '1']]);
+        $obj->setAnswers([['answer']]);
+        $this->assertEquals($obj->checkQuestionCustomPart(), true);
+    }
+
+    public function test_setAnswerType_shouldReturnGetAnswerType(): void
+    {
+        $obj = new assLongMenu();
+        $obj->setAnswerType([]);
+        $this->assertEquals([], $obj->getAnswerType());
+    }
+
+    /* Removed by @kergomard 17 NOV 2022, we should introduce this again
+    public function test_setLongMenuTextValue_shouldReturnGetLongMenuTextValue(): void
+    {
+        $obj = new assLongMenu();
+        $this->assertEquals('', $obj->getLongMenuTextValue());
+        $obj->setLongMenuTextValue('dummy text');
+        $this->assertEquals('dummy text', $obj->getLongMenuTextValue());
+    } */
+
+    public function test_isShuffleAnswersEnabled_shouldReturnFalse(): void
+    {
+        $obj = new assLongMenu();
+        $this->assertEquals(false, $obj->isShuffleAnswersEnabled());
+        $this->assertNotEquals(true, $obj->isShuffleAnswersEnabled());
+    }
+}

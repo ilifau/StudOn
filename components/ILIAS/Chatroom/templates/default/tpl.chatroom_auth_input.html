@@ -1,0 +1,57 @@
+<input placeholder="{TXT_AUTH_PROP_1}" class="form-control" type="text" size="{SIZE}" id="{ID_AUTH_PROP_1}" name="{POST_VAR}[{NAME_AUTH_PROP_1}]" value="{VALUE_AUTH_PROP_1}" {DISABLED} />
+<br />
+<input placeholder="{TXT_AUTH_PROP_2}" class="form-control" type="text" size="{SIZE}" id="{ID_AUTH_PROP_2}" name="{POST_VAR}[{NAME_AUTH_PROP_2}]" value="{VALUE_AUTH_PROP_2}" {DISABLED} />
+<!-- BEGIN generate_btn -->
+<br />
+<button id="{ID_BTN}" type="button" class="btn btn-default">{TXT_BTN}</button>
+<script>
+(function() {
+    const getUrl = function (url) {
+        return new Promise((resolve, reject) => {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", url);
+
+            xhr.onload = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    resolve(this);
+                } else {
+                    reject(Error(this.statusText));
+                }
+            };
+
+            xhr.onerror = () => {
+                reject(Error("Network Error"));
+            };
+
+            xhr.send();
+        });
+    };
+
+    document.addEventListener("DOMContentLoaded", (event) => {
+        const fields = ["{ID_AUTH_PROP_1_BTN}", "{ID_AUTH_PROP_2_BTN}"];
+
+        document.getElementById("{ID_BTN}").addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            try {
+                getUrl("{URL}")
+                    .then(function (response) {
+                        const data = JSON.parse(response.responseText);
+
+                        fields.forEach(function (item) {
+                            let value = "";
+                            if (data.hasOwnProperty(item)) {
+                                value = data[item];
+                            }
+                            document.getElementById(item).value = value;
+                        });
+                    });
+            } catch (e) {
+                alert(e);
+            }
+        });
+    });
+})();
+</script>
+<!-- END generate_btn -->

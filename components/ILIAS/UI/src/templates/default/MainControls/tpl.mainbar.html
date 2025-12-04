@@ -1,0 +1,41 @@
+<div class="il-maincontrols-mainbar" id="{ID}">
+	<nav class="il-mainbar" aria-label="{ARIA_LABEL}">
+		<!-- BEGIN tools_trigger -->
+		<div class="il-mainbar-tools-button">
+			{BUTTON}
+		</div>
+		<!-- END tools_trigger -->
+
+		<div class="il-mainbar-triggers">
+			<ul class="il-mainbar-entries" role="menubar" style="visibility: hidden"><!--if done via class/css-files, visibility is being applied too late -->
+				<!-- BEGIN trigger_item -->
+				<li role="none">{BUTTON}</li>
+				<!-- END trigger_item -->
+			</ul>
+		</div>
+	</nav>
+
+	<div class="il-mainbar-slates">
+		<div class="il-mainbar-tools-entries">
+			<ul class="il-mainbar-tools-entries-bg" role="menubar">
+				<!-- BEGIN tool_trigger_item -->
+				<li class="il-mainbar-tool-trigger-item" role="none">{BUTTON}</li>
+				<!-- END tool_trigger_item -->
+			</ul>
+			<!-- BEGIN tool_removal -->
+			<div class="il-mainbar-remove-tool">
+				{REMOVE_TOOL}
+			</div>
+			<!-- END tool_removal -->
+		</div>
+		<!-- BEGIN slate_item -->
+		{SLATE}
+		<!-- END slate_item -->
+
+		<div class="il-mainbar-close-slates">
+			{CLOSE_SLATES}
+		</div>
+
+	</div>
+
+</div>

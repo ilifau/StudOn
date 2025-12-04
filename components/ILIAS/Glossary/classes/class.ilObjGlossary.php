@@ -1,0 +1,706 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * @author Alexander Killing <killing@leifos.de>
+ */
+class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
+{
+    protected \ILIAS\Glossary\Term\TermManager $term_manager;
+    protected \ILIAS\Style\Content\DomainService $content_style_domain;
+    protected ilGlossaryDefPage $page_object;
+    protected array $file_ids = [];
+    protected array $mob_ids = [];
+    protected bool $show_tax = false;
+    protected int $style_id = 0;
+    protected bool $glo_menu_active = false;
+    protected bool $online = false;
+    protected int $snippet_length = 0;
+    protected string $pres_mode = "";
+    protected bool $virtual = false;
+    protected string $virtual_mode = "";
+    protected bool $flashcards_active = false;
+    protected string $flashcards_mode = "";
+    protected ilGlobalTemplateInterface $tpl;
+    public array $auto_glossaries = array();
+    protected ilObjUser $user;
+
+
+    public function __construct(
+        int $a_id = 0,
+        bool $a_call_by_reference = true
+    ) {
+        global $DIC;
+        $this->tpl = $DIC["tpl"];
+
+        $this->db = $DIC->database();
+        $this->user = $DIC->user();
+        $this->type = "glo";
+        parent::__construct($a_id, $a_call_by_reference);
+        $this->content_style_domain = $DIC
+            ->contentStyle()
+            ->domain();
+        $this->term_manager = $DIC->glossary()->internal()->domain()->term($this);
+    }
+
+    public function create(bool $a_upload = false): int
+    {
+        $id = parent::create();
+
+        // meta data will be created by
+        // import parser
+        if (!$a_upload) {
+            $this->createMetaData();
+        }
+        $this->db->insert(
+            'glossary',
+            array(
+                'id' => array('integer', $this->getId()),
+                'is_online' => array('text', 'n'),
+                'virtual' => array('text', $this->getVirtualMode()),
+                'pres_mode' => array('text', 'table'),
+                'snippet_length' => array('integer', 200)
+            )
+        );
+
+        $this->setPresentationMode("table");
+        $this->setSnippetLength(200);
+
+        $this->updateAutoGlossaries();
+
+        return $id;
+    }
+
+    public function read(): void
+    {
+        parent::read();
+
+        $q = "SELECT * FROM glossary WHERE id = " .
+            $this->db->quote($this->getId(), "integer");
+        $gl_set = $this->db->query($q);
+        $gl_rec = $this->db->fetchAssoc($gl_set);
+        $this->setOnline(ilUtil::yn2tf($gl_rec["is_online"]));
+        $this->setVirtualMode((string) ($gl_rec["virtual"] ?? ""));
+        $this->setActiveGlossaryMenu(ilUtil::yn2tf($gl_rec["glo_menu_active"]));
+        $this->setPresentationMode((string) $gl_rec["pres_mode"]);
+        $this->setSnippetLength((int) $gl_rec["snippet_length"]);
+        $this->setShowTaxonomy((bool) $gl_rec["show_tax"]);
+        $this->setActiveFlashcards(ilUtil::yn2tf($gl_rec["flash_active"]));
+        $this->setFlashcardsMode($gl_rec["flash_mode"]);
+
+        // read auto glossaries
+        $set = $this->db->query(
+            "SELECT * FROM glo_glossaries " .
+            " WHERE id = " . $this->db->quote($this->getId(), "integer")
+        );
+        $glos = array();
+        while ($rec = $this->db->fetchAssoc($set)) {
+            $glos[] = $rec["glo_id"];
+        }
+        $this->setAutoGlossaries($glos);
+    }
+
+    public function setVirtualMode(string $a_mode): void
+    {
+        switch ($a_mode) {
+            case "coll":
+                $this->virtual_mode = $a_mode;
+                $this->virtual = true;
+                break;
+
+            default:
+                $this->virtual_mode = "none";
+                $this->virtual = false;
+                break;
+        }
+    }
+
+    public function getVirtualMode(): string
+    {
+        return $this->virtual_mode;
+    }
+
+    public function isVirtual(): bool
+    {
+        return $this->virtual;
+    }
+
+    public function setPresentationMode(string $a_val): void
+    {
+        $this->pres_mode = $a_val;
+    }
+
+    public function getPresentationMode(): string
+    {
+        return $this->pres_mode;
+    }
+
+    /** Set definition snippet length (in overview) */
+    public function setSnippetLength(int $a_val): void
+    {
+        $this->snippet_length = $a_val;
+    }
+
+    public function getSnippetLength(): int
+    {
+        return ($this->snippet_length > 0)
+            ? $this->snippet_length
+            : 200;
+    }
+
+    public function setOnline(bool $a_online): void
+    {
+        $this->online = $a_online;
+    }
+
+    public function getOnline(): bool
+    {
+        return $this->online;
+    }
+
+    public static function _lookupOnline(
+        int $a_id
+    ): bool {
+        global $DIC;
+
+        $db = $DIC->database();
+
+        $q = "SELECT is_online FROM glossary WHERE id = " .
+            $db->quote($a_id, "integer");
+        $lm_set = $db->query($q);
+        $lm_rec = $db->fetchAssoc($lm_set);
+
+        return ilUtil::yn2tf($lm_rec["is_online"]);
+    }
+
+    /**
+     * Lookup glossary property
+     */
+    protected static function lookup(
+        int $a_id,
+        string $a_property
+    ): string {
+        global $DIC;
+
+        $db = $DIC->database();
+
+        $set = $db->query("SELECT $a_property FROM glossary WHERE id = " .
+            $db->quote($a_id, "integer"));
+        $rec = $db->fetchAssoc($set);
+
+        return $rec[$a_property];
+    }
+
+    public static function lookupSnippetLength(int $a_id): int
+    {
+        return (int) self::lookup($a_id, "snippet_length");
+    }
+
+
+    public function setActiveGlossaryMenu(bool $a_act_glo_menu): void
+    {
+        $this->glo_menu_active = $a_act_glo_menu;
+    }
+
+    public function isActiveGlossaryMenu(): bool
+    {
+        return $this->glo_menu_active;
+    }
+
+    public function setShowTaxonomy(bool $a_val): void
+    {
+        $this->show_tax = $a_val;
+    }
+
+    public function getShowTaxonomy(): bool
+    {
+        return $this->show_tax;
+    }
+
+    public function setActiveFlashcards(bool $a_flash): void
+    {
+        $this->flashcards_active = $a_flash;
+    }
+
+    public function isActiveFlashcards(): bool
+    {
+        return $this->flashcards_active;
+    }
+
+    public function setFlashcardsMode(string $a_flash): void
+    {
+        $this->flashcards_mode = $a_flash;
+    }
+
+    public function getFlashcardsMode(): string
+    {
+        return $this->flashcards_mode;
+    }
+
+    /**
+     * @param int[] $a_val
+     */
+    public function setAutoGlossaries(
+        array $a_val
+    ): void {
+        $this->auto_glossaries = array();
+        foreach ($a_val as $v) {
+            $this->addAutoGlossary($v);
+        }
+    }
+
+    public function addAutoGlossary(int $glo_id): void
+    {
+        if ($glo_id > 0 && ilObject::_lookupType($glo_id) == "glo" &&
+            !in_array($glo_id, $this->auto_glossaries)) {
+            $this->auto_glossaries[] = $glo_id;
+        }
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getAutoGlossaries(): array
+    {
+        return $this->auto_glossaries;
+    }
+
+    public function removeAutoGlossary(
+        int $a_glo_id
+    ): void {
+        $glo_ids = array();
+        foreach ($this->getAutoGlossaries() as $g) {
+            if ($g != $a_glo_id) {
+                $glo_ids[] = $g;
+            }
+        }
+        $this->setAutoGlossaries($glo_ids);
+    }
+
+    public function update(): bool
+    {
+        $this->updateMetaData();
+
+        $this->db->update(
+            'glossary',
+            array(
+                'is_online' => array('text', ilUtil::tf2yn($this->getOnline())),
+                'virtual' => array('text', $this->getVirtualMode()),
+                'glo_menu_active' => array('text', ilUtil::tf2yn($this->isActiveGlossaryMenu())),
+                'pres_mode' => array('text', $this->getPresentationMode()),
+                'show_tax' => array('integer', $this->getShowTaxonomy()),
+                'snippet_length' => array('integer', $this->getSnippetLength()),
+                'flash_active' => array('text', ilUtil::tf2yn($this->isActiveFlashcards())),
+                'flash_mode' => array('text', $this->getFlashcardsMode())
+            ),
+            array(
+                'id' => array('integer', $this->getId())
+            )
+        );
+
+        $this->updateAutoGlossaries();
+        return parent::update();
+    }
+
+    public function updateAutoGlossaries(): void
+    {
+        // update auto glossaries
+        $this->db->manipulate(
+            "DELETE FROM glo_glossaries WHERE " .
+            " id = " . $this->db->quote($this->getId(), "integer")
+        );
+        foreach ($this->getAutoGlossaries() as $glo_id) {
+            $this->db->insert(
+                'glo_glossaries',
+                array(
+                    'id' => array('integer', $this->getId()),
+                    'glo_id' => array('integer', $glo_id)
+                )
+            );
+        }
+    }
+
+    public static function lookupAutoGlossaries(
+        int $a_id
+    ): array {
+        global $DIC;
+
+        $db = $DIC->database();
+
+        // read auto glossaries
+        $set = $db->query(
+            "SELECT * FROM glo_glossaries " .
+            " WHERE id = " . $db->quote($a_id, "integer")
+        );
+        $glos = array();
+        while ($rec = $db->fetchAssoc($set)) {
+            $glos[] = (int) $rec["glo_id"];
+        }
+        return $glos;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getGlossariesForCollection(): array
+    {
+        $set = $this->db->query(
+            "SELECT * FROM glossary_collection " .
+            " WHERE id = " . $this->db->quote($this->getId(), "integer")
+        );
+        $glos = [];
+        while ($rec = $this->db->fetchAssoc($set)) {
+            $glos[] = (int) $rec["glo_id"];
+        }
+
+        return $glos;
+    }
+
+    public function addGlossaryForCollection(int $glo_id): void
+    {
+        $this->db->replace(
+            "glossary_collection",
+            [
+                "id" => ["integer", $this->getId()],
+                "glo_id" => ["integer", $glo_id]
+            ],
+            []
+        );
+    }
+
+    public function removeGlossaryFromCollection(int $glo_id): void
+    {
+        $this->db->manipulate(
+            "DELETE FROM glossary_collection WHERE " .
+            " id = " . $this->db->quote($this->getId(), "integer") .
+            " AND glo_id = " . $this->db->quote($glo_id, "integer")
+        );
+    }
+
+    public function getTermList(
+        string $searchterm = "",
+        string $a_letter = "",
+        string $a_def = "",
+        int $a_tax_node = 0,
+        bool $a_include_offline_childs = false,
+        bool $a_add_amet_fields = false,
+        array $a_amet_filter = null,
+        bool $a_omit_virtual = false,
+        bool $a_include_references = false
+    ): array {
+        if ($a_omit_virtual) {
+            $glo_ref_ids[] = $this->getRefId();
+        } else {
+            $glo_ref_ids = $this->getAllGlossaryIds($a_include_offline_childs, true);
+        }
+        $list = ilGlossaryTerm::getTermList(
+            $glo_ref_ids,
+            $searchterm,
+            $a_letter,
+            $a_def,
+            $a_tax_node,
+            $a_add_amet_fields,
+            $a_amet_filter,
+            $a_include_references
+        );
+        return $list;
+    }
+
+    public function getFirstLetters(
+        int $a_tax_node = 0
+    ): array {
+        $glo_ids = $this->getAllGlossaryIds();
+        $first_letters = ilGlossaryTerm::getFirstLetters($glo_ids, $a_tax_node);
+        return $first_letters;
+    }
+
+    /**
+     * Get all glossary ids
+     * @return int[]
+     */
+    public function getAllGlossaryIds(
+        bool $a_include_offline_childs = false,
+        bool $ids_are_ref_ids = false
+    ): array {
+        global $DIC;
+
+        $tree = $DIC->repositoryTree();
+
+        if ($this->isVirtual()) {
+            $glo_ids = array();
+
+            $virtual_mode = $this->getRefId() ? $this->getVirtualMode() : '';
+            if ($virtual_mode === "coll") {
+                $glo_ids = $this->getGlossariesForCollection();
+                if ($ids_are_ref_ids) {
+                    $glo_ref_ids = [];
+                    foreach ($glo_ids as $obj_id) {
+                        $glo_ref_ids[] = current(ilObject::_getAllReferences($obj_id));
+                    }
+                    $glo_ids = $glo_ref_ids;
+                }
+            }
+            if (!$a_include_offline_childs) {
+                $glo_ids = $this->removeOfflineGlossaries($glo_ids, $ids_are_ref_ids);
+            }
+            // always show entries of current glossary (if no permission is given, user will not come to the presentation screen)
+            // see bug #14477
+            if ($ids_are_ref_ids) {
+                if (!in_array($this->getRefId(), $glo_ids)) {
+                    $glo_ids[] = $this->getRefId();
+                }
+            } elseif (!in_array($this->getId(), $glo_ids)) {
+                $glo_ids[] = $this->getId();
+            }
+        } elseif ($ids_are_ref_ids) {
+            $glo_ids = [$this->getRefId()];
+        } else {
+            $glo_ids = [$this->getId()];
+        }
+
+        return $glo_ids;
+    }
+
+    public function createExportDirectory(string $a_type = "xml"): string
+    {
+        return ilExport::_createExportDirectory($this->getId(), $a_type, $this->getType());
+    }
+
+    public function getExportDirectory(string $a_type = "xml"): string
+    {
+        return ilExport::_getExportDirectory($this->getId(), $a_type, $this->getType());
+    }
+
+    public function delete(): bool
+    {
+        // always call parent delete function first!!
+        if (!parent::delete()) {
+            return false;
+        }
+
+        // delete terms
+        if (!$this->isVirtual()) {
+            $terms = $this->getTermList();
+            foreach ($terms as $term) {
+                $this->term_manager->deleteTerm((int) $term["id"]);
+            }
+        }
+
+        // delete term references
+        $refs = new ilGlossaryTermReferences($this->getId());
+        $refs->delete();
+
+        // delete glossary data entry
+        $q = "DELETE FROM glossary WHERE id = " . $this->db->quote($this->getId());
+        $this->db->query($q);
+
+        // delete meta data
+        $this->deleteMetaData();
+
+        return true;
+    }
+
+    public static function getDeletionDependencies(int $obj_id): array
+    {
+        global $DIC;
+
+        $lng = $DIC->language();
+
+        $dep = array();
+        $sms = ilObjSAHSLearningModule::getScormModulesForGlossary($obj_id);
+        foreach ($sms as $sm) {
+            $lng->loadLanguageModule("content");
+            $dep[$sm] = $lng->txt("glo_used_in_scorm");
+        }
+        return $dep;
+    }
+
+    public function getTaxonomyId(): int
+    {
+        $tax_ids = ilObjTaxonomy::getUsageOfObject($this->getId());
+        if (count($tax_ids) > 0) {
+            // glossaries handle max. one taxonomy
+            return (int) $tax_ids[0];
+        }
+        return 0;
+    }
+
+
+    public function cloneObject(int $target_id, int $copy_id = 0, bool $omit_tree = false): ?ilObject
+    {
+        $new_obj = parent::cloneObject($target_id, $copy_id, $omit_tree);
+        $this->cloneMetaData($new_obj);
+
+        $tax_ass = null;
+        $new_tax_ass = null;
+        $map = [];
+
+        //copy online status if object is not the root copy object
+        $cp_options = ilCopyWizardOptions::_getInstance($copy_id);
+
+        if (!$cp_options->isRootNode($this->getRefId())) {
+            $new_obj->setOnline($this->getOnline());
+        }
+
+        //		$new_obj->setTitle($this->getTitle());
+        $new_obj->setDescription($this->getDescription());
+        $new_obj->setVirtualMode($this->getVirtualMode());
+        $new_obj->setPresentationMode($this->getPresentationMode());
+        $new_obj->setSnippetLength($this->getSnippetLength());
+        $new_obj->setAutoGlossaries($this->getAutoGlossaries());
+        $new_obj->setActiveFlashcards($this->isActiveFlashcards());
+        $new_obj->setFlashcardsMode($this->getFlashcardsMode());
+        $new_obj->update();
+
+        // set/copy stylesheet
+        $this->content_style_domain->styleForRefId($this->getRefId())->cloneTo($new_obj->getId());
+
+        // copy taxonomy
+        if (($tax_id = $this->getTaxonomyId()) > 0) {
+            // clone it
+            $tax = new ilObjTaxonomy($tax_id);
+            $new_tax = $tax->cloneObject(0, 0, true);
+            $map = $tax->getNodeMapping();
+
+            // assign new taxonomy to new glossary
+            ilObjTaxonomy::saveUsage($new_tax->getId(), $new_obj->getId());
+
+            $tax_ass = new ilTaxNodeAssignment("glo", $this->getId(), "term", $tax_id);
+            $new_tax_ass = new ilTaxNodeAssignment("glo", $new_obj->getId(), "term", $new_tax->getId());
+        }
+
+        // copy terms
+        $term_mappings = array();
+        foreach (ilGlossaryTerm::getTermList([$this->getRefId()]) as $term) {
+            $new_term_id = ilGlossaryTerm::_copyTerm($term["id"], $new_obj->getId());
+            $term_mappings[$term["id"]] = $new_term_id;
+
+            // copy tax node assignments
+            if ($tax_id > 0) {
+                $assignmts = $tax_ass->getAssignmentsOfItem($term["id"]);
+                foreach ($assignmts as $a) {
+                    if ($map[$a["node_id"]] > 0) {
+                        $new_tax_ass->addAssignment($map[$a["node_id"]], $new_term_id);
+                    }
+                }
+            }
+        }
+
+        // add mapping of term_ids to copy wizard options
+        if (!empty($term_mappings)) {
+            $cp_options->appendMapping($this->getRefId() . '_glo_terms', $term_mappings);
+        }
+
+        // copy collection glossaries
+        foreach ($this->getGlossariesForCollection() as $glo_id) {
+            $new_obj->addGlossaryForCollection($glo_id);
+        }
+
+        return $new_obj;
+    }
+
+    /**
+     * Remove offline glossaries from obj id array
+     */
+    public function removeOfflineGlossaries(
+        array $a_glo_ids,
+        bool $ids_are_ref_ids = false
+    ): array {
+        $glo_ids = $a_glo_ids;
+        if ($ids_are_ref_ids) {
+            $glo_ids = array_map(static function ($id): int {
+                return ilObject::_lookupObjectId($id);
+            }, $a_glo_ids);
+        }
+
+        $set = $this->db->query(
+            "SELECT id FROM glossary " .
+            " WHERE " . $this->db->in("id", $glo_ids, false, "integer") .
+            " AND is_online = " . $this->db->quote("y", "text")
+        );
+        $online_glo_ids = array();
+        while ($rec = $this->db->fetchAssoc($set)) {
+            $online_glo_ids[] = $rec["id"];
+        }
+
+        if (!$ids_are_ref_ids) {
+            return $online_glo_ids;
+        }
+
+        $online_ref_ids = array_filter($a_glo_ids, static function ($ref_id) use ($online_glo_ids): bool {
+            return in_array(ilObject::_lookupObjectId($ref_id), $online_glo_ids);
+        });
+
+
+        return $online_ref_ids;
+    }
+
+    public static function getAdvMDSubItemTitle(int $a_obj_id, string $a_sub_type, int $a_sub_id): string
+    {
+        global $DIC;
+
+        $lng = $DIC->language();
+
+        if ($a_sub_type == "term") {
+            $lng->loadLanguageModule("glo");
+
+            return $lng->txt("glo_term") . ' "' . ilGlossaryTerm::_lookGlossaryTerm($a_sub_id) . '"';
+        }
+        return "";
+    }
+
+    /**
+     * Auto link glossary terms
+     */
+    public function autoLinkGlossaryTerms(
+        int $a_glo_ref_id
+    ): void {
+        // get terms of target glossary
+        $terms = ilGlossaryTerm::getTermList([$a_glo_ref_id]);
+
+        // for each get page: get content
+        $source_terms = ilGlossaryTerm::getTermList([$this->getRefId()]);
+        $found_pages = array();
+        foreach ($source_terms as $source_term) {
+            $pg = new ilGlossaryDefPage($source_term["id"]);
+            $c = $pg->getXMLContent();
+            foreach ($terms as $t) {
+                if (is_int(stripos($c, $t["term"]))) {
+                    $found_pages[$source_term["id"]]["terms"][] = $t;
+                    if (!isset($found_pages[$source_term["id"]]["page"])) {
+                        $found_pages[$source_term["id"]]["page"] = $pg;
+                    }
+                }
+            }
+            reset($terms);
+        }
+
+        // ilPCParagraph autoLinkGlossariesPage with page and terms
+        foreach ($found_pages as $id => $fp) {
+            ilPCParagraph::autoLinkGlossariesPage($fp["page"], $fp["terms"]);
+        }
+    }
+
+    /**
+     * Is long text search supported
+     */
+    public function supportsLongTextQuery(): bool
+    {
+        return true;
+    }
+}

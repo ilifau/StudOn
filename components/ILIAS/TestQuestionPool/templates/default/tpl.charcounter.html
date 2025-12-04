@@ -1,0 +1,133 @@
+<script type="text/javascript">
+
+<!-- BEGIN counter_js -->
+
+<!-- BEGIN tinymce_handler -->
+
+var updateAssTextQuestionLetterCounter = 0;
+var updateAssTextQuestionWordCounter = function() {}; // gets overwritten when tpl block word_counter_js is parsed
+
+var charCounter = function(e) // default handler hard coded to tinymce config
+{
+    if (typeof tinyMCE != 'undefined') {
+        tinyMCE.triggerSave(); // this updates the textarea input
+    }
+
+    if( e.type == 'keyup' )
+    {
+        if(updateAssTextQuestionLetterCounter)
+        {
+            updateAssTextQuestionLetterCounter();
+        }
+
+        updateAssTextQuestionWordCounter();
+    }
+};
+let mcQuestionCharCounterInit = function() {
+<!-- END tinymce_handler -->
+
+    var qId = {QID};
+
+    var stripAndDecode = function(string)
+    {
+        return string
+            .replace(/(<([^>]+)>)/ig, "")
+            .replace(/&lt;/ig, "<")
+            .replace(/&gt;/ig, ">")
+            .replace(/\r?\n|\r/g, '')
+            .replace(/&nbsp;/gi, " ")
+            .replace(/&amp;/gi, "&");
+    };
+
+<!-- BEGIN letter_counter_js -->
+
+    var maxL = {MAXCHARS};
+
+    updateAssTextQuestionLetterCounter = function()
+    {
+        var ccContainer = $('#assTextQuestionLetterCounterContainer_'+qId);
+
+        if( ccContainer )
+        {
+            ccContainer.show();
+        }
+
+        var charCounter = $('#assTextQuestionLetterCounter_'+qId);
+
+        if( charCounter )
+        {
+            var content = $('#assTextQuestionContent_'+qId).val();
+            content = stripAndDecode(content);
+            // Mantis 27213/27234 & Test T40694
+            charCounter.val( maxL - content.length );
+        }
+
+        return true;
+    };
+
+    $().ready(function(){
+
+        $('textarea#assTextQuestionContent_'+qId).on('keyup', function(event) {
+            updateAssTextQuestionLetterCounter();
+        });
+
+        updateAssTextQuestionLetterCounter();
+    });
+
+<!-- END letter_counter_js -->
+
+<!-- BEGIN word_counter_js -->
+
+    var countWords = function(s)
+    {
+        s = s.replace(/&nbsp;/g, ' '); // &nbsp; to white space
+        s = s.replace(/[.,:;!?\-_#'"+*\\/=()&%$§]/g, ''); // remove any sonderzeichen
+        s = s.replace(/^\s*/, ''); // remove start white-space
+        s = s.replace(/\s*$/, ''); // remove end white-space
+        s = s.replace(/\s+/g, ' '); // 2 ore more white space to 1
+
+        if( !s.length )
+        {
+            return 0;
+        }
+
+        return s.split(' ').length;
+    };
+
+    updateAssTextQuestionWordCounter = function()
+    {
+        var wcContainer = $('#assTextQuestionWordCounterContainer_'+qId);
+
+        if( wcContainer )
+        {
+            wcContainer.show();
+        }
+
+        var wordCounter = $('#assTextQuestionWordCounter_'+qId);
+
+        if( wordCounter )
+        {
+            wordCounter.html( countWords(
+                stripAndDecode($('#assTextQuestionContent_'+qId).val())
+            ));
+        }
+
+        return true;
+
+    };
+
+    $().ready(function(){
+
+        $('textarea#assTextQuestionContent_'+qId).on('keyup', function(event) {
+            updateAssTextQuestionWordCounter();
+        });
+
+        updateAssTextQuestionWordCounter();
+    });
+
+<!-- END word_counter_js -->
+
+<!-- END counter_js -->
+
+}
+</script>

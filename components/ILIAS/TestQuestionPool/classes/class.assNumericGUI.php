@@ -1,0 +1,486 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Numeric question GUI representation
+ *
+ * The assNumericGUI class encapsulates the GUI representation
+ * for numeric questions.
+ *
+ * @author		Helmut SchottmÃ¼ller <helmut.schottmueller@mac.com>
+ * @author		Nina Gharib <nina@wgserve.de>
+ * @author		Björn Heyser <bheyser@databay.de>
+ * @author		Maximilian Becker <mbecker@databay.de>
+ *
+ * @version	$Id$
+ *
+ * @ingroup components\ILIASTestQuestionPool
+ * @ilCtrl_Calls assNumericGUI: ilFormPropertyDispatchGUI
+ */
+class assNumericGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustable, ilGuiAnswerScoringAdjustable
+{
+    /**
+     * assNumericGUI constructor
+     *
+     * The constructor takes possible arguments an creates an instance of the assNumericGUI object.
+     *
+     * @param integer $id The database id of a Numeric question object
+     */
+    public function __construct($id = -1)
+    {
+        parent::__construct();
+        $this->object = new assNumeric();
+        if ($id >= 0) {
+            $this->object->loadFromDb($id);
+        }
+    }
+
+    public function getCommand($cmd)
+    {
+        if (substr($cmd, 0, 6) == "delete") {
+            $cmd = "delete";
+        }
+        return $cmd;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function writePostData(bool $always = false): int
+    {
+        $hasErrors = (!$always) ? $this->editQuestion(true) : false;
+        if (!$hasErrors) {
+            $this->writeQuestionGenericPostData();
+            $this->writeQuestionSpecificPostData(new ilPropertyFormGUI());
+            $this->writeAnswerSpecificPostData(new ilPropertyFormGUI());
+            $this->saveTaxonomyAssignments();
+            return 0;
+        }
+        return 1;
+    }
+
+    public function editQuestion(
+        bool $checkonly = false,
+        ?bool $is_save_cmd = null
+    ): bool {
+        $save = $is_save_cmd ?? $this->isSaveCommand();
+
+        $form = new ilPropertyFormGUI();
+        $this->editForm = $form;
+
+        $form->setFormAction($this->ctrl->getFormAction($this));
+        $form->setTitle($this->outQuestionType());
+        $form->setMultipart(true);
+        $form->setTableWidth("100%");
+        $form->setId("assnumeric");
+
+        $this->addBasicQuestionFormProperties($form);
+        $this->populateQuestionSpecificFormPart($form);
+        $this->populateAnswerSpecificFormPart($form);
+        $this->populateTaxonomyFormSection($form);
+        $this->addQuestionFormCommandButtons($form);
+
+        $errors = false;
+
+        if ($save) {
+            $form->setValuesByPost();
+            $errors = !$form->checkInput();
+            $form->setValuesByPost(); // again, because checkInput now performs the whole stripSlashes handling and we need this if we don't want to have duplication of backslashes
+
+            $lower = $form->getItemByPostVar('lowerlimit');
+            $upper = $form->getItemByPostVar('upperlimit');
+
+            $to_float_trafo = $this->refinery->byTrying([
+                $this->refinery->kindlyTo()->float(),
+                $this->refinery->always(0.0)
+            ]);
+
+            if (!$this->checkRange(
+                $to_float_trafo->transform($lower->getValue()),
+                $to_float_trafo->transform($upper->getValue())
+            )) {
+                global $DIC;
+                $lower->setAlert($DIC->language()->txt('qpl_numeric_lower_needs_valid_lower_alert'));
+                $upper->setAlert($DIC->language()->txt('qpl_numeric_upper_needs_valid_upper_alert'));
+                $this->tpl->setOnScreenMessage('failure', $DIC->language()->txt("form_input_not_valid"));
+                $errors = true;
+            }
+
+            if ($errors) {
+                $checkonly = false;
+            }
+        }
+
+        if (!$checkonly) {
+            $this->renderEditForm($form);
+        }
+        return $errors;
+    }
+
+    public function checkRange(float $lower, float $upper): bool
+    {
+        $eval = new EvalMath();
+        $eval->suppress_errors = true;
+        if (($eval->e($lower) !== false) and ($eval->e($upper) !== false)) {
+            if ($eval->e($lower) <= $eval->e($upper)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public function getSolutionOutput(
+        int $active_id,
+        ?int $pass = null,
+        bool $graphical_output = false,
+        bool $result_output = false,
+        bool $show_question_only = true,
+        bool $show_feedback = false,
+        bool $show_correct_solution = false,
+        bool $show_manual_scoring = false,
+        bool $show_question_text = true,
+        bool $show_inline_feedback = true
+    ): string {
+        // get the solution of the user for the active pass or from the last pass if allowed
+        $solutions = [];
+        if (($active_id > 0) && (!$show_correct_solution)) {
+            $solutions = $this->object->getSolutionValues($active_id, $pass);
+        } else {
+            array_push($solutions, [
+                'value1' => sprintf(
+                    $this->lng->txt("value_between_x_and_y"),
+                    $this->object->getLowerLimit(),
+                    $this->object->getUpperLimit()
+                )
+            ]);
+        }
+
+        return $this->renderSolutionOutput(
+            $solutions,
+            $active_id,
+            $pass,
+            $graphical_output,
+            $result_output,
+            $show_question_only,
+            $show_feedback,
+            $show_correct_solution,
+            $show_manual_scoring,
+            $show_question_text,
+            false,
+            $show_inline_feedback
+        );
+    }
+
+    public function renderSolutionOutput(
+        mixed $user_solutions,
+        int $active_id,
+        ?int $pass,
+        bool $graphical_output = false,
+        bool $result_output = false,
+        bool $show_question_only = true,
+        bool $show_feedback = false,
+        bool $show_correct_solution = false,
+        bool $show_manual_scoring = false,
+        bool $show_question_text = true,
+        bool $show_autosave_title = false,
+        bool $show_inline_feedback = false,
+    ): ?string {
+        $template = new ilTemplate("tpl.il_as_qpl_numeric_output_solution.html", true, true, "components/ILIAS/TestQuestionPool");
+        $solutiontemplate = new ilTemplate("tpl.il_as_tst_solution_output.html", true, true, "components/ILIAS/TestQuestionPool");
+        if (is_array($user_solutions)) {
+            if (($active_id > 0) && (!$show_correct_solution)) {
+                if ($graphical_output) {
+                    if ($this->object->getStep() === null) {
+                        $reached_points = $this->object->getReachedPoints($active_id, $pass);
+                    } else {
+                        $reached_points = $this->object->calculateReachedPoints($active_id, $pass);
+                    }
+
+                    $correctness_icon = $this->generateCorrectnessIconsForCorrectness(self::CORRECTNESS_NOT_OK);
+                    if ($reached_points == $this->object->getMaximumPoints()) {
+                        $correctness_icon = $this->generateCorrectnessIconsForCorrectness(self::CORRECTNESS_OK);
+                    }
+                    $template->setCurrentBlock("icon_ok");
+                    $template->setVariable("ICON_OK", $correctness_icon);
+                    $template->parseCurrentBlock();
+                }
+            }
+            foreach ($user_solutions as $solution) {
+                $template->setVariable("NUMERIC_VALUE", $solution['value1']);
+            }
+            if (count($user_solutions) == 0) {
+                $template->setVariable("NUMERIC_VALUE", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+            }
+        }
+        $template->setVariable("NUMERIC_SIZE", $this->object->getMaxChars());
+        if ($show_question_text == true) {
+            $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
+        }
+        $questionoutput = $template->get();
+        //$feedback = ($show_feedback) ? $this->getAnswerFeedbackOutput($active_id, $pass) : ""; // Moving new method
+        // due to deprecation.
+        $feedback = ($show_feedback && !$this->isTestPresentationContext()) ? $this->getGenericFeedbackOutput((int) $active_id, $pass) : "";
+        if (strlen($feedback)) {
+            $cssClass = (
+                $this->hasCorrectSolution($active_id, $pass) ?
+                ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
+            );
+
+            $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
+            $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
+        }
+        $solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
+
+        $solutionoutput = $solutiontemplate->get();
+        if (!$show_question_only) {
+            // get page object output
+            $solutionoutput = $this->getILIASPage($solutionoutput);
+        }
+        return $solutionoutput;
+    }
+
+    public function getPreview(
+        bool $show_question_only = false,
+        bool $show_inline_feedback = false
+    ): string {
+        // generate the question output
+        $template = new ilTemplate("tpl.il_as_qpl_numeric_output.html", true, true, "components/ILIAS/TestQuestionPool");
+        if (is_object($this->getPreviewSession())) {
+            $template->setVariable("NUMERIC_VALUE", " value=\"" . $this->getPreviewSession()->getParticipantsSolution() . "\"");
+        }
+        $template->setVariable("NUMERIC_SIZE", $this->object->getMaxChars());
+        $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
+        $questionoutput = $template->get();
+        if (!$show_question_only) {
+            // get page object output
+            $questionoutput = $this->getILIASPage($questionoutput);
+        }
+        return $questionoutput;
+    }
+
+    public function getTestOutput(
+        int $active_id,
+        int $pass,
+        bool $is_question_postponed = false,
+        array|bool $user_post_solutions = false,
+        bool $show_specific_inline_feedback = false
+    ): string {
+        $solutions = null;
+        // get the solution of the user for the active pass or from the last pass if allowed
+        if ($user_post_solutions !== false) {
+            /** @noinspection PhpArrayAccessOnIllegalTypeInspection */
+            $solutions = [
+                ['value1' => $user_post_solutions['numeric_result']]
+            ];
+        } elseif ($active_id) {
+            $solutions = $this->object->getTestOutputSolutions($active_id, $pass);
+        }
+
+        // generate the question output
+        $template = new ilTemplate("tpl.il_as_qpl_numeric_output.html", true, true, "components/ILIAS/TestQuestionPool");
+        if (is_array($solutions)) {
+            foreach ($solutions as $solution) {
+                $template->setVariable("NUMERIC_VALUE", " value=\"" . $solution['value1'] . "\"");
+            }
+        }
+        $template->setVariable("NUMERIC_SIZE", $this->object->getMaxChars());
+        $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
+        $questionoutput = $template->get();
+        $pageoutput = $this->outQuestionPage("", $is_question_postponed, $active_id, $questionoutput);
+        return $pageoutput;
+    }
+
+    /**
+     * @param int $active_id
+     * @param int $pass
+     * @return string
+     */
+    public function getSpecificFeedbackOutput(array $userSolution): string
+    {
+        $output = "";
+        return ilLegacyFormElementsUtil::prepareTextareaOutput($output, true);
+    }
+
+    public function writeQuestionSpecificPostData(ilPropertyFormGUI $form): void
+    {
+        $this->object->setMaxChars($this->request_data_collector->int('maxchars') ?? 6);
+    }
+
+    public function writeAnswerSpecificPostData(ilPropertyFormGUI $form): void
+    {
+        $this->object->setLowerLimit($this->request_data_collector->float('lowerlimit'));
+        $this->object->setUpperLimit($this->request_data_collector->float('upperlimit'));
+        $this->object->setPoints($this->request_data_collector->float('points'));
+    }
+
+    public function populateQuestionSpecificFormPart(\ilPropertyFormGUI $form): ilPropertyFormGUI
+    {
+        // maxchars
+        $maxchars = new ilNumberInputGUI($this->lng->txt("maxchars"), "maxchars");
+        $maxchars->setInfo($this->lng->txt('qpl_maxchars_info_numeric_question'));
+        $maxchars->setSize(10);
+        $maxchars->setDecimals(0);
+        $maxchars->setMinValue(1);
+        $maxchars->setRequired(true);
+        if ($this->object->getMaxChars() > 0) {
+            $maxchars->setValue($this->object->getMaxChars());
+        }
+        $form->addItem($maxchars);
+        return $form;
+    }
+
+    public function populateAnswerSpecificFormPart(\ilPropertyFormGUI $form): ilPropertyFormGUI
+    {
+        // points
+        $points = new ilNumberInputGUI($this->lng->txt("points"), "points");
+        $points->allowDecimals(true);
+        $points->setValue($this->object->getPoints() > 0 ? $this->object->getPoints() : '');
+        $points->setRequired(true);
+        $points->setSize(3);
+        $points->setMinValue(0.0);
+        $points->setMinvalueShouldBeGreater(true);
+        $form->addItem($points);
+
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt("range"));
+        $form->addItem($header);
+
+        // lower bound
+        $lower_limit = new ilFormulaInputGUI($this->lng->txt("range_lower_limit"), "lowerlimit");
+        $lower_limit->setSize(25);
+        $lower_limit->setMaxLength(20);
+        $lower_limit->setRequired(true);
+        $lower_limit->setValue((string) $this->object->getLowerLimit());
+        $form->addItem($lower_limit);
+
+        // upper bound
+        $upper_limit = new ilFormulaInputGUI($this->lng->txt("range_upper_limit"), "upperlimit");
+        $upper_limit->setSize(25);
+        $upper_limit->setMaxLength(20);
+        $upper_limit->setRequired(true);
+        $upper_limit->setValue((string) $this->object->getUpperLimit());
+        $form->addItem($upper_limit);
+
+        // reset input length, if max chars are set
+        if ($this->object->getMaxChars() > 0) {
+            $lower_limit->setSize($this->object->getMaxChars());
+            $lower_limit->setMaxLength($this->object->getMaxChars());
+            $upper_limit->setSize($this->object->getMaxChars());
+            $upper_limit->setMaxLength($this->object->getMaxChars());
+        }
+        return $form;
+    }
+
+    /**
+     * Returns a list of postvars which will be suppressed in the form output when used in scoring adjustment.
+     * The form elements will be shown disabled, so the users see the usual form but can only edit the settings, which
+     * make sense in the given context.
+     *
+     * E.g. array('cloze_type', 'image_filename')
+     *
+     * @return string[]
+     */
+    public function getAfterParticipationSuppressionAnswerPostVars(): array
+    {
+        return [];
+    }
+
+    /**
+     * Returns a list of postvars which will be suppressed in the form output when used in scoring adjustment.
+     * The form elements will be shown disabled, so the users see the usual form but can only edit the settings, which
+     * make sense in the given context.
+     *
+     * E.g. array('cloze_type', 'image_filename')
+     *
+     * @return string[]
+     */
+    public function getAfterParticipationSuppressionQuestionPostVars(): array
+    {
+        return [];
+    }
+
+    public function getAnswersFrequency($relevantAnswers, $questionIndex): array
+    {
+        $answers = [];
+
+        foreach ($relevantAnswers as $ans) {
+            if (!isset($answers[$ans['value1']])) {
+                $answers[$ans['value1']] = [
+                    'answer' => $ans['value1'], 'frequency' => 0
+                ];
+            }
+
+            $answers[$ans['value1']]['frequency']++;
+        }
+
+        return $answers;
+    }
+
+    public function populateCorrectionsFormProperties(ilPropertyFormGUI $form): void
+    {
+        // points
+        $points = new ilNumberInputGUI($this->lng->txt("points"), "points");
+        $points->allowDecimals(true);
+        $points->setValue($this->object->getPoints() > 0 ? $this->object->getPoints() : '');
+        $points->setRequired(true);
+        $points->setSize(3);
+        $points->setMinValue(0.0);
+        $points->setMinvalueShouldBeGreater(true);
+        $form->addItem($points);
+
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt("range"));
+        $form->addItem($header);
+
+        // lower bound
+        $lower_limit = new ilFormulaInputGUI($this->lng->txt("range_lower_limit"), "lowerlimit");
+        $lower_limit->setSize(25);
+        $lower_limit->setMaxLength(20);
+        $lower_limit->setRequired(true);
+        $lower_limit->setValue($this->object->getLowerLimit());
+        $form->addItem($lower_limit);
+
+        // upper bound
+        $upper_limit = new ilFormulaInputGUI($this->lng->txt("range_upper_limit"), "upperlimit");
+        $upper_limit->setSize(25);
+        $upper_limit->setMaxLength(20);
+        $upper_limit->setRequired(true);
+        $upper_limit->setValue($this->object->getUpperLimit());
+        $form->addItem($upper_limit);
+
+        // reset input length, if max chars are set
+        if ($this->object->getMaxChars() > 0) {
+            $lower_limit->setSize($this->object->getMaxChars());
+            $lower_limit->setMaxLength($this->object->getMaxChars());
+            $upper_limit->setSize($this->object->getMaxChars());
+            $upper_limit->setMaxLength($this->object->getMaxChars());
+        }
+    }
+
+    /**
+     * @param ilPropertyFormGUI $form
+     */
+    public function saveCorrectionsFormProperties(ilPropertyFormGUI $form): void
+    {
+        $this->object->setPoints((float) str_replace(',', '.', $form->getInput('points')));
+        $this->object->setLowerLimit((float) str_replace(',', '.', $form->getInput('lowerlimit')));
+        $this->object->setUpperLimit((float) str_replace(',', '.', $form->getInput('upperlimit')));
+    }
+}

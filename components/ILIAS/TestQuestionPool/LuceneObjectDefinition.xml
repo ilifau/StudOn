@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ObjectDefinition xmlns:xi="http://www.w3.org/2001/XInclude" type="qpl">
+	<Document type="default">
+		<xi:include href="../../../components/ILIAS/ILIASObject/LuceneDataSource.xml" />
+		<xi:include href="../../../components/ILIAS/Tagging/LuceneDataSource.xml" />
+		<xi:include href="../../../components/ILIAS/MetaData/LuceneDataSource.xml" />
+		<DataSource type="JDBC" action="append">
+			<Query>
+				SELECT 1 AS offline
+				FROM qpl_questionpool
+				INNER JOIN object_data ON obj_id = obj_fi
+				WHERE offline = 1
+				AND obj_fi IN(?)
+			</Query>
+			<Param format="list" type="int" value="objId" />
+			<Field store="YES" index="NOT_ANALYZED" column="offline" type="text" name="offline" />
+		</DataSource>
+	</Document>
+</ObjectDefinition>

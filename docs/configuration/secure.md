@@ -324,7 +324,7 @@ Add the following line INSIDE the `<VirtualHost></VirtualHost>` block:
  ```
 
 note:
-If you use a proxied [Chat Server](https://github.com/ILIAS-eLearning/ILIAS/blob/release_5-4/Modules/Chatroom/README.md), you MUST add the url to the CSP definition:  
+If you use a proxied [Chat Server](https://github.com/ILIAS-eLearning/ILIAS/blob/release_5-4/components/ILIAS/Chatroom/README.md), you MUST add the url to the CSP definition:  
 
 ```
 connect-src 'self' wss://onscreenchat.%HOSTNAME% https://onscreenchat.%HOSTNAME%;
@@ -510,7 +510,7 @@ The suggested solution is to set 'expose\_php' to 'off' in your php.ini:
 
 ### ILIAS setup
 
-The access to the ILIAS Installation Wizard `(/setup/setup.php)` MAY be restricted:
+The access to the ILIAS Installation Wizard `(/cli/setup.php)` MAY be restricted:
 
 Apache2:
 
@@ -538,7 +538,7 @@ Nginx:
 
         # add location for PHP processing here
     }
-    location /setup/setup.php {
+    location /cli/setup.php {
         allow %IPADDRESS%;
         deny all;
     }
@@ -632,7 +632,7 @@ This is a NGINX recommended configuration. (note: inside the `%DOCROOT%/data` no
         [...]
         set $root $document_root;
         location ~ /data/ {
-            rewrite ^/data/(.*)/(.*)/(.*)$ /Services/WebAccessChecker/wac.php last;
+            rewrite ^/data/(.*)/(.*)/(.*)$ /wac.php last;
 
             location ~ [^/]\.php(/|$) { access_log off; log_not_found off; deny all; }
         }
@@ -648,19 +648,19 @@ This is a NGINX recommended configuration. (note: inside the `%DOCROOT%/data` no
     }
 ```
 
-**[ilFileDelivery](https://github.com/ILIAS-eLearning/ILIAS/blob/release_5-4/Services/FileDelivery/classes/override.php.template)** (concerns NGINX/PHP-FPM):
+**[ilFileDelivery](https://github.com/ILIAS-eLearning/ILIAS/blob/release_5-4/components/ILIAS/FileDelivery/classes/override.php.template)** (concerns NGINX/PHP-FPM):
 > This is needed if you want to use the ilFileDelivery::DELIVERY_METHOD_XACCEL or the ilFileDelivery::DELIVERY_METHOD_XSENDFILE Method since PHP can't figure out whether X-Accel ist installed or not.""
 
 rename the file:
 
 ```
-%DOCROOT%/Services/FileDelivery/classes/override.php.template
+%DOCROOT%/components/ILIAS/FileDelivery/classes/override.php.template
 ```
 
 to
 
 ```
-%DOCROOT%/Services/FileDelivery/classes/override.php
+%DOCROOT%/components/ILIAS/FileDelivery/classes/override.php
 ```
 
 ## Use secure passwords

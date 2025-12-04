@@ -1,0 +1,32 @@
+<div class="row">
+	<!-- BEGIN toggle_fullday -->
+	<div class="ilFormInnerCol">
+		<div class="form-group form-inline">
+			<div class="input-group">
+				<input type="checkbox" name="{DATE_TOGGLE_ID}" id="{FULLDAY_TOGGLE_ID}" value="1"{FULLDAY_TOGGLE_CHECKED} {FULLDAY_TOGGLE_DISABLED} />
+			</div>
+			<label class=control-label" for="{FULLDAY_TOGGLE_ID}">{TXT_TOGGLE_FULLDAY}</label>
+		</div>
+	</div>
+	<!-- END toggle_fullday -->
+	<div class="col-sm-6 ilFormInnerCol">
+		<div class="form-group form-inline">
+			<!-- BEGIN start_label_bl -->
+			<!-- END start_label_bl -->
+			<div class="input-group date<!-- BEGIN start_width_bl --> noop<!-- END start_width_bl -->" id="{DATEPICKER_START_ID}">
+				<input aria-label="{START_ARIA_LABEL}" type="{DATEPICKER_START_TYPE}" class="form-control" value="{DATEPICKER_START_VALUE}" step="{DATEPICKER_START_STEP}" min="{DATEPICKER_START_MIN}" id="{DATE_START_ID}" name="{DATE_START_ID}"{DATEPICKER_START_DISABLED} {START_REQUIRED}/>
+			</div>
+			<br /><label class="control-label">{START_LABEL}</label>
+		</div>
+	</div>
+	<div class="col-sm-6 ilFormInnerCol">
+		<div class="form-group form-inline">
+			<!-- BEGIN end_label_bl -->
+			<!-- END end_label_bl -->
+			<div class="input-group date<!-- BEGIN end_width_bl --> noop<!-- END end_width_bl -->" id="{DATEPICKER_END_ID}">
+				<input aria-label="{END_ARIA_LABEL}" type="{DATEPICKER_END_TYPE}" class="form-control" value="{DATEPICKER_END_VALUE}" step="{DATEPICKER_END_STEP}" min="{DATEPICKER_END_MIN}" name="{DATE_END_ID}"{DATEPICKER_END_DISABLED} {END_REQUIRED} />
+			</div>
+					<br /><label class="control-label">{END_LABEL}</label>
+		</div>
+	</div>
+</div>

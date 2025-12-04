@@ -1,0 +1,203 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Test\TestDIC;
+use ILIAS\TestQuestionPool\Questions\GeneralQuestionPropertiesRepository;
+use ILIAS\Test\Logging\TestLogger;
+use ILIAS\Test\ExportImport\Factory as ExportImportFactory;
+use ILIAS\Test\ExportImport\Types as ExportImportTypes;
+
+/**
+ * Used for container export with tests
+ *
+ * @author Stefan Meyer <meyer@leifos.com>
+ * @version $Id$
+ * @ingroup components\ILIASTest
+ */
+class ilTestExporter extends ilXmlExporter
+{
+    private readonly ilLanguage $lng;
+    private readonly ExportImportFactory $export_factory;
+    private readonly TestLogger $logger;
+    private readonly ilTree $tree;
+    private readonly ilCtrl $ctrl;
+    private readonly ilComponentRepository $component_repository;
+    private readonly GeneralQuestionPropertiesRepository $questionrepository;
+
+    public function __construct()
+    {
+        global $DIC;
+        $this->lng = $DIC['lng'];
+        $local_dic = TestDIC::dic();
+        $this->export_factory = $local_dic['exportimport.factory'];
+        $this->logger = $local_dic['logging.logger'];
+        $this->questionrepository = $local_dic['question.general_properties.repository'];
+        $this->tree = $DIC['tree'];
+        $this->ctrl = $DIC['ilCtrl'];
+        $this->component_repository = $DIC['component.repository'];
+
+        parent::__construct();
+    }
+
+    /**
+     * Initialisation
+     */
+    public function init(): void
+    {
+    }
+
+    public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $id): string
+    {
+        $parameters = $this->ctrl->getParameterArrayByClass(ilTestExportGUI::class);
+        $export_type = ExportImportTypes::XML;
+        if (!empty($parameters['export_results'])) {
+            $export_type = ExportImportTypes::XML_WITH_RESULTS;
+            $this->ctrl->clearParameterByClass(ilTestExportGUI::class, 'export_results');
+        }
+        $tst = new ilObjTest((int) $id, false);
+        $tst->read();
+        $zip = $this->export_factory->getExporter($tst, $export_type)
+            ->withExportDirInfo($this->getAbsoluteExportDirectory())
+            ->write();
+
+        $this->logger->info(__METHOD__ . ': Created zip file ' . $zip);
+        return '';
+    }
+
+    public function getXmlExportHeadDependencies(string $entity, string $target_release, array $ids): array
+    {
+        if ($entity === 'tst') {
+            $mobs = [];
+            $files = [];
+            foreach ($ids as $id) {
+                $tst = new ilObjTest((int) $id, false);
+                $tst->read();
+
+                $intro_page_id = $tst->getMainSettings()->getIntroductionSettings()->getIntroductionPageId();
+                if ($intro_page_id !== null) {
+                    $mobs = array_merge($mobs, ilObjMediaObject::_getMobsOfObject('tst:pg', $intro_page_id));
+                    $files = array_merge($files, ilObjFile::_getFilesOfObject('tst:pg', $intro_page_id));
+                }
+
+                $concluding_remarks_page_id = $tst->getMainSettings()->getFinishingSettings()->getConcludingRemarksPageId();
+                if ($concluding_remarks_page_id !== null) {
+                    $mobs = array_merge($mobs, ilObjMediaObject::_getMobsOfObject('tst:pg', $concluding_remarks_page_id));
+                    $files = array_merge($files, ilObjFile::_getFilesOfObject('tst:pg', $concluding_remarks_page_id));
+                }
+            }
+
+            return [
+                [
+                    'component' => 'components/ILIAS/MediaObjects',
+                    'entity' => 'mob',
+                    'ids' => $mobs
+                ],
+                [
+                    'component' => 'components/ILIAS/File',
+                    'entity' => 'file',
+                    'ids' => $files
+                ]
+            ];
+        }
+
+        return parent::getXmlExportTailDependencies($entity, $target_release, $ids);
+    }
+
+    /**
+     * @param array<int> ids
+     * @return array<array> array of array with keys 'component', 'entity', 'ids'
+     */
+    public function getXmlExportTailDependencies(string $a_entity, string $a_target_release, array $a_ids): array
+    {
+        if ($a_entity == 'tst') {
+            $deps = [];
+
+            $tax_ids = $this->getDependingTaxonomyIds($a_ids);
+
+            if (count($tax_ids)) {
+                $deps[] = [
+                    'component' => 'components/ILIAS/Taxonomy',
+                    'entity' => 'tax',
+                    'ids' => $tax_ids
+                ];
+            }
+
+            $deps[] = [
+                'component' => 'components/ILIAS/ILIASObject',
+                'entity' => 'common',
+                'ids' => $a_ids
+            ];
+
+
+            $md_ids = [];
+            foreach ($a_ids as $id) {
+                $md_ids[] = $id . ':0:tst';
+            }
+            if ($md_ids !== []) {
+                $deps[] = [
+                    'component' => 'components/ILIAS/MetaData',
+                    'entity' => 'md',
+                    'ids' => $md_ids
+                ];
+            }
+
+            return $deps;
+        }
+
+        return parent::getXmlExportTailDependencies($a_entity, $a_target_release, $a_ids);
+    }
+
+    /**
+     * @param array<int> $testObjIds
+     * @return array<int> $taxIds
+     */
+    private function getDependingTaxonomyIds(array $test_obj_ids): array
+    {
+        $tax_ids = [];
+
+        foreach ($test_obj_ids as $test_obj_id) {
+            foreach (ilObjTaxonomy::getUsageOfObject($test_obj_id) as $tax_id) {
+                $tax_ids[$tax_id] = $tax_id;
+            }
+        }
+
+        return $tax_ids;
+    }
+
+    /**
+     * Returns schema versions that the component can export to.
+     * ILIAS chooses the first one, that has min/max constraints which
+     * fit to the target release. Please put the newest on top.
+     * @param string $a_entity
+     * @return array
+     */
+    public function getValidSchemaVersions(string $a_entity): array
+    {
+        return [
+            '4.1.0' => [
+                'namespace' => 'http://www.ilias.de/Modules/Test/htlm/4_1',
+                'xsd_file' => 'ilias_tst_4_1.xsd',
+                'uses_dataset' => false,
+                'min' => '4.1.0',
+                'max' => ''
+            ]
+        ];
+    }
+}

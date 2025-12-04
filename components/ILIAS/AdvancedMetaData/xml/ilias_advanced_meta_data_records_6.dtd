@@ -1,0 +1,40 @@
+<!ELEMENT AdvancedMetaDataRecords(Record*)>
+<!ELEMENT Record (Title, Description?, RecordTranslations?, ObjectType*, Field*)>
+<!ATTLIST Record
+	id CDATA #REQUIRED
+	active CDATA #REQUIRED
+	defaultLanguage CDATA  #IMPLIED
+>
+
+
+<!ELEMENT Title (#PCDATA)>
+<!ELEMENT Description (#PCDATA)>
+<!ELEMENT ObjectType (#PCDATA)>
+<!ELEMENT RecordTranslations (RecordTranslation*)>
+<!ELEMENT RecordTranslation (RecordTranslationTitle, RecordTranslationDescription?)>
+<!ATTLIST RecordTranslation
+	language CDATA #REQUIRED
+>
+<!ELEMENT RecordTranslationTitle (#PCDATA)>
+<!ELEMENT RecordTranslationDescription (#PCDATA)>
+
+<!ELEMENT Field (FieldTitle, FieldTranslations?, FieldDescription?,FieldPosition,FieldValue*)>
+
+<!ATTLIST Field
+	id CDATA) #REQUIRED
+	searchable (Yes | No) #REQUIRED
+	fieldType (Select | Text | Date) #REQUIRED>
+
+<!ELEMENT FieldTitle (#PCDATA)>
+<!ELEMENT FieldDescription (#PCDATA)>
+<!ELEMENT FieldPosition (#PCDATA)>
+<!ELEMENT FieldValue (#PCDATA)>
+
+<!ELEMENT FieldTranslations (FieldTranslation*)>
+<!ELEMENT FieldTranslation (FieldTranslationTitle, FieldTranslationDescription?)>
+<!ATTLIST FieldTranslation
+	language CDATA #REQUIRED
+>
+<!ELEMENT FieldTranslationTitle (#PCDATA)>
+<!ELEMENT FieldTranslationDescription (#PCDATA)>
+

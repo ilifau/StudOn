@@ -1,7 +1,0 @@
-<?php
-/**
- * @description This file has been dynamically created by ILIAS WebAccessChecker
- *
- * @author      Fabian Schmid <fs@studer-raimann.ch>
- */
-$salt = 'INSERT_SALT';

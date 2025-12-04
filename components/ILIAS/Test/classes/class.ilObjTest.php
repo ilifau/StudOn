@@ -1,0 +1,7684 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Test\Participants\ParticipantRepository;
+use ILIAS\Test\TestDIC;
+use ILIAS\Test\RequestDataCollector;
+use ILIAS\Test\TestManScoringDoneHelper;
+use ILIAS\Test\Logging\TestLogger;
+use ILIAS\Test\Logging\TestLogViewer;
+use ILIAS\Test\ExportImport\Factory as ExportImportFactory;
+use ILIAS\Test\ExportImport\Types as ExportImportTypes;
+use ILIAS\Test\Logging\TestAdministrationInteractionTypes;
+use ILIAS\Test\Logging\TestScoringInteractionTypes;
+use ILIAS\Test\Logging\AdditionalInformationGenerator;
+use ILIAS\Test\Scoring\Marks\MarksRepository;
+use ILIAS\Test\Scoring\Marks\Mark;
+use ILIAS\Test\Scoring\Marks\MarkSchema;
+use ILIAS\Test\Scoring\Manual\TestScoring;
+use ILIAS\Test\Settings\GlobalSettings\Repository as GlobalSettingsRepository;
+use ILIAS\Test\Settings\GlobalSettings\GlobalTestSettings;
+use ILIAS\Test\Settings\MainSettings\MainSettingsRepository;
+use ILIAS\Test\Settings\MainSettings\MainSettingsDatabaseRepository;
+use ILIAS\Test\Settings\MainSettings\MainSettings;
+use ILIAS\Test\Settings\MainSettings\SettingsIntroduction;
+use ILIAS\Test\Settings\MainSettings\SettingsFinishing;
+use ILIAS\Test\Settings\ScoreReporting\ScoreSettingsRepository;
+use ILIAS\Test\Settings\ScoreReporting\ScoreSettingsDatabaseRepository;
+use ILIAS\Test\Settings\ScoreReporting\ScoreReportingTypes;
+use ILIAS\Test\Settings\ScoreReporting\ScoreSettings;
+use ILIAS\TestQuestionPool\Import\TestQuestionsImportTrait;
+use ILIAS\TestQuestionPool\Questions\GeneralQuestionPropertiesRepository;
+use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\Filesystem\Filesystem;
+use ILIAS\MetaData\Services\ServicesInterface as LOMetadata;
+
+/**
+ * Class ilObjTest
+ *
+ * @author		Helmut Schottmüller <helmut.schottmueller@mac.com>
+ * @author		Björn Heyser <bheyser@databay.de>
+ * @version		$Id$
+ *
+ * @defgroup ModulesTest Modules/Test
+ * @extends ilObject
+ */
+class ilObjTest extends ilObject
+{
+    use TestQuestionsImportTrait;
+
+    public const QUESTION_SET_TYPE_FIXED = 'FIXED_QUEST_SET';
+    public const QUESTION_SET_TYPE_RANDOM = 'RANDOM_QUEST_SET';
+    public const INVITATION_OFF = 0;
+    public const INVITATION_ON = 1;
+    public const SCORE_LAST_PASS = 0;
+    public const SCORE_BEST_PASS = 1;
+
+    public const REDIRECT_NONE = 0;
+    public const REDIRECT_ALWAYS = 1;
+    public const REDIRECT_KIOSK = 2;
+    public const REDIRECT_ALWAYS_TO_LOGOUT = 3;
+
+    private ?bool $activation_limited = null;
+    private array $mob_ids;
+    private array $file_ids = [];
+    private bool $online;
+    protected GeneralQuestionPropertiesRepository $questionrepository;
+    private RequestDataCollector $testrequest;
+    private MarksRepository $marks_repository;
+    private ?MarkSchema $mark_schema = null;
+    public int $test_id = -1;
+    public int $invitation = self::INVITATION_OFF;
+    public string $author;
+
+    /**
+     * A reference to an IMS compatible matadata set
+     */
+    public $metadata;
+    public array $questions = [];
+
+    /**
+     * Contains the evaluation data settings the tutor defines for the user
+     */
+    public $evaluation_data;
+
+    /**
+     * contains the test sequence data
+     */
+    public $test_sequence = false;
+
+    private int $template_id = 0;
+
+    protected bool $print_best_solution_with_result = true;
+
+    protected bool $activation_visibility = false;
+    protected ?int $activation_starting_time = null;
+    protected ?int $activation_ending_time = null;
+
+    /**
+     * holds the fact wether participant data exists or not
+     * DO NOT USE TIS PROPERTY DRIRECTLY
+     * ALWAYS USE ilObjTest::paricipantDataExist() since this method initialises this property
+     */
+    private $participantDataExist = null;
+
+    private ?int $tmpCopyWizardCopyId = null;
+
+    private TestManScoringDoneHelper $test_man_scoring_done_helper;
+    protected ilCtrlInterface $ctrl;
+    protected Refinery $refinery;
+    protected ilSetting $settings;
+    protected ilBenchmark $bench;
+    protected ilTestParticipantAccessFilterFactory $participant_access_filter;
+
+    protected GlobalSettingsRepository $global_settings_repo;
+    protected ?MainSettings $main_settings = null;
+    protected ?MainSettingsRepository $main_settings_repo = null;
+    protected ?ScoreSettings $score_settings = null;
+    protected ?ScoreSettingsRepository $score_settings_repo = null;
+
+    protected TestLogger $logger;
+    protected TestLogViewer $log_viewer;
+    protected ilTestQuestionSetConfigFactory $question_set_config_factory;
+
+    protected ExportImportFactory $export_factory;
+
+    private ilComponentRepository $component_repository;
+    private ilComponentFactory $component_factory;
+    private Filesystem $filesystem_web;
+
+    protected ?ilTestParticipantList $access_filtered_participant_list = null;
+    protected ParticipantRepository $participant_repository;
+
+    protected LOMetadata $lo_metadata;
+
+    /**
+     * Constructor
+     *
+     * @param	$a_id 					int|string	Reference_id or object_id.
+     * @param	$a_call_by_reference	bool		Treat the id as reference_id (true) or object_id (false).
+     */
+    public function __construct(int $id = 0, bool $a_call_by_reference = true)
+    {
+        $this->type = "tst";
+
+        /** @var ILIAS\DI\Container $DIC */
+        global $DIC;
+        $this->ctrl = $DIC['ilCtrl'];
+        $this->refinery = $DIC['refinery'];
+        $this->settings = $DIC['ilSetting'];
+        $this->bench = $DIC['ilBench'];
+        $this->component_repository = $DIC['component.repository'];
+        $this->component_factory = $DIC['component.factory'];
+        $this->filesystem_web = $DIC->filesystem()->web();
+        $this->lo_metadata = $DIC->learningObjectMetadata();
+
+        $local_dic = $this->getLocalDIC();
+        $this->participant_access_filter = $local_dic['participant.access_filter.factory'];
+        $this->test_man_scoring_done_helper = $local_dic['scoring.manual.done_helper'];
+        $this->logger = $local_dic['logging.logger'];
+        $this->log_viewer = $local_dic['logging.viewer'];
+        $this->global_settings_repo = $local_dic['settings.global.repository'];
+        $this->marks_repository = $local_dic['marks.repository'];
+        $this->questionrepository = $local_dic['question.general_properties.repository'];
+        $this->testrequest = $local_dic['request_data_collector'];
+        $this->participant_repository = $local_dic['participant.repository'];
+        $this->export_factory = $local_dic['exportimport.factory'];
+
+        parent::__construct($id, $a_call_by_reference);
+
+        $this->lng->loadLanguageModule("assessment");
+        $this->score_settings = null;
+
+        $this->question_set_config_factory = new ilTestQuestionSetConfigFactory(
+            $this->tree,
+            $this->db,
+            $this->lng,
+            $this->logger,
+            $this->component_repository,
+            $this,
+            $this->questionrepository
+        );
+    }
+
+    public function getLocalDIC(): TestDIC
+    {
+        return TestDIC::dic();
+    }
+
+    public function getTestLogger(): TestLogger
+    {
+        return $this->logger;
+    }
+
+    public function getTestLogViewer(): TestLogViewer
+    {
+        return $this->log_viewer;
+    }
+
+    public function getQuestionSetConfig(): ilTestQuestionSetConfig
+    {
+        return $this->question_set_config_factory->getQuestionSetConfig();
+    }
+
+    /**
+     * returns the object title prepared to be used as a filename
+     */
+    public function getTitleFilenameCompliant(): string
+    {
+        return ilFileUtils::getASCIIFilename($this->getTitle());
+    }
+
+    public function getTmpCopyWizardCopyId(): ?int
+    {
+        return $this->tmpCopyWizardCopyId;
+    }
+
+    public function setTmpCopyWizardCopyId(int $tmpCopyWizardCopyId): void
+    {
+        $this->tmpCopyWizardCopyId = $tmpCopyWizardCopyId;
+    }
+
+    public function create(): int
+    {
+        $id = parent::create();
+        $this->createMetaData();
+        return $id;
+    }
+
+    public function update(): bool
+    {
+        if (!parent::update()) {
+            return false;
+        }
+
+        // put here object specific stuff
+        $this->updateMetaData();
+        return true;
+    }
+
+    public function read(): void
+    {
+        parent::read();
+        $this->main_settings = null;
+        $this->score_settings = null;
+        $this->mark_schema = null;
+        $this->loadFromDb();
+    }
+
+    public function delete(): bool
+    {
+        // always call parent delete function first!!
+        if (!parent::delete()) {
+            return false;
+        }
+
+        // delet meta data
+        $this->deleteMetaData();
+
+        //put here your module specific stuff
+        $this->deleteTest();
+
+        $qsaImportFails = new ilAssQuestionSkillAssignmentImportFails($this->getId());
+        $qsaImportFails->deleteRegisteredImportFails();
+        $sltImportFails = new ilTestSkillLevelThresholdImportFails($this->getId());
+        $sltImportFails->deleteRegisteredImportFails();
+
+        if ($this->logger->isLoggingEnabled()) {
+            $this->logger->logTestAdministrationInteraction(
+                $this->logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                    $this->getRefId(),
+                    $this->user->getId(),
+                    TestAdministrationInteractionTypes::TEST_DELETED,
+                    [
+                        AdditionalInformationGenerator::KEY_TEST_TITLE => $test_title = $this->title
+                    ]
+                )
+            );
+        }
+
+        return true;
+    }
+
+    public function deleteTest(): void
+    {
+        $participantData = new ilTestParticipantData($this->db, $this->lng);
+        $participantData->load($this->getTestId());
+        $this->removeTestResults($participantData);
+
+        $this->db->manipulateF(
+            "DELETE FROM tst_mark WHERE test_fi = %s",
+            ['integer'],
+            [$this->getTestId()]
+        );
+
+        $this->db->manipulateF(
+            "DELETE FROM tst_tests WHERE test_id = %s",
+            ['integer'],
+            [$this->getTestId()]
+        );
+
+        $tst_data_dir = ilFileUtils::getDataDir() . "/tst_data";
+        $directory = $tst_data_dir . "/tst_" . $this->getId();
+        if (is_dir($directory)) {
+            ilFileUtils::delDir($directory);
+        }
+        $mobs = ilObjMediaObject::_getMobsOfObject("tst:html", $this->getId());
+        // remaining usages are not in text anymore -> delete them
+        // and media objects (note: delete method of ilObjMediaObject
+        // checks whether object is used in another context; if yes,
+        // the object is not deleted!)
+        foreach ($mobs as $mob) {
+            ilObjMediaObject::_removeUsage($mob, "tst:html", $this->getId());
+            if (ilObjMediaObject::_exists($mob)) {
+                $mob_obj = new ilObjMediaObject($mob);
+                $mob_obj->delete();
+            }
+        }
+    }
+
+    /**
+    * creates data directory for export files
+    * (data_dir/tst_data/tst_<id>/export, depending on data
+    * directory that is set in ILIAS setup/ini)
+    */
+    public function createExportDirectory(): void
+    {
+        $tst_data_dir = ilFileUtils::getDataDir() . "/tst_data";
+        ilFileUtils::makeDir($tst_data_dir);
+        if (!is_writable($tst_data_dir)) {
+            $this->ilias->raiseError("Test Data Directory (" . $tst_data_dir
+                . ") not writeable.", $this->ilias->error_obj->MESSAGE);
+        }
+
+        // create learning module directory (data_dir/lm_data/lm_<id>)
+        $tst_dir = $tst_data_dir . "/tst_" . $this->getId();
+        ilFileUtils::makeDir($tst_dir);
+        if (!@is_dir($tst_dir)) {
+            $this->ilias->raiseError("Creation of Test Directory failed.", $this->ilias->error_obj->MESSAGE);
+        }
+        // create Export subdirectory (data_dir/lm_data/lm_<id>/Export)
+        $export_dir = $tst_dir . "/export";
+        ilFileUtils::makeDir($export_dir);
+        if (!@is_dir($export_dir)) {
+            $this->ilias->raiseError("Creation of Export Directory failed.", $this->ilias->error_obj->MESSAGE);
+        }
+    }
+
+    public function getExportDirectory(): string
+    {
+        $export_dir = ilFileUtils::getDataDir() . "/tst_data" . "/tst_" . $this->getId() . "/export";
+        return $export_dir;
+    }
+
+    public function getExportFiles(string $dir = ''): array
+    {
+        // quit if import dir not available
+        if (!@is_dir($dir) || !is_writable($dir)) {
+            return [];
+        }
+
+        $files = [];
+        foreach (new DirectoryIterator($dir) as $file) {
+            /**
+             * @var $file SplFileInfo
+             */
+            if ($file->isDir()) {
+                continue;
+            }
+
+            $files[] = $file->getBasename();
+        }
+
+        sort($files);
+
+        return $files;
+    }
+
+    /**
+    * creates data directory for import files
+    * (data_dir/tst_data/tst_<id>/import, depending on data
+    * directory that is set in ILIAS setup/ini)
+    */
+    public static function _createImportDirectory(): string
+    {
+        global $DIC;
+        $ilias = $DIC['ilias'];
+        $tst_data_dir = ilFileUtils::getDataDir() . "/tst_data";
+        ilFileUtils::makeDir($tst_data_dir);
+
+        if (!is_writable($tst_data_dir)) {
+            $ilias->raiseError("Test Data Directory (" . $tst_data_dir
+                . ") not writeable.", $ilias->error_obj->FATAL);
+        }
+
+        // create test directory (data_dir/tst_data/tst_import)
+        $tst_dir = $tst_data_dir . "/tst_import";
+        ilFileUtils::makeDir($tst_dir);
+        if (!@is_dir($tst_dir)) {
+            $ilias->raiseError("Creation of test import directory failed.", $ilias->error_obj->FATAL);
+        }
+
+        // assert that this is empty and does not contain old data
+        ilFileUtils::delDir($tst_dir, true);
+
+        return $tst_dir;
+    }
+
+    final public function isComplete(ilTestQuestionSetConfig $test_question_set_config): bool
+    {
+        if ($this->getMarkSchema() === null
+            || $this->getMarkSchema()->getMarkSteps() === []) {
+            return false;
+        }
+
+        if (!$test_question_set_config->isQuestionSetConfigured()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function saveCompleteStatus(ilTestQuestionSetConfig $test_question_set_config): void
+    {
+        $complete = 0;
+        if ($this->isComplete($test_question_set_config)) {
+            $complete = 1;
+        }
+        if ($this->getTestId() > 0) {
+            $this->db->manipulateF(
+                'UPDATE tst_tests SET complete = %s WHERE test_id = %s',
+                ['text', 'integer'],
+                [$complete, $this->test_id]
+            );
+        }
+    }
+
+    public function saveToDb(bool $properties_only = false): void
+    {
+        if ($this->test_id === -1) {
+            // Create new dataset
+            $next_id = $this->db->nextId('tst_tests');
+
+            $this->db->insert(
+                'tst_tests',
+                [
+                    'test_id' => ['integer', $next_id],
+                    'obj_fi' => ['integer', $this->getId()],
+                    'created' => ['integer', time()],
+                    'tstamp' => ['integer', time()],
+                    'template_id' => ['integer', $this->getTemplate()]
+                ]
+            );
+
+            $this->test_id = $next_id;
+        } else {
+            if ($this->evalTotalPersons() > 0) {
+                // reset the finished status of participants if the nr of test passes did change
+                if ($this->getNrOfTries() > 0) {
+                    // set all unfinished tests with nr of passes >= allowed passes finished
+                    $aresult = $this->db->queryF(
+                        "SELECT active_id FROM tst_active WHERE test_fi = %s AND tries >= %s AND submitted = %s",
+                        ['integer', 'integer', 'integer'],
+                        [$this->getTestId(), $this->getNrOfTries(), 0]
+                    );
+                    while ($row = $this->db->fetchAssoc($aresult)) {
+                        $this->db->manipulateF(
+                            "UPDATE tst_active SET submitted = %s, submittimestamp = %s WHERE active_id = %s",
+                            ['integer', 'timestamp', 'integer'],
+                            [1, date('Y-m-d H:i:s'), $row["active_id"]]
+                        );
+                    }
+
+                    // set all finished tests with nr of passes < allowed passes not finished
+                    $aresult = $this->db->queryF(
+                        "SELECT active_id FROM tst_active WHERE test_fi = %s AND tries < %s AND submitted = %s",
+                        ['integer', 'integer', 'integer'],
+                        [$this->getTestId(), $this->getNrOfTries() - 1, 1]
+                    );
+                    while ($row = $this->db->fetchAssoc($aresult)) {
+                        $this->db->manipulateF(
+                            "UPDATE tst_active SET submitted = %s, submittimestamp = %s WHERE active_id = %s",
+                            ['integer', 'timestamp', 'integer'],
+                            [0, null, $row["active_id"]]
+                        );
+                    }
+                } else {
+                    // set all finished tests with nr of passes >= allowed passes not finished
+                    $aresult = $this->db->queryF(
+                        "SELECT active_id FROM tst_active WHERE test_fi = %s AND submitted = %s",
+                        ['integer', 'integer'],
+                        [$this->getTestId(), 1]
+                    );
+                    while ($row = $this->db->fetchAssoc($aresult)) {
+                        $this->db->manipulateF(
+                            "UPDATE tst_active SET submitted = %s, submittimestamp = %s WHERE active_id = %s",
+                            ['integer', 'timestamp', 'integer'],
+                            [0, null, $row["active_id"]]
+                        );
+                    }
+                }
+            }
+        }
+
+        $this->storeActivationSettings(
+            $this->isActivationLimited(),
+            $this->getActivationStartingTime(),
+            $this->getActivationEndingTime(),
+            $this->getActivationVisibility(),
+        );
+
+        if ($properties_only) {
+            return;
+        }
+
+        if ($this->getQuestionSetType() == self::QUESTION_SET_TYPE_FIXED) {
+            $this->saveQuestionsToDb();
+        }
+
+        $this->marks_repository->storeMarkSchema($this->getMarkSchema());
+    }
+
+    public function saveQuestionsToDb(): void
+    {
+        $this->db->manipulateF(
+            'DELETE FROM tst_test_question WHERE test_fi = %s',
+            ['integer'],
+            [$this->getTestId()]
+        );
+        foreach ($this->questions as $key => $value) {
+            $next_id = $this->db->nextId('tst_test_question');
+            $this->db->insert('tst_test_question', [
+                'test_question_id' => ['integer', $next_id],
+                'test_fi' => ['integer', $this->getTestId()],
+                'question_fi' => ['integer', $value],
+                'sequence' => ['integer', $key],
+                'tstamp' => ['integer', time()]
+            ]);
+        }
+    }
+
+    /**
+     * @param array<int> $question_ids
+     */
+    public function copyQuestions(array $question_ids): void
+    {
+        $copy_count = 0;
+        $question_titles = $this->getQuestionTitles();
+
+        foreach ($question_ids as $id) {
+            $question = assQuestion::instantiateQuestionGUI($id);
+            if ($question) {
+                $title = $question->getObject()->getTitle();
+                $i = 2;
+                while (in_array($title . ' (' . $i . ')', $question_titles)) {
+                    $i++;
+                }
+
+                $title .= ' (' . $i . ')';
+
+                $question_titles[] = $title;
+
+                $new_id = $question->getObject()->duplicate(false, $title);
+
+                $clone = assQuestion::instantiateQuestionGUI($new_id);
+                $question = $clone->getObject();
+                $question->setObjId($this->getId());
+                $clone->setObject($question);
+                $clone->getObject()->saveToDb();
+
+                $this->insertQuestion($new_id, true);
+
+                $copy_count++;
+            }
+        }
+    }
+
+    /**
+     * Calculates the number of user results for a specific test pass
+     */
+    public function getNrOfResultsForPass($active_id, $pass): int
+    {
+        $result = $this->db->queryF(
+            "SELECT test_result_id FROM tst_test_result WHERE active_fi = %s AND pass = %s",
+            ['integer','integer'],
+            [$active_id, $pass]
+        );
+        return $result->numRows();
+    }
+
+    public function loadFromDb(): void
+    {
+        $result = $this->db->queryF(
+            "SELECT test_id FROM tst_tests WHERE obj_fi = %s",
+            ['integer'],
+            [$this->getId()]
+        );
+        if ($result->numRows() === 1) {
+            $data = $this->db->fetchObject($result);
+            $this->setTestId($data->test_id);
+            $this->loadQuestions();
+        }
+
+        // moved activation to ilObjectActivation
+        if (isset($this->ref_id)) {
+            $activation = ilObjectActivation::getItem($this->ref_id);
+            switch ($activation["timing_type"]) {
+                case ilObjectActivation::TIMINGS_ACTIVATION:
+                    $this->setActivationLimited(true);
+                    $this->setActivationStartingTime($activation["timing_start"]);
+                    $this->setActivationEndingTime($activation["timing_end"]);
+                    $this->setActivationVisibility($activation["visible"]);
+                    break;
+
+                default:
+                    $this->setActivationLimited(false);
+                    break;
+            }
+        }
+    }
+
+    /**
+    * Load the test question id's from the database
+    *
+    */
+    public function loadQuestions(int $active_id = 0, ?int $pass = null): void
+    {
+        $this->questions = [];
+        if ($this->isRandomTest()) {
+            if ($active_id === 0) {
+                $active_id = $this->getActiveIdOfUser($this->user->getId());
+            }
+            if (is_null($pass)) {
+                $pass = self::_getPass($active_id);
+            }
+            $result = $this->db->queryF(
+                'SELECT tst_test_rnd_qst.* '
+                . 'FROM tst_test_rnd_qst, qpl_questions '
+                . 'WHERE tst_test_rnd_qst.active_fi = %s '
+                . 'AND qpl_questions.question_id = tst_test_rnd_qst.question_fi '
+                . 'AND tst_test_rnd_qst.pass = %s '
+                . 'ORDER BY sequence',
+                ['integer', 'integer'],
+                [$active_id, $pass]
+            );
+        } else {
+            $result = $this->db->queryF(
+                'SELECT tst_test_question.* '
+                . 'FROM tst_test_question, qpl_questions '
+                . 'WHERE tst_test_question.test_fi = %s '
+                . 'AND qpl_questions.question_id = tst_test_question.question_fi '
+                . 'ORDER BY sequence',
+                ['integer'],
+                [$this->test_id]
+            );
+        }
+        $index = 1;
+        if ($this->test_id !== -1) {
+            //Omit loading of questions for non-id'ed test
+            while ($data = $this->db->fetchAssoc($result)) {
+                $this->questions[$index++] = $data["question_fi"];
+            }
+        }
+    }
+
+    public function getIntroduction(): string
+    {
+        $page_id = $this->getMainSettings()->getIntroductionSettings()->getIntroductionPageId();
+        if ($page_id !== null) {
+            return (new ilTestPageGUI('tst', $page_id))->showPage();
+        }
+
+        return $this->getMainSettings()->getIntroductionSettings()->getIntroductionText();
+    }
+
+    private function cloneIntroduction(): ?int
+    {
+        $page_id = $this->getMainSettings()->getIntroductionSettings()->getIntroductionPageId();
+        if ($page_id === null) {
+            return null;
+        }
+        return $this->clonePage($page_id);
+    }
+
+    public function getFinalStatement(): string
+    {
+        $page_id = $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksPageId();
+        if ($page_id !== null) {
+            return (new ilTestPageGUI('tst', $page_id))->showPage();
+        }
+        return $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksText();
+    }
+
+    private function cloneConcludingRemarks(): ?int
+    {
+        $page_id = $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksPageId();
+        if ($page_id === null) {
+            return null;
+        }
+        return $this->clonePage($page_id);
+    }
+
+    private function clonePage(int $source_page_id): int
+    {
+        $page_object = new ilTestPage();
+        $page_object->setParentId($this->getId());
+        $new_page_id = $page_object->createPageWithNextId();
+        (new ilTestPage($source_page_id))->copy($new_page_id);
+        return $new_page_id;
+    }
+
+    /**
+    * Gets the database id of the additional test data
+    */
+    public function getTestId(): int
+    {
+        return $this->test_id;
+    }
+
+    public function isPostponingEnabled(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getPostponedQuestionsMoveToEnd();
+    }
+
+    public function isScoreReportingEnabled(): bool
+    {
+        return $this->getScoreSettings()->getResultSummarySettings()->getScoreReporting()->isReportingEnabled();
+    }
+
+    public function getAnswerFeedbackPoints(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getInstantFeedbackPointsEnabled();
+    }
+
+    public function getGenericAnswerFeedback(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getInstantFeedbackGenericEnabled();
+    }
+
+    public function getInstantFeedbackSolution(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getInstantFeedbackSolutionEnabled();
+    }
+
+    public function getCountSystem(): int
+    {
+        return $this->getScoreSettings()->getScoringSettings()->getCountSystem();
+    }
+
+    public static function _getCountSystem($active_id)
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $result = $ilDB->queryF(
+            "SELECT tst_tests.count_system FROM tst_tests, tst_active WHERE tst_active.active_id = %s AND tst_active.test_fi = tst_tests.test_id",
+            ['integer'],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            return $row["count_system"];
+        }
+        return false;
+    }
+
+    /**
+    * Determines if the score of a question should be cut at 0 points or the score of the whole test
+    */
+    public function getScoreCutting(): int
+    {
+        return $this->getScoreSettings()->getScoringSettings()->getScoreCutting();
+    }
+
+    /**
+    * Gets the pass scoring type
+    */
+    public function getPassScoring(): int
+    {
+        return $this->getScoreSettings()->getScoringSettings()->getPassScoring();
+    }
+
+    /**
+    * Gets the pass scoring type
+    */
+    public static function _getPassScoring(int $active_id): int
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $result = $ilDB->queryF(
+            "SELECT tst_tests.pass_scoring FROM tst_tests, tst_active WHERE tst_tests.test_id = tst_active.test_fi AND tst_active.active_id = %s",
+            ['integer'],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            return (int) $row["pass_scoring"];
+        }
+        return 0;
+    }
+
+    /**
+    * Determines if the score of a question should be cut at 0 points or the score of the whole test
+    */
+    public static function _getScoreCutting(int $active_id): bool
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $result = $ilDB->queryF(
+            "SELECT tst_tests.score_cutting FROM tst_tests, tst_active WHERE tst_active.active_id = %s AND tst_tests.test_id = tst_active.test_fi",
+            ['integer'],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            return (bool) $row["score_cutting"];
+        }
+        return false;
+    }
+
+    public function getMarkSchema(): MarkSchema
+    {
+        if ($this->mark_schema === null) {
+            $this->mark_schema = $this->marks_repository->getMarkSchemaFor($this->getTestId());
+        }
+
+        return $this->mark_schema;
+    }
+
+    public function storeMarkSchema(MarkSchema $mark_schema): void
+    {
+        $this->marks_repository->storeMarkSchema($mark_schema);
+        $this->mark_schema = null;
+    }
+
+    public function getNrOfTries(): int
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getNumberOfTries();
+    }
+
+    public function isBlockPassesAfterPassedEnabled(): bool
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getBlockAfterPassedEnabled();
+    }
+
+    public function getKioskMode(): bool
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getKioskModeEnabled();
+    }
+
+    public function getShowKioskModeTitle(): bool
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getShowTitleInKioskMode();
+    }
+    public function getShowKioskModeParticipant(): bool
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getShowParticipantNameInKioskMode();
+    }
+
+    public function getUsePreviousAnswers(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getUsePreviousAnswerAllowed();
+    }
+
+    public function getTitleOutput(): int
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getQuestionTitleOutputMode();
+    }
+
+    public function isPreviousSolutionReuseEnabled($active_id): bool
+    {
+        $result = $this->db->queryF(
+            "SELECT tst_tests.use_previous_answers FROM tst_tests, tst_active WHERE tst_tests.test_id = tst_active.test_fi AND tst_active.active_id = %s",
+            ["integer"],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $this->db->fetchAssoc($result);
+            $test_allows_reuse = $row["use_previous_answers"];
+        }
+
+        if ($test_allows_reuse === '1') {
+            $res = $this->user->getPref("tst_use_previous_answers");
+            if ($res === '1') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getProcessingTime(): ?string
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getProcessingTime();
+    }
+
+    private function getProcessingTimeForXML(): string
+    {
+        $processing_time = $this->getMainSettings()->getTestBehaviourSettings()->getProcessingTime();
+        if ($processing_time === null
+            || $processing_time === ''
+            || !preg_match('/(\d{2}):(\d{2}):(\d{2})/is', $processing_time, $matches)
+        ) {
+            return '';
+        }
+
+        return sprintf(
+            "P0Y0M0DT%dH%dM%dS",
+            $matches[1],
+            $matches[2],
+            $matches[3]
+        );
+    }
+
+    public function getProcessingTimeInSeconds(int $active_id = 0): int
+    {
+        $processing_time = $this->getMainSettings()->getTestBehaviourSettings()->getProcessingTime() ?? '';
+        if (preg_match("/(\d{2}):(\d{2}):(\d{2})/", (string) $processing_time, $matches)) {
+            $extratime = $this->getExtraTime($active_id) * 60;
+            return ($matches[1] * 3600) + ($matches[2] * 60) + $matches[3] + $extratime;
+        } else {
+            return 0;
+        }
+    }
+
+    public function getEnableProcessingTime(): bool
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getProcessingTimeEnabled();
+    }
+
+    public function getResetProcessingTime(): bool
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getResetProcessingTime();
+    }
+
+    public function isStartingTimeEnabled(): bool
+    {
+        return $this->getMainSettings()->getAccessSettings()->getStartTimeEnabled();
+    }
+
+    public function getStartingTime(): int
+    {
+        $start_time = $this->getMainSettings()->getAccessSettings()->getStartTime();
+        return $start_time !== null ? $start_time->getTimestamp() : 0;
+    }
+
+    public function isEndingTimeEnabled(): bool
+    {
+        return $this->getMainSettings()->getAccessSettings()->getEndTimeEnabled();
+    }
+
+    public function getEndingTime(): int
+    {
+        $end_time = $this->getMainSettings()->getAccessSettings()->getEndTime();
+        return $end_time !== null ? $end_time->getTimestamp() : 0;
+    }
+
+    public function getRedirectionMode(): int
+    {
+        return $this->getMainSettings()->getFinishingSettings()->getRedirectionMode();
+    }
+
+    public function isRedirectModeKiosk(): bool
+    {
+        return $this->getMainSettings()->getFinishingSettings()->getRedirectionMode() === self::REDIRECT_KIOSK;
+    }
+
+    public function isRedirectModeNone(): bool
+    {
+        return $this->getMainSettings()->getFinishingSettings()->getRedirectionMode() === self::REDIRECT_NONE;
+    }
+
+    public function getRedirectionUrl(): string
+    {
+        return $this->getMainSettings()->getFinishingSettings()->getRedirectionUrl() ?? '';
+    }
+
+    public function isPasswordEnabled(): bool
+    {
+        return $this->getMainSettings()->getAccessSettings()->getPasswordEnabled();
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->getMainSettings()->getAccessSettings()->getPassword();
+    }
+
+    public function removeQuestionsWithResults(array $question_ids): void
+    {
+        $scoring = new TestScoring(
+            $this,
+            $this->user,
+            $this->db,
+            $this->lng
+        );
+
+        array_walk(
+            $question_ids,
+            fn(int $v, int $k) => $this->removeQuestionWithResults($v, $scoring)
+        );
+    }
+
+    private function removeQuestionWithResults(int $question_id, TestScoring $scoring): void
+    {
+        $question = \assQuestion::instantiateQuestion($question_id);
+
+        $participant_data = new ilTestParticipantData($this->db, $this->lng);
+        $participant_data->load($this->test_id);
+
+        $question->removeAllExistingSolutions();
+        $scoring->removeAllQuestionResults($question_id);
+
+        $this->removeQuestion($question_id);
+        if (!$this->isRandomTest()) {
+            $this->removeQuestionFromSequences(
+                $question_id,
+                $participant_data->getActiveIds(),
+                $this->reindexFixedQuestionOrdering()
+            );
+        }
+
+        $scoring->updatePassAndTestResults($participant_data->getActiveIds());
+        ilLPStatusWrapper::_refreshStatus($this->getId(), $participant_data->getUserIds());
+        $question->delete($question_id);
+
+        if ($this->getTestQuestions() === []) {
+            $object_properties = $this->getObjectProperties();
+            $object_properties->storePropertyIsOnline(
+                $object_properties->getPropertyIsOnline()->withOffline()
+            );
+        }
+
+        if ($this->logger->isLoggingEnabled()) {
+            $this->logger->logTestAdministrationInteraction(
+                $this->logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                    $this->getRefId(),
+                    $this->user->getId(),
+                    TestAdministrationInteractionTypes::QUESTION_REMOVED_IN_CORRECTIONS,
+                    [
+                        AdditionalInformationGenerator::KEY_QUESTION_TITLE => $question->getTitleForHTMLOutput(),
+                        AdditionalInformationGenerator::KEY_QUESTION_TEXT => $question->getQuestion(),
+                        AdditionalInformationGenerator::KEY_QUESTION_ID => $question->getId(),
+                        AdditionalInformationGenerator::KEY_QUESTION_TYPE => $question->getQuestionType()
+                    ]
+                )
+            );
+        }
+    }
+
+    /**
+     * @param array<int> $active_ids
+     */
+    public function removeQuestionFromSequences(
+        int $question_id,
+        array $active_ids,
+        ilTestReindexedSequencePositionMap $reindexed_sequence_position_map
+    ): void {
+        $test_sequence_factory = new ilTestSequenceFactory(
+            $this,
+            $this->db,
+            $this->questionrepository
+        );
+
+        foreach ($active_ids as $active_id) {
+            $passSelector = new ilTestPassesSelector($this->db, $this);
+            $passSelector->setActiveId($active_id);
+
+            foreach ($passSelector->getExistingPasses() as $pass) {
+                $test_sequence = $test_sequence_factory->getSequenceByActiveIdAndPass($active_id, $pass);
+                $test_sequence->loadFromDb();
+
+                $test_sequence->removeQuestion($question_id, $reindexed_sequence_position_map);
+                $test_sequence->saveToDb();
+            }
+        }
+    }
+
+    /**
+     * @param array<int> $question_ids
+     */
+    public function removeQuestions(array $question_ids): void
+    {
+        foreach ($question_ids as $question_id) {
+            $this->removeQuestion((int) $question_id);
+        }
+
+        $this->reindexFixedQuestionOrdering();
+    }
+
+    public function removeQuestion(int $question_id): void
+    {
+        try {
+            $question = self::_instanciateQuestion($question_id);
+            $question_title = $question->getTitleForHTMLOutput();
+            $question->delete($question_id);
+            if ($this->logger->isLoggingEnabled()) {
+                $this->logger->logTestAdministrationInteraction(
+                    $this->logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                        $this->getRefId(),
+                        $this->user->getId(),
+                        TestAdministrationInteractionTypes::QUESTION_REMOVED,
+                        [
+                            AdditionalInformationGenerator::KEY_QUESTION_TITLE => $question_title
+                        ]
+                    )
+                );
+            }
+        } catch (InvalidArgumentException $e) {
+            $this->logger->error($e->getMessage());
+            $this->logger->error($e->getTraceAsString());
+        }
+    }
+
+    /**
+     * - at the time beeing ilObjTest::removeTestResults needs to call the LP service for deletion
+     * - ilTestLP calls ilObjTest::removeTestResultsByUserIds
+     *
+     * this method should only be used from non refactored soap context i think
+     *
+     * @param $userIds
+     */
+    public function removeTestResultsFromSoapLpAdministration(array $user_ids)
+    {
+        $this->removeTestResultsByUserIds($user_ids);
+
+        $participantData = new ilTestParticipantData($this->db, $this->lng);
+        $participantData->setUserIdsFilter($user_ids);
+        $participantData->load($this->getTestId());
+
+        $this->removeTestActives($participantData->getActiveIds());
+
+
+        if ($this->logger->isLoggingEnabled()) {
+            $this->logger->logTestAdministrationInteraction(
+                $this->logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                    $this->getRefId(),
+                    $this->user->getId(),
+                    TestAdministrationInteractionTypes::PARTICIPANT_DATA_REMOVED,
+                    [
+                        AdditionalInformationGenerator::KEY_USERS => $participantData->getUserIds()
+                    ]
+                )
+            );
+        }
+    }
+
+    public function removeTestResults(ilTestParticipantData $participant_data): void
+    {
+        if ($participant_data->getAnonymousActiveIds() !== []) {
+            $this->removeTestResultsByActiveIds($participant_data->getAnonymousActiveIds());
+
+            $user_ids = array_map(
+                static fn($active_id) => $participant_data->getUserIdByActiveId($active_id),
+                $participant_data->getAnonymousActiveIds(),
+            );
+            $this->participant_repository->removeExtraTimeByUserId($this->getTestId(), $user_ids);
+        }
+
+        if ($participant_data->getUserIds() !== []) {
+            /* @var ilTestLP $testLP */
+            $test_lp = ilObjectLP::getInstance($this->getId());
+            if ($test_lp instanceof ilTestLP) {
+                $test_lp->setTestObject($this);
+                $test_lp->resetLPDataForUserIds($participant_data->getUserIds(), false);
+            }
+
+            $this->participant_repository->removeExtraTimeByUserId($this->getTestId(), $participant_data->getUserIds());
+        }
+
+        if ($participant_data->getActiveIds() !== []) {
+            $this->removeTestActives($participant_data->getActiveIds());
+
+            $user_ids = array_map(
+                static fn($active_id) => $participant_data->getUserIdByActiveId($active_id),
+                $participant_data->getActiveIds(),
+            );
+            $this->participant_repository->removeExtraTimeByUserId($this->getTestId(), $user_ids);
+        }
+
+        if ($this->logger->isLoggingEnabled()) {
+            $this->logger->logTestAdministrationInteraction(
+                $this->logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                    $this->getRefId(),
+                    $this->user->getId(),
+                    TestAdministrationInteractionTypes::PARTICIPANT_DATA_REMOVED,
+                    [
+                        AdditionalInformationGenerator::KEY_USERS => $participant_data->getUserIds(),
+                        AdditionalInformationGenerator::KEY_ANON_IDS => $participant_data->getAnonymousActiveIds()
+                    ]
+                )
+            );
+        }
+    }
+
+    public function removeTestResultsByUserIds(array $user_ids): void
+    {
+        $participantData = new ilTestParticipantData($this->db, $this->lng);
+        $participantData->setUserIdsFilter($user_ids);
+        $participantData->load($this->getTestId());
+
+        $in_user_ids = $this->db->in('usr_id', $participantData->getUserIds(), false, 'integer');
+        $this->db->manipulateF(
+            "DELETE FROM usr_pref WHERE {$in_user_ids} AND keyword = %s",
+            ['text'],
+            ['tst_password_' . $this->getTestId()]
+        );
+
+        if ($participantData->getActiveIds() !== []) {
+            $this->removeTestResultsByActiveIds($participantData->getActiveIds());
+        }
+    }
+
+    private function removeTestResultsByActiveIds(array $active_ids): void
+    {
+        $in_active_ids = $this->db->in('active_fi', $active_ids, false, 'integer');
+
+        $this->db->manipulate("DELETE FROM tst_solutions WHERE {$in_active_ids}");
+        $this->db->manipulate("DELETE FROM tst_qst_solved WHERE {$in_active_ids}");
+        $this->db->manipulate("DELETE FROM tst_test_result WHERE {$in_active_ids}");
+        $this->db->manipulate("DELETE FROM tst_pass_result WHERE {$in_active_ids}");
+        $this->db->manipulate("DELETE FROM tst_result_cache WHERE {$in_active_ids}");
+        $this->db->manipulate("DELETE FROM tst_sequence WHERE {$in_active_ids}");
+        $this->db->manipulate("DELETE FROM tst_times WHERE {$in_active_ids}");
+        $this->db->manipulate(
+            'DELETE FROM ' . PassPresentedVariablesRepo::TABLE_NAME
+            . ' WHERE ' . $this->db->in('active_id', $active_ids, false, 'integer')
+        );
+
+        if ($this->isRandomTest()) {
+            $this->db->manipulate("DELETE FROM tst_test_rnd_qst WHERE {$in_active_ids}");
+        }
+
+        foreach ($active_ids as $active_id) {
+            // remove file uploads
+            if (is_dir(CLIENT_WEB_DIR . "/assessment/tst_" . $this->getTestId() . "/$active_id")) {
+                ilFileUtils::delDir(CLIENT_WEB_DIR . "/assessment/tst_" . $this->getTestId() . "/$active_id");
+            }
+        }
+
+        ilAssQuestionHintTracking::deleteRequestsByActiveIds($active_ids);
+    }
+
+    /**
+     * @param array<int> $active_ids
+     */
+    public function removeTestActives(array $active_ids): void
+    {
+        $IN_activeIds = $this->db->in('active_id', $active_ids, false, 'integer');
+        $this->db->manipulate("DELETE FROM tst_active WHERE $IN_activeIds");
+    }
+
+    /**
+    * Moves a question up in order
+    *
+    * @param integer $question_id The database id of the question to be moved up
+    * @access public
+    * @see $test_id
+    */
+    public function questionMoveUp($question_id)
+    {
+        // Move a question up in sequence
+        $result = $this->db->queryF(
+            "SELECT * FROM tst_test_question WHERE test_fi=%s AND question_fi=%s",
+            ['integer', 'integer'],
+            [$this->getTestId(), $question_id]
+        );
+        $data = $this->db->fetchObject($result);
+        if ($data->sequence > 1) {
+            // OK, it's not the top question, so move it up
+            $result = $this->db->queryF(
+                "SELECT * FROM tst_test_question WHERE test_fi=%s AND sequence=%s",
+                ['integer','integer'],
+                [$this->getTestId(), $data->sequence - 1]
+            );
+            $data_previous = $this->db->fetchObject($result);
+            // change previous dataset
+            $this->db->manipulateF(
+                "UPDATE tst_test_question SET sequence=%s WHERE test_question_id=%s",
+                ['integer','integer'],
+                [$data->sequence, $data_previous->test_question_id]
+            );
+            // move actual dataset up
+            $this->db->manipulateF(
+                "UPDATE tst_test_question SET sequence=%s WHERE test_question_id=%s",
+                ['integer','integer'],
+                [$data->sequence - 1, $data->test_question_id]
+            );
+        }
+        $this->loadQuestions();
+    }
+
+    /**
+    * Moves a question down in order
+    *
+    * @param integer $question_id The database id of the question to be moved down
+    * @access public
+    * @see $test_id
+    */
+    public function questionMoveDown($question_id)
+    {
+        $current_question_result = $this->db->queryF(
+            "SELECT * FROM tst_test_question WHERE test_fi=%s AND question_fi=%s",
+            ['integer','integer'],
+            [$this->getTestId(), $question_id]
+        );
+        $current_question_data = $this->db->fetchObject($current_question_result);
+        $next_question_result = $this->db->queryF(
+            "SELECT * FROM tst_test_question WHERE test_fi=%s AND sequence=%s",
+            ['integer','integer'],
+            [$this->getTestId(), $current_question_data->sequence + 1]
+        );
+        if ($this->db->numRows($next_question_result) === 1) {
+            // OK, it's not the last question, so move it down
+            $next_question_data = $this->db->fetchObject($next_question_result);
+            // change next dataset
+            $this->db->manipulateF(
+                "UPDATE tst_test_question SET sequence=%s WHERE test_question_id=%s",
+                ['integer','integer'],
+                [$current_question_data->sequence, $next_question_data->test_question_id]
+            );
+            // move actual dataset down
+            $this->db->manipulateF(
+                "UPDATE tst_test_question SET sequence=%s WHERE test_question_id=%s",
+                ['integer','integer'],
+                [$current_question_data->sequence + 1, $current_question_data->test_question_id]
+            );
+        }
+        $this->loadQuestions();
+    }
+
+    /**
+    * Takes a question and creates a copy of the question for use in the test
+    *
+    * @param integer $question_id The database id of the question
+    * @result integer The database id of the copied question
+    */
+    public function duplicateQuestionForTest($question_id): int
+    {
+        $question = ilObjTest::_instanciateQuestion($question_id);
+        $duplicate_id = $question->duplicate(true, '', '', -1, $this->getId());
+        return $duplicate_id;
+    }
+
+    public function insertQuestion(int $question_id, bool $link_only = false): int
+    {
+        if ($link_only) {
+            $duplicate_id = $question_id;
+        } else {
+            $duplicate_id = $this->duplicateQuestionForTest($question_id);
+        }
+
+        // get maximum sequence index in test
+        $result = $this->db->queryF(
+            "SELECT MAX(sequence) seq FROM tst_test_question WHERE test_fi=%s",
+            ['integer'],
+            [$this->getTestId()]
+        );
+        $sequence = 1;
+
+        if ($result->numRows() == 1) {
+            $data = $this->db->fetchObject($result);
+            $sequence = $data->seq + 1;
+        }
+
+        $next_id = $this->db->nextId('tst_test_question');
+        $this->db->manipulateF(
+            "INSERT INTO tst_test_question (test_question_id, test_fi, question_fi, sequence, tstamp) VALUES (%s, %s, %s, %s, %s)",
+            ['integer', 'integer','integer','integer','integer'],
+            [$next_id, $this->getTestId(), $duplicate_id, $sequence, time()]
+        );
+        // remove test_active entries, because test has changed
+        $this->db->manipulateF(
+            "DELETE FROM tst_active WHERE test_fi = %s",
+            ['integer'],
+            [$this->getTestId()]
+        );
+        $this->loadQuestions();
+        $this->saveCompleteStatus($this->question_set_config_factory->getQuestionSetConfig());
+
+        if ($this->logger->isLoggingEnabled()) {
+            $this->logger->logTestAdministrationInteraction(
+                $this->logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                    $this->getRefId(),
+                    $this->user->getId(),
+                    TestAdministrationInteractionTypes::QUESTION_ADDED,
+                    [
+                        AdditionalInformationGenerator::KEY_QUESTION_ID => $question_id
+                    ] + (assQuestion::instantiateQuestion($question_id))
+                            ->toLog($this->logger->getAdditionalInformationGenerator())
+                )
+            );
+        }
+
+        return $duplicate_id;
+    }
+
+    private function getQuestionTitles(): array
+    {
+        $titles = [];
+        if ($this->getQuestionSetType() === self::QUESTION_SET_TYPE_FIXED) {
+            $result = $this->db->queryF(
+                'SELECT qpl_questions.title FROM tst_test_question, qpl_questions '
+                . 'WHERE tst_test_question.test_fi = %s AND tst_test_question.question_fi = qpl_questions.question_id '
+                . 'ORDER BY tst_test_question.sequence',
+                ['integer'],
+                [$this->getTestId()]
+            );
+            while ($row = $this->db->fetchAssoc($result)) {
+                array_push($titles, $row['title']);
+            }
+        }
+        return $titles;
+    }
+
+    /**
+    * Returns the titles of the test questions in question sequence
+    *
+    * @return array The question titles
+    * @access public
+    * @see $questions
+    */
+    public function getQuestionTitlesAndIndexes(): array
+    {
+        $titles = [];
+        if ($this->getQuestionSetType() == self::QUESTION_SET_TYPE_FIXED) {
+            $result = $this->db->queryF(
+                'SELECT qpl_questions.title, qpl_questions.question_id '
+                . 'FROM tst_test_question, qpl_questions '
+                . 'WHERE tst_test_question.test_fi = %s AND tst_test_question.question_fi = qpl_questions.question_id '
+                . 'ORDER BY tst_test_question.sequence',
+                ['integer'],
+                [$this->getTestId()]
+            );
+            while ($row = $this->db->fetchAssoc($result)) {
+                $titles[$row['question_id']] = $row["title"];
+            }
+        }
+        return $titles;
+    }
+
+    // fau: testNav - add number parameter (to show if title should not be shown)
+    /**
+     * Returns the title of a test question and checks if the title output is allowed.
+     * If not, the localized text "question" will be returned.
+     *
+     * @param string $title The original title of the question
+     * @param integer $nr The number of the question in the sequence
+     * @return string The title for the question title output
+     * @access public
+     */
+    public function getQuestionTitle($title, $nr = null, $points = null): string
+    {
+        switch ($this->getTitleOutput()) {
+            case '0':
+            case '1':
+                return $title;
+                break;
+            case '2':
+                if (isset($nr)) {
+                    return $this->lng->txt("ass_question") . ' ' . $nr;
+                }
+                return $this->lng->txt("ass_question");
+                break;
+            case 3:
+                if (isset($nr)) {
+                    $txt = $this->lng->txt("ass_question") . ' ' . $nr;
+                } else {
+                    $txt = $this->lng->txt("ass_question");
+                }
+                if ($points != '') {
+                    $lngv = $this->lng->txt('points');
+                    if ($points == 1) {
+                        $lngv = $this->lng->txt('point');
+                    }
+                    $txt .= ' - ' . $points . ' ' . $lngv;
+                }
+                return $txt;
+                break;
+
+        }
+        return $this->lng->txt("ass_question");
+    }
+    // fau.
+
+    /**
+    * Returns the dataset for a given question id
+    *
+    * @param integer $question_id The database id of the question
+    * @return object Question dataset
+    * @access public
+    * @see $questions
+    */
+    public function getQuestionDataset($question_id): object
+    {
+        $result = $this->db->queryF(
+            "SELECT qpl_questions.*, qpl_qst_type.type_tag FROM qpl_questions, qpl_qst_type WHERE qpl_questions.question_id = %s AND qpl_questions.question_type_fi = qpl_qst_type.question_type_id",
+            ['integer'],
+            [$question_id]
+        );
+        $row = $this->db->fetchObject($result);
+        return $row;
+    }
+
+    /**
+    * Get the id's of the questions which are already part of the test
+    *
+    * @return array An array containing the already existing questions
+    * @access	public
+    */
+    public function &getExistingQuestions($pass = null): array
+    {
+        $existing_questions = [];
+        $active_id = $this->getActiveIdOfUser($this->user->getId());
+        if ($this->isRandomTest()) {
+            if (is_null($pass)) {
+                $pass = 0;
+            }
+            $result = $this->db->queryF(
+                "SELECT qpl_questions.original_id FROM qpl_questions, tst_test_rnd_qst WHERE tst_test_rnd_qst.active_fi = %s AND tst_test_rnd_qst.question_fi = qpl_questions.question_id AND tst_test_rnd_qst.pass = %s",
+                ['integer','integer'],
+                [$active_id, $pass]
+            );
+        } else {
+            $result = $this->db->queryF(
+                "SELECT qpl_questions.original_id FROM qpl_questions, tst_test_question WHERE tst_test_question.test_fi = %s AND tst_test_question.question_fi = qpl_questions.question_id",
+                ['integer'],
+                [$this->getTestId()]
+            );
+        }
+        while ($data = $this->db->fetchObject($result)) {
+            if ($data->original_id === null) {
+                continue;
+            }
+
+            array_push($existing_questions, $data->original_id);
+        }
+        return $existing_questions;
+    }
+
+    /**
+    * Returns the question type of a question with a given id
+    *
+    * @param integer $question_id The database id of the question
+    * @result string The question type string
+    * @access private
+    */
+    public function getQuestionType($question_id)
+    {
+        if ($question_id < 1) {
+            return -1;
+        }
+        $result = $this->db->queryF(
+            "SELECT type_tag FROM qpl_questions, qpl_qst_type WHERE qpl_questions.question_id = %s AND qpl_questions.question_type_fi = qpl_qst_type.question_type_id",
+            ['integer'],
+            [$question_id]
+        );
+        if ($result->numRows() == 1) {
+            $data = $this->db->fetchObject($result);
+            return $data->type_tag;
+        } else {
+            return "";
+        }
+    }
+
+    /**
+    * Write the initial entry for the tests working time to the database
+    *
+    * @param integer $user_id The database id of the user working with the test
+    * @access	public
+    */
+    public function startWorkingTime($active_id, $pass)
+    {
+        $next_id = $this->db->nextId('tst_times');
+        $affectedRows = $this->db->manipulateF(
+            "INSERT INTO tst_times (times_id, active_fi, started, finished, pass, tstamp) VALUES (%s, %s, %s, %s, %s, %s)",
+            ['integer', 'integer', 'timestamp', 'timestamp', 'integer', 'integer'],
+            [$next_id, $active_id, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"), $pass, time()]
+        );
+        return $next_id;
+    }
+
+    /**
+    * Update the working time of a test when a question is answered
+    *
+    * @param integer $times_id The database id of a working time entry
+    * @access	public
+    */
+    public function updateWorkingTime($times_id)
+    {
+        $affectedRows = $this->db->manipulateF(
+            "UPDATE tst_times SET finished = %s, tstamp = %s WHERE times_id = %s",
+            ['timestamp', 'integer', 'integer'],
+            [date('Y-m-d H:i:s'), time(), $times_id]
+        );
+    }
+
+    /**
+    * Gets the id's of all questions a user already worked through
+    *
+    * @return array The question id's of the questions already worked through
+    * @access	public
+    */
+    public function &getWorkedQuestions($active_id, $pass = null): array
+    {
+        if (is_null($pass)) {
+            $result = $this->db->queryF(
+                "SELECT question_fi FROM tst_solutions WHERE active_fi = %s AND pass = %s GROUP BY question_fi",
+                ['integer','integer'],
+                [$active_id, 0]
+            );
+        } else {
+            $result = $this->db->queryF(
+                "SELECT question_fi FROM tst_solutions WHERE active_fi = %s AND pass = %s GROUP BY question_fi",
+                ['integer','integer'],
+                [$active_id, $pass]
+            );
+        }
+        $result_array = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            array_push($result_array, $row["question_fi"]);
+        }
+        return $result_array;
+    }
+
+    /**
+    * Returns true if an active user completed a test pass and did not start a new pass
+    *
+    * @param integer $active_id The active id of the user
+    * @param integer $currentpass The current test pass of the user
+    * @return boolean true if an active user completed a test pass and did not start a new pass, false otherwise
+    * @access public
+    */
+    public function isTestFinishedToViewResults($active_id, $currentpass): bool
+    {
+        $num = ilObjTest::lookupPassResultsUpdateTimestamp($active_id, $currentpass);
+        return ((($currentpass > 0) && ($num == 0)) || $this->isTestFinished($active_id)) ? true : false;
+    }
+
+    /**
+    * Returns all questions of a test in test order
+    *
+    * @return array An array containing the id's as keys and the database row objects as values
+    * @access public
+    */
+    public function getAllQuestions($pass = null): array
+    {
+        if ($this->isRandomTest()) {
+            $active_id = $this->getActiveIdOfUser($this->user->getId());
+            if ($active_id === null) {
+                return [];
+            }
+            $this->loadQuestions($active_id, $pass);
+            if (count($this->questions) === 0) {
+                return [];
+            }
+            if (is_null($pass)) {
+                $pass = self::_getPass($active_id);
+            }
+            $result = $this->db->queryF(
+                "SELECT qpl_questions.* FROM qpl_questions, tst_test_rnd_qst WHERE tst_test_rnd_qst.question_fi = qpl_questions.question_id AND tst_test_rnd_qst.active_fi = %s AND tst_test_rnd_qst.pass = %s AND " . $this->db->in('qpl_questions.question_id', $this->questions, false, 'integer'),
+                ['integer','integer'],
+                [$active_id, $pass]
+            );
+        } else {
+            if (count($this->questions) === 0) {
+                return [];
+            }
+            $result = $this->db->query("SELECT qpl_questions.* FROM qpl_questions, tst_test_question WHERE tst_test_question.question_fi = qpl_questions.question_id AND " . $this->db->in('qpl_questions.question_id', $this->questions, false, 'integer'));
+        }
+        $result_array = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $result_array[$row["question_id"]] = $row;
+        }
+        return $result_array;
+    }
+
+    /**
+    * Gets the active id of a given user
+    *
+    * @param integer $user_id The database id of the user
+    * @param string $anonymous_id The anonymous id if the test is an anonymized test
+    * @return integer The active ID
+    * @access	public
+    */
+    public function getActiveIdOfUser($user_id = "", $anonymous_id = ""): ?int
+    {
+        if (!$user_id) {
+            $user_id = $this->user->getId();
+        }
+
+        $tst_access_code = ilSession::get('tst_access_code');
+        if (is_array($tst_access_code) &&
+            $this->user->getId() === ANONYMOUS_USER_ID &&
+            isset($tst_access_code[$this->getTestId()]) &&
+            $tst_access_code[$this->getTestId()] !== '') {
+            $result = $this->db->queryF(
+                'SELECT active_id FROM tst_active WHERE user_fi = %s AND test_fi = %s AND anonymous_id = %s',
+                ['integer', 'integer', 'text'],
+                [$user_id, $this->test_id, $tst_access_code[$this->getTestId()]]
+            );
+        } elseif ((string) $anonymous_id !== '') {
+            $result = $this->db->queryF(
+                'SELECT active_id FROM tst_active WHERE user_fi = %s AND test_fi = %s AND anonymous_id = %s',
+                ['integer', 'integer', 'text'],
+                [$user_id, $this->test_id, $anonymous_id]
+            );
+        } else {
+            if ((int) $user_id === ANONYMOUS_USER_ID) {
+                return null;
+            }
+            $result = $this->db->queryF(
+                'SELECT active_id FROM tst_active WHERE user_fi = %s AND test_fi = %s',
+                ['integer', 'integer'],
+                [$user_id, $this->test_id]
+            );
+        }
+
+        if ($result->numRows()) {
+            $row = $this->db->fetchAssoc($result);
+            return (int) $row['active_id'];
+        }
+
+        return null;
+    }
+
+    public static function _getActiveIdOfUser($user_id = "", $test_id = "")
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $ilUser = $DIC['ilUser'];
+
+        if (!$user_id) {
+            $user_id = $ilUser->id;
+        }
+        if (!$test_id) {
+            return "";
+        }
+        $result = $ilDB->queryF(
+            "SELECT tst_active.active_id FROM tst_active WHERE user_fi = %s AND test_fi = %s",
+            ['integer', 'integer'],
+            [$user_id, $test_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            return $row["active_id"];
+        } else {
+            return "";
+        }
+    }
+
+    /**
+    * Shuffles the values of a given array
+    *
+    * @param array $array An array which should be shuffled
+    * @access public
+    */
+    public function pcArrayShuffle($array): array
+    {
+        $keys = array_keys($array);
+        shuffle($keys);
+        $result = [];
+        foreach ($keys as $key) {
+            $result[$key] = $array[$key];
+        }
+        return $result;
+    }
+
+    /**
+     * Calculates the results of a test for a given user
+     * and returns an array with all test results
+     *
+     * @return array An array containing the test results for the given user
+     */
+    public function getTestResult(
+        int $active_id,
+        ?int $pass = null,
+        bool $ordered_sequence = false,
+        bool $consider_hidden_questions = true,
+        bool $consider_optional_questions = true
+    ): array {
+        $results = $this->getResultsForActiveId($active_id);
+
+        if ($pass === null) {
+            $pass = (int) $results['pass'];
+        }
+
+        $test_sequence_factory = new ilTestSequenceFactory($this, $this->db, $this->questionrepository);
+        $test_sequence = $test_sequence_factory->getSequenceByActiveIdAndPass($active_id, $pass);
+
+        $test_sequence->setConsiderHiddenQuestionsEnabled($consider_hidden_questions);
+        $test_sequence->setConsiderOptionalQuestionsEnabled($consider_optional_questions);
+
+        $test_sequence->loadFromDb();
+        $test_sequence->loadQuestions();
+
+        if ($ordered_sequence) {
+            $sequence = $test_sequence->getOrderedSequenceQuestions();
+        } else {
+            $sequence = $test_sequence->getUserSequenceQuestions();
+        }
+
+        $arr_results = [];
+
+        $query = "
+            SELECT
+                tst_test_result.question_fi,
+                tst_test_result.points reached,
+                tst_test_result.hint_count requested_hints,
+                tst_test_result.hint_points hint_points,
+                tst_test_result.answered answered,
+                tst_manual_fb.finalized_evaluation finalized_evaluation
+
+            FROM tst_test_result
+
+            LEFT JOIN tst_solutions
+            ON tst_solutions.active_fi = tst_test_result.active_fi
+            AND tst_solutions.question_fi = tst_test_result.question_fi
+
+            LEFT JOIN tst_manual_fb
+            ON tst_test_result.active_fi = tst_manual_fb.active_fi
+            AND tst_test_result.question_fi = tst_manual_fb.question_fi
+
+            WHERE tst_test_result.active_fi = %s
+            AND tst_test_result.pass = %s
+        ";
+
+        $solutionresult = $this->db->queryF(
+            $query,
+            ['integer', 'integer'],
+            [$active_id, $pass]
+        );
+
+        while ($row = $this->db->fetchAssoc($solutionresult)) {
+            $arr_results[ $row['question_fi'] ] = $row;
+        }
+
+        $num_worked_through = count($arr_results);
+
+        $IN_question_ids = $this->db->in('qpl_questions.question_id', $sequence, false, 'integer');
+
+        $query = "
+			SELECT		qpl_questions.*,
+						qpl_qst_type.type_tag,
+						qpl_sol_sug.question_fi has_sug_sol
+
+			FROM		qpl_qst_type,
+						qpl_questions
+
+			LEFT JOIN	qpl_sol_sug
+			ON			qpl_sol_sug.question_fi = qpl_questions.question_id
+
+			WHERE		qpl_qst_type.question_type_id = qpl_questions.question_type_fi
+			AND			$IN_question_ids
+		";
+
+        $result = $this->db->query($query);
+        $unordered = [];
+        $key = 1;
+        while ($row = $this->db->fetchAssoc($result)) {
+            if (!isset($arr_results[ $row['question_id'] ])) {
+                $percentvalue = 0.0;
+            } else {
+                $percentvalue = (
+                    $row['points'] ? $arr_results[$row['question_id']]['reached'] / $row['points'] : 0
+                );
+            }
+            if ($percentvalue < 0) {
+                $percentvalue = 0.0;
+            }
+
+            $data = [
+                "nr" => "$key",
+                "title" => ilLegacyFormElementsUtil::prepareFormOutput($row['title']),
+                "max" => round($row['points'], 2),
+                "reached" => round($arr_results[$row['question_id']]['reached'] ?? 0, 2),
+                'requested_hints' => $arr_results[$row['question_id']]['requested_hints'] ?? 0,
+                'hint_points' => $arr_results[$row['question_id']]['hint_points'] ?? 0,
+                "percent" => sprintf("%2.2f ", ($percentvalue) * 100) . "%",
+                "solution" => ($row['has_sug_sol']) ? assQuestion::_getSuggestedSolutionOutput($row['question_id']) : '',
+                "type" => $row["type_tag"],
+                "qid" => $row['question_id'],
+                "original_id" => $row["original_id"],
+                "workedthrough" => isset($arr_results[$row['question_id']]) ? 1 : 0,
+                'answered' => $arr_results[$row['question_id']]['answered'] ?? 0,
+                'finalized_evaluation' => $arr_results[$row['question_id']]['finalized_evaluation'] ?? 0,
+            ];
+
+            $unordered[ $row['question_id'] ] = $data;
+            $key++;
+        }
+
+        $numQuestionsTotal = count($unordered);
+
+        $pass_max = 0;
+        $pass_reached = 0;
+        $pass_requested_hints = 0;
+        $pass_hint_points = 0;
+
+        $found = [];
+
+        foreach ($sequence as $qid) {
+            // building pass point sums based on prepared data
+            // for question that exists in users qst sequence
+            $pass_max += round($unordered[$qid]['max'], 2);
+            $pass_reached += round($unordered[$qid]['reached'], 2);
+            $pass_requested_hints += $unordered[$qid]['requested_hints'];
+            $pass_hint_points += $unordered[$qid]['hint_points'];
+            $found[] = $unordered[$qid];
+        }
+
+        $unordered = null;
+
+        if ($this->getScoreCutting() == 1) {
+            if ($results['reached_points'] < 0) {
+                $results['reached_points'] = 0;
+            }
+
+            if ($pass_reached < 0) {
+                $pass_reached = 0;
+            }
+        }
+
+        $found['pass']['total_max_points'] = $pass_max;
+        $found['pass']['total_reached_points'] = $pass_reached;
+        $found['pass']['total_requested_hints'] = $pass_requested_hints;
+        $found['pass']['total_hint_points'] = $pass_hint_points;
+        $found['pass']['percent'] = ($pass_max > 0) ? $pass_reached / $pass_max : 0;
+        $found['pass']['num_workedthrough'] = $num_worked_through;
+        $found['pass']['num_questions_total'] = $numQuestionsTotal;
+
+        $found["test"]["total_max_points"] = $results['max_points'];
+        $found["test"]["total_reached_points"] = $results['reached_points'];
+        $found["test"]["total_requested_hints"] = $results['hint_count'];
+        $found["test"]["total_hint_points"] = $results['hint_points'];
+        $found["test"]["result_pass"] = $results['pass'];
+        $found['test']['result_tstamp'] = $results['tstamp'];
+
+        if ((!$found['pass']['total_reached_points']) or (!$found['pass']['total_max_points'])) {
+            $percentage = 0.0;
+        } else {
+            $percentage = ($found['pass']['total_reached_points'] / $found['pass']['total_max_points']) * 100.0;
+
+            if ($percentage < 0) {
+                $percentage = 0.0;
+            }
+        }
+
+        $found["test"]["passed"] = $results['passed'];
+
+        return $found;
+    }
+
+    /**
+    * Returns the number of persons who started the test
+    *
+    * @return integer The number of persons who started the test
+    * @access public
+    */
+    public function evalTotalPersons(): int
+    {
+        $result = $this->db->queryF(
+            'SELECT COUNT(active_id) total FROM tst_active WHERE test_fi = %s',
+            ['integer'],
+            [$this->getTestId()]
+        );
+        $row = $this->db->fetchAssoc($result);
+        return $row['total'];
+    }
+
+    /**
+    * Returns the complete working time in seconds a user worked on the test
+    *
+    * @return integer The working time in seconds
+    * @access public
+    */
+    public function getCompleteWorkingTime($user_id): int
+    {
+        $result = $this->db->queryF(
+            "SELECT tst_times.* FROM tst_active, tst_times WHERE tst_active.test_fi = %s AND tst_active.active_id = tst_times.active_fi AND tst_active.user_fi = %s",
+            ['integer','integer'],
+            [$this->getTestId(), $user_id]
+        );
+        $time = 0;
+        while ($row = $this->db->fetchAssoc($result)) {
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["started"], $matches);
+            $epoch_1 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["finished"], $matches);
+            $epoch_2 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            $time += ($epoch_2 - $epoch_1);
+        }
+        return $time;
+    }
+
+    /**
+    * Returns the complete working time in seconds for all test participants
+    *
+    * @return array An array containing the working time in seconds for all test participants
+    * @access public
+    */
+    public function &getCompleteWorkingTimeOfParticipants(): array
+    {
+        return $this->_getCompleteWorkingTimeOfParticipants($this->getTestId());
+    }
+
+    /**
+    * Returns the complete working time in seconds for all test participants
+    *
+    * @param integer $test_id The database ID of the test
+    * @return array An array containing the working time in seconds for all test participants
+    * @access public
+    */
+    public function &_getCompleteWorkingTimeOfParticipants($test_id): array
+    {
+        $result = $this->db->queryF(
+            "SELECT tst_times.* FROM tst_active, tst_times WHERE tst_active.test_fi = %s AND tst_active.active_id = tst_times.active_fi ORDER BY tst_times.active_fi, tst_times.started",
+            ['integer'],
+            [$test_id]
+        );
+        $time = 0;
+        $times = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            if (!array_key_exists($row["active_fi"], $times)) {
+                $times[$row["active_fi"]] = 0;
+            }
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["started"], $matches);
+            $epoch_1 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["finished"], $matches);
+            $epoch_2 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            $times[$row["active_fi"]] += ($epoch_2 - $epoch_1);
+        }
+        return $times;
+    }
+
+    /**
+    * Returns the complete working time in seconds for a test participant
+    *
+    * @return integer The working time in seconds for the test participant
+    * @access public
+    */
+    public function getCompleteWorkingTimeOfParticipant($active_id): int
+    {
+        $result = $this->db->queryF(
+            "SELECT tst_times.* FROM tst_active, tst_times WHERE tst_active.test_fi = %s AND tst_active.active_id = tst_times.active_fi AND tst_active.active_id = %s ORDER BY tst_times.active_fi, tst_times.started",
+            ['integer','integer'],
+            [$this->getTestId(), $active_id]
+        );
+        $time = 0;
+        while ($row = $this->db->fetchAssoc($result)) {
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["started"], $matches);
+            $epoch_1 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["finished"], $matches);
+            $epoch_2 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            $time += ($epoch_2 - $epoch_1);
+        }
+        return $time;
+    }
+
+    public function getWorkingTimeOfParticipantForPass(int $active_id, int $pass): int
+    {
+        $result = $this->db->queryF(
+            "SELECT * FROM tst_times WHERE active_fi = %s AND pass = %s ORDER BY started",
+            ['integer','integer'],
+            [$active_id, $pass]
+        );
+        $time = 0;
+        while ($row = $this->db->fetchAssoc($result)) {
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["started"], $matches);
+            $epoch_1 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["finished"], $matches);
+            $epoch_2 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            $time += ($epoch_2 - $epoch_1);
+        }
+        return $time;
+    }
+
+    /**
+    * Returns the statistical evaluation of the test for a specified user
+    */
+    public function evalStatistical($active_id): array
+    {
+        $pass = ilObjTest::_getResultPass($active_id);
+        $test_result = &$this->getTestResult($active_id, $pass);
+        $result = $this->db->queryF(
+            "SELECT tst_times.* FROM tst_active, tst_times WHERE tst_active.active_id = %s AND tst_active.active_id = tst_times.active_fi",
+            ['integer'],
+            [$active_id]
+        );
+        $times = [];
+        $first_visit = 0;
+        $last_visit = 0;
+        while ($row = $this->db->fetchObject($result)) {
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row->started, $matches);
+            $epoch_1 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            if (!$first_visit) {
+                $first_visit = $epoch_1;
+            }
+            if ($epoch_1 < $first_visit) {
+                $first_visit = $epoch_1;
+            }
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row->finished, $matches);
+            $epoch_2 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            if (!$last_visit) {
+                $last_visit = $epoch_2;
+            }
+            if ($epoch_2 > $last_visit) {
+                $last_visit = $epoch_2;
+            }
+            $times[$row->active_fi] += ($epoch_2 - $epoch_1);
+        }
+        $max_time = 0;
+        foreach ($times as $key => $value) {
+            $max_time += $value;
+        }
+        if ((!$test_result["test"]["total_reached_points"]) or (!$test_result["test"]["total_max_points"])) {
+            $percentage = 0.0;
+        } else {
+            $percentage = ($test_result["test"]["total_reached_points"] / $test_result["test"]["total_max_points"]) * 100.0;
+            if ($percentage < 0) {
+                $percentage = 0.0;
+            }
+        }
+        $mark_obj = $this->getMarkSchema()->getMatchingMark($percentage);
+        $first_date = getdate($first_visit);
+        $last_date = getdate($last_visit);
+        $qworkedthrough = 0;
+        foreach ($test_result as $key => $value) {
+            if (preg_match("/\d+/", $key)) {
+                $qworkedthrough += $value["workedthrough"];
+            }
+        }
+        if (!$qworkedthrough) {
+            $atimeofwork = 0;
+        } else {
+            $atimeofwork = $max_time / $qworkedthrough;
+        }
+
+        $result_mark = "";
+        $passed = "";
+
+        if ($mark_obj !== null) {
+            $result_mark = $mark_obj->getShortName();
+
+            if ($mark_obj->getPassed()) {
+                $passed = 1;
+            } else {
+                $passed = 0;
+            }
+        }
+        $percent_worked_through = 0;
+        if (count($this->questions)) {
+            $percent_worked_through = $qworkedthrough / count($this->questions);
+        }
+        $result_array = [
+            "qworkedthrough" => $qworkedthrough,
+            "qmax" => count($this->questions),
+            "pworkedthrough" => $percent_worked_through,
+            "timeofwork" => $max_time,
+            "atimeofwork" => $atimeofwork,
+            "firstvisit" => $first_date,
+            "lastvisit" => $last_date,
+            "resultspoints" => $test_result["test"]["total_reached_points"],
+            "maxpoints" => $test_result["test"]["total_max_points"],
+            "resultsmarks" => $result_mark,
+            "passed" => $passed,
+            "distancemedian" => "0"
+        ];
+        foreach ($test_result as $key => $value) {
+            if (preg_match("/\d+/", $key)) {
+                $result_array[$key] = $value;
+            }
+        }
+        return $result_array;
+    }
+
+    /**
+    * Returns an array with the total points of all users who passed the test
+    * This array could be used for statistics
+    *
+    * @return array The total point values
+    * @access public
+    */
+    public function getTotalPointsPassedArray(): array
+    {
+        $totalpoints_array = [];
+        $all_users = $this->evalTotalParticipantsArray();
+        foreach ($all_users as $active_id => $user_name) {
+            $test_result = &$this->getTestResult($active_id);
+            $reached = $test_result["test"]["total_reached_points"];
+            $total = $test_result["test"]["total_max_points"];
+            $percentage = $total != 0 ? $reached / $total : 0;
+            $mark = $this->getMarkSchema()->getMatchingMark($percentage * 100.0);
+
+            if ($mark !== null && $mark->getPassed()) {
+                array_push($totalpoints_array, $test_result["test"]["total_reached_points"]);
+            }
+        }
+        return $totalpoints_array;
+    }
+
+    /**
+     * Returns all persons who started the test
+     *
+     * @return array The active ids, names and logins of the persons who started the test
+    */
+    public function getParticipants(): array
+    {
+        $result = $this->db->queryF(
+            "SELECT tst_active.active_id, usr_data.usr_id, usr_data.firstname, usr_data.lastname, usr_data.title, usr_data.login FROM tst_active LEFT JOIN usr_data ON tst_active.user_fi = usr_data.usr_id WHERE tst_active.test_fi = %s ORDER BY usr_data.lastname ASC",
+            ['integer'],
+            [$this->getTestId()]
+        );
+        $persons_array = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $name = $this->lng->txt("anonymous");
+            $fullname = $this->lng->txt("anonymous");
+            $login = "";
+            if (!$this->getAnonymity()) {
+                if (strlen($row["firstname"] . $row["lastname"] . $row["title"]) == 0) {
+                    $name = $this->lng->txt("deleted_user");
+                    $fullname = $this->lng->txt("deleted_user");
+                    $login = $this->lng->txt("unknown");
+                } else {
+                    $login = $row["login"];
+                    if ($row["usr_id"] == ANONYMOUS_USER_ID) {
+                        $name = $this->lng->txt("anonymous");
+                        $fullname = $this->lng->txt("anonymous");
+                    } else {
+                        $name = trim($row["lastname"] . ", " . $row["firstname"] . " " . $row["title"]);
+                        $fullname = trim($row["title"] . " " . $row["firstname"] . " " . $row["lastname"]);
+                    }
+                }
+            }
+            $persons_array[$row["active_id"]] = [
+                "name" => $name,
+                "fullname" => $fullname,
+                "login" => $login
+            ];
+        }
+        return $persons_array;
+    }
+
+    public function evalTotalPersonsArray(string $name_sort_order = 'asc'): array
+    {
+        $result = $this->db->queryF(
+            "SELECT tst_active.user_fi, tst_active.active_id, usr_data.firstname, usr_data.lastname, usr_data.title FROM tst_active LEFT JOIN usr_data ON tst_active.user_fi = usr_data.usr_id WHERE tst_active.test_fi = %s ORDER BY usr_data.lastname " . strtoupper($name_sort_order),
+            ['integer'],
+            [$this->getTestId()]
+        );
+        $persons_array = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            if ($this->getAccessFilteredParticipantList() && !$this->getAccessFilteredParticipantList()->isActiveIdInList($row["active_id"])) {
+                continue;
+            }
+
+            if ($this->getAnonymity()) {
+                $persons_array[$row["active_id"]] = $this->lng->txt("anonymous");
+            } else {
+                if (strlen($row["firstname"] . $row["lastname"] . $row["title"]) == 0) {
+                    $persons_array[$row["active_id"]] = $this->lng->txt("deleted_user");
+                } else {
+                    if ($row["user_fi"] == ANONYMOUS_USER_ID) {
+                        $persons_array[$row["active_id"]] = $row["lastname"];
+                    } else {
+                        $persons_array[$row["active_id"]] = trim($row["lastname"] . ", " . $row["firstname"] . " " . $row["title"]);
+                    }
+                }
+            }
+        }
+        return $persons_array;
+    }
+
+    public function evalTotalParticipantsArray(string $name_sort_order = 'asc'): array
+    {
+        $result = $this->db->queryF(
+            'SELECT tst_active.user_fi, tst_active.active_id, usr_data.login, '
+            . 'usr_data.firstname, usr_data.lastname, usr_data.title FROM tst_active '
+            . 'LEFT JOIN usr_data ON tst_active.user_fi = usr_data.usr_id '
+            . 'WHERE tst_active.test_fi = %s '
+            . 'ORDER BY usr_data.lastname ' . strtoupper($name_sort_order),
+            ['integer'],
+            [$this->getTestId()]
+        );
+        $persons_array = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            if ($this->getAnonymity()) {
+                $persons_array[$row['active_id']] = ['name' => $this->lng->txt("anonymous")];
+            } else {
+                if (strlen($row['firstname'] . $row['lastname'] . $row["title"]) == 0) {
+                    $persons_array[$row['active_id']] = ['name' => $this->lng->txt('deleted_user')];
+                } else {
+                    if ($row['user_fi'] == ANONYMOUS_USER_ID) {
+                        $persons_array[$row['active_id']] = ['name' => $row['lastname']];
+                    } else {
+                        $persons_array[$row['active_id']] = [
+                            'name' => trim($row['lastname'] . ', ' . $row['firstname']
+                                . ' ' . $row['title']),
+                            'login' => $row['login']
+                        ];
+                    }
+                }
+            }
+        }
+        return $persons_array;
+    }
+
+    public function getQuestionsOfTest(int $active_id): array
+    {
+        if ($this->isRandomTest()) {
+            $this->db->setLimit($this->getQuestionCount(), 0);
+            $result = $this->db->queryF(
+                'SELECT tst_test_rnd_qst.sequence, tst_test_rnd_qst.question_fi, '
+                . 'tst_test_rnd_qst.pass, qpl_questions.points '
+                . 'FROM tst_test_rnd_qst, qpl_questions '
+                . 'WHERE tst_test_rnd_qst.question_fi = qpl_questions.question_id '
+                . 'AND tst_test_rnd_qst.active_fi = %s ORDER BY tst_test_rnd_qst.sequence',
+                ['integer'],
+                [$active_id]
+            );
+        } else {
+            $result = $this->db->queryF(
+                'SELECT tst_test_question.sequence, tst_test_question.question_fi, '
+                . 'qpl_questions.points '
+                . 'FROM tst_test_question, tst_active, qpl_questions '
+                . 'WHERE tst_test_question.question_fi = qpl_questions.question_id '
+                . 'AND tst_active.active_id = %s AND tst_active.test_fi = tst_test_question.test_fi',
+                ['integer'],
+                [$active_id]
+            );
+        }
+        $qtest = [];
+        if ($result->numRows()) {
+            while ($row = $this->db->fetchAssoc($result)) {
+                array_push($qtest, $row);
+            }
+        }
+        return $qtest;
+    }
+
+    public function getQuestionsOfPass(int $active_id, int $pass): array
+    {
+        if ($this->isRandomTest()) {
+            $this->db->setLimit($this->getQuestionCount(), 0);
+            $result = $this->db->queryF(
+                'SELECT tst_test_rnd_qst.sequence, tst_test_rnd_qst.question_fi, '
+                . 'qpl_questions.points '
+                . 'FROM tst_test_rnd_qst, qpl_questions '
+                . 'WHERE tst_test_rnd_qst.question_fi = qpl_questions.question_id '
+                . 'AND tst_test_rnd_qst.active_fi = %s AND tst_test_rnd_qst.pass = %s '
+                . 'ORDER BY tst_test_rnd_qst.sequence',
+                ['integer', 'integer'],
+                [$active_id, $pass]
+            );
+        } else {
+            $result = $this->db->queryF(
+                'SELECT tst_test_question.sequence, tst_test_question.question_fi, '
+                . 'qpl_questions.points '
+                . 'FROM tst_test_question, tst_active, qpl_questions '
+                . 'WHERE tst_test_question.question_fi = qpl_questions.question_id '
+                . 'AND tst_active.active_id = %s AND tst_active.test_fi = tst_test_question.test_fi',
+                ['integer'],
+                [$active_id]
+            );
+        }
+        $qpass = [];
+        if ($result->numRows()) {
+            while ($row = $this->db->fetchAssoc($result)) {
+                array_push($qpass, $row);
+            }
+        }
+        return $qpass;
+    }
+
+    public function getAccessFilteredParticipantList(): ?ilTestParticipantList
+    {
+        return $this->access_filtered_participant_list;
+    }
+
+    public function setAccessFilteredParticipantList(ilTestParticipantList $access_filtered_participant_list): void
+    {
+        $this->access_filtered_participant_list = $access_filtered_participant_list;
+    }
+
+    public function buildStatisticsAccessFilteredParticipantList(): ilTestParticipantList
+    {
+        $list = new ilTestParticipantList($this, $this->user, $this->lng, $this->db);
+        $list->initializeFromDbRows($this->getTestParticipants());
+
+        return $list->getAccessFilteredList(
+            $this->participant_access_filter->getAccessStatisticsUserFilter($this->getRefId())
+        );
+    }
+
+    public function getUnfilteredEvaluationData(): ilTestEvaluationData
+    {
+        return (new ilTestEvaluationFactory($this->db, $this))
+            ->getEvaluationData();
+    }
+
+    public function getQuestionCountAndPointsForPassOfParticipant(int $active_id, int $pass): array
+    {
+        $question_set_type = $this->lookupQuestionSetTypeByActiveId($active_id);
+
+        switch ($question_set_type) {
+            case ilObjTest::QUESTION_SET_TYPE_RANDOM:
+                $res = $this->db->queryF(
+                    "
+						SELECT		tst_test_rnd_qst.pass,
+									COUNT(tst_test_rnd_qst.question_fi) qcount,
+									SUM(qpl_questions.points) qsum
+
+						FROM		tst_test_rnd_qst,
+									qpl_questions
+
+						WHERE		tst_test_rnd_qst.question_fi = qpl_questions.question_id
+						AND			tst_test_rnd_qst.active_fi = %s
+						AND			pass = %s
+
+						GROUP BY	tst_test_rnd_qst.active_fi,
+									tst_test_rnd_qst.pass
+					",
+                    ['integer', 'integer'],
+                    [$active_id, $pass]
+                );
+                break;
+
+            case ilObjTest::QUESTION_SET_TYPE_FIXED:
+                $res = $this->db->queryF(
+                    "
+						SELECT		COUNT(tst_test_question.question_fi) qcount,
+									SUM(qpl_questions.points) qsum
+
+						FROM		tst_test_question,
+									qpl_questions,
+									tst_active
+
+						WHERE		tst_test_question.question_fi = qpl_questions.question_id
+						AND			tst_test_question.test_fi = tst_active.test_fi
+						AND			tst_active.active_id = %s
+
+						GROUP BY	tst_test_question.test_fi
+					",
+                    ['integer'],
+                    [$active_id]
+                );
+                break;
+
+            default:
+                throw new ilTestException("not supported question set type: $question_set_type");
+        }
+
+        $row = $this->db->fetchAssoc($res);
+
+        if (is_array($row)) {
+            return ["count" => $row["qcount"], "points" => $row["qsum"]];
+        }
+
+        return ["count" => 0, "points" => 0];
+    }
+
+    public function getCompleteEvaluationData($filterby = '', $filtertext = ''): ilTestEvaluationData
+    {
+        $data = $this->getUnfilteredEvaluationData();
+        $data->setFilter($filterby, $filtertext);
+        return $data;
+    }
+
+    /**
+    * Builds a user name for the output depending on test type and existence of
+    * the user
+    *
+    * @param int $user_id The database ID of the user
+    * @param string $firstname The first name of the user
+    * @param string $lastname The last name of the user
+    * @param string $title The title of the user
+    * @return string The output name of the user
+    * @access public
+    */
+    public function buildName(
+        ?int $user_id,
+        ?string $firstname,
+        ?string $lastname
+    ): string {
+        if ($user_id === null
+            || $firstname . $lastname === '') {
+            return $this->lng->txt('deleted_user');
+        }
+
+        if ($this->getAnonymity()) {
+            return $this->lng->txt('anonymous');
+        }
+
+        if ($user_id == ANONYMOUS_USER_ID) {
+            return $lastname;
+        }
+
+        return trim($lastname . ', ' . $firstname);
+    }
+
+    public function evalTotalStartedAverageTime(?array $active_ids_to_filter = null): int
+    {
+        $query = "SELECT tst_times.* FROM tst_active, tst_times WHERE tst_active.test_fi = %s AND tst_active.active_id = tst_times.active_fi";
+
+        if ($active_ids_to_filter !== null && $active_ids_to_filter !== []) {
+            $query .= " AND " . $this->db->in('active_id', $active_ids_to_filter, false, 'integer');
+        }
+
+        $result = $this->db->queryF($query, ['integer'], [$this->getTestId()]);
+        $times = [];
+        while ($row = $this->db->fetchObject($result)) {
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row->started, $matches);
+            $epoch_1 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row->finished, $matches);
+            $epoch_2 = mktime(
+                (int) $matches[4],
+                (int) $matches[5],
+                (int) $matches[6],
+                (int) $matches[2],
+                (int) $matches[3],
+                (int) $matches[1]
+            );
+            if (isset($times[$row->active_fi])) {
+                $times[$row->active_fi] += ($epoch_2 - $epoch_1);
+            } else {
+                $times[$row->active_fi] = ($epoch_2 - $epoch_1);
+            }
+        }
+        $max_time = 0;
+        $counter = 0;
+        foreach ($times as $value) {
+            $max_time += $value;
+            $counter++;
+        }
+        if ($counter === 0) {
+            return 0;
+        }
+        return (int) round($max_time / $counter);
+    }
+
+    /**
+    * Returns the available question pools for the active user
+    *
+    * @return array The available question pools
+    * @access public
+    */
+    public function getAvailableQuestionpools(
+        bool $use_object_id = false,
+        ?bool $equal_points = false,
+        bool $could_be_offline = false,
+        bool $show_path = false,
+        bool $with_questioncount = false,
+        string $permission = 'read'
+    ): array {
+        return ilObjQuestionPool::_getAvailableQuestionpools(
+            $use_object_id,
+            $equal_points ?? false,
+            $could_be_offline,
+            $show_path,
+            $with_questioncount,
+            $permission
+        );
+    }
+
+    /**
+    * Returns the image path for web accessable images of a test
+    * The image path is under the CLIENT_WEB_DIR in assessment/REFERENCE_ID_OF_TEST/images
+    *
+    * @access public
+    */
+    public function getImagePath(): string
+    {
+        return CLIENT_WEB_DIR . "/assessment/" . $this->getId() . "/images/";
+    }
+
+    /**
+    * Returns the web image path for web accessable images of a test
+    * The image path is under the web accessable data dir in assessment/REFERENCE_ID_OF_TEST/images
+    *
+    * @access public
+    */
+    public function getImagePathWeb()
+    {
+        $webdir = ilFileUtils::removeTrailingPathSeparators(CLIENT_WEB_DIR) . "/assessment/" . $this->getId() . "/images/";
+        return str_replace(
+            ilFileUtils::removeTrailingPathSeparators(ILIAS_ABSOLUTE_PATH),
+            ilFileUtils::removeTrailingPathSeparators(ILIAS_HTTP_PATH),
+            $webdir
+        );
+    }
+
+    /**
+    * Creates a question GUI instance of a given question type
+    *
+    * @param integer $question_type The question type of the question
+    * @param integer $question_id The question id of the question, if available
+    * @return assQuestionGUI $questionGUI The question GUI instance
+    * @access	public
+    */
+    public function createQuestionGUI($question_type, $question_id = -1): ?assQuestionGUI
+    {
+        if ((!$question_type) and ($question_id > 0)) {
+            $question_type = $this->getQuestionType($question_id);
+        }
+
+        if (!strlen($question_type)) {
+            return null;
+        }
+
+        if ($question_id > 0) {
+            $question_gui = assQuestion::instantiateQuestionGUI($question_id);
+        } else {
+            $question_type_gui = $question_type . 'GUI';
+            $question_gui = new $question_type_gui();
+        }
+
+        return $question_gui;
+    }
+
+    /**
+     * Creates an instance of a question with a given question id
+     * @param int $question_id The question id
+     * @throws InvalidArgumentException
+     * @deprecated use assQuestion::_instanciateQuestion($question_id) instead
+     */
+    public static function _instanciateQuestion($question_id): ?assQuestion
+    {
+        if (strcmp((string) $question_id, "") !== 0) {
+            return assQuestion::instantiateQuestion((int) $question_id);
+        }
+
+        return null;
+    }
+
+    /**
+    * @param array<int> $move_questions
+    * @param integer $insert_mode 0, if insert before the target position, 1 if insert after the target position
+    */
+    public function moveQuestions(array $move_questions, int $target_index, int $insert_mode): void
+    {
+        $this->questions = array_values($this->questions);
+        $array_pos = array_search($target_index, $this->questions);
+        if ($insert_mode == 0) {
+            $part1 = array_slice($this->questions, 0, $array_pos);
+            $part2 = array_slice($this->questions, $array_pos);
+        } elseif ($insert_mode == 1) {
+            $part1 = array_slice($this->questions, 0, $array_pos + 1);
+            $part2 = array_slice($this->questions, $array_pos + 1);
+        }
+        foreach ($move_questions as $question_id) {
+            if (!(array_search($question_id, $part1) === false)) {
+                unset($part1[array_search($question_id, $part1)]);
+            }
+            if (!(array_search($question_id, $part2) === false)) {
+                unset($part2[array_search($question_id, $part2)]);
+            }
+        }
+        $part1 = array_values($part1);
+        $part2 = array_values($part2);
+        $new_array = array_values(array_merge($part1, $move_questions, $part2));
+        $this->questions = [];
+        $counter = 1;
+        foreach ($new_array as $question_id) {
+            $this->questions[$counter] = $question_id;
+            $counter++;
+        }
+        $this->saveQuestionsToDb();
+
+        if ($this->logger->isLoggingEnabled()) {
+            $this->logger->logTestAdministrationInteraction(
+                $this->logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                    $this->getRefId(),
+                    $this->user->getId(),
+                    TestAdministrationInteractionTypes::QUESTION_MOVED,
+                    [
+                        AdditionalInformationGenerator::KEY_QUESTION_ORDER => $this->questions
+                    ]
+                )
+            );
+        }
+    }
+
+
+    /**
+    * Returns true if the starting time of a test is reached
+    * A starting time is not available for self assessment tests
+    *
+    * @return boolean true if the starting time is reached, otherwise false
+    * @access public
+    */
+    public function startingTimeReached(): bool
+    {
+        if ($this->isStartingTimeEnabled() && $this->getStartingTime() != 0) {
+            $now = time();
+            if ($now < $this->getStartingTime()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+    * Returns true if the ending time of a test is reached
+    * An ending time is not available for self assessment tests
+    *
+    * @return boolean true if the ending time is reached, otherwise false
+    * @access public
+    */
+    public function endingTimeReached(): bool
+    {
+        if ($this->isEndingTimeEnabled() && $this->getEndingTime() != 0) {
+            $now = time();
+            if ($now > $this->getEndingTime()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+    * Calculates the available questions for a test
+    *
+    * @access public
+    */
+    public function getAvailableQuestions($arr_filter, $completeonly = 0): array
+    {
+        $available_pools = array_keys(ilObjQuestionPool::_getAvailableQuestionpools(true, false, false, false, false));
+        $available = "";
+        if (count($available_pools)) {
+            $available = " AND " . $this->db->in('qpl_questions.obj_fi', $available_pools, false, 'integer');
+        } else {
+            return [];
+        }
+        if ($completeonly) {
+            $available .= " AND qpl_questions.complete = " . $this->db->quote("1", 'text');
+        }
+
+        $where = "";
+        if (is_array($arr_filter)) {
+            if (array_key_exists('title', $arr_filter) && strlen($arr_filter['title'])) {
+                $where .= " AND " . $this->db->like('qpl_questions.title', 'text', "%%" . $arr_filter['title'] . "%%");
+            }
+            if (array_key_exists('description', $arr_filter) && strlen($arr_filter['description'])) {
+                $where .= " AND " . $this->db->like('qpl_questions.description', 'text', "%%" . $arr_filter['description'] . "%%");
+            }
+            if (array_key_exists('author', $arr_filter) && strlen($arr_filter['author'])) {
+                $where .= " AND " . $this->db->like('qpl_questions.author', 'text', "%%" . $arr_filter['author'] . "%%");
+            }
+            if (array_key_exists('type', $arr_filter) && strlen($arr_filter['type'])) {
+                $where .= " AND qpl_qst_type.type_tag = " . $this->db->quote($arr_filter['type'], 'text');
+            }
+            if (array_key_exists('qpl', $arr_filter) && strlen($arr_filter['qpl'])) {
+                $where .= " AND " . $this->db->like('object_data.title', 'text', "%%" . $arr_filter['qpl'] . "%%");
+            }
+        }
+
+        $original_ids = &$this->getExistingQuestions();
+        $original_clause = " qpl_questions.original_id IS NULL";
+        if (count($original_ids)) {
+            $original_clause = " qpl_questions.original_id IS NULL AND " . $this->db->in('qpl_questions.question_id', $original_ids, true, 'integer');
+        }
+
+        $query_result = $this->db->query("
+			SELECT		qpl_questions.*, qpl_questions.tstamp,
+						qpl_qst_type.type_tag, qpl_qst_type.plugin, qpl_qst_type.plugin_name,
+						object_data.title parent_title
+			FROM		qpl_questions, qpl_qst_type, object_data
+			WHERE $original_clause $available
+			AND object_data.obj_id = qpl_questions.obj_fi
+			AND qpl_questions.tstamp > 0
+			AND qpl_questions.question_type_fi = qpl_qst_type.question_type_id
+			$where
+		");
+        $rows = [];
+
+        if ($query_result->numRows()) {
+            while ($row = $this->db->fetchAssoc($query_result)) {
+                $row = ilAssQuestionType::completeMissingPluginName($row);
+
+                if (!$row['plugin']) {
+                    $row[ 'ttype' ] = $this->lng->txt($row[ "type_tag" ]);
+
+                    $rows[] = $row;
+                    continue;
+                }
+
+                $plugin = $this->component_repository->getPluginByName($row['plugin_name']);
+                if (!$plugin->isActive()) {
+                    continue;
+                }
+
+                $pl = $this->component_factory->getPlugin($plugin->getId());
+                $row[ 'ttype' ] = $pl->getQuestionTypeTranslation();
+
+                $rows[] = $row;
+            }
+        }
+        return $rows;
+    }
+
+    /**
+     * Receives parameters from a QTI parser and creates a valid ILIAS test object
+     * @param ilQTIAssessment $assessment
+     */
+    public function fromXML(ilQTIAssessment $assessment, array $mappings): void
+    {
+        if (($importdir = ilSession::get('path_to_container_import_file')) === null) {
+            $importdir = $this->buildImportDirectoryFromImportFile(ilSession::get('path_to_import_file'));
+        }
+        ilSession::clear('path_to_container_import_file');
+        ilSession::clear('import_mob_xhtml');
+
+        $this->saveToDb(true);
+
+        $main_settings = $this->getMainSettings();
+        $general_settings = $main_settings->getGeneralSettings();
+        $introduction_settings = $main_settings->getIntroductionSettings();
+        $access_settings = $main_settings->getAccessSettings();
+        $test_behaviour_settings = $main_settings->getTestBehaviourSettings();
+        $question_behaviour_settings = $main_settings->getQuestionBehaviourSettings();
+        $participant_functionality_settings = $main_settings->getParticipantFunctionalitySettings();
+        $finishing_settings = $main_settings->getFinishingSettings();
+        $additional_settings = $main_settings->getAdditionalSettings();
+
+        $introduction_settings = $introduction_settings->withIntroductionEnabled(false);
+        foreach ($assessment->objectives as $objectives) {
+            foreach ($objectives->materials as $material) {
+                $introduction_settings = $this->addIntroductionToSettingsFromImport(
+                    $introduction_settings,
+                    $this->qtiMaterialToArray($material),
+                    $importdir,
+                    $mappings
+                );
+            }
+        }
+
+        if ($assessment->getPresentationMaterial()
+            && $assessment->getPresentationMaterial()->getFlowMat(0)
+            && $assessment->getPresentationMaterial()->getFlowMat(0)->getMaterial(0)) {
+            $finishing_settings = $this->addConcludingRemarksToSettingsFromImport(
+                $finishing_settings,
+                $this->qtiMaterialToArray(
+                    $assessment->getPresentationMaterial()->getFlowMat(0)->getMaterial(0)
+                ),
+                $importdir,
+                $mappings
+            );
+        }
+
+        $score_settings = $this->getScoreSettings();
+        $scoring_settings = $score_settings->getScoringSettings();
+        $gamification_settings = $score_settings->getGamificationSettings();
+        $result_summary_settings = $score_settings->getResultSummarySettings();
+        $result_details_settings = $score_settings->getResultDetailsSettings();
+
+        $mark_steps = [];
+        foreach ($assessment->qtimetadata as $metadata) {
+            switch ($metadata["label"]) {
+                case "solution_details":
+                    $result_details_settings = $result_details_settings->withShowPassDetails((bool) $metadata["entry"]);
+                    break;
+                case "show_solution_list_comparison":
+                    $result_details_settings = $result_details_settings->withShowSolutionListComparison((bool) $metadata["entry"]);
+                    break;
+                case "print_bs_with_res":
+                    $result_details_settings = $result_details_settings->withShowSolutionListComparison((bool) $metadata["entry"]);
+                    break;
+                case "author":
+                    $this->saveAuthorToMetadata($metadata["entry"]);
+                    break;
+                case "nr_of_tries":
+                    $test_behaviour_settings = $test_behaviour_settings->withNumberOfTries((int) $metadata["entry"]);
+                    break;
+                case 'block_after_passed':
+                    $test_behaviour_settings = $test_behaviour_settings->withBlockAfterPassedEnabled((bool) $metadata['entry']);
+                    break;
+                case "pass_waiting":
+                    $test_behaviour_settings = $test_behaviour_settings->withPassWaiting($metadata["entry"]);
+                    break;
+                case "kiosk":
+                    $test_behaviour_settings = $test_behaviour_settings->withKioskMode((int) $metadata["entry"]);
+                    break;
+                case 'show_introduction':
+                    $introduction_settings = $introduction_settings->withIntroductionEnabled((bool) $metadata['entry']);
+                    break;
+                case "showfinalstatement":
+                case 'show_concluding_remarks':
+                    $finishing_settings = $finishing_settings->withConcludingRemarksEnabled((bool) $metadata["entry"]);
+                    break;
+                case 'exam_conditions':
+                    $introduction_settings = $introduction_settings->withExamConditionsCheckboxEnabled($metadata['entry'] === '1');
+                    break;
+                case "highscore_enabled":
+                    $gamification_settings = $gamification_settings->withHighscoreEnabled((bool) $metadata["entry"]);
+                    break;
+                case "highscore_anon":
+                    $gamification_settings = $gamification_settings->withHighscoreAnon((bool) $metadata["entry"]);
+                    break;
+                case "highscore_achieved_ts":
+                    $gamification_settings = $gamification_settings->withHighscoreAchievedTS((bool) $metadata["entry"]);
+                    break;
+                case "highscore_score":
+                    $gamification_settings = $gamification_settings->withHighscoreScore((bool) $metadata["entry"]);
+                    break;
+                case "highscore_percentage":
+                    $gamification_settings = $gamification_settings->withHighscorePercentage((bool) $metadata["entry"]);
+                    break;
+                case "highscore_hints":
+                    $gamification_settings = $gamification_settings->withHighscoreHints((bool) $metadata["entry"]);
+                    break;
+                case "highscore_wtime":
+                    $gamification_settings = $gamification_settings->withHighscoreWTime((bool) $metadata["entry"]);
+                    break;
+                case "highscore_own_table":
+                    $gamification_settings = $gamification_settings->withHighscoreOwnTable((bool) $metadata["entry"]);
+                    break;
+                case "highscore_top_table":
+                    $gamification_settings = $gamification_settings->withHighscoreTopTable((bool) $metadata["entry"]);
+                    break;
+                case "highscore_top_num":
+                    $gamification_settings = $gamification_settings->withHighscoreTopNum((int) $metadata["entry"]);
+                    break;
+                case "use_previous_answers":
+                    $participant_functionality_settings = $participant_functionality_settings->withUsePreviousAnswerAllowed((bool) $metadata["entry"]);
+                    break;
+                case 'question_list_enabled':
+                    $participant_functionality_settings = $participant_functionality_settings->withQuestionListEnabled((bool) $metadata['entry']);
+                    // no break
+                case "title_output":
+                    $question_behaviour_settings = $question_behaviour_settings->withQuestionTitleOutputMode((int) $metadata["entry"]);
+                    break;
+                case "question_set_type":
+                    if ($metadata['entry'] === self::QUESTION_SET_TYPE_RANDOM) {
+                        $this->questions = [];
+                    }
+                    $general_settings = $general_settings->withQuestionSetType($metadata["entry"]);
+                    break;
+                case "anonymity":
+                    $general_settings = $general_settings->withAnonymity((bool) $metadata["entry"]);
+                    break;
+                case "results_presentation":
+                    $result_details_settings = $result_details_settings->withResultsPresentation((int) $metadata["entry"]);
+                    break;
+                case "reset_processing_time":
+                    $test_behaviour_settings = $test_behaviour_settings->withResetProcessingTime($metadata["entry"] === '1');
+                    break;
+                case "answer_feedback_points":
+                    $question_behaviour_settings = $question_behaviour_settings->withInstantFeedbackPointsEnabled((bool) $metadata["entry"]);
+                    break;
+                case "answer_feedback":
+                    $question_behaviour_settings = $question_behaviour_settings->withInstantFeedbackGenericEnabled((bool) $metadata["entry"]);
+                    break;
+                case 'instant_feedback_specific':
+                    $question_behaviour_settings = $question_behaviour_settings->withInstantFeedbackSpecificEnabled((bool) $metadata['entry']);
+                    break;
+                case "instant_verification":
+                    $question_behaviour_settings = $question_behaviour_settings->withInstantFeedbackSolutionEnabled((bool) $metadata["entry"]);
+                    break;
+                case "force_instant_feedback":
+                    $question_behaviour_settings = $question_behaviour_settings->withForceInstantFeedbackOnNextQuestion((bool) $metadata["entry"]);
+                    break;
+                case "follow_qst_answer_fixation":
+                    $question_behaviour_settings = $question_behaviour_settings->withLockAnswerOnNextQuestionEnabled((bool) $metadata["entry"]);
+                    break;
+                case "instant_feedback_answer_fixation":
+                    $question_behaviour_settings = $question_behaviour_settings->withLockAnswerOnInstantFeedbackEnabled((bool) $metadata["entry"]);
+                    break;
+                case "show_cancel":
+                case "suspend_test_allowed":
+                    $participant_functionality_settings = $participant_functionality_settings->withSuspendTestAllowed((bool) $metadata["entry"]);
+                    break;
+                case "sequence_settings":
+                    $participant_functionality_settings = $participant_functionality_settings->withPostponedQuestionsMoveToEnd((bool) $metadata["entry"]);
+                    break;
+                case "show_marker":
+                    $participant_functionality_settings = $participant_functionality_settings->withQuestionMarkingEnabled((bool) $metadata["entry"]);
+                    break;
+                case "fixed_participants":
+                    $access_settings = $access_settings->withFixedParticipants((bool) $metadata["entry"]);
+                    break;
+                case "score_reporting":
+                    if ($metadata['entry'] !== null) {
+                        $result_summary_settings = $result_summary_settings->withScoreReporting(
+                            ScoreReportingTypes::tryFrom((int) $metadata['entry']) ?? ScoreReportingTypes::SCORE_REPORTING_DISABLED
+                        );
+                    }
+                    break;
+                case "shuffle_questions":
+                    $question_behaviour_settings = $question_behaviour_settings->withShuffleQuestions((bool) $metadata["entry"]);
+                    break;
+                case "count_system":
+                    $scoring_settings = $scoring_settings->withCountSystem((int) $metadata["entry"]);
+                    break;
+                case "mailnotification":
+                    $finishing_settings = $finishing_settings->withMailNotificationContentType((int) $metadata["entry"]);
+                    break;
+                case "mailnottype":
+                    $finishing_settings = $finishing_settings->withAlwaysSendMailNotification((bool) $metadata["entry"]);
+                    break;
+                case "exportsettings":
+                    $result_details_settings = $result_details_settings->withExportSettings((int) $metadata["entry"]);
+                    break;
+                case "score_cutting":
+                    $scoring_settings = $scoring_settings->withScoreCutting((int) $metadata["entry"]);
+                    break;
+                case "password":
+                    $access_settings = $access_settings->withPasswordEnabled(
+                        $metadata["entry"] !== null && $metadata["entry"] !== ''
+                    )->withPassword($metadata["entry"]);
+                    break;
+                case 'ip_range_from':
+                    if ($metadata['entry'] !== '') {
+                        $access_settings = $access_settings->withIpRangeFrom($metadata['entry']);
+                    }
+                    break;
+                case 'ip_range_to':
+                    if ($metadata['entry'] !== '') {
+                        $access_settings = $access_settings->withIpRangeTo($metadata['entry']);
+                    }
+                    break;
+                case "pass_scoring":
+                    $scoring_settings = $scoring_settings->withPassScoring((int) $metadata["entry"]);
+                    break;
+                case 'pass_deletion_allowed':
+                    $result_summary_settings = $result_summary_settings->withPassDeletionAllowed((bool) $metadata["entry"]);
+                    break;
+                case "usr_pass_overview_mode":
+                    $participant_functionality_settings = $participant_functionality_settings->withUsrPassOverviewMode((int) $metadata["entry"]);
+                    break;
+                case "question_list":
+                    $participant_functionality_settings = $participant_functionality_settings->withQuestionListEnabled((bool) $metadata["entry"]);
+                    break;
+
+                case "reporting_date":
+                    $reporting_date = $this->buildDateTimeImmutableFromPeriod($metadata['entry']);
+                    if ($reporting_date !== null) {
+                        $result_summary_settings = $result_summary_settings->withReportingDate($reporting_date);
+                    }
+                    break;
+                case 'enable_processing_time':
+                    $test_behaviour_settings = $test_behaviour_settings->withProcessingTimeEnabled((bool) $metadata['entry']);
+                    break;
+                case "processing_time":
+                    $test_behaviour_settings = $test_behaviour_settings->withProcessingTime($metadata['entry']);
+                    break;
+                case "starting_time":
+                    $starting_time = $this->buildDateTimeImmutableFromPeriod($metadata['entry']);
+                    if ($starting_time !== null) {
+                        $access_settings = $access_settings->withStartTime($starting_time)
+                            ->withStartTimeEnabled(true);
+                    }
+                    break;
+                case "ending_time":
+                    $ending_time = $this->buildDateTimeImmutableFromPeriod($metadata['entry']);
+                    if ($ending_time !== null) {
+                        $access_settings = $access_settings->withEndTime($ending_time)
+                            ->withStartTimeEnabled(true);
+                    }
+                    break;
+                case "enable_examview":
+                    $finishing_settings = $finishing_settings->withShowAnswerOverview((bool) $metadata["entry"]);
+                    break;
+                case 'redirection_mode':
+                    $finishing_settings = $finishing_settings->withRedirectionMode((int) $metadata['entry']);
+                    break;
+                case 'redirection_url':
+                    $finishing_settings = $finishing_settings->withRedirectionUrl($metadata['entry']);
+                    break;
+                case 'examid_in_test_pass':
+                    $test_behaviour_settings = $test_behaviour_settings->withExamIdInTestAttemptEnabled((bool) $metadata['entry']);
+                    break;
+                case 'examid_in_test_res':
+                    $result_details_settings = $result_details_settings->withShowExamIdInTestResults((bool) $metadata["entry"]);
+                    break;
+                case 'skill_service':
+                    $additional_settings = $additional_settings->withSkillsServiceEnabled((bool) $metadata['entry']);
+                    break;
+                case 'show_grading_status':
+                    $result_summary_settings = $result_summary_settings->withShowGradingStatusEnabled((bool) $metadata["entry"]);
+                    break;
+                case 'show_grading_mark':
+                    $result_summary_settings = $result_summary_settings->withShowGradingMarkEnabled((bool) $metadata["entry"]);
+                    break;
+                case 'activation_limited':
+                    $this->setActivationLimited((bool) $metadata['entry']);
+                    break;
+                case 'activation_start_time':
+                    $this->setActivationStartingTime($metadata['entry'] !== 'null' ? (int) $metadata['entry'] : null);
+                    break;
+                case 'activation_end_time':
+                    $this->setActivationEndingTime($metadata['entry'] !== 'null' ? (int) $metadata['entry'] : null);
+                    break;
+                case 'activation_visibility':
+                    $this->setActivationVisibility($metadata['entry']);
+                    break;
+                case 'autosave':
+                    $question_behaviour_settings = $question_behaviour_settings->withAutosaveEnabled((bool) $metadata['entry']);
+                    break;
+                case 'autosave_ival':
+                    $question_behaviour_settings = $question_behaviour_settings->withAutosaveInterval((int) $metadata['entry']);
+                    break;
+                case 'offer_question_hints':
+                    $question_behaviour_settings = $question_behaviour_settings->withQuestionHintsEnabled((bool) $metadata['entry']);
+                    break;
+                case 'show_summary':
+                    $participant_functionality_settings = $participant_functionality_settings->withQuestionListEnabled(($metadata['entry'] & 1) > 0)
+                        ->withUsrPassOverviewMode((int) $metadata['entry']);
+
+                    // no break
+                case 'hide_info_tab':
+                    $additional_settings = $additional_settings->withHideInfoTab($metadata['entry'] === '1');
+            }
+            if (preg_match("/mark_step_\d+/", $metadata["label"])) {
+                $xmlmark = $metadata["entry"];
+                preg_match("/<short>(.*?)<\/short>/", $xmlmark, $matches);
+                $mark_short = $matches[1];
+                preg_match("/<official>(.*?)<\/official>/", $xmlmark, $matches);
+                $mark_official = $matches[1];
+                preg_match("/<percentage>(.*?)<\/percentage>/", $xmlmark, $matches);
+                $mark_percentage = (float) $matches[1];
+                preg_match("/<passed>(.*?)<\/passed>/", $xmlmark, $matches);
+                $mark_passed = (bool) $matches[1];
+                $mark_steps[] = new Mark($mark_short, $mark_official, $mark_percentage, $mark_passed);
+            }
+        }
+        $this->mark_schema = $this->getMarkSchema()->withMarkSteps($mark_steps);
+        $this->saveToDb();
+        $this->getObjectProperties()->storePropertyTitleAndDescription(
+            $this->getObjectProperties()->getPropertyTitleAndDescription()
+                ->withTitle($assessment->getTitle())
+                ->withDescription($assessment->getComment())
+        );
+        $this->addToNewsOnOnline(false, $this->getObjectProperties()->getPropertyIsOnline()->getIsOnline());
+        $main_settings = $main_settings
+            ->withGeneralSettings($general_settings)
+            ->withIntroductionSettings($introduction_settings)
+            ->withAccessSettings($access_settings)
+            ->withParticipantFunctionalitySettings($participant_functionality_settings)
+            ->withTestBehaviourSettings($test_behaviour_settings)
+            ->withQuestionBehaviourSettings($question_behaviour_settings)
+            ->withFinishingSettings($finishing_settings)
+            ->withAdditionalSettings($additional_settings);
+        $this->getMainSettingsRepository()->store($main_settings);
+        $this->main_settings = $main_settings;
+
+        $score_settings = $score_settings
+                ->withGamificationSettings($gamification_settings)
+                ->withScoringSettings($scoring_settings)
+                ->withResultDetailsSettings($result_details_settings)
+                ->withResultSummarySettings($result_summary_settings);
+        $this->getScoreSettingsRepository()->store($score_settings);
+        $this->score_settings = $score_settings;
+        $this->loadFromDb();
+    }
+
+    private function addIntroductionToSettingsFromImport(
+        SettingsIntroduction $settings,
+        array $material,
+        string $importdir,
+        array $mappings
+    ): SettingsIntroduction {
+        $text = $material['text'];
+        $mobs = $material['mobs'];
+        if (str_starts_with($text, '<PageObject>')) {
+            $text = $this->replaceMobsInPageImports(
+                $text,
+                $mappings['components/ILIAS/MediaObjects']['mob'] ?? []
+            );
+            $text = $this->replaceFilesInPageImports(
+                $text,
+                $mappings['components/ILIAS/File']['file'] ?? []
+            );
+            $page_object = new ilTestPage();
+            $page_object->setParentId($this->getId());
+            $page_object->setXMLContent($text);
+            $new_page_id = $page_object->createPageWithNextId();
+            return $settings->withIntroductionPageId($new_page_id);
+        }
+
+        $text = $this->retrieveMobsFromLegacyImports($text, $mobs, $importdir);
+
+        return new SettingsIntroduction(
+            $settings->getTestId(),
+            $text !== '',
+            $text
+        );
+    }
+
+    private function addConcludingRemarksToSettingsFromImport(
+        SettingsFinishing $settings,
+        array $material,
+        string $importdir,
+        array $mappings
+    ): SettingsFinishing {
+        $file_to_import = ilSession::get('path_to_import_file');
+        $text = $material['text'];
+        $mobs = $material['mobs'];
+        if (str_starts_with($text, '<PageObject>')) {
+            $text = $this->replaceMobsInPageImports(
+                $text,
+                $mappings['components/ILIAS/MediaObjects']['mob'] ?? []
+            );
+            $text = $this->replaceFilesInPageImports(
+                $text,
+                $mappings['components/ILIAS/File']['file'] ?? []
+            );
+            $page_object = new ilTestPage();
+            $page_object->setParentId($this->getId());
+            $page_object->setXMLContent($text);
+            $new_page_id = $page_object->createPageWithNextId();
+            return $settings->withConcludingRemarksPageId($new_page_id);
+        }
+
+        $text = $this->retrieveMobsFromLegacyImports($text, $mobs, $importdir);
+
+        return new SettingsFinishing(
+            $settings->getTestId(),
+            $settings->getShowAnswerOverview(),
+            strlen($text) > 0,
+            $text,
+            null,
+            $settings->getRedirectionMode(),
+            $settings->getRedirectionUrl(),
+            $settings->getMailNotificationContentType(),
+            $settings->getAlwaysSendMailNotification()
+        );
+    }
+
+    private function replaceMobsInPageImports(string $text, array $mappings): string
+    {
+        preg_match_all('/il_(\d+)_mob_(\d+)/', $text, $matches);
+        foreach ($matches[0] as $index => $match) {
+            if (empty($mappings[$matches[2][$index]])) {
+                continue;
+            }
+            $text = str_replace($match, "il__mob_{$mappings[$matches[2][$index]]}", $text);
+            ilObjMediaObject::_saveUsage((int) $mappings[$matches[2][$index]], 'tst', $this->getId());
+        }
+        return $text;
+    }
+
+    private function replaceFilesInPageImports(string $text, array $mappings): string
+    {
+        preg_match_all('/il_(\d+)_file_(\d+)/', $text, $matches);
+        foreach ($matches[0] as $index => $match) {
+            if (empty($mappings[$matches[2][$index]])) {
+                continue;
+            }
+            $text = str_replace($match, "il__file_{$mappings[$matches[2][$index]]}", $text);
+        }
+        return $text;
+    }
+
+    private function retrieveMobsFromLegacyImports(string $text, array $mobs, string $importdir): string
+    {
+        foreach ($mobs as $mob) {
+            $importfile = $importdir . DIRECTORY_SEPARATOR . $mob['uri'];
+            if (file_exists($importfile)) {
+                $media_object = ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, false);
+                ilObjMediaObject::_saveUsage($media_object->getId(), 'tst:html', $this->getId());
+                $text = ilRTE::_replaceMediaObjectImageSrc(
+                    str_replace(
+                        'src="' . $mob['mob'] . '"',
+                        'src="' . 'il_' . IL_INST_ID . '_mob_' . $media_object->getId() . '"',
+                        $text
+                    ),
+                    1
+                );
+            }
+        }
+        return $text;
+    }
+
+    /**
+     * Returns a QTI xml representation of the test
+     *
+     * @return string The QTI xml representation of the test
+     */
+    public function toXML(): string
+    {
+        $main_settings = $this->getMainSettings();
+        $a_xml_writer = new ilXmlWriter();
+        // set xml header
+        $a_xml_writer->xmlHeader();
+        $a_xml_writer->xmlSetDtdDef("<!DOCTYPE questestinterop SYSTEM \"ims_qtiasiv1p2p1.dtd\">");
+        $a_xml_writer->xmlStartTag("questestinterop");
+
+        $attrs = [
+            "ident" => "il_" . IL_INST_ID . "_tst_" . $this->getTestId(),
+            "title" => $this->getTitle()
+        ];
+        $a_xml_writer->xmlStartTag("assessment", $attrs);
+        $a_xml_writer->xmlElement("qticomment", null, $this->getDescription());
+
+        if ($main_settings->getTestBehaviourSettings()->getProcessingTimeEnabled()) {
+            $a_xml_writer->xmlElement(
+                "duration",
+                null,
+                $this->getProcessingTimeForXML()
+            );
+        }
+
+        $a_xml_writer->xmlStartTag("qtimetadata");
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "ILIAS_VERSION");
+        $a_xml_writer->xmlElement("fieldentry", null, ILIAS_VERSION);
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "anonymity");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $main_settings->getGeneralSettings()->getAnonymity()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "question_set_type");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getGeneralSettings()->getQuestionSetType());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "sequence_settings");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getParticipantFunctionalitySettings()->getPostponedQuestionsMoveToEnd());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "author");
+        $a_xml_writer->xmlElement("fieldentry", null, $this->getAuthor());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "reset_processing_time");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getTestBehaviourSettings()->getResetProcessingTime());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "count_system");
+        $a_xml_writer->xmlElement("fieldentry", null, $this->getCountSystem());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "score_cutting");
+        $a_xml_writer->xmlElement("fieldentry", null, $this->getScoreCutting());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "password");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getAccessSettings()->getPassword() ?? '');
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "ip_range_from");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getAccessSettings()->getIpRangeFrom());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "ip_range_to");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getAccessSettings()->getIpRangeTo());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "pass_scoring");
+        $a_xml_writer->xmlElement("fieldentry", null, $this->getPassScoring());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag('qtimetadatafield');
+        $a_xml_writer->xmlElement('fieldlabel', null, 'pass_deletion_allowed');
+        $a_xml_writer->xmlElement('fieldentry', null, (int) $this->isPassDeletionAllowed());
+        $a_xml_writer->xmlEndTag('qtimetadatafield');
+
+        if ($this->getScoreSettings()->getResultSummarySettings()->getReportingDate() !== null) {
+            $a_xml_writer->xmlStartTag("qtimetadatafield");
+            $a_xml_writer->xmlElement("fieldlabel", null, "reporting_date");
+            $a_xml_writer->xmlElement(
+                "fieldentry",
+                null,
+                $this->buildIso8601PeriodForExportCompatibility(
+                    $this->getScoreSettings()->getResultSummarySettings()->getReportingDate(),
+                ),
+            );
+            $a_xml_writer->xmlEndTag("qtimetadatafield");
+        }
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "nr_of_tries");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $main_settings->getTestBehaviourSettings()->getNumberOfTries()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag('qtimetadatafield');
+        $a_xml_writer->xmlElement('fieldlabel', null, 'block_after_passed');
+        $a_xml_writer->xmlElement('fieldentry', null, (int) $main_settings->getTestBehaviourSettings()->getBlockAfterPassedEnabled());
+        $a_xml_writer->xmlEndTag('qtimetadatafield');
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "pass_waiting");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getTestBehaviourSettings()->getPassWaiting());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "kiosk");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $main_settings->getTestBehaviourSettings()->getKioskMode()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag('qtimetadatafield');
+        $a_xml_writer->xmlElement("fieldlabel", null, "redirection_mode");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getFinishingSettings()->getRedirectionMode());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag('qtimetadatafield');
+        $a_xml_writer->xmlElement("fieldlabel", null, "redirection_url");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getFinishingSettings()->getRedirectionUrl());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "use_previous_answers");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getParticipantFunctionalitySettings()->getUsePreviousAnswerAllowed());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag('qtimetadatafield');
+        $a_xml_writer->xmlElement('fieldlabel', null, 'question_list_enabled');
+        $a_xml_writer->xmlElement('fieldentry', null, (int) $main_settings->getParticipantFunctionalitySettings()->getQuestionListEnabled());
+        $a_xml_writer->xmlEndTag('qtimetadatafield');
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "title_output");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $main_settings->getQuestionBehaviourSettings()->getQuestionTitleOutputMode()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "results_presentation");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $this->getScoreSettings()->getResultDetailsSettings()->getResultsPresentation()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "examid_in_test_pass");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $main_settings->getTestBehaviourSettings()->getExamIdInTestAttemptEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "examid_in_test_res");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $this->getScoreSettings()->getResultDetailsSettings()->getShowExamIdInTestResults()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "usr_pass_overview_mode");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $main_settings->getParticipantFunctionalitySettings()->getUsrPassOverviewMode()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "score_reporting");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $this->getScoreSettings()->getResultSummarySettings()->getScoreReporting()->value));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "show_solution_list_comparison");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $this->score_settings->getResultDetailsSettings()->getShowSolutionListComparison());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "instant_verification");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackSolutionEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "answer_feedback");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackGenericEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "instant_feedback_specific");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackSpecificEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "answer_feedback_points");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackPointsEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "follow_qst_answer_fixation");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getQuestionBehaviourSettings()->getLockAnswerOnNextQuestionEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "instant_feedback_answer_fixation");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getQuestionBehaviourSettings()->getLockAnswerOnInstantFeedbackEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "force_instant_feedback");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getQuestionBehaviourSettings()->getForceInstantFeedbackOnNextQuestion());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $highscore_metadata = [
+            'highscore_enabled' => ['value' => $this->getHighscoreEnabled()],
+            'highscore_anon' => ['value' => $this->getHighscoreAnon()],
+            'highscore_achieved_ts' => ['value' => $this->getHighscoreAchievedTS()],
+            'highscore_score' => ['value' => $this->getHighscoreScore()],
+            'highscore_percentage' => ['value' => $this->getHighscorePercentage()],
+            'highscore_hints' => ['value' => $this->getHighscoreHints()],
+            'highscore_wtime' => ['value' => $this->getHighscoreWTime()],
+            'highscore_own_table' => ['value' => $this->getHighscoreOwnTable()],
+            'highscore_top_table' => ['value' => $this->getHighscoreTopTable()],
+            'highscore_top_num' => ['value' => $this->getHighscoreTopNum()],
+        ];
+        foreach ($highscore_metadata as $label => $data) {
+            $a_xml_writer->xmlStartTag("qtimetadatafield");
+            $a_xml_writer->xmlElement("fieldlabel", null, $label);
+            $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", $data['value']));
+            $a_xml_writer->xmlEndTag("qtimetadatafield");
+        }
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "suspend_test_allowed");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getParticipantFunctionalitySettings()->getSuspendTestAllowed()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "show_marker");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getParticipantFunctionalitySettings()->getQuestionMarkingEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "fixed_participants");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getAccessSettings()->getFixedParticipants()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "show_introduction");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getIntroductionSettings()->getIntroductionEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, 'exam_conditions');
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getIntroductionSettings()->getExamConditionsCheckboxEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "show_concluding_remarks");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getFinishingSettings()->getConcludingRemarksEnabled()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "mailnotification");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getFinishingSettings()->getMailNotificationContentType());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "mailnottype");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getFinishingSettings()->getAlwaysSendMailNotification());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "exportsettings");
+        $a_xml_writer->xmlElement("fieldentry", null, $this->getExportSettings());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "shuffle_questions");
+        $a_xml_writer->xmlElement("fieldentry", null, sprintf("%d", (int) $main_settings->getQuestionBehaviourSettings()->getShuffleQuestions()));
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "processing_time");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getTestBehaviourSettings()->getProcessingTime());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "enable_examview");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getFinishingSettings()->getShowAnswerOverview());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "skill_service");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getAdditionalSettings()->getSkillsServiceEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        if ($this->getInstantFeedbackSolution() == 1) {
+            $attrs = [
+                "solutionswitch" => "Yes"
+            ];
+        } else {
+            $attrs = null;
+        }
+        $a_xml_writer->xmlElement("assessmentcontrol", $attrs, null);
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "show_grading_status");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $this->isShowGradingStatusEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "show_grading_mark");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $this->isShowGradingMarkEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag('qtimetadatafield');
+        $a_xml_writer->xmlElement('fieldlabel', null, 'hide_info_tab');
+        $a_xml_writer->xmlElement('fieldentry', null, (int) $this->getMainSettings()->getAdditionalSettings()->getHideInfoTab());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        if ($this->getStartingTime() > 0) {
+            $a_xml_writer->xmlStartTag("qtimetadatafield");
+            $a_xml_writer->xmlElement("fieldlabel", null, "starting_time");
+            $a_xml_writer->xmlElement(
+                "fieldentry",
+                null,
+                $this->buildIso8601PeriodForExportCompatibility(
+                    (new DateTimeImmutable())->setTimestamp($this->getStartingTime()),
+                ),
+            );
+            $a_xml_writer->xmlEndTag("qtimetadatafield");
+        }
+
+        if ($this->getEndingTime() > 0) {
+            $a_xml_writer->xmlStartTag("qtimetadatafield");
+            $a_xml_writer->xmlElement("fieldlabel", null, "ending_time");
+            $a_xml_writer->xmlElement(
+                "fieldentry",
+                null,
+                $this->buildIso8601PeriodForExportCompatibility(
+                    (new DateTimeImmutable())->setTimestamp($this->getEndingTime()),
+                ),
+            );
+            $a_xml_writer->xmlEndTag("qtimetadatafield");
+        }
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "activation_limited");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $this->isActivationLimited());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "activation_start_time");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $this->getActivationStartingTime());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "activation_end_time");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $this->getActivationEndingTime());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "activation_visibility");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $this->getActivationVisibility());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "autosave");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getQuestionBehaviourSettings()->getAutosaveEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "autosave_ival");
+        $a_xml_writer->xmlElement("fieldentry", null, $main_settings->getQuestionBehaviourSettings()->getAutosaveInterval());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "offer_question_hints");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getQuestionBehaviourSettings()->getQuestionHintsEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "instant_feedback_specific");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackSpecificEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "instant_feedback_answer_fixation");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getQuestionBehaviourSettings()->getLockAnswerOnInstantFeedbackEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "enable_processing_time");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $main_settings->getTestBehaviourSettings()->getProcessingTimeEnabled());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        foreach ($this->getMarkSchema()->getMarkSteps() as $index => $mark) {
+            $a_xml_writer->xmlStartTag("qtimetadatafield");
+            $a_xml_writer->xmlElement("fieldlabel", null, "mark_step_$index");
+            $a_xml_writer->xmlElement("fieldentry", null, sprintf(
+                "<short>%s</short><official>%s</official><percentage>%.2f</percentage><passed>%d</passed>",
+                $mark->getShortName(),
+                $mark->getOfficialName(),
+                $mark->getMinimumLevel(),
+                $mark->getPassed()
+            ));
+            $a_xml_writer->xmlEndTag("qtimetadatafield");
+        }
+        $a_xml_writer->xmlEndTag("qtimetadata");
+
+        $page_id = $main_settings->getIntroductionSettings()->getIntroductionPageId();
+        $introduction = $page_id !== null
+            ? (new ilTestPage($page_id))->getXMLContent()
+            : ilRTE::_replaceMediaObjectImageSrc($this->getIntroduction(), 0);
+
+        $a_xml_writer->xmlStartTag("objectives");
+        $this->addQTIMaterial($a_xml_writer, $page_id, $introduction);
+        $a_xml_writer->xmlEndTag("objectives");
+
+        if ($this->getInstantFeedbackSolution() == 1) {
+            $attrs = [
+                "solutionswitch" => "Yes"
+            ];
+        } else {
+            $attrs = null;
+        }
+        $a_xml_writer->xmlElement("assessmentcontrol", $attrs, null);
+
+        if (strlen($this->getFinalStatement())) {
+            $page_id = $main_settings->getFinishingSettings()->getConcludingRemarksPageId();
+            $concluding_remarks = $page_id !== null
+                ? (new ilTestPage($page_id))->getXMLContent()
+                : ilRTE::_replaceMediaObjectImageSrc($this->getFinalStatement());
+            // add qti presentation_material
+            $a_xml_writer->xmlStartTag("presentation_material");
+            $a_xml_writer->xmlStartTag("flow_mat");
+            $this->addQTIMaterial($a_xml_writer, $page_id, $concluding_remarks);
+            $a_xml_writer->xmlEndTag("flow_mat");
+            $a_xml_writer->xmlEndTag("presentation_material");
+        }
+
+        $attrs = [
+            "ident" => "1"
+        ];
+        $a_xml_writer->xmlElement("section", $attrs, null);
+        $a_xml_writer->xmlEndTag("assessment");
+        $a_xml_writer->xmlEndTag("questestinterop");
+
+        $xml = $a_xml_writer->xmlDumpMem(false);
+        return $xml;
+    }
+
+    protected function buildIso8601PeriodForExportCompatibility(DateTimeImmutable $date_time): string
+    {
+        return $date_time->setTimezone(new DateTimeZone('UTC'))->format('\PY\Yn\Mj\D\TG\Hi\Ms\S');
+    }
+
+    protected function buildDateTimeImmutableFromPeriod(?string $period): ?DateTimeImmutable
+    {
+        if ($period === null) {
+            return null;
+        }
+        if (preg_match("/P(\d+)Y(\d+)M(\d+)DT(\d+)H(\d+)M(\d+)S/", $period, $matches)) {
+            return new DateTimeImmutable(
+                sprintf(
+                    "%02d-%02d-%02d %02d:%02d:%02d",
+                    $matches[1],
+                    $matches[2],
+                    $matches[3],
+                    $matches[4],
+                    $matches[5],
+                    $matches[6]
+                ),
+                new \DateTimeZone('UTC')
+            );
+        }
+        return null;
+    }
+
+    /**
+    * export pages of test to xml (see ilias_co.dtd)
+    *
+    * @param	object		$a_xml_writer	ilXmlWriter object that receives the
+    *										xml data
+    */
+    public function exportPagesXML(&$a_xml_writer, $a_inst, $a_target_dir, &$expLog): void
+    {
+        $this->mob_ids = [];
+
+        // PageObjects
+        $expLog->write(date("[y-m-d H:i:s] ") . "Start Export Page Objects");
+        $this->bench->start("ContentObjectExport", "exportPageObjects");
+        $this->exportXMLPageObjects($a_xml_writer, $a_inst, $expLog);
+        $this->bench->stop("ContentObjectExport", "exportPageObjects");
+        $expLog->write(date("[y-m-d H:i:s] ") . "Finished Export Page Objects");
+
+        // MediaObjects
+        $expLog->write(date("[y-m-d H:i:s] ") . "Start Export Media Objects");
+        $this->bench->start("ContentObjectExport", "exportMediaObjects");
+        $this->exportXMLMediaObjects($a_xml_writer, $a_inst, $a_target_dir, $expLog);
+        $this->bench->stop("ContentObjectExport", "exportMediaObjects");
+        $expLog->write(date("[y-m-d H:i:s] ") . "Finished Export Media Objects");
+
+        // FileItems
+        $expLog->write(date("[y-m-d H:i:s] ") . "Start Export File Items");
+        $this->bench->start("ContentObjectExport", "exportFileItems");
+        $this->exportFileItems($a_target_dir, $expLog);
+        $this->bench->stop("ContentObjectExport", "exportFileItems");
+        $expLog->write(date("[y-m-d H:i:s] ") . "Finished Export File Items");
+    }
+
+    /**
+    * Returns the installation id for a given identifier
+    *
+    * @access	private
+    */
+    public function modifyExportIdentifier($a_tag, $a_param, $a_value)
+    {
+        if ($a_tag == "Identifier" && $a_param == "Entry") {
+            $a_value = ilUtil::insertInstIntoID($a_value);
+        }
+
+        return $a_value;
+    }
+
+
+    /**
+    * export page objects to xml (see ilias_co.dtd)
+    *
+    * @param	object		$a_xml_writer	ilXmlWriter object that receives the
+    *										xml data
+    */
+    public function exportXMLPageObjects(&$a_xml_writer, $inst, &$expLog)
+    {
+        foreach ($this->questions as $question_id) {
+            $this->bench->start("ContentObjectExport", "exportPageObject");
+            $expLog->write(date("[y-m-d H:i:s] ") . "Page Object " . $question_id);
+
+            $attrs = [];
+            $a_xml_writer->xmlStartTag("PageObject", $attrs);
+
+
+            // export xml to writer object
+            $this->bench->start("ContentObjectExport", "exportPageObject_XML");
+            $page_object = new ilAssQuestionPage($question_id);
+            $page_object->buildDom();
+            $page_object->insertInstIntoIDs((string) $inst);
+            $mob_ids = $page_object->collectMediaObjects(false);
+            $file_ids = ilPCFileList::collectFileItems($page_object, $page_object->getDomDoc());
+            $xml = $page_object->getXMLFromDom(false, false, false, "", true);
+            $xml = str_replace("&", "&amp;", $xml);
+            $a_xml_writer->appendXML($xml);
+            $page_object->freeDom();
+            unset($page_object);
+
+            $this->bench->stop("ContentObjectExport", "exportPageObject_XML");
+
+            // collect media objects
+            $this->bench->start("ContentObjectExport", "exportPageObject_CollectMedia");
+            //$mob_ids = $page_obj->getMediaObjectIDs();
+            foreach ($mob_ids as $mob_id) {
+                $this->mob_ids[$mob_id] = $mob_id;
+            }
+            $this->bench->stop("ContentObjectExport", "exportPageObject_CollectMedia");
+
+            // collect all file items
+            $this->bench->start("ContentObjectExport", "exportPageObject_CollectFileItems");
+            //$file_ids = $page_obj->getFileItemIds();
+            foreach ($file_ids as $file_id) {
+                $this->file_ids[$file_id] = $file_id;
+            }
+            $this->bench->stop("ContentObjectExport", "exportPageObject_CollectFileItems");
+
+            $a_xml_writer->xmlEndTag("PageObject");
+            //unset($page_obj);
+
+            $this->bench->stop("ContentObjectExport", "exportPageObject");
+        }
+    }
+
+    /**
+    * export media objects to xml (see ilias_co.dtd)
+    */
+    public function exportXMLMediaObjects(&$a_xml_writer, $a_inst, $a_target_dir, &$expLog)
+    {
+        foreach ($this->mob_ids as $mob_id) {
+            $expLog->write(date("[y-m-d H:i:s] ") . "Media Object " . $mob_id);
+            if (ilObjMediaObject::_exists((int) $mob_id)) {
+                $target_dir = $a_target_dir . DIRECTORY_SEPARATOR . 'objects'
+                    . DIRECTORY_SEPARATOR . 'il_' . IL_INST_ID . '_mob_' . $mob_id;
+                ilFileUtils::createDirectory($target_dir);
+                $media_obj = new ilObjMediaObject((int) $mob_id);
+                $media_obj->exportXML($a_xml_writer, (int) $a_inst);
+                foreach ($media_obj->getMediaItems() as $item) {
+                    $stream = $item->getLocationStream();
+                    file_put_contents($target_dir . DIRECTORY_SEPARATOR . $item->getLocation(), $stream);
+                    $stream->close();
+                }
+                unset($media_obj);
+            }
+        }
+    }
+
+    /**
+    * export files of file itmes
+    *
+    */
+    public function exportFileItems($target_dir, &$expLog)
+    {
+        foreach ($this->file_ids as $file_id) {
+            $expLog->write(date("[y-m-d H:i:s] ") . "File Item " . $file_id);
+            $file_dir = $target_dir . '/objects/il_' . IL_INST_ID . '_file_' . $file_id;
+            ilFileUtils::makeDir($file_dir);
+            $file_obj = new ilObjFile((int) $file_id, false);
+            $source_file = $file_obj->getFile($file_obj->getVersion());
+            if (!is_file($source_file)) {
+                $source_file = $file_obj->getFile();
+            }
+            if (is_file($source_file)) {
+                copy($source_file, $file_dir . '/' . $file_obj->getFileName());
+            }
+            unset($file_obj);
+        }
+    }
+
+    /**
+    * get array of (two) new created questions for
+    * import id
+    */
+    public function getImportMapping(): array
+    {
+        return [];
+    }
+
+    /**
+     */
+    public function onMarkSchemaSaved(): void
+    {
+        $this->saveCompleteStatus($this->question_set_config_factory->getQuestionSetConfig());
+
+        if ($this->participantDataExist()) {
+            $this->recalculateScores(true);
+        }
+    }
+
+    /**
+     * @return {@inheritdoc}
+     */
+    public function marksEditable(): bool
+    {
+        $total = $this->evalTotalPersons();
+        $results_summary_settings = $this->getScoreSettings()->getResultSummarySettings();
+        if ($total === 0
+            || $results_summary_settings->getScoreReporting()->isReportingEnabled() === false) {
+            return true;
+        }
+
+        if ($results_summary_settings->getScoreReporting() === ScoreReportingTypes::SCORE_REPORTING_DATE) {
+            return $results_summary_settings->getReportingDate()
+                >= new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        }
+
+        return false;
+    }
+
+    /**
+    * Saves an authors name into the lifecycle metadata if no lifecycle metadata exists
+    * This will only be called for conversion of "old" tests where the author hasn't been
+    * stored in the lifecycle metadata
+    *
+    * @param string $a_author A string containing the name of the test author
+    * @access private
+    * @see $author
+    */
+    public function saveAuthorToMetadata($author = "")
+    {
+        $path_to_lifecycle = $this->lo_metadata->paths()->custom()->withNextStep('lifeCycle')->get();
+        $path_to_authors = $this->lo_metadata->paths()->authors();
+
+        $reader = $this->lo_metadata->read($this->getId(), 0, $this->getType(), $path_to_lifecycle);
+        if (!is_null($reader->allData($path_to_lifecycle)->current())) {
+            return;
+        }
+
+        if ($author === '') {
+            $author = $this->user->getFullname();
+        }
+        $this->lo_metadata->manipulate($this->getId(), 0, $this->getType())
+                          ->prepareCreateOrUpdate($path_to_authors, $author)
+                          ->execute();
+    }
+
+    /**
+    * @inheritDoc
+    */
+    protected function doCreateMetaData(): void
+    {
+        $this->saveAuthorToMetadata();
+    }
+
+    /**
+    * Gets the authors name of the ilObjTest object
+    *
+    * @return string The string containing the name of the test author
+    * @access public
+    * @see $author
+    */
+    public function getAuthor(): string
+    {
+        $path_to_authors = $this->lo_metadata->paths()->authors();
+        $author_data = $this->lo_metadata->read($this->getId(), 0, $this->getType(), $path_to_authors)
+                                         ->allData($path_to_authors);
+
+        return $this->lo_metadata->dataHelper()->makePresentableAsList(', ', ...$author_data);
+    }
+
+    /**
+    * Gets the authors name of the ilObjTest object
+    *
+    * @return string The string containing the name of the test author
+    * @access public
+    * @see $author
+    */
+    public static function _lookupAuthor($obj_id): string
+    {
+        global $DIC;
+
+        $lo_metadata = $DIC->learningObjectMetadata();
+
+        $path_to_authors = $lo_metadata->paths()->authors();
+        $author_data = $lo_metadata->read($obj_id, 0, "tst", $path_to_authors)
+                                    ->allData($path_to_authors);
+
+        return $lo_metadata->dataHelper()->makePresentableAsList(',', ...$author_data);
+    }
+
+    /**
+    * Returns the available tests for the active user
+    *
+    * @return array The available tests
+    * @access public
+    */
+    public static function _getAvailableTests($use_object_id = false): array
+    {
+        global $DIC;
+        $ilUser = $DIC['ilUser'];
+
+        $result_array = [];
+        $tests = array_slice(
+            array_reverse(
+                ilUtil::_getObjectsByOperations("tst", "write", $ilUser->getId(), PHP_INT_MAX)
+            ),
+            0,
+            10000
+        );
+
+        if (count($tests)) {
+            $titles = ilObject::_prepareCloneSelection($tests, "tst");
+            foreach ($tests as $ref_id) {
+                if ($use_object_id) {
+                    $obj_id = ilObject::_lookupObjId($ref_id);
+                    $result_array[$obj_id] = $titles[$ref_id];
+                } else {
+                    $result_array[$ref_id] = $titles[$ref_id];
+                }
+            }
+        }
+        return $result_array;
+    }
+
+    /**
+    * Clone object
+    *
+    * @access public
+    * @param int ref id of parent container
+    * @param int copy id
+    * @return object new test object
+    */
+    public function cloneObject(int $target_id, int $copy_id = 0, bool $omit_tree = false): ?ilObject
+    {
+        $this->loadFromDb();
+
+        $new_obj = parent::cloneObject($target_id, $copy_id, $omit_tree);
+        $new_obj->setTmpCopyWizardCopyId($copy_id);
+        $this->cloneMetaData($new_obj);
+
+        $new_obj->saveToDb();
+        $new_obj->addToNewsOnOnline(false, $new_obj->getObjectProperties()->getPropertyIsOnline()->getIsOnline());
+        $this->getMainSettingsRepository()->store(
+            $this->getMainSettings()->withTestId($new_obj->getTestId())
+                ->withIntroductionSettings(
+                    $this->getMainSettings()->getIntroductionSettings()->withIntroductionPageId(
+                        $this->cloneIntroduction()
+                    )->withTestId($new_obj->getTestId())
+                )->withFinishingSettings(
+                    $this->getMainSettings()->getFinishingSettings()->withConcludingRemarksPageId(
+                        $this->cloneConcludingRemarks()
+                    )->withTestId($new_obj->getTestId())
+                )
+        );
+        $this->getScoreSettingsRepository()->store(
+            $this->getScoreSettings()->withTestId($new_obj->getTestId())
+        );
+        $this->marks_repository->storeMarkSchema(
+            $this->getMarkSchema()->withTestId($new_obj->getTestId())
+        );
+
+        $new_obj->setTemplate($this->getTemplate());
+
+        // clone certificate
+        $pathFactory = new ilCertificatePathFactory();
+        $templateRepository = new ilCertificateTemplateDatabaseRepository($this->db);
+
+        $cloneAction = new ilCertificateCloneAction(
+            $this->db,
+            $pathFactory,
+            $templateRepository,
+            new ilCertificateObjectHelper()
+        );
+
+        $cloneAction->cloneCertificate($this, $new_obj);
+
+        $this->question_set_config_factory->getQuestionSetConfig()->cloneQuestionSetRelatedData($new_obj);
+        $new_obj->saveQuestionsToDb();
+
+        $skillLevelThresholdList = new ilTestSkillLevelThresholdList($this->db);
+        $skillLevelThresholdList->setTestId($this->getTestId());
+        $skillLevelThresholdList->loadFromDb();
+        $skillLevelThresholdList->cloneListForTest($new_obj->getTestId());
+
+        $obj_settings = new ilLPObjSettings($this->getId());
+        $obj_settings->cloneSettings($new_obj->getId());
+
+        if ($new_obj->getTestLogger()->isLoggingEnabled()) {
+            $new_obj->getTestLogger()->logTestAdministrationInteraction(
+                $new_obj->getTestLogger()->getInteractionFactory()->buildTestAdministrationInteraction(
+                    $new_obj->getRefId(),
+                    $this->user->getId(),
+                    TestAdministrationInteractionTypes::NEW_TEST_CREATED,
+                    []
+                )
+            );
+        }
+
+        return $new_obj;
+    }
+
+    public function getQuestionCount(): int
+    {
+        $num = 0;
+
+        if ($this->isRandomTest()) {
+            $questionSetConfig = new ilTestRandomQuestionSetConfig(
+                $this->tree,
+                $this->db,
+                $this->lng,
+                $this->logger,
+                $this->component_repository,
+                $this,
+                $this->questionrepository
+            );
+
+            $questionSetConfig->loadFromDb();
+
+            if ($questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
+                $sourcePoolDefinitionList = new ilTestRandomQuestionSetSourcePoolDefinitionList(
+                    $this->db,
+                    $this,
+                    new ilTestRandomQuestionSetSourcePoolDefinitionFactory($this->db, $this)
+                );
+
+                $sourcePoolDefinitionList->loadDefinitions();
+
+                if (is_int($sourcePoolDefinitionList->getQuestionAmount())) {
+                    $num = $sourcePoolDefinitionList->getQuestionAmount();
+                }
+            } elseif (is_int($questionSetConfig->getQuestionAmountPerTest())) {
+                $num = $questionSetConfig->getQuestionAmountPerTest();
+            }
+        } else {
+            $this->loadQuestions();
+            $num = count($this->questions);
+        }
+
+        return $num;
+    }
+
+    public function getQuestionCountWithoutReloading(): int
+    {
+        if ($this->isRandomTest()) {
+            return $this->getQuestionCount();
+        }
+        return count($this->questions);
+    }
+
+    /**
+    * Returns the ILIAS test object id for a given test id
+    *
+    * @param integer $test_id The test id
+    * @return mixed The ILIAS test object id or FALSE if the query was not successful
+    * @access public
+    */
+    public static function _getObjectIDFromTestID($test_id)
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $object_id = false;
+        $result = $ilDB->queryF(
+            "SELECT obj_fi FROM tst_tests WHERE test_id = %s",
+            ['integer'],
+            [$test_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            $object_id = $row["obj_fi"];
+        }
+        return $object_id;
+    }
+
+    /**
+    * Returns the ILIAS test object id for a given active id
+    *
+    * @param integer $active_id The active id
+    * @return mixed The ILIAS test object id or FALSE if the query was not successful
+    * @access public
+    */
+    public static function _getObjectIDFromActiveID($active_id)
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $object_id = false;
+        $result = $ilDB->queryF(
+            "SELECT tst_tests.obj_fi FROM tst_tests, tst_active WHERE tst_tests.test_id = tst_active.test_fi AND tst_active.active_id = %s",
+            ['integer'],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            $object_id = $row["obj_fi"];
+        }
+        return $object_id;
+    }
+
+    /**
+    * Returns the ILIAS test id for a given object id
+    *
+    * @param integer $object_id The object id
+    * @return mixed The ILIAS test id or FALSE if the query was not successful
+    * @access public
+    */
+    public static function _getTestIDFromObjectID($object_id)
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $test_id = false;
+        $result = $ilDB->queryF(
+            "SELECT test_id FROM tst_tests WHERE obj_fi = %s",
+            ['integer'],
+            [$object_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            $test_id = $row["test_id"];
+        }
+        return $test_id;
+    }
+
+    /**
+    * Returns the text answer of a given user for a given question
+    *
+    * @param integer $active_id
+    * @param integer $question_id
+    * @return string The answer text
+    * @access public
+    */
+    public function getTextAnswer($active_id, $question_id, $pass = null): string
+    {
+        if (($active_id) && ($question_id)) {
+            if ($pass === null) {
+                $pass = assQuestion::_getSolutionMaxPass($question_id, $active_id);
+            }
+            if ($pass === null) {
+                return '';
+            }
+            $query = $this->db->queryF(
+                "SELECT value1 FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s",
+                ['integer', 'integer', 'integer'],
+                [$active_id, $question_id, $pass]
+            );
+            $result = $this->db->fetchAll($query);
+            if (count($result) == 1) {
+                return $result[0]["value1"];
+            }
+        }
+        return '';
+    }
+
+    /**
+    * Returns the question text for a given question
+    *
+    * @param integer $question_id The question id
+    * @return string The question text
+    * @access public
+    */
+    public function getQuestiontext($question_id): string
+    {
+        $res = "";
+        if ($question_id) {
+            $result = $this->db->queryF(
+                "SELECT question_text FROM qpl_questions WHERE question_id = %s",
+                ['integer'],
+                [$question_id]
+            );
+            if ($result->numRows() == 1) {
+                $row = $this->db->fetchAssoc($result);
+                $res = $row["question_text"];
+            }
+        }
+        return $res;
+    }
+
+    public function getActiveParticipantList(): ilTestParticipantList
+    {
+        $participant_list = new ilTestParticipantList($this, $this->user, $this->lng, $this->db);
+        $participant_list->initializeFromDbRows($this->getTestParticipants());
+
+        return $participant_list;
+    }
+
+    /**
+    * Returns a list of all invited users in a test
+    *
+    * @return array array of invited users
+    * @access public
+    */
+    public function &getInvitedUsers(int $user_id = 0, $order = "login, lastname, firstname"): array
+    {
+        $result_array = [];
+
+        if ($this->getAnonymity()) {
+            if ($user_id !== 0) {
+                $result = $this->db->queryF(
+                    "SELECT tst_active.active_id, tst_active.tries, usr_id, %s login, %s lastname, %s firstname, " .
+                    "tst_active.submitted test_finished, matriculation, COALESCE(tst_active.last_finished_pass, -1) <> tst_active.last_started_pass unfinished_passes  FROM usr_data, tst_invited_user " .
+                    "LEFT JOIN tst_active ON tst_active.user_fi = tst_invited_user.user_fi AND tst_active.test_fi = tst_invited_user.test_fi " .
+                    "WHERE tst_invited_user.test_fi = %s and tst_invited_user.user_fi=usr_data.usr_id AND usr_data.usr_id=%s " .
+                    "ORDER BY $order",
+                    ['text', 'text', 'text', 'integer', 'integer'],
+                    ['', $this->lng->txt('anonymous'), '', $this->getTestId(), $user_id]
+                );
+            } else {
+                $result = $this->db->queryF(
+                    "SELECT tst_active.active_id, tst_active.tries, usr_id, %s login, %s lastname, %s firstname, " .
+                    "tst_active.submitted test_finished, matriculation, COALESCE(tst_active.last_finished_pass, -1) <> tst_active.last_started_pass unfinished_passes  FROM usr_data, tst_invited_user " .
+                    "LEFT JOIN tst_active ON tst_active.user_fi = tst_invited_user.user_fi AND tst_active.test_fi = tst_invited_user.test_fi " .
+                    "WHERE tst_invited_user.test_fi = %s and tst_invited_user.user_fi=usr_data.usr_id " .
+                    "ORDER BY $order",
+                    ['text', 'text', 'text', 'integer'],
+                    ['', $this->lng->txt('anonymous'), '', $this->getTestId()]
+                );
+            }
+        } else {
+            if ($user_id !== 0) {
+                $result = $this->db->queryF(
+                    "SELECT tst_active.active_id, tst_active.tries, usr_id, login, lastname, firstname, " .
+                    "tst_active.submitted test_finished, matriculation, COALESCE(tst_active.last_finished_pass, -1) <> tst_active.last_started_pass unfinished_passes  FROM usr_data, tst_invited_user " .
+                    "LEFT JOIN tst_active ON tst_active.user_fi = tst_invited_user.user_fi AND tst_active.test_fi = tst_invited_user.test_fi " .
+                    "WHERE tst_invited_user.test_fi = %s and tst_invited_user.user_fi=usr_data.usr_id AND usr_data.usr_id=%s " .
+                    "ORDER BY $order",
+                    ['integer', 'integer'],
+                    [$this->getTestId(), $user_id]
+                );
+            } else {
+                $result = $this->db->queryF(
+                    "SELECT tst_active.active_id, tst_active.tries, usr_id, login, lastname, firstname, " .
+                    "tst_active.submitted test_finished, matriculation, COALESCE(tst_active.last_finished_pass, -1) <> tst_active.last_started_pass unfinished_passes  FROM usr_data, tst_invited_user " .
+                    "LEFT JOIN tst_active ON tst_active.user_fi = tst_invited_user.user_fi AND tst_active.test_fi = tst_invited_user.test_fi " .
+                    "WHERE tst_invited_user.test_fi = %s and tst_invited_user.user_fi=usr_data.usr_id " .
+                    "ORDER BY $order",
+                    ['integer'],
+                    [$this->getTestId()]
+                );
+            }
+        }
+        $result_array = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $result_array[$row['usr_id']] = $row;
+        }
+        return $result_array;
+    }
+
+    public function getTestParticipants(): array
+    {
+        if ($this->getMainSettings()->getGeneralSettings()->getAnonymity()) {
+            $query = "
+				SELECT	tst_active.active_id,
+						tst_active.tries,
+						tst_active.user_fi usr_id,
+						%s login,
+						%s lastname,
+						%s firstname,
+						tst_active.submitted test_finished,
+						usr_data.matriculation,
+						usr_data.active,
+						tst_active.lastindex,
+						COALESCE(tst_active.last_finished_pass, -1) <> tst_active.last_started_pass unfinished_passes
+				FROM tst_active
+				LEFT JOIN usr_data
+				ON tst_active.user_fi = usr_data.usr_id
+				WHERE tst_active.test_fi = %s
+				ORDER BY usr_data.lastname
+			";
+            $result = $this->db->queryF(
+                $query,
+                ['text', 'text', 'text', 'integer'],
+                ['', $this->lng->txt("anonymous"), "", $this->getTestId()]
+            );
+        } else {
+            $query = "
+				SELECT	tst_active.active_id,
+						tst_active.tries,
+						tst_active.user_fi usr_id,
+						usr_data.login,
+						usr_data.lastname,
+						usr_data.firstname,
+						tst_active.submitted test_finished,
+						usr_data.matriculation,
+						usr_data.active,
+						tst_active.lastindex,
+						COALESCE(tst_active.last_finished_pass, -1) <> tst_active.last_started_pass unfinished_passes
+				FROM tst_active
+				LEFT JOIN usr_data
+				ON tst_active.user_fi = usr_data.usr_id
+				WHERE tst_active.test_fi = %s
+				ORDER BY usr_data.lastname
+			";
+            $result = $this->db->queryF(
+                $query,
+                ['integer'],
+                [$this->getTestId()]
+            );
+        }
+        $data = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $data[$row['active_id']] = $row;
+        }
+        foreach ($data as $index => $participant) {
+            if (strlen(trim($participant["firstname"] . $participant["lastname"])) == 0) {
+                $data[$index]["lastname"] = $this->lng->txt("deleted_user");
+            }
+        }
+        return $data;
+    }
+
+    public function getTestParticipantsForManualScoring($filter = null): array
+    {
+        if (!$this->getGlobalSettings()->isManualScoringEnabled()) {
+            return [];
+        }
+
+        $filtered_participants = [];
+        foreach ($this->getTestParticipants() as $active_id => $participant) {
+            if ($participant['tries'] > 0) {
+                switch ($filter) {
+                    case 4:
+                        if ($this->test_man_scoring_done_helper->isDone((int) $active_id)) {
+                            $filtered_participants[$active_id] = $participant;
+                        }
+                        break;
+                    case 5:
+                        if (!$this->test_man_scoring_done_helper->isDone((int) $active_id)) {
+                            $filtered_participants[$active_id] = $participant;
+                        }
+                        break;
+                    default:
+                        $filtered_participants[$active_id] = $participant;
+                }
+            }
+        }
+        return $filtered_participants;
+    }
+
+    /**
+    * Returns a data of all users specified by id list
+    *
+    * @return array The user data "usr_id, login, lastname, firstname, clientip" of the users with id as key
+    * @access public
+    */
+    public function getUserData($ids): array
+    {
+        if (!is_array($ids) || count($ids) == 0) {
+            return [];
+        }
+
+        if ($this->getAnonymity()) {
+            $result = $this->db->queryF(
+                "SELECT usr_id, %s login, %s lastname, %s firstname, client_ip clientip FROM usr_data WHERE " . $this->db->in('usr_id', $ids, false, 'integer') . " ORDER BY login",
+                ['text', 'text', 'text'],
+                ["", $this->lng->txt("anonymous"), ""]
+            );
+        } else {
+            $result = $this->db->query("SELECT usr_id, login, lastname, firstname, client_ip clientip FROM usr_data WHERE " . $this->db->in('usr_id', $ids, false, 'integer') . " ORDER BY login");
+        }
+
+        $result_array = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $result_array[$row["usr_id"]] = $row;
+        }
+        return $result_array;
+    }
+
+    public function getGroupData($ids): array
+    {
+        if (!is_array($ids) || count($ids) == 0) {
+            return [];
+        }
+        $result = [];
+        foreach ($ids as $ref_id) {
+            $obj_id = ilObject::_lookupObjId($ref_id);
+            $result[$ref_id] = ["ref_id" => $ref_id, "title" => ilObject::_lookupTitle($obj_id), "description" => ilObject::_lookupDescription($obj_id)];
+        }
+        return $result;
+    }
+
+    public function getRoleData($ids): array
+    {
+        if (!is_array($ids) || count($ids) == 0) {
+            return [];
+        }
+        $result = [];
+        foreach ($ids as $obj_id) {
+            $result[$obj_id] = ["obj_id" => $obj_id, "title" => ilObject::_lookupTitle($obj_id), "description" => ilObject::_lookupDescription($obj_id)];
+        }
+        return $result;
+    }
+
+    /**
+    * Invites a user to a test
+    *
+    * @param integer $user_id The database id of the invited user
+    * @access public
+    */
+    public function inviteUser($user_id, $client_ip = "")
+    {
+        $this->db->manipulateF(
+            "DELETE FROM tst_invited_user WHERE test_fi = %s AND user_fi = %s",
+            ['integer', 'integer'],
+            [$this->getTestId(), $user_id]
+        );
+        $this->db->manipulateF(
+            "INSERT INTO tst_invited_user (test_fi, user_fi, ip_range_from, ip_range_to, tstamp) VALUES (%s, %s, %s, %s, %s)",
+            ['integer', 'integer', 'text', 'text', 'integer'],
+            [$this->getTestId(), $user_id, (strlen($client_ip)) ? $client_ip : null, (strlen($client_ip)) ? $client_ip : null,time()]
+        );
+    }
+
+    /**
+     * get solved questions
+     *
+     * @return array of int containing all question ids which have been set solved for the given user and test
+     */
+    public static function _getSolvedQuestions($active_id, $question_fi = null): array
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        if (is_numeric($question_fi)) {
+            $result = $ilDB->queryF(
+                "SELECT question_fi, solved FROM tst_qst_solved WHERE active_fi = %s AND question_fi=%s",
+                ['integer', 'integer'],
+                [$active_id, $question_fi]
+            );
+        } else {
+            $result = $ilDB->queryF(
+                "SELECT question_fi, solved FROM tst_qst_solved WHERE active_fi = %s",
+                ['integer'],
+                [$active_id]
+            );
+        }
+        $result_array = [];
+        while ($row = $ilDB->fetchAssoc($result)) {
+            $result_array[$row["question_fi"]] = $row;
+        }
+        return $result_array;
+    }
+
+
+    /**
+     * sets question solved state to value for given user_id
+     */
+    public function setQuestionSetSolved($value, $question_id, $user_id)
+    {
+        $active_id = $this->getActiveIdOfUser($user_id);
+        $this->db->manipulateF(
+            "DELETE FROM tst_qst_solved WHERE active_fi = %s AND question_fi = %s",
+            ['integer', 'integer'],
+            [$active_id, $question_id]
+        );
+        $this->db->manipulateF(
+            "INSERT INTO tst_qst_solved (solved, question_fi, active_fi) VALUES (%s, %s, %s)",
+            ['integer', 'integer', 'integer'],
+            [$value, $question_id, $active_id]
+        );
+    }
+
+    /**
+     * returns if the active for user_id has been submitted
+     */
+    public function isTestFinished($active_id): bool
+    {
+        $result = $this->db->queryF(
+            "SELECT submitted FROM tst_active WHERE active_id=%s AND submitted=%s",
+            ['integer', 'integer'],
+            [$active_id, 1]
+        );
+        return $result->numRows() == 1;
+    }
+
+    /**
+     * returns if the active for user_id has been submitted
+     */
+    public function isActiveTestSubmitted($user_id = null): bool
+    {
+        if (!is_numeric($user_id)) {
+            $user_id = $this->user->getId();
+        }
+
+        $result = $this->db->queryF(
+            "SELECT submitted FROM tst_active WHERE test_fi=%s AND user_fi=%s AND submitted=%s",
+            ['integer', 'integer', 'integer'],
+            [$this->getTestId(), $user_id, 1]
+        );
+        return $result->numRows() == 1;
+    }
+
+    /**
+     * returns if the numbers of tries have to be checked
+     */
+    public function hasNrOfTriesRestriction(): bool
+    {
+        return $this->getNrOfTries() != 0;
+    }
+
+
+    /**
+     * returns if number of tries are reached
+     * @deprecated: tries field differs per situation, outside a pass it's the number of tries, inside a pass it's the current pass number.
+     */
+
+    public function isNrOfTriesReached($tries): bool
+    {
+        return $tries >= $this->getNrOfTries();
+    }
+
+
+    /**
+     * returns all test results for all participants
+     *
+     * @param array $partipants array of user ids
+     *
+     * @return array of fields, see code for column titles
+     */
+    public function getAllTestResults($participants): array
+    {
+        $results = [];
+        $row = [
+            "user_id" => $this->lng->txt("user_id"),
+            "matriculation" => $this->lng->txt("matriculation"),
+            "lastname" => $this->lng->txt("lastname"),
+            "firstname" => $this->lng->txt("firstname"),
+            "login" => $this->lng->txt("login"),
+            "reached_points" => $this->lng->txt("tst_reached_points"),
+            "max_points" => $this->lng->txt("tst_maximum_points"),
+            "percent_value" => $this->lng->txt("tst_percent_solved"),
+            "mark" => $this->lng->txt("tst_mark"),
+            "passed" => $this->lng->txt("tst_mark_passed"),
+        ];
+        $results[] = $row;
+        if (count($participants)) {
+            foreach ($participants as $active_id => $user_rec) {
+                $mark = '';
+                $row = [];
+                $reached_points = 0;
+                $max_points = 0;
+                $pass = ilObjTest::_getResultPass($active_id);
+                // abort if no valid pass can be found
+                if (!is_int($pass)) {
+                    continue;
+                }
+                foreach ($this->questions as $value) {
+                    $question = ilObjTest::_instanciateQuestion($value);
+                    if (is_object($question)) {
+                        $max_points += $question->getMaximumPoints();
+                        $reached_points += $question->getReachedPoints($active_id, $pass);
+                    }
+                }
+                if ($max_points > 0) {
+                    $percentvalue = $reached_points / $max_points;
+                    if ($percentvalue < 0) {
+                        $percentvalue = 0.0;
+                    }
+                } else {
+                    $percentvalue = 0;
+                }
+                $mark_obj = $this->getMarkSchema()->getMatchingMark($percentvalue * 100);
+                $passed = "";
+                if ($mark_obj !== null) {
+                    $mark = $mark_obj->getOfficialName();
+                }
+                if ($this->getAnonymity()) {
+                    $user_rec['firstname'] = "";
+                    $user_rec['lastname'] = $this->lng->txt("anonymous");
+                }
+                $results[] = [
+                    "user_id" => $user_rec['usr_id'],
+                    "matriculation" => $user_rec['matriculation'],
+                    "lastname" => $user_rec['lastname'],
+                    "firstname" => $user_rec['firstname'],
+                    "login" => $user_rec['login'],
+                    "reached_points" => $reached_points,
+                    "max_points" => $max_points,
+                    "percent_value" => $percentvalue,
+                    "mark" => $mark,
+                    "passed" => $user_rec['passed'] ? '1' : '0',
+                ];
+            }
+        }
+        return $results;
+    }
+
+    /**
+    * Retrieves the actual pass of a given user for a given test
+    *
+    * @param integer $user_id The user id
+    * @param integer $test_id The test id
+    * @return integer The pass of the user for the given test
+    * @access public
+    */
+    public static function _getPass($active_id): int
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $result = $ilDB->queryF(
+            "SELECT tries FROM tst_active WHERE active_id = %s",
+            ['integer'],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            return $row["tries"];
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+    * Retrieves the maximum pass of a given user for a given test
+    * in which the user answered at least one question
+    *
+    * @param integer $user_id The user id
+    * @param integer $test_id The test id
+    * @return integer The pass of the user for the given test
+    * @access public
+    */
+    public static function _getMaxPass($active_id): ?int
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $result = $ilDB->queryF(
+            "SELECT MAX(pass) maxpass FROM tst_pass_result WHERE active_fi = %s",
+            ['integer'],
+            [$active_id]
+        );
+
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            return $row["maxpass"];
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves the best pass of a given user for a given test
+     * @param int $active_id
+     * @return int|mixed
+     */
+    public static function _getBestPass($active_id): ?int
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $result = $ilDB->queryF(
+            "SELECT * FROM tst_pass_result WHERE active_fi = %s",
+            ['integer'],
+            [$active_id]
+        );
+
+        if (!$result->numRows()) {
+            return null;
+        }
+
+        $bestrow = null;
+        $bestfactor = 0.0;
+        while ($row = $ilDB->fetchAssoc($result)) {
+            if ($row["maxpoints"] > 0.0) {
+                $factor = (float) ($row["points"] / $row["maxpoints"]);
+            } else {
+                $factor = 0.0;
+            }
+            if ($factor === 0.0 && $bestfactor === 0.0
+                || $factor > $bestfactor) {
+                $bestrow = $row;
+                $bestfactor = $factor;
+            }
+        }
+
+        if (is_array($bestrow)) {
+            return $bestrow["pass"];
+        }
+
+        return null;
+    }
+
+    /**
+    * Retrieves the pass number that should be counted for a given user
+    *
+    * @param integer $user_id The user id
+    * @param integer $test_id The test id
+    * @return integer The result pass of the user for the given test
+    * @access public
+    */
+    public static function _getResultPass($active_id): ?int
+    {
+        $counted_pass = null;
+        if (ilObjTest::_getPassScoring($active_id) == self::SCORE_BEST_PASS) {
+            $counted_pass = ilObjTest::_getBestPass($active_id);
+        } else {
+            $counted_pass = ilObjTest::_getMaxPass($active_id);
+        }
+        return $counted_pass;
+    }
+
+    /**
+    * Retrieves the number of answered questions for a given user in a given test
+    *
+    * @param integer $user_id The user id
+    * @param integer $test_id The test id
+    * @param integer $pass The pass of the test (optional)
+    * @return integer The number of answered questions
+    * @access public
+    */
+    public function getAnsweredQuestionCount($active_id, $pass = null): int
+    {
+        if ($this->isRandomTest()) {
+            $this->loadQuestions($active_id, $pass);
+        }
+        $workedthrough = 0;
+        foreach ($this->questions as $value) {
+            if ($this->questionrepository->lookupResultRecordExist($active_id, $value, $pass)) {
+                $workedthrough += 1;
+            }
+        }
+        return $workedthrough;
+    }
+
+    /**
+     * @param int $active_id
+     * @param int $pass
+     *
+     * @return int
+     */
+    public static function lookupPassResultsUpdateTimestamp($active_id, $pass): int
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        if (is_null($pass)) {
+            $pass = 0;
+        }
+
+        $query = "
+			SELECT	tst_pass_result.tstamp pass_res_tstamp,
+					tst_test_result.tstamp quest_res_tstamp
+
+			FROM tst_pass_result
+
+			LEFT JOIN tst_test_result
+			ON tst_test_result.active_fi = tst_pass_result.active_fi
+			AND tst_test_result.pass = tst_pass_result.pass
+
+			WHERE tst_pass_result.active_fi = %s
+			AND tst_pass_result.pass = %s
+
+			ORDER BY tst_test_result.tstamp DESC
+		";
+
+        $result = $ilDB->queryF(
+            $query,
+            ['integer', 'integer'],
+            [$active_id, $pass]
+        );
+
+        while ($row = $ilDB->fetchAssoc($result)) {
+            if ($row['quest_res_tstamp']) {
+                return $row['quest_res_tstamp'];
+            }
+
+            return $row['pass_res_tstamp'];
+        }
+
+        return 0;
+    }
+
+    /**
+     * Checks if the test is executable by the given user
+     * @param         $test_session
+     * @param integer $user_id The user id
+     * @param bool    $allowPassIncrease
+     * @return array Result array
+     * @throws ilDateTimeException
+     */
+    public function isExecutable($test_session, $user_id, $allow_pass_increase = false): array
+    {
+        $result = [
+            "executable" => true,
+            "errormessage" => ""
+        ];
+
+        if (!$this->getObjectProperties()->getPropertyIsOnline()->getIsOnline()) {
+            $result["executable"] = false;
+            $result["errormessage"] = $this->lng->txt('autosave_failed') . ': ' . $this->lng->txt('offline');
+            return $result;
+        }
+
+        if (!$this->startingTimeReached()) {
+            $result["executable"] = false;
+            $result["errormessage"] = sprintf($this->lng->txt("detail_starting_time_not_reached"), ilDatePresentation::formatDate(new ilDateTime($this->getStartingTime(), IL_CAL_UNIX)));
+            return $result;
+        }
+        if ($this->endingTimeReached()) {
+            $result["executable"] = false;
+            $result["errormessage"] = sprintf($this->lng->txt("detail_ending_time_reached"), ilDatePresentation::formatDate(new ilDateTime($this->getEndingTime(), IL_CAL_UNIX)));
+            return $result;
+        }
+
+        $active_id = $this->getActiveIdOfUser($user_id);
+
+        if ($this->getEnableProcessingTime()
+            && $active_id > 0
+            && ($starting_time = $this->getStartingTimeOfUser($active_id)) !== false
+            && $this->isMaxProcessingTimeReached($starting_time, $active_id)) {
+            $result["executable"] = false;
+            $result["errormessage"] = $this->lng->txt("detail_max_processing_time_reached");
+            return $result;
+        }
+
+        $testPassesSelector = new ilTestPassesSelector($this->db, $this);
+        $testPassesSelector->setActiveId($active_id);
+        $testPassesSelector->setLastFinishedPass($test_session->getLastFinishedPass());
+
+        if ($this->hasNrOfTriesRestriction() && ($active_id > 0)) {
+            $closedPasses = $testPassesSelector->getClosedPasses();
+
+            if (count($closedPasses) >= $this->getNrOfTries()) {
+                $result["executable"] = false;
+                $result["errormessage"] = $this->lng->txt("maximum_nr_of_tries_reached");
+                return $result;
+            }
+
+            if ($this->isBlockPassesAfterPassedEnabled() && !$testPassesSelector->openPassExists()) {
+                if (ilObjTestAccess::_isPassed($user_id, $this->getId())) {
+                    $result['executable'] = false;
+                    $result['errormessage'] = $this->lng->txt("tst_addit_passes_blocked_after_passed_msg");
+                    return $result;
+                }
+            }
+        }
+
+        $next_pass_allowed_timestamp = 0;
+        if (!$this->isNextPassAllowed($testPassesSelector, $next_pass_allowed_timestamp)) {
+            $date = ilDatePresentation::formatDate(new ilDateTime($next_pass_allowed_timestamp, IL_CAL_UNIX));
+
+            $result['executable'] = false;
+            $result['errormessage'] = sprintf($this->lng->txt('wait_for_next_pass_hint_msg'), $date);
+            return $result;
+        }
+        return $result;
+    }
+
+    public function isNextPassAllowed(ilTestPassesSelector $testPassesSelector, int &$next_pass_allowed_timestamp): bool
+    {
+        $waiting_between_passes = $this->getMainSettings()->getTestBehaviourSettings()->getPassWaiting();
+        $last_finished_pass_timestamp = $testPassesSelector->getLastFinishedPassTimestamp();
+
+        if (
+            $this->getMainSettings()->getTestBehaviourSettings()->getPassWaitingEnabled()
+            && ($waiting_between_passes !== '')
+            && ($testPassesSelector->getLastFinishedPass() !== null)
+            && ($last_finished_pass_timestamp !== null)
+        ) {
+            $time_values = explode(':', $waiting_between_passes);
+            $next_pass_allowed_timestamp = strtotime('+ ' . $time_values[0] . ' Days + ' . $time_values[1] . ' Hours' . $time_values[2] . ' Minutes', $last_finished_pass_timestamp);
+            return (time() > $next_pass_allowed_timestamp);
+        }
+
+        return true;
+    }
+
+    public function canShowTestResults(ilTestSession $test_session): bool
+    {
+        $pass_selector = new ilTestPassesSelector($this->db, $this);
+
+        $pass_selector->setActiveId($test_session->getActiveId());
+        $pass_selector->setLastFinishedPass($test_session->getLastFinishedPass());
+
+        return $pass_selector->hasReportablePasses();
+    }
+
+    public function hasAnyTestResult(ilTestSession $test_session): bool
+    {
+        $pass_selector = new ilTestPassesSelector($this->db, $this);
+
+        $pass_selector->setActiveId($test_session->getActiveId());
+        $pass_selector->setLastFinishedPass($test_session->getLastFinishedPass());
+
+        return $pass_selector->hasExistingPasses();
+    }
+
+    /**
+    * Returns the unix timestamp of the time a user started a test
+    *
+    * @param integer $active_id The active id of the user
+    * @return false|int The unix timestamp if the user started the test, FALSE otherwise
+    * @access public
+    */
+    public function getStartingTimeOfUser($active_id, $pass = null)
+    {
+        if ($active_id < 1) {
+            return false;
+        }
+        if ($pass === null) {
+            $pass = ($this->getResetProcessingTime()) ? self::_getPass($active_id) : 0;
+        }
+        $result = $this->db->queryF(
+            "SELECT tst_times.started FROM tst_times WHERE tst_times.active_fi = %s AND tst_times.pass = %s ORDER BY tst_times.started",
+            ['integer', 'integer'],
+            [$active_id, $pass]
+        );
+        if ($result->numRows()) {
+            $row = $this->db->fetchAssoc($result);
+            if (preg_match("/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/", $row["started"], $matches)) {
+                return mktime(
+                    (int) $matches[4],
+                    (int) $matches[5],
+                    (int) $matches[6],
+                    (int) $matches[2],
+                    (int) $matches[3],
+                    (int) $matches[1]
+                );
+            } else {
+                return time();
+            }
+        } else {
+            return time();
+        }
+    }
+
+    /**
+    * Returns whether the maximum processing time for a test is reached or not
+    *
+    * @return bool TRUE if the maxium processing time is reached, FALSE if the
+    *					maximum processing time is not reached or no maximum processing time is given
+    */
+    public function isMaxProcessingTimeReached(int $starting_time, int $active_id): bool
+    {
+        if (!$this->getEnableProcessingTime()) {
+            return false;
+        }
+
+        $processing_time = $this->getProcessingTimeInSeconds($active_id);
+        $now = time();
+        if ($now > ($starting_time + $processing_time)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getTestQuestions(): array
+    {
+        $tags_trafo = $this->refinery->string()->stripTags();
+
+        $query = "
+			SELECT		questions.*,
+						questtypes.type_tag,
+						tstquest.sequence,
+						origquest.obj_fi orig_obj_fi
+
+			FROM		qpl_questions questions
+
+			INNER JOIN	qpl_qst_type questtypes
+			ON			questtypes.question_type_id = questions.question_type_fi
+
+			INNER JOIN	tst_test_question tstquest
+			ON			tstquest.question_fi = questions.question_id
+
+			LEFT JOIN	qpl_questions origquest
+			ON			origquest.question_id = questions.original_id
+
+			WHERE		tstquest.test_fi = %s
+
+			ORDER BY	tstquest.sequence
+		";
+
+        $query_result = $this->db->queryF(
+            $query,
+            ['integer'],
+            [$this->getTestId()]
+        );
+
+        $questions = [];
+
+        while ($row = $this->db->fetchAssoc($query_result)) {
+            $row['title'] = $tags_trafo->transform($row['title']);
+            $row['description'] = $tags_trafo->transform($row['description'] !== '' && $row['description'] !== null ? $row['description'] : '&nbsp;');
+            $row['author'] = $tags_trafo->transform($row['author']);
+
+            $questions[] = $row;
+        }
+
+        return $questions;
+    }
+
+    public function isTestQuestion(int $question_id): bool
+    {
+        foreach ($this->getTestQuestions() as $questionData) {
+            if ($questionData['question_id'] != $question_id) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function checkQuestionParent(int $question_id): bool
+    {
+        $row = $this->db->fetchAssoc($this->db->queryF(
+            "SELECT COUNT(question_id) cnt FROM qpl_questions WHERE question_id = %s AND obj_fi = %s",
+            ['integer', 'integer'],
+            [$question_id, $this->getId()]
+        ));
+
+        return (bool) $row['cnt'];
+    }
+
+    public function getFixedQuestionSetTotalPoints(): float
+    {
+        $points = 0;
+
+        foreach ($this->getTestQuestions() as $question_data) {
+            $points += $question_data['points'];
+        }
+
+        return $points;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPotentialRandomTestQuestions(): array
+    {
+        $query = "
+			SELECT		questions.*,
+						questtypes.type_tag,
+						origquest.obj_fi orig_obj_fi
+
+			FROM		qpl_questions questions
+
+			INNER JOIN	qpl_qst_type questtypes
+			ON			questtypes.question_type_id = questions.question_type_fi
+
+			INNER JOIN	tst_rnd_cpy tstquest
+			ON			tstquest.qst_fi = questions.question_id
+
+			LEFT JOIN	qpl_questions origquest
+			ON			origquest.question_id = questions.original_id
+
+			WHERE		tstquest.tst_fi = %s
+		";
+
+        $query_result = $this->db->queryF(
+            $query,
+            ['integer'],
+            [$this->getTestId()]
+        );
+
+        return $this->db->fetchAll($query_result);
+    }
+
+    public function getShuffleQuestions(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getShuffleQuestions();
+    }
+
+    /**
+    * Returns the settings for the list of questions options in the test properties
+    * This could contain one of the following values:
+    *   0 = No list of questions offered
+    *   1 = A list of questions is offered
+    *   3 = A list of questions is offered and the list of questions is shown as first page of the test
+    *   5 = A list of questions is offered and the list of questions is shown as last page of the test
+    *   7 = A list of questions is offered and the list of questions is shown as first and last page of the test
+    *
+    * @return integer
+    */
+    public function getListOfQuestionsSettings()
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getUsrPassOverviewMode();
+    }
+
+    public function getListOfQuestions(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getQuestionListEnabled();
+    }
+
+    public function getUsrPassOverviewEnabled(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getUsrPassOverviewEnabled();
+    }
+
+    public function getListOfQuestionsStart(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getShownQuestionListAtBeginning();
+    }
+
+    public function getListOfQuestionsEnd(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getShownQuestionListAtEnd();
+    }
+
+    public function getListOfQuestionsDescription(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getShowDescriptionInQuestionList();
+    }
+
+    /**
+    * Returns if the pass details should be shown when a test is not finished
+    */
+    public function getShowPassDetails(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowPassDetails();
+    }
+
+    /**
+    * Returns if the solution printview should be presented to the user or not
+    */
+    public function getShowSolutionPrintview(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowSolutionPrintview();
+    }
+    /**
+     * @deprecated
+     */
+    public function canShowSolutionPrintview($user_id = null): bool
+    {
+        return $this->getShowSolutionPrintview();
+    }
+
+    /**
+    * Returns if the feedback should be presented to the solution or not
+    */
+    public function getShowSolutionFeedback(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowSolutionFeedback();
+    }
+
+    /**
+    * Returns if the full solution (including ILIAS content) should be presented to the solution or not
+    */
+    public function getShowSolutionAnswersOnly(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowSolutionAnswersOnly();
+    }
+
+    /**
+    * Returns if the signature field should be shown in the test results
+    */
+    public function getShowSolutionSignature(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowSolutionSignature();
+    }
+
+    /**
+    * @return boolean TRUE if the suggested solutions should be shown, FALSE otherwise
+    */
+    public function getShowSolutionSuggested(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowSolutionSuggested();
+    }
+
+    /**
+     * @return boolean TRUE if the results should be compared with the correct results in the list of answers, FALSE otherwise
+     * @access public
+     */
+    public function getShowSolutionListComparison(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowSolutionListComparison();
+    }
+
+    public function getShowSolutionListOwnAnswers(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowSolutionListOwnAnswers();
+    }
+
+    /**
+     * @deprecated: use ilTestParticipantData instead
+     */
+    public static function _getUserIdFromActiveId(int $active_id): int
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $result = $ilDB->queryF(
+            "SELECT user_fi FROM tst_active WHERE active_id = %s",
+            ['integer'],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $ilDB->fetchAssoc($result);
+            return $row["user_fi"];
+        } else {
+            return -1;
+        }
+    }
+
+    public function _getLastAccess(int $active_id): string
+    {
+        $result = $this->db->queryF(
+            "SELECT finished FROM tst_times WHERE active_fi = %s ORDER BY finished DESC",
+            ['integer'],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $this->db->fetchAssoc($result);
+            return $row["finished"];
+        }
+        return "";
+    }
+
+    public static function lookupLastTestPassAccess(int $active_id, int $pass_index): ?int
+    {
+        /** @var \ILIAS\DI\Container $DIC */
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $query = "
+            SELECT MAX(tst_times.tstamp) as last_pass_access
+            FROM tst_times
+            WHERE active_fi = %s
+            AND pass = %s
+        ";
+
+        $res = $ilDB->queryF(
+            $query,
+            ['integer', 'integer'],
+            [$active_id, $pass_index]
+        );
+
+        while ($row = $ilDB->fetchAssoc($res)) {
+            return $row['last_pass_access'];
+        }
+
+        return null;
+    }
+
+    /**
+    * Checks if a given string contains HTML or not
+    *
+    * @param string $a_text Text which should be checked
+    * @return boolean
+    * @access public
+    */
+    public function isHTML($a_text): bool
+    {
+        if (preg_match("/<[^>]*?>/", $a_text)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+    * Reads an QTI material tag and creates a text string
+    *
+    * @return string text or xhtml string
+    * @access public
+    */
+    public function qtiMaterialToArray($a_material): array
+    {
+        $result = '';
+        $mobs = [];
+        for ($i = 0; $i < $a_material->getMaterialCount(); $i++) {
+            $material = $a_material->getMaterial($i);
+            if ($material['type'] === 'mattext') {
+                $result .= $material['material']->getContent();
+            }
+            if ($material['type'] === 'matimage') {
+                $matimage = $material['material'];
+                if (preg_match('/(il_([0-9]+)_mob_([0-9]+))/', $matimage->getLabel(), $matches)) {
+                    $mobs[] = [
+                        'mob' => $matimage->getLabel(),
+                        'uri' => $matimage->getUri()
+                    ];
+                }
+            }
+        }
+
+        $decoded_result = base64_decode($result);
+        if (str_starts_with($decoded_result, '<PageObject>')) {
+            $result = $decoded_result;
+        }
+
+        $this->logger->info(print_r(ilSession::get('import_mob_xhtml'), true));
+        return [
+            'text' => $result,
+            'mobs' => $mobs
+        ];
+    }
+
+    public function addQTIMaterial(ilXmlWriter &$xml_writer, ?int $page_id, string $material = ''): void
+    {
+        $xml_writer->xmlStartTag('material');
+        $attrs = [
+            'texttype' => 'text/plain'
+        ];
+        $file_ids = [];
+        $mobs = [];
+        if ($page_id !== null) {
+            $attrs['texttype'] = 'text/xml';
+            $mobs = ilObjMediaObject::_getMobsOfObject('tst:pg', $page_id);
+            $page_object = new ilTestPage($page_id);
+            $page_object->buildDom();
+            $page_object->insertInstIntoIDs((string) IL_INST_ID);
+            $material = base64_encode($page_object->getXMLFromDom());
+            $file_ids = ilPCFileList::collectFileItems($page_object, $page_object->getDomDoc());
+            foreach ($file_ids as $file_id) {
+                $this->file_ids[] = (int) $file_id;
+            };
+            $mob_string = 'il_' . IL_INST_ID . '_mob_';
+        } elseif ($this->isHTML($material)) {
+            $attrs['texttype'] = 'text/xhtml';
+            $mobs = ilObjMediaObject::_getMobsOfObject('tst:html', $this->getId());
+            $mob_string = 'mm_';
+        }
+
+        $xml_writer->xmlElement('mattext', $attrs, $material);
+        foreach ($mobs as $mob) {
+            $mob_id_string = (string) $mob;
+            $moblabel = 'il_' . IL_INST_ID . '_mob_' . $mob_id_string;
+            if (strpos($material, $mob_string . $mob_id_string) !== false) {
+                if (ilObjMediaObject::_exists($mob)) {
+                    $mob_obj = new ilObjMediaObject($mob);
+                    $imgattrs = [
+                        'label' => $moblabel,
+                        'uri' => 'objects/' . 'il_' . IL_INST_ID . '_mob_' . $mob_id_string . '/' . $mob_obj->getTitle()
+                    ];
+                }
+                $xml_writer->xmlElement('matimage', $imgattrs, null);
+            }
+        }
+        $xml_writer->xmlEndTag('material');
+    }
+
+    /**
+    * Prepares a string for a text area output in tests
+    *
+    * @param string $txt_output String which should be prepared for output
+    * @access public
+    */
+    public function prepareTextareaOutput($txt_output, $prepare_for_latex_output = false, $omitNl2BrWhenTextArea = false)
+    {
+        if ($txt_output == null) {
+            $txt_output = '';
+        }
+        return ilLegacyFormElementsUtil::prepareTextareaOutput(
+            $txt_output,
+            $prepare_for_latex_output,
+            $omitNl2BrWhenTextArea
+        );
+    }
+
+    public function getAnonymity(): bool
+    {
+        return $this->getMainSettings()->getGeneralSettings()->getAnonymity();
+    }
+
+
+    public static function _lookupAnonymity($a_obj_id): int
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $result = $ilDB->queryF(
+            "SELECT anonymity FROM tst_tests WHERE obj_fi = %s",
+            ['integer'],
+            [$a_obj_id]
+        );
+        while ($row = $ilDB->fetchAssoc($result)) {
+            return (int) $row['anonymity'];
+        }
+        return 0;
+    }
+
+    public function getShowCancel(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getSuspendTestAllowed();
+    }
+
+    public function getShowMarker(): bool
+    {
+        return $this->getMainSettings()->getParticipantFunctionalitySettings()->getQuestionMarkingEnabled();
+    }
+
+    public function getFixedParticipants(): bool
+    {
+        return $this->getMainSettings()->getAccessSettings()->getFixedParticipants();
+    }
+
+    public function lookupQuestionSetTypeByActiveId(int $active_id): ?string
+    {
+        $query = "
+			SELECT		tst_tests.question_set_type
+			FROM		tst_active
+			INNER JOIN	tst_tests
+			ON			tst_active.test_fi = tst_tests.test_id
+			WHERE		tst_active.active_id = %s
+		";
+
+        $res = $this->db->queryF($query, ['integer'], [$active_id]);
+
+        while ($row = $this->db->fetchAssoc($res)) {
+            return $row['question_set_type'];
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the full name of a test user according to the anonymity status
+     *
+     * @param int $user_id The database ID of the user
+     * @param boolean $overwrite_anonymity Indicates if the anonymity status should be ignored
+     * @return string The full name of the user or UNKNOWN if the anonymity status is affected
+     * @access public
+     *
+     * @deprecated: use ilTestParticipantData instead
+     */
+    public function userLookupFullName($user_id, $overwrite_anonymity = false, $sorted_order = false, $suffix = ""): string
+    {
+        if ($this->getAnonymity() && !$overwrite_anonymity) {
+            return $this->lng->txt("anonymous") . $suffix;
+        } else {
+            $uname = ilObjUser::_lookupName($user_id);
+            if (strlen($uname["firstname"] . $uname["lastname"]) == 0) {
+                $uname["firstname"] = $this->lng->txt("deleted_user");
+            }
+            if ($sorted_order) {
+                return trim($uname["lastname"] . ", " . $uname["firstname"]) . $suffix;
+            } else {
+                return trim($uname["firstname"] . " " . $uname["lastname"]) . $suffix;
+            }
+        }
+    }
+
+    /**
+     * Returns the available test defaults for the active user
+     * @return array An array containing the defaults
+     * @access public
+     */
+    public function getAvailableDefaults(): array
+    {
+        $result = $this->db->queryF(
+            "SELECT * FROM tst_test_defaults WHERE user_fi = %s ORDER BY name ASC",
+            ['integer'],
+            [$this->user->getId()]
+        );
+        $defaults = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $defaults[$row["test_defaults_id"]] = $row;
+        }
+        return $defaults;
+    }
+
+    public function getTestDefaults($test_defaults_id): ?array
+    {
+        $result = $this->db->queryF(
+            "SELECT * FROM tst_test_defaults WHERE test_defaults_id = %s",
+            ['integer'],
+            [$test_defaults_id]
+        );
+        if ($result->numRows() == 1) {
+            $row = $this->db->fetchAssoc($result);
+            return $row;
+        } else {
+            return null;
+        }
+    }
+
+    public function deleteDefaults($test_default_id)
+    {
+        $this->db->manipulateF(
+            "DELETE FROM tst_test_defaults WHERE test_defaults_id = %s",
+            ['integer'],
+            [$test_default_id]
+        );
+    }
+
+    /**
+    * Adds the defaults of this test to the test defaults
+    *
+    * @param string $a_name The name of the test defaults
+    * @access public
+    */
+    public function addDefaults($a_name)
+    {
+        $main_settings = $this->getMainSettings();
+        $score_settings = $this->getScoreSettings();
+        $testsettings = [
+            'questionSetType' => $main_settings->getGeneralSettings()->getQuestionSetType(),
+            'Anonymity' => (int) $main_settings->getGeneralSettings()->getAnonymity(),
+
+            'activation_limited' => $this->isActivationLimited(),
+            'activation_start_time' => $this->getActivationStartingTime(),
+            'activation_end_time' => $this->getActivationEndingTime(),
+            'activation_visibility' => $this->getActivationVisibility(),
+
+            'IntroEnabled' => (int) $main_settings->getIntroductionSettings()->getIntroductionEnabled(),
+            'ExamConditionsCheckboxEnabled' => (int) $main_settings->getIntroductionSettings()->getExamConditionsCheckboxEnabled(),
+
+            'StartingTimeEnabled' => (int) $main_settings->getAccessSettings()->getStartTimeEnabled(),
+            'StartingTime' => $main_settings->getAccessSettings()->getStartTime(),
+            'EndingTimeEnabled' => (int) $main_settings->getAccessSettings()->getEndTimeEnabled(),
+            'EndingTime' => $main_settings->getAccessSettings()->getEndTime(),
+            'password_enabled' => (int) $main_settings->getAccessSettings()->getPasswordEnabled(),
+            'password' => $main_settings->getAccessSettings()->getPassword(),
+            'fixed_participants' => (int) $main_settings->getAccessSettings()->getFixedParticipants(),
+
+            'NrOfTries' => $main_settings->getTestBehaviourSettings()->getNumberOfTries(),
+            'BlockAfterPassed' => (int) $main_settings->getTestBehaviourSettings()->getBlockAfterPassedEnabled(),
+            'pass_waiting' => $main_settings->getTestBehaviourSettings()->getPassWaiting(),
+            'EnableProcessingTime' => (int) $main_settings->getTestBehaviourSettings()->getProcessingTimeEnabled(),
+            'ProcessingTime' => $main_settings->getTestBehaviourSettings()->getProcessingTime(),
+            'ResetProcessingTime' => $main_settings->getTestBehaviourSettings()->getResetProcessingTime(),
+            'Kiosk' => $main_settings->getTestBehaviourSettings()->getKioskMode(),
+            'examid_in_test_pass' => (int) $main_settings->getTestBehaviourSettings()->getExamIdInTestAttemptEnabled(),
+
+            'TitleOutput' => $main_settings->getQuestionBehaviourSettings()->getQuestionTitleOutputMode(),
+            'autosave' => (int) $main_settings->getQuestionBehaviourSettings()->getAutosaveEnabled(),
+            'autosave_ival' => $main_settings->getQuestionBehaviourSettings()->getAutosaveInterval(),
+            'Shuffle' => (int) $main_settings->getQuestionBehaviourSettings()->getShuffleQuestions(),
+            'offer_question_hints' => (int) $main_settings->getQuestionBehaviourSettings()->getQuestionHintsEnabled(),
+            'AnswerFeedbackPoints' => (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackPointsEnabled(),
+            'AnswerFeedback' => (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackGenericEnabled(),
+            'SpecificAnswerFeedback' => (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackSpecificEnabled(),
+            'InstantFeedbackSolution' => (int) $main_settings->getQuestionBehaviourSettings()->getInstantFeedbackSolutionEnabled(),
+            'force_inst_fb' => (int) $main_settings->getQuestionBehaviourSettings()->getForceInstantFeedbackOnNextQuestion(),
+            'follow_qst_answer_fixation' => (int) $main_settings->getQuestionBehaviourSettings()->getLockAnswerOnNextQuestionEnabled(),
+            'inst_fb_answer_fixation' => (int) $main_settings->getQuestionBehaviourSettings()->getLockAnswerOnInstantFeedbackEnabled(),
+
+            'use_previous_answers' => (int) $main_settings->getParticipantFunctionalitySettings()->getUsePreviousAnswerAllowed(),
+            'ShowCancel' => (int) $main_settings->getParticipantFunctionalitySettings()->getSuspendTestAllowed(),
+            'SequenceSettings' => (int) $main_settings->getParticipantFunctionalitySettings()->getPostponedQuestionsMoveToEnd(),
+            'ListOfQuestionsSettings' => $main_settings->getParticipantFunctionalitySettings()->getUsrPassOverviewMode(),
+            'ShowMarker' => (int) $main_settings->getParticipantFunctionalitySettings()->getQuestionMarkingEnabled(),
+
+            'enable_examview' => $main_settings->getFinishingSettings()->getShowAnswerOverview(),
+            'ShowFinalStatement' => (int) $main_settings->getFinishingSettings()->getConcludingRemarksEnabled(),
+            'redirection_mode' => $main_settings->getFinishingSettings()->getRedirectionMode(),
+            'redirection_url' => $main_settings->getFinishingSettings()->getRedirectionUrl(),
+            'mailnotification' => $main_settings->getFinishingSettings()->getMailNotificationContentType(),
+            'mailnottype' => (int) $main_settings->getFinishingSettings()->getAlwaysSendMailNotification(),
+
+            'skill_service' => (int) $main_settings->getAdditionalSettings()->getSkillsServiceEnabled(),
+
+            'PassScoring' => $score_settings->getScoringSettings()->getPassScoring(),
+            'ScoreCutting' => $score_settings->getScoringSettings()->getScoreCutting(),
+            'CountSystem' => $score_settings->getScoringSettings()->getCountSystem(),
+
+            'ScoreReporting' => $score_settings->getResultSummarySettings()->getScoreReporting()->value,
+            'ReportingDate' => $score_settings->getResultSummarySettings()->getReportingDate(),
+            'pass_deletion_allowed' => (int) $score_settings->getResultSummarySettings()->getPassDeletionAllowed(),
+            'show_grading_status' => (int) $score_settings->getResultSummarySettings()->getShowGradingStatusEnabled(),
+            'show_grading_mark' => (int) $score_settings->getResultSummarySettings()->getShowGradingMarkEnabled(),
+
+            'ResultsPresentation' => $score_settings->getResultDetailsSettings()->getResultsPresentation(),
+            'show_solution_list_comparison' => (int) $score_settings->getResultDetailsSettings()->getShowSolutionListComparison(),
+            'examid_in_test_res' => (int) $score_settings->getResultDetailsSettings()->getShowExamIdInTestResults(),
+
+            'highscore_enabled' => (int) $score_settings->getGamificationSettings()->getHighscoreEnabled(),
+            'highscore_anon' => (int) $score_settings->getGamificationSettings()->getHighscoreAnon(),
+            'highscore_achieved_ts' => $score_settings->getGamificationSettings()->getHighscoreAchievedTS(),
+            'highscore_score' => $score_settings->getGamificationSettings()->getHighscoreScore(),
+            'highscore_percentage' => $score_settings->getGamificationSettings()->getHighscorePercentage(),
+            'highscore_hints' => $score_settings->getGamificationSettings()->getHighscoreHints(),
+            'highscore_wtime' => $score_settings->getGamificationSettings()->getHighscoreWTime(),
+            'highscore_own_table' => $score_settings->getGamificationSettings()->getHighscoreOwnTable(),
+            'highscore_top_table' => $score_settings->getGamificationSettings()->getHighscoreTopTable(),
+            'highscore_top_num' => $score_settings->getGamificationSettings()->getHighscoreTopNum(),
+
+            'HideInfoTab' => (int) $main_settings->getAdditionalSettings()->getHideInfoTab(),
+        ];
+
+        $marks = array_map(
+            fn(Mark $v): array => [
+                'short_name' => $v->getShortName(),
+                'official_name' => $v->getOfficialName(),
+                'minimum_level' => $v->getMinimumLevel(),
+                'passed' => $v->getPassed()
+            ],
+            $this->getMarkSchema()->getMarkSteps()
+        );
+
+        $next_id = $this->db->nextId('tst_test_defaults');
+        $this->db->insert(
+            'tst_test_defaults',
+            [
+                'test_defaults_id' => ['integer', $next_id],
+                'name' => ['text', $a_name],
+                'user_fi' => ['integer', $this->user->getId()],
+                'defaults' => ['clob', serialize($testsettings)],
+                'marks' => ['clob', json_encode($marks)],
+                'tstamp' => ['integer', time()]
+            ]
+        );
+    }
+
+    public function applyDefaults(array $test_defaults): string
+    {
+        $testsettings = unserialize($test_defaults['defaults'], ['allowed_classes' => [DateTimeImmutable::class]]);
+        $activation_starting_time = is_numeric($testsettings['activation_starting_time'] ?? false)
+            ? (int) $testsettings['activation_starting_time']
+            : null;
+        $activation_ending_time = is_numeric($testsettings['activation_ending_time'] ?? false)
+            ? (int) $testsettings['activation_ending_time']
+            : null;
+        $unserialized_marks = json_decode($test_defaults['marks'], true);
+
+        $info = '';
+        if (is_array($unserialized_marks)
+            && is_array($unserialized_marks[0])) {
+            $this->mark_schema = $this->getMarkSchema()->withMarkSteps(
+                array_map(
+                    fn(array $v): Mark => new Mark(
+                        $v['short_name'],
+                        $v['official_name'],
+                        $v['minimum_level'],
+                        $v['passed']
+                    ),
+                    $unserialized_marks
+                )
+            );
+        } else {
+            $info = 'old_mark_default_not_applied';
+        }
+
+
+        $this->storeActivationSettings(
+            (bool) ($testsettings['is_activation_limited'] ?? false),
+            $activation_starting_time,
+            $activation_ending_time,
+            (bool) ($testsettings['activation_visibility'] ?? false),
+        );
+
+        $main_settings = $this->getMainSettings();
+
+        $general_settings = $main_settings->getGeneralSettings();
+        $introduction_settings = $main_settings->getIntroductionSettings();
+        $access_settings = $main_settings->getAccessSettings();
+        $test_behavior_settings = $main_settings->getTestBehaviourSettings();
+        $question_behavior_settings = $main_settings->getQuestionBehaviourSettings();
+        $participant_functionality_settings = $main_settings->getParticipantFunctionalitySettings();
+        $finishing_settings = $main_settings->getFinishingSettings();
+        $additional_settings = $main_settings->getAdditionalSettings();
+
+        $main_settings = $main_settings
+            ->withGeneralSettings(
+                $general_settings
+                    ->withQuestionSetType(
+                        $testsettings['questionSetType'] ?? $general_settings->getQuestionSetType()
+                    )->withAnonymity(
+                        (bool) ($testsettings['Anonymity'] ?? $general_settings->getAnonymity())
+                    )
+            )->withIntroductionSettings(
+                $introduction_settings
+                    ->withIntroductionEnabled(
+                        (bool) $testsettings['IntroEnabled'] ?? $introduction_settings->getIntroductionEnabled()
+                    )->withExamConditionsCheckboxEnabled(
+                        (bool) ($testsettings['ExamConditionsCheckboxEnabled'] ?? $introduction_settings->getExamConditionsCheckboxEnabled())
+                    )
+            )->withAccessSettings(
+                $access_settings
+                    ->withStartTimeEnabled(
+                        (bool) ($testsettings['StartingTimeEnabled'] ?? $access_settings->getStartTimeEnabled())
+                    )->withStartTime(
+                        $this->convertTimeToDateTimeImmutableIfNecessary(
+                            $testsettings['StartingTime'] ?? $access_settings->getStartTime()
+                        )
+                    )->withEndTimeEnabled(
+                        (bool) $testsettings['EndingTimeEnabled'] ?? $access_settings->getEndTimeEnabled()
+                    )->withEndTime(
+                        $this->convertTimeToDateTimeImmutableIfNecessary(
+                            $testsettings['EndingTime'] ?? $access_settings->getEndTime()
+                        )
+                    )->withPasswordEnabled(
+                        (bool) ($testsettings['password_enabled'] ?? $access_settings->getPasswordEnabled())
+                    )->withPassword(
+                        $testsettings['password'] ?? $access_settings->getPassword()
+                    )->withFixedParticipants(
+                        (bool) ($testsettings['fixed_participants'] ?? $access_settings->getFixedParticipants())
+                    )
+            )->withTestBehaviourSettings(
+                $test_behavior_settings
+                    ->withNumberOfTries(
+                        (int) ($testsettings['NrOfTries'] ?? $test_behavior_settings->getNumberOfTries())
+                    )->withBlockAfterPassedEnabled(
+                        (bool) ($testsettings['BlockAfterPassed'] ?? $test_behavior_settings->getBlockAfterPassedEnabled())
+                    )->withPassWaiting(
+                        $testsettings['pass_waiting'] ?? $test_behavior_settings->getPassWaiting()
+                    )->withKioskMode(
+                        $testsettings['Kiosk'] ?? $test_behavior_settings->getKioskMode()
+                    )->withProcessingTimeEnabled(
+                        (bool) ($testsettings['EnableProcessingTime'] ?? $test_behavior_settings->getProcessingTimeEnabled())
+                    )->withProcessingTime(
+                        $testsettings['ProcessingTime'] ?? $test_behavior_settings->getProcessingTime()
+                    )->withResetProcessingTime(
+                        (bool) ($testsettings['ResetProcessingTime'] ?? $test_behavior_settings->getResetProcessingTime())
+                    )->withExamIdInTestAttemptEnabled(
+                        (bool) ($testsettings['examid_in_test_pass'] ?? $test_behavior_settings->getExamIdInTestAttemptEnabled())
+                    )
+            )->withQuestionBehaviourSettings(
+                $question_behavior_settings
+                    ->withQuestionTitleOutputMode(
+                        $testsettings['TitleOutput'] ?? $question_behavior_settings->getQuestionTitleOutputMode()
+                    )->withAutosaveEnabled(
+                        (bool) ($testsettings['autosave'] ?? $question_behavior_settings->getAutosaveEnabled())
+                    )->withAutosaveInterval(
+                        $testsettings['autosave_ival'] ?? $question_behavior_settings->getAutosaveInterval()
+                    )->withShuffleQuestions(
+                        (bool) ($testsettings['Shuffle'] ?? $question_behavior_settings->getShuffleQuestions())
+                    )->withQuestionHintsEnabled(
+                        (bool) ($testsettings['offer_question_hints'] ?? $question_behavior_settings->getQuestionHintsEnabled())
+                    )->withInstantFeedbackPointsEnabled(
+                        (bool) ($testsettings['AnswerFeedbackPoints'] ?? $question_behavior_settings->getInstantFeedbackPointsEnabled())
+                    )->withInstantFeedbackGenericEnabled(
+                        (bool) ($testsettings['AnswerFeedback'] ?? $question_behavior_settings->getInstantFeedbackGenericEnabled())
+                    )->withInstantFeedbackSpecificEnabled(
+                        (bool) ($testsettings['SpecificAnswerFeedback'] ?? $question_behavior_settings->getInstantFeedbackSpecificEnabled())
+                    )->withInstantFeedbackSolutionEnabled(
+                        (bool) ($testsettings['InstantFeedbackSolution'] ?? $question_behavior_settings->getInstantFeedbackSolutionEnabled())
+                    )->withForceInstantFeedbackOnNextQuestion(
+                        (bool) ($testsettings['force_inst_fb'] ?? $question_behavior_settings->getForceInstantFeedbackOnNextQuestion())
+                    )->withLockAnswerOnInstantFeedbackEnabled(
+                        (bool) ($testsettings['inst_fb_answer_fixation'] ?? $question_behavior_settings->getLockAnswerOnInstantFeedbackEnabled())
+                    )->withLockAnswerOnNextQuestionEnabled(
+                        (bool) ($testsettings['follow_qst_answer_fixation'] ?? $question_behavior_settings->getLockAnswerOnNextQuestionEnabled())
+                    )
+            )->withParticipantFunctionalitySettings(
+                $participant_functionality_settings
+                    ->withUsePreviousAnswerAllowed(
+                        (bool) ($testsettings['use_previous_answers'] ?? $participant_functionality_settings->getUsePreviousAnswerAllowed())
+                    )->withSuspendTestAllowed(
+                        (bool) ($testsettings['ShowCancel'] ?? $participant_functionality_settings->getSuspendTestAllowed())
+                    )->withPostponedQuestionsMoveToEnd(
+                        (bool) ($testsettings['SequenceSettings'] ?? $participant_functionality_settings->getPostponedQuestionsMoveToEnd())
+                    )->withUsrPassOverviewMode(
+                        (int) ($testsettings['ListOfQuestionsSettings'] ?? $participant_functionality_settings->getUsrPassOverviewMode())
+                    )->withQuestionMarkingEnabled(
+                        (bool) ($testsettings['ShowMarker'] ?? $participant_functionality_settings->getQuestionMarkingEnabled())
+                    )
+            )->withFinishingSettings(
+                $finishing_settings
+                    ->withShowAnswerOverview(
+                        (bool) ($testsettings['enable_examview'] ?? $finishing_settings->getShowAnswerOverview())
+                    )->withConcludingRemarksEnabled(
+                        (bool) ($testsettings['ShowFinalStatement'] ?? $finishing_settings->getConcludingRemarksEnabled())
+                    )->withRedirectionMode(
+                        (int) ($testsettings['redirection_mode'] ?? $finishing_settings->getRedirectionMode())
+                    )->withRedirectionUrl(
+                        $testsettings['redirection_url'] ?? $finishing_settings->getRedirectionUrl()
+                    )->withMailNotificationContentType(
+                        (int) ($testsettings['mailnotification'] ?? $finishing_settings->getMailNotificationContentType())
+                    )->withAlwaysSendMailNotification(
+                        (bool) ($testsettings['mailnottype'] ?? $finishing_settings->getAlwaysSendMailNotification())
+                    )
+            )->withAdditionalSettings(
+                $additional_settings
+                    ->withSkillsServiceEnabled(
+                        (bool) ($testsettings['skill_service'] ?? $additional_settings->getSkillsServiceEnabled())
+                    )->withHideInfoTab(
+                        (bool) ($testsettings['HideInfoTab'] ?? $additional_settings->getHideInfoTab())
+                    )
+            );
+
+        $this->getMainSettingsRepository()->store($main_settings);
+
+        $score_reporting = ScoreReportingTypes::SCORE_REPORTING_DISABLED;
+        if ($testsettings['ScoreReporting'] !== null) {
+            $score_reporting = ScoreReportingTypes::tryFrom($testsettings['ScoreReporting'])
+                ?? ScoreReportingTypes::SCORE_REPORTING_DISABLED;
+        }
+
+        $reporting_date = $testsettings['ReportingDate'];
+        if (is_string($reporting_date)) {
+            $reporting_date = new DateTimeImmutable($testsettings['ReportingDate'], new DateTimeZone('UTC'));
+        }
+
+        $score_settings = $this->getScoreSettings();
+
+        $scoring_settings = $score_settings->getScoringSettings();
+        $result_summary_settings = $score_settings->getResultSummarySettings();
+        $result_details_settings = $score_settings->getResultDetailsSettings();
+        $gamification_settings = $score_settings->getGamificationSettings();
+
+        $score_settings = $score_settings
+            ->withScoringSettings(
+                $scoring_settings
+                    ->withPassScoring(
+                        $testsettings['PassScoring'] ?? $scoring_settings->getPassScoring()
+                    )->withScoreCutting(
+                        $testsettings['ScoreCutting'] ?? $scoring_settings->getScoreCutting()
+                    )->withCountSystem(
+                        $testsettings['CountSystem'] ?? $scoring_settings->getCountSystem()
+                    )
+            )->withResultSummarySettings(
+                $result_summary_settings
+                    ->withPassDeletionAllowed(
+                        (bool) ($testsettings['pass_deletion_allowed'] ?? $result_summary_settings->getPassDeletionAllowed())
+                    )->withShowGradingStatusEnabled(
+                        (bool) ($testsettings['show_grading_status'] ?? $result_summary_settings->getShowGradingStatusEnabled())
+                    )->withShowGradingMarkEnabled(
+                        (bool) ($testsettings['show_grading_mark'] ?? $result_summary_settings->getShowGradingMarkEnabled())
+                    )->withScoreReporting(
+                        $score_reporting
+                    )->withReportingDate(
+                        $reporting_date
+                    )
+            )->withResultDetailsSettings(
+                $result_details_settings
+                    ->withResultsPresentation(
+                        (int) ($testsettings['ResultsPresentation'] ?? $result_details_settings->getResultsPresentation())
+                    )->withShowSolutionListComparison(
+                        (bool) ($testsettings['show_solution_list_comparison'] ?? $result_details_settings->getShowSolutionListComparison())
+                    )->withShowExamIdInTestResults(
+                        (bool) ($testsettings['examid_in_test_res'] ?? $result_details_settings->getShowExamIdInTestResults())
+                    )
+            )->withGamificationSettings(
+                $gamification_settings
+                    ->withHighscoreEnabled(
+                        (bool) ($testsettings['highscore_enabled'] ?? $gamification_settings->getHighscoreEnabled())
+                    )->withHighscoreAnon(
+                        (bool) ($testsettings['highscore_anon'] ?? $gamification_settings->getHighscoreAnon())
+                    )->withHighscoreAchievedTS(
+                        $testsettings['highscore_achieved_ts'] ?? $gamification_settings->getHighscoreAchievedTS()
+                    )->withHighscoreScore(
+                        (bool) ($testsettings['highscore_score'] ?? $gamification_settings->getHighscoreScore())
+                    )->withHighscorePercentage(
+                        $testsettings['highscore_percentage'] ?? $gamification_settings->getHighscorePercentage()
+                    )->withHighscoreHints(
+                        (bool) ($testsettings['highscore_hints'] ?? $gamification_settings->getHighscoreHints())
+                    )->withHighscoreWTime(
+                        (bool) ($testsettings['highscore_wtime'] ?? $gamification_settings->getHighscoreWTime())
+                    )->withHighscoreOwnTable(
+                        (bool) ($testsettings['highscore_own_table'] ?? $gamification_settings->getHighscoreOwnTable())
+                    )->withHighscoreTopTable(
+                        (bool) ($testsettings['highscore_top_table'] ?? $gamification_settings->getHighscoreTopTable())
+                    )->withHighscoreTopNum(
+                        $testsettings['highscore_top_num'] ?? $gamification_settings->getHighscoreTopNum()
+                    )
+            )
+        ;
+        $this->getScoreSettingsRepository()->store($score_settings);
+        $this->saveToDb();
+
+        return $info;
+    }
+
+    private function convertTimeToDateTimeImmutableIfNecessary(
+        DateTimeImmutable|int|null $date_time
+    ): ?DateTimeImmutable {
+        if ($date_time === null || $date_time instanceof DateTimeImmutable) {
+            return $date_time;
+        }
+
+        return DateTimeImmutable::createFromFormat('U', (string) $date_time);
+    }
+
+    /**
+    * Convert a print output to XSL-FO
+    *
+    * @param string $print_output The print output
+    * @return string XSL-FO code
+    * @access public
+    */
+    public function processPrintoutput2FO($print_output): string
+    {
+        if (extension_loaded("tidy")) {
+            $config = [
+                "indent" => false,
+                "output-xml" => true,
+                "numeric-entities" => true
+            ];
+            $tidy = new tidy();
+            $tidy->parseString($print_output, $config, 'utf8');
+            $tidy->cleanRepair();
+            $print_output = tidy_get_output($tidy);
+            $print_output = preg_replace("/^.*?(<html)/", "\\1", $print_output);
+        } else {
+            $print_output = str_replace("&nbsp;", "&#160;", $print_output);
+            $print_output = str_replace("&otimes;", "X", $print_output);
+        }
+        $xsl = file_get_contents("./components/ILIAS/Test/xml/question2fo.xsl");
+
+        // additional font support
+
+        $xsl = str_replace(
+            'font-family="Helvetica, unifont"',
+            'font-family="' . $this->settings->get('rpc_pdf_font', 'Helvetica, unifont') . '"',
+            $xsl
+        );
+
+        $args = [ '/_xml' => $print_output, '/_xsl' => $xsl ];
+        $xh = xslt_create();
+        $params = [];
+        $output = xslt_process($xh, "arg:/_xml", "arg:/_xsl", null, $args, $params);
+        xslt_error($xh);
+        xslt_free($xh);
+        return $output;
+    }
+
+    /**
+    * Delivers a PDF file from XHTML
+    *
+    * @param string $html The XHTML string
+    * @access public
+    */
+    public function deliverPDFfromHTML($content, $title = null)
+    {
+        $content = preg_replace("/href=\".*?\"/", "", $content);
+        $printbody = new ilTemplate("tpl.il_as_tst_print_body.html", true, true, "components/ILIAS/Test");
+        $printbody->setVariable("TITLE", ilLegacyFormElementsUtil::prepareFormOutput($this->getTitle()));
+        $printbody->setVariable("ADM_CONTENT", $content);
+        $printbody->setCurrentBlock("css_file");
+        $printbody->setVariable("CSS_FILE", ilUtil::getStyleSheetLocation("filesystem", "delos.css"));
+        $printbody->parseCurrentBlock();
+        $printoutput = $printbody->get();
+        $html = str_replace("href=\"./", "href=\"" . ILIAS_HTTP_PATH . "/", $printoutput);
+        $html = preg_replace("/<div id=\"dontprint\">.*?<\\/div>/ims", "", $html);
+        if (extension_loaded("tidy")) {
+            $config = [
+                "indent" => false,
+                "output-xml" => true,
+                "numeric-entities" => true
+            ];
+            $tidy = new tidy();
+            $tidy->parseString($html, $config, 'utf8');
+            $tidy->cleanRepair();
+            $html = tidy_get_output($tidy);
+            $html = preg_replace("/^.*?(<html)/", "\\1", $html);
+        } else {
+            $html = str_replace("&nbsp;", "&#160;", $html);
+            $html = str_replace("&otimes;", "X", $html);
+        }
+        $html = preg_replace("/src=\".\\//ims", "src=\"" . ILIAS_HTTP_PATH . "/", $html);
+        $this->deliverPDFfromFO($this->processPrintoutput2FO($html), $title);
+    }
+
+    /**
+    * Delivers a PDF file from a XSL-FO string
+    * @param string $fo The XSL-FO string
+    * @access public
+    */
+    public function deliverPDFfromFO($fo, $title = null): bool
+    {
+        $fo_file = ilFileUtils::ilTempnam() . ".fo";
+        $fp = fopen($fo_file, "w");
+        fwrite($fp, $fo);
+        fclose($fp);
+
+        try {
+            $pdf_base64 = ilRpcClientFactory::factory('RPCTransformationHandler')->ilFO2PDF($fo);
+            $filename = (strlen($title)) ? $title : $this->getTitle();
+            /** @noinspection PhpUndefinedFieldInspection */
+            ilUtil::deliverData(
+                $pdf_base64->scalar,
+                ilFileUtils::getASCIIFilename($filename) . ".pdf",
+                "application/pdf"
+            );
+            return true;
+        } catch (Exception $e) {
+            $this->logger->info(__METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+    * Retrieves the feedback comment for a question in a test if it is finalized
+    *
+    * @param integer $active_id Active ID of the user
+    * @param integer $question_id Question ID
+    * @param integer $pass Pass number
+    * @return string The feedback text
+    * @access public
+    */
+    public static function getManualFeedback(int $active_id, int $question_id, ?int $pass): string
+    {
+        if ($pass === null) {
+            return '';
+        }
+        $feedback = '';
+        $row = self::getSingleManualFeedback((int) $active_id, (int) $question_id, (int) $pass);
+
+        if ($row !== [] && ($row['finalized_evaluation'] || \ilTestService::isManScoringDone((int) $active_id))) {
+            $feedback = $row['feedback'] ?? '';
+        }
+
+        return $feedback;
+    }
+
+    public static function getSingleManualFeedback(int $active_id, int $question_id, int $pass): array
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $row = [];
+        $result = $ilDB->queryF(
+            "SELECT * FROM tst_manual_fb WHERE active_fi = %s AND question_fi = %s AND pass = %s",
+            ['integer', 'integer', 'integer'],
+            [$active_id, $question_id, $pass]
+        );
+
+        if ($ilDB->numRows($result) === 1) {
+            $row = $ilDB->fetchAssoc($result);
+            $row['feedback'] = ilRTE::_replaceMediaObjectImageSrc($row['feedback'] ?? '', 1);
+        } elseif ($ilDB->numRows($result) > 1) {
+            $DIC->logger()->root()->warning(
+                "WARNING: Multiple feedback entries on tst_manual_fb for " .
+                "active_fi = $active_id , question_fi = $question_id and pass = $pass"
+            );
+        }
+
+        return $row;
+    }
+
+    /**
+     * Retrieves the manual feedback for a question in a test
+     *
+     * @param integer $question_id Question ID
+     * @return array The feedback text
+     * @access public
+     */
+    public function getCompleteManualFeedback(int $question_id): array
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $feedback = [];
+        $result = $ilDB->queryF(
+            "SELECT * FROM tst_manual_fb WHERE question_fi = %s",
+            ['integer'],
+            [$question_id]
+        );
+
+        while ($row = $ilDB->fetchAssoc($result)) {
+            $active = $row['active_fi'];
+            $pass = $row['pass'];
+            $question = $row['question_fi'];
+
+            $row['feedback'] = ilRTE::_replaceMediaObjectImageSrc($row['feedback'] ?? '', 1);
+
+            $feedback[$active][$pass][$question] = $row;
+        }
+
+        return $feedback;
+    }
+
+    public function saveManualFeedback(
+        int $active_id,
+        int $question_id,
+        int $pass,
+        ?string $feedback,
+        bool $finalized = false
+    ): void {
+        $feedback_old = self::getSingleManualFeedback($active_id, $question_id, $pass);
+        $this->db->manipulateF(
+            'DELETE FROM tst_manual_fb WHERE active_fi = %s AND question_fi = %s AND pass = %s',
+            ['integer', 'integer', 'integer'],
+            [$active_id, $question_id, $pass]
+        );
+
+        $this->insertManualFeedback($active_id, $question_id, $pass, $feedback, $finalized, $feedback_old);
+
+    }
+
+    private function insertManualFeedback(
+        int $active_id,
+        int $question_id,
+        int $pass,
+        ?string $feedback,
+        bool $finalized,
+        array $feedback_old
+    ): void {
+        $next_id = $this->db->nextId('tst_manual_fb');
+        $user = $this->user->getId();
+        $finalized_time = time();
+
+        $update_default = [
+            'manual_feedback_id' => [ 'integer', $next_id],
+            'active_fi' => [ 'integer', $active_id],
+            'question_fi' => [ 'integer', $question_id],
+            'pass' => [ 'integer', $pass],
+            'feedback' => [ 'clob', $feedback ? ilRTE::_replaceMediaObjectImageSrc($feedback, 0) : null],
+            'tstamp' => [ 'integer', time()]
+        ];
+
+        if ($feedback_old !== [] && (int) $feedback_old['finalized_evaluation'] === 1) {
+            $user = $feedback_old['finalized_by_usr_id'];
+            $finalized_time = $feedback_old['finalized_tstamp'];
+        }
+
+        if ($finalized === false) {
+            $update_default['finalized_evaluation'] = ['integer', 0];
+            $update_default['finalized_by_usr_id'] = ['integer', 0];
+            $update_default['finalized_tstamp'] = ['integer', 0];
+        } elseif ($finalized === true) {
+            $update_default['finalized_evaluation'] = ['integer', 1];
+            $update_default['finalized_by_usr_id'] = ['integer', $user];
+            $update_default['finalized_tstamp'] = ['integer', $finalized_time];
+        }
+
+        $this->db->insert('tst_manual_fb', $update_default);
+
+        if ($this->logger->isLoggingEnabled()) {
+            $this->logger->logScoringInteraction(
+                $this->logger->getInteractionFactory()->buildScoringInteraction(
+                    $this->getRefId(),
+                    $question_id,
+                    $this->user->getId(),
+                    self::_getUserIdFromActiveId($active_id),
+                    TestScoringInteractionTypes::QUESTION_GRADED,
+                    [
+                        AdditionalInformationGenerator::KEY_EVAL_FINALIZED => $this->logger
+                            ->getAdditionalInformationGenerator()->getTrueFalseTagForBool($finalized),
+                        AdditionalInformationGenerator::KEY_FEEDBACK => $feedback ? ilRTE::_replaceMediaObjectImageSrc($feedback, 0) : ''
+                    ]
+                )
+            );
+        }
+    }
+
+    /**
+    * Returns if Javascript should be chosen for drag & drop actions
+    * for the active user
+    *
+    * @return boolean TRUE if Javascript should be chosen, FALSE otherwise
+    * @access public
+    */
+    public function getJavaScriptOutput(): bool
+    {
+        return true;
+    }
+
+    public function &createTestSequence($active_id, $pass, $shuffle)
+    {
+        $this->test_sequence = new ilTestSequence($active_id, $pass, $this->isRandomTest(), $this->questionrepository);
+    }
+
+    /**
+    * Sets the test ID
+    *
+    * @param integer $a_id Test ID
+    */
+    public function setTestId($a_id)
+    {
+        $this->test_id = $a_id;
+    }
+
+    /**
+     * returns all test results for all participants
+     *
+     * @param array $partipants array of user ids
+     *
+     * @return array of fields, see code for column titles
+     */
+    public function getDetailedTestResults($participants): array
+    {
+        $results = [];
+        if (count($participants)) {
+            foreach ($participants as $active_id => $user_rec) {
+                $row = [];
+                $reached_points = 0;
+                $max_points = 0;
+                $pass = ilObjTest::_getResultPass($active_id);
+                foreach ($this->questions as $value) {
+                    $question = ilObjTest::_instanciateQuestion($value);
+                    if (is_object($question)) {
+                        $max_points += $question->getMaximumPoints();
+                        $reached_points += $question->getReachedPoints($active_id, $pass);
+                        if ($max_points > 0) {
+                            $percentvalue = $reached_points / $max_points;
+                            if ($percentvalue < 0) {
+                                $percentvalue = 0.0;
+                            }
+                        } else {
+                            $percentvalue = 0;
+                        }
+                        if ($this->getAnonymity()) {
+                            $user_rec['firstname'] = "";
+                            $user_rec['lastname'] = $this->lng->txt("anonymous");
+                        }
+                        $results[] = [
+                            "user_id" => $user_rec['usr_id'],
+                            "matriculation" => $user_rec['matriculation'],
+                            "lastname" => $user_rec['lastname'],
+                            "firstname" => $user_rec['firstname'],
+                            "login" => $user_rec['login'],
+                            "question_id" => $question->getId(),
+                            "question_title" => $question->getTitle(),
+                            "reached_points" => $reached_points,
+                            "max_points" => $max_points,
+                            "passed" => $user_rec['passed'] ? '1' : '0',
+                        ];
+                    }
+                }
+            }
+        }
+        return $results;
+    }
+
+    /**
+    * Get test Object ID for question ID
+    */
+    public static function _lookupTestObjIdForQuestionId(int $q_id): ?int
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $result = $ilDB->queryF(
+            'SELECT t.obj_fi obj_id FROM tst_test_question q, tst_tests t WHERE q.test_fi = t.test_id AND q.question_fi = %s',
+            ['integer'],
+            [$q_id]
+        );
+        $rec = $ilDB->fetchAssoc($result);
+        return $rec['obj_id'] ?? null;
+    }
+
+    /**
+    * Checks wheather or not a question plugin with a given name is active
+    *
+    * @param string $a_pname The plugin name
+    * @access public
+    */
+    public function isPluginActive($a_pname): bool
+    {
+        if (!$this->component_repository->getComponentByTypeAndName(
+            ilComponentInfo::TYPE_COMPONENT,
+            'TestQuestionPool'
+        )->getPluginSlotById('qst')->hasPluginName($a_pname)) {
+            return false;
+        }
+
+        return $this->component_repository
+            ->getComponentByTypeAndName(
+                ilComponentInfo::TYPE_COMPONENT,
+                'TestQuestionPool'
+            )
+            ->getPluginSlotById(
+                'qst'
+            )
+            ->getPluginByName(
+                $a_pname
+            )->isActive();
+    }
+
+    public function getPassed($active_id)
+    {
+        $result = $this->db->queryF(
+            "SELECT passed FROM tst_result_cache WHERE active_fi = %s",
+            ['integer'],
+            [$active_id]
+        );
+        if ($result->numRows()) {
+            $row = $this->db->fetchAssoc($result);
+            return $row['passed'];
+        } else {
+            $counted_pass = ilObjTest::_getResultPass($active_id);
+            $result_array = &$this->getTestResult($active_id, $counted_pass);
+            return $result_array["test"]["passed"];
+        }
+    }
+
+    /**
+     * Creates an associated array with all active id's for a given test and original question id
+     */
+    public function getParticipantsForTestAndQuestion($test_id, $question_id): array
+    {
+        $query = "
+			SELECT tst_test_result.active_fi, tst_test_result.question_fi, tst_test_result.pass
+			FROM tst_test_result
+			INNER JOIN tst_active ON tst_active.active_id = tst_test_result.active_fi AND tst_active.test_fi = %s
+			INNER JOIN qpl_questions ON qpl_questions.question_id = tst_test_result.question_fi
+			LEFT JOIN usr_data ON usr_data.usr_id = tst_active.user_fi
+			WHERE tst_test_result.question_fi = %s
+			ORDER BY usr_data.lastname ASC, usr_data.firstname ASC
+		";
+
+        $result = $this->db->queryF(
+            $query,
+            ['integer', 'integer'],
+            [$test_id, $question_id]
+        );
+        $foundusers = [];
+        /** @noinspection PhpAssignmentInConditionInspection */
+        while ($row = $this->db->fetchAssoc($result)) {
+            if ($this->getAccessFilteredParticipantList() && !$this->getAccessFilteredParticipantList()->isActiveIdInList($row["active_fi"])) {
+                continue;
+            }
+
+            if (!array_key_exists($row["active_fi"], $foundusers)) {
+                $foundusers[$row["active_fi"]] = [];
+            }
+            array_push($foundusers[$row["active_fi"]], ["pass" => $row["pass"], "qid" => $row["question_fi"]]);
+        }
+        return $foundusers;
+    }
+
+    public function getAggregatedResultsData(): array
+    {
+        $data = $this->getCompleteEvaluationData();
+        $found_participants = $data->getParticipants();
+        $results = ['overview' => [], 'questions' => []];
+        if ($found_participants !== []) {
+            $results['overview']['tst_stat_result_mark_median'] = $data->getStatistics()->getEvaluationDataOfMedianUser()?->getMark()?->getShortName() ?? '';
+            $results['overview']['tst_stat_result_rank_median'] = $data->getStatistics()->rankMedian();
+            $results['overview']['tst_stat_result_total_participants'] = $data->getStatistics()->count();
+            $results['overview']['tst_stat_result_median'] = $data->getStatistics()->median();
+            $results['overview']['tst_eval_total_persons'] = count($found_participants);
+            $total_finished = $data->getTotalFinishedParticipants();
+            $results['overview']['tst_eval_total_finished'] = $total_finished;
+            $results['overview']['tst_eval_total_finished_average_time'] =
+                $this->secondsToHoursMinutesSecondsString(
+                    $this->evalTotalStartedAverageTime($data->getParticipantIds())
+                );
+            $total_passed = 0;
+            $total_passed_reached = 0;
+            $total_passed_max = 0;
+            $total_passed_time = 0;
+            foreach ($found_participants as $userdata) {
+                if ($userdata->getMark()?->getPassed()) {
+                    $total_passed++;
+                    $total_passed_reached += $userdata->getReached();
+                    $total_passed_max += $userdata->getMaxpoints();
+                    $total_passed_time += $userdata->getTimeOnTask();
+                }
+            }
+            $average_passed_reached = $total_passed ? $total_passed_reached / $total_passed : 0;
+            $average_passed_max = $total_passed ? $total_passed_max / $total_passed : 0;
+            $average_passed_time = $total_passed ? $total_passed_time / $total_passed : 0;
+            $results['overview']['tst_eval_total_passed'] = $total_passed;
+            $results['overview']['tst_eval_total_passed_average_points'] = sprintf('%2.2f', $average_passed_reached)
+                . ' ' . strtolower('of') . ' ' . sprintf('%2.2f', $average_passed_max);
+            $results['overview']['tst_eval_total_passed_average_time'] =
+                $this->secondsToHoursMinutesSecondsString($average_passed_time);
+        }
+
+        foreach ($data->getQuestionTitles() as $question_id => $question_title) {
+            $answered = 0;
+            $reached = 0;
+            $max = 0;
+            foreach ($found_participants as $userdata) {
+                for ($i = 0; $i <= $userdata->getLastPass(); $i++) {
+                    if (is_object($userdata->getPass($i))) {
+                        $question = $userdata->getPass($i)->getAnsweredQuestionByQuestionId($question_id);
+                        if (is_array($question)) {
+                            $answered++;
+                            $reached += $question['reached'];
+                            $max += $question['points'];
+                        }
+                    }
+                }
+            }
+            $percent = $max ? $reached / $max * 100.0 : 0;
+            $results['questions'][$question_id] = [
+                $question_title,
+                sprintf('%.2f', $answered ? $reached / $answered : 0) . ' ' . strtolower($this->lng->txt('of')) . ' ' . sprintf('%.2f', $answered ? $max / $answered : 0),
+                sprintf('%.2f', $percent) . '%',
+                $answered,
+                sprintf('%.2f', $answered ? $reached / $answered : 0),
+                sprintf('%.2f', $answered ? $max / $answered : 0),
+                $percent / 100.0
+            ];
+        }
+        return $results;
+    }
+
+    protected function secondsToHoursMinutesSecondsString(int $seconds): string
+    {
+        $diff_hours = floor($seconds / 3600);
+        $seconds -= $diff_hours * 3600;
+        $diff_minutes = floor($seconds / 60);
+        $seconds -= $diff_minutes * 60;
+        return sprintf('%02d:%02d:%02d', $diff_hours, $diff_minutes, $seconds);
+    }
+
+    /**
+    * Get zipped xml file for test
+    */
+    public function getXMLZip(): string
+    {
+        return $this->export_factory->getExporter($this, 'xml')
+            ->write();
+    }
+
+    public function getMailNotification(): int
+    {
+        return $this->getMainSettings()->getFinishingSettings()->getMailNotificationContentType();
+    }
+
+    public function sendSimpleNotification($active_id)
+    {
+        $mail = new ilTestMailNotification();
+        $owner_id = $this->getOwner();
+        $usr_data = $this->userLookupFullName(ilObjTest::_getUserIdFromActiveId($active_id));
+        $mail->sendSimpleNotification($owner_id, $this->getTitle(), $usr_data);
+    }
+
+    public function sendAdvancedNotification(int $active_id): void
+    {
+        $mail = new ilTestMailNotification();
+        $owner_id = $this->getOwner();
+        $usr_data = $this->userLookupFullName(ilObjTest::_getUserIdFromActiveId($active_id));
+
+        $path = $this->export_factory->getExporter(
+            $this,
+            ExportImportTypes::SCORED_ATTEMPT
+        )->withFilterByActiveId($active_id)
+            ->write();
+
+        $delivered_file_name = 'result_' . $active_id . '.xlsx';
+        $fd = new ilFileDataMail(ANONYMOUS_USER_ID);
+        $fd->copyAttachmentFile($path, $delivered_file_name);
+        $file_names[] = $delivered_file_name;
+
+        $mail->sendAdvancedNotification($owner_id, $this->getTitle(), $usr_data, $file_names);
+
+        if (count($file_names)) {
+            $fd->unlinkFiles($file_names);
+            unset($fd);
+            @unlink($path);
+        }
+    }
+
+    public function getResultsForActiveId(int $active_id): array
+    {
+        $query = "
+			SELECT		*
+			FROM		tst_result_cache
+			WHERE		active_fi = %s
+		";
+
+        $result = $this->db->queryF(
+            $query,
+            ['integer'],
+            [$active_id]
+        );
+
+        if (!$result->numRows()) {
+            $this->updateTestResultCache($active_id);
+
+            $query = "
+				SELECT		*
+				FROM		tst_result_cache
+				WHERE		active_fi = %s
+			";
+
+            $result = $this->db->queryF(
+                $query,
+                ['integer'],
+                [$active_id]
+            );
+        }
+
+        $row = $this->db->fetchAssoc($result);
+
+        return $row;
+    }
+
+    public function getMailNotificationType(): bool
+    {
+        return $this->getMainSettings()->getFinishingSettings()->getAlwaysSendMailNotification();
+    }
+
+    public function getExportSettings(): int
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getExportSettings();
+    }
+
+    public function setTemplate(int $template_id)
+    {
+        $this->template_id = $template_id;
+    }
+
+    public function getTemplate(): int
+    {
+        return $this->template_id;
+    }
+
+    public function reindexFixedQuestionOrdering(): ilTestReindexedSequencePositionMap
+    {
+        $question_set_config = $this->question_set_config_factory->getQuestionSetConfig();
+        $reindexed_sequence_position_map = $question_set_config->reindexQuestionOrdering();
+
+        $this->loadQuestions();
+
+        return $reindexed_sequence_position_map;
+    }
+
+    public function setQuestionOrder(array $order)
+    {
+        asort($order);
+
+        $i = 0;
+
+        foreach (array_keys($order) as $id) {
+            $i++;
+
+            $query = "
+				UPDATE		tst_test_question
+				SET			sequence = %s
+				WHERE		question_fi = %s
+			";
+
+            $this->db->manipulateF(
+                $query,
+                ['integer', 'integer'],
+                [$i, $id]
+            );
+        }
+
+        if ($this->logger->isLoggingEnabled()) {
+            $this->logger->logTestAdministrationInteraction(
+                $this->logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                    $this->getRefId(),
+                    $this->user->getId(),
+                    TestAdministrationInteractionTypes::QUESTION_MOVED,
+                    [
+                        AdditionalInformationGenerator::KEY_QUESTION_ORDER => $order
+                    ]
+                )
+            );
+        }
+
+        $this->loadQuestions();
+    }
+
+    public function hasQuestionsWithoutQuestionpool(): bool
+    {
+        $questions = $this->getQuestionTitlesAndIndexes();
+
+        $IN_questions = $this->db->in('q1.question_id', array_keys($questions), false, 'integer');
+
+        $query = "
+			SELECT		count(q1.question_id) cnt
+
+			FROM		qpl_questions q1
+
+			INNER JOIN	qpl_questions q2
+			ON			q2.question_id = q1.original_id
+
+			WHERE		$IN_questions
+			AND		 	q1.obj_fi = q2.obj_fi
+		";
+        $rset = $this->db->query($query);
+        $row = $this->db->fetchAssoc($rset);
+
+        return $row['cnt'] > 0;
+    }
+
+    /**
+     * Gather all finished tests for user
+     *
+     * @param int $a_user_id
+     * @return array(test id => passed)
+     */
+    public static function _lookupFinishedUserTests($a_user_id): array
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $result = $ilDB->queryF(
+            "SELECT test_fi,MAX(pass) AS pass FROM tst_active" .
+            " JOIN tst_pass_result ON (tst_pass_result.active_fi = tst_active.active_id)" .
+            " WHERE user_fi=%s" .
+            " GROUP BY test_fi",
+            ['integer', 'integer'],
+            [$a_user_id, 1]
+        );
+        $all = [];
+        while ($row = $ilDB->fetchAssoc($result)) {
+            $obj_id = self::_getObjectIDFromTestID($row["test_fi"]);
+            $all[$obj_id] = (bool) $row["pass"];
+        }
+        return $all;
+    }
+
+    public function getQuestions(): array
+    {
+        return $this->questions;
+    }
+
+    public function isOnline(): bool
+    {
+        return $this->online;
+    }
+
+    public function isOfferingQuestionHintsEnabled(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getQuestionHintsEnabled();
+    }
+
+    public function setActivationVisibility($a_value)
+    {
+        $this->activation_visibility = (bool) $a_value;
+    }
+
+    public function getActivationVisibility(): bool
+    {
+        return $this->activation_visibility;
+    }
+
+    public function isActivationLimited(): ?bool
+    {
+        return $this->activation_limited;
+    }
+
+    public function setActivationLimited($a_value)
+    {
+        $this->activation_limited = (bool) $a_value;
+    }
+
+    public function storeActivationSettings(
+        ?bool $is_activation_limited = false,
+        ?int $activation_starting_time = null,
+        ?int $activation_ending_time = null,
+        bool $activation_visibility = false,
+    ): void {
+        if (!$this->ref_id) {
+            return;
+        }
+
+        $item = new ilObjectActivation();
+        $is_activation_limited ??= false;
+
+        if (!$is_activation_limited) {
+            $item->setTimingType(ilObjectActivation::TIMINGS_DEACTIVATED);
+        } else {
+            $item->setTimingType(ilObjectActivation::TIMINGS_ACTIVATION);
+            $item->setTimingStart($activation_starting_time);
+            $item->setTimingEnd($activation_ending_time);
+            $item->toggleVisible($activation_visibility);
+        }
+
+        $item->update($this->ref_id);
+
+        $this->setActivationLimited($is_activation_limited);
+        $this->setActivationStartingTime($activation_starting_time);
+        $this->setActivationStartingTime($activation_ending_time);
+        $this->setActivationVisibility($activation_visibility);
+    }
+
+    public function getIntroductionPageId(): int
+    {
+        $page_id = $this->getMainSettings()->getIntroductionSettings()->getIntroductionPageId();
+        if ($page_id !== null) {
+            return $page_id;
+        }
+
+        $page_object = new ilTestPage();
+        $page_object->setParentId($this->getId());
+        $new_page_id = $page_object->createPageWithNextId();
+        $settings = $this->getMainSettings()->getIntroductionSettings()
+            ->withIntroductionPageId($new_page_id);
+        $this->getMainSettingsRepository()->store(
+            $this->getMainSettings()->withIntroductionSettings($settings)
+        );
+        return $new_page_id;
+    }
+
+    public function getConcludingRemarksPageId(): int
+    {
+        $page_id = $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksPageId();
+        if ($page_id !== null) {
+            return $page_id;
+        }
+
+        $page_object = new ilTestPage();
+        $page_object->setParentId($this->getId());
+        $new_page_id = $page_object->createPageWithNextId();
+        $settings = $this->getMainSettings()->getFinishingSettings()
+            ->withConcludingRemarksPageId($new_page_id);
+        $this->getMainSettingsRepository()->store(
+            $this->getMainSettings()->withFinishingSettings($settings)
+        );
+        return $new_page_id;
+    }
+
+    public function getHighscoreEnabled(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreEnabled();
+    }
+
+    /**
+     * Gets if the highscores should be anonymized per setting.
+     *
+     * Note: This method will retrieve the setting as set by the user. If you want
+     * to figure out, if the highscore is to be shown anonymized or not, with
+     * consideration of the global anon switch you should @see isHighscoreAnon().
+     *
+     * @return bool True, if setting is to anonymize highscores.
+     */
+    public function getHighscoreAnon(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreAnon();
+    }
+
+    /**
+     * Gets if the highscores should be displayed anonymized.
+     *
+     * Note: This method considers the global anonymity switch. If you need
+     * access to the users setting, @see getHighscoreAnon()
+     *
+     * @return boolean True, if output is anonymized.
+     */
+    public function isHighscoreAnon(): bool
+    {
+        return $this->getAnonymity() == 1 || $this->getHighscoreAnon();
+    }
+
+    /**
+     * Returns if date and time of the scores achievement should be displayed.
+     */
+    public function getHighscoreAchievedTS(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreAchievedTS();
+    }
+
+    /**
+     * Gets if the score column should be shown.
+     */
+    public function getHighscoreScore(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreScore();
+    }
+
+    /**
+     * Gets if the percentage column should be shown.
+     */
+    public function getHighscorePercentage(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscorePercentage();
+    }
+
+    /**
+     * Gets, if the column with the number of requested hints should be shown.
+     */
+    public function getHighscoreHints(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreHints();
+    }
+
+    /**
+     * Gets if the column with the workingtime should be shown.
+     */
+    public function getHighscoreWTime(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreWTime();
+    }
+
+    /**
+     * Gets if the own rankings table should be shown.
+     */
+    public function getHighscoreOwnTable(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreOwnTable();
+    }
+
+    /**
+     * Gets, if the top-rankings table should be shown.
+     */
+    public function getHighscoreTopTable(): bool
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreTopTable();
+    }
+
+    /**
+     * Gets the number of entries which are to be shown in the top-rankings table.
+     * @return integer Number of entries to be shown in the top-rankings table.
+     */
+    public function getHighscoreTopNum(int $a_retval = 10): int
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighscoreTopNum();
+    }
+
+    public function getHighscoreMode(): int
+    {
+        return $this->getScoreSettings()->getGamificationSettings()->getHighScoreMode();
+    }
+
+    public function getSpecificAnswerFeedback(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getInstantFeedbackSpecificEnabled();
+    }
+
+    public function getAutosave(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getAutosaveEnabled();
+    }
+
+    public function isPassDeletionAllowed(): bool
+    {
+        return $this->getScoreSettings()->getResultSummarySettings()->getPassDeletionAllowed();
+    }
+
+    public function getEnableExamview(): bool
+    {
+        return $this->getMainSettings()->getFinishingSettings()->getShowAnswerOverview();
+    }
+
+    public function setActivationStartingTime(?int $starting_time = null)
+    {
+        $this->activation_starting_time = $starting_time;
+    }
+
+    public function setActivationEndingTime(?int $ending_time = null)
+    {
+        $this->activation_ending_time = $ending_time;
+    }
+
+    public function getActivationStartingTime(): ?int
+    {
+        return $this->activation_starting_time;
+    }
+
+    public function getActivationEndingTime(): ?int
+    {
+        return $this->activation_ending_time;
+    }
+
+    /**
+     * Note, this function should only be used if absolutely necessary, since it perform joins on tables that
+     * tend to grow huge and returns vast amount of data. If possible, use getStartingTimeOfUser($active_id) instead
+     *
+     * @return array
+     */
+    public function getStartingTimeOfParticipants(): array
+    {
+        $times = [];
+        $result = $this->db->queryF(
+            "SELECT tst_times.active_fi, tst_times.started FROM tst_times, tst_active WHERE tst_times.active_fi = tst_active.active_id AND tst_active.test_fi = %s ORDER BY tst_times.tstamp DESC",
+            ['integer'],
+            [$this->getTestId()]
+        );
+        while ($row = $this->db->fetchAssoc($result)) {
+            $times[$row['active_fi']] = $row['started'];
+        }
+        return $times;
+    }
+
+    public function getTimeExtensionsOfParticipants(): array
+    {
+        $times = [];
+        $result = $this->db->queryF(
+            "SELECT tst_addtime.active_fi, tst_addtime.additionaltime FROM tst_addtime, tst_active WHERE tst_addtime.active_fi = tst_active.active_id AND tst_active.test_fi = %s",
+            ['integer'],
+            [$this->getTestId()]
+        );
+        while ($row = $this->db->fetchAssoc($result)) {
+            $times[$row['active_fi']] = $row['additionaltime'];
+        }
+        return $times;
+    }
+
+    private function getExtraTime(int $active_id): int
+    {
+        if ($active_id === 0) {
+            return 0;
+        }
+        return $this->participant_repository
+            ->getParticipantByActiveId($this->getTestId(), $active_id)
+            ?->getExtraTime() ?? 0;
+    }
+
+    public function getMaxPassOfTest(): int
+    {
+        $query = '
+			SELECT MAX(tst_pass_result.pass) + 1 max_res
+			FROM tst_pass_result
+			INNER JOIN tst_active ON tst_active.active_id = tst_pass_result.active_fi
+			WHERE test_fi = ' . $this->db->quote($this->getTestId(), 'integer') . '
+		';
+        $res = $this->db->query($query);
+        $data = $this->db->fetchAssoc($res);
+        return (int) $data['max_res'];
+    }
+
+    public static function lookupExamId($active_id, $pass)
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $exam_id_query = 'SELECT exam_id FROM tst_pass_result WHERE active_fi = %s AND pass = %s';
+        $exam_id_result = $ilDB->queryF($exam_id_query, [ 'integer', 'integer' ], [ $active_id, $pass ]);
+        if ($ilDB->numRows($exam_id_result) == 1) {
+            $exam_id_row = $ilDB->fetchAssoc($exam_id_result);
+
+            if ($exam_id_row['exam_id'] != null) {
+                return $exam_id_row['exam_id'];
+            }
+        }
+
+        return null;
+    }
+
+    public static function buildExamId($active_id, $pass, $test_obj_id = null): string
+    {
+        global $DIC;
+        $ilSetting = $DIC['ilSetting'];
+
+        $inst_id = $ilSetting->get('inst_id', null);
+
+        if ($test_obj_id === null) {
+            $obj_id = self::_getObjectIDFromActiveID($active_id);
+        } else {
+            $obj_id = $test_obj_id;
+        }
+
+        $examId = 'I' . $inst_id . '_T' . $obj_id . '_A' . $active_id . '_P' . $pass;
+
+        return $examId;
+    }
+
+    public function isShowExamIdInTestPassEnabled(): bool
+    {
+        return $this->getMainSettings()->getTestBehaviourSettings()->getExamIdInTestAttemptEnabled();
+    }
+
+    public function isShowExamIdInTestResultsEnabled(): bool
+    {
+        return $this->getScoreSettings()->getResultDetailsSettings()->getShowExamIdInTestResults();
+    }
+
+
+    public function setQuestionSetType(string $question_set_type)
+    {
+        $this->main_settings = $this->getMainSettings()->withGeneralSettings(
+            $this->getMainSettings()->getGeneralSettings()
+                ->withQuestionSetType($question_set_type)
+        );
+    }
+
+    public function getQuestionSetType(): string
+    {
+        return $this->getMainSettings()->getGeneralSettings()->getQuestionSetType();
+    }
+
+    /**
+     * Returns the fact wether this test is a fixed question set test or not
+     *
+     * @return boolean $isFixedTest
+     */
+    public function isFixedTest(): bool
+    {
+        return $this->getQuestionSetType() == self::QUESTION_SET_TYPE_FIXED;
+    }
+
+    /**
+     * Returns the fact wether this test is a random questions test or not
+     *
+     * @return boolean $isRandomTest
+     */
+    public function isRandomTest(): bool
+    {
+        return $this->getQuestionSetType() == self::QUESTION_SET_TYPE_RANDOM;
+    }
+
+    public function getQuestionSetTypeTranslation(ilLanguage $lng, $questionSetType): string
+    {
+        switch ($questionSetType) {
+            case ilObjTest::QUESTION_SET_TYPE_FIXED:
+                return $lng->txt('tst_question_set_type_fixed');
+
+            case ilObjTest::QUESTION_SET_TYPE_RANDOM:
+                return $lng->txt('tst_question_set_type_random');
+        }
+
+        throw new ilTestException('invalid question set type value given: ' . $questionSetType);
+    }
+
+    public function participantDataExist(): bool
+    {
+        if ($this->participantDataExist === null) {
+            $this->participantDataExist = (bool) $this->evalTotalPersons();
+        }
+
+        return $this->participantDataExist;
+    }
+
+    public function recalculateScores($preserve_manscoring = false)
+    {
+        $scoring = new TestScoring($this, $this->user, $this->db, $this->lng);
+        $scoring->setPreserveManualScores($preserve_manscoring);
+        $scoring->recalculateSolutions();
+    }
+
+    public static function getTestObjIdsWithActiveForUserId($userId): array
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $query = "
+			SELECT obj_fi
+			FROM tst_active
+			INNER JOIN tst_tests
+			ON test_id = test_fi
+			WHERE user_fi = %s
+		";
+
+        $res = $ilDB->queryF($query, ['integer'], [$userId]);
+
+        $objIds = [];
+
+        while ($row = $ilDB->fetchAssoc($res)) {
+            $objIds[] = (int) $row['obj_fi'];
+        }
+
+        return $objIds;
+    }
+
+    public function isSkillServiceEnabled(): bool
+    {
+        return $this->getMainSettings()->getAdditionalSettings()->getSkillsServiceEnabled();
+    }
+
+    /**
+     * Returns whether this test must consider skills, usually by providing
+     * appropriate extensions in the user interface components. Skills must be
+     * considered if skill management is globally enabled and this object has
+     * the skill service enabled as well.
+     *
+     * @see #isSkillServiceEnabled()
+     * @see #isSkillManagementGloballyActivated()
+     *
+     * @return boolean whether this test takes skills into account.
+     */
+    public function isSkillServiceToBeConsidered(): bool
+    {
+        if (!$this->getMainSettings()->getAdditionalSettings()->getSkillsServiceEnabled()) {
+            return false;
+        }
+
+        if (!self::isSkillManagementGloballyActivated()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static $isSkillManagementGloballyActivated = null;
+
+    public static function isSkillManagementGloballyActivated(): ?bool
+    {
+        if (self::$isSkillManagementGloballyActivated === null) {
+            $skmgSet = new ilSkillManagementSettings();
+
+            self::$isSkillManagementGloballyActivated = $skmgSet->isActivated();
+        }
+
+        return self::$isSkillManagementGloballyActivated;
+    }
+
+    public function isShowGradingStatusEnabled(): bool
+    {
+        return $this->getScoreSettings()->getResultSummarySettings()->getShowGradingStatusEnabled();
+    }
+
+    public function isShowGradingMarkEnabled(): bool
+    {
+        return $this->getScoreSettings()->getResultSummarySettings()->getShowGradingMarkEnabled();
+    }
+
+    public function isFollowupQuestionAnswerFixationEnabled(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getLockAnswerOnNextQuestionEnabled();
+    }
+
+    public function isInstantFeedbackAnswerFixationEnabled(): bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getLockAnswerOnInstantFeedbackEnabled();
+    }
+
+    public function isForceInstantFeedbackEnabled(): ?bool
+    {
+        return $this->getMainSettings()->getQuestionBehaviourSettings()->getForceInstantFeedbackOnNextQuestion();
+    }
+
+
+    public static function isParticipantsLastPassActive(int $test_ref_id, int $user_id): bool
+    {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+        $ilUser = $DIC['ilUser'];
+
+        $test_obj = ilObjectFactory::getInstanceByRefId($test_ref_id, false);
+
+        $active_id = $test_obj->getActiveIdOfUser($user_id);
+
+        $test_session_factory = new ilTestSessionFactory($test_obj, $ilDB, $ilUser);
+
+        // Added temporarily bugfix smeyer
+        $test_session_factory->reset();
+
+        $test_sequence_factory = new ilTestSequenceFactory($test_obj, $ilDB, TestDIC::dic()['question.general_properties.repository']);
+
+        $test_session = $test_session_factory->getSession($active_id);
+        $test_sequence = $test_sequence_factory->getSequenceByActiveIdAndPass($active_id, $test_session->getPass());
+        $test_sequence->loadFromDb();
+
+        return $test_sequence->hasSequence();
+    }
+
+    public function adjustTestSequence()
+    {
+        $query = "
+			SELECT COUNT(test_question_id) cnt
+			FROM tst_test_question
+			WHERE test_fi = %s
+			ORDER BY sequence
+		";
+
+        $questRes = $this->db->queryF($query, ['integer'], [$this->getTestId()]);
+
+        $row = $this->db->fetchAssoc($questRes);
+        $questCount = $row['cnt'];
+
+        if ($this->getShuffleQuestions()) {
+            $query = "
+				SELECT tseq.*
+				FROM tst_active tac
+				INNER JOIN tst_sequence tseq
+					ON tseq.active_fi = tac.active_id
+				WHERE tac.test_fi = %s
+			";
+
+            $partRes = $this->db->queryF(
+                $query,
+                ['integer'],
+                [$this->getTestId()]
+            );
+
+            while ($row = $this->db->fetchAssoc($partRes)) {
+                $sequence = @unserialize($row['sequence']);
+
+                if (!$sequence) {
+                    $sequence = [];
+                }
+
+                $sequence = array_filter($sequence, function ($value) use ($questCount) {
+                    return $value <= $questCount;
+                });
+
+                $num_seq = count($sequence);
+                if ($questCount > $num_seq) {
+                    $diff = $questCount - $num_seq;
+                    for ($i = 1; $i <= $diff; $i++) {
+                        $sequence[$num_seq + $i - 1] = $num_seq + $i;
+                    }
+                }
+
+                $new_sequence = serialize($sequence);
+
+                $this->db->update('tst_sequence', [
+                    'sequence' => ['clob', $new_sequence]
+                ], [
+                    'active_fi' => ['integer', $row['active_fi']],
+                    'pass' => ['integer', $row['pass']]
+                ]);
+            }
+        } else {
+            $new_sequence = serialize($questCount > 0 ? range(1, $questCount) : []);
+
+            $query = "
+				SELECT tseq.*
+				FROM tst_active tac
+				INNER JOIN tst_sequence tseq
+					ON tseq.active_fi = tac.active_id
+				WHERE tac.test_fi = %s
+			";
+
+            $part_rest = $this->db->queryF(
+                $query,
+                ['integer'],
+                [$this->getTestId()]
+            );
+
+            while ($row = $this->db->fetchAssoc($part_rest)) {
+                $this->db->update('tst_sequence', [
+                    'sequence' => ['clob', $new_sequence]
+                ], [
+                    'active_fi' => ['integer', $row['active_fi']],
+                    'pass' => ['integer', $row['pass']]
+                ]);
+            }
+        }
+    }
+
+    /**
+     * @return ilHtmlPurifierInterface|ilAssHtmlUserSolutionPurifier
+     */
+    protected function getHtmlQuestionContentPurifier(): ilHtmlPurifierInterface
+    {
+        return ilHtmlPurifierFactory::getInstanceByType('qpl_usersolution');
+    }
+
+    public function getGeneralQuestionPropertiesRepository(): GeneralQuestionPropertiesRepository
+    {
+        return $this->questionrepository;
+    }
+
+    public function getGlobalSettings(): GlobalTestSettings
+    {
+        return $this->global_settings_repo->getGlobalSettings();
+    }
+
+    public function getMainSettings(): MainSettings
+    {
+        if (!$this->main_settings) {
+            $this->main_settings = $this->getMainSettingsRepository()
+                ->getFor($this->getTestId());
+        }
+        return $this->main_settings;
+    }
+
+    public function getMainSettingsRepository(): MainSettingsRepository
+    {
+        if (!$this->main_settings_repo) {
+            $this->main_settings_repo = new MainSettingsDatabaseRepository($this->db);
+        }
+        return $this->main_settings_repo;
+    }
+
+    public function getScoreSettings(): ScoreSettings
+    {
+        if (!$this->score_settings) {
+            $this->score_settings = $this->getScoreSettingsRepository()
+                ->getFor($this->getTestId());
+        }
+        return $this->score_settings;
+    }
+
+    public function getScoreSettingsRepository(): ScoreSettingsRepository
+    {
+        if (!$this->score_settings_repo) {
+            $this->score_settings_repo = new ScoreSettingsDatabaseRepository($this->db);
+        }
+        return $this->score_settings_repo;
+    }
+
+    public function updateTestResultCache(int $active_id, ilAssQuestionProcessLocker $process_locker = null): void
+    {
+        $pass = ilObjTest::_getResultPass($active_id);
+
+        if ($pass !== null) {
+            $query = '
+                SELECT		tst_pass_result.*,
+                            tst_active.last_finished_pass
+                FROM		tst_pass_result
+                INNER JOIN  tst_active
+                on          tst_pass_result.active_fi = tst_active.active_id
+                WHERE		active_fi = %s
+                AND			pass = %s
+            ';
+
+            $result = $this->db->queryF(
+                $query,
+                ['integer','integer'],
+                [$active_id, $pass]
+            );
+
+            $test_pass_result_row = $this->db->fetchAssoc($result);
+
+            if (!is_array($test_pass_result_row)) {
+                $test_pass_result_row = [];
+            }
+            $max = (float) ($test_pass_result_row['maxpoints'] ?? 0);
+            $reached = (float) ($test_pass_result_row['points'] ?? 0);
+            $percentage = ($max <= 0.0 || $reached <= 0.0) ? 0 : ($reached / $max) * 100.0;
+
+            $mark = $this->getMarkSchema()->getMatchingMark($percentage);
+            $is_passed = $test_pass_result_row['last_finished_pass'] !== null
+                && $pass <= $test_pass_result_row['last_finished_pass']
+                && $mark->getPassed();
+
+            $hint_count = $test_pass_result_row['hint_count'] ?? 0;
+            $hint_points = $test_pass_result_row['hint_points'] ?? 0.0;
+
+            $user_test_result_update_callback = function () use ($active_id, $pass, $max, $reached, $is_passed, $hint_count, $hint_points, $mark) {
+                $passed_once_before = 0;
+                $query = 'SELECT passed_once FROM tst_result_cache WHERE active_fi = %s';
+                $res = $this->db->queryF($query, ['integer'], [$active_id]);
+                while ($passed_once_result_row = $this->db->fetchAssoc($res)) {
+                    $passed_once_before = (int) $passed_once_result_row['passed_once'];
+                }
+
+                $passed_once = (int) ($is_passed || $passed_once_before);
+
+                $this->db->manipulateF(
+                    'DELETE FROM tst_result_cache WHERE active_fi = %s',
+                    ['integer'],
+                    [$active_id]
+                );
+
+                if ($reached < 0.0) {
+                    $reached = 0.0;
+                }
+
+                $mark_short_name = $mark->getShortName();
+                if ($mark_short_name === '') {
+                    $mark_short_name = ' ';
+                }
+
+                $mark_official_name = $mark->getOfficialName();
+                if ($mark_official_name === '') {
+                    $mark_official_name = ' ';
+                }
+
+                $this->db->insert(
+                    'tst_result_cache',
+                    [
+                        'active_fi' => ['integer', $active_id],
+                        'pass' => ['integer', $pass ?? 0],
+                        'max_points' => ['float', $max],
+                        'reached_points' => ['float', $reached],
+                        'mark_short' => ['text', $mark_short_name],
+                        'mark_official' => ['text', $mark_official_name],
+                        'passed_once' => ['integer', $passed_once],
+                        'passed' => ['integer', (int) $is_passed],
+                        'failed' => ['integer', (int) !$is_passed],
+                        'tstamp' => ['integer', time()],
+                        'hint_count' => ['integer', $hint_count],
+                        'hint_points' => ['float', $hint_points]
+                    ]
+                );
+            };
+
+            if (is_object($process_locker)) {
+                $process_locker->executeUserTestResultUpdateLockOperation($user_test_result_update_callback);
+            } else {
+                $user_test_result_update_callback();
+            }
+        }
+    }
+
+    public function updateTestPassResults(
+        int $active_id,
+        int $pass,
+        ilAssQuestionProcessLocker $process_locker = null,
+        int $test_obj_id = null
+    ): array {
+        $data = $this->getQuestionCountAndPointsForPassOfParticipant($active_id, $pass);
+        $time = $this->getWorkingTimeOfParticipantForPass($active_id, $pass);
+
+        $result = $this->db->queryF(
+            '
+			SELECT		SUM(r.points) reachedpoints,
+						SUM(r.hint_count) hint_count,
+						SUM(r.hint_points) hint_points,
+						COUNT(DISTINCT(r.question_fi)) answeredquestions,
+                        pr.finalized_by finalized_by
+			FROM		tst_test_result r
+            INNER JOIN  tst_pass_result pr
+                ON r.active_fi = pr.active_fi AND r.pass = pr.pass
+			WHERE		r.active_fi = %s
+			AND			r.pass = %s
+			',
+            ['integer','integer'],
+            [$active_id, $pass]
+        );
+
+        if ($result->numRows() > 0) {
+            $row = $this->db->fetchAssoc($result);
+
+            if ($row['reachedpoints'] === null
+                || $row['reachedpoints'] < 0.0) {
+                $row['reachedpoints'] = 0.0;
+            }
+            if ($row['hint_count'] === null) {
+                $row['hint_count'] = 0;
+            }
+            if ($row['hint_points'] === null) {
+                $row['hint_points'] = 0.0;
+            }
+
+            $exam_identifier = ilObjTest::buildExamId($active_id, $pass, $test_obj_id);
+
+            $update_pass_result_callback = function () use ($data, $active_id, $pass, $row, $time, $exam_identifier) {
+                $this->db->replace(
+                    'tst_pass_result',
+                    [
+                        'active_fi' => ['integer', $active_id],
+                        'pass' => ['integer', $pass]
+                    ],
+                    [
+                        'points' => ['float', $row['reachedpoints']],
+                        'maxpoints' => ['float', $data['points']],
+                        'questioncount' => ['integer', $data['count']],
+                        'answeredquestions' => ['integer', $row['answeredquestions']],
+                        'workingtime' => ['integer', $time],
+                        'tstamp' => ['integer', time()],
+                        'hint_count' => ['integer', $row['hint_count']],
+                        'hint_points' => ['float', $row['hint_points']],
+                        'exam_id' => ['text', $exam_identifier],
+                        'finalized_by' => ['text', $row['finalized_by']]
+                    ]
+                );
+            };
+
+            if (is_object($process_locker) && $process_locker instanceof ilAssQuestionProcessLocker) {
+                $process_locker->executeUserPassResultUpdateLockOperation($update_pass_result_callback);
+            } else {
+                $update_pass_result_callback();
+            }
+        }
+
+        $this->updateTestResultCache($active_id, $process_locker);
+
+        return [
+            'active_fi' => $active_id,
+            'pass' => $pass,
+            'points' => $row['reachedpoints'],
+            'maxpoints' => $data['points'],
+            'questioncount' => $data['count'],
+            'answeredquestions' => $row['answeredquestions'],
+            'workingtime' => $time,
+            'tstamp' => time(),
+            'hint_count' => $row['hint_count'],
+            'hint_points' => $row['hint_points'],
+            'exam_id' => $exam_identifier
+        ];
+    }
+
+    public function addToNewsOnOnline(
+        bool $old_online_status,
+        bool $new_online_status
+    ): void {
+        if (!$old_online_status && $new_online_status) {
+            $newsItem = new ilNewsItem();
+            $newsItem->setContext($this->getId(), 'tst');
+            $newsItem->setPriority(NEWS_NOTICE);
+            $newsItem->setTitle('new_test_online');
+            $newsItem->setContentIsLangVar(true);
+            $newsItem->setContent('');
+            $newsItem->setUserId($this->user->getId());
+            $newsItem->setVisibility(NEWS_USERS);
+            $newsItem->create();
+            return;
+        }
+
+        if ($old_online_status && !$new_online_status) {
+            ilNewsItem::deleteNewsOfContext($this->getId(), 'tst');
+            return;
+        }
+
+        $newsId = ilNewsItem::getFirstNewsIdForContext($this->getId(), 'tst');
+        if (!$new_online_status && $newsId > 0) {
+            $newsItem = new ilNewsItem($newsId);
+            $newsItem->setTitle('new_test_online');
+            $newsItem->setContentIsLangVar(true);
+            $newsItem->setContent('');
+            $newsItem->update();
+        }
+    }
+
+    /**
+     * @deprecated There is no reason for this to be interesting for other objects
+     */
+    public static function _lookupRandomTest(int $obj_id): bool
+    {
+        global $DIC;
+
+        $query = 'SELECT question_set_type FROM tst_tests WHERE obj_fi = %s';
+
+        $res = $DIC['ilDB']->queryF($query, ['integer'], [$obj_id]);
+
+        $question_set_type = null;
+
+        while ($row = $DIC['ilDB']->fetchAssoc($res)) {
+            $question_set_type = $row['question_set_type'];
+        }
+
+        return $question_set_type === self::QUESTION_SET_TYPE_RANDOM;
+    }
+
+    public function getVisitingTimeOfParticipant(int $active_id): array
+    {
+        return $this->participant_repository->getFirstAndLastVisitForActiveId($active_id);
+    }
+}

@@ -1,0 +1,814 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
+ * Ordering question GUI representation
+ *
+ * The assOrderingQuestionGUI class encapsulates the GUI representation for ordering questions.
+ *
+ * @author	Helmut Schottmüller <helmut.schottmueller@mac.com>
+ * @author	Björn Heyser <bheyser@databay.de>
+ * @author	Maximilian Becker <mbecker@databay.de>
+ * @author  Nils Haagen <nils.haagen@concepts-and-training.de>
+ *
+ * @version	$Id$
+ *
+ * @ingroup components\ILIASTestQuestionPool
+ * @ilCtrl_Calls assOrderingQuestionGUI: ilFormPropertyDispatchGUI
+ */
+class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustable, ilGuiAnswerScoringAdjustable
+{
+    public const CMD_EDIT_NESTING = 'editNesting';
+    public const CMD_SAVE_NESTING = 'saveNesting';
+    public const CMD_SWITCH_TO_TERMS = 'changeToText';
+    public const CMD_SWITCH_TO_PICTURESS = 'changeToPictures';
+
+    public const TAB_EDIT_QUESTION = 'edit_question';
+    public const TAB_EDIT_NESTING = 'edit_nesting';
+
+    public const F_USE_NESTED = 'nested_answers';
+    public const F_NESTED_ORDER = 'order_elems';
+    public const F_NESTED_ORDER_ORDER = 'content';
+    public const F_NESTED_ORDER_INDENT = 'indentation';
+    public const F_NESTED_IDENTIFIER_PREFIX = ilIdentifiedMultiValuesJsPositionIndexRemover::IDENTIFIER_INDICATOR_PREFIX;
+
+    public assQuestion $object;
+
+    public $old_ordering_depth = [];
+    public $leveled_ordering = [];
+
+    /**
+     * assOrderingQuestionGUI constructor
+     *
+     * The constructor takes possible arguments an creates an instance of the assOrderingQuestionGUI object.
+     *
+     * @param integer $id The database id of a ordering question object
+     */
+    public function __construct($id = -1)
+    {
+        parent::__construct();
+        $this->object = new assOrderingQuestion();
+        if ($id >= 0) {
+            $this->object->loadFromDb($id);
+        }
+    }
+
+    public function changeToPictures(): void
+    {
+        $this->object->setContentType($this->object::OQ_CT_PICTURES);
+        $this->object->saveToDb();
+
+        $values = $this->request_data_collector->getParsedBody();
+        $values['thumb_geometry'] = $this->object->getThumbSize();
+        $this->buildEditFormAfterTypeChange($values);
+    }
+
+    public function changeToText(): void
+    {
+        $ordering_element_list = $this->object->getOrderingElementList();
+        foreach ($ordering_element_list as $element) {
+            $this->object->dropImageFile($element->getContent());
+        }
+
+        $this->object->setContentType($this->object::OQ_CT_TERMS);
+        $this->object->saveToDb();
+
+        $this->buildEditFormAfterTypeChange($this->request_data_collector->getParsedBody());
+    }
+
+    private function buildEditFormAfterTypeChange(array $values): void
+    {
+        $form = $this->buildEditForm();
+
+        $ordering_element_list = $this->object->getOrderingElementList();
+        $ordering_element_list->resetElements();
+
+        $values[assOrderingQuestion::ORDERING_ELEMENT_FORM_FIELD_POSTVAR] = [];
+        $form->setValuesByArray($values);
+        $form->getItemByPostVar(assOrderingQuestion::ORDERING_ELEMENT_FORM_FIELD_POSTVAR)->setElementList($ordering_element_list);
+        $this->renderEditForm($form);
+        $this->addEditSubtabs();
+    }
+
+    public function saveNesting()
+    {
+        $form = $this->buildNestingForm();
+        $form->setValuesByPost();
+        if ($form->checkInput()) {
+            $post = $this->request_data_collector->raw(self::F_NESTED_ORDER);
+            $list = $this->object->getOrderingElementList();
+
+            $ordered = [];
+            foreach (array_keys($post[self::F_NESTED_ORDER_ORDER]) as $idx => $identifier) {
+                $element_identifier = str_replace(self::F_NESTED_IDENTIFIER_PREFIX, '', $identifier);
+                $element = $list->getElementByRandomIdentifier($element_identifier);
+
+                $ordered[] = $element
+                    ->withPosition($idx)
+                    ->withIndentation($post[self::F_NESTED_ORDER_INDENT][$identifier]);
+            }
+
+            $list = $list->withElements($ordered);
+            $this->object->setOrderingElementList($list);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);
+        } else {
+            $this->tpl->setOnScreenMessage('error', $this->lng->txt('form_input_not_valid'), true);
+        }
+
+        $this->editNesting();
+    }
+
+
+    public function removeElementImage()
+    {
+        $this->uploadElementImage();
+    }
+
+    public function uploadElementImage(): void
+    {
+        $form = $this->buildEditForm();
+        $form->setValuesByPost();
+
+        $submitted_list = $this->fetchSolutionListFromSubmittedForm($form);
+
+        $elements = [];
+        foreach ($submitted_list->getElements() as $submitted_element) {
+            if ($submitted_element->isImageUploadAvailable()) {
+                $filename = $this->object->storeImageFile(
+                    $submitted_element->getUploadImageFile(),
+                    $submitted_element->getUploadImageName()
+                );
+
+                if (is_null($filename)) {
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt('file_no_valid_file_type'));
+                } else {
+                    $submitted_element = $submitted_element->withContent($filename);
+                }
+            }
+
+            if ($submitted_element->isImageRemovalRequest()) {
+                $this->object->dropImageFile($submitted_element->getContent());
+                $submitted_element = $submitted_element->withContent('');
+            }
+
+            $elements[] = $submitted_element;
+        }
+
+        $list = $this->object->getOrderingElementList()->withElements($elements);
+        $this->object->setOrderingElementList($list);
+
+        $this->writeQuestionGenericPostData();
+        $this->writeQuestionSpecificPostData($form);
+
+        $this->editQuestion();
+    }
+
+    public function writeQuestionSpecificPostData(ilPropertyFormGUI $form): void
+    {
+        $thumb_size = $this->request_data_collector->int('thumb_geometry');
+        if ($thumb_size !== 0
+            && $thumb_size !== $this->object->getThumbSize()) {
+            $this->object->setThumbSize($thumb_size);
+            $this->updateImageFiles();
+        }
+
+        $this->object->setPoints($this->request_data_collector->float('points'));
+
+        $use_nested = $this->request_data_collector->int(self::F_USE_NESTED) === 1;
+        $this->object->setNestingType($use_nested);
+    }
+
+
+    protected function fetchSolutionListFromSubmittedForm(ilPropertyFormGUI $form): ilAssOrderingElementList
+    {
+        $list = $form->getItemByPostVar(assOrderingQuestion::ORDERING_ELEMENT_FORM_FIELD_POSTVAR)
+            ->getElementList($this->object->getId());
+
+        $use_nested = $this->request_data_collector->int(self::F_USE_NESTED) === 1;
+
+        if ($use_nested) {
+            $existing_list = $this->object->getOrderingElementList();
+
+            $nu = [];
+            $parent_indent = -1;
+            foreach ($list->getElements() as $element) {
+                $element = $list->ensureValidIdentifiers($element);
+
+                if ($existing = $existing_list->getElementByRandomIdentifier($element->getRandomIdentifier())) {
+                    if ($existing->getIndentation() == $parent_indent + 1) {
+                        $element = $element
+                            ->withIndentation($existing->getIndentation());
+                    }
+                }
+                $parent_indent = $element->getIndentation();
+                $nu[] = $element;
+            }
+            $list = $list->withElements($nu);
+        }
+
+        return $list;
+    }
+
+    protected function updateImageFiles(): void
+    {
+        $element_list = $this->object->getOrderingElementList();
+        $elements = [];
+        foreach ($element_list->getElements() as $element) {
+            if ($element->getContent() === '') {
+                continue;
+            }
+            $filename = $this->object->updateImageFile(
+                $element->getContent()
+            );
+
+            $elements[] = $element->withContent($filename);
+        }
+
+        $list = $this->object->getOrderingElementList()->withElements($elements);
+        $this->object->setOrderingElementList($list);
+    }
+
+    public function writeAnswerSpecificPostData(ilPropertyFormGUI $form): void
+    {
+        $this->object->setOrderingElementList(
+            $this->fetchSolutionListFromSubmittedForm($form)
+        );
+    }
+
+    public function populateAnswerSpecificFormPart(ilPropertyFormGUI $form): ilPropertyFormGUI
+    {
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt('oq_header_ordering_elements'));
+        $form->addItem($header);
+
+        $orderingElementInput = $this->object->buildOrderingElementInputGui();
+        $orderingElementInput->setStylingDisabled($this->isRenderPurposePrintPdf());
+        $this->object->initOrderingElementAuthoringProperties($orderingElementInput);
+
+        $list = $this->object->getOrderingElementList();
+        $orderingElementInput->setElementList($list);
+        $form->addItem($orderingElementInput);
+
+        return $form;
+    }
+
+    public function populateQuestionSpecificFormPart(\ilPropertyFormGUI $form): ilPropertyFormGUI
+    {
+        if ($this->object->isImageOrderingType()) {
+            $thumb_size = new ilNumberInputGUI($this->lng->txt('thumb_size'), 'thumb_geometry');
+            $thumb_size->setValue($this->object->getThumbSize());
+            $thumb_size->setRequired(true);
+            $thumb_size->setMaxLength(6);
+            $thumb_size->setMinValue($this->object->getMinimumThumbSize());
+            $thumb_size->setMaxValue($this->object->getMaximumThumbSize());
+            $thumb_size->setSize(6);
+            $thumb_size->setInfo($this->lng->txt('thumb_size_info'));
+            $form->addItem($thumb_size);
+        }
+
+        // points
+        $points = new ilNumberInputGUI($this->lng->txt("points"), "points");
+        $points->allowDecimals(true);
+        $points->setValue($this->object->getPoints());
+        $points->setRequired(true);
+        $points->setSize(3);
+        $points->setMinValue(0);
+        $points->setMinvalueShouldBeGreater(true);
+        $form->addItem($points);
+
+        if (!$this->isInLearningModuleContext()) {
+            $nested_answers = new ilSelectInputGUI(
+                $this->lng->txt('qst_use_nested_answers'),
+                self::F_USE_NESTED
+            );
+            $nested_answers_options = [
+                0 => $this->lng->txt('qst_nested_nested_answers_off'),
+                1 => $this->lng->txt('qst_nested_nested_answers_on')
+            ];
+            $nested_answers->setOptions($nested_answers_options);
+            $nested_answers->setValue($this->object->isOrderingTypeNested());
+            $form->addItem($nested_answers);
+        }
+
+        return $form;
+    }
+
+    protected function writePostData(bool $always = false): int
+    {
+        $form = $this->buildEditForm();
+        $form->setValuesByPost();
+
+        if (!$form->checkInput()) {
+            $this->renderEditForm($form);
+            $this->addEditSubtabs(self::TAB_EDIT_QUESTION);
+            return 1; // return 1 = something went wrong, no saving happened
+        }
+
+        $this->saveTaxonomyAssignments();
+        $this->writeQuestionGenericPostData();
+        $this->writeAnswerSpecificPostData($form);
+        $this->writeQuestionSpecificPostData($form);
+
+        $this->resetSavedPreviewSession();
+
+        return 0; // return 0 = all fine, was saved either forced or validated
+    }
+
+    protected function addEditSubtabs($active = self::TAB_EDIT_QUESTION)
+    {
+        $tabs = $this->getTabs();
+        $tabs->addSubTab(
+            self::TAB_EDIT_QUESTION,
+            $this->lng->txt('edit_question'),
+            $this->ctrl->getLinkTarget($this, 'editQuestion')
+        );
+        if ($this->object->isOrderingTypeNested() && !$this->isInLearningModuleContext()) {
+            $tabs->addSubTab(
+                self::TAB_EDIT_NESTING,
+                $this->lng->txt('tab_nest_answers'),
+                $this->ctrl->getLinkTarget($this, self::CMD_EDIT_NESTING)
+            );
+        }
+        $tabs->setTabActive('edit_question');
+        $tabs->setSubTabActive($active);
+    }
+
+    public function editQuestion(
+        bool $checkonly = false,
+        ?bool $is_save_cmd = null
+    ): bool {
+        $this->renderEditForm($this->buildEditForm());
+        $this->addEditSubtabs(self::TAB_EDIT_QUESTION);
+        return false;
+    }
+
+    public function editNesting()
+    {
+        $this->renderEditForm($this->buildNestingForm());
+        $this->addEditSubtabs(self::TAB_EDIT_NESTING);
+        $this->tpl->addCss(ilObjStyleSheet::getContentStylePath(0));
+        $this->tpl->addCss(ilObjStyleSheet::getSyntaxStylePath());
+    }
+
+    protected function buildEditForm(): ilAssOrderingQuestionAuthoringFormGUI
+    {
+        $form = new ilAssOrderingQuestionAuthoringFormGUI();
+        $form->setFormAction($this->ctrl->getFormAction($this));
+        $form->setTitle($this->outQuestionType());
+        $form->setMultipart($this->object->isImageOrderingType());
+        $form->setTableWidth("100%");
+        $form->setId("ordering");
+
+        $this->addBasicQuestionFormProperties($form);
+        $this->populateQuestionSpecificFormPart($form);
+        $this->populateAnswerSpecificFormPart($form);
+        $this->populateTaxonomyFormSection($form);
+
+        $form->addSpecificOrderingQuestionCommandButtons($this->object);
+        $form->addGenericAssessmentQuestionCommandButtons($this->object);
+
+        return $form;
+    }
+
+    protected function buildNestingForm()
+    {
+        $form = new ilAssOrderingQuestionAuthoringFormGUI();
+        $form->setFormAction($this->ctrl->getFormAction($this));
+        $form->setTitle($this->outQuestionType());
+        $form->setTableWidth("100%");
+
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt('oq_header_ordering_elements'));
+        $form->addItem($header);
+
+        $orderingElementInput = $this->object->buildNestedOrderingElementInputGui();
+        $orderingElementInput->setStylingDisabled($this->isRenderPurposePrintPdf());
+
+        $this->object->initOrderingElementAuthoringProperties($orderingElementInput);
+
+        $list = $this->object->getOrderingElementList();
+        foreach ($list->getElements() as $element) {
+            $element = $list->ensureValidIdentifiers($element);
+        }
+
+        $orderingElementInput->setElementList($list);
+
+        $form->addItem($orderingElementInput);
+        $form->addCommandButton(self::CMD_SAVE_NESTING, $this->lng->txt("save"));
+        return $form;
+    }
+
+    public function supportsIntermediateSolutionOutput()
+    {
+        return true;
+    }
+
+    public function getSolutionOutput(
+        int $active_id,
+        ?int $pass = null,
+        bool $graphical_output = false,
+        bool $result_output = false,
+        bool $show_question_only = true,
+        bool $show_feedback = false,
+        bool $show_correct_solution = false,
+        bool $show_manual_scoring = false,
+        bool $show_question_text = true,
+        bool $show_inline_feedback = true
+    ): string {
+        $solution_ordering_list = $this->object->getOrderingElementListForSolutionOutput(
+            $show_correct_solution,
+            $active_id,
+            $pass
+        );
+
+        $show_inline_feedback = false;
+        return $this->renderSolutionOutput(
+            $solution_ordering_list,
+            $active_id,
+            $pass,
+            $graphical_output,
+            $result_output,
+            $show_question_only,
+            $show_feedback,
+            $show_correct_solution,
+            $show_manual_scoring,
+            $show_question_text,
+            false,
+            $show_inline_feedback,
+        );
+    }
+
+    public function renderSolutionOutput(
+        mixed $user_solutions,
+        int $active_id,
+        ?int $pass,
+        bool $graphical_output = false,
+        bool $result_output = false,
+        bool $show_question_only = true,
+        bool $show_feedback = false,
+        bool $show_correct_solution = false,
+        bool $show_manual_scoring = false,
+        bool $show_question_text = true,
+        bool $show_autosave_title = false,
+        bool $show_inline_feedback = false,
+    ): ?string {
+        $solution_ordering_list = ($user_solutions instanceof ilAssOrderingElementList) ?
+            $user_solutions : $this->object->getSolutionOrderingElementList(
+                $this->object->fetchIndexedValuesFromValuePairs($user_solutions)
+            );
+        $answers_gui = $this->object->buildNestedOrderingElementInputGui();
+
+        if ($show_correct_solution) {
+            $answers_gui->setContext(ilAssNestedOrderingElementsInputGUI::CONTEXT_CORRECT_SOLUTION_PRESENTATION);
+        } else {
+            $answers_gui->setContext(ilAssNestedOrderingElementsInputGUI::CONTEXT_USER_SOLUTION_PRESENTATION);
+        }
+
+        $answers_gui->setInteractionEnabled(false);
+        $answers_gui->setElementList($solution_ordering_list);
+
+        if ($graphical_output) {
+            $answers_gui->setShowCorrectnessIconsEnabled(true);
+        }
+        $answers_gui->setCorrectnessTrueElementList(
+            $solution_ordering_list->getParityTrueElementList($this->object->getOrderingElementList())
+        );
+        $solution_html = $answers_gui->getHTML();
+
+        $template = new ilTemplate('tpl.il_as_qpl_nested_ordering_output_solution.html', true, true, 'components/ILIAS/TestQuestionPool');
+        $template->setVariable('SOLUTION_OUTPUT', $solution_html);
+        if ($show_question_text == true) {
+            $template->setVariable('QUESTIONTEXT', $this->object->getQuestionForHTMLOutput());
+        }
+        $questionoutput = $template->get();
+
+        $solutiontemplate = new ilTemplate('tpl.il_as_tst_solution_output.html', true, true, 'components/ILIAS/TestQuestionPool');
+        $solutiontemplate->setVariable('SOLUTION_OUTPUT', $questionoutput);
+
+        if ($show_feedback) {
+            $feedback = '';
+
+            if (!$this->isTestPresentationContext()) {
+                $fb = $this->getGenericFeedbackOutput((int) $active_id, $pass);
+                $feedback .= strlen($fb) ? $fb : '';
+            }
+
+            if ($feedback !== '') {
+                $cssClass = (
+                    $this->hasCorrectSolution($active_id, $pass) ?
+                    ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
+                );
+
+                $solutiontemplate->setVariable('ILC_FB_CSS_CLASS', $cssClass);
+                $solutiontemplate->setVariable('FEEDBACK', ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
+            }
+        }
+
+        if ($show_question_only) {
+            return $solutiontemplate->get();
+        }
+
+        return $this->getILIASPage($solutiontemplate->get());
+
+        // is this template still in use? it is not used at this point any longer!
+        // $template = new ilTemplate("tpl.il_as_qpl_ordering_output_solution.html", TRUE, TRUE, "components/ILIAS/TestQuestionPool");
+    }
+
+    public function getPreview(
+        bool $show_question_only = false,
+        bool $show_inline_feedback = false
+    ): string {
+        if ($this->getPreviewSession() && $this->getPreviewSession()->hasParticipantSolution()) {
+            $solutionOrderingElementList = unserialize(
+                $this->getPreviewSession()->getParticipantsSolution(),
+                ['allowed_classes' => true]
+            );
+        } else {
+            $solutionOrderingElementList = $this->object->getShuffledOrderingElementList();
+        }
+
+        $answers = $this->object->buildNestedOrderingElementInputGui();
+        $answers->setNestingEnabled($this->object->isOrderingTypeNested());
+        $answers->setContext(ilAssNestedOrderingElementsInputGUI::CONTEXT_QUESTION_PREVIEW);
+        $answers->setInteractionEnabled($this->isInteractivePresentation());
+        $answers->setElementList($solutionOrderingElementList);
+
+        $template = new ilTemplate('tpl.il_as_qpl_ordering_output.html', true, true, 'components/ILIAS/TestQuestionPool');
+
+        $template->setCurrentBlock('nested_ordering_output');
+        $template->setVariable('NESTED_ORDERING', $answers->getHTML());
+        $template->parseCurrentBlock();
+        $template->setVariable('QUESTIONTEXT', $this->object->getQuestionForHTMLOutput());
+
+        if ($show_question_only) {
+            return $template->get();
+        }
+
+        return $this->getILIASPage($template->get());
+    }
+
+    public function getTestOutput(
+        int $active_id,
+        int $pass,
+        bool $is_question_postponed = false,
+        array|bool $user_post_solutions = false,
+        bool $show_specific_inline_feedback = false
+    ): string {
+        $user_post_solutions = is_array($user_post_solutions) ? $user_post_solutions : [];
+
+        $ordering_gui = $this->object->buildNestedOrderingElementInputGui();
+        $ordering_gui->setNestingEnabled($this->object->isOrderingTypeNested());
+
+        $solutionOrderingElementList = $this->object->getSolutionOrderingElementListForTestOutput(
+            $ordering_gui,
+            $user_post_solutions,
+            $active_id,
+            $pass
+        );
+
+        $template = new ilTemplate('tpl.il_as_qpl_ordering_output.html', true, true, 'components/ILIAS/TestQuestionPool');
+
+        $ordering_gui->setContext(ilAssNestedOrderingElementsInputGUI::CONTEXT_USER_SOLUTION_SUBMISSION);
+        $ordering_gui->setElementList($solutionOrderingElementList);
+
+        $template->setCurrentBlock('nested_ordering_output');
+        $template->setVariable('NESTED_ORDERING', $ordering_gui->getHTML());
+        $template->parseCurrentBlock();
+
+        $template->setVariable('QUESTIONTEXT', $this->object->getQuestionForHTMLOutput());
+
+        $pageoutput = $this->outQuestionPage('', $is_question_postponed, $active_id, $template->get());
+
+        return $pageoutput;
+    }
+
+    protected function isInteractivePresentation(): bool
+    {
+        if ($this->isRenderPurposePlayback()) {
+            return true;
+        }
+
+        if ($this->isRenderPurposeDemoplay()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function getTabs(): ilTabsGUI
+    {
+        global $DIC;
+        return $DIC['ilTabs'];
+    }
+
+    public function getSpecificFeedbackOutput(array $userSolution): string
+    {
+        return '';
+    }
+
+    /**
+     * Returns a list of postvars which will be suppressed in the form output when used in scoring adjustment.
+     * The form elements will be shown disabled, so the users see the usual form but can only edit the settings, which
+     * make sense in the given context.
+     *
+     * E.g. array('cloze_type', 'image_filename')
+     *
+     * @return string[]
+     */
+    public function getAfterParticipationSuppressionAnswerPostVars(): array
+    {
+        return [];
+    }
+
+    /**
+     * Returns a list of postvars which will be suppressed in the form output when used in scoring adjustment.
+     * The form elements will be shown disabled, so the users see the usual form but can only edit the settings, which
+     * make sense in the given context.
+     *
+     * E.g. array('cloze_type', 'image_filename')
+     *
+     * @return string[]
+     */
+    public function getAfterParticipationSuppressionQuestionPostVars(): array
+    {
+        return [];
+    }
+
+    protected function getAnswerStatisticOrderingElementHtml(ilAssOrderingElement $element): ?string
+    {
+        if ($this->object->isImageOrderingType()) {
+            $element->setImageThumbnailPrefix($this->object->getThumbPrefix());
+            $element->setImagePathWeb($this->object->getImagePathWeb());
+            $element->setImagePathFs($this->object->getImagePath());
+
+            $src = $element->getPresentationImageUrl();
+            $alt = $element->getContent();
+            $content = "<img src='{$src}' alt='{$alt}' title='{$alt}'/>";
+        } else {
+            $content = $element->getContent();
+        }
+
+        return $content;
+    }
+
+    protected function getAnswerStatisticOrderingVariantHtml(ilAssOrderingElementList $list): string
+    {
+        $html = '<ul>';
+
+        $lastIndent = 0;
+        $firstElem = true;
+
+        foreach ($list as $elem) {
+            if ($elem->getIndentation() > $lastIndent) {
+                $html .= '<ul><li>';
+            } elseif ($elem->getIndentation() < $lastIndent) {
+                $html .= '</li></ul><li>';
+            } elseif (!$firstElem) {
+                $html .= '</li><li>';
+            } else {
+                $html .= '<li>';
+            }
+
+            $html .= $this->getAnswerStatisticOrderingElementHtml($elem);
+
+            $firstElem = false;
+            $lastIndent = $elem->getIndentation();
+        }
+
+        $html .= '</li>';
+
+        for ($i = $lastIndent; $i > 0; $i--) {
+            $html .= '</ul></li>';
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    public function getAnswersFrequency($relevantAnswers, $questionIndex): array
+    {
+        $answersByActiveAndPass = [];
+
+        foreach ($relevantAnswers as $row) {
+            $key = $row['active_fi'] . ':' . $row['pass'];
+
+            if (!isset($answersByActiveAndPass[$key])) {
+                $answersByActiveAndPass[$key] = [];
+            }
+
+            $answersByActiveAndPass[$key][$row['value1']] = $row['value2'];
+        }
+
+        $solutionLists = [];
+
+        foreach ($answersByActiveAndPass as $indexedSolutions) {
+            $solutionLists[] = $this->object->getSolutionOrderingElementList($indexedSolutions);
+        }
+
+        /* @var ilAssOrderingElementList[] $answers */
+        $answers = [];
+
+        foreach ($solutionLists as $orderingElementList) {
+            $hash = $orderingElementList->getHash();
+
+            if (!isset($answers[$hash])) {
+                $variantHtml = $this->getAnswerStatisticOrderingVariantHtml(
+                    $orderingElementList
+                );
+
+                $answers[$hash] = [
+                    'answer' => $variantHtml, 'frequency' => 0
+                ];
+            }
+
+            $answers[$hash]['frequency']++;
+        }
+
+        return array_values($answers);
+    }
+
+    /**
+     * @param ilPropertyFormGUI $form
+     */
+    public function prepareReprintableCorrectionsForm(ilPropertyFormGUI $form): void
+    {
+        $orderingInput = $form->getItemByPostVar(assOrderingQuestion::ORDERING_ELEMENT_FORM_FIELD_POSTVAR);
+        $orderingInput->prepareReprintable($this->object);
+    }
+
+    /**
+     * @param ilPropertyFormGUI $form
+     */
+    public function populateCorrectionsFormProperties(ilPropertyFormGUI $form): void
+    {
+        $points = new ilNumberInputGUI($this->lng->txt("points"), "points");
+        $points->allowDecimals(true);
+        $points->setValue($this->object->getPoints());
+        $points->setRequired(true);
+        $points->setSize(3);
+        $points->setMinValue(0);
+        $points->setMinvalueShouldBeGreater(true);
+        $form->addItem($points);
+
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt('oq_header_ordering_elements'));
+        $form->addItem($header);
+
+        $orderingElementInput = $this->object->buildNestedOrderingElementInputGui();
+
+        $this->object->initOrderingElementAuthoringProperties($orderingElementInput);
+
+        $orderingElementInput->setElementList($this->object->getOrderingElementList());
+
+        $form->addItem($orderingElementInput);
+    }
+
+    /**
+     * @param ilPropertyFormGUI $form
+     */
+    public function saveCorrectionsFormProperties(ilPropertyFormGUI $form): void
+    {
+        $this->object->setPoints((float) str_replace(',', '.', $form->getInput('points')));
+
+        $submittedElementList = $this->fetchSolutionListFromSubmittedForm($form);
+
+        $curElementList = $this->object->getOrderingElementList();
+
+        $newElementList = new ilAssOrderingElementList();
+        $newElementList->setQuestionId($this->object->getId());
+
+        foreach ($submittedElementList as $submittedElement) {
+            if (!$curElementList->elementExistByRandomIdentifier($submittedElement->getRandomIdentifier())) {
+                continue;
+            }
+
+            $curElement = $curElementList->getElementByRandomIdentifier($submittedElement->getRandomIdentifier());
+
+            $curElement->setPosition($submittedElement->getPosition());
+
+            if ($this->object->isOrderingTypeNested()) {
+                $curElement->setIndentation($submittedElement->getIndentation());
+            }
+
+            $newElementList->addElement($curElement);
+        }
+
+        $this->object->setOrderingElementList($newElementList);
+    }
+}

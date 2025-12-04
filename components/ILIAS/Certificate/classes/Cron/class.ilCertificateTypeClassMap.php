@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Exercise\Certificate\ExercisePlaceholderValues;
+use ILIAS\Course\Certificate\CoursePlaceholderValues;
+use ILIAS\StudyProgramme\Certificate\ilStudyProgrammePlaceholderValues;
+use ILIAS\Test\Certificate\TestPlaceholderValues;
+
+/**
+ * @author  Niels Theen <ntheen@databay.de>
+ */
+class ilCertificateTypeClassMap
+{
+    /**
+     * @var array<string, array{placeholder: string}>
+     */
+    private array $typeClassMap = [
+        'crs' => ['placeholder' => CoursePlaceholderValues::class],
+        'tst' => ['placeholder' => TestPlaceholderValues::class],
+        'exc' => ['placeholder' => ExercisePlaceholderValues::class],
+        'cmix' => ['placeholder' => ilCmiXapiPlaceholderValues::class],
+        'lti' => ['placeholder' => ilLTIConsumerPlaceholderValues::class],
+        'sahs' => ['placeholder' => ilScormPlaceholderValues::class],
+        'prg' => ['placeholder' => ilStudyProgrammePlaceholderValues::class]
+    ];
+
+    /**
+     * @throws ilException
+     */
+    public function getPlaceHolderClassNameByType(string $type): string
+    {
+        if (!$this->typeExistsInMap($type)) {
+            throw new ilException('The given type ' . $type . 'is not mapped as a class on the class map');
+        }
+
+        return $this->typeClassMap[$type]['placeholder'];
+    }
+
+    public function typeExistsInMap(string $type): bool
+    {
+        return array_key_exists($type, $this->typeClassMap);
+    }
+}

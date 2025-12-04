@@ -1,0 +1,21 @@
+<section class="c-drilldown" id="{ID}">
+    <header class="c-drilldown__header--showbacknav">
+        <div></div>
+        <div></div>
+        <div class="c-drilldown__filter">
+            <label for='{ID_FILTER}' class="control-label">{LABEL}</label>
+            <input id='{ID_FILTER}' type="text" class="form-control" />
+        </div>
+        <div class="c-drilldown__backnav">
+            {BACKNAV}
+        </div>
+    </header>
+    <div class="c-drilldown__menu">
+        <ul aria-live="polite" aria-label="{ARIA_LABEL}">
+            {DRILLDOWN}
+            <li class="c-drilldown__menu--no-items">
+                {NO_ITEMS_TEXT}
+            </li>
+        </ul>
+    </div>
+</section>

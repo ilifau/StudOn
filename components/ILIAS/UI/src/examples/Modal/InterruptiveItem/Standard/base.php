@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\examples\Modal\InterruptiveItem\Standard;
+
+/**
+ * ---
+ * description: >
+ *   Example for rendering a standard interruptive item modal.
+ *
+ * expected output: >
+ *   ILIAS shows a button titled "Show some standard interruptive Items".
+ *   A click onto the button will grey out ILIAS, open a modal with content (e.g. "Title of the Item").
+ * ---
+ */
+function base()
+{
+    global $DIC;
+    $factory = $DIC->ui()->factory();
+    $renderer = $DIC->ui()->renderer();
+
+    $message = 'Here you see some standard interruptive items:';
+    $icon = $factory->image()->standard('./assets/images/standard/icon_crs.svg', '');
+    $modal = $factory->modal()->interruptive('My Title', $message, "#")
+                     ->withAffectedItems(array(
+                         $factory->modal()->interruptiveItem()->standard(
+                             '10',
+                             'Title of the Item',
+                             $icon,
+                             'Note, this item is currently only to be used in interruptive Modal.'
+                         ),
+                         $factory->modal()->interruptiveItem()->standard(
+                             '20',
+                             'Title of the other Item',
+                             $icon,
+                             'And another one.'
+                         )
+                     ));
+    $button = $factory->button()->standard('Show some standard interruptive items', '')
+                      ->withOnClick($modal->getShowSignal());
+
+
+    return $renderer->render([$button, $modal]);
+}

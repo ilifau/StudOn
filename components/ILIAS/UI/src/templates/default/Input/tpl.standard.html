@@ -1,0 +1,22 @@
+<form class="c-form c-form--horizontal" enctype="multipart/form-data" {NAME}<!-- BEGIN action --> action="{URL}"<!-- END action --> method="post">
+	<div class="c-form__header">
+		<div class="c-form__actions">{BUTTONS_TOP}</div>
+		<!-- BEGIN required_text_top -->
+		<div class="c-form__required">
+			<span class="asterisk">*</span><span class="small"> {TXT_REQUIRED_TOP}</span>
+		</div>
+		<!-- END required_text_top -->
+	</div>
+	<!-- BEGIN error -->
+	<div class="c-form__error-msg alert alert-danger"><span class="sr-only">{ERROR_LABEL}: </span>{ERROR}</div>
+	<!-- END error -->
+	{INPUTS}
+	<div class="c-form__footer">
+		<!-- BEGIN required_text -->
+		<div class="c-form__required">
+			<span class="asterisk">*</span><span class="small"> {TXT_REQUIRED}</span>
+		</div>
+		<!-- END required_text -->
+		<div class="c-form__actions">{BUTTONS_BOTTOM}</div>
+	</div>
+</form>

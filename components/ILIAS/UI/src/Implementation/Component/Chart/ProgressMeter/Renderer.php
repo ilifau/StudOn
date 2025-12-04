@@ -1,0 +1,243 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+namespace ILIAS\UI\Implementation\Component\Chart\ProgressMeter;
+
+use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
+use ILIAS\UI\Renderer as RendererInterface;
+use ILIAS\UI\Component;
+use ILIAS\UI\Implementation\Render\Template;
+
+/**
+ * Class Renderer
+ * @package ILIAS\UI\Implementation\Component\Chart\ProgressMeter
+ */
+class Renderer extends AbstractComponentRenderer
+{
+    /**
+     * @inheritdocs
+     */
+    public function render(Component\Component $component, RendererInterface $default_renderer): string
+    {
+        if ($component instanceof Component\Chart\ProgressMeter\FixedSize) {
+            return $this->renderFixedSize($component);
+        } elseif ($component instanceof Mini) {
+            return $this->renderMini($component);
+        } elseif ($component instanceof Component\Chart\ProgressMeter\Standard) {
+            return $this->renderStandard($component);
+        }
+
+        $this->cannotHandleComponent($component);
+    }
+
+    /**
+     * Render standard progressmeter
+     */
+    protected function renderStandard(Component\Chart\ProgressMeter\Standard $component): string
+    {
+        $hasComparison = ($component->getComparison() != null && $component->getComparison() > 0);
+        $tpl = $this->getTemplate("tpl.progressmeter.html", true, true);
+
+        $tpl = $this->getDefaultGraphicByComponent($component, $tpl, $hasComparison);
+
+        return $tpl->get();
+    }
+
+    /**
+     * Render fixed size progressmeter
+     */
+    protected function renderFixedSize(Component\Chart\ProgressMeter\FixedSize $component): string
+    {
+        $hasComparison = ($component->getComparison() != null && $component->getComparison() > 0);
+        $tpl = $this->getTemplate("tpl.progressmeter.html", true, true);
+
+        $tpl->setCurrentBlock('fixed');
+        $tpl->setVariable('FIXED_CLASS', 'fixed-size');
+        $tpl->parseCurrentBlock();
+
+        $tpl = $this->getDefaultGraphicByComponent($component, $tpl, $hasComparison);
+
+        return $tpl->get();
+    }
+
+    /**
+     * Render mini progressmeter
+     */
+    protected function renderMini(Mini $component): string
+    {
+        $tpl = $this->getTemplate("tpl.progressmeter_mini.html", true, true);
+
+        $main_percentage = $component->getMainValueAsPercent();
+
+        // set progress bar color class
+        $color_class = 'no-success';
+        if ($this->getIsReached($main_percentage, $component->getRequiredAsPercent())) {
+            $color_class = 'success';
+        }
+        $tpl->setVariable('COLOR_ONE_CLASS', $color_class);
+        // set width for process bars
+        $tpl->setVariable('BAR_ONE_WIDTH', (86.5 * ($main_percentage / 100)));
+        // set marker position
+        $needle_class = 'no-needle';
+        if ($component->getRequired() != $component->getMaximum()) {
+            $needle_class = '';
+            $tpl->setVariable('ROTATE_ONE', $this->getMarkerPos($component->getRequiredAsPercent()));
+        }
+        $tpl->setVariable('NEEDLE_ONE_CLASS', $needle_class);
+
+        $tpl->parseCurrentBlock();
+
+        return $tpl->get();
+    }
+
+    protected function getDefaultGraphicByComponent(
+        Component\Chart\ProgressMeter\ProgressMeter $component,
+        Template $tpl,
+        $hasComparison = false
+    ): Template {
+        $main_percentage = $component->getMainValueAsPercent();
+        // in some cases, bar needs be adjusted because of a large rounded linecap to visually hit 50% mark exactly
+        $visual_percentage = $main_percentage;
+
+        if ($hasComparison) {
+            // multicircle
+            $tpl->setCurrentBlock('multicircle');
+            // set first progress bar color class
+            $color_one_class = 'no-success';
+            if ($this->getIsReached($main_percentage, $component->getRequiredAsPercent())) {
+                $color_one_class = 'success';
+            }
+            $tpl->setVariable('COLOR_ONE_CLASS', $color_one_class);
+            // set width for first process bar
+            $tpl->setVariable('BAR_ONE_WIDTH', $visual_percentage);
+
+            // set second progress bar color class
+            $color_two_class = 'active';
+            if (!$this->getIsValueSet($component->getMainValueAsPercent()) && $this->getIsValueSet($component->getComparison())) {
+                $color_two_class = 'not-active';
+            }
+            $tpl->setVariable('COLOR_TWO_CLASS', $color_two_class);
+            // set width for second process bar
+            $tpl->setVariable('BAR_TWO_WIDTH', (88.8 * ($component->getComparisonAsPercent() / 100)));
+
+            $tpl->parseCurrentBlock();
+        } else {
+            // monocircle
+            $tpl->setCurrentBlock('monocircle');
+            // because line endcap is so large, bar value needs to be shorter to visually hit 50% mark
+            $visual_percentage = $main_percentage - 4;
+            if ($visual_percentage < 0) {
+                $visual_percentage = 0;
+            }
+            // set progress bar color class
+            $color_class = 'no-success';
+            if ($this->getIsReached($main_percentage, $component->getRequiredAsPercent())) {
+                $color_class = 'success';
+            }
+            $tpl->setVariable('COLOR_ONE_CLASS', $color_class);
+            // set width for process bars
+            $tpl->setVariable('BAR_ONE_WIDTH', $visual_percentage);
+
+            $tpl->parseCurrentBlock();
+        }
+
+        // set visible values
+        $tpl = $this->modifyVisibleValues($tpl, $component);
+
+        // set marker position
+        $needle_class = 'no-needle';
+        if ($component->getRequired() != $component->getMaximum()) {
+            $needle_class = '';
+            $needle_value = (270 / 100 * $component->getRequiredAsPercent() - 133);
+            // because meter is squashed, rotation needs to be gradually modified the further away we get from 0 degrees
+            // 0 degress is the 50% mark at which this compensation equals 0
+            $compensated_needle_value = $needle_value - (7 * (1 - (2 * $main_percentage / 100)));
+            $tpl->setVariable('ROTATE_ONE', $compensated_needle_value);
+        }
+        $tpl->setVariable('NEEDLE_ONE_CLASS', $needle_class);
+
+        $tpl->parseCurrentBlock();
+
+        return $tpl;
+    }
+
+    /**
+     * Modify visible template variables
+     */
+    protected function modifyVisibleValues(Template $tpl, Component\Component $component): Template
+    {
+        $tpl->setVariable("MAIN", $component->getMainValueAsPercent() . ' %');
+        if ($component->getRequired() != $component->getMaximum()) {
+            $tpl->setVariable("REQUIRED", $component->getRequiredAsPercent() . ' %');
+        } else {
+            $tpl->setVariable("REQUIRED", '');
+        }
+
+        $main_text = '';
+        if (!is_null($component->getMainText())) {
+            $main_text = $component->getMainText();
+        }
+
+        $required_text = '';
+        if (!is_null($component->getRequiredText())) {
+            $required_text = $component->getRequiredText();
+        }
+        $tpl->setVariable("TEXT_MAIN", htmlspecialchars($main_text));
+        $tpl->setVariable("TEXT_REQUIRED", htmlspecialchars($required_text));
+        return $tpl;
+    }
+
+    /**
+     * get marker position by percent
+     *
+     * careful: marker position is no fixed positioning but
+     *          a rotation value for marker box.
+     */
+    protected function getMarkerPos(int $percentage): float
+    {
+        $needle_value = round((230 / 100 * ($percentage * 1)) - 115, 2, PHP_ROUND_HALF_UP);
+        $compensated_needle_value = $needle_value - (16 * (1 - (2 * $percentage / 100)));
+        return $compensated_needle_value;
+    }
+
+    /**
+     * Test if value is not zero
+     *
+     * @param int|float $val
+     */
+    protected function getIsValueSet($val): bool
+    {
+        return (isset($val) && $val > 0);
+    }
+
+    /**
+     * Test if $a_val has reached $b_val
+     *
+     * This function may be used to check different
+     * values with different has-to-reach values.
+     *
+     * @param int|float $a_val
+     * @param int|float $b_val
+     */
+    protected function getIsReached($a_val, $b_val): bool
+    {
+        return ($a_val >= $b_val);
+    }
+}

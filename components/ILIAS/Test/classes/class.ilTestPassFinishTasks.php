@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\Test\Results\Data\StatusOfAttempt;
+use ILIAS\Test\Results\Data\Repository as TestResultRepository;
+
+/**
+ * Class ilTestPassFinishTasks
+ * @author Guido Vollbach <gvollbach@databay.de>
+ */
+class ilTestPassFinishTasks
+{
+    public function __construct(
+        private readonly ilTestSession $test_session,
+        private readonly ilObjTest $obj_test,
+        private readonly TestResultRepository $test_pass_result_repository
+    ) {
+    }
+
+    public function performFinishTasks(ilTestProcessLocker $process_locker, StatusOfAttempt $status_of_attempt)
+    {
+        $process_locker->executeTestFinishOperation(function () use ($status_of_attempt) {
+            $pass = $this->test_session->getPass();
+
+            if (!$this->test_session->isSubmitted()) {
+                $this->test_session->setSubmitted();
+                $this->test_session->setSubmittedTimestamp();
+                $this->test_session->saveToDb();
+            }
+
+            $last_started_pass = (
+                $this->test_session->getLastStartedPass() === null ? -1 : $this->test_session->getLastStartedPass()
+            );
+
+            $last_finished_pass = (
+                $this->test_session->getLastFinishedPass() === null ? -1 : $this->test_session->getLastFinishedPass()
+            );
+
+            if ($last_started_pass > -1 && $last_finished_pass < $last_started_pass) {
+                $this->test_session->setLastFinishedPass($this->test_session->getPass());
+                $this->test_session->increaseTestPass(); // saves to db
+            }
+
+            $this->test_pass_result_repository->finalizeTestPassResult(
+                $this->test_session->getActiveId(),
+                $pass,
+                $status_of_attempt
+            );
+        });
+
+        $this->obj_test->updateTestResultCache($this->test_session->getActiveId(), null);
+
+        $this->updateLearningProgressAfterPassFinishedIsWritten();
+    }
+
+    protected function updateLearningProgressAfterPassFinishedIsWritten()
+    {
+        ilLPStatusWrapper::_updateStatus(
+            $this->obj_test->getId(),
+            ilObjTestAccess::_getParticipantId($this->test_session->getActiveId())
+        );
+    }
+}

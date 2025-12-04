@@ -9,7 +9,7 @@
 /.settings
 /errors
 /extern
-/Services/PHPUnit/config/cfg.phpunit.php
+/components/ILIAS/PHPUnit/config/cfg.phpunit.php
 /nbproject
 /templates/default/delos.css.map
 
@@ -22,56 +22,37 @@
 *.swo
 
 # Core Components and Components From Other Vendors
-/component/*
-!/component/ILIAS
+/components/*
+!/components/ILIAS
 
 # Generated Files
+/artifacts/*
 /ilias.ini.php
 /ilias.log
 /db_template_writer.php
-# fau: gitIgnore - don't ignore /setup/sql/dbupdate_custom.php.
+/components/ILIAS/setup_/sql/dbupdate_custom.php
 /install_client.php
-/Services/GlobalScreen/artifacts/global_screen_providers.php
-/Services/Style/System/data/data.php
-/Services/UICore/artifacts/ctrl_structure.php
-/Services/UICore/artifacts/ctrl_plugin_structure.php
-/Services/UICore/artifacts/ctrl_base_classes.php
-/Services/UICore/artifacts/ctrl_security.php
-/Services/Component/artifacts/*
-/Services/EventHandling/artifacts/*
-/Services/Object/artifacts/*
-/Services/LegalDocuments/artifacts/*
 
 # Directories
-/data
-# fau: gitIgnore - ignore plugins but not the rest of customizing
-# /Customizing/global
-# /Customizing/clients
-/Customizing/global/plugins
-# /Customizing/global/skin
-# fau.
+/public
+/Customizing/global
+/Customizing/clients
 virtual-data
-/libs/composer/vendor
+/vendor/composer/vendor
 
 # Node Modules
 /node_modules
-/Modules/Chatroom/chat/node_modules
+/components/ILIAS/Chatroom/chat/node_modules
 
-# /dicto
-/dicto/results/*
-!/dicto/results/README.md
-
-# CI
+# cli
 captainhook.config.json
 captainhook.local.json
-.phpunit.result.cache
+scripts/PHPUnit/.phpunit.cache/
 .php-cs-fixer.cache
 phpstan.local.neon
 phpstan-baseline.neon
 
 # File Delivery
 override.php
-Services/ResourceStorage/artifacts/flavour_data.php
-Services/FileHandlingDemo
-src/FileDelivery/artifacts
-src/StaticURL/artifacts
+components/ILIAS/FileHandlingDemo
+public/data/

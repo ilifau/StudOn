@@ -1,0 +1,75 @@
+<div class="il-item il-std-item <!-- BEGIN color -->il-item-marker " style="border-color:{COLOR}<!-- END color -->">
+	<!-- BEGIN lead_start -->
+	<div class="row">
+		<!-- BEGIN item_with_lead_only -->
+			<!-- BEGIN lead_text -->
+			<div class="col-sm-3">{LEAD_TEXT}</div>
+			<div class="col-sm-9">
+			<!-- END lead_text -->
+			<!-- BEGIN lead_image -->
+			<div class="col-xs-2 col-sm-3">{LEAD_IMAGE}</div>
+			<div class="col-xs-10 col-sm-9">
+			<!-- END lead_image -->
+		<!-- END item_with_lead_only -->
+		<!-- BEGIN item_with_lead_and_progress -->
+			<!-- BEGIN lead_text_with_progress -->
+			<div class="col-sm-3">{LEAD_TEXT}</div>
+			<div class="col-sm-6">
+			<!-- END lead_text_with_progress -->
+			<!-- BEGIN lead_image_with_progress -->
+			<div class="col-xs-3 col-sm-3 col-lg-2">{LEAD_IMAGE}</div>
+			<div class="col-xs-6 col-sm-7 col-lg-8">
+			<!-- END lead_image_with_progress -->
+		<!-- END item_with_lead_and_progress -->
+	<!-- END lead_start -->
+
+	<!-- BEGIN item_with_progress_only -->
+	<div class="row">
+		<div class="col-sm-9">
+	<!-- END item_with_progress_only -->
+
+	<!-- BEGIN lead_start_icon -->
+	<div class="media">
+		<div class="media-left">
+			<!-- BEGIN lead_icon -->{LEAD_ICON}<!-- END lead_icon -->
+		</div>
+		<div class="media-body">
+			<!-- END lead_start_icon -->
+			<h4 class="il-item-title">{TITLE}</h4>
+			<!-- BEGIN action_bar -->
+			<div class="il-item-actions l-bar__space-keeper">
+				<!-- BEGIN main_action --><div class="l-bar__element">{MAIN_ACTION}</div><!-- END main_action -->
+				<!-- BEGIN actions --><div class="l-bar__element">{ACTIONS}</div><!-- END actions -->
+			</div>
+			<!-- END action_bar -->
+			<!-- BEGIN desc -->
+			<div class="il-item-description">{DESC}</div><!-- END desc -->
+			<!-- BEGIN audio -->
+			<div class="il-item-audio">{AUDIO}</div><!-- END audio -->
+			<!-- BEGIN properties -->
+			<hr class="il-item-divider" />
+			<!-- BEGIN property_row -->
+			<div class="row">
+				<div class="col-md-6 il-multi-line-cap-3">
+					<span class="il-item-property-name">{PROP_NAME_A}</span><span class="il-item-property-value">{PROP_VAL_A}</span>
+				</div>
+				<div class="col-md-6 il-multi-line-cap-3">
+					<span class="il-item-property-name">{PROP_NAME_B}</span><span class="il-item-property-value">{PROP_VAL_B}</span>
+				</div>
+			</div>
+			<!-- END property_row -->
+			<!-- END properties -->
+			<!-- BEGIN progress_end_with_lead_icon -->
+		</div>
+		<div class="media-right">{PROGRESS}</div>
+	</div>
+			<!-- END progress_end_with_lead_icon -->
+			<!-- BEGIN progress_end -->
+		</div>
+		<div class="col-xs-3 col-sm-2 col-lg-2">{PROGRESS}</div>
+	</div>
+			<!-- END progress_end -->
+			<!-- BEGIN lead_end -->
+		</div>
+	</div><!-- END lead_end -->
+</div>

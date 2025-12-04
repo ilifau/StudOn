@@ -1,0 +1,52 @@
+<div class="form-inline" id="{ELEMENT_ID}">
+	<table class="matchingpairwizard table table-condensed table-striped">
+		<thead>
+		<tr>
+			<th>{TEXT_DEFINITION}</th>
+			<th>{TEXT_TERM}</th>
+			<th>{TEXT_POINTS}</th>
+			<th style="text-align:right;">{TEXT_ACTIONS}</th>
+		</tr>
+		</thead>
+		<tbody class="mpwzd">
+		<!-- BEGIN row -->
+		<tr class="mpwzd">
+			<td>
+				<select class="form-control" name="{POST_VAR}[definition][{ROW_NUMBER}]">
+					<!-- BEGIN option_definition -->
+					<option value="{VALUE_OPTION}"
+					{SELECTED_OPTION}>{TEXT_OPTION}</option>
+					<!-- END option_definition -->
+				</select>
+			</td>
+			<td>
+				<select class="form-control" name="{POST_VAR}[term][{ROW_NUMBER}]">
+					<!-- BEGIN option_term -->
+					<option value="{VALUE_OPTION}"
+					{SELECTED_OPTION}>{TEXT_OPTION}</option>
+					<!-- END option_term -->
+				</select>
+			</td>
+			<td>
+				<input class="form-control text-right" type="text" size="5" name="{POST_VAR}[points][{ROW_NUMBER}]"
+				<!-- BEGIN points_value -->value="{POINTS_VALUE}" <!-- END points_value --> />
+			</td>
+			<td class="ilValignTop" style="text-align:right;">
+				<div class="matchingpair_add btn btn-link" id="add_{ID}">{ADD_BUTTON}</div>
+				<div class="matchingpair_remove btn btn-link" id="remove_{ID}">{REMOVE_BUTTON}</div>
+				<!-- BEGIN move -->
+				<div class="matchingpair_up btn btn-link" id="up_{ID}">{UP_BUTTON}</div>
+				<div class="matchingpair_down btn btn-link" id="down_{ID}">{DOWN_BUTTON}</div>
+				<!-- END move -->
+			</td>
+		</tr>
+		<!-- END row -->
+		</tbody>
+	</table>
+</div>
+<!-- BEGIN term_ids -->
+<input type="hidden" name="{POST_VAR}[term_id]" value="{TERM_IDS}">
+<!-- END term_ids -->
+<!-- BEGIN definition_ids -->
+<input type="hidden" name="{POST_VAR}[definition_id]" value="{DEFINITION_IDS}">
+<!-- END definition_ids -->

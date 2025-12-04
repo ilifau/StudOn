@@ -53,10 +53,9 @@ $zoom-large: math.div($il-avatar-size-large, $il-avatar-size);
 		border-color: $il-avatar-picture-border-color;
 
 		img {
-			height: $il-avatar-size;
-			width: $il-avatar-size;
+			height: $il-avatar-inner-size;
+			width: $il-avatar-inner-size;
 			vertical-align: top;
-			border: $il-avatar-border-radius;
 			overflow: hidden;
 			object-fit: cover;
 		}
@@ -102,7 +101,7 @@ $zoom-large: math.div($il-avatar-size-large, $il-avatar-size);
 		&.il-avatar-letter {
 			span.abbreviation {
 				font-size: calc($il-avatar-inner-mobile-size / 2);
-				top: calc($il-avatar-inner-mobile-size / 7);
+				top: calc($il-avatar-inner-mobile-size / 4);
 			}
 		}
 	}

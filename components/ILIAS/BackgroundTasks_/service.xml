@@ -1,0 +1,12 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<service xmlns="http://www.w3.org" version="$Id$"
+	id="bgtk">
+	<baseclasses>
+		<baseclass name="ilBTControllerGUI" dir="classes" />
+	</baseclasses>
+	<gsproviders>
+		<gsprovider class_name="ilBTGSProvider" purpose="meta_bar_static"/>
+	</gsproviders>
+
+	<logging />
+</service>

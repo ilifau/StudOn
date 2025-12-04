@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+namespace ILIAS\MediaCast\Video;
+
+/**
+ *
+ * @author Alexander Killing <killing@leifos.de>
+ */
+class VideoSequence
+{
+    protected \ILIAS\MediaObjects\MediaType\MediaTypeManager $media_types;
+    protected \ilObjMediaCast $media_cast;
+    /** @var VideoItem[] */
+    protected array $videos;
+
+    public function __construct(\ilObjMediaCast $cast)
+    {
+        global $DIC;
+
+        $this->media_types = $DIC->mediaObjects()->internal()->domain()->mediaType();
+        $this->media_cast = $cast;
+        $this->init();
+    }
+
+    protected function init(): void
+    {
+        global $DIC;
+
+        $f = $DIC->ui()->factory();
+        $r = $DIC->ui()->renderer();
+
+        $videos = [];
+        foreach ($this->media_cast->getSortedItemsArray() as $item) {
+            $mob = new \ilObjMediaObject($item["mob_id"]);
+            $med = $mob->getMediaItem("Standard");
+            $title = $item["title"];
+            $time = (int) $item["playtime"];
+            $preview_pic = "";
+            if ($mob->getVideoPreviewPic() != "") {
+                $preview_pic = $mob->getVideoPreviewPic();
+            }
+
+            $mime = '';
+            $resource = '';
+
+            if (is_object($med)) {
+                $resource = $mob->getStandardSrc();
+                $mime = $med->getFormat();
+            }
+            if (in_array($mime, iterator_to_array($this->media_types->getAllowedVideoMimeTypes()), true)) {
+                $videos[] = new VideoItem(
+                    $item["mob_id"],
+                    $title,
+                    $time,
+                    $mime,
+                    $resource,
+                    $preview_pic,
+                    (string) $item["content"],
+                    (string) $item["playtime"],
+                    $med->getDuration()
+                );
+            }
+        }
+        $this->videos = $videos;
+    }
+
+    /**
+     * @return VideoItem[]
+     */
+    public function getVideos(): array
+    {
+        return $this->videos;
+    }
+
+    public function getFirst(): ?VideoItem
+    {
+        if (count($this->videos) > 0) {
+            return $this->videos[0];
+        }
+        return null;
+    }
+}

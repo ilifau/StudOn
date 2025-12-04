@@ -1,0 +1,47 @@
+var Container = require('../AppContainer');
+var Notice = require('../Model/Messages/Notice');
+var KickAction = require('../Model/Messages/KickAction');
+var UserlistAction = require('../Model/Messages/UserlistAction');
+
+
+module.exports = function exports(req, res) {
+	var subscriberId = parseInt(req.params.id);
+	var roomId = parseInt(req.params.roomId);
+	var namespace = Container.getNamespace(req.params.namespace);
+	var subscriber = namespace.getSubscriber(subscriberId);
+
+	function userBannedMessageCallbackFactory(namespace, roomId) {
+		return function userBannedMessageCallback(socketId) {
+			namespace.getIO().to(socketId).emit('userjustbanned');
+			namespace.getIO().sockets.get(socketId).leave(roomId);
+		};
+	}
+
+	if (subscriber !== null) {
+		Container.getLogger().info('Subscriber %s got banned from namespace %s', subscriberId, namespace.getName());
+
+		var rooms = namespace.getRooms();
+
+		Object.values(rooms).forEach(function(room){
+			const splitted = Container.splitServerRoomId(room.getId());
+
+			if (splitted[0] != roomId || !room.hasSubscriber(subscriberId)) { // Remove from Main.
+				return;
+			}
+			room.removeSubscriber(subscriberId);
+			room.subscriberLeft(subscriberId);
+
+			var userlistAction = UserlistAction.create(splitted[0], room.getJoinedSubscribers());
+			var notice = Notice.create('user_banned', splitted[0], {user: subscriber.getName()});
+
+			subscriber.getSocketIds().forEach(
+				userBannedMessageCallbackFactory(namespace, room.getId())
+			);
+
+			namespace.getIO().to(room.getId()).emit('userlist', userlistAction);
+			namespace.getIO().to(room.getId()).emit('notice', notice);
+		});
+		namespace.removeSubscriber(subscriberId);
+	}
+	res.send({success: true});
+};
