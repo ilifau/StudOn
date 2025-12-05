@@ -29,6 +29,7 @@ use ILIAS\RootFolder\StandardGUIRequest;
  */
 class ilObjRootFolderGUI extends ilContainerGUI
 {
+    use FAU\Ilias\Helper\ilObjRootFolderGUIHelper;
     protected StandardGUIRequest $root_request;
     protected ilHelpGUI $help;
 

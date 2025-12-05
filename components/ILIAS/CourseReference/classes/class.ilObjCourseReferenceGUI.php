@@ -134,6 +134,8 @@ class ilObjCourseReferenceGUI extends ilContainerReferenceGUI
             return $form;
         }
 
+        // fau: fauService - disable member update option
+        /*        
         $access = $path_info->checkManagmentAccess();
 
         $auto_update = new \ilCheckboxInputGUI($this->lng->txt('crs_ref_member_update'), 'member_update');
@@ -141,7 +143,7 @@ class ilObjCourseReferenceGUI extends ilContainerReferenceGUI
         $auto_update->setInfo($this->lng->txt('crs_ref_member_update_info'));
         $auto_update->setDisabled(!$access);
         $form->addItem($auto_update);
-
+        // fau.
         return $form;
     }
 

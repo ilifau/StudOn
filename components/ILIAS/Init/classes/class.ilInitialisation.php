@@ -56,6 +56,7 @@ if (null === $DIC) {
  */
 class ilInitialisation
 {
+    use FAU\Ilias\Helper\InitialisationHelper;
     /**
      * Remove unsafe characters from GET
      */
@@ -1325,6 +1326,10 @@ class ilInitialisation
         self::initLegalDocuments($GLOBALS['DIC']);
         self::initAccessibilityControlConcept($GLOBALS['DIC']);
         self::initLearningObjectMetadata($GLOBALS['DIC']);
+
+        // fau: fauService - call initialisation of the service factory
+        self::initFau($GLOBALS['DIC']);
+        // fau.
 
         // --- needs settings
 

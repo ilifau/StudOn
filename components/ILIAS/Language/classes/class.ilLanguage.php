@@ -110,6 +110,11 @@ class ilLanguage implements \ILIAS\Language\Language
             $this->cached_modules = $this->global_cache->getTranslations();
         }
         $this->loadLanguageModule("common");
+
+        // fau: fauService - load the fau language module by default
+        $this->loadLanguageModule('fau');
+        // fau.
+
     }
 
     /**
