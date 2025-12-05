@@ -39,6 +39,7 @@
 /Customizing/clients
 virtual-data
 /vendor/composer/vendor
+./vscode
 
 # Node Modules
 /node_modules
