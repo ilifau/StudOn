@@ -1,0 +1,80 @@
+<?php
+
+use ILIAS\Cron\Schedule\CronJobScheduleType;
+
+/**
+ * fau: syncWithCampo - new class for campo data update cron job.
+ */
+class ilSyncWithCampoCron extends ilCronJob
+{
+    public function getId(): string
+    {
+        return "fau_sync_with_campo";
+    }
+    
+    public function getTitle(): string
+    {
+        global $DIC;
+        
+        return $DIC->language()->txt("fau_campo_data_update");
+    }
+    
+    public function getDescription(): string
+    {
+        global $DIC;
+        
+        return $DIC->language()->txt("fau_campo_data_update_info");
+    }
+    
+    public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
+    {
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
+    }
+    
+    public function getDefaultScheduleValue(): ?int
+    {
+        return 1;
+    }
+    
+    public function hasAutoActivation(): bool
+    {
+        return false;
+    }
+    
+    public function hasFlexibleSchedule(): bool
+    {
+        return true;
+    }
+    
+    public function run(): ilCronJobResult
+    {
+        global $DIC;
+
+        $result = new \ilCronJobResult();
+
+        // First synchronize the campo data from the staging database
+        // this will not set the counters
+        $service = $DIC->fau()->sync()->campo();
+        $service->synchronize();
+        if ($service->hasErrors()) {
+            $result->setStatus(\ilCronJobResult::STATUS_FAIL);
+            $result->setMessage(implode(', ', $service->getErrors()));
+            return $result;
+        }
+
+        // Then create or update the ilias courses based on that data
+        $service = $DIC->fau()->sync()->ilias();
+        $service->synchronize();
+
+        if ($service->hasErrors()) {
+            $result->setStatus(\ilCronJobResult::STATUS_FAIL);
+            $result->setMessage(implode(', ', $service->getErrors()));
+        } else {
+            $result->setStatus(\ilCronJobResult::STATUS_OK);
+            $result->setMessage('Added Courses: ' . $service->getItemsAdded() . ', '
+                . 'Updated Courses: ' . $service->getItemsUpdated()
+            );
+        }
+        return $result;
+    }
+}

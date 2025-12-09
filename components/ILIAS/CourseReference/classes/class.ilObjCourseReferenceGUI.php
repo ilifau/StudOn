@@ -134,7 +134,7 @@ class ilObjCourseReferenceGUI extends ilContainerReferenceGUI
             return $form;
         }
 
-        // fau: fauService - disable member update option
+        // fau: crsLinkDisableMemberUpdate - disable member update option
         /*        
         $access = $path_info->checkManagmentAccess();
 
@@ -143,6 +143,7 @@ class ilObjCourseReferenceGUI extends ilContainerReferenceGUI
         $auto_update->setInfo($this->lng->txt('crs_ref_member_update_info'));
         $auto_update->setDisabled(!$access);
         $form->addItem($auto_update);
+        */
         // fau.
         return $form;
     }

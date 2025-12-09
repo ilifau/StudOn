@@ -25,7 +25,7 @@ use ILIAS\Cache\Services;
 use ILIAS\Filesystem\Util\Convert\Converters;
 use ILIAS\Repository;
 use ILIAS\Skill\Service\SkillService;
-
+use FAU\Service;
 /**
  * Customizing of pimple-DIC for ILIAS.
  *
@@ -40,7 +40,7 @@ class Container extends \Pimple\Container
     /**
      * Get the factory
      */
-    public function fau(): \FAU\Service {
+    public function fau(): Service {
         return $this["fau"];
     }
     // fau.

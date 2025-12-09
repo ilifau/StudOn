@@ -575,6 +575,25 @@ class ilObjUser extends ilObject
              ' WHERE usr_id = %s', ['integer'], [$this->getId()]);
     }
 
+    // fau: samlAuth - new function _findLoginByField
+    public static function _findLoginByField($fieldname, $value) : string
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        $query = "SELECT login FROM usr_data " .
+        "WHERE " . $fieldname . " = " . $ilDB->quote($value, 'text');
+        $result = $ilDB->query($query);
+
+        // take the first found
+        if ($row = $ilDB->fetchAssoc($result)) {
+            return $row['login'];
+        }
+
+        return '';
+    }
+    // fau.    
+
     private static function _lookup(
         int $a_user_id,
         string $a_field
