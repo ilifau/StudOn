@@ -89,7 +89,7 @@
 		"captainhook/plugin-composer": "^5.3",
 		"sebastianfeldmann/captainhook": "~1.0",
 		"captainhook/hook-installer": "^1.0",
-		"captainhook/captainhook-phar": "*"
+		"captainhook/captainhook-phar": "^5.27"
 	},
 	"autoload": {
 		"psr-4" : {

@@ -1806,12 +1806,4 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
 \FAU\Setup\Setup::instance($ilDB)->ilias()->custom_step_132();
 ?>
 
-<#133>
-<?php
-/**
- * fau: fauService - add 'fau_ilias_attmaxlog' table
- */
-\FAU\Setup\Setup::instance($ilDB)->ilias()->custom_step_133();
-?>
-
 
