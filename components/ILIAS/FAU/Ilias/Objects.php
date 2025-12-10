@@ -353,10 +353,10 @@ class Objects
             (bool) $info['reg_info_mem_limit'],
             (bool) $info['reg_info_waiting_list'],
             (int) $info['reg_info_max_members'],
-            (int) $info['reg_info_members'],
-            (int) $info['reg_info_subscribers'],
-            (int) $info['reg_info_waiting_status'],
-            (bool) $info['reg_info_is_assigned']
+            (int) ($info['reg_info_members'] ?? 0),
+            (int) ($info['reg_info_subscribers'] ?? 0),
+            (int) ($info['reg_info_waiting_status'] ?? WaitingListConstantsHelper::REQUEST_NOT_ON_LIST),
+            (bool) ($info['reg_info_is_assigned'] ?? false)
         );
 
         // add optional lists
