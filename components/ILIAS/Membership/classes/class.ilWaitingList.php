@@ -25,6 +25,7 @@ declare(strict_types=1);
  */
 abstract class ilWaitingList
 {
+    use FAU\Ilias\Helper\WaitingListHelper;   
     public static array $is_on_list = [];
     private int $obj_id = 0;
     private array $user_ids = [];

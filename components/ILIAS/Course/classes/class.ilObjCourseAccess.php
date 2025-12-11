@@ -347,7 +347,9 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
         }
     }
 
-    public static function lookupRegistrationInfo(int $a_obj_id): array
+    // fau: showMemLimit - add ref_id as parameter for checking write access
+    public static function lookupRegistrationInfo(int $a_obj_id, int $a_ref_id = 0): array
+    // fau.
     {
         global $DIC;
 
@@ -399,27 +401,9 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
             $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg');
             $info['reg_info_list_prop']['value'] = $lng->txt('crs_list_reg_noreg');
         }
-
-        if (($info['reg_info_mem_limit'] ?? false) && $info['reg_info_max_members'] && $registration_possible) {
-            // Check for free places
-            $part = ilCourseParticipant::_getInstanceByObjId($a_obj_id, $ilUser->getId());
-
-            $info['reg_info_list_size'] = ilCourseWaitingList::lookupListSize($a_obj_id);
-            if ($info['reg_info_list_size']) {
-                $info['reg_info_free_places'] = 0;
-            } else {
-                $info['reg_info_free_places'] = max(0, $info['reg_info_max_members'] - $part->getNumberOfMembers());
-            }
-
-            if ($info['reg_info_free_places']) {
-                $info['reg_info_list_prop_limit']['property'] = $lng->txt('crs_list_reg_limit_places');
-                $info['reg_info_list_prop_limit']['value'] = $info['reg_info_free_places'];
-            } else {
-                $info['reg_info_list_prop_limit']['property'] = '';
-                $info['reg_info_list_prop_limit']['value'] = $lng->txt('crs_list_reg_limit_full');
-            }
-        }
-        return $info;
+        // fau: showMemLimit - extend the registration info
+        // fau: regOverview - extend the registration info
+        return $DIC->fau()->ilias()->objects()->extendRegistrationInfo($info, $a_obj_id, $a_ref_id, 'crs');
     }
 
     public static function _isOffline(int $obj_id): bool

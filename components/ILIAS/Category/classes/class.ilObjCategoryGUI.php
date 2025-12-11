@@ -19,6 +19,7 @@
 declare(strict_types=1);
 
 use ILIAS\Category\StandardGUIRequest;
+use FAU\Tools\Cust;
 
 /**
  * Class ilObjCategoryGUI
@@ -655,13 +656,45 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
             }
         }
 
-        $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'cat', $this->object->getId());
-        $record_gui->setInfoObject($info);
-        $record_gui->parse();
+        // fau: campoInfo - show organisational info on category info page, don't show common meta data
+        global $DIC;
+        if (!empty($units = $DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId()))) {
+            $roles = $DIC->fau()->sync()->roles();
+            $info->addSection($this->lng->txt('fau_relation_orgunits'));
 
+            foreach ($units as $unit) {
+                $list = [];
+                $list[] = sprintf($this->lng->txt('fau_org_number'), $unit->getFauorgNr());
 
-        // standard meta data
-        $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
+                if ($unit->getCollectCourses()) {
+                    $list[] = $this->lng->txt('fau_org_collect_courses');
+                }
+                if (!$unit->getAssignable()) {
+                    $list[] = $this->lng->txt('fau_org_studon_roles_not_assignable');
+                }
+                else {
+                    if (empty($roles->findAuthorRole($this->object->getRefId()))) {
+                        $list[] = $this->lng->txt('fau_org_studon_author_missing');
+                    }
+                    else {
+                        $list[] = $this->lng->txt('fau_org_studon_author_assignable');
+                    }
+
+                    if ($unit->getNoManager()) {
+                        $list[] = $this->lng->txt('fau_org_studon_manager_ignored');
+                    }
+                    elseif (empty($roles->findManagerRole($this->object->getRefId()))) {
+                        $list[] = $this->lng->txt('fau_org_studon_manager_missing');
+                    }
+                    else {
+                        $list[] = $this->lng->txt('fau_org_studon_manager_assignable');
+                    }
+                }
+
+                $info->addProperty($unit->getLongtext(), $DIC->fau()->tools()->format()->list($list));
+            }
+        }
+        // fau.
 
         // forward the command
         if ($ilCtrl->getNextClass() === "ilinfoscreengui") {
@@ -845,10 +878,57 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
             ]
         );
 
+
+
+        // fau: campoInfo - selection of orgunits
+        if (Cust::administrationIsVisible()) {
+            global $DIC;
+
+            $header = new ilFormSectionHeaderGUI();
+            $header->setTitle($this->lng->txt('fau_relation'));
+            $form->addItem($header);
+
+            $units = $DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId());
+            $values = [];
+            foreach ($units as $unit) {
+                $values[] = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+            }
+
+            $multi = new ilTextInputGUI($this->lng->txt('fau_relation_orgunits'), 'orgunits');
+            $multi->setMulti(true);
+            $multi->setDataSource($this->ctrl->getLinkTarget($this, 'getOrgunits', '',true));
+            $multi->setDisableHtmlAutoComplete(true);
+            $multi->setValue($values);
+            $form->addItem($multi);
+        }
+        // fau.
+
+
         $form->addCommandButton("update", $this->lng->txt("save"));
 
         return $form;
     }
+
+    // fau: campoInfo - get the list of orgunits for autocomplete
+    /**
+     * Get the list of orgunits for autocomplete
+     */
+    protected function getOrgunitsObject()
+    {
+        global $DIC;
+        $term = $_REQUEST['term'];
+        $result = ['0' => $this->lng->txt('please_select')];
+        foreach ($DIC->fau()->org()->repo()->getAssignableOrgunitsByTerm($term) as $unit)
+        {
+            $entry = new stdClass();
+            $entry->value = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+            $entry->label = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+            $result[] = $entry;
+        }
+        echo json_encode($result, JSON_THROW_ON_ERROR);
+        exit;
+    }
+    // fau;
 
     protected function getEditFormValues(): array
     {
@@ -865,7 +945,46 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
             $ilErr->raiseError($this->lng->txt("msg_no_perm_write"), $ilErr->MESSAGE);
         } else {
             $form = $this->initEditForm();
-            if ($form->checkInput()) {
+
+            // fau: campoInfo - handle orgunit assignments
+            $success = $form->checkInput();
+            if ($success && Cust::administrationIsVisible()) {
+                global $DIC;
+
+                $oldUnits = [];
+                foreach ($DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId()) as $unit) {
+                    $oldUnits[$unit->getId()] = $unit;
+                }
+                $newUnits = [];
+
+                foreach ((array) $form->getInput('orgunits') as $entry) {
+                    if (!empty($entry)) {
+                        list($orgnr, $orgname) = explode(' - ', $entry);
+                        if (!empty($unit = $DIC->fau()->org()->repo()->getOrgunitByNumber($orgnr))) {
+                            if (!empty($unit->getIliasRefId() && $unit->getIliasRefId() != $this->object->getRefId())) {
+                                $DIC->ui()->mainTemplate()->setOnScreenMessage('failure', sprintf($this->lng->txt('fau_relation_unit_used'),
+                                    $unit->getLongtext(), ilLink::_getLink($unit->getIliasRefId()),
+                                ilObject::_lookupTitle(ilObject::_lookupObjId($unit->getIliasRefId()))), true);
+                                $success = false;
+                            }
+                            else {
+                                $newUnits[$unit->getId()] = $unit;
+                            }
+                        }
+                    }
+                }
+                /**
+                 * @var  \FAU\Org\Data\Orgunit $unit
+                 */
+                foreach (array_diff_key($oldUnits, $newUnits) as $id => $unit) {
+                    $DIC->fau()->org()->repo()->save($unit->withIliasRefId(null));
+                }
+                foreach (array_diff_key($newUnits, $oldUnits) as $id => $unit) {
+                    $DIC->fau()->org()->repo()->save($unit->withIliasRefId($this->object->getRefId()));
+                }
+            }
+            if ($success) {
+                // fau.
                 $title = $form->getInput("title");
                 $desc = $form->getInput("desc");
 

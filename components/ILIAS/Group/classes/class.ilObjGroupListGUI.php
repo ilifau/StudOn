@@ -67,6 +67,33 @@ class ilObjGroupListGUI extends ilObjectListGUI
         $this->commands = ilObjGroupAccess::_getCommands();
     }
 
+    // fau: campoInfo - show info and links from campo
+    // use custom property to hide the display in the result list of campo search    
+    /**
+     * @inheritdoc
+     */  
+    public function initItem(int $a_ref_id, int $a_obj_id, string $type, string $a_title = "", string $a_description = "") : void
+    {
+        parent::initItem($a_ref_id, $a_obj_id, $type, $a_title, $a_description);
+        global $DIC;
+        $info_gui = $DIC->fau()->study()->info();
+        $import_id = $DIC->fau()->study()->repo()->getImportId($this->obj_id)->withEventId(null);
+        if ($import_id->isForCampo()) {
+            if (!empty($line = $info_gui->getDatesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getResponsiblesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getDetailsLink($import_id, $this->ref_id, $this->lng->txt('fau_details_link')))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+        }
+
+        // fau.
+    }
+    
+
     /**
      * @inheritDoc
     */
@@ -101,8 +128,9 @@ class ilObjGroupListGUI extends ilObjectListGUI
     public function getProperties(): array
     {
         $props = parent::getProperties();
-        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id);
-        //var_dump($info);
+
+        // fau: showMemLimit - adapted info about registration, membership limit and status        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id);
+        $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id, $this->ref_id);
         if (isset($info['reg_info_list_prop'])) {
             $props[] = array(
                 'alert' => false,
@@ -114,23 +142,22 @@ class ilObjGroupListGUI extends ilObjectListGUI
         if (isset($info['reg_info_list_prop_limit'])) {
             $props[] = array(
                 'alert' => false,
-                'newline' => false,
+                'newline' => true,
                 'property' => $info['reg_info_list_prop_limit']['property'],
-                'propertyNameVisible' => strlen($info['reg_info_list_prop_limit']['property']) ? true : false,
+                'propertyNameVisible' => (bool) strlen($info['reg_info_list_prop_limit']['property']) ? true : false,
                 'value' => $info['reg_info_list_prop_limit']['value']
             );
         }
-
-
-
-        // waiting list
-        if (ilGroupWaitingList::_isOnList($this->user->getId(), $this->obj_id)) {
+        if (isset($info['reg_info_list_prop_status'])) {
             $props[] = array(
-                "alert" => true,
-                "property" => $this->lng->txt('member_status'),
-                "value" => $this->lng->txt('on_waiting_list')
+                'alert' => true,
+                'newline' => true,
+                'property' => $info['reg_info_list_prop_status']['property'],
+                'propertyNameVisible' => (bool) strlen($info['reg_info_list_prop_status']['property']) ? true : false,
+                'value' => $info['reg_info_list_prop_status']['value']
             );
         }
+        // fau.
 
         // course period
         $info = ilObjGroupAccess::lookupPeriodInfo($this->obj_id);

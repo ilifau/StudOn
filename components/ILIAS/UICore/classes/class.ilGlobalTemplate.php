@@ -626,9 +626,11 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
 
         foreach ($this->title_alerts as $alert) {
             $header_tpl->setCurrentBlock('header_alert');
-            if (!($alert['propertyNameVisible'] === false)) {
-                $header_tpl->setVariable('H_PROP', $alert['property'] . ':');
+            // fau: showMemLimit - show alert property name only if it exists
+            if ($alert['property'] != '' and !($alert['propertyNameVisible'] === false)) {
+                $this->setVariable('H_PROP', $alert['property'] . ':');
             }
+            // fau.
             $header_tpl->setVariable('H_VALUE', $alert['value']);
             $header_tpl->parseCurrentBlock();
         }
