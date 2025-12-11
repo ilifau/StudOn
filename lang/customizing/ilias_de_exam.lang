@@ -1,0 +1,24 @@
+/**
+* StudOn: special German language variables for the exam platform
+* 
+* Import these variables after an update of languages in the exam platform
+*
+* @version			$Id: $
+*/
+<!-- language file start -->
+assessment#:#tst_ending_time_desc#:#Zeitpunkt, ab dem Teilnehmer keine Antworten mehr abgeben können. <b>Wichtig</b>: Benutzen Sie diese Option, um den Zugang zum Test zu beenden und <b>nicht</b> für die Begrenzung der Bearbeitungszeit bei E-Klausuren/Fernklausuren. Verwenden Sie stattdessen die Funktion "Bearbeitungsdauer begrenzen", siehe unten. Nur dann wird der Test serverseitig beendet und die letzte Eingabe jedes Teilnehmers als autorisierte Antwort automatisch gespeichert.
+common#:#err_inactive_contact#:#<br/>Bitte überprüfen Sie in der Kopfzeile, ob Sie die richtige Plattform für Ihre Prüfung gewählt haben. Wählen Sie ggf. die richtige auf der <a href="https://www.studon-exam.fau.de/">Auswahlseite</a>. Falls das nicht funktioniert, wenden Sie sich an <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a>, um Ihr Benutzerkonto aktivieren zu lassen.
+common#:#err_wrong_login#:#Login Fehlgeschlagen. Benutzername oder Passwort sind ungültig oder Ihr Account ist noch nicht auf der Prüfungsplattform hinterlegt.
+common#:#err_wrong_login_assist#:#Bitte überprüfen Sie in der Kopfzeile, ob Sie die richtige Plattform für Ihre Prüfung gewählt haben. Wählen Sie ggf. die richtige Plattform auf der <a href="https://www.studon-exam.fau.de/">Auswahlseite</a>.
+common#:#err_wrong_login_contact#:#Falls das nicht funktioniert, wenden Sie sich als Dozierende/r bitte an <a href="mailto:studon-exam@ili.@fau.de">studon-exam@ili.fau.de</a>. Als Studierende/r kontaktieren Sie Ihre/n Prüfer/in.
+common#:#local_login_to_ilias#:#Bei StudOn-Exam lokal anmelden
+common#:#login_to_ilias#:#Bei StudOn-Exam anmelden
+common#:#local_login_to_ilias_addition#:#Verwenden Sie Ihre StudOn-Zugangsdaten
+common#:#login_to_ilias_via_saml#:#Bei StudOn-Exam via Single Sign-On anmelden
+common#:#saml_login_form_info_txt#:#Verwenden Sie als Mitglied der FAU Ihre IdM-Kennung
+common#:#registration#:#Zur Selbstregistrierung mit Zugangscode
+common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei der Prüfungsplattform registriert.</p><p>Bitte notieren Sie Ihren Benutzernamen: <strong>%s</strong></p><p>Bitte notieren Sie Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie dann auf den untenstehenden Button, um in die Plattform zu gelangen.</p>
+common#:#txt_registered_pw_is_login#:#<p>Sie haben sich erfolgreich bei der Prüfungsplattform registriert.</p><p>Bitte notieren Sie Ihren Benutzernamen/Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie dann auf den untenstehenden Button, um in die Plattform zu gelangen.</p>
+registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie von der Prüfungsaufsicht erhalten haben. Klicken Sie dann auf "Registrieren", um ihre Daten einzugeben.
+registration#:#reg_login_is_generated#:#Ihr Benutzername wird automatisch erzeugt und Ihnen nach der Registrierung angezeigt. Bitte halten sie dazu Papier und Stift bereit.
+registration#:#use_fau_email#:#Tragen Sie hier bitte Ihre @fau E-Mail-Adresse ein, falls Sie an der FAU studieren
