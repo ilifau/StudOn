@@ -219,15 +219,7 @@ class ilTestManScoringParticipantsBySelectedQuestionAndPassTableGUI extends ilTa
         $this->ctrl->setParameter($this->getParentObject(), 'active_id', '');
         $this->ctrl->setParameter($this->getParentObject(), 'pass_id', '');
         $this->tpl->setVariable('VAL_TXT_ANSWER', $this->lng->txt('tst_eval_show_answer'));
-
-        $participant_name = $this->getParentObject()->getUserNamePresentation(
-            $a_set['active_id'],
-            $a_set['pass_id'],
-            $a_set['name']
-        );
-        $this->tpl->setVariable('ANSWER_TITLE', $this->lng->txt('answer_of') . ': ' . $participant_name);
-
-
+        $this->tpl->setVariable('ANSWER_TITLE', "{$this->lng->txt('answer_of')}: {$a_set['name']} ({$a_set['login']})");
     }
 
     public function getCurQuestionMaxPoints(): ?float

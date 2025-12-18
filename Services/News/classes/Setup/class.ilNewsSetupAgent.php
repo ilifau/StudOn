@@ -18,6 +18,16 @@
 
 declare(strict_types=1);
 
-class ilDclNoTableviewException extends ilException
+use ILIAS\Setup\Agent\HasNoNamedObjective;
+use ILIAS\Setup\Agent\NullAgent;
+use ILIAS\Setup\Objective;
+
+class ilNewsSetupAgent extends NullAgent
 {
+    use HasNoNamedObjective;
+
+    public function getUpdateObjective(ILIAS\Setup\Config $config = null): Objective
+    {
+        return new ilDatabaseUpdateStepsExecutedObjective(new ilNewsDBUpdateSteps());
+    }
 }
