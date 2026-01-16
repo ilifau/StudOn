@@ -314,6 +314,7 @@ class ilPersonalSettingsGUI
      */
     protected function sendPasswordAssistanceMail()
     {
+        global $DIC;
         // normally we should not end up here
         if (!$this->allowPasswordChange()) {
             $this->ctrl->redirect($this, "showPersonalData");
@@ -326,7 +327,10 @@ class ilPersonalSettingsGUI
 
         $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
             sprintf($this->lng->txt('pwassist_mail_sent'), $this->user->getEmail()));
-        $this->ctrl->redirect($this, 'showPassword');
+        //$this->ctrl->redirect($this, 'showPassword');
+        // logout user after sending the password assistance mail
+        $DIC['ilAuthSession']->logout();
+        ilInitialisation::redirectToStartingPage();
     }
     // fau.
 
