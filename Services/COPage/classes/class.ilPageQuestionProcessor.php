@@ -302,10 +302,12 @@ class ilPageQuestionProcessor
             $and
         );
 
-        if ($a_user_id === 0) {
+        if (is_array($a_q_id) || $a_user_id == 0) {
             $recs = array();
             while ($rec = $ilDB->fetchAssoc($set)) {
-                $key = "{$rec["qst_id"]}:{$rec["user_id"]}";
+                $key = ($a_user_id == 0)
+                    ? $rec["qst_id"] . ":" . $rec["user_id"]
+                    : $rec["qst_id"];
                 $recs[$key] = $rec;
             }
             return $recs;
@@ -320,6 +322,7 @@ class ilPageQuestionProcessor
             "points" => null
         ];
     }
+    
     // fau: lmQStat - new query function for answers in an lm
     public static function getAnswersForLm($a_lm_id, $a_user_ids = array())
     {
