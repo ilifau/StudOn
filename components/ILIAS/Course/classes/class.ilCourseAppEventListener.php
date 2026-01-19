@@ -71,10 +71,12 @@ class ilCourseAppEventListener
             $new_status
         );
 
-        if ($a_event == 'deassignUser') {
+        // fau: fairSub - trigger autofill also, if member leaves course or if member is removed in membership admin
+        if ($a_event == 'deassignUser' || $a_event == 'deleteParticipant') {
             $self = new self();
             $self->doAutoFill($a_parameters['obj_id']);
         }
+        // fau.
     }
 
     /**
@@ -147,6 +149,13 @@ class ilCourseAppEventListener
             $listener = new self();
             $listener->handleUserAssignments($a_event, $a_parameter);
         }
+        // fau: fairSub - listen to course events to recognize deleteParticipant for an autofill
+        else if ($a_component == 'components/ILIAS/Course' && $a_event == 'deassignUser') {
+            $listener = new self();
+           // $a_parameter['type'] = 'crs';
+            $listener->handleUserAssignments($a_event, $a_parameter);
+        }
+        // fau.
 
         switch ($a_component) {
             case 'components/ILIAS/Course':

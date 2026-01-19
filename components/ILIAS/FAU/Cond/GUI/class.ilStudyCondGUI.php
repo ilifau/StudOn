@@ -8,7 +8,7 @@ use FAU\Study\Data\Term;
 /**
 * Class ilStudyCondGUI
  *
-* @ilCtrl_Calls ilStudyCondGUI:
+* @ilCtrl_Calls ilStudyCondGUI
 */
 class ilStudyCondGUI
 {

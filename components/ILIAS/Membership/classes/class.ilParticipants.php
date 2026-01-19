@@ -728,7 +728,10 @@ abstract class ilParticipants
             "deleteParticipant",
             [
                 'obj_id' => $this->obj_id,
-                'usr_id' => $a_usr_id
+                'usr_id' => $a_usr_id,
+                // fau: fairSub - add type info to 'deleteParticipant' event in order to trigger the autofill in courses and groups
+                'type' => $this->type
+                // fau.                
             ]
         );
     }

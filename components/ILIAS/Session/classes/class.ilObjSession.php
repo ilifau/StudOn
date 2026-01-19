@@ -18,6 +18,9 @@ declare(strict_types=1);
  *
  ********************************************************************
  */
+// fau: fairSub#82 - use ObjSessionHelper
+use FAU\Ilias\Helper\ObjSessionHelper;
+// fau.
 
 /**
 * @defgroup ModulesSession Modules/Session
@@ -29,6 +32,10 @@ declare(strict_types=1);
 */
 class ilObjSession extends ilObject
 {
+    // fau: fairSub#83 - use ObjSessionHelper    
+    use ObjSessionHelper;
+    // fau.
+
     public const MAIL_ALLOWED_ALL = 1;
     public const MAIL_ALLOWED_ADMIN = 2;
     public const LOCAL_ROLE_PARTICIPANT_PREFIX = 'il_sess_participant';

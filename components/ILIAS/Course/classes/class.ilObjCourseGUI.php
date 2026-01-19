@@ -20,7 +20,10 @@ declare(strict_types=0);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+use FAU\Tools\Cust;
+use FAU\Ilias\Helper\CourseConstantsHelper;
 use ILIAS\News\Service as News;
+use ILIAS\FAU\Cond\GUI\ilStudyCondGUI;
 
 /**
  * Class ilObjCourseGUI
@@ -41,10 +44,21 @@ use ILIAS\News\Service as News;
  * @ilCtrl_Calls ilObjCourseGUI: ilCourseMembershipGUI, ilPropertyFormGUI, ilContainerSkillGUI, ilCalendarPresentationGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilMemberExportSettingsGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilLTIProviderObjectSettingGUI, ilObjectTranslationGUI, ilBookingGatewayGUI, ilRepositoryTrashGUI
- * @extends      ilContainerGUI
+ *
+ * fau: studyCond - added ilStudyCondGUI to call structure
+ * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
+ * fau.
+ * fau: objectSub - added ilPropertyFormGUI to call structure
+ * @ilCtrl_Calls ilObjCourseGUI: ilPropertyFormGUI
+ * fau. 
+* @extends      ilContainerGUI
  */
 class ilObjCourseGUI extends ilContainerGUI
 {
+    // fau: fairSub#52 - use helper namespaces
+    use FAU\Ilias\Helper\ObjCourseGUIHelper;
+    use FAU\Ilias\Helper\WaitingListHelper;
+    // fau.    
     public const BREADCRUMB_DEFAULT = 0;
     public const BREADCRUMB_CRS_ONLY = 1;
     public const BREADCRUMB_FULL_PATH = 2;
@@ -385,6 +399,14 @@ class ilObjCourseGUI extends ilContainerGUI
                     ilDatePresentation::formatDate(new ilDateTime($this->object->getSubscriptionStart(), IL_CAL_UNIX))
                 );
             }
+            // fau: fairSub#20 - show fair period on info screen
+            if ($this->object->isSubscriptionMembershipLimited()
+                && $this->object->getSubscriptionMaxMembers()
+                && $this->object->getSubscriptionType() != CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+                $info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
+                    $this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));
+            }
+            // fau.            
             if ($this->object->isSubscriptionMembershipLimited()) {
                 if ($this->object->getSubscriptionMinMembers()) {
                     $info->addProperty(
@@ -824,25 +846,51 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->setCancellationEnd($form->getItemByPostVar("cancel_end")->getDate());
 
         // waiting list
+        // fau: fairSub#21 - remember old settings
+        $old_max_members = $this->object->getSubscriptionMaxMembers();
+        $old_subscription_fair = $this->object->getSubscriptionFair();
+        $old_autofill = $this->object->hasWaitingListAutoFill();
+        // fau.        
         $this->object->enableSubscriptionMembershipLimitation((bool) $form->getInput('subscription_membership_limitation'));
         $this->object->setSubscriptionMaxMembers((int) $form->getInput('subscription_max'));
         $this->object->setSubscriptionMinMembers((int) $form->getInput('subscription_min'));
-        switch ((int) $form->getInput('waiting_list')) {
-            case 2:
+        $old_autofill = $this->object->hasWaitingListAutoFill();
+
+        // fau: fairSub#22 - save the fair period and waiting list options
+        // check a deactivation of the fair period done in db
+        if ($old_subscription_fair >= 0) {
+            /** @var ilDateTime $sub_fair */
+            $sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
+            $this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
+        }
+
+        switch ((string) $form->getInput('waiting_list')) {
+            case 'auto':
+                $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
                 $this->object->enableWaitingList(true);
                 $this->object->setWaitingListAutoFill(true);
                 break;
 
-            case 1:
+            case 'auto_manu':
+                $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
                 $this->object->enableWaitingList(true);
                 $this->object->setWaitingListAutoFill(false);
                 break;
 
+            case 'manu':
+                $this->object->setSubscriptionAutoFill(false);
+                $this->object->enableWaitingList(true);
+                $this->object->setWaitingListAutoFill(false);
+                break;
+
+            case 'no_list':
             default:
+                $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
                 $this->object->enableWaitingList(false);
                 $this->object->setWaitingListAutoFill(false);
                 break;
         }
+        // fau.
         $this->object->handleAutoFill();
 
         $property_online = $this->object->getObjectProperties()->getPropertyIsOnline();
@@ -907,6 +955,66 @@ class ilObjCourseGUI extends ilContainerGUI
             }
         }
 
+        // fau: fairSub#23- call object validation
+        if ($this->object->validate()) {
+            $this->tpl->setOnScreenMessage('failure', $this->object->getMessage());
+            $this->editObject();
+            return;
+        }
+        // fau.
+
+        // fau: fairSub#24 - check and correct the fair time
+        // fau: paraSub - check also if the object has parallel groups
+        if ($this->object->getSubscriptionFair() >= 0 && (
+            $this->object->hasParallelGroups() ||
+            ($this->object->isSubscriptionMembershipLimited() && $this->object->getSubscriptionMaxMembers() > 0)
+        )
+    ) {
+        $fair_message = '';
+        if ($this->object->getSubscriptionLimitationType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_LIMITED) {
+            if ($this->object->getSubscriptionFair() < $this->object->getSubscriptionStart() + $this->object->getSubscriptionMinFairSeconds()) {
+                $this->object->setSubscriptionFair($this->object->getSubscriptionStart() + $this->object->getSubscriptionMinFairSeconds());
+                $fair_message = $this->lng->txt("sub_fair_to_sub_start_min");
+            } elseif ($this->object->getSubscriptionFair() > $this->object->getSubscriptionEnd()) {
+                $this->object->setSubscriptionFair($this->object->getSubscriptionEnd());
+                $fair_message = $this->lng->txt("sub_fair_to_sub_end");
+            }
+        } elseif (!$this->object->getActivationUnlimitedStatus()) {
+            if ($this->object->getSubscriptionFair() < $this->object->getActivationStart() + $this->object->getSubscriptionMinFairSeconds()) {
+                $this->object->setSubscriptionFair($this->object->getActivationStart() + $this->object->getSubscriptionMinFairSeconds());
+                $fair_message = $this->lng->txt("sub_fair_to_act_start_min");
+            } elseif ($this->object->getSubscriptionFair() > $this->object->getActivationEnd()) {
+                $this->object->setSubscriptionFair($this->object->getActivationEnd());
+                $fair_message = $this->lng->txt("sub_fair_to_act_end");
+            }
+        }
+
+        // handle a change of the fair time
+        if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair()) {
+            require_once('Modules/Course/classes/class.ilCourseWaitingList.php');
+            if (!self::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('sub_fair_not_changeable'));
+                $this->editObject();
+                return;
+            } else {
+                ilCourseWaitingList::_changeFairTime($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair());
+                $this->object->saveSubscriptionLastFill(null);
+            }
+        }
+
+        if (!empty($fair_message)) {
+            $this->tpl->setOnScreenMessage('info', $fair_message, true);
+        }
+    }
+    // fau.
+
+        // fau: fairSub#25 - trigger autofill if max members are increased
+        if ((!$old_autofill || $old_max_members < (int) $this->object->getSubscriptionMaxMembers()) &&
+            $this->object->hasWaitingListAutoFill()) {
+            $this->object->handleAutoFill();
+        }
+        // fau.
+
         $this->object->update();
 
         ilObjectServiceSettingsGUI::updateServiceSettingsForm(
@@ -917,6 +1025,12 @@ class ilObjCourseGUI extends ilContainerGUI
 
         ilChangeEvent::_recordWriteEvent($this->object->getId(), $this->user->getId(), 'update');
         ilChangeEvent::_catchupWriteEvents($this->object->getId(), $this->user->getId());
+        // fau: studyCond - eventually redirect to condition settings after update
+        if ($this->update_for_memcond) {
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
+            $this->ctrl->redirectByClass('ilstudycondgui');
+        }
+        // fau.
 
         // lp sync confirmation required
         if ($show_lp_sync_confirmation) {
@@ -1183,11 +1297,32 @@ class ilObjCourseGUI extends ilContainerGUI
         }
         $form->addItem($cancel);
 
-        // Max members
-        $lim = new ilCheckboxInputGUI(
-            $this->lng->txt('crs_subscription_max_members_short'),
-            'subscription_membership_limitation'
-        );
+        // fau: studyCond - add studycond setting
+        global $DIC;
+        $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "components/ILIAS/FAU/Cond/GUI");
+        $stpl->setCurrentBlock('condition');
+        $stpl->setVariable("CONDITION_TEXT", nl2br($DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId())));
+        $stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilstudycondgui', ''));
+        $stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
+        $stpl->parseCurrentBlock();
+        $stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info"));
+        $studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
+        $studycond->setHtml($stpl->get());
+        $form->addItem($studycond);        
+
+        // fau: paraSub - optionally hide the setting of min/max members
+        if ($this->object->hasParallelGroups()) {
+            $lim = new ilNonEditableValueGUI($this->lng->txt('crs_subscription_max_members_short') , 'subscription_membership_limitation', true);
+            $lim->setValue('<small>' . $this->lng->txt('fau_sub_group_by_course_limit_info') . '</small>');
+
+            $min = new ilHiddenInputGUI('subscription_min');
+            $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
+
+            $max = new ilHiddenInputGUI('subscription_max');
+            $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
+        }
+        else {
+            $lim = new ilCheckboxInputGUI($this->lng->txt('crs_subscription_max_members_short'), 'subscription_membership_limitation');
         $lim->setInfo($this->lng->txt('crs_subscription_max_members_short_info'));
         $lim->setValue((string) 1);
         $lim->setChecked($this->object->isSubscriptionMembershipLimited());
@@ -1196,7 +1331,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $min->setSubmitFormOnEnter(true);
         $min->setSize(4);
         $min->setMaxLength(4);
-        $min->setValue($this->object->getSubscriptionMinMembers() ?: '');
+            $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
         $min->setTitle($this->lng->txt('crs_subscription_min_members'));
         $min->setInfo($this->lng->txt('crs_subscription_min_members_info'));
         $lim->addSubItem($min);
@@ -1205,33 +1340,64 @@ class ilObjCourseGUI extends ilContainerGUI
         $max->setSubmitFormOnEnter(true);
         $max->setSize(4);
         $max->setMaxLength(4);
-        $max->setValue($this->object->getSubscriptionMaxMembers() ?: '');
+            $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
         $max->setTitle($this->lng->txt('crs_subscription_max_members'));
         $max->setInfo($this->lng->txt('crs_reg_max_info'));
 
         $lim->addSubItem($max);
+        }
+        // fau.
+
+        // $GLOBALS['DIC']->fau()->ilias()->getCourseSettingsGUI()->addFairSubSettingsToForm($lim, $this->object);
+        // fau: fairSub#26 - add fair date and arrange and explain options for waiting list
+        if ($this->object->getSubscriptionFair() < 0) {
+            $fair_date = new ilNonEditableValueGUI($this->lng->txt('sub_fair_date'));
+            $fair_date_info = $this->lng->txt('sub_fair_inactive_message');
+            $fair_date_link = '<br />» <a href="' . $this->ctrl->getLinkTarget($this, 'activateSubFair') . '">' . $this->lng->txt('sub_fair_activate') . '</a>';
+            $wait_options = array(
+                'auto' => 'sub_fair_inactive_autofill',
+                'manu' => 'sub_fair_inactive_waiting',
+                'no_list' => 'sub_fair_inactive_no_list'
+            );
+        } else {
+            $fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'), 'subscription_fair');
+            $fair_date->setShowTime(true);
+            $fair_date->setDate(new ilDateTime($this->object->getSubscriptionFair(), IL_CAL_UNIX));
+            $fair_date_info = $this->lng->txt('sub_fair_date_info');
+            $fair_date_link = '<br />» <a href="' . $this->ctrl->getLinkTarget($this, 'confirmDeactivateSubFair') . '">' . $this->lng->txt('sub_fair_deactivate') . '</a>';
+            $wait_options = array(
+                'auto' => 'sub_fair_autofill',
+                'auto_manu' => 'sub_fair_auto_manu',
+                'manu' => 'sub_fair_waiting',
+                'no_list' => 'sub_fair_no_list'
+            );
+        }
+
+        $fair_date->setInfo($fair_date_info . (Cust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
+        $lim->addSubItem($fair_date);
 
         $wait = new ilRadioGroupInputGUI($this->lng->txt('crs_waiting_list'), 'waiting_list');
-        $option = new ilRadioOption($this->lng->txt('none'), '0');
+        foreach ($wait_options as $postvalue => $langvar) {
+            $option = new ilRadioOption($this->lng->txt($langvar), $postvalue);
+            $option->setInfo($this->lng->txt($langvar . '_info'));
         $wait->addOption($option);
-
-        $option = new ilRadioOption($this->lng->txt('crs_waiting_list_no_autofill'), '1');
-        $option->setInfo($this->lng->txt('crs_wait_info'));
-        $wait->addOption($option);
-
-        $option = new ilRadioOption($this->lng->txt('crs_waiting_list_autofill'), '2');
-        $option->setInfo($this->lng->txt('crs_waiting_list_autofill_info'));
-        $wait->addOption($option);
+        }
 
         if ($this->object->hasWaitingListAutoFill()) {
-            $wait->setValue('2');
+            $wait->setValue('auto');
+        } elseif ($this->object->getSubscriptionAutoFill() && $this->object->enabledWaitingList()) {
+            $wait->setValue('auto_manu');
         } elseif ($this->object->enabledWaitingList()) {
-            $wait->setValue('1');
+            $wait->setValue('manu');
         } else {
-            $wait->setValue('0');
+            $wait->setValue('no_list');
         }
+
         $lim->addSubItem($wait);
+        // fau.       
+
         $form->addItem($lim);
+
         $pres = new ilFormSectionHeaderGUI();
         $pres->setTitle($this->lng->txt('crs_view_mode'));
 
@@ -2083,6 +2249,16 @@ class ilObjCourseGUI extends ilContainerGUI
                 $mem_gui = new ilCourseMembershipGUI($this, $this->object);
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
+
+            // fau: studyCond - add command class
+            case 'ilstudycondgui':
+                $cond_gui = new ilStudyCondGUI($this, 'edit');
+                $this->ctrl->setReturn($this, 'edit');
+                $this->ctrl->forwardCommand($cond_gui);
+                $this->setSubTabs('properties');
+                $this->tabs_gui->setTabActive('settings');
+                break;
+            // fau.
 
             case "ilinfoscreengui":
                 $this->infoScreen();    // forwards command

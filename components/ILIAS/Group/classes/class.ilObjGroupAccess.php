@@ -117,8 +117,9 @@ class ilObjGroupAccess extends ilObjectAccess
         $commands[] = array("permission" => "join", "cmd" => "join", "lang_var" => "join");
 
         // on waiting list
-        $commands[] = array('permission' => "join", "cmd" => "leaveWaitList", "lang_var" => "leave_waiting_list");
-
+        // fau: fairSub - general command for editing requests
+        $commands[] = array('permission' => "join", "cmd" => "leaveWaitList", "lang_var" => "mem_edit_request");
+        // fau.
         // regualar users
         $commands[] = array('permission' => "leave", "cmd" => "leave", "lang_var" => "grp_btn_unsubscribe");
 
@@ -215,8 +216,10 @@ class ilObjGroupAccess extends ilObjectAccess
         $ilDB = $DIC->database();
         $lng = $DIC->language();
 
+        // fau: fairSub - query for fair period
+        // fau: paraSub - query for waiting list
         $query = 'SELECT registration_type, registration_enabled, registration_unlimited,  registration_start, ' .
-            'registration_end, registration_mem_limit, registration_max_members FROM grp_settings ' .
+            'registration_end, registration_mem_limit, registration_max_members, sub_fair, waiting_list FROM grp_settings ' .
             'WHERE obj_id = ' . $ilDB->quote($a_obj_id, ilDBConstants::T_INTEGER);
         $res = $ilDB->query($query);
 
@@ -234,19 +237,35 @@ class ilObjGroupAccess extends ilObjectAccess
             }
 
             $info['reg_info_enabled'] = $row->registration_enabled;
+            $info['reg_info_sub_fair'] = $row->sub_fair;
+            $info['reg_info_waiting_list'] = $row->waiting_list;
         }
+        // fau.
 
         $registration_possible = $info['reg_info_enabled'];
 
+        // fau: paraSub - show info about registration via course
+        // fau: fairSub - add info about fair period
+        if ($DIC->fau()->study()->isObjectForCampo($a_obj_id)) {
+            $info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg');
+            $info['reg_info_list_prop']['value'] = $lng->txt('fau_sub_group_by_course_list_info');
+        }
         // Limited registration (added $registration_possible, see bug 0010157)
-        if (!$info['reg_info_unlimited'] && $registration_possible) {
+        elseif (!$info['reg_info_unlimited'] && $registration_possible) {
+            $fair_suffix = '';
+            if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0) {
+                if ($info['reg_info_sub_fair'] < 0) {
+                    $fair_suffix = " - <b>" . $lng->txt('sub_fair_inactive_short') . "</b>";
+                }
+            }
+
             $dt = new ilDateTime(time(), IL_CAL_UNIX);
             if (ilDateTime::_before($dt, $info['reg_info_start'])) {
                 $info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_start');
-                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']);
+                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']) . $fair_suffix;
             } elseif (ilDateTime::_before($dt, $info['reg_info_end'])) {
                 $info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_end');
-                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']);
+                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']) . $fair_suffix;
             } else {
                 $registration_possible = false;
                 $info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_period');
@@ -260,6 +279,7 @@ class ilObjGroupAccess extends ilObjectAccess
                 $info['reg_info_list_prop']['value'] = $lng->txt('grp_list_reg_noreg');
             }
         }
+        // fau.
 
         // fau: fairSub - extend the registration info
         // fau: paraSub - extend the registration info

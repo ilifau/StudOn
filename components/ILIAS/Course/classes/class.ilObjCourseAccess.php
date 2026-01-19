@@ -198,6 +198,12 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                     return false;
                 }
 
+                // fau: fairSub#28 - add waiting list check for join permission
+                if (ilCourseWaitingList::_isOnList($user_id, $obj_id)) {
+                    return false;
+                }
+                // fau.                
+
                 if ($participants->isAssigned($user_id)) {
                     return false;
                 }
@@ -219,8 +225,10 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
         $commands[] = array("permission" => "join", "cmd" => "join", "lang_var" => "join");
 
+        // fau: fairSub#29 - general command for editing requests
         // on waiting list
-        $commands[] = array('permission' => "join", "cmd" => "leaveWaitList", "lang_var" => "leave_waiting_list");
+        $commands[] = array('permission' => "join", "cmd" => "leaveWaitList", "lang_var" => "mem_edit_request");
+        // fau.
 
         // regualar users
         $commands[] = array('permission' => "leave", "cmd" => "leave", "lang_var" => "crs_unsubscribe");
@@ -382,18 +390,32 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
         // Limited registration
         if (($info['reg_info_type'] ?? 0) == ilCourseConstants::SUBSCRIPTION_LIMITED) {
+            // fau: fairSub - add info about fair period
+            $fair_suffix = '';
+            if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0) {
+                if ($info['reg_info_sub_fair'] < 0) {
+                    $fair_suffix = " - <b>" . $lng->txt('sub_fair_inactive_short') . "</b>";
+                }
+//	            elseif (time() < $info['reg_info_sub_fair'])
+//				{
+//					$fair_suffix = " <br />".$lng->txt('sub_fair_date'). ': '
+//						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
+//				}
+            }
+
             $dt = new ilDateTime(time(), IL_CAL_UNIX);
             if (ilDateTime::_before($dt, $info['reg_info_start'])) {
                 $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg_start');
-                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']);
+                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']) . $fair_suffix;
             } elseif (ilDateTime::_before($dt, $info['reg_info_end'])) {
                 $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg_end');
-                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']);
+                $info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']) . $fair_suffix;
             } else {
                 $registration_possible = false;
                 $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg_period');
                 $info['reg_info_list_prop']['value'] = $lng->txt('crs_list_reg_noreg');
             }
+            // fau.
         } elseif (($info['reg_info_type'] ?? 0) == ilCourseConstants::SUBSCRIPTION_UNLIMITED) {
             $registration_possible = true;
         } else {

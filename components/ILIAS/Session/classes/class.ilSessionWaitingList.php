@@ -18,6 +18,10 @@ declare(strict_types=1);
  *
  ********************************************************************
  */
+// fau: fairSub#85 - use SessionWaitingListHelper
+use FAU\Ilias\Helper\SessionWaitingListHelper;
+// fau.
+
 
 /**
  * Session waiting list
@@ -27,6 +31,10 @@ declare(strict_types=1);
  */
 class ilSessionWaitingList extends ilWaitingList
 {
+    // fau: fairSub#86 - use SessionWaitingListHelper
+    use SessionWaitingListHelper;
+    // fau.
+
     public function addToList(int $a_usr_id): bool
     {
         global $DIC;

@@ -23,6 +23,9 @@ declare(strict_types=1);
         +-----------------------------------------------------------------------------+
 */
 
+// fau: fairSub#71 use WaitingListConstantsHelper
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
+// fau.
 
 /**
 * Waiting list for groups
@@ -34,14 +37,15 @@ declare(strict_types=1);
 
 class ilGroupWaitingList extends ilWaitingList
 {
-    public function addToList(int $a_usr_id): bool
+    // fau: fairSub - add subject, to_confirm and sub_time as parameter, avoid re-reading
+    public function addToList(int $a_usr_id, string $a_subject = '', int $a_to_confirm = WaitingListConstantsHelper::REQUEST_NOT_TO_CONFIRM, ?int $a_sub_time = null): bool
     {
         global $DIC;
 
         $ilAppEventHandler = $DIC['ilAppEventHandler'];
         $ilLog = $DIC['ilLog'];
 
-        if (!parent::addToList($a_usr_id)) {
+        if (!parent::addToList($a_usr_id, $a_subject, $a_to_confirm, $a_sub_time)) {
             return false;
         }
 
@@ -51,9 +55,13 @@ class ilGroupWaitingList extends ilWaitingList
             'addToWaitingList',
             array(
                     'obj_id' => $this->getObjId(),
-                    'usr_id' => $a_usr_id
+                    'usr_id' => $a_usr_id,
+                    'subject' => $a_subject,
+                    'to_confirm' => $a_to_confirm,
+                    'sub_time' => $a_sub_time
                 )
-        );
+            );
         return true;
     }
+    // fau.
 }

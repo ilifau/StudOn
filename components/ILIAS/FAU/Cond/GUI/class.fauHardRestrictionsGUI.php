@@ -220,7 +220,7 @@ class fauHardRestrictionsGUI extends BaseGUI implements \ilCtrlBaseClassInterfac
         $call = "il.FAU.hardRestrictions.toggleModules('$container_id', '%s'); return false;";
         $init = "il.FAU.hardRestrictions.toggleModules('$container_id', '%s');";
 
-        $tpl->setVariable('SOURCE', './Services/FAU/Cond/GUI/templates/js/hard_restrictions.js');
+        $tpl->setVariable('SOURCE', './components/ILIAS/FAU/Cond/GUI/templates/js/hard_restrictions.js');
         $tpl->setVariable('INIT', sprintf($init, $filter));
         $tpl->setVariable('CONTAINER_ID', $container_id);
         $tpl->setVariable('ARIA_LABEL', $this->lng->txt('fau_filter_restrictions'));

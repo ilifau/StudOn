@@ -14,8 +14,8 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-
 declare(strict_types=0);
+
 
 /**
  * @author  Stefan Meyer <meyer@leifos.com>
@@ -23,6 +23,9 @@ declare(strict_types=0);
  */
 class ilCourseParticipants extends ilParticipants
 {
+    // fau: fairSub#80 - use CourseParticipantsHelper    
+    use FAU\Ilias\Helper\CourseParticipantsHelper;
+    // fau.    
     protected const COMPONENT_NAME = 'components/ILIAS/Course';
 
     protected static array $instances = [];

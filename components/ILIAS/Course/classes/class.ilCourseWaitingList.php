@@ -18,6 +18,10 @@ declare(strict_types=0);
  *
  *********************************************************************/
 
+// fau: regLog use WaitingListConstantsHelper
+ use FAU\Ilias\Helper\WaitingListConstantsHelper;
+// fau.
+
 /**
  * Course waiting list
  * @author  Stefan Meyer <smeyer.ilias@gmx.de>
