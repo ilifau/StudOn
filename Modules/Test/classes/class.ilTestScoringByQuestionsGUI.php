@@ -136,7 +136,8 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
                             $passNr - 1
                         ),
                         'maximum_points' => $this->questioninfo->getMaximumPoints((int) $questionData['qid']),
-                        'name' => $participant ? $test_participant_list->buildFullname($participant) : ''
+                        'name' => $participant ? $test_participant_list->buildFullname($participant) : '',
+                        'login' => $participant ? $participant->getLogin() : ''
                     ] + $feedback;
                 }
             }
@@ -487,17 +488,6 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
             true
         );
         $max_points = $question_gui->object->getMaximumPoints();
-
-        $participant_name = $this->getUserNamePresentation(
-            $active_id,
-            $pass,
-            $participant->getName()
-        );
-        $tmp_tpl->setVariable(
-            'TEXT_YOUR_SOLUTION',
-            $this->lng->txt('answers_of') . ' ' . $participant_name
-        );
-
         $this->appendQuestionTitleToModal($tmp_tpl, $question_id, $max_points, $question_gui->object->getTitleForHTMLOutput());
         $this->appendSolutionAndPointsToModal(
             $tmp_tpl,

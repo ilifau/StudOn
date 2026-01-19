@@ -48,7 +48,8 @@ ilias.questions.enhancedQuestionTypes = [
 ];
 
 ilias.questions.questionTypesSupportingPartialScoring = [
-	"assKprimChoice"
+	"assKprimChoice",
+	"assClozeTest"
 ];
 
 ilias.questions.init = function() {
@@ -56,16 +57,14 @@ ilias.questions.init = function() {
 };
 
 ilias.questions.refresh_lang = function() {
-
 	jQuery(".ilc_qinput_ClozeGapSelect").each(function(){
-		$(this).prepend("<option id='-1' value='-1' selected='selected'>-- "+
-			ilias.questions.txt.please_select+" --</option>");
-
-		$(this).val("");
+        if (!$(this).prop("disabled")) {
+            $(this).prepend(`<option id='-1' value='-1' selected='selected'>-- ${ilias.questions.txt.please_select} --</option>`);
+            $(this).val("");
+        }
 	});
 
 	jQuery("input[value='TXT_SUBMIT_ANSWERS']").val(ilias.questions.txt.submit_answers);
-
 };
 
 ilias.questions.shuffleAll = function() {
@@ -98,13 +97,14 @@ ilias.questions.swapper = function(a)
 	}
 };
 
-ilias.questions.initAnswer = function(a_id, tries, passed) {
+ilias.questions.initAnswer = function(a_id, tries, passed, scored_points = null) {
 	if (!answers[a_id]) {	// to keep answers[a_id].areas intact if initialized before
 		answers[a_id] = {};
 	}
 	answers[a_id].tries = tries;
 	answers[a_id].wrong = 0;
 	answers[a_id].passed = passed;
+	answers[a_id].scored_points = scored_points;
 	answers[a_id].answer = new Array();
 	answers[a_id].interactionId=null;
 	if (tries > 0 && (answers[a_id].tries >= questions[a_id].nr_of_tries || passed)) {
@@ -554,77 +554,99 @@ ilias.questions.assTextSubset = function(a_id) {
 
 
 ilias.questions.assClozeTest = function(a_id) {
-	answers[a_id].wrong = 0;
-	answers[a_id].passed = true;
-	answers[a_id].choice = [];
+    let value_found;
+    let a_node;
+    answers[a_id].wrong = 0;
+    answers[a_id].passed = true;
+    answers[a_id].isBestSolution = true;
+    answers[a_id].choice = [];
 
-	for (var i=0;i<questions[a_id].gaps.length;i++)
-	{
-		var type = questions[a_id].gaps[i].type;
-		// select
-		if (type==1) {
-			var a_node = jQuery('select#'+a_id+"_"+i).get(0);
-			var selected = a_node.options[a_node.selectedIndex].id;
-			if (parseInt(selected) < 0 || questions[a_id].gaps[i].item[selected].points <= 0) {
-				answers[a_id].passed = false;
-				answers[a_id].wrong++;
-				answers[a_id].answer[i]=false;
-			} else {
-				answers[a_id].answer[i]=true;
-			}
-			if (parseInt(selected) >= 0) {
-				answers[a_id].choice.push(questions[a_id].gaps[i].item[selected].order);
-			}
-		}
-		else
-		{
-			var a_node = jQuery('input#'+a_id+"_"+i).get(0);
-			var value_found = false;
+    const gaps = questions[a_id].gaps;
+    for (let i = 0; i < gaps.length; i++) {
+        const gap = gaps[i];
+        const type = gap.type;
 
-			// text
-			if (type==0) {
-				for(var j=0;j<questions[a_id].gaps[i].item.length;j++)
-				{
-					if (questions[a_id].gaps[i].item[j].value == a_node.value) {
-						value_found=true;
-						if (questions[a_id].gaps[i].item[j].points <= 0) {
-							answers[a_id].passed = false;
-							answers[a_id].wrong++;
-							answers[a_id].answer[i]=false;
-						} else {
-							answers[a_id].answer[i]=true;
-						}
-					}
-				}
-			}
-			// numeric
-			else if (type==2) {
-				for(var j=0;j<questions[a_id].gaps[i].item.length;j++)
-				{
-					a_node.value = a_node.value.replace(',', '.');
-					var lb = parseFloat(questions[a_id].gaps[i].item[j].lowerbound),
-						ub = parseFloat(questions[a_id].gaps[i].item[j].upperbound),
-						val = parseFloat(a_node.value);
+        if (type !== 1) {
+            a_node = jQuery(`input#${a_id}_${i}`).get(0);
+            value_found = false;
+        }
 
-					if (!isNaN(a_node.value) && lb <= val && ub >= val) {
-						value_found=true;
-						if (questions[a_id].gaps[i].item[j].points <= 0) {
-							answers[a_id].passed = false;
-							answers[a_id].wrong++;
-							answers[a_id].answer[i]=false;
-						} else {
-							answers[a_id].answer[i]=true;
-						}
-					}
-				}
+        let j;
+        const items = gap.item;
+        const max_points = Math.max(...items.map(item => item.points));
+        let points = 0;
+        switch (type) {
+            case 0:
+                for (j = 0; j < items.length; j++) {
+                    if (items[j].value !== a_node.value) {
+                        continue;
+                    }
 
-			}
+                    value_found = true;
+                    if (items[j].points <= 0) {
+                        answers[a_id].passed = false;
+                        answers[a_id].wrong++;
+                        answers[a_id].answer[i] = false;
+                        continue;
+                    }
 
-			answers[a_id].choice.push(a_node.value);
-			if (value_found==false) {answers[a_id].passed = false; answers[a_id].wrong++; answers[a_id].answer[i]=false;}
-		}
-	}
-	ilias.questions.showFeedback(a_id);
+                    answers[a_id].answer[i] = true;
+                    points = items[j].points;
+                  }
+                  break
+            case 1:
+                a_node = jQuery(`select#${a_id}_${i}`).get(0);
+                const selected = a_node.options[a_node.selectedIndex].id;
+
+                if (parseInt(selected) < 0 || items[selected].points <= 0) {
+                    answers[a_id].passed = false;
+                    answers[a_id].wrong++;
+                    answers[a_id].answer[i] = false;
+                } else {
+                    answers[a_id].answer[i] = true;
+                    points = items[selected].points;
+                }
+
+                if (parseInt(selected) >= 0) {
+                    answers[a_id].choice.push(items[selected].order);
+                }
+                break;
+            case 2:
+                for (let j = 0; j < items.length; j++) {
+                    a_node.value = a_node.value.replace(',', '.');
+                    const lb = parseFloat(items[j].lowerbound);
+                    const ub = parseFloat(items[j].upperbound);
+                    const val = parseFloat(a_node.value);
+
+                    if (!isNaN(a_node.value) && lb <= val && ub >= val) {
+                        value_found = true;
+                        if (items[j].points <= 0) {
+                            answers[a_id].passed = false;
+                            answers[a_id].wrong++;
+                            answers[a_id].answer[i] = false;
+                        } else {
+                            answers[a_id].answer[i] = true;
+                            points = items[j].points;
+                        }
+                    }
+                }
+                break;
+        }
+
+        if (type !== 1) {
+            answers[a_id].choice.push(a_node.value);
+            if (value_found === false) {
+                answers[a_id].passed = false;
+                answers[a_id].wrong++;
+                answers[a_id].answer[i] = false;
+            }
+        }
+
+        if (points !== max_points) {
+            answers[a_id].isBestSolution = false;
+        }
+	  }
+	  ilias.questions.showFeedback(a_id);
 };
 
 ilias.questions.initClozeTest = function(a_id) {
@@ -673,7 +695,7 @@ ilias.questions.initClozeTest = function(a_id) {
 		closecounter++;
 		return input.outerHTML();
 	 };
-	var parsed=jQuery("div#"+a_id).get(0).innerHTML.replace(/\[gap\][^\[]+\[\/gap\]/g,
+	var parsed=jQuery("div#"+a_id).get(0).innerHTML.replace(/\[gap[\s\S\d]*?\](.*?)\[\/gap\]/g,
         () => {return _initClozeTestCallBack();});
 	jQuery("div#"+a_id).html(parsed);
 };
@@ -851,10 +873,19 @@ ilias.questions.showFeedback = function(a_id) {
 				answers[a_id].wrong ;
 	}
 
-	if(jQuery.inArray(questions[a_id].type, ilias.questions.questionTypesSupportingPartialScoring) == -1)
-	{
+	if (jQuery.inArray(questions[a_id].type, ilias.questions.questionTypesSupportingPartialScoring) === -1) {
 		answers[a_id].isBestSolution = answers[a_id].passed;
 	}
+
+    if (questions[a_id].type === "assClozeTest" && answers[a_id].isBestSolution === undefined) {
+        let total_max_points = 0;
+        const gaps = questions[a_id].gaps;
+        for (let i = 0; i < gaps.length; i++) {
+            total_max_points += Math.max(...gaps[i].item.map(item => item.points));
+        }
+
+         answers[a_id].isBestSolution = total_max_points === answers[a_id].scored_points;
+    }
 
 	jQuery('#feedback'+a_id).removeClass("ilc_qfeedw_FeedbackWrong");
 	jQuery('#feedback'+a_id).removeClass("ilc_qfeedr_FeedbackRight");
@@ -867,7 +898,7 @@ ilias.questions.showFeedback = function(a_id) {
 		if (answers[a_id].passed===true) {
 			jQuery('#feedback'+a_id).addClass("ilc_qfeedr_FeedbackRight");
 
-			if( answers[a_id].isBestSolution ) {
+			if (answers[a_id].isBestSolution) {
 				if (ilias.questions.default_feedback) {
 					fbtext = '<b>' + ilias.questions.txt.all_answers_correct + '</b><br />';
 				}
@@ -876,22 +907,18 @@ ilias.questions.showFeedback = function(a_id) {
 					fbtext += questions[a_id].feedback['allcorrect'];
 				}
 
-				if( jQuery.inArray(questions[a_id].type, ilias.questions.enhancedQuestionTypes) == -1 ) {
-					// fau: lmGapFeedback - add parameters
-					ilias.questions.showCorrectAnswers(a_id, answers, true);
-					// fau.
+				if (jQuery.inArray(questions[a_id].type, ilias.questions.enhancedQuestionTypes) === -1) {
+					ilias.questions.showCorrectAnswers(a_id);
 				}
 			} else {
 				if (ilias.questions.default_feedback) {
 					fbtext = '<b>' + ilias.questions.txt.enough_answers_correct + '</b><br />'
 						+ txt_wrong_answers + '<br />' + ilias.questions.txt.correct_answers_shown;
-				} else if (questions[a_id].feedback['allcorrect']) {
-					fbtext += questions[a_id].feedback['allcorrect'];
+				} else if (questions[a_id].feedback['onenotcorrect']) {
+					fbtext += questions[a_id].feedback['onenotcorrect'];
 				}
 
-				// fau: lmGapFeedback - add parameters
-				ilias.questions.showCorrectAnswers(a_id, answers, true);
-				// fau.
+				ilias.questions.showCorrectAnswers(a_id);
 			}
 
 			ilias.questions.scormHandler(a_id,"correct",ilias.questions.toJSONString(answers[a_id]));
@@ -907,9 +934,7 @@ ilias.questions.showFeedback = function(a_id) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
-			// fau: lmGapFeedback - add answers parameter
-			ilias.questions.showCorrectAnswers(a_id, answers, true);
-			// fau.
+			ilias.questions.showCorrectAnswers(a_id);
 
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		}
@@ -929,12 +954,6 @@ ilias.questions.showFeedback = function(a_id) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
-			// fau: lmGapFeedback - show intermediate feedback for gap questions
-			if (questions[a_id].type == "assClozeTest")
-				{
-					ilias.questions.showCorrectAnswers(a_id, answers, false);
-				}
-			// fau.			
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		} else {
 			jQuery('#feedback'+a_id).addClass("ilc_qfeedw_FeedbackWrong");
@@ -946,12 +965,7 @@ ilias.questions.showFeedback = function(a_id) {
 			if (questions[a_id].feedback['onenotcorrect']) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
-			// fau: lmGapFeedback - show intermediate feedback for gap questions
-			if (questions[a_id].type == "assClozeTest")
-				{
-					ilias.questions.showCorrectAnswers(a_id, answers, false);
-				}
-			// fau.
+
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		}
 	}
@@ -1060,9 +1074,8 @@ ilias.questions.determineSuccessStatus = function()
 	}
 	return status;
 }
-// fau: lmGapFeedback - add given_answers and is_final parameter
-ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
-// fau.
+
+ilias.questions.showCorrectAnswers =function(a_id) {
 
 	switch (questions[a_id].type) {
 		case 'assSingleChoice':
@@ -1185,59 +1198,35 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
 		break;
 		//end assMatchingQuestion
 
-		case 'assClozeTest':
-			// fau: lmGapFeedback - show all correct solutions behind the input field
-			// this can be treated for all gap types in the same way
-			for (var i=0;i<questions[a_id].gaps.length;i++) {
-				var type = questions[a_id].gaps[i].type;
+        case 'assClozeTest':
+            for (let i = 0; i < questions[a_id].gaps.length; i++) {
+                const gap = questions[a_id].gaps[i];
+                const type = gap.type;
+                const items = gap.item;
+                const maxPoints = Math.max(...items.map(item => item.points));
+                const input = jQuery(`input#${a_id}_${i}`);
+                const select = jQuery(`select#${a_id}_${i}`);
+                let best_values;
 
-				var cvalue = '';
-				var elem_type = type==1 ? 'select' : 'input';
-
-				//look for correct solutions
-				for (var j=0;j<questions[a_id].gaps[i].item.length;j++)
-				{
-					if (questions[a_id].gaps[i].item[j].points > 0)
-					{
-						cvalue += cvalue.length ?  ' | ' : '';
-						cvalue += questions[a_id].gaps[i].item[j].value;
-					}
-				}
-
-				// delete last check symbol
-				jQuery('#ilAnswerCheck_'+a_id+'_'+i).remove();
-
-				// check if gap is correctly answered
-				// note that when the page is refreshed, all choices get lost
-				if (given_answers[a_id].answer[i] || given_answers[a_id].passed) {
-					var is_correct = true;
-					var checkchar = '<span id="ilAnswerCheck_'+a_id+'_'+i+'" style="color:green;">&#10004;</span>'; // or: 10003
-				}
-				else {
-					var is_correct = false;
-					var checkchar = '<span id="ilAnswerCheck_'+a_id+'_'+i+'" style="color:red;">&#10008;</span>'; // or: 10007
-				}
-
-				// disable final or already correct gaps
-				if (is_final || is_correct) {
-					jQuery(elem_type+'#'+a_id+"_"+i).prop("disabled", true);
-				}
-
-				// add inline feedback
-				if (is_final) {
-					// show solution when final
-					jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar + ' <em> ['+ cvalue+ '] </em>');
-				}
-				else {
-					// sho only symbol when not final
-					jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar)
-				}
+                switch (type) {
+                    case 0:
+                        best_values = items.filter(item => item.points === maxPoints).map(item => item.value);
+                        input.val(best_values.join(' / '));
+                        input.prop('disabled', true);
+                        break;
+                    case 1:
+                        best_values = items.filter(item => item.points === maxPoints).map(item => item.value);
+                        const option = jQuery(`select#${a_id}_${i} option[id="1"]`);
+                        option.prop('selected', true);
+                        option.text(best_values.join(' / '));
+                        select.prop('disabled', true);
+                        break;
+                    case 2:
+                        const best_value = items.find(item => item.points === maxPoints).value;
+                        input.val(best_value);
+                        input.prop('disabled', true);
+                }
 			}
-
-			if (typeof MathJax != "undefined") {
-				MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-			}
-			// fau.
 		break;
 		//end assClozeTest
 

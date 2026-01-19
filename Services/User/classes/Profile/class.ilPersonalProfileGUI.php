@@ -123,6 +123,10 @@ class ilPersonalProfileGUI
     {
         $next_class = $this->ctrl->getNextClass();
 
+        // fau: visibilityHints - show alert about public visibility
+        $this->alertProfileVisibility();
+        // fau.
+
         switch ($next_class) {
             case 'ilpublicuserprofilegui':
                 $pub_profile_gui = new ilPublicUserProfileGUI($this->user->getId());
@@ -158,6 +162,38 @@ class ilPersonalProfileGUI
         }
     }
 
+    // fau: visibilityHints - new function alertProfileVisibility()
+    /**
+     * Show a message about the visibility of the profile
+     */
+    public function alertProfileVisibility()
+    {
+        global $ilCtrl, $ilUser, $lng;
+
+        if ($portfolio_id = $this->getProfilePortfolio()) {
+        } else {
+            switch ($ilUser->prefs["public_profile"]) {
+                case "y":
+                    $this->tpl->setOnScreenMessage('info',
+                        sprintf(
+                            $lng->txt("usr_public_profile_logged_in_alert"),
+                            $ilCtrl->getLinkTarget($this, "showPublicProfile")
+                        )
+                    );
+                    break;
+
+                case "g":
+                    $this->tpl->setOnScreenMessage('info',
+                        sprintf(
+                            $lng->txt("usr_public_profile_global_alert"),
+                            $ilCtrl->getLinkTarget($this, "showPublicProfile")
+                        )
+                    );
+                    break;
+            }
+        }
+    }
+    // fau.    
 
     public function workWithUserSetting(string $setting): bool
     {

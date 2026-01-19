@@ -926,7 +926,10 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
         $template = new ilTemplate("tpl.il_as_tst_pass_details_overview_participants.html", true, true, "Modules/Test");
         $this->populateExamId($template, $active_id, (int) $pass);
-        $this->populatePassFinishDate($template, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
+        $last_finished_pass = $testSession->getLastFinishedPass() ?? -1;
+        if ($last_finished_pass >= $pass) {
+            $this->populatePassFinishDate($template, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
+        }
 
         $toolbar = $this->buildUserTestResultsToolbarGUI();
         if (ilSession::get('tst_results_show_best_solutions')) {
@@ -1011,8 +1014,10 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
             $template = new ilTemplate("tpl.il_as_tst_pass_details_overview_participants.html", true, true, "Modules/Test");
             $this->populateExamId($template, $active_id, (int) $pass);
-            $this->populatePassFinishDate($template, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
-
+            $last_finished_pass = $testSession->getLastFinishedPass() ?? -1;
+            if ($last_finished_pass >= $pass) {
+                $this->populatePassFinishDate($template, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
+            }
             $pass_results = $this->results_factory->getPassResultsFor(
                 $this->object,
                 $active_id,
@@ -1110,7 +1115,8 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $passOverViewTableGUI->setTitle($testResultHeaderLabelBuilder->getPassOverviewHeaderLabel());
         $template->setVariable("PASS_OVERVIEW", $passOverViewTableGUI->getHTML());
 
-        if ($this->isGradingMessageRequired()) {
+        $last_finished_pass = $testSession->getLastFinishedPass() ?? -1;
+        if ($this->isGradingMessageRequired() && $last_finished_pass >= ilObjTest::_getResultPass($active_id)) {
             $gradingMessageBuilder = $this->getGradingMessageBuilder($active_id);
             $gradingMessageBuilder->buildList();
 
@@ -1233,7 +1239,10 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $tpl->setVariable("FORMACTION", $this->ctrl->getFormAction($this));
 
         $this->populateExamId($tpl, $active_id, (int) $pass);
-        $this->populatePassFinishDate($tpl, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
+        $last_finished_pass = $testSession->getLastFinishedPass() ?? -1;
+        if ($last_finished_pass >= $pass) {
+            $this->populatePassFinishDate($tpl, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
+        }
 
         $this->setCss();
 
@@ -1328,7 +1337,8 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $template->setVariable("PASS_OVERVIEW", $overview);
         $template->parseCurrentBlock();
 
-        if ($this->isGradingMessageRequired()) {
+        $last_finished_pass = $testSession->getLastFinishedPass() ?? -1;
+        if ($this->isGradingMessageRequired() && $last_finished_pass >= ilObjTest::_getResultPass($active_id)) {
             $gradingMessageBuilder = $this->getGradingMessageBuilder($active_id);
             $gradingMessageBuilder->buildMessage();
             $gradingMessageBuilder->sendMessage();

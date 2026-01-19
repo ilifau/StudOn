@@ -510,6 +510,7 @@ assessment#:#ass_create_export_file_with_results#:#Create Test Export File (incl
 assessment#:#ass_create_export_test_archive#:#Create Test Archive File
 assessment#:#ass_create_export_test_results#:#Create Test Results Export File
 assessment#:#ass_create_question#:#Create Question
+assessment#:#ass_file_upload_reuse_btn#:#Reuse Selected Files
 assessment#:#ass_imap_hint#:#Hint to be shown as Tooltip
 assessment#:#ass_imap_map_file_not_readable#:#The uploaded image map could not be read.
 assessment#:#ass_imap_no_map_found#:#Could not find any form in the uploaded image map.
@@ -1191,8 +1192,8 @@ assessment#:#show_all_test_properties_on_info_page_byline#:#Users will be presen
 assessment#:#show_answer_overview#:#Show Answer Overview
 assessment#:#show_detailed_results#:#Show User’s Detailed Results (Marked Pass)
 assessment#:#show_examview_html#:#On screen
-assessment#:#show_old_concluding_remarks#:#Show old concluding remarks
-assessment#:#show_old_introduction#:#Show old introduction
+assessment#:#show_old_concluding_remarks#:#Show Old Concluding Remarks
+assessment#:#show_old_introduction#:#Show Old Introduction
 assessment#:#show_pass_overview#:#Show Marked Pass Overview
 assessment#:#show_requested_question_hints#:#Show Requested Hints
 assessment#:#show_user_answers#:#Show User’s Marked Answers
@@ -1663,7 +1664,6 @@ assessment#:#tst_postpone_on_desc#:#Question that users just look at and flip ov
 assessment#:#tst_presentation_properties#:#Administering the Test: Behavior of the Question
 assessment#:#tst_presentation_settings_section#:#Presentation
 assessment#:#tst_previous_access_code_not_available#:#No previous code available!
-assessment#:#tst_print#:#Test and Assessment - Print View
 assessment#:#tst_proceed#:#Proceed
 assessment#:#tst_processing_time#:#Limit Duration of Test
 assessment#:#tst_processing_time_desc#:#Participants can work through the test only for a specified period of time. Time is clocking away from the moment a user starts a test for the first time. Suspending the test does not stop the clock. If the number of possible test attempts is limited an additional feature for granting extra time to participants appears in the tab 'Participants'.
@@ -1991,6 +1991,7 @@ assessment#:#unlock#:#Unlock
 assessment#:#uploaded_material#:#Uploaded Material
 assessment#:#use_previous_solution#:#Use Previous Solution
 assessment#:#use_previous_solution_advice#:#The shown solution for the question is your previously given one. You have to confirm the adoption of the solution, if you like to use it without any change.
+assessment#:#use_previous_solution_advice_file_upload#:#The shown files for the question are your previously uploaded ones. Select the files you want to reuse and click the button to confirm.
 assessment#:#user_has_finished_a_test#:#A participant has finished a test.
 assessment#:#user_not_invited#:#You are not supposed to take this test.
 assessment#:#user_wrong_clientip#:#You don't have the right IP address to access this test.
@@ -2022,7 +2023,7 @@ auth#:#auth_cas_ldap_info#:#If enabled, the synchronization of user accounts and
 auth#:#auth_cron_destroy_expired_sessions#:#Deletion of Expired Sessions
 auth#:#auth_cron_destroy_expired_sessions_desc#:#This job deletes expires sessions.
 auth#:#auth_err_expired#:#Your session has been deactivated due to inactivity.
-auth#:#auth_err_invalid_user_account#:#Authentication failed due to an internal failure.
+auth#:#auth_err_invalid_user_account#:#Login failed. Please check that you have entered your username and password correctly. If this issue persists, your account may be inactive or have expired. In this case, please contact your ILIAS platform's technical support via the link at the bottom of the screen.
 auth#:#auth_err_ldap_exception#:#Authentication failed due to an internal authentication failure (LDAP).
 auth#:#auth_info_add#:#Choose this option if you have never registered to ILIAS. A new account will be created.
 auth#:#auth_info_migrate#:#If you have already an ILIAS account, enter username and password to migrate your personal data (mail, test results...).
@@ -2476,6 +2477,7 @@ blog#:#blog_whole_blog#:#Whole blog
 book#:#X_reservations_of#:#%s booking(s) of
 book#:#book_add#:#Add Booking Pool
 book#:#book_add_object#:#Add Item
+book#:#book_add_participant#:#Add Participant
 book#:#book_add_schedule#:#Add Schedule
 book#:#book_additional_info_file#:#Additional Description
 book#:#book_all#:#Show all
@@ -2494,7 +2496,6 @@ book#:#book_booking#:#Booking
 book#:#book_booking_information#:#Information
 book#:#book_booking_objects#:#Bookable Items
 book#:#book_booking_reminders#:#Upcoming Bookings
-book#:#book_bookings_per_user#:#Bookings per User
 book#:#book_bulk_confirmation#:#Please check that all values are listed correctly.
 book#:#book_bulk_creation#:#Bulk Creation
 book#:#book_bulk_data#:#Item Data
@@ -2540,7 +2541,7 @@ book#:#book_no_objects#:#No Bookings
 book#:#book_no_of_objects#:#No. of Units
 book#:#book_no_pools_selected#:#No booking pools have been assigned to this course. Booking pools can be assigned via the course's 'Resources' tab.
 book#:#book_no_preferences_for_you#:#No preferences have been recorded for you.
-book#:#book_no_recurrence#:#Book only this dateDer Java-Server wird durch Angabe von Netzwerk-Host und -Port über das ILIAS-Setup konfiguriert und ist unter anderem für die Generierung von PDF-Dateien erforderlich.
+book#:#book_no_recurrence#:#Book only this date
 book#:#book_not#:#Not
 book#:#book_not_enough_preferences#:#You have not selected enough preferences. Your preferences have not been saved.
 book#:#book_notification#:#Send Booking Notifications
@@ -2556,7 +2557,7 @@ book#:#book_object_selection#:#Item Selection
 book#:#book_object_updated#:#Bookable item updated.
 book#:#book_objects_available#:#Items available %s
 book#:#book_open#:#Open Booking Pool
-book#:#book_overall_limit#:#Limit Number of Bookings
+book#:#book_overall_limit#:#Limit Total Number of Bookings per User
 book#:#book_overall_limit_warning#:#You have reached the maximum number of bookings allowed.
 book#:#book_participant_already_assigned#:#One or more participants have already been added.
 book#:#book_participant_assigned#:#Participant(s) added.
@@ -2609,7 +2610,7 @@ book#:#book_schedule_type_fixed#:#Fixed Schedule
 book#:#book_schedule_type_fixed_info#:#This booking mode can be used for things that can be booked for specific periods of time, such as rooms, services and equipment.
 book#:#book_schedule_type_none#:#No Schedule
 book#:#book_schedule_type_none_direct#:#No Schedule, Direct Booking
-book#:#book_schedule_type_none_direct_info#:#This booking mode is ideal for presentation topics or places in seminars that do not require set times. Participants can book items directly on a first come, first served basis.
+book#:#book_schedule_type_none_direct_info#:#This booking mode is ideal for presentation topics or places in seminars that do not require set times. Participants can book items directly on a first come, first served basis. Each item can only be booked once per participant.
 book#:#book_schedule_type_none_info#:#This type can be used for seminar papers, seminar places and such.
 book#:#book_schedule_type_none_preference#:#No Schedule, Using Preferences
 book#:#book_schedule_type_none_preference_info#:#This booking mode is ideal for presentation topics, places in seminars or similar. Participants get to indicate their preferences in terms of which items they are most interested in. Items will then be allocated automatically after the preferences deadline has passed.
@@ -2623,6 +2624,7 @@ book#:#book_show_message#:#Show Message
 book#:#book_title_description_nr#:#Title; Description; Number of Units
 book#:#book_title_description_nr_info#:#Enter title, description and number of units separated by semicolon or TAB character (if importing from spreadsheet software). Use one line per item.
 book#:#book_too_many_preferences#:#You have selected too many preferences. Your preferences have not been saved.
+book#:#book_total_individual_bookings_limit#:#Limit the number of bookings that can be carried out by/for individual participants in total, across all available items. Each bookable item can still only be booked once per participant.
 book#:#book_type_warning#:#There are currently no bookable items available. Please create some bookable items to be able to use this booking pool.
 book#:#book_week#:#Week
 book#:#book_your_bookings#:#Your Bookings
@@ -4834,6 +4836,7 @@ common#:#not_available#:#Not Available
 common#:#not_implemented_yet#:#Not implemented yet
 common#:#not_installed#:#Not Installed
 common#:#not_logged_in#:#You are not logged in
+common#:#not_ok#:#Not OK
 common#:#note#:#Note
 common#:#notes#:#Notes
 common#:#notes_and_comments#:#Notes and Comments
@@ -5531,6 +5534,7 @@ common#:#select#:#Select
 common#:#select_all#:#Select All
 common#:#select_at_least_one_object#:#Please choose at least one object.
 common#:#select_file#:#Select File
+common#:#select_file_from_computer#:#Select File
 common#:#select_files_from_computer#:#Select Files
 common#:#select_max_one_item#:#Please select one item only
 common#:#select_object_to_link#:#Please select the object which you want to link
@@ -5835,6 +5839,7 @@ common#:#upload_settings#:#Upload Settings
 common#:#upload_svg_rejection_message#:#An uploaded SVG file contains possibily malicious code and cannot be processed.
 common#:#upload_svg_rejection_message_base64#:#The file contains base64 encoded content.
 common#:#upload_svg_rejection_message_elements#:#The file contains elements or attributes which are not allowed or known.
+common#:#upload_svg_rejection_message_foreign_object#:#The file contains foreign objects.
 common#:#upload_svg_rejection_message_script#:#The file contains script-Elements.
 common#:#uploaded_and_checked#:#The file has been uploaded and checked, you can now start to import it.
 common#:#uploading#:#Uploading...
@@ -8693,6 +8698,7 @@ dcl#:#dcl_no_fields_yet#:#There are no fields defined for this table thus you ca
 dcl#:#dcl_no_read_access_on_any_standard_view#:#You don't have read access on any standard view of a table.
 dcl#:#dcl_no_search_results_found_for#:#No modules have been found for
 dcl#:#dcl_no_such_reference#:#The following value is not available in the reference table:
+dcl#:#dcl_no_table_found#:#No visible table found!
 dcl#:#dcl_no_tableview_found#:#No visible tableview found!
 dcl#:#dcl_not_checked#:#Not checked.
 dcl#:#dcl_not_supported_in_import#:#This type of field is not supported in the import
@@ -8701,7 +8707,6 @@ dcl#:#dcl_notification_activated#:#Notification Activated
 dcl#:#dcl_notification_deactivate_dcl#:#Deactivate Notification for Data Collection
 dcl#:#dcl_notification_deactivated#:#Notification Deactivated
 dcl#:#dcl_notification_info#:#Each user decides about notification
-dcl#:#dcl_notimage_exception#:#The file has to be a picture.
 dcl#:#dcl_noturl_exception#:#You have to enter a Link (beginning with http:// or www.) or an e-mail address.
 dcl#:#dcl_number#:#Integer
 dcl#:#dcl_number_desc#:#Field for integer values (max. 9 digits). No decimals or fractions.
@@ -8821,6 +8826,8 @@ dcl#:#dcl_wrong_regex#:#The text you entered does not match the specification fo
 dcl#:#dcl_xls_async_export#:#as XLSX (asynchronous)
 dcl#:#fieldtitle_allow_chars#:#Not allowed chars: %s
 dcl#:#fileupload_not_migrated#:#File has not yet been migration and cannot be displayed. Please contact your System-Administrator.
+dcl#:#table_not_found#:#Table not found!
+dcl#:#tableview_not_found#:#Tableview not found!
 didactic#:#activate_exclusive_template#:#Grey Out Default
 didactic#:#activate_exclusive_template_info#:#The standard template won't be available wherever this template is active.
 didactic#:#activate_local_didactic_template#:#Scope of Application
@@ -9883,7 +9890,7 @@ form#:#form_msg_max_upload#:#Maximum number of simultaneously uploadable files:
 form#:#form_msg_numeric_value_required#:#Please enter a numeric value.
 form#:#form_msg_value_too_high#:#Value too high. Please enter a lower value.
 form#:#form_msg_value_too_low#:#Value too low. Please enter a higher value.
-form#:#form_msg_wrong_date#:#Wrong date. Please enter a valid date.
+form#:#form_msg_wrong_date#:#Please check your date entry. Both a start date and an end date are required and the start date cannot be later than the end date.
 form#:#form_no_link#:#No Link
 form#:#form_open_answer#:#Open Answer
 form#:#form_password_not_allowed_for_auth#:#It is not possible to change the password for the chosen authentication method.
@@ -11051,6 +11058,7 @@ lti#:#highscore_top_table#:#Top Ranking
 lti#:#highscore_top_table_description#:#Participants are presented with a table containing the top rankings.
 lti#:#highscore_wtime#:#Duration
 lti#:#highscore_wtime_description#:#A column containing the duration will be included in the ranking.
+lti#:#launch_custom_params#:#Custom launch parameters###27 11 2025 new variable
 lti#:#launch_method#:#Options for Launch
 lti#:#launch_method_embedded#:#Embedded Content
 lti#:#launch_method_embedded_info#:#The content is opened within the ILIAS context. It is presented as embedded content within the content tab.
