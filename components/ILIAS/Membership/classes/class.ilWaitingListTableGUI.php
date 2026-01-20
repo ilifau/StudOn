@@ -17,6 +17,8 @@
  *********************************************************************/
 
 declare(strict_types=1);
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
+use FAU\Ilias\Helper\WaitingListTableGUIHelper;
 
 use ILIAS\UI\Implementation\Factory as UIImplementationFactory;
 use ILIAS\UI\Renderer as UIRenderer;
@@ -28,6 +30,10 @@ use ILIAS\UI\Renderer as UIRenderer;
  */
 class ilWaitingListTableGUI extends ilTable2GUI
 {
+    // fau: userData
+    use WaitingListTableGUIHelper;
+    // fau.
+    
     protected static ?array $all_columns = null;
     protected static bool $has_odf_definitions;
     protected array $wait = [];
@@ -235,6 +241,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->tpl->setVariable('VAL_NAME', $a_set['lastname'] . ', ' . $a_set['firstname']);
 
         foreach ($this->getSelectedColumns() as $field) {
+
             switch ($field) {
                 case 'gender':
                     $a_set['gender'] = $a_set['gender'] ? $this->lng->txt('gender_' . $a_set['gender']) : '';
@@ -265,7 +272,43 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     );
                     $this->tpl->parseCurrentBlock();
                     break;
+                // fau: userData - format table output of studydata and educations
+                case 'studydata':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
 
+                case 'educations':
+                    //ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    //$this->tpl->setVariable('ID_CUST', $cell_id);
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['educations']),
+                        $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                case 'memberships':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['memberships']),
+                        $this->lng->txt('fau_memberships_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                case 'waitinglists':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['waitinglists']),
+                        $this->lng->txt('fau_waitinglists_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;                      
+                // fau.
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
@@ -339,6 +382,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
             $usr_data_fields[] = $field;
         }
 
+        // fau: userData - add ref_id to filter the list of educations as parameter
         $usr_data = ilUserQuery::getUserListData(
             $this->getOrderField(),
             $this->getOrderDirection(),
@@ -353,7 +397,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
             0,
             null,
             $usr_data_fields,
-            $this->wait_user_ids
+            $this->wait_user_ids,
+            '',
+            "",
+            $this->getRepositoryObject()->getRefId()
         );
         if (0 === count($usr_data['set']) && $this->getOffset() > 0 && $this->getExternalSegmentation()) {
             $this->resetOffset();
@@ -372,9 +419,14 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 0,
                 null,
                 $usr_data_fields,
-                $this->wait_user_ids
+                $this->wait_user_ids,
+                '',
+                "",
+                $this->getRepositoryObject()->getRefId()
             );
         }
+        // fau.
+
         $usr_ids = [];
         foreach ((array) $usr_data['set'] as $user) {
             $usr_ids[] = (int) $user['usr_id'];

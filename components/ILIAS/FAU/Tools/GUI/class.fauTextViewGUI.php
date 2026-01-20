@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\Tools\GUI;
+
 use FAU\BaseGUI;
 use FAU\Study\Data\ImportId;
 use FAU\Tools\Service;

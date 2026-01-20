@@ -62,7 +62,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     protected ?ModeManager $mode_manager = null;
     protected ilComponentFactory $component_factory;
     protected \ILIAS\Style\Content\DomainService $content_style_domain;
-
+    // fau: studyCond
+    protected bool $update_for_memcond = false;
+    // fau.
+    
     public function __construct(
         $a_data,
         int $a_id,

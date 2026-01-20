@@ -901,6 +901,13 @@ class ilObjUserGUI extends ilObjectGUI
         $data['chat_broadcast_typing'] = ($this->object->prefs['chat_broadcast_typing'] ?? '') == 'y';
 
         $data['send_mail'] = (($this->object->prefs['send_info_mails'] ?? '') == 'y');
+        // fau: userData - get raw studydata
+        global $DIC;
+        $person =  $DIC->fau()->user()->repo()->getPersonOfUser($this->object->getId());
+        if (!empty($person)) {
+            $data['studydata_raw'] = json_encode(json_decode($person->getStudydata()), JSON_PRETTY_PRINT);
+        }
+        // fau.
 
         $this->form_gui->setValuesByArray($data);
     }
@@ -1221,6 +1228,21 @@ class ilObjUserGUI extends ilObjectGUI
                 $settings['require_matriculation']);
             $this->form_gui->addItem($mr);
         }
+
+        // fau: userData - add fields for studydata and educations
+        global $DIC;
+        $stu = new ilCustomInputGUI($this->lng->txt("studydata"), "studydata");
+        $stu->setHTML(nl2br($DIC->fau()->user()->getStudiesAsText($this->object->getId())));
+
+        $this->form_gui->addItem($stu);
+        $stu2 = new ilTextAreaInputGUI('', "studydata_raw");
+        $stu2->setInfo($this->lng->txt('fau_read_only'));
+        $this->form_gui->addItem($stu2);
+
+        $edu = new ilNonEditableValueGUI($this->lng->txt('fau_educations'), 'educations', true);
+        $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText($this->object->getId())));
+        $this->form_gui->addItem($edu);
+        // fau.
 
         $ip = new ilTextInputGUI($this->lng->txt('client_ip'), 'client_ip');
         $ip->setSize(40);

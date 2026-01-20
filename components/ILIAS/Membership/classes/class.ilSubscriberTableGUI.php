@@ -188,6 +188,17 @@ class ilSubscriberTableGUI extends ilTable2GUI
                     $this->tpl->parseCurrentBlock();
                     break;
 
+                // fau: userData - format table output of studydata and educations
+                    case 'studydata':
+                    case 'educations':
+                    case 'memberships':
+                    case 'waitinglists':
+                        $a_set['studydata'] = nl2br($a_set['studydata']);
+                        $a_set['educations'] = nl2br($a_set['educations']);
+                        $a_set['memberships'] = nl2br($a_set['memberships']);
+                        $a_set['waitinglists'] = nl2br($a_set['waitinglists']);                        
+                    // fau.
+                    // no break
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
@@ -279,6 +290,7 @@ class ilSubscriberTableGUI extends ilTable2GUI
             $usr_data_fields[] = $field;
         }
 
+        // fau: userData - add ref_id as argument to  filter the display of educations
         $usr_data = ilUserQuery::getUserListData(
             $this->getOrderField(),
             $this->getOrderDirection(),
@@ -293,8 +305,12 @@ class ilSubscriberTableGUI extends ilTable2GUI
             0,
             null,
             $usr_data_fields,
-            $sub_ids
+            $sub_ids,
+            '',
+            "",
+            $this->getRepositoryObject()->getRefId()
         );
+        // fau.
 
         $usr_ids = [];
         foreach ((array) $usr_data['set'] as $user) {

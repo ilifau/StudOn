@@ -15,6 +15,9 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+// fau: userData
+use FAU\Ilias\Helper\UserQueryHelper;
+// fau.
 
 /**
  * User query class. Put any complex that queries for a set of users into
@@ -23,6 +26,10 @@
  */
 class ilUserQuery
 {
+    // fau: userData
+    use UserQueryHelper;
+    // fau.
+
     public const DEFAULT_ORDER_FIELD = 'login';
 
     private string $order_field = self::DEFAULT_ORDER_FIELD;
@@ -292,6 +299,26 @@ class ilUserQuery
                 continue;
             }
 
+            // fau: userData - don't query for studydata, educations, memberships, waitinglists directly, add them later
+            if ($field == 'studydata') {
+                $add_studydata = true;
+                continue;
+            }
+            if ($field == 'educations') {
+                $add_educations = true;
+                continue;
+            }            
+            if ($field == 'memberships') {
+                $add_memberships = true;
+                continue;
+            }
+            if ($field == 'waitinglists') {
+                $add_waitinglists = true;
+                continue;
+            }
+            // fau.
+
+
             if (in_array($field, $all_multi_fields)) {
                 $multi_fields[] = $field;
             } elseif (strpos($field, ".") === false) {
@@ -478,6 +505,15 @@ class ilUserQuery
                 }
                 break;
 
+            // fau: userData - don't order by studydata, educations, memberships or waitinglists
+            case "studydata":
+            case "educations":
+            case "memberships":
+            case "waitinglists":
+                break;
+            // fau.
+
+
             default:
                 if ($this->order_dir !== "asc" && $this->order_dir !== "desc") {
                     $this->order_dir = "asc";
@@ -524,6 +560,20 @@ class ilUserQuery
         $result = [];
 
         while ($rec = $ilDB->fetchAssoc($set)) {
+            // fau: userData - optionally add the studydata, educations, memberships and waitinglists
+            if (isset($add_studydata) && $add_studydata) {
+                $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
+            }
+            if (isset($add_educations) && $add_educations) {
+                $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id'], $this->getEducationsRefId());
+            }
+            if (isset($add_memberships) && $add_memberships) {
+                $rec['memberships'] = $DIC->fau()->user()->getMembershipsAsText((int) $rec['usr_id']);
+            }
+            if (isset($add_waitinglists) && $add_waitinglists) {
+                $rec['waitinglists'] = $DIC->fau()->user()->getWaitingListsAsText((int) $rec['usr_id']);
+            }
+            // fau.            
             $result[] = $rec;
             if (count($multi_fields)) {
                 $usr_ids[] = (int) $rec["usr_id"];
@@ -547,7 +597,7 @@ class ilUserQuery
         return ["cnt" => $cnt, "set" => $result];
     }
 
-
+    // fau: userData add ref id to filter the display of educations as parameter
     /**
      * Get data for user administration list.
      * @deprecated
@@ -568,7 +618,8 @@ class ilUserQuery
         array $a_additional_fields = null,
         array $a_user_filter = null,
         string $a_first_letter = "",
-        string $a_authentication_filter = ""
+        string $a_authentication_filter = "",
+        ?int $a_educations_ref_id = null
     ): array {
         $query = new ilUserQuery();
         $query->setOrderField($a_order_field);
@@ -587,6 +638,8 @@ class ilUserQuery
         $query->setUserFilter($a_user_filter ?? []);
         $query->setFirstLetterLastname($a_first_letter);
         $query->setAuthenticationFilter($a_authentication_filter);
+        $query->setEducationsRefId($a_educations_ref_id);
         return $query->query();
     }
+    // fau.
 }
