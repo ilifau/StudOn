@@ -172,6 +172,9 @@ class ilPersonalProfileGUI
 
         if ($portfolio_id = $this->getProfilePortfolio()) {
         } else {
+            if (!isset($ilUser->prefs["public_profile"])) {
+                return;
+            }
             switch ($ilUser->prefs["public_profile"]) {
                 case "y":
                     $this->tpl->setOnScreenMessage('info',
