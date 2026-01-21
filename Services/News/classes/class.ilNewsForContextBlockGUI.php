@@ -16,14 +16,13 @@
  *
  *********************************************************************/
 
+use ILIAS\News\Access\NewsAccess;
 use ILIAS\News\Data\NewsCollection;
-use ILIAS\News\Data\NewsContext;
 use ILIAS\News\Data\NewsCriteria;
 use ILIAS\News\Data\NewsItem;
 use ILIAS\News\InternalDomainService;
 use ILIAS\News\InternalGUIService;
 use ILIAS\News\StandardGUIRequest;
-use ILIAS\News\Access\NewsAccess;
 
 /**
  * BlockGUI class for block NewsForContext
@@ -51,6 +50,7 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
     protected ilHelpGUI $help;
     protected ilSetting $settings;
     protected ilTabsGUI $tabs;
+    protected ilLogger $logger;
 
     protected StandardGUIRequest $std_request;
     protected InternalDomainService $domain;
@@ -68,6 +68,7 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
         $this->help = $DIC["ilHelp"];
         $this->settings = $DIC->settings();
         $this->tabs = $DIC->tabs();
+        $this->logger = $DIC->logger()->news();
 
         $locator = $DIC->news()->internal();
         $this->std_request = $locator->gui()->standardRequest();
@@ -102,14 +103,19 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
             return;
         }
 
-        $collection = $this->domain->collection()->getNewsForContext(
-            new NewsContext($this->std_request->getRefId()),
+        $collection = $this->domain->collection()->getNewsForContainer(
+            $this->std_request->getRefId(),
+            $this->ctrl->getContextObjId(),
+            $this->ctrl->getContextObjType(),
             new NewsCriteria(read_user_id: $this->user->getId()),
+            $this->user->getId(),
             true
         );
 
-        $forum_grouping = $this->ctrl->getContextObjType() !== 'frm';
-        $this->initData($collection->groupFiles()->groupForums($forum_grouping));
+        if ($this->ctrl->getContextObjType() !== 'frm') {
+            $collection = $collection->groupForums(true);
+        }
+        $this->initData($collection->groupFiles());
     }
 
     protected function initData(NewsCollection $collection): void
@@ -129,7 +135,14 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
 
     protected function getListItemForData(array $data): ?\ILIAS\UI\Component\Item\Item
     {
-        $info = $this->getNewsForId($data[0]);
+        try {
+            $info = $this->getNewsForId($data[0]);
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return $this->ui->factory()->item()->standard($this->lng->txt('news_not_available'))
+                ->withDescription($this->lng->txt('news_sorry_not_accessible_anymore'));
+        }
+
 
         $props = [
             $this->lng->txt('date') => $info['creation_date'] ?? ''

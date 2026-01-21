@@ -374,6 +374,10 @@ class ilExAssignment
     public function getInstructionPresentation(): string
     {
         $inst = $this->getInstruction();
+
+        $purifier = new ilExcInstructionPurifier();
+        $inst = $purifier->purify($inst);
+
         if (trim($inst)) {
             $is_html = (strlen($inst) != strlen(strip_tags($inst)));
             if (!$is_html) {
@@ -1353,7 +1357,6 @@ class ilExAssignment
             $data["mark"] = $rec["mark"];
             $data["comment"] = $rec["u_comment"];
         }
-
         return $data;
     }
 
@@ -1494,7 +1497,7 @@ class ilExAssignment
             $log->debug("check assignment " . $row['id'] . ", fb_file " . $row["fb_file"]);
             if ($row['fb_date'] == self::FEEDBACK_DATE_DEADLINE) {
                 $max = max($row['time_stamp'], $row['deadline2']);
-                if (trim($row["fb_file"]) && $max <= time()) {
+                if (trim((string) $row["fb_file"]) && $max <= time()) {
                     $log->debug("...adding(1)");
                     $res[] = $row["id"];
                 }
