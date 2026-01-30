@@ -77,7 +77,7 @@ class fauStudySearchGUI extends BaseGUI implements \ilCtrlBaseClassInterface
     {
         //ilUtil::sendInfo('<pre>' . print_r($this->search->getCondition(), true) . '</pre>');
 
-        $tpl = new ilTemplate("tpl.fau_study_search.html",true,true,"Services/FAU/Study/GUI");
+        $tpl = new ilTemplate("tpl.fau_study_search.html",true,true,"components/ILIAS/FAU/Study/GUI");
 
         $form = $this->getSearchForm($this->search->getCondition());
         $tpl->setVariable('SEARCH_FORM_HTML', $form->getHTML());

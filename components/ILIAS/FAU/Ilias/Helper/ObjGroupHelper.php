@@ -90,4 +90,15 @@ trait ObjGroupHelper
         }
     }
     // fau.
+
+    // fau: objectSub - getter / setter
+    public function getRegistrationRefId()
+    {
+        return $this->reg_ref_id;
+    }
+    public function setRegistrationRefId($a_ref_id)
+    {
+        $this->reg_ref_id = $a_ref_id;
+    }
+    // fau.    
 }

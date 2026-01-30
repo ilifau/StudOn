@@ -80,7 +80,10 @@ class ilMainMenuSearchGUI
         $this->tpl = new ilTemplate('tpl.main_menu_search.html', true, true, 'components/ILIAS/Search');
         if ($this->user->getId() != ANONYMOUS_USER_ID) {
             $this->tpl->setVariable('LABEL_SEARCH_OPTIONS', $this->lng->txt("label_search_options"));
+            // fau: studySearch - show options only when possible
             if (ilSearchSettings::getInstance()->isLuceneUserSearchEnabled() || ($this->ref_id != ROOT_FOLDER_ID)) {
+                $this->tpl->setVariable('LABEL_SEARCH_OPTIONS', $this->lng->txt("label_search_options"));
+                // fau.
                 $this->tpl->setCurrentBlock("position");
                 $this->tpl->setVariable('TXT_GLOBALLY', $this->lng->txt("search_globally"));
                 $this->tpl->setVariable('ROOT_ID', ROOT_FOLDER_ID);
@@ -127,7 +130,11 @@ class ilMainMenuSearchGUI
             );
             $this->tpl->setVariable('TXT_SEARCH_LINK', $this->lng->txt("last_search_result"));
         }
-        $this->tpl->setVariable('TXT_SEARCH', $this->lng->txt("search"));
+
+        // fau: studySearch - link the search GUI
+        $this->tpl->setVariable('HREF_FAU_SEARCH_LINK', $this->ctrl->getLinkTargetByClass('fauStudySearchGUI'));
+        $this->tpl->setVariable('TXT_FAU_SEARCH_LINK', $this->lng->txt("fau_search"));
+        // fau.
 
         return $this->tpl->get();
     }
