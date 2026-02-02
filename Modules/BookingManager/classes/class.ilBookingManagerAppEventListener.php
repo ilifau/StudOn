@@ -42,6 +42,13 @@ class ilBookingManagerAppEventListener
                         break;
                 }
                 break;
+            case "Services/Object":
+                switch ($a_event) {
+                    case "toTrash":
+                        $DIC->bookingManager()->internal()->domain()->objectEvent()->handleDeletion([$a_parameter["ref_id"]]);
+                        break;
+                }
+                break;
         }
     }
 }

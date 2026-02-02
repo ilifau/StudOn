@@ -60,10 +60,10 @@ class NewsAggregator
             $current = $frontier->dequeue();
 
             // Ensure each context is only visited once
-            if (array_key_exists($current->getRefId(), $result)) {
+            if (array_key_exists($current->getObjId(), $result)) {
                 continue;
             }
-            $result[$current->getRefId()] = $current;
+            $result[$current->getObjId()] = $current;
 
             // Skip if no processing necessary
             $strategy = $this->getStrategy($current->getObjType());
@@ -75,7 +75,7 @@ class NewsAggregator
             foreach ($children as $child) {
                 if ($strategy->isRecursive()) {
                     // Recursive items will be added directly
-                    $result[$child->getRefId()] = $child;
+                    $result[$child->getObjId()] = $child;
                 } else {
                     // Iterative items will be queued for further processing
                     $frontier->enqueue($child);
@@ -98,5 +98,6 @@ class NewsAggregator
         $this->strategies['cat'] = new CategoryAggregationStrategy($this->tree);
         $this->strategies['crs'] = $subtree_strategy;
         $this->strategies['grp'] = $subtree_strategy;
+        $this->strategies['fold'] = $subtree_strategy;
     }
 }

@@ -543,7 +543,7 @@ class ilLearningProgressBaseGUI
             }
 
             $info->addProperty(
-                $this->lng->txt('trac_visits'),
+                $this->lng->txt('trac_visits_nr'),
                 (string) ($progress['visits'] ?? "")
             );
 
