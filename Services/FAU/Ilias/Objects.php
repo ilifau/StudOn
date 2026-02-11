@@ -644,7 +644,7 @@ class Objects
             $title = $course->getTitle();
             if ($this->dic->fau()->study()->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
                 $title .= $course->getKParallelgroupId() 
-                    ? ' ( ' . $this->dic->language()->txt('fau_campo_course') . ' ' . $course->getKParallelgroupId() . ')' 
+                    ? ' (' . $this->dic->language()->txt('fau_campo_course') . ' ' . $course->getKParallelgroupId() . ')' 
                     : '';
             }
         }
