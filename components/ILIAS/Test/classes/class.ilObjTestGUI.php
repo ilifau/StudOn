@@ -1831,7 +1831,9 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
                 if ($return['qpl_type'] === self::QUESTION_CREATION_POOL_SELECTION_NEW_POOL) {
                     return $return + ['title' => $kt->string()->transform($values[1][0])];
                 }
-                return $return + ['pool_ref_id' => $kt->int()->transform($values[1][0])];
+                return $return + [
+                    'pool_ref_id' => $kt->int()->transform($values[1][0])
+                ];
             }
         );
 
@@ -1844,7 +1846,12 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
         $inputs = [
             self::QUESTION_CREATION_POOL_SELECTION_NO_POOL => $f->group([], $this->lng->txt('assessment_no_pool')),
             self::QUESTION_CREATION_POOL_SELECTION_EXISTING_POOL => $f->group(
-                [$f->select($this->lng->txt('select_questionpool'), $pools_data)],
+                [
+                    $f->select(
+                        $this->lng->txt('select_questionpool'),
+                        $pools_data
+                    )->withRequired(true)
+                ],
                 $this->lng->txt('assessment_existing_pool')
             )
         ];
@@ -1933,9 +1940,9 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
 
             $message = $this->lng->txt('test_has_datasets_warning_page_view');
             $massage_box = $this->ui_factory->messageBox()->info($message)->withLinks([$link]);
-            $this->tpl->setCurrentBlock('mess');
+            $this->tpl->setCurrentBlock('pax_info_message');
             $this->tpl->setVariable(
-                'MESSAGE',
+                'PAX_INFO_MESSAGE',
                 $this->ui_renderer->render($massage_box)
             );
             $this->tpl->parseCurrentBlock();
