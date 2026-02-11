@@ -18,12 +18,7 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD
-<<<<<<<< HEAD:components/ILIAS/WOPI/classes/Handler/WOPIUnknownStakeholder.php
-namespace ILIAS\components\WOPI\Handler;
-=======
 namespace ILIAS\WOPI\Handler;
->>>>>>> v10.3
 
 use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
 
@@ -32,20 +27,6 @@ class WOPIUnknownStakeholder extends AbstractResourceStakeholder
     public function getId(): string
     {
         return 'wopi_unknown';
-<<<<<<< HEAD
-========
-namespace ILIAS\Test\ExportImport;
-
-use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
-
-class ResultsExportStakeholder extends AbstractResourceStakeholder
-{
-    public function getId(): string
-    {
-        return 'test_results_export';
->>>>>>>> v10.3:components/ILIAS/Test/src/ExportImport/ResultsExportStakeholder.php
-=======
->>>>>>> v10.3
     }
 
     public function getOwnerOfNewResources(): int

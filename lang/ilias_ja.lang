@@ -11630,10 +11630,6 @@ mail#:#mail_nacc_title#:#タイトル
 mail#:#mail_nacc_use_placeholder#:#次のプレースフォルダを使用できます
 mail#:#mail_nacc_user_fullname#:#ユーザフルネーム
 mail#:#mail_nacc_user_login#:#ユーザログイン
-<<<<<<< HEAD
-mail#:#mail_nacc_user_name#:#ユーザ名
-=======
->>>>>>> v10.3
 mail#:#mail_new_template#:#新しいTextテンプレート
 mail#:#mail_no_mail_items#:#未読メールはありません
 mail#:#mail_no_permissions_write_smtp#:#外部emailに対する書込みアクセス権限がありません

@@ -12,9 +12,5 @@ require_once __DIR__ . "/../../vendor/composer/vendor/autoload.php";
 ilInitialisation::initILIAS();
 
 // handle all requests behind /wopi/index.php/
-<<<<<<< HEAD
-$handler = new ILIAS\components\WOPI\Handler\RequestHandler();
-=======
 $handler = new ILIAS\WOPI\Handler\RequestHandler();
->>>>>>> v10.3
 $handler->handleRequest();

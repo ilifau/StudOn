@@ -24,10 +24,6 @@ use ILIAS\Setup\Objective;
 use ILIAS\Refinery\Transformation;
 use ILIAS\Setup\Config;
 use ILIAS\Setup\ObjectiveCollection;
-<<<<<<< HEAD
-use ILIAS\BookingManager\Setup\AccessRBACOperationClonedObjective;
-=======
->>>>>>> v10.3
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -57,11 +53,6 @@ class ilWOPISetupAgent implements Agent
             new ilDatabaseUpdateStepsExecutedObjective(new ilWOPIDB90()),
             new ilDatabaseUpdateStepsExecutedObjective(new ilWOPIDB100()),
         );
-<<<<<<< HEAD
-
-        return new \ilDatabaseUpdateStepsExecutedObjective(new ilWOPIDB90());
-=======
->>>>>>> v10.3
     }
 
     public function getBuildObjective(): Objective

@@ -34,11 +34,7 @@ class iljQueryUtil
      *
      * @param \ilTemplate $a_tpl global $tpl is used when null
      */
-<<<<<<< HEAD
-    public static function initjQuery(ilGlobalTemplateInterface $a_tpl = null): void
-=======
     public static function initjQuery(?ilGlobalTemplateInterface $a_tpl = null): void
->>>>>>> v10.3
     {
         global $DIC;
 
@@ -48,27 +44,6 @@ class iljQueryUtil
         }
 
         $a_tpl->addJavaScript(self::getLocaljQueryPath(), true, 0);
-<<<<<<< HEAD
-        $a_tpl->addJavaScript('assets/js/jquery-migrate.min.js', true, 0);
-    }
-
-
-    /**
-     * inits and adds the jQuery-UI JS-File to the global template
-     * (see included_components.txt for included components)
-     */
-    public static function initjQueryUI(ilGlobalTemplateInterface $a_tpl = null): void
-    {
-        global $DIC;
-
-        if ($a_tpl === null) {
-            $a_tpl = $DIC["tpl"];
-        }
-
-        // Important: jQueryUI has to be included before(!) the bootstrap JS file
-        $a_tpl->addJavaScript(self::getLocaljQueryUIPath(), true, 0);
-=======
->>>>>>> v10.3
     }
 
 
@@ -79,41 +54,4 @@ class iljQueryUtil
     {
         return "assets/js/jquery" . self::$min . ".js";
     }
-<<<<<<< HEAD
-
-
-    /**
-     * @return string local path of jQuery UI file
-     */
-    public static function getLocaljQueryUIPath(): string
-    {
-        return "./assets/js/jquery-ui" . self::$min . ".js";
-    }
-
-    //
-    // Maphilight plugin
-    //
-
-    /**
-     * Inits and add maphilight to the general template
-     */
-    public static function initMaphilight(): void
-    {
-        global $DIC;
-
-        $tpl = $DIC["tpl"];
-
-        $tpl->addJavaScript(self::getLocalMaphilightPath(), true, 1);
-    }
-
-
-    /**
-     * Get local path of maphilight file
-     */
-    public static function getLocalMaphilightPath(): string
-    {
-        return "./assets/js/jquery.maphilight.min.js";
-    }
-=======
->>>>>>> v10.3
 }

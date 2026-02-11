@@ -18,11 +18,7 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD
-namespace ILIAS\components\WOPI\Handler;
-=======
 namespace ILIAS\WOPI\Handler;
->>>>>>> v10.3
 
 use ILIAS\HTTP\Services;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
@@ -59,12 +55,9 @@ final class RequestHandler
      * @var string
      */
     public const HEADER_X_WOPI_LOCK = 'X-WOPI-Lock';
-<<<<<<< HEAD
-=======
     /**
      * @var string
      */
->>>>>>> v10.3
     public const HEADER_X_WOPI_FILE_CONVERSION = 'X-WOPI-FileConversion';
 
     private Services $http;
@@ -113,11 +106,7 @@ final class RequestHandler
             try {
                 $this->stakeholder = new WOPIStakeholderWrapper();
                 $this->stakeholder->init($stakeholder, $this->token_user_id);
-<<<<<<< HEAD
-            } catch (\Throwable $t) {
-=======
             } catch (\Throwable) {
->>>>>>> v10.3
                 $this->stakeholder = new WOPIUnknownStakeholder($this->token_user_id);
             }
         }
@@ -145,11 +134,7 @@ final class RequestHandler
             }
 
             $resource_id = $this->irss->manage()->find($resource_id);
-<<<<<<< HEAD
-            if (!$resource_id instanceof \ILIAS\ResourceStorage\Identification\ResourceIdentification) {
-=======
             if (!$resource_id instanceof ResourceIdentification) {
->>>>>>> v10.3
                 $this->http->close();
             }
             $resource = $this->irss->manage()->getResource($resource_id);

@@ -18,11 +18,7 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD
-namespace ILIAS\components\WOPI\Discovery;
-=======
 namespace ILIAS\WOPI\Discovery;
->>>>>>> v10.3
 
 /**
  * Officialy supported action targets, see https://learn.microsoft.com/en-us/openspecs/office_protocols/ms-wopi/429749b7-5ec3-4553-a589-0ec5240121ad

@@ -20,9 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS;
 
-<<<<<<< HEAD
-class WOPI implements Component\Component
-=======
 use ILIAS\Component\Component;
 use ILIAS\Setup\Agent;
 use ILIAS\Refinery\Factory;
@@ -31,7 +28,6 @@ use ILIAS\Component\Resource\Endpoint;
 use ILIAS\Component\Resource\ComponentJS;
 
 class WOPI implements Component
->>>>>>> v10.3
 {
     public function init(
         array | \ArrayAccess &$define,
@@ -43,18 +39,6 @@ class WOPI implements Component
         array | \ArrayAccess &$pull,
         array | \ArrayAccess &$internal,
     ): void {
-<<<<<<< HEAD
-        $contribute[\ILIAS\Setup\Agent::class] = static fn() =>
-            new \ilWOPISetupAgent(
-                $pull[\ILIAS\Refinery\Factory::class]
-            );
-
-        $contribute[Component\Resource\PublicAsset::class] = fn() =>
-            new Component\Resource\Endpoint($this, "index.php", "wopi");
-
-        $contribute[Component\Resource\PublicAsset::class] = fn() =>
-            new Component\Resource\ComponentJS($this, "js/dist/wopi.min.js");
-=======
         $contribute[Agent::class] = static fn(): \ilWOPISetupAgent =>
             new \ilWOPISetupAgent(
                 $pull[Factory::class]
@@ -65,6 +49,5 @@ class WOPI implements Component
 
         $contribute[PublicAsset::class] = fn(): ComponentJS =>
             new ComponentJS($this, "js/dist/wopi.min.js");
->>>>>>> v10.3
     }
 }

@@ -312,10 +312,7 @@ class ilObjWikiGUI extends ilObjectGUI
                 break;
 
             case strtolower(SettingsGUI::class):
-<<<<<<< HEAD
-=======
                 $this->checkPermission("write");
->>>>>>> v10.3
                 $this->addHeaderAction();
                 $ilTabs->activateTab("settings");
                 $this->setSettingsSubTabs("general_settings");

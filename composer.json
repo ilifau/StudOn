@@ -10,13 +10,7 @@
 			"cweagans/composer-patches": true,
 			"captainhook/plugin-composer": true,
 			"simplesamlphp/composer-module-installer": false,
-<<<<<<< HEAD
-			"simplesamlphp/composer-xmlprovider-installer": false,
-			"captainhook/hook-installer": true,
-			"captainhook/captainhook-phar": true
-=======
 			"simplesamlphp/composer-xmlprovider-installer": false
->>>>>>> v10.3
 		}
 	},
 	"scripts": {
@@ -89,16 +83,8 @@
 		"friendsofphp/php-cs-fixer": "^3.40",
 		"phpstan/phpstan": "^1.10",
 		"mikey179/vfsstream": "^1.6",
-<<<<<<< HEAD
-		"captainhook/captainhook": "^5.26",
-		"captainhook/plugin-composer": "^5.3",
-		"sebastianfeldmann/captainhook": "~1.0",
-		"captainhook/hook-installer": "^1.0",
-		"captainhook/captainhook-phar": "^5.27"
-=======
 		"captainhook/captainhook": "^5.16",
 		"captainhook/plugin-composer": "^5.3"
->>>>>>> v10.3
 	},
 	"autoload": {
 		"psr-4" : {

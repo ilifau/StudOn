@@ -2051,19 +2051,12 @@ dialog::backdrop {
   animation-duration: 0.3s;
   animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
   animation-fill-mode: both;
-<<<<<<< HEAD
-=======
   backdrop-filter: blur(3px) brightness(0.5);
->>>>>>> v10.3
 }
 
 @keyframes fadeBackdropIn {
   from {
-<<<<<<< HEAD
-    backdrop-filter: blur(0 px) brightness(0.5);
-=======
     backdrop-filter: blur(0) brightness(1);
->>>>>>> v10.3
   }
   to {
     backdrop-filter: blur(3px) brightness(0.5);
@@ -6054,21 +6047,14 @@ a[aria-disabled].il-link.link-bulky:hover {
 .il-maincontrols-metabar > li > .btn.btn-bulky.engaged, .il-maincontrols-metabar > li > a.il-link.link-bulky.engaged {
   box-shadow: 1px 3px 4px rgba(0, 0, 0, 0.1);
   background-color: #fafafa;
-<<<<<<< HEAD
-  border: none;
-=======
->>>>>>> v10.3
   color: initial;
   border: none;
 }
-<<<<<<< HEAD
-=======
 .il-maincontrols-metabar > li > .btn.btn-bulky.engaged:focus-visible, .il-maincontrols-metabar > li > a.il-link.link-bulky.engaged:focus-visible {
   outline: none;
   border: 3px solid #0078D7;
   box-shadow: inset 0px 0px 0px 2px #FFFFFF, 0px 0px 0px 2px #FFFFFF;
 }
->>>>>>> v10.3
 .il-maincontrols-metabar > li > .btn.btn-bulky .glyphicon, .il-maincontrols-metabar > li > a.il-link.link-bulky .glyphicon {
   color: #737373;
   font-size: 1.4375rem;

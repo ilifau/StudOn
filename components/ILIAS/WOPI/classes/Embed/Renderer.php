@@ -18,14 +18,10 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD
-namespace ILIAS\components\WOPI\Embed;
-=======
 namespace ILIAS\WOPI\Embed;
 
 use ILIAS\UI\Factory;
 use ILIAS\UI\Component\Component;
->>>>>>> v10.3
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -46,11 +42,7 @@ class Renderer
         $tpl = new \ilTemplate('tpl.wopi_container.html', true, true, 'components/ILIAS/WOPI');
         $tpl->setVariable('EDITOR_URL', (string) $this->embedded_application->getActionLauncherURL());
         $tpl->setVariable('INLINE', (string) (int) $this->embedded_application->isInline());
-<<<<<<< HEAD
-        $tpl->setVariable('TOKEN', (string) $this->embedded_application->getToken());
-=======
         $tpl->setVariable('TOKEN', $this->embedded_application->getToken());
->>>>>>> v10.3
         $tpl->setVariable('TTL', (string) (time() + $this->embedded_application->getTTL()) * 1000); // in milliseconds
 
         return $this->ui_factory->legacy($tpl->get());

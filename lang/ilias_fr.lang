@@ -638,10 +638,7 @@ assessment#:#errFormulaQuestion#:#A question de type Formule contient des inform
 assessment#:#errRecursionInResult#:#La formule contient une récursivité infinie.
 assessment#:#err_category_in_use#:#Au minimum une catégorie ne peut être supprimée. Une ou plusieurs unités de la catégorie sont encore utilisées.
 assessment#:#err_divider_too_big#:#The divider of one of the variables in this question is too big.
-<<<<<<< HEAD
-=======
 assessment#:#err_divider_too_big_specific#:#The divider of this variable is too big.###04 11 2025 new variable
->>>>>>> v10.3
 assessment#:#err_division#:#This value has to be smaller than the maximum range.
 assessment#:#err_duplicate_results#:#Vous avez utilisé une variable de résultat plusieurs fois, ce qui n'est pas autorisé dans le texte d'une question.
 assessment#:#err_no_formula#:#Vous devez entrer une formule
@@ -1223,10 +1220,7 @@ assessment#:#search_groups#:#Rechercher des groupes
 assessment#:#search_roles#:#Recherche des rôles
 assessment#:#search_term#:#Rechercher des termes
 assessment#:#select_at_least_one_feedback_type_and_trigger#:#Please Select at least one type of feedback and a trigger.###26 08 2024 new variable
-<<<<<<< HEAD
-=======
 assessment#:#select_at_least_one_lock_answer_type#:#Please select at least one type of answer lock.###04 11 2025 new variable
->>>>>>> v10.3
 assessment#:#select_gap#:#Selectionner trou
 assessment#:#select_max_one_item#:#Veuillez ne saisir qu'un objet
 assessment#:#select_one_user#:#Veuillez sélectionner au moins un utilisateur
@@ -9225,15 +9219,10 @@ etal#:#etal_date_series_edit#:#Date of Talk Series###31 10 2023 new variable
 etal#:#etal_delete_confirmation_msg#:#Are you sure that you want to delete the following talk?###26 08 2024 new variable
 etal#:#etal_edit#:#General###31 10 2023 new variable
 etal#:#etal_invalid_user#:#This user either does not exist or can't be invited.###31 10 2023 new variable
-<<<<<<< HEAD
-etal#:#etal_new#:#New Talk###31 10 2023 new variable
-etal#:#etal_open#:#Open Employee Talk###31 10 2023 new variable
-=======
 etal#:#etal_location#:#Location###04 11 2025 new variable
 etal#:#etal_new#:#New Talk###31 10 2023 new variable
 etal#:#etal_open#:#Open Employee Talk###31 10 2023 new variable
 etal#:#etal_recurrence#:#Recurrence###04 11 2025 new variable
->>>>>>> v10.3
 etal#:#etal_status_all#:#All###31 10 2023 new variable
 etal#:#etal_status_completed#:#Completed###31 10 2023 new variable
 etal#:#etal_status_pending#:#Pending###31 10 2023 new variable
@@ -11616,10 +11605,6 @@ mail#:#mail_nacc_title#:#Titre
 mail#:#mail_nacc_use_placeholder#:#Dans le champ 'Contenu du message', les caractères de remplacement suivants peuvent être utilisés
 mail#:#mail_nacc_user_fullname#:#User Full Name###26 08 2024 new variable
 mail#:#mail_nacc_user_login#:#User Login###26 08 2024 new variable
-<<<<<<< HEAD
-mail#:#mail_nacc_user_name#:#User Name###26 08 2024 new variable
-=======
->>>>>>> v10.3
 mail#:#mail_new_template#:#Nouveau Modèle de Texte
 mail#:#mail_no_mail_items#:#No unread mails.###26 08 2024 new variable
 mail#:#mail_no_permissions_write_smtp#:#Vous n'avez pas la permission d'envoyer des messages externes.

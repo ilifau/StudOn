@@ -20,15 +20,9 @@ declare(strict_types=1);
 use ILIAS\GlobalScreen\Services;
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\Refinery\Factory;
-<<<<<<< HEAD
-use ILIAS\components\WOPI\Embed\EmbeddedApplication;
-use ILIAS\components\WOPI\Embed\Renderer;
-use ILIAS\components\WOPI\Embed\EmbeddedApplicationGSProvider;
-=======
 use ILIAS\WOPI\Embed\EmbeddedApplication;
 use ILIAS\WOPI\Embed\Renderer;
 use ILIAS\WOPI\Embed\EmbeddedApplicationGSProvider;
->>>>>>> v10.3
 use ILIAS\FileDelivery\Token\DataSigner;
 
 /**

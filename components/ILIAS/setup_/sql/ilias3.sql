@@ -7531,11 +7531,8 @@ INSERT INTO `il_db_steps` VALUES ('ilResourceStorageDB90',1,'2023-12-12 16:39:39
 INSERT INTO `il_db_steps` VALUES ('ilResourceStorageDB90',2,'2023-12-12 16:39:39.994875','2023-12-12 16:39:40.021210');
 INSERT INTO `il_db_steps` VALUES ('ilResourceStorageDB90',3,'2023-12-12 16:39:40.021888','2023-12-12 16:39:40.027049');
 INSERT INTO `il_db_steps` VALUES ('ilResourceStorageDB90',4,'2023-12-12 16:39:40.027697','2023-12-12 16:39:40.032367');
-<<<<<<< HEAD
-=======
 INSERT INTO `il_db_steps` VALUES ('ilScorm2004DatabaseUpdateSteps',1,'2025-11-04 16:18:51.922597','2025-11-04 16:18:51.925280');
 INSERT INTO `il_db_steps` VALUES ('ilScorm2004DatabaseUpdateSteps',2,'2025-11-04 16:18:51.925565','2025-11-04 16:18:51.931400');
->>>>>>> v10.3
 INSERT INTO `il_db_steps` VALUES ('ilScormAiccDatabaseUpdateSteps',1,'2024-01-31 14:38:25.408514','2024-01-31 14:38:25.417677');
 INSERT INTO `il_db_steps` VALUES ('ilSessionDBUpdateSteps9',1,'2023-12-12 16:39:40.848750','2023-12-12 16:39:40.854713');
 INSERT INTO `il_db_steps` VALUES ('ilSessionDBUpdateSteps9',2,'2023-12-12 16:39:40.855241','2023-12-12 16:39:40.869825');
@@ -7626,10 +7623,7 @@ INSERT INTO `il_db_steps` VALUES ('ilWorkflowEngine9DBUpdateSteps',1,'2023-12-12
 INSERT INTO `il_db_steps` VALUES ('ilWorkflowEngine9DBUpdateSteps',2,'2023-12-12 16:39:41.555897','2023-12-12 16:39:41.595930');
 INSERT INTO `il_db_steps` VALUES ('ilWorkflowEngine9DBUpdateSteps',3,'2023-12-12 16:39:41.596587','2023-12-12 16:39:41.597086');
 INSERT INTO `il_db_steps` VALUES ('ilWorkflowEngine9DBUpdateSteps',4,'2023-12-12 16:39:41.597674','2023-12-12 16:39:41.601575');
-<<<<<<< HEAD
-=======
 INSERT INTO `il_db_steps` VALUES ('LSODropActivationDBUpdateSteps',1,'2025-11-04 16:18:51.939250','2025-11-04 16:18:51.943824');
->>>>>>> v10.3
 INSERT INTO `il_db_steps` VALUES ('MigrateCourseCertificateProviderDBUpdateSteps',1,'2025-07-18 06:53:07.346853','2025-07-18 06:53:07.347106');
 INSERT INTO `il_db_steps` VALUES ('MigrateExerciseCertificateProviderDBUpdateSteps',1,'2025-07-18 06:53:07.347534','2025-07-18 06:53:07.347742');
 
@@ -12279,27 +12273,6 @@ CREATE TABLE `loginname_history` (
 
 
 --
-<<<<<<< HEAD
--- Table structure for table `lso_activation`
---
-
-CREATE TABLE `lso_activation` (
-  `ref_id` int(11) NOT NULL,
-  `online` tinyint(4) NOT NULL DEFAULT 0,
-  `effective_online` tinyint(4) NOT NULL DEFAULT 0,
-  `activation_start_ts` int(11) DEFAULT NULL,
-  `activation_end_ts` int(11) DEFAULT NULL,
-  PRIMARY KEY (`ref_id`)
-) ;
-
---
--- Dumping data for table `lso_activation`
---
-
-
---
-=======
->>>>>>> v10.3
 -- Table structure for table `lso_settings`
 --
 

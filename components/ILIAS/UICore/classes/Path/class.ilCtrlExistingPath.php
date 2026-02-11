@@ -22,8 +22,6 @@ class ilCtrlExistingPath extends ilCtrlAbstractPath
         parent::__construct($structure);
 
         $this->cid_path = $cid_path;
-<<<<<<< HEAD
-=======
         $this->ensureValidCidPath();
     }
 
@@ -47,6 +45,5 @@ class ilCtrlExistingPath extends ilCtrlAbstractPath
                 throw new RuntimeException('ilCtrl: invalid ' . ilCtrlInterface::PARAM_CID_PATH . ' parameter requested.');
             }
         }
->>>>>>> v10.3
     }
 }

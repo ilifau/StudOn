@@ -18,11 +18,7 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD
-namespace ILIAS\components\WOPI\Embed;
-=======
 namespace ILIAS\WOPI\Embed;
->>>>>>> v10.3
 
 use ILIAS\UI\Component\Button\Bulky;
 use ILIAS\GlobalScreen\Scope\Layout\Provider\AbstractModificationProvider;
@@ -38,20 +34,12 @@ use ILIAS\UI\Component\Layout\Page\Page;
 use ILIAS\GlobalScreen\Scope\Layout\Builder\StandardPageBuilder;
 use ILIAS\Data\URI;
 use ILIAS\UI\Component\Layout\Page\Standard;
-<<<<<<< HEAD
-=======
 use ILIAS\GlobalScreen\Scope\Layout\Provider\ModificationProvider;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
->>>>>>> v10.3
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */
-<<<<<<< HEAD
-class EmbeddedApplicationGSProvider extends AbstractModificationProvider
-{
-    private const USE_METABAR = 1;
-=======
 class EmbeddedApplicationGSProvider extends AbstractModificationProvider implements ModificationProvider
 {
     /**
@@ -61,7 +49,6 @@ class EmbeddedApplicationGSProvider extends AbstractModificationProvider impleme
     /**
      * @var int
      */
->>>>>>> v10.3
     private const USE_MODE_INFO = 2;
     private int $display_mode = self::USE_MODE_INFO;
     public const EMBEDDED_APPLICATION = 'embedded_application';
@@ -71,11 +58,7 @@ class EmbeddedApplicationGSProvider extends AbstractModificationProvider impleme
     {
         parent::__construct($dic);
         global $DIC;
-<<<<<<< HEAD
-        $this->signal_generator = $DIC["ui.signal_generator"];
-=======
         $this->signal_generator = new SignalGenerator();
->>>>>>> v10.3
     }
 
     public function isInterestedInContexts(): ContextCollection

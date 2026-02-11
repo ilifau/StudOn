@@ -18,11 +18,7 @@
 
 declare(strict_types=1);
 
-<<<<<<< HEAD
-namespace ILIAS\components\WOPI\Discovery;
-=======
 namespace ILIAS\WOPI\Discovery;
->>>>>>> v10.3
 
 use ILIAS\Data\URI;
 
@@ -31,12 +27,9 @@ use ILIAS\Data\URI;
  */
 class ActionDBRepository implements ActionRepository
 {
-<<<<<<< HEAD
-=======
     /**
      * @var string
      */
->>>>>>> v10.3
     private const TABLE_NAME = 'wopi_action';
     private array $edit_actions = [ActionTarget::EDIT, ActionTarget::EMBED_EDIT];
     private array $view_actions = [ActionTarget::VIEW, ActionTarget::EMBED_VIEW];
@@ -238,11 +231,7 @@ class ActionDBRepository implements ActionRepository
             ['integer'],
             [$action->getId()]
         )->numRows() === 0) {
-<<<<<<< HEAD
-            $next_id = (int) $this->db->nextId(self::TABLE_NAME);
-=======
             $next_id = $this->db->nextId(self::TABLE_NAME);
->>>>>>> v10.3
             $this->db->insert(self::TABLE_NAME, [
                 'id' => ['integer', $next_id],
                 'name' => ['text', $action->getName()],

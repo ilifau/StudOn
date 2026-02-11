@@ -317,24 +317,14 @@ class ilObjUserFolderGUI extends ilObjectGUI
         }
 
         $list_of_users = null;
-<<<<<<< HEAD
-        if (!$this->access->checkAccess('read_users', '', USER_FOLDER_ID)
-            && $this->access->checkRbacOrPositionPermissionAccess(
-                'read_users',
-=======
         if (!$this->access->checkAccess('read', '', USER_FOLDER_ID)
             && $this->access->checkRbacOrPositionPermissionAccess(
                 'read',
->>>>>>> v10.3
                 \ilObjUserFolder::ORG_OP_EDIT_USER_ACCOUNTS,
                 USER_FOLDER_ID
             )) {
             $list_of_users = $this->access->filterUserIdsByRbacOrPositionOfCurrentUser(
-<<<<<<< HEAD
-                'read_users',
-=======
                 'read',
->>>>>>> v10.3
                 \ilObjUserFolder::ORG_OP_EDIT_USER_ACCOUNTS,
                 USER_FOLDER_ID,
                 \ilLocalUser::_getAllUserIds(\ilLocalUser::_getUserFolderId())
