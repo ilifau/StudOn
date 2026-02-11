@@ -208,6 +208,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         parent::afterUpdate();
     }
 
+    protected function getDidacticTemplateIdFromQuery(): int
+    {
+        return $this->std_request->getDidacticTemplateId();
+    }
 
     public function forwardToPageObject(): string
     {

@@ -176,7 +176,6 @@ class ilDataCollectionDataSet extends ilDataSet
                     $tableview->setTitle($a_rec['title']);
                     $tableview->setTableId((int) $new_table_id);
                     $tableview->setDescription($a_rec['description']);
-                    $tableview->setTableviewOrder((int) $a_rec['tableview_order']);
                     if (!is_array($a_rec['roles'])) {
                         $a_rec['roles'] = json_decode($a_rec['roles']);
                     }
@@ -214,6 +213,9 @@ class ilDataCollectionDataSet extends ilDataSet
                         $field->setDescription($a_rec['description']);
                         $field->setUnique($a_rec['is_unique'] === '1');
                         $field->doCreate();
+                        if ($datatype_id === ilDclDatatype::INPUTFORMAT_TEXT) {
+                            $field->setProperty(ilDclBaseFieldModel::PROP_LENGTH, 200)->store();
+                        }
                         $a_mapping->addMapping('components/ILIAS/DataCollection', 'il_dcl_field', $a_rec['id'], $field->getId());
                     }
                 }
@@ -375,6 +377,14 @@ class ilDataCollectionDataSet extends ilDataSet
                         ];
 
                         $name = $properties[$a_rec['datatype_prop_id']];
+                    }
+
+                    if ($name === 'text_area' && $a_rec['value'] === '1') {
+                        $field = ilDclCache::getFieldCache((int) $new_field_id);
+                        if ($field instanceof ilDclTextFieldModel && !$field->hasProperty('length')) {
+                            $field->setProperty(ilDclBaseFieldModel::PROP_LENGTH, 4000)->store();
+                            break;
+                        }
                     }
 
                     $prop->setName($name);
@@ -601,7 +611,6 @@ class ilDataCollectionDataSet extends ilDataSet
                     'title' => 'text',
                     'roles' => 'text',
                     'description' => 'text',
-                    'tableview_order' => 'integer',
                 ];
             case 'il_dcl_field':
                 return [
