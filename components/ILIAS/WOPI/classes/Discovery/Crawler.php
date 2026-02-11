@@ -18,7 +18,11 @@
 
 declare(strict_types=1);
 
+<<<<<<< HEAD
 namespace ILIAS\components\WOPI\Discovery;
+=======
+namespace ILIAS\WOPI\Discovery;
+>>>>>>> v10.3
 
 use ILIAS\Data\URI;
 
@@ -27,6 +31,12 @@ use ILIAS\Data\URI;
  */
 class Crawler
 {
+<<<<<<< HEAD
+=======
+    /**
+     * @var string
+     */
+>>>>>>> v10.3
     private const XPATH = '/wopi-discovery/net-zone/app';
     private array $crawl_actions = [];
     private ?string $content = null;
@@ -62,7 +72,7 @@ class Crawler
             $this->xml_app_elements = $this->discovery->xpath(self::XPATH);
 
             return is_array($this->xml_app_elements);
-        } catch (\Throwable $t) {
+        } catch (\Throwable) {
             return false;
         }
     }

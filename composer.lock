@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "b34fbb4ab36d1e16c1415254922433dd",
+=======
+    "content-hash": "5bcd79c6d7a8c153e3d2ea258f8c720c",
+>>>>>>> v10.3
     "packages": [
         {
             "name": "apereo/phpcas",
@@ -9250,6 +9254,7 @@
     "packages-dev": [
         {
             "name": "captainhook/captainhook",
+<<<<<<< HEAD
             "version": "5.26.1",
             "source": {
                 "type": "git",
@@ -9260,6 +9265,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/captainhook-git/captainhook/zipball/799be87f8f4ccb3af0bd0e7518695ac9b21e883e",
                 "reference": "799be87f8f4ccb3af0bd0e7518695ac9b21e883e",
+=======
+            "version": "5.25.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/captainhook-git/captainhook.git",
+                "reference": "f2278edde4b45af353861aae413fc3840515bb80"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/captainhook-git/captainhook/zipball/f2278edde4b45af353861aae413fc3840515bb80",
+                "reference": "f2278edde4b45af353861aae413fc3840515bb80",
+>>>>>>> v10.3
                 "shasum": ""
             },
             "require": {
@@ -9310,7 +9327,11 @@
                 }
             ],
             "description": "PHP git hook manager",
+<<<<<<< HEAD
             "homepage": "https://php.captainhook.info/",
+=======
+            "homepage": "http://php.captainhook.info/",
+>>>>>>> v10.3
             "keywords": [
                 "commit-msg",
                 "git",
@@ -9322,7 +9343,11 @@
             ],
             "support": {
                 "issues": "https://github.com/captainhook-git/captainhook/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/captainhook-git/captainhook/tree/5.26.1"
+=======
+                "source": "https://github.com/captainhook-git/captainhook/tree/5.25.11"
+>>>>>>> v10.3
             },
             "funding": [
                 {
@@ -9330,6 +9355,7 @@
                     "type": "github"
                 }
             ],
+<<<<<<< HEAD
             "time": "2025-11-19T21:03:15+00:00"
         },
         {
@@ -9444,6 +9470,9 @@
                 "source": "https://github.com/captainhook-git/hook-installer/tree/1.0.4"
             },
             "time": "2025-04-08T07:12:26+00:00"
+=======
+            "time": "2025-08-12T12:14:57+00:00"
+>>>>>>> v10.3
         },
         {
             "name": "captainhook/plugin-composer",
@@ -10027,6 +10056,7 @@
                 "wiki": "https://github.com/bovigo/vfsStream/wiki"
             },
             "time": "2024-08-29T18:43:31+00:00"
+<<<<<<< HEAD
         },
         {
             "name": "phar-io/composer-distributor",
@@ -10241,6 +10271,8 @@
                 "source": "https://github.com/phar-io/gnupg/tree/1.0.3"
             },
             "time": "2024-08-22T20:45:57+00:00"
+=======
+>>>>>>> v10.3
         },
         {
             "name": "phpstan/phpstan",
@@ -11296,6 +11328,10 @@
         "ext-imagick": "*",
         "ext-mbstring": "*"
     },
+<<<<<<< HEAD
     "platform-dev": {},
+=======
+    "platform-dev": [],
+>>>>>>> v10.3
     "plugin-api-version": "2.6.0"
 }

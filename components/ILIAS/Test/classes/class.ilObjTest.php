@@ -686,7 +686,19 @@ class ilObjTest extends ilObject
             return (new ilTestPageGUI('tst', $page_id))->showPage();
         }
 
-        return $this->getMainSettings()->getIntroductionSettings()->getIntroductionText();
+        return ilRTE::_replaceMediaObjectImageSrc(
+            $this->getMainSettings()->getIntroductionSettings()->getIntroductionText(),
+            1
+        );
+    }
+
+    private function cloneIntroduction(): ?int
+    {
+        $page_id = $this->getMainSettings()->getIntroductionSettings()->getIntroductionPageId();
+        if ($page_id === null) {
+            return null;
+        }
+        return $this->clonePage($page_id);
     }
 
     private function cloneIntroduction(): ?int
@@ -704,7 +716,28 @@ class ilObjTest extends ilObject
         if ($page_id !== null) {
             return (new ilTestPageGUI('tst', $page_id))->showPage();
         }
-        return $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksText();
+        return ilRTE::_replaceMediaObjectImageSrc(
+            $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksText(),
+            1
+        );
+    }
+
+    private function cloneConcludingRemarks(): ?int
+    {
+        $page_id = $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksPageId();
+        if ($page_id === null) {
+            return null;
+        }
+        return $this->clonePage($page_id);
+    }
+
+    private function clonePage(int $source_page_id): int
+    {
+        $page_object = new ilTestPage();
+        $page_object->setParentId($this->getId());
+        $new_page_id = $page_object->createPageWithNextId();
+        (new ilTestPage($source_page_id))->copy($new_page_id);
+        return $new_page_id;
     }
 
     private function cloneConcludingRemarks(): ?int

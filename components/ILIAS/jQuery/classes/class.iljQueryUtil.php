@@ -34,7 +34,11 @@ class iljQueryUtil
      *
      * @param \ilTemplate $a_tpl global $tpl is used when null
      */
+<<<<<<< HEAD
     public static function initjQuery(ilGlobalTemplateInterface $a_tpl = null): void
+=======
+    public static function initjQuery(?ilGlobalTemplateInterface $a_tpl = null): void
+>>>>>>> v10.3
     {
         global $DIC;
 
@@ -44,6 +48,7 @@ class iljQueryUtil
         }
 
         $a_tpl->addJavaScript(self::getLocaljQueryPath(), true, 0);
+<<<<<<< HEAD
         $a_tpl->addJavaScript('assets/js/jquery-migrate.min.js', true, 0);
     }
 
@@ -62,6 +67,8 @@ class iljQueryUtil
 
         // Important: jQueryUI has to be included before(!) the bootstrap JS file
         $a_tpl->addJavaScript(self::getLocaljQueryUIPath(), true, 0);
+=======
+>>>>>>> v10.3
     }
 
 
@@ -72,6 +79,7 @@ class iljQueryUtil
     {
         return "assets/js/jquery" . self::$min . ".js";
     }
+<<<<<<< HEAD
 
 
     /**
@@ -106,4 +114,6 @@ class iljQueryUtil
     {
         return "./assets/js/jquery.maphilight.min.js";
     }
+=======
+>>>>>>> v10.3
 }

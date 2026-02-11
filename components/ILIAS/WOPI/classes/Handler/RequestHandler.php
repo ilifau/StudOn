@@ -18,8 +18,14 @@
 
 declare(strict_types=1);
 
+<<<<<<< HEAD
 namespace ILIAS\components\WOPI\Handler;
+=======
+namespace ILIAS\WOPI\Handler;
+>>>>>>> v10.3
 
+use ILIAS\HTTP\Services;
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\FileDelivery\Token\DataSigner;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
@@ -29,18 +35,39 @@ use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
  */
 final class RequestHandler
 {
+    /**
+     * @var string
+     */
     public const WOPI_BASE_URL = '/wopi/index.php/';
+    /**
+     * @var string
+     */
     public const NAMESPACE_FILES = 'files';
-
-    // WOPI Header
-    private const HEADER_X_REQUEST_ID = 'X-Request-ID';
+    /**
+     * @var string
+     */
     private const HEADER_AUTHORIZATION = 'Authorization';
+    /**
+     * @var string
+     */
     private const HEADER_AUTHORIZATION_BEARER = 'Bearer';
+    /**
+     * @var string
+     */
     public const HEADER_X_WOPI_OVERRIDE = 'X-WOPI-Override';
+    /**
+     * @var string
+     */
     public const HEADER_X_WOPI_LOCK = 'X-WOPI-Lock';
+<<<<<<< HEAD
+=======
+    /**
+     * @var string
+     */
+>>>>>>> v10.3
     public const HEADER_X_WOPI_FILE_CONVERSION = 'X-WOPI-FileConversion';
 
-    private \ILIAS\HTTP\Services $http;
+    private Services $http;
     private \ILIAS\ResourceStorage\Services $irss;
     private DataSigner $data_signer;
     private ?int $token_user_id = null;
@@ -58,7 +85,7 @@ final class RequestHandler
         $this->saving_interval = (int) $DIC->settings()->get('saving_interval');
     }
 
-    protected function checkAuth(): void
+    private function checkAuth(): void
     {
         $auth = $this->http->request()->getHeader(self::HEADER_AUTHORIZATION)[0] ?? '';
         // spit and check bearer token
@@ -86,7 +113,11 @@ final class RequestHandler
             try {
                 $this->stakeholder = new WOPIStakeholderWrapper();
                 $this->stakeholder->init($stakeholder, $this->token_user_id);
+<<<<<<< HEAD
             } catch (\Throwable $t) {
+=======
+            } catch (\Throwable) {
+>>>>>>> v10.3
                 $this->stakeholder = new WOPIUnknownStakeholder($this->token_user_id);
             }
         }
@@ -114,11 +145,15 @@ final class RequestHandler
             }
 
             $resource_id = $this->irss->manage()->find($resource_id);
+<<<<<<< HEAD
             if (!$resource_id instanceof \ILIAS\ResourceStorage\Identification\ResourceIdentification) {
+=======
+            if (!$resource_id instanceof ResourceIdentification) {
+>>>>>>> v10.3
                 $this->http->close();
             }
             $resource = $this->irss->manage()->getResource($resource_id);
-            $current_revision = $resource->getCurrentRevisionIncludingDraft();
+            $current_revision = $this->editable ? $resource->getCurrentRevisionIncludingDraft() : $resource->getCurrentRevision();
 
             $method_override = $this->http->request()->getHeader(self::HEADER_X_WOPI_OVERRIDE)[0] ?? null;
             $is_file_convertion = (bool) ($this->http->request()->getHeader(
@@ -229,9 +264,7 @@ final class RequestHandler
             $message = $t->getMessage();
             // append simple stacktrace
             $trace = array_map(
-                static function ($trace): string {
-                    return $trace['file'] . ':' . $trace['line'];
-                },
+                static fn(array $trace): string => $trace['file'] . ':' . $trace['line'],
                 $t->getTrace()
             );
 

@@ -17,6 +17,8 @@
 declare(strict_types=0);
 
 
+declare(strict_types=0);
+
 /**
  * @author  Stefan Meyer <meyer@leifos.com>
  * @ingroup components\ILIASCourse

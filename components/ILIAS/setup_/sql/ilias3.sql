@@ -2117,7 +2117,7 @@ CREATE TABLE `cmi_interaction` (
   `id` varchar(255) DEFAULT NULL,
   `latency` varchar(20) DEFAULT NULL,
   `result` varchar(4000) DEFAULT NULL,
-  `c_timestamp` varchar(20) DEFAULT NULL,
+  `c_timestamp` varchar(40) DEFAULT NULL,
   `c_type` varchar(32) DEFAULT NULL,
   `weighting` double DEFAULT NULL,
   `learner_response` longtext DEFAULT NULL,
@@ -2977,7 +2977,7 @@ CREATE TABLE `cp_datamap` (
 
 CREATE TABLE `cp_dependency` (
   `cp_node_id` int(11) NOT NULL DEFAULT 0,
-  `resourceid` varchar(50) DEFAULT NULL,
+  `resourceid` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`cp_node_id`),
   KEY `i2_idx` (`resourceid`)
 ) ;
@@ -7528,6 +7528,11 @@ INSERT INTO `il_db_steps` VALUES ('ilResourceStorageDB90',1,'2023-12-12 16:39:39
 INSERT INTO `il_db_steps` VALUES ('ilResourceStorageDB90',2,'2023-12-12 16:39:39.994875','2023-12-12 16:39:40.021210');
 INSERT INTO `il_db_steps` VALUES ('ilResourceStorageDB90',3,'2023-12-12 16:39:40.021888','2023-12-12 16:39:40.027049');
 INSERT INTO `il_db_steps` VALUES ('ilResourceStorageDB90',4,'2023-12-12 16:39:40.027697','2023-12-12 16:39:40.032367');
+<<<<<<< HEAD
+=======
+INSERT INTO `il_db_steps` VALUES ('ilScorm2004DatabaseUpdateSteps',1,'2025-11-04 16:18:51.922597','2025-11-04 16:18:51.925280');
+INSERT INTO `il_db_steps` VALUES ('ilScorm2004DatabaseUpdateSteps',2,'2025-11-04 16:18:51.925565','2025-11-04 16:18:51.931400');
+>>>>>>> v10.3
 INSERT INTO `il_db_steps` VALUES ('ilScormAiccDatabaseUpdateSteps',1,'2024-01-31 14:38:25.408514','2024-01-31 14:38:25.417677');
 INSERT INTO `il_db_steps` VALUES ('ilSessionDBUpdateSteps9',1,'2023-12-12 16:39:40.848750','2023-12-12 16:39:40.854713');
 INSERT INTO `il_db_steps` VALUES ('ilSessionDBUpdateSteps9',2,'2023-12-12 16:39:40.855241','2023-12-12 16:39:40.869825');
@@ -7618,6 +7623,10 @@ INSERT INTO `il_db_steps` VALUES ('ilWorkflowEngine9DBUpdateSteps',1,'2023-12-12
 INSERT INTO `il_db_steps` VALUES ('ilWorkflowEngine9DBUpdateSteps',2,'2023-12-12 16:39:41.555897','2023-12-12 16:39:41.595930');
 INSERT INTO `il_db_steps` VALUES ('ilWorkflowEngine9DBUpdateSteps',3,'2023-12-12 16:39:41.596587','2023-12-12 16:39:41.597086');
 INSERT INTO `il_db_steps` VALUES ('ilWorkflowEngine9DBUpdateSteps',4,'2023-12-12 16:39:41.597674','2023-12-12 16:39:41.601575');
+<<<<<<< HEAD
+=======
+INSERT INTO `il_db_steps` VALUES ('LSODropActivationDBUpdateSteps',1,'2025-11-04 16:18:51.939250','2025-11-04 16:18:51.943824');
+>>>>>>> v10.3
 INSERT INTO `il_db_steps` VALUES ('MigrateCourseCertificateProviderDBUpdateSteps',1,'2025-07-18 06:53:07.346853','2025-07-18 06:53:07.347106');
 INSERT INTO `il_db_steps` VALUES ('MigrateExerciseCertificateProviderDBUpdateSteps',1,'2025-07-18 06:53:07.347534','2025-07-18 06:53:07.347742');
 
@@ -12265,6 +12274,7 @@ CREATE TABLE `loginname_history` (
 
 
 --
+<<<<<<< HEAD
 -- Table structure for table `lso_activation`
 --
 
@@ -12283,6 +12293,8 @@ CREATE TABLE `lso_activation` (
 
 
 --
+=======
+>>>>>>> v10.3
 -- Table structure for table `lso_settings`
 --
 
@@ -13899,7 +13911,11 @@ INSERT INTO `object_data` VALUES (34,'typ','lm','Learning module Object',-1,'200
 INSERT INTO `object_data` VALUES (35,'typ','notf','Note Folder Object',-1,'2002-12-21 00:04:00','2002-12-21 00:04:00','',NULL,NULL);
 INSERT INTO `object_data` VALUES (36,'typ','note','Note Object',-1,'2002-12-21 00:04:00','2002-12-21 00:04:00','',NULL,NULL);
 INSERT INTO `object_data` VALUES (37,'typ','frm','Forum object',-1,'2002-07-15 15:54:22','2003-08-15 12:36:40','',NULL,NULL);
+<<<<<<< HEAD
 INSERT INTO `object_data` VALUES (70,'lng','en','installed',-1,NULL,'2025-09-23 15:21:46','',NULL,NULL);
+=======
+INSERT INTO `object_data` VALUES (70,'lng','en','installed',-1,NULL,'2025-11-04 16:18:51','',NULL,NULL);
+>>>>>>> v10.3
 INSERT INTO `object_data` VALUES (71,'lng','de','not_installed',6,'2003-08-15 10:25:19','2015-12-22 16:29:24','',NULL,NULL);
 INSERT INTO `object_data` VALUES (72,'lng','es','not_installed',6,'2003-08-15 10:25:19','2003-08-15 10:25:19','',NULL,NULL);
 INSERT INTO `object_data` VALUES (73,'lng','it','not_installed',6,'2003-08-15 10:25:19','2003-08-15 10:25:19','',NULL,NULL);
@@ -20801,7 +20817,11 @@ INSERT INTO `settings` VALUES ('common','ilfrmnoti1','1');
 INSERT INTO `settings` VALUES ('common','ilfrmreadidx1','1');
 INSERT INTO `settings` VALUES ('common','ilfrmthri2','1');
 INSERT INTO `settings` VALUES ('common','ilGlobalTstPoolUsageSettingInitilisation','1');
+<<<<<<< HEAD
 INSERT INTO `settings` VALUES ('common','ilias_version','10.2.0');
+=======
+INSERT INTO `settings` VALUES ('common','ilias_version','10.3.0');
+>>>>>>> v10.3
 INSERT INTO `settings` VALUES ('common','ilinc_akclassvalues_required','1');
 INSERT INTO `settings` VALUES ('common','ilmpathix','1');
 INSERT INTO `settings` VALUES ('common','iloscmsgidx1','1');
@@ -25745,4 +25765,8 @@ CREATE TABLE `xmlvalue_seq` (
 
 
 
+<<<<<<< HEAD
 -- Dump completed on 2025-09-23 15:21:48
+=======
+-- Dump completed on 2025-11-04 16:18:52
+>>>>>>> v10.3

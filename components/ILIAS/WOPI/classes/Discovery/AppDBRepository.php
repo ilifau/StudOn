@@ -18,7 +18,11 @@
 
 declare(strict_types=1);
 
+<<<<<<< HEAD
 namespace ILIAS\components\WOPI\Discovery;
+=======
+namespace ILIAS\WOPI\Discovery;
+>>>>>>> v10.3
 
 use ILIAS\Data\URI;
 

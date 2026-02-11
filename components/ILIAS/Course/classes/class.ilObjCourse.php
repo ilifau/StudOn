@@ -1159,7 +1159,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             "sub_limitation_type,sub_start,sub_end,sub_fair,sub_auto_fill,sub_last_fill,sub_type,sub_ref_id,sub_password,sub_mem_limit," .
             "sub_max_members,sub_notify,view_mode,timing_mode,abo," .
             "latitude,longitude,location_zoom,enable_course_map,waiting_list,show_members,show_members_export, " .
-            "session_limit,session_prev,session_next, reg_ac_enabled, reg_ac, auto_notification, status_dt,".
+            "session_limit,session_prev,session_next, reg_ac_enabled, reg_ac, auto_notification, status_dt, " .
             "mail_members_type, tutorial_support_block) " .
             "VALUES( " .
             $this->db->quote($this->getId(), 'integer') . ", " .

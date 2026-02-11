@@ -22,10 +22,12 @@ use ILIAS\Setup\Metrics\Storage;
 use ILIAS\Setup\Agent;
 use ILIAS\Setup\Objective;
 use ILIAS\Refinery\Transformation;
-use ILIAS\Setup\Metrics;
 use ILIAS\Setup\Config;
 use ILIAS\Setup\ObjectiveCollection;
+<<<<<<< HEAD
 use ILIAS\BookingManager\Setup\AccessRBACOperationClonedObjective;
+=======
+>>>>>>> v10.3
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -42,12 +44,12 @@ class ilWOPISetupAgent implements Agent
         throw new \BadMethodCallException('Not implemented');
     }
 
-    public function getInstallObjective(Config $config = null): Objective
+    public function getInstallObjective(?Config $config = null): Objective
     {
         return new \ilDatabaseUpdateStepsExecutedObjective(new ilWOPIDB90());
     }
 
-    public function getUpdateObjective(Config $config = null): Objective
+    public function getUpdateObjective(?Config $config = null): Objective
     {
         return new ObjectiveCollection(
             "WOPI Updates",
@@ -55,8 +57,11 @@ class ilWOPISetupAgent implements Agent
             new ilDatabaseUpdateStepsExecutedObjective(new ilWOPIDB90()),
             new ilDatabaseUpdateStepsExecutedObjective(new ilWOPIDB100()),
         );
+<<<<<<< HEAD
 
         return new \ilDatabaseUpdateStepsExecutedObjective(new ilWOPIDB90());
+=======
+>>>>>>> v10.3
     }
 
     public function getBuildObjective(): Objective
