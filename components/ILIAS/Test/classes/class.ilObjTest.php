@@ -702,15 +702,6 @@ class ilObjTest extends ilObject
         return $this->clonePage($page_id);
     }
 
-    private function cloneIntroduction(): ?int
-    {
-        $page_id = $this->getMainSettings()->getIntroductionSettings()->getIntroductionPageId();
-        if ($page_id === null) {
-            return null;
-        }
-        return $this->clonePage($page_id);
-    }
-
     public function getFinalStatement(): string
     {
         $page_id = $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksPageId();
@@ -751,34 +742,6 @@ class ilObjTest extends ilObject
 
         return $page->showPage();
     }    
-
-    private function cloneConcludingRemarks(): ?int
-    {
-        $page_id = $this->getMainSettings()->getFinishingSettings()->getConcludingRemarksPageId();
-        if ($page_id === null) {
-            return null;
-        }
-        return $this->clonePage($page_id);
-    }
-
-    private function clonePage(int $source_page_id): int
-    {
-        $page_object = new ilTestPage();
-        $page_object->setParentId($this->getId());
-        $new_page_id = $page_object->createPageWithNextId();
-        (new ilTestPage($source_page_id))->copy($new_page_id);
-        return $new_page_id;
-    }
-
-    private function getPageContentFromPageId(int $page_id): ?string
-    {
-        $page = (new ilTestPageGUI('tst', $page_id));
-        if ($page->getPageObject()->getXMLContent() === '<PageObject></PageObject>') {
-            return null;
-        }
-
-        return $page->showPage();
-    }
 
     /**
     * Gets the database id of the additional test data

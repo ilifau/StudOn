@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5bcd79c6d7a8c153e3d2ea258f8c720c",
+    "content-hash": "57c43b251e956a02e85be0041acadd86",
     "packages": [
         {
             "name": "apereo/phpcas",
@@ -9250,16 +9250,16 @@
     "packages-dev": [
         {
             "name": "captainhook/captainhook",
-            "version": "5.25.11",
+            "version": "5.26.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/captainhook-git/captainhook.git",
-                "reference": "f2278edde4b45af353861aae413fc3840515bb80"
+                "reference": "799be87f8f4ccb3af0bd0e7518695ac9b21e883e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/captainhook-git/captainhook/zipball/f2278edde4b45af353861aae413fc3840515bb80",
-                "reference": "f2278edde4b45af353861aae413fc3840515bb80",
+                "url": "https://api.github.com/repos/captainhook-git/captainhook/zipball/799be87f8f4ccb3af0bd0e7518695ac9b21e883e",
+                "reference": "799be87f8f4ccb3af0bd0e7518695ac9b21e883e",
                 "shasum": ""
             },
             "require": {
@@ -9310,7 +9310,7 @@
                 }
             ],
             "description": "PHP git hook manager",
-            "homepage": "http://php.captainhook.info/",
+            "homepage": "https://php.captainhook.info/",
             "keywords": [
                 "commit-msg",
                 "git",
@@ -9322,7 +9322,7 @@
             ],
             "support": {
                 "issues": "https://github.com/captainhook-git/captainhook/issues",
-                "source": "https://github.com/captainhook-git/captainhook/tree/5.25.11"
+                "source": "https://github.com/captainhook-git/captainhook/tree/5.26.1"
             },
             "funding": [
                 {
@@ -9330,7 +9330,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-08-12T12:14:57+00:00"
+            "time": "2025-11-19T21:03:15+00:00"
         },
         {
             "name": "captainhook/plugin-composer",
