@@ -1,0 +1,85 @@
+@use "../../../010-settings/"as *;
+@use "../../../050-layout/basics" as *;
+@use "../../../050-layout/layout_breakpoints" as *;
+@use "../../../050-layout/standardpage/layout_standardpage-mobile" as *;
+@use "../../../030-tools/tool_multi-line-cap" as *;
+
+//== modeinfo
+
+$il-mode-info-color: $il-warning-color;
+$il-mode-info-border: 3px solid $il-mode-info-color;
+$il-mode-info-height: 35px;
+$il-mode-info-text-color: white;
+$il-mode-info-zindex: 1010;
+$il-mode-info-shadow: $il-shadow--large;
+
+.c-mode-info {
+  display: flex;
+  position: fixed;
+  z-index: $il-mode-info-zindex;
+  width: 100%;
+  align-items: start;
+  justify-content: center;
+  text-align: center;
+
+  &__pageframe {
+    border: $il-mode-info-border;
+    height: 100%;
+    position: fixed;
+    width: 100%;
+    pointer-events: none;
+    z-index: $il-mode-info-zindex;
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $il-mode-info-color;
+    border-bottom-left-radius: $il-border-radius-secondary-large;
+    border-bottom-right-radius: $il-border-radius-secondary-large;
+    -webkit-box-shadow: $il-mode-info-shadow;
+    -moz-box-shadow: $il-mode-info-shadow;
+    box-shadow: $il-mode-info-shadow;
+    padding: $il-padding-xs-vertical $il-padding-xxxlarge-horizontal;
+    gap: $il-padding-xxxlarge-horizontal;
+    min-height: $il-mode-info-height;
+    min-width: 20%;
+    max-width: 50%;
+
+    @media only screen and (max-width: $il-grid-float-breakpoint-max) {
+      border-radius: 0;
+      width: 100%;
+      min-height: $il-standard-page-small-header-height;
+      max-width: 100%;
+    }
+  }
+
+  &__label,
+  &__close {
+    color: $il-mode-info-text-color;
+    font-size: $il-font-size-large;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    position: relative;
+    a,
+    a:hover {
+      color: $il-mode-info-text-color;
+    }
+  }
+
+  &__label {
+    @include il-multi-line-cap-mixin(1);
+    flex-grow: 1;
+  }
+
+  &__mobile-padding {
+    @media only screen and (max-width: $il-grid-float-breakpoint-max) {
+        height: $il-standard-page-small-header-height;
+    }
+  }
+}
+
+

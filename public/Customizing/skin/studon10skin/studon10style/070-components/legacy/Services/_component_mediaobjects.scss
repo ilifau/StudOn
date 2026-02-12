@@ -1,0 +1,79 @@
+@use "../../../010-settings/" as *;
+@use "../../../030-tools/tool_focus-outline" as focus;
+
+/* Services/MediaObjects */
+
+.ilPlayerPreviewOverlayOuter {
+	position: relative;
+}
+
+.ilPlayerPreviewOverlay {
+	position: relative;
+	width: 320px;
+	height: auto;
+	cursor: pointer;
+}
+
+.ilPlayerPreviewDescription {
+	padding: 7px;
+	font-size: $il-font-size-small;
+	position: absolute;
+	width: 100%;
+	color: #f0f0f0;
+	/* margin-top: -240px; */
+	top: 0;
+	background: url("#{$il-background-images-path}media/black60.png");
+}
+
+.ilPlayerPreviewOverlay img {
+	cursor: pointer;
+	width: 100%;
+	height: 100%;
+}
+
+.ilPlayerPreviewDescriptionDownload {
+	float: right;
+}
+
+.ilPlayerPreviewDescriptionDownload a {
+	color: white;
+}
+
+.mejs-overlay-button {
+	background-image: url("#{$il-background-images-path}media/bigplay.svg");
+}
+
+.mejs__overlay-button,
+.ilPlayerPreviewPlayButton {
+	@include focus.il-focus();
+}
+
+.mejs__time-total {
+	@include focus.il-focus($il-focus-outline-inner-width: 1px, $il-focus-outline-outer-width: 1px);
+}
+
+.mejs__container {
+	@include focus.il-focus-border-only();
+}
+
+.mejs__button button,
+.ilPageVideo button,
+a.mejs__volume-slider {
+	@include focus.clear-focus-for-override();
+	@include focus.il-focus-border-only($il-focus-outline-inner-width: 1px, $il-focus-outline-outer-width: 1px);
+}
+
+.ilPlayerPreviewPlayButton {
+	background: url("#{$il-background-images-path}media/bigplay.svg") no-repeat scroll 0 0 transparent;
+	height: 100px;
+	left: 50%;
+	margin: -50px 0 0 -50px;
+	position: absolute;
+	top: 50%;
+	width: 100px;
+	cursor: pointer;
+}
+
+.ilPlayerPreviewOverlay:hover .ilPlayerPreviewPlayButton {
+	background-position: 0 -100px;
+}

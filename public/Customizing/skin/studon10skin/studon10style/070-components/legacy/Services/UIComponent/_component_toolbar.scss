@@ -1,0 +1,133 @@
+@use "sass:math";
+@use "../../../../010-settings/" as *;
+@use "../../../../030-tools/tool_focus-outline" as *;
+@use "../../../../030-tools/tool_clearfix" as *;
+@use "../../../../030-tools/legacy-bootstrap-mixins/nav-divider" as *;
+@use "../../../../030-tools/_tool_border-radius" as *;
+@use "../../../../030-tools/_tool_browser-prefixes" as *;
+@use "../../../../050-layout/layout_element-bar" as ebar;
+@use "../../../../050-layout/basics" as *;
+
+/* Services/UIComponent/Toolbar */
+
+// contains the former bootstrap nav and navbar
+
+//== Toolbar
+//
+//##
+$nav-link-padding: $il-padding-large-vertical $il-padding-large-horizontal !default;
+$nav-link-hover-bg: $il-main-darker-bg !default;
+$nav-disabled-link-color: $il-main-dark-bg !default;
+$nav-disabled-link-hover-color: $il-main-dark-bg !default;
+$cursor-disabled: not-allowed !default;
+
+$il-toolbar-margin: $il-margin-xlarge-horizontal !default;
+$il-toolbar-bg: $il-main-dark-bg !default;
+$il-toolbar-border: 1px solid $il-main-border-color !default;
+
+//
+// section based on bootstrap 3 - see /templates/default/Guidelines_SCSS-Coding.md
+// Navs
+//
+
+// Base class
+// --------------------------------------------------
+
+.nav {
+	padding-left: 0; // Override default ul/ol
+	margin-bottom: 0;
+	list-style: none;
+	@include clearfix;
+
+	>li {
+		position: relative;
+		display: block;
+
+		>a {
+			position: relative;
+			display: block;
+			padding: $nav-link-padding;
+
+			&:hover,
+			&:focus {
+				text-decoration: none;
+				background-color: $nav-link-hover-bg;
+			}
+		}
+
+		// Disabled state sets text to gray and nukes hover/tab effects
+		&.disabled>a {
+			color: $nav-disabled-link-color;
+
+			&:hover,
+			&:focus {
+				color: $nav-disabled-link-hover-color;
+				text-decoration: none;
+				cursor: $cursor-disabled;
+				background-color: transparent;
+			}
+		}
+	}
+
+	// Open dropdowns
+	.open>a {
+
+		&,
+		&:hover,
+		&:focus {
+			background-color: $nav-link-hover-bg;
+			border-color: $il-link-color;
+		}
+	}
+
+	// Nav dividers (deprecated with v3.0.1)
+	//
+	// This should have been removed in v3 with the dropping of `.nav-list`, but
+	// we missed it. We don't currently support this anywhere, but in the interest
+	// of maintaining backward compatibility in case you use it, it's deprecated.
+	.nav-divider {
+		@include nav-divider;
+	}
+
+	// Prevent IE8 from misplacing imgs
+	//
+	// See https://github.com/h5bp/html5-boilerplate/issues/984#issuecomment-3985989
+	>li>a>img {
+		max-width: none;
+	}
+}
+
+// Dropdowns
+// -------------------------
+
+// Specific dropdowns
+.nav-tabs .dropdown-menu {
+	// make dropdown border overlap tab border
+	margin-top: -1px;
+	// Remove the top rounded corners here since there is a hard edge above the menu
+	@include border-top-radius(0);
+}
+
+
+.c-toolbar {
+	padding: $il-padding-xlarge-vertical $il-padding-xlarge-horizontal;
+	background-color: $il-toolbar-bg;
+	margin-bottom: $il-padding-xxxlarge-vertical;
+	.ilToolbarSeparator {
+		border-left: $il-toolbar-border;
+		align-self: stretch;
+		margin-bottom: $il-padding-xlarge-vertical;
+	}
+	.navbar-form > .form-control {
+		width: auto;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	.navbar-form > .input-group  {
+		display: inline-table;
+		vertical-align: middle;
+		> .input-group-btn {
+			width: auto;
+		}
+	}
+}

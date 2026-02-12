@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template xmlns="http://www.w3.org" version="0.5" name="StudOn10Skin">
+  <style id="studon10style" name="StudOn10Style" image_directory="images" css_file="studon10style" sound_directory="sound" font_directory="fonts"/>
+</template>

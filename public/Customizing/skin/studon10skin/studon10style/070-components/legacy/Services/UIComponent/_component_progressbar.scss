@@ -1,0 +1,29 @@
+
+@use "../../../../010-settings/" as *;
+
+$progress-bar-info-bg: darken($il-main-color, 5%);
+$progress-bg: #bbb;
+
+.svy-progress-bar {
+	width: 50%;
+	margin: auto;
+}
+
+.progress {
+	height: 15px;
+	min-width: 100px;
+	background-color: lighten($il-neutral-color, 55%);
+}
+
+.progress-bar {
+	font-size: $il-font-size-small;
+	line-height: 15px;
+	min-width: 50px;
+	text-align: center;
+	color: $il-main-darker-bg;
+	background-color: $il-main-color;
+}
+
+.progress-bar-success {
+	background-color: $il-secondary-color;
+}

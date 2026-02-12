@@ -1,0 +1,12 @@
+@use "../../030-tools/tool_highlighted-box" as *;
+
+// section based on bootstrap 3
+//
+// Wells
+// --------------------------------------------------
+
+
+// Base class
+.well {
+    @include highlighted-box();
+}

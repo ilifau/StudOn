@@ -1,0 +1,173 @@
+////
+/// # ILIAS UI: Forms & Input fields
+/// General layout & design shared by all UI Framework forms and input fields.
+/// Forms can repeatedly nest elements. You SHOULD use children selectors (>) to target very specific structures.
+////
+
+/// ## Imports
+/// ### Modules included in SASS
+/// for managing lists with allowed layout locations
+@use 'sass:list';
+
+/// ### ILIAS modules
+@use "../../../010-settings" as *;
+@use "../../../010-settings/legacy-settings/legacy-settings_form" as *;
+
+@use "../../../030-tools/tool_focus-outline" as *;
+@use "../../../030-tools/tool_rem-conversion" as *;
+@use "../../../030-tools/_tool_browser-prefixes" as *;
+
+@use "../../../050-layout/basics" as *;
+@use "../../../050-layout/layout_form" as l-form;
+@use "../../../050-layout/layout_breakpoints" as brk;
+@use "../../../050-layout/basics" as l;
+
+//== Specific Inputs
+//
+//
+@use "_ui-component_tag.scss";
+@use "_ui-component_password.scss";
+@use "_ui-component_radio.scss";
+@use "_ui-component_multiselect.scss";
+@use "_ui-component_textarea.scss";
+@use "_ui-component_filter.scss";
+@use "_ui-component_duration.scss";
+@use "_ui-component_file.scss";
+@use "_ui-component_markdown.scss";
+@use "_ui-component_rating.scss";
+@use "ui-component_section";
+@use "_ui-component_numeric.scss";
+@use "_ui-component_optionalgroups.scss";
+
+
+/// general form container styling
+.c-form {
+  margin-bottom: l.$il-margin-xxlarge-vertical;
+
+  .c-form__header,
+  .c-form__footer {
+    display: grid;
+    grid-template-areas: "required actions";
+    grid-template-columns: 1fr auto;
+
+    .c-form__actions {
+      grid-area: actions;
+    }
+
+    .c-form__required {
+      grid-area: required;
+    }
+  }
+  .c-form__footer {
+    margin-top: l.$il-margin-xxlarge-vertical;
+  }
+}
+
+/// standard grid layout
+.c-input[data-il-ui-component] {
+  display: grid;
+  grid-template-columns: l-form.$form__label-column__width l-form.$form__field-column__width;
+  grid-template-areas:  "label field"
+                        "label error"
+                        "label help";
+
+  margin-top: l.$il-margin-xxlarge-vertical;
+  &:first-child {
+    margin-top: 0;
+  }
+
+  > label {
+    display: block;
+    grid-area: label;
+    padding-right: l.$il-margin-large-horizontal;
+
+    > .asterisk:first-child {
+      padding-left: $il-padding-base-vertical;
+    }
+  }
+
+  > .c-input__field {
+    grid-area: field;
+  }
+
+  > .c-input__help-byline {
+    grid-area: help;
+  }
+
+  > .c-input__error-msg {
+    grid-area: error;
+  }
+
+  @include brk.on-screen-size(small) {
+    grid-template-columns: 100%;
+    grid-template-areas:  "label"
+                          "field"
+                          "error"
+                          "help";
+    > .c-input__field {
+      margin-top: l.$il-margin-base-vertical;
+    }
+  }
+}
+
+/// styling shared by multiple input elements
+
+// hover/focus extends beyond box without pushing it
+.c-input:not([data-il-ui-component="section-field-input"]) {
+  &:hover {
+    box-shadow: 0px 0px 0px l.$il-margin-base-horizontal $il-main-dark-bg;
+    background-color: $il-main-dark-bg;
+  }
+  &:has(:focus-visible) {
+    box-shadow: 0px 0px 0px l.$il-margin-base-horizontal $il-highlight-bg;
+    background-color: $il-highlight-bg;
+  }
+}
+
+.c-form {
+  .c-form__error-msg {
+    margin-top: l.$il-margin-large-vertical;
+    margin-bottom: 0; // overrides alert default
+  }
+  .c-input[data-il-ui-component] input:invalid {
+    background-color: $il-alert-danger-bg;
+    border: 1px solid $il-alert-danger-border;
+  }
+  .c-input__help-byline {
+    margin-top: l.$il-margin-small-vertical;
+    font-size: $il-font-size-small;
+  }
+  .c-input__error-msg {
+    margin-top: l.$il-margin-small-vertical;
+    &:first-child {
+      margin-top: 0;
+    }
+    margin-bottom: 0; // overrides alert default
+  }
+  .c-input[data-il-ui-component]:not([data-il-ui-component="section-field-input"]):has(> .c-input__error-msg) {
+    border-inline-start: 6px solid $il-alert-danger-border;
+    padding-left: l.$il-padding-base-horizontal;
+  }
+  [data-il-ui-component="textarea-field-input"] .c-input__field textarea,
+  [data-il-ui-component="markdown-field-input"] .c-input__field .c-field-markdown textarea {
+		height: l-form.$il-textarea-height;
+		max-width: 100%; // otherwise textarea size can be dragged beyond mainspacekeeper in many browers
+  }
+  [data-il-ui-component="text-field-input"] .c-input__field input,
+  [data-il-ui-component="password-field-input"] .c-input__field .c-field-password input,
+  [data-il-ui-component="textarea-field-input"] .c-input__field textarea,
+  [data-il-ui-component="markdown-field-input"] > .c-input__field .c-field-markdown textarea,
+  [data-il-ui-component="url-field-input"] .c-input__field input {
+    width: 100%;
+    padding: l.$il-padding-base-vertical l.$il-padding-base-horizontal;
+    font-size: $il-standard-form-font-size;
+  }
+  [data-il-ui-component="datetime-field-input"] .c-input__field input,
+  [data-il-ui-component="numeric-field-input"] .c-input__field input {
+    padding: l.$il-padding-base-vertical l.$il-padding-base-horizontal;
+    font-size: $il-standard-form-font-size;
+  }
+  [data-il-ui-component="select-field-input"] .c-input__field select {
+    padding: l.$il-padding-base-vertical l.$il-padding-base-horizontal;
+  }
+}

@@ -1,0 +1,67 @@
+@use "../../../010-settings/" as *;
+@use "../../../050-layout/basics" as *;
+@use "../../../050-layout/_layout_breakpoints" as brk;
+@use "../../../060-elements/_elements_typography" as e-typo;
+
+//== Footer
+
+.c-maincontrols__footer {
+	background-color: $il-footer-bg-color;
+	font-size: $il-font-size-base;
+	color: $il-footer-color;
+	border-top: $il-main-border;
+
+	& a,
+	& .btn-link {
+		color: $il-footer-link-color;
+		&:hover,
+		&:focus {
+			color: $il-footer-link-hover-color;
+		}
+	}
+
+	& .btn-link {
+		min-height: 0;
+		border: none;
+		padding: 0;
+	}
+
+	&-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		column-gap: $il-footer-gap-base;
+		padding: $il-padding-small-horizontal 0;
+	}
+
+	&-grid__item {
+		height: auto;
+		padding: $il-padding-large-vertical $il-padding-large-horizontal;
+		--l-bar__element__margin-bottom: 0;
+	}
+
+	& ul {
+		@include e-typo.list-unstyled;
+		margin: 0;
+	}
+
+	& ul li {
+		padding: $il-padding-large-vertical 0 0 0;
+	}
+
+	@include brk.on-screen-size(large) {
+		font-size: $il-font-size-small;
+		&-grid {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+
+	@include brk.on-screen-size(small) {
+		font-size: $il-font-size-base;
+		&-grid {
+			grid-template-columns: repeat(1, 1fr);
+		}
+		& ul li {
+			padding: $il-padding-large-vertical 0 0 0;
+		}
+	}
+}

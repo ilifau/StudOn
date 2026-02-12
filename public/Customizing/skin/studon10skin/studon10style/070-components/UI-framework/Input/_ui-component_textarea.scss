@@ -1,0 +1,11 @@
+@use "../../../010-settings/" as *;
+@use "../../../010-settings/legacy-settings/legacy-settings_form" as *;
+@use "../../../050-layout/layout_form" as l-form;
+
+@use "sass:math";
+
+.c-form {
+	[data-il-ui-component="textarea-field-input"] .c-input__field textarea {
+
+	}
+}
