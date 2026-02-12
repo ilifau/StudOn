@@ -334,7 +334,7 @@ class fauStudySearchGUI extends BaseGUI implements \ilCtrlBaseClassInterface
                             $this->factory->link()->standard($record['title'], $record['link'])
                         )
                         ->withLeadIcon($record['leadicon'])
-                        ->withCheckbox(self::CHECKBOX_NAME, $record['moveable'] ? $record['ref_id'] : null)
+                        //->withCheckbox(self::CHECKBOX_NAME, $record['moveable'] ? $record['ref_id'] : null)
                     );   
                         
                     $row = $row

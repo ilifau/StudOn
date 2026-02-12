@@ -1,0 +1,6 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<template xmlns = "http://www.w3.org" version = "$Id$" name = "ILIAS">
+	<style 	name = "StudOn10Style"
+			id = "studon10style"
+			image_directory = "images"/>
+</template>

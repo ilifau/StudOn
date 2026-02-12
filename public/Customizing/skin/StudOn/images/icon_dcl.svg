@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px"
+	 height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#F2F2F2;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{fill:#FFFFFF;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:#BAE1FF;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="Ebene_2">
+</g>
+<g id="Layer_1">
+	<g>
+		<rect x="3.8" y="5.8" class="st0" width="24.4" height="20.5"/>
+		<line class="st1" x1="28.2" y1="19.8" x2="3.8" y2="19.8"/>
+		<line class="st1" x1="3.8" y1="12.8" x2="28.2" y2="12.8"/>
+		<line class="st1" x1="9.8" y1="26.3" x2="9.8" y2="5.8"/>
+		<rect x="9.8" y="5.8" class="st2" width="18.4" height="7"/>
+		<rect x="3.8" y="5.8" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 13.625 18.5)" class="st2" width="6" height="7"/>
+	</g>
+</g>
+</svg>

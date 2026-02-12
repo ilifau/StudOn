@@ -104,8 +104,6 @@ class ilSAHSPresentationGUI implements ilCtrlBaseClassInterface
             $next_class !== "illearningprogressgui") {
             switch ($type) {
                 case "scorm2004":
-                    // @todo: removed deprecated ilCtrl methods, this needs inspection by a maintainer.
-                    // $this->ctrl->setCmdClass("ilscorm13playergui");
 
                     $this->ctrl->saveParameterByClass(ilSCORM13PlayerGUI::class, "ref_id");
                     $this->ctrl->redirectByClass(ilSCORM13PlayerGUI::class, $this->ctrl->getCmd());
@@ -115,8 +113,6 @@ class ilSAHSPresentationGUI implements ilCtrlBaseClassInterface
                     break;
 
                 case "scorm":
-                    // @todo: removed deprecated ilCtrl methods, this needs inspection by a maintainer.
-                    // $this->ctrl->setCmdClass("ilscormpresentationgui");
 
                     $this->ctrl->saveParameterByClass(ilSCORMPresentationGUI::class, "ref_id");
                     $this->ctrl->redirectByClass(ilSCORMPresentationGUI::class, $this->ctrl->getCmd());

@@ -228,10 +228,6 @@ class ilAccordionGUI
             $tpl = $DIC["tpl"];
         }
 
-        ilYuiUtil::initConnection($tpl);
-
-        iljQueryUtil::initjQueryUI($tpl);
-
         foreach (self::getLocalJavascriptFiles() as $f) {
             $tpl->addJavaScript($f, true, 3);
         }

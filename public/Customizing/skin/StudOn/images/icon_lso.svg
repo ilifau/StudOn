@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+<style type="text/css">
+	.st0{clip-path:url(#SVGID_1_);}
+	.st1{fill:#FFB3BA;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{clip-path:url(#SVGID_2_);}
+	.st3{fill:#BAE1FF;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st4{clip-path:url(#SVGID_3_);}
+	.st5{fill:#BAFFC9;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<title>icon_lrnng-sqnce-bjct_v3</title>
+<g>
+	<g>
+		<defs>
+			<polygon id="SVGID_714_" points="3.4,17.3 16,31.2 28.6,17.3 			"/>
+		</defs>
+		<use xlink:href="#SVGID_714_"  style="overflow:visible;fill:#FFB3BA;"/>
+		<clipPath id="SVGID_1_">
+			<use xlink:href="#SVGID_714_"  style="overflow:visible;"/>
+		</clipPath>
+		<g class="st0">
+			<rect x="3.4" y="17.3" class="st1" width="25.3" height="13.9"/>
+		</g>
+		
+			<use xlink:href="#SVGID_714_"  style="overflow:visible;fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;"/>
+	</g>
+	<g>
+		<defs>
+			<polygon id="SVGID_713_" points="3.4,9 16,23 28.6,9 			"/>
+		</defs>
+		<use xlink:href="#SVGID_713_"  style="overflow:visible;fill:#BAE1FF;"/>
+		<clipPath id="SVGID_2_">
+			<use xlink:href="#SVGID_713_"  style="overflow:visible;"/>
+		</clipPath>
+		<g class="st2">
+			<rect x="3.4" y="9" class="st3" width="25.3" height="13.9"/>
+		</g>
+		
+			<use xlink:href="#SVGID_713_"  style="overflow:visible;fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;"/>
+	</g>
+	<g>
+		<defs>
+			<polygon id="SVGID_712_" points="3.4,0.8 16,14.7 28.6,0.8 			"/>
+		</defs>
+		<use xlink:href="#SVGID_712_"  style="overflow:visible;fill:#BAFFC9;"/>
+		<clipPath id="SVGID_3_">
+			<use xlink:href="#SVGID_712_"  style="overflow:visible;"/>
+		</clipPath>
+		<g class="st4">
+			<rect x="3.4" y="0.8" class="st5" width="25.3" height="13.9"/>
+		</g>
+		
+			<use xlink:href="#SVGID_712_"  style="overflow:visible;fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;"/>
+	</g>
+</g>
+</svg>

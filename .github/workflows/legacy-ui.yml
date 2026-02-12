@@ -1,8 +1,8 @@
 name: legacy-ui-checks
 on:
   schedule:
-    # Run every 12 hours
-    - cron: '0 3,15 * * *'
+    # Run every 24 hours
+    - cron: '0 3 * * *'
   workflow_dispatch:
     inputs:
       branch:
@@ -38,6 +38,13 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, gd, json, readline, xsl, xml, mysql
           tools: composer:v2
           coverage: none
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: "Install npm version 11"
+        run: sudo npm install -g npm@11
 
       - name: Install Node dependencies
         run: npm clean-install --omit-dev --ignore-scripts
