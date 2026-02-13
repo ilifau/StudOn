@@ -59,7 +59,6 @@ trait ObjGroupHelper
 
     public function getSubscriptionFairDisplay($a_relative)
     {
-        require_once('Services/Calendar/classes/class.ilDatePresentation.php');
         $relative = ilDatePresentation::useRelativeDates();
         ilDatePresentation::setUseRelativeDates($a_relative);
         $fairdate = ilDatePresentation::formatDate(new ilDateTime($this->getSubscriptionFair(), IL_CAL_UNIX));

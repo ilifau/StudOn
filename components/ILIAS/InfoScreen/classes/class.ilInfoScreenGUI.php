@@ -22,6 +22,9 @@ use ILIAS\InfoScreen\StandardGUIRequest;
 use ILIAS\MetaData\Services\ServicesInterface as Metadata;
 use ILIAS\Export\ExportHandler\Factory as ExportServices;
 use ILIAS\Data\Factory as DataFactory;
+// fau: fauService
+use FAU\Tools\Cust;
+// fau.
 
 /**
  * Class ilInfoScreenGUI
@@ -363,52 +366,56 @@ class ilInfoScreenGUI
 
         // output
 
-        // general section
-        $this->addSection($lng->txt("meta_general"));
-        if ($langs != "") {	// language
-            $this->addProperty(
-                $lng->txt("language"),
-                $this->html->escape($langs)
-            );
-        }
-        if ($keywords != "") {	// keywords
-            $this->addProperty(
-                $lng->txt("keywords"),
-                $this->html->escape($keywords)
-            );
-        }
-        if ($author != "") {		// author
-            $this->addProperty(
-                $lng->txt("author"),
-                $this->html->escape($author)
-            );
-        }
-        if ($learning_time != "") {		// typical learning time
-            $this->addProperty(
-                $lng->txt("meta_typical_learning_time"),
-                $this->html->escape($learning_time)
-            );
-        }
+        // fau: infoScreen - show "general" section only if relevant data exist
+        if ($keywords != '' or $author != '' or $copyright != '' or $learning_time != '') {
+            // general section
+            $this->addSection($lng->txt("meta_general"));
+            if ($langs != "") {	// language
+                $this->addProperty(
+                    $lng->txt("language"),
+                    $this->html->escape($langs)
+                );
+            }
+            if ($keywords != "") {	// keywords
+                $this->addProperty(
+                    $lng->txt("keywords"),
+                    $this->html->escape($keywords)
+                );
+            }
+            if ($author != "") {		// author
+                $this->addProperty(
+                    $lng->txt("author"),
+                    $this->html->escape($author)
+                );
+            }
+            if ($learning_time != "") {		// typical learning time
+                $this->addProperty(
+                    $lng->txt("meta_typical_learning_time"),
+                    $this->html->escape($learning_time)
+                );
+            }
 
-        // licence and use section
-        if ($copyright === '' && $public_access_export === '') {
-            return;
-        }
-        $this->addSection($lng->txt('meta_info_licence_section'));
+            // licence and use section
+            if ($copyright === '' && $public_access_export === '') {
+                return;
+            }
+            $this->addSection($lng->txt('meta_info_licence_section'));
 
-        if ($public_access_export !== '') {		// public access export
-            $this->addProperty(
-                $lng->txt('export_info_public_access'),
-                $public_access_export
-            );
-        }
+            if ($public_access_export !== '') {		// public access export
+                $this->addProperty(
+                    $lng->txt('export_info_public_access'),
+                    $public_access_export
+                );
+            }
 
-        if ($copyright !== '') {		// copyright
-            $this->addProperty(
-                $lng->txt("meta_copyright"),
-                $copyright
-            );
+            if ($copyright !== '') {		// copyright
+                $this->addProperty(
+                    $lng->txt("meta_copyright"),
+                    $copyright
+                );
+            }
         }
+        // fau.
     }
 
     protected function buildPublicAccessExportButton(int $rep_obj_id, int $obj_id): string
@@ -474,12 +481,14 @@ class ilInfoScreenGUI
             $ref_id = $a_obj->getRefId();
 
             if ($ref_id) {
-                if (ilECSServerSettings::getInstance()->activeServerExists()) {
+                // fau: infoScreen - don't show the object twice
+                /* if (ilECSServerSettings::getInstance()->activeServerExists()) {
                     $this->addProperty(
                         $lng->txt("object_id"),
                         (string) $a_obj->getId()
                     );
-                }
+                }*/
+                // fau.
 
                 $this->tpl->setPermanentLink($type, $ref_id);
 
@@ -512,6 +521,15 @@ class ilInfoScreenGUI
             }
         }
 
+        // fau: infoScreen - show the ref_id (and the obj_id and import id to admins)
+        $this->addProperty($this->lng->txt('studon_ref_id'), (string) $a_obj->getRefId());
+        if (Cust::administrationIsVisible()) {
+            $this->addProperty($this->lng->txt('object_id'), (string) $a_obj->getId());
+            if ($import_id = $a_obj->getImportId()) {
+                $this->addProperty($this->lng->txt('fau_import_id'), (string) $import_id);
+            }
+        }
+        // fau.
 
         // creation date
         if ($ilAccess->checkAccess("write", "", $ref_id) ||
