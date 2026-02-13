@@ -20,9 +20,13 @@ declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+// fau: fauService  
 use FAU\Ilias\Helper\ContainerHelper;
 use FAU\Ilias\Helper\ObjGroupGUIHelper;
+use FAU\Tools\Cust;
+// fau.
 use ILIAS\News\Service as News;
+
 
 /**
  * Class ilObjGroupGUI
@@ -40,6 +44,12 @@ use ILIAS\News\Service as News;
  * @ilCtrl_Calls ilObjGroupGUI: ilLTIProviderObjectSettingGUI
  * @ilCtrl_Calls ilObjGroupGUI: ilObjectMetaDataGUI, ilObjectTranslationGUI, ilPropertyFormGUI
  *
+ * fau: studyCond - added ilStudyCondGUI to call structure
+ * @ilCtrl_Calls ilObjGroupGUI: ilStudyCondGUI
+ * fau.
+ * fau: objectSub - added ilPropertyFormGUI to call structure
+ * @ilCtrl_Calls ilObjGroupGUI: ilPropertyFormGUI
+ * fau.
  *
  *
  * @extends ilObjectGUI
@@ -142,6 +152,25 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
 
+// fau: studyCond - add command class
+            case 'ilstudycondgui':
+                $cond_gui = new ilStudyCondGUI($this, 'edit');
+                $this->ctrl->setReturn($this, 'edit');
+                $this->ctrl->forwardCommand($cond_gui);
+                $this->setSubTabs('settings');
+                $this->tabs_gui->setTabActive('settings');
+                break;
+// fau.
+
+// fau: objectSub - object selection in properties form
+            case "ilpropertyformgui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('settings');
+                $this->ctrl->setReturn($this, "updateRegistrationRefId");
+                $form = $this->initForm();
+                $this->ctrl->forwardCommand($form);
+                break;
+// fau.
 
             case 'ilgroupregistrationgui':
                 $this->ctrl->setReturn($this, '');
@@ -277,13 +306,15 @@ class ilObjGroupGUI extends ilContainerGUI
                 $agreement = new ilMemberAgreementGUI($this->object->getRefId());
                 $this->ctrl->forwardCommand($agreement);
                 break;
-
-            case 'ilexportgui':
+ 
+            // fau: campoExport - call container export gui    
+            case 'ilcontainerexportgui':
                 $this->tabs_gui->setTabActive('export');
-                $exp = new ilExportGUI($this);
+                $exp = new ilContainerExportGUI($this);
                 $exp->addFormat('xml');
                 $this->ctrl->forwardCommand($exp);
                 break;
+            // fau.    
 
             case "ilcommonactiondispatchergui":
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
@@ -410,7 +441,9 @@ class ilObjGroupGUI extends ilContainerGUI
                     if (!$this->rbacsystem->checkAccess('join', $this->object->getRefId())) {
                         $this->ctrl->redirect($this, "infoScreen");
                     } else {	// no read -> show registration
-                        $this->ctrl->redirectByClass("ilGroupRegistrationGUI", "show");
+                        // fau: changeSub - provide the original command for registration gui
+                        $this->ctrl->redirectByClass("ilGroupRegistrationGUI", ($cmd == 'join' || $cmd == 'view') ? 'show' : $cmd);
+                        // fau.
                     }
                 }
                 if (!$cmd) {
@@ -583,7 +616,8 @@ class ilObjGroupGUI extends ilContainerGUI
             // Additional checks: both tile and session limitation activated (not supported)
             if (
                 $form->getInput('sl') == "1" &&
-                $form->getInput('list_presentation') == "tile") {
+                $form->getInput('list_presentation') == "tile"
+            ) {
                 $form->setValuesByPost();
                 $this->tpl->setOnScreenMessage('failure', $this->lng->txt('crs_tile_and_session_limit_not_supported'));
                 $this->editObject($form);
@@ -630,15 +664,19 @@ class ilObjGroupGUI extends ilContainerGUI
                 $grp_period->getEnd()
             );
 
-            $reg = $form->getItemByPostVar("reg");
-            if ($reg->getStart() instanceof ilDateTime && $reg->getEnd() instanceof ilDateTime) {
-                $this->object->enableUnlimitedRegistration(false);
-            } else {
-                $this->object->enableUnlimitedRegistration(true);
-            }
+            // fau: paraSub - don't set registration for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $reg = $form->getItemByPostVar("reg");
+                if ($reg->getStart() instanceof ilDateTime && $reg->getEnd() instanceof ilDateTime) {
+                    $this->object->enableUnlimitedRegistration(false);
+                } else {
+                    $this->object->enableUnlimitedRegistration(true);
+                }
 
-            $this->object->setRegistrationStart($reg->getStart());
-            $this->object->setRegistrationEnd($reg->getEnd());
+                $this->object->setRegistrationStart($reg->getStart());
+                $this->object->setRegistrationEnd($reg->getEnd());
+            }
+            // fau.
 
             $cancel_end = $form->getItemByPostVar("cancel_end");
             $this->object->setCancellationEnd($cancel_end->getDate());
@@ -652,14 +690,14 @@ class ilObjGroupGUI extends ilContainerGUI
                     /** @var ilDateTime $sub_fair */
                     $sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
                     $this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
-            }
+                }
 
                 switch ((string) $_POST['waiting_list']) {
                     case 'auto':
                         $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
-                    $this->object->enableWaitingList(true);
-                    $this->object->setWaitingListAutoFill(true);
-                    break;
+                        $this->object->enableWaitingList(true);
+                        $this->object->setWaitingListAutoFill(true);
+                        break;
 
                     case 'auto_manu':
                         $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
@@ -669,18 +707,25 @@ class ilObjGroupGUI extends ilContainerGUI
 
                     case 'manu':
                         $this->object->setSubscriptionAutoFill(false);
-                    $this->object->enableWaitingList(true);
-                    $this->object->setWaitingListAutoFill(false);
-                    break;
+                        $this->object->enableWaitingList(true);
+                        $this->object->setWaitingListAutoFill(false);
+                        break;
 
-                default:
+                    default:
                         $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
-                    $this->object->enableWaitingList(false);
-                    $this->object->setWaitingListAutoFill(false);
-                    break;
-            }
+                        $this->object->enableWaitingList(false);
+                        $this->object->setWaitingListAutoFill(false);
+                        break;
+                }
             }
             // fau.
+
+            // activation
+            $property_online = $this->object->getObjectProperties()->getPropertyIsOnline();
+            $online = $form->getInput('activation_online') ?
+                $property_online->withOnline() :
+                $property_online->withOffline();
+            $this->object->getObjectProperties()->storePropertyIsOnline($online);
 
             // update object settings
             $this->object->update();
@@ -692,15 +737,24 @@ class ilObjGroupGUI extends ilContainerGUI
             if (!$this->object->validate()) {
                 $this->tpl->setOnScreenMessage('failure', $ilErr->getMessage());
                 $form->setValuesByPost();
+                $item = $form->getItemByPostVar('registration_membership_limited');
+                $item_min = $item->getItemByPostVar('registration_min_members');
+                $item_min->setValue($this->object->getMinMembers() ?: '');
+                //$form->setItems([$item]);
+                $item_max = $item->getItemByPostVar('registration_max_members');
+                $item_max->setValue($this->object->getMaxMembers() ?: '');
+                // $form->setItems([$item]);
                 $this->editObject($form);
                 return;
             }
             // fau.
 
             // fau: fairSub - check and correct the fair time
-            if ($this->object->getSubscriptionFair() >= 0
+            if (
+                $this->object->getSubscriptionFair() >= 0
                 && $this->object->isMembershipLimited()
-                && $this->object->getMaxMembers() > 0) {
+                && $this->object->getMaxMembers() > 0
+            ) {
                 $fair_message = '';
                 if (!$this->object->isRegistrationUnlimited()) {
                     $registration_start = $this->object->getRegistrationStart()->get(IL_CAL_UNIX);
@@ -759,7 +813,8 @@ class ilObjGroupGUI extends ilContainerGUI
             // fau: fairSub - trigger autofill if max members are increased
             if (
                 (!$old_autofill || $old_max_members < (int) $this->object->getMaxMembers()) &&
-                $this->object->hasWaitingListAutoFill()) {
+                $this->object->hasWaitingListAutoFill()
+            ) {
                 $this->object->handleAutoFill();
             }
             // fau.
@@ -816,7 +871,14 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->tpl->setContent($confirm->getHTML());
         } else {
             $this->tpl->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
-            $this->ctrl->redirect($this, 'edit');
+            // fau: studyCond - eventually redirect to condition settings after update
+            if ($this->update_for_memcond) {
+                $this->ctrl->redirectByClass('ilstudycondgui');
+            } else {
+                $this->ctrl->redirect($this, 'edit');
+            }
+            // fau.
+
         }
     }
 
@@ -838,6 +900,14 @@ class ilObjGroupGUI extends ilContainerGUI
 
         return $subs;
     }
+
+    // fau: studyCond - new function updateForMemcond
+    public function updateForMemcondObject()
+    {
+        $this->update_for_memcond = true;
+        $this->updateObject();
+    }
+    // fau.    
 
     /**
     * Edit Map Settings
@@ -992,7 +1062,9 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->show_tracking = $olp->isActive();
         }
 
-        if ($this->show_tracking) {
+        // fau: setPassedFlag - always query the LP status - is needed for the new 'passed' column
+        if (true) {
+        // fau.
             $completed = ilLPStatusWrapper::_lookupCompletedForObject($this->object->getId());
             $in_progress = ilLPStatusWrapper::_lookupInProgressForObject($this->object->getId());
             $failed = ilLPStatusWrapper::_lookupFailedForObject($this->object->getId());
@@ -1026,7 +1098,9 @@ class ilObjGroupGUI extends ilContainerGUI
                 $tmp_data[$field] = $value;
             }
 
-            if ($this->show_tracking) {
+            // fau: setPassedFlag - always provide the LP status - is needed for the new 'passed' column
+            if (true) {
+                // fau.
                 $tmp_data['progress'] = '';
                 if (in_array($usr_id, $completed)) {
                     $tmp_data['progress'] = ilLPStatus::LP_STATUS_COMPLETED;
@@ -1226,34 +1300,36 @@ class ilObjGroupGUI extends ilContainerGUI
 
 
         if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
-            $this->tabs_gui->addTarget(
+            // fau: campoExport - set specific export tab for container
+  /*          $this->tabs_gui->addTarget(
                 'export',
-                $this->ctrl->getLinkTargetByClass('ilexportgui', ''),
+                $this->ctrl->getLinkTargetByClass('ilcontainerexportgui', ''),
                 'export',
-                'ilexportgui'
-            );
+                'ilcontainerexportgui'
+            );*/
+            // fau.
         }
 
         // parent tabs (all container: edit_permission, clipboard, trash
         parent::getTabs();
 
-        if ($this->access->checkAccess('join', '', $this->object->getRefId()) and
-            !$this->object->members_obj->isAssigned($this->user->getId())) {
-            if (ilGroupWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
+        // fau: changeSub - simlified checks for join / edit request tab
+        if ($this->access->checkAccess('join', 'join', $this->object->getRefId())) {
+            // no specific command: initial join
                 $this->tabs_gui->addTab(
-                    'leave',
-                    $this->lng->txt('membership_leave'),
-                    $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', 'show', '')
+                'join',
+                $this->lng->txt('join'),
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
                 );
-            } else {
-                $this->tabs_gui->addTarget(
-                    "join",
-                    $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show"),
-                    'show',
-                    ""
+        } elseif ($this->access->checkAccess('join', 'leaveWaitList', $this->object->getRefId())) {
+            // leave command: edit membership request
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('mem_edit_request'),
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "leaveWaitList")
                 );
             }
-        }
+        // fau.
         if ($this->access->checkAccess('leave', '', $this->object->getRefId()) and
             $this->object->members_obj->isMember($this->user->getId())) {
             $this->tabs_gui->addTarget(
@@ -1290,13 +1366,14 @@ class ilObjGroupGUI extends ilContainerGUI
         $info->enablePrivateNotes();
         $info->enableLearningProgress(true);
 
-        $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'grp', $this->object->getId());
-        $record_gui->setInfoObject($info);
-        $record_gui->parse();
+        // fau: infoScreen - don't show metadata section
+        // $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'grp', $this->object->getId());
+        // $record_gui->setInfoObject($info);
+        // $record_gui->parse();
 
         // meta data
-        $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
-
+        // $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
+        // fau.
 
         // support contacts
         $parts = ilParticipants::getInstance($this->object->getRefId());
@@ -1320,29 +1397,68 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->lng->txt('group_registration_mode'),
                 $this->lng->txt('grp_reg_deac_info_screen')
             );
-        } else {
+        }
+        // fau: objectSub - add info about subscription in separate object
+        elseif ($this->object->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
+            $info->addProperty(
+                $this->lng->txt('group_registration_mode'),
+                $this->lng->txt('sub_separate_object')
+            );
+        }
+        // fau.
+        else {
+            // fau: studyCond - generate text for suscription with condition
+            global $DIC;
+            if ($DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->object->getId())) {
+                $ctext = $DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId());
             switch ($this->object->getRegistrationType()) {
+                    case ilGroupConstants::GRP_REGISTRATION_DIRECT:
+                        $registration_text = sprintf($this->lng->txt('group_req_direct_studycond'), $ctext);
+                        break;
+                    case ilGroupConstants::GRP_REGISTRATION_PASSWORD:
+                        $registration_text = sprintf($this->lng->txt('grp_pass_request_studycond'), $ctext);
+                        break;
+
+                    default:
+                        $registration_text = "";
+                        break;
+                }
+                $ilUser = $DIC->user();
+                if (!$DIC->fau()->cond()->soft()->check($this->object->getId(), $ilUser->getId())) {
+                    $registration_type = $this->object->getRegistrationType();
+                } else {
+                    $registration_type = ilGroupConstants::GRP_REGISTRATION_REQUEST;
+                }
+            } else {
+                $registration_text = "";
+                $registration_type = $this->object->getRegistrationType();
+            }
+            // fau.
+
+            // fau: studyCond - use registration type and text from above
+            switch ($registration_type) {
                 case ilGroupConstants::GRP_REGISTRATION_DIRECT:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_direct_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_direct_info_screen')
                     );
                     break;
 
                 case ilGroupConstants::GRP_REGISTRATION_REQUEST:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_req_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_req_info_screen')
                     );
                     break;
 
                 case ilGroupConstants::GRP_REGISTRATION_PASSWORD:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_passwd_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_passwd_info_screen')
                     );
                     break;
             }
+            // fau.
             /*
             $info->addProperty($this->lng->txt('group_registration_time'),
                 ilDatePresentation::formatPeriod(
@@ -1558,6 +1674,13 @@ class ilObjGroupGUI extends ilContainerGUI
 
         $form = $this->initDidacticTemplate($form);
 
+        // fau: showUpperPermissions - show info about rights of group admins
+        $grp_type = $form->getItemByPostVar('didactic_type');
+        if ($grp_type instanceof ilRadioGroupInputGUI) {
+            $grp_type->setInfo($this->lng->txt('grp_type_info_' . $a_mode));
+        }
+        // fau.
+
         if ($a_mode == 'edit') {
             // group period
             $cdur = new ilDateDurationInputGUI($this->lng->txt('grp_period'), 'period');
@@ -1588,11 +1711,39 @@ class ilObjGroupGUI extends ilContainerGUI
             // Group registration ############################################################
             $pres = new ilFormSectionHeaderGUI();
             $pres->setTitle($this->lng->txt('grp_setting_header_registration'));
+            // fau: paraSub - disable the reg type for parallel groups
+            if ($this->object->isParallelGroup()) {
+                // show info below form section header
+                $pres->setInfo($this->lng->txt('fau_sub_group_by_course_group_settings'));
+            }
+            // fau.
+
             $form->addItem($pres);
 
             // Registration type
             $reg_type = new ilRadioGroupInputGUI($this->lng->txt('group_registration_mode'), 'registration_type');
             $reg_type->setValue((string) $this->object->getRegistrationType());
+
+            // fau: objectSub - add option for reference to subscription object
+            $opt_obj = new ilRadioOption($this->lng->txt('sub_separate_object'), (string) ilGroupConstants::GRP_REGISTRATION_OBJECT);
+            $opt_obj->setInfo($this->lng->txt('sub_separate_object_info'));
+            $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
+            $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
+            $rep_sel->setClickableTypes(array('xcos'));
+            $rep_sel->setRequired(true);
+            $rep_sel->setParentForm($form);
+            $opt_obj->addSubItem($rep_sel);
+            if ($ref_id = $this->object->getRegistrationRefId()) {
+                $rep_sel->setValue($ref_id);
+                $locator = new ilLocatorGUI();
+                $locator->setTextOnly(true);
+                $locator->addContextItems($ref_id);
+                $rep_loc = new ilNonEditableValueGUI();
+                $rep_loc->setValue($locator->getHTML());
+                $opt_obj->addSubItem($rep_loc);
+            }
+            $reg_type->addOption($opt_obj);
+            // fau.    
 
             $opt_dir = new ilRadioOption(
                 $this->lng->txt('grp_reg_direct'),
@@ -1619,12 +1770,19 @@ class ilObjGroupGUI extends ilContainerGUI
             $opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'), (string) ilGroupConstants::GRP_REGISTRATION_DEACTIVATED, $this->lng->txt('grp_reg_disabled_info'));
             $reg_type->addOption($opt_deact);
 
+            // fau: paraSub - disable the reg type for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($reg_type);
+            }
+
+            // fau: courseGroupRegCodes - customize use of registration codes
+            if (Cust::get('grp_enable_reg_codes')) {
             // Registration codes
             $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
             $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
             $reg_code->setValue('1');
             $reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
-            $form->addItem($reg_type);
+
 
             // Registration codes
             if (!$this->object->getRegistrationAccessCode()) {
@@ -1639,6 +1797,8 @@ class ilObjGroupGUI extends ilContainerGUI
             $link->setHTML('<span class="small">' . $val . '</span>');
             $reg_code->addSubItem($link);
             $form->addItem($reg_code);
+            }
+            // fau.
 
             // time limit
             $this->lng->loadLanguageModule('dateplaner');
@@ -1646,7 +1806,11 @@ class ilObjGroupGUI extends ilContainerGUI
             $dur->setShowTime(true);
             $dur->setStart($this->object->getRegistrationStart());
             $dur->setEnd($this->object->getRegistrationEnd());
+            // fau: paraSub disable setting of time limit for parallel groups
+            if (!$this->object->isParallelGroup()) {
             $form->addItem($dur);
+            }
+            // fau.
 
             // cancellation limit
             $cancel = new ilDateTimeInputGUI($this->lng->txt('grp_cancellation_end'), 'cancel_end');
@@ -1710,7 +1874,7 @@ class ilObjGroupGUI extends ilContainerGUI
             }
 
 
-            $fair_date->setInfo($fair_date_info . (ilCust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
+            $fair_date->setInfo($fair_date_info . (Cust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
 
             if (!$this->object->isParallelGroup()) {
                 $lim->addSubItem($fair_date);
@@ -1740,6 +1904,27 @@ class ilObjGroupGUI extends ilContainerGUI
 
             $form->addItem($lim);
 
+
+            // fau: studyCond - add studycond setting
+ /*           global $DIC;
+            $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/FAU/Cond/GUI");
+            if ($a_mode == 'edit') {
+                $stpl->setCurrentBlock('condition');
+                $stpl->setVariable("CONDITION_TEXT", nl2br($DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId())));
+                $stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilstudycondgui', ''));
+                $stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
+                $stpl->parseCurrentBlock();
+                $stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info"));
+            } else {
+                $stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info_create"));
+            }
+            $studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
+            $studycond->setHtml($stpl->get());
+
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($studycond);
+            }*/
+            // fau.
 
             // Group presentation
             $parent_membership_ref_id = 0;
@@ -2020,6 +2205,11 @@ class ilObjGroupGUI extends ilContainerGUI
         if (!ilCourseUserData::_checkRequired($this->user->getId(), $this->object->getId())) {
             return false;
         }
+
+        // fau: memberExport - notify first access
+        ilMemberAgreement::_setFirstAccessTime($this->user->getId(), $this->object->getId());
+        // fau.
+
         return true;
     }
 
