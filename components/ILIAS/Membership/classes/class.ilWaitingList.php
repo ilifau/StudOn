@@ -177,7 +177,29 @@ abstract class ilWaitingList
 
     // fau.    
     
-    
+    // fau: regLog - new function raiseUpdateEvent
+    /**
+     * Raise an updateWaitingList event for a user
+     */
+    protected function raiseUpdateEvent($a_usr_id) 
+    {
+        global $DIC;
+        
+        $ilAppEventHandler = $DIC['ilAppEventHandler'];
+        $ilLog = $DIC['ilLog'];
+        
+        $ilLog->write(__METHOD__ . ': Raise new event: Services/Membership updateWaitingList');
+        $ilAppEventHandler->raise(
+            "Services/Membership",
+            'updateWaitingList',
+            array(
+                'obj_id' => $this->getObjId(),
+                'usr_id' => $a_usr_id,
+            )
+        );
+    }
+    // fau.
+        
     public function removeFromList(int $a_usr_id): bool
     {
         $query = "DELETE FROM crs_waiting_list " .

@@ -29,6 +29,10 @@ declare(strict_types=1);
  */
 abstract class ilParticipants
 {
+    // fau: fauService
+    use FAU\Ilias\Helper\ParticipantsHelper;
+    // fau.
+    
     public const IL_CRS_ADMIN = 1;
     public const IL_CRS_TUTOR = 3;
     public const IL_CRS_MEMBER = 2;
@@ -630,6 +634,24 @@ abstract class ilParticipants
     {
         return $this->roles;
     }
+
+   /**
+     * fau: heavySub - get the actual role id of a role type
+     * fau: campoSync - get role id for role matching
+     * fau: campoSub - get role id for assigning members
+     * ExamAdmin plugin: get local role for registration code creation
+     *
+     * needed to check membership and count of members
+     * to avoid overbooking by heavy traffic
+     *
+     * @param 	integer		role type constant, e.g. IL_GRP_MEMBER
+     * @return	integer		actual role id
+     */
+    public function getRoleId($a_role_type)
+    {
+        return $this->role_data[$a_role_type];
+    }
+    // fau.    
 
     /**
      * Get assigned roles
