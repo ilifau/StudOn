@@ -204,7 +204,7 @@ class fauHardRestrictionsGUI extends BaseGUI implements \ilCtrlBaseClassInterfac
      */
     protected function getCheckedRestrictionsHTML(array $restrictionsTexts, $filter='fitting'): string
     {
-        $tpl = new ilTemplate("tpl.filtered_restrictions.html", true, true, "Services/FAU/Cond/GUI");
+        $tpl = new ilTemplate("tpl.filtered_restrictions.html", true, true, "components/ILIAS/FAU/Cond/GUI");
 
         foreach ($restrictionsTexts as $text) {
             $tpl->setCurrentBlock('item');

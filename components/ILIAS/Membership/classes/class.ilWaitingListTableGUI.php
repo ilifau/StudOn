@@ -178,6 +178,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 'txt' => $this->lng->txt('login')
             ];
         }
+
         // fau: campoCheck - add restrictions column
         global $DIC;
         if ($DIC->fau()->cond()->hard()->hasObjectRestrictions($this->getRepositoryObject()->getId())) {
@@ -272,6 +273,50 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     );
                     $this->tpl->parseCurrentBlock();
                     break;
+
+                // fau: paraSub - fill module column
+                case 'module':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) $a_set['module']);
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: campoCheck - fill restrictions column
+                case 'restrictions_passed':
+                    if(!isset($a_set['module_id']))
+                        $a_set['module_id'] = null;
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) fauHardRestrictionsGUI::getInstance()->getResultModalLink(
+                        $a_set['restrictions'], $a_set['module_id']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                    // fau.
+
+                // fau: paraSub - fill parallel groups column
+                case 'groups':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['groups']),
+                        $this->lng->txt('fau_selected_groups_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: paraSub - fill submission message
+                case 'subject':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br(is_null($a_set['subject']) ? '' : $a_set['subject']),
+                        $this->lng->txt('fau_sub_message_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
                 // fau: userData - format table output of studydata and educations
                 case 'studydata':
                     $this->tpl->setCurrentBlock('custom_fields');

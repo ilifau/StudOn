@@ -140,7 +140,7 @@ class ilStudyCondGUI
             $this->dic->toolbar()->addButtonInstance($back);
         }
 
-        $tpl = new ilTemplate("tpl.list_study_cond.html", true, true, "Services/FAU/Cond/GUI");
+        $tpl = new ilTemplate("tpl.list_study_cond.html", true, true, "components/ILIAS/FAU/Cond/GUI");
         $tpl->setVariable("CONDITIONS_HEADLINE", $this->getHeadline());
         $tpl->setVariable("CONDITIONS_COMBI_INFO", $this->getInfo());
         $tpl->setVariable("CONDITIONS_CONTENT", $a_html);

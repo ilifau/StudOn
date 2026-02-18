@@ -56,6 +56,15 @@ abstract class ilRegistrationGUI
     protected Registration $registration;
     // fau.
     
+    // fau: studyCond - class variables
+    protected bool $matches_studycond = true;
+    protected string $describe_studycond = "";
+    protected bool $has_studycond = false;
+    // fau.
+
+    // fau: campoCheck - class vatiable
+    protected bool $matches_restrictions = true;
+    // fau.    
     
     public function __construct(ilObject $a_container)
     {
@@ -92,6 +101,14 @@ abstract class ilRegistrationGUI
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
     }
+
+    // fau: studyCond - adjust the subscription type based on soft conditions
+    // fau: campoCheck - adjust the subscription type based on soft conditions
+    protected function adjustSubType()
+    {
+        // implement in child classes
+    }
+    // fau.
 
     public function getContainer(): ilObject
     {
@@ -163,6 +180,65 @@ abstract class ilRegistrationGUI
      * Get title for property form
      */
     abstract protected function getFormTitle(): string;
+
+    // fau: campoCheck - function to add campo properties to the registration form
+    // fau: campoSub - function to add campo properties to the registration form
+    protected function fillCampo()
+    {
+        global $DIC;
+        $hardRestrictions = $DIC->fau()->cond()->hard();
+        $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
+        $this->matches_restrictions = $hardRestrictions->getCheckPassed();
+        $this->adjustSubType();
+
+        // info about matching restrictions
+        $message = $hardRestrictions->getCheckMessage();
+        if ($hardRestrictions->hasObjectRestrictions($this->obj_id)) {
+            $hardRestrictionsGUI = fauHardRestrictionsGUI::getInstance();
+            $message .= '<p>' . $hardRestrictionsGUI->getResultModalLink(
+                    $hardRestrictions,
+                    null,
+                    $this->lng->txt('fau_details_link')
+                ) . '</p>';
+        }
+        if (!$this->matches_restrictions) {
+            $message .= '<p><strong>' . $this->lng->txt(empty($hardRestrictions->getCheckedFittingModules()) ?
+                    'fau_check_failed_but_request_without_modules' :
+                    'fau_check_failed_but_request_with_modules'
+                ) . '</strong></p>';
+        }
+        elseif ($this->has_studycond && !$this->matches_studycond) {
+            $message .= '<p><strong>' . $this->lng->txt('fau_check_success_but_soft_failed') . '</strong></p>';
+        }
+        $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
+        $item->setValue($message);
+        $this->form->addItem($item);
+
+        // info about courses of study
+        if (!empty($hardRestrictions->getCheckedUserCosTexts())) {
+            $item = new ilNonEditableValueGUI($this->lng->txt('fau_your_courses_of_study'), '', true);
+            $item->setValue($hardRestrictions->getCheckedTermTitle() . "\n" . $hardRestrictions->getCheckedUserCosTexts());
+            $this->form->addItem($item);
+        }
+
+        // module selection
+        if (!empty($hardRestrictions->getCheckedModuleSelectOptions())) {
+            /** @var ilWaitingList $list */
+            $list = $this->getWaitingList();
+            $value = $list->getModuleId($DIC->user()->getId());
+            $item = new ilSelectInputGUI($this->lng->txt('fau_module'), 'selected_module');
+            $item->setOptions($hardRestrictions->getCheckedModuleSelectOptions());
+            $item->setDisabledValues($hardRestrictions->getCheckedModuleSelectDisabledIds());
+            $item->setRequired(true);
+            $item->setInfo($this->lng->txt('fau_sub_select_module_info') . '<br>'
+                . $this->lng->txt('fau_sub_select_module_info2'));
+            if (!empty($value)) {
+                $item->setValue($value);
+            }
+            $this->form->addItem($item);
+        }
+    }
+    // fau.    
 
     /**
      * fill informations
@@ -454,6 +530,11 @@ abstract class ilRegistrationGUI
         $this->form = new ilPropertyFormGUI();
         $this->form->setFormAction($this->ctrl->getFormAction($this, 'join'));
         $this->form->setTitle($this->getFormTitle());
+
+        // fau: campoCheck - add the campo registration check and module selection
+        // this may disable the registration
+        $this->fillCampo();
+        // fau.
 
         $this->fillInformations();
         $this->fillMembershipLimitation();

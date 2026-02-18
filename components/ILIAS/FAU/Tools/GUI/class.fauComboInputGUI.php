@@ -171,8 +171,8 @@ class fauComboInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     protected function enableComboBox()
     {
         global $DIC;
-        $DIC->globalScreen()->layout()->meta()->addCss('./Services/FAU/Tools/GUI/js/combobox/dist/combobox.css');
-        $DIC->globalScreen()->layout()->meta()->addJs('./Services/FAU/Tools/GUI/js/combobox/dist/combobox.js');
+        $DIC->globalScreen()->layout()->meta()->addCss('./omponents/ILIAS/FAU/Tools/GUI/js/combobox/dist/combobox.css');
+        $DIC->globalScreen()->layout()->meta()->addJs('./components/ILIAS/FAU/Tools/GUI/js/combobox/dist/combobox.js');
     }
 
 

@@ -266,6 +266,25 @@ class ilMemberExport
                     break;
             }
         }
+
+        // fau: campoSub - add module column
+        // fau: campoCheck - add restrictions column
+        if ($this->settings->enabled('module') || $this->settings->enabled('restrictions')) {
+            global $DIC;
+            $object = ilObjectFactory::getInstanceByRefId($this->getRefId());
+            $restriction_obj_ids = $DIC->fau()->ilias()->objects()->getParallelObjectIds($object);
+            $restriction_module_ids = $DIC->fau()->user()->repo()->getSelectedModuleIdsOfMembers($restriction_obj_ids);
+            $hardRestrictions = $DIC->fau()->cond()->hard();
+
+            if ($this->settings->enabled('module')) {
+                $this->addCol($this->lng->txt('fau_selected_module'), $row, $col++);
+            }
+            if ($this->settings->enabled('restrictions')) {
+                $this->addCol($this->lng->txt('fau_rest_hard_restrictions'), $row, $col++);
+            }
+        }
+        // fau.
+
         $this->addRow();
         // Add user data
         foreach ($this->user_ids as $usr_id) {
@@ -420,6 +439,44 @@ class ilMemberExport
                         break;
                 }
             }
+
+            // fau: campoCheck - add restrictions data
+            if ($this->settings->enabled('module')) {
+                $module_id = 0;
+                $module_label = '';
+                if ($this->members->isMember($usr_id)) {
+                    $module_id = $restriction_module_ids[$usr_id] ?? null;
+                }
+                elseif (in_array($this->user_course_data[$usr_id]['role'], ['waiting_list','subscriber'])) {
+                    $module_id = $this->user_course_data[$usr_id]['module_id'] ?? null;
+                }
+                foreach($DIC->fau()->study()->repo()->getModules([(int) $module_id]) as $module) {
+                    $module_label =  $module->getLabel();
+                }
+                $this->addCol($module_label, $row, $col++);
+            }
+            // fau.
+
+            // fau: campoCheck - add restrictions data
+            if ($this->settings->enabled('restrictions')) {
+                if ($this->members->isMember($usr_id) || in_array($this->user_course_data[$usr_id]['role'], ['waiting_list','subscriber'])
+                ) {
+                    $hardRestrictions->checkObject($this->getObjId(), $usr_id);
+                    if ($this->members->isMember($usr_id)) {
+                        $module_id = $restriction_module_ids[$usr_id] ?? null;
+                    }
+                    else {
+                        $module_id = $this->user_course_data[$usr_id]['module_id'] ?? null;
+                    }
+                    $this->addCol('['. $hardRestrictions->getCheckInfo() . '] '
+                        . $hardRestrictions->getCheckDetails(false, (int) $module_id), $row, $col++);
+                }
+                else {
+                    $this->addCol('', $row, $col++);
+                }
+            }
+            // fau.
+
             $this->addRow();
         }
     }
@@ -446,7 +503,22 @@ class ilMemberExport
         }
         if ($this->settings->enabled('waiting_list')) {
             $waiting_list = new ilCourseWaitingList($this->obj_id);
-            $this->user_ids = array_merge($waiting_list->getUserIds(), $this->user_ids);
+            // fau: fairSub#107 - set correct user status in export
+            $this->user_ids = array_merge($tmp_ids = $waiting_list->getUserIds(), $this->user_ids);
+            foreach ($tmp_ids as $tmp_id) {
+                if ($waiting_list->isToConfirm($tmp_id)) {
+                    $this->readCourseData(array($tmp_id), 'subscriber');
+                } else {
+                    $this->readCourseData(array($tmp_id), 'waiting_list');
+                }
+                // fau: memberExport - get subscription message
+                $this->user_course_data[$tmp_id]['submessage'] = $waiting_list->getSubject($tmp_id);
+                // fau.
+                // fau: campoCheck - get the module id
+                $this->user_course_data[$tmp_id]['module_id'] = $waiting_list->getModuleId($tmp_id);
+                // fau.
+            }
+            // fau.
         }
         $this->user_ids = $this->filterUsers($this->user_ids);
 

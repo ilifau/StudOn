@@ -199,6 +199,19 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                     );
                     $this->tpl->parseCurrentBlock();
                     break;
+
+                // fau: campoSub: show module column
+                case 'module':
+                    $this->addModuleCell($a_set);
+                    break;
+                // fau.
+
+                // fau: campoCheck: show restrictions column
+                case 'restrictions_passed':
+                    $this->addRestrictionsCell($a_set);
+                    break;
+                // fau.
+
                 // fau: userData - format table output of studydata, educations, memberships and waitinglists
                 case 'studydata':
                     $this->tpl->setCurrentBlock('custom_fields');
@@ -315,6 +328,11 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         unset($additional_fields['roles']);
         unset($additional_fields['org_units']);
 
+        // fau: campoSub - don't query for module by default
+        // fau: campoCheck - don't query for restrictions by default
+        unset($additional_fields["module"]);
+        unset($additional_fields["restrictions_passed"]);
+        // fau.
 
 
         $udf_ids = $usr_data_fields = $odf_ids = array();
@@ -447,6 +465,12 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                 }
             }
         }
+
+        // fau: campoSub - add the data for the module column
+        // fau: campoCheck - add the data for the restrictions column
+        $this->addCampoData($a_user_data);
+        // fau.
+
         // always sort by name first
         $a_user_data = ilArrayUtil::sortArray(
             $a_user_data,
