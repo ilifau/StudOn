@@ -230,13 +230,14 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
                 $this->ctrl->forwardCommand($did);
                 break;
 
-            case 'ilexportgui':
+            // fau: campoExport - call container export gui
+            case 'ilcontainerexportgui':
                 $this->prepareOutput();
-                $this->tabs_gui->setTabActive('export');
-                $exp = new ilExportGUI($this);
-                $exp->addFormat('xml');
+                $this->tabs_gui->activateTab('export');
+                $exp = new ilContainerExportGUI($this);
                 $this->ctrl->forwardCommand($exp);
                 break;
+            // fau.
 
             case 'ilobjecttranslationgui':
                 $this->checkPermissionBool("write");
@@ -547,12 +548,14 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
         }
 
         if ($ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+            // fau: campoExport - set specific export tab for container
             $this->tabs_gui->addTarget(
                 'export',
-                $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class, 'ilexportgui'], ''),
+                $this->ctrl->getLinkTargetByClass('ilcontainerexportgui', ''),
                 'export',
-                'ilexportgui'
+                'ilcontainerexportgui'
             );
+            // fau.
         }
 
         // parent tabs (all container: edit_permission, clipboard, trash

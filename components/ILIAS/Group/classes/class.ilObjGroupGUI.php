@@ -1301,12 +1301,12 @@ class ilObjGroupGUI extends ilContainerGUI
 
         if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
             // fau: campoExport - set specific export tab for container
-  /*          $this->tabs_gui->addTarget(
+            $this->tabs_gui->addTarget(
                 'export',
                 $this->ctrl->getLinkTargetByClass('ilcontainerexportgui', ''),
                 'export',
                 'ilcontainerexportgui'
-            );*/
+            );
             // fau.
         }
 

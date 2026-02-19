@@ -38,6 +38,10 @@ class ilExportGUI
 {
     public const CMD_LIST_EXPORT_FILES = "listExportFiles";
     public const CMD_EXPORT_XML = "createXmlExportFile";
+    // fau: campoExport
+    public const CMD_SHOW_EXPORT_FAU_COURSE_MEMBERS_FORM = "showExportCourseUsersForm";
+    public const CMD_DO_EXPORT_FAU_COURSE_MEMBERS = "doExportCourseUsers";
+    // fau.
     protected const CMD_SAVE_ITEM_SELECTION = "saveItemSelection";
     protected const CMD_EXPORT_OPTION_PREFIX = "exportOption";
 
@@ -123,18 +127,26 @@ class ilExportGUI
                 }
             }
         }
+        // fau: campoExport
         switch ($cmd) {
             case self::CMD_EXPORT_XML:
                 $this->createXMLExportFile();
+                break;
+            case self::CMD_SHOW_EXPORT_FAU_COURSE_MEMBERS_FORM:
+                $this->showExportCourseUsersForm();
+                break;
+            case self::CMD_DO_EXPORT_FAU_COURSE_MEMBERS:
+                $this->doExportCourseUsers();
                 break;
             case self::CMD_SAVE_ITEM_SELECTION:
                 $this->saveItemSelection();
                 break;
             case self::CMD_LIST_EXPORT_FILES:
             default:
-                $this->displayExportFiles();
+                $this->listExportFiles();
                 break;
         }
+        // fau.
     }
 
     /**
