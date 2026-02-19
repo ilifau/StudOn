@@ -55,6 +55,13 @@ class ilMemberExport
     // fau: memberExport - flag for needed agreement
     private $agreement_needed = false;
     // fau.
+    // fau: memberExport - initialize arrays for events, groups and learning progress
+    private array $events = [];
+    private array $group_members = [];
+    private array $group_waiting = [];
+    private array $lp_data = [];
+    private array $lp_keys = [];
+    // fau.    
     
     public function __construct(int $a_ref_id, int $a_type = self::EXPORT_CSV)
     {
@@ -77,6 +84,18 @@ class ilMemberExport
         $this->agreement = ilMemberAgreement::_readByObjId($this->obj_id);
         $this->settings = new ilUserFormSettings('memexp');
         $this->privacy = ilPrivacySettings::getInstance();
+        // fau: memberExport - init flag for needed agreement
+        $this->agreement_needed = $this->privacy->confirmationRequired($this->type)
+                        or ilCourseDefinedFieldDefinition::_getFields($this->obj_id);
+        // fau.    
+        // fau: memberExport - initialize arrays for events, groups and learning progress
+        $this->events = array();
+        $this->groups = array();
+        $this->group_members = array();
+        $this->group_waiting = array();
+        $this->lp_data = array();
+        $this->lp_keys = array();
+        // fau.        
     }
 
     /**
@@ -126,6 +145,18 @@ class ilMemberExport
     public function create(): void
     {
         $this->fetchUsers();
+
+        // fau: memberExport - fetch events, groups and learning progress
+        if ($this->settings->enabled('events')) {
+            $this->fetchEvents();
+        }
+        if ($this->settings->enabled('groups')) {
+            $this->fetchGroups();
+        }
+
+        $this->fetchLPData();
+        // fau.
+
         switch ($this->getExportType()) {
             case self::EXPORT_CSV:
                 $this->createCSV();
@@ -195,9 +226,17 @@ class ilMemberExport
         $fields[] = 'role';
         // Append agreement info
         $privacy = ilPrivacySettings::getInstance();
-        if ($privacy->courseConfirmationRequired()) {
+        // fau: memberExport - add registration field if agreement is not needed
+        if ($this->agreement_needed) {
             $fields[] = 'agreement';
+        } else {
+            $fields[] = 'registration';
         }
+        // fau.
+
+        // fau: memberExport - add subscription message as field
+        $fields[] = 'submessage';
+        // fau.
 
         foreach ($field_info->getExportableFields() as $field) {
             if ($this->settings->enabled($field)) {
@@ -246,6 +285,18 @@ class ilMemberExport
                     $this->addCol($this->lng->txt('org_units'), $row, $col++);
                     break;
 
+                // fau: memberExport - add registration header if agreement is not needed
+                case 'registration':
+                    $this->addCol($this->lng->txt('mem_registration_access_time'), $row, $col++);
+                    break;
+                // fau.
+
+                // fau: memberExport - add subscription message header
+                case 'submessage':
+                    $this->addCol($this->lng->txt('message'), $row, $col++);
+                    break;
+                // fau.
+
                 default:
                     if (strpos($field, 'udf_') === 0) {
                         $field_id = explode('_', $field);
@@ -284,6 +335,25 @@ class ilMemberExport
             }
         }
         // fau.
+
+        // fau: memberExport - add events in header row
+        ilDatePresentation::setUseRelativeDates(false);
+        foreach ($this->events as $event_obj) {
+            $this->addCol($event_obj->getTitle() . ' (' . $event_obj->getFirstAppointment()->appointmentToString() . ')', $row, $col++);
+        }
+        // fau.
+
+        // fau: memberExport - add groups in header row
+        foreach ($this->groups as $group_obj) {
+            $this->addCol($group_obj->getTitle(), $row, $col++);
+        }
+        // fau.
+
+        // fau: memberExport - add learning progress titles in header row
+        foreach ($this->lp_keys as $key) {
+            $this->addCol($this->lp_data[$key]['title'], $row, $col++);
+        }
+        // fau.    
 
         $this->addRow();
         // Add user data
@@ -332,9 +402,16 @@ class ilMemberExport
                                 $this->addCol($this->lng->txt($this->getType() . '_subscriber'), $row, $col++);
                                 break;
 
-                            default:
+                            // fau: memberExport - add waiting list as specific role
+                            case 'waiting_list':
                                 $this->addCol($this->lng->txt('crs_waiting_list'), $row, $col++);
                                 break;
+
+                            default:
+                                #$this->csv->addColumn($this->lng->txt('crs_waiting_list'));
+                                $this->addCol('', $row, $col++);
+                                break;
+                            // fau.
                         }
                         break;
 
@@ -350,6 +427,23 @@ class ilMemberExport
                             $this->addCol($this->lng->txt('ps_not_accepted'), $row, $col++);
                         }
                         break;
+
+                    // fau: memberExport - add registration column if agreement is not needed
+                    case 'registration':
+                        if (isset($this->agreement[$usr_id]) && $this->agreement[$usr_id]['acceptance_time']) {
+                            ilDatePresentation::setUseRelativeDates(false);
+                            $this->addCol(ilDatePresentation::formatDate(new ilDateTime($this->agreement[$usr_id]['acceptance_time'], IL_CAL_UNIX)), $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;
+                    // fau.
+
+                    // fau: memberExport - add subscription message column
+                    case 'submessage':
+                        $this->addCol(isset($this->user_course_data[$usr_id]['submessage']) ? $this->user_course_data[$usr_id]['submessage'] : "", $row, $col++);
+                        break;
+                    // fau.
 
                         // These fields are always enabled
                     case 'username':
@@ -425,11 +519,9 @@ class ilMemberExport
 
                     default:
                         // Check aggreement
-                        if (
-                            !$this->privacy->courseConfirmationRequired() or
-                            (isset($this->agreement[$usr_id]['accepted']) &&
-                                $this->agreement[$usr_id]['accepted'])
-                        ) {
+                        // fau: memberExport - use prechecked requirement for agreement
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            // fau.
                             #$this->csv->addColumn($this->user_profile_data[$usr_id][$field]);
                             $this->addCol($this->user_profile_data[$usr_id][$field] ?? '', $row, $col++);
                         } else {
@@ -473,6 +565,74 @@ class ilMemberExport
                 }
                 else {
                     $this->addCol('', $row, $col++);
+                }
+            }
+            // fau.
+
+            // fau: memberExport - add user participation for events
+            foreach ($this->events as $event_obj) {
+                $event_part = new ilEventParticipants((int) $event_obj->getId());
+
+                if ($event_obj->enabledRegistration()
+                and (!$event_part->isRegistered($usr_id))
+                and (!$event_part->hasParticipated($usr_id))) {
+                    $this->addCol($this->lng->txt('event_not_registered'), $row, $col++);
+                } else {
+                    $this->addCol($event_part->hasParticipated($usr_id) ?
+                                        $this->lng->txt('event_participated') :
+                                        $this->lng->txt('event_not_participated'), $row, $col++);
+                }
+            }
+            // fau.
+
+            // fau: memberExport - add user participation for groups
+            foreach ($this->groups as $group_obj) {
+                $member = $this->group_members[$group_obj->getId()];
+                $waiting = $this->group_waiting[$group_obj->getId()];
+
+                if ($member->isAdmin($usr_id)) {
+                    $this->addCol($this->lng->txt('crs_admin'), $row, $col++);
+                } elseif ($member->isMember($usr_id)) {
+                    $this->addCol($this->lng->txt('crs_member'), $row, $col++);
+                } elseif ($member->isBlocked($usr_id)) {
+                    $this->addCol($this->lng->txt('crs_blocked'), $row, $col++);
+                } elseif ($member->isSubscriber($usr_id)) {
+                    $this->addCol($this->lng->txt('crs_subscriber'), $row, $col++);
+                } elseif ($waiting->isOnList($usr_id)) {
+                    $this->addCol($this->lng->txt('crs_waiting_list'), $row, $col++);
+                } else {
+                    $this->addCol($this->lng->txt('event_not_registered'), $row, $col++);
+                }
+            }
+            // fau.
+
+            // fau: memberExport - add learning progress data in header row
+            foreach ($this->lp_keys as $key) {
+                switch ($this->lp_data[$key]['lp_type']) {
+                    case 'marks':
+                        $this->addCol(isset($this->lp_data[$key]['marks'][$usr_id]['mark']) ? $this->lp_data[$key]['marks'][$usr_id]['mark'] : "", $row, $col++);
+                        break;
+
+                    case 'status':
+                        if (in_array($usr_id, $this->lp_data[$key][ilLPStatus::LP_STATUS_COMPLETED])) {
+                            $status = ilLPStatus::LP_STATUS_COMPLETED;
+                        } elseif (in_array($usr_id, $this->lp_data[$key][ilLPStatus::LP_STATUS_FAILED])) {
+                            $status = ilLPStatus::LP_STATUS_FAILED;
+                        } elseif (in_array($usr_id, $this->lp_data[$key][ilLPStatus::LP_STATUS_IN_PROGRESS])) {
+                            $status = ilLPStatus::LP_STATUS_IN_PROGRESS;
+                        } else {
+                            $status = ilLPStatus::LP_STATUS_NOT_ATTEMPTED;
+                        }
+                        $this->addCol($this->lng->txt($status), $row, $col++);
+                        break;
+
+                    case 'comments':
+                        $this->addCol(isset($this->lp_data[$key]['comments'][$usr_id]['u_comment']) ? isset($this->lp_data[$key]['comments'][$usr_id]['u_comment']) : "", $row, $col++);
+                        break;
+
+                    default:
+                        $this->addCol('', $row, $col++);
+                        break;
                 }
             }
             // fau.
@@ -529,6 +689,126 @@ class ilMemberExport
         $this->user_profile_data = ilObjUser::_readUsersProfileData($this->user_ids);
     }
 
+    // fau: memberExport - new function fetchEvents
+    private function fetchEvents()
+    {
+        global $ilAccess, $tree;
+
+        $events = array();
+        foreach ($tree->getSubtree($tree->getNodeData($this->ref_id), false, ['sess']) as $event_id) {
+            $tmp_event = ilObjectFactory::getInstanceByRefId($event_id, false);
+            if (!is_object($tmp_event) or !$ilAccess->checkAccess('write', '', $event_id)) {
+                continue;
+            }
+            $sort = $tmp_event->getFirstAppointment()->getStart()->get(IL_CAL_DATETIME);
+            $sort .= $tmp_event->getTitle();
+            $sort .= " " . $tmp_event->getId();
+            $events[$sort] = $tmp_event;
+        }
+        ksort($events);
+        $this->events = array_values($events);
+    }
+    // fau.
+
+    // fau: memberExport - new function fetchGroups
+    private function fetchGroups()
+    {
+        global $ilAccess, $tree;
+
+        $groups = array();
+        foreach ($tree->getSubtree($tree->getNodeData($this->ref_id), false, ['grp']) as $group_id) {
+            $tmp_group = ilObjectFactory::getInstanceByRefId($group_id, false);
+            if (!is_object($tmp_group) or !$ilAccess->checkAccess('write', '', $group_id)) {
+                continue;
+            }
+            $sort = $tmp_group->getTitle() . " " . $tmp_group->getId();
+            $groups[$sort] = $tmp_group;
+        }
+        ksort($groups);
+        $this->groups = array_values($groups);
+
+        foreach ($this->groups as $group) {
+            $members = ilGroupParticipants::_getInstanceByObjId($group->getId());
+            $this->group_members[$group->getId()] = $members;
+
+            $waiting = new ilGroupWaitingList($group->getId());
+            $this->group_waiting[$group->getId()] = $waiting;
+        }
+    }
+    // fau.
+    
+    // fau: memberExport - new function fetchLPData()
+    private function fetchLPData()
+    {
+        global $ilAccess, $tree;
+
+        foreach ($tree->getSubtree($tree->getNodeData($this->ref_id), true) as $data) {
+            if (!$this->settings->enabled($data['type'] . '_status')
+                and !$this->settings->enabled($data['type'] . '_marks')
+                and !$this->settings->enabled($data['type'] . '_comments')) {
+                continue;
+            }
+
+            if (!$ilAccess->checkAccess('edit_learning_progress', '', (int) $data['ref_id'], $data['type'], (int) $data['obj_id'])) {
+                continue;
+            }
+
+            if ($data['type'] == 'sess' and $data['title'] == '') {
+                $tmp_sess = ilObjectFactory::getInstanceByRefId($data['ref_id'], false);
+                $data['title'] = $tmp_sess->getTitle();
+                unset($tmp_sess);
+            }
+
+            $basekey = mb_convert_encoding($data['type'],'ISO-8859-1', 'UTF8') . chr(255)
+                     . mb_convert_encoding($data['title'],'ISO-8859-1', 'UTF8') . chr(255)
+                     . $data['obj_id'] . chr(255);
+
+
+            // get title of sessions
+            ilDatePresentation::setUseRelativeDates(false);
+            if ($data['type'] == 'sess' and $data['title'] == '') {
+                $tmp_sess = ilObjectFactory::getInstanceByRefId($data['ref_id'], false);
+                $data['title'] = $tmp_sess->getTitle() . ' (' . $tmp_sess->getFirstAppointment()->appointmentToString() . ')';
+                unset($tmp_sess);
+            }
+
+            if ($this->settings->enabled($data['type'] . '_marks') || $this->settings->enabled($data['type'] . '_comments')) {
+                $markData = ilLPMarks::_getMarkDataOfObject($data['obj_id']);
+            }
+
+            if ($this->settings->enabled($data['type'] . '_marks')) {
+                $key = $basekey . "marks";
+                $this->lp_data[$key]['lp_type'] = 'marks';
+                $this->lp_data[$key]['title'] = $data['title'];
+                $this->lp_data[$key]['type'] = $data['type'];
+                $this->lp_data[$key]['marks'] = $markData;
+            }
+
+            if ($this->settings->enabled($data['type'] . '_status')) {
+                $key = $basekey . "status";
+                $this->lp_data[$key]['lp_type'] = 'status';
+                $this->lp_data[$key]['title'] = $data['title'];
+                $this->lp_data[$key]['type'] = $data['type'];
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_IN_PROGRESS] = ilLPStatusWrapper::_getInProgress((int) $data['obj_id']);
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_COMPLETED] = ilLPStatusWrapper::_getCompleted((int) $data['obj_id']);
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_FAILED] = ilLPStatusWrapper::_getFailed((int) $data['obj_id']);
+            }
+
+            if ($this->settings->enabled($data['type'] . '_comments')) {
+                $key = $basekey . "comments";
+                $this->lp_data[$key]['lp_type'] = 'comments';
+                $this->lp_data[$key]['title'] = $data['title'];
+                $this->lp_data[$key]['type'] = $data['type'];
+                $this->lp_data[$key]['comments'] = $markData;
+            }
+        }
+
+        ksort($this->lp_data);
+        $this->lp_keys = array_keys($this->lp_data);
+    }
+    // fau.
+    
+    
     /**
      * Read All User related course data
      * @param int[]
@@ -563,10 +843,9 @@ class ilMemberExport
         if (strpos($a_field, 'cdf_') !== 0) {
             return false;
         }
-        if (
-            !$this->privacy->courseConfirmationRequired() ||
-            ($this->agreement[$a_usr_id]['accepted'] ?? false)
-        ) {
+        // fau: memberExport - use prechecked requirement for agreement
+        if (!$this->agreement_needed or $this->agreement[$a_usr_id]['accepted']) {
+            // fau.
             $field_info = explode('_', $a_field);
             $field_id = $field_info[1] ?? 0;
             $value = '';
@@ -590,11 +869,9 @@ class ilMemberExport
             return false;
         }
 
-        if (
-            !$this->privacy->courseConfirmationRequired() ||
-            (isset($this->agreement[$udf_data->getUserId()]['accepted']) &&
-                $this->agreement[$udf_data->getUserId()]['accepted'])
-        ) {
+        // fau: memberExport - use prechecked requirement for agreement
+        if (!$this->agreement_needed or $this->agreement[$udf_data->getUserId()]['accepted']) {
+            // fau.
             $field_info = explode('_', $a_field);
             $field_id = $field_info[1];
             $value = $udf_data->get('f_' . $field_id);

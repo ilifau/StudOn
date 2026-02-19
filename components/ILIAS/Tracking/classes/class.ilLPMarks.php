@@ -208,6 +208,30 @@ class ilLPMarks
         return '';
     }
 
+    /**
+     * fau: memberExport - get the LP marks of an object
+     *
+     * @param int        obj_id
+     * @param array        usr_id => mark data
+     * @return array
+     */
+    public static function _getMarkDataOfObject($a_obj_id)
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        $marks = array();
+
+        $query = "SELECT * FROM ut_lp_marks " .
+            "WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer');
+
+        $res = $ilDB->query($query);
+        while ($row = $ilDB->fetchAssoc(($res))) {
+            $marks[$row['usr_id']] = $row;
+        }
+        return $marks;
+    }
+    // fau.    
     public static function _lookupComment(int $a_usr_id, int $a_obj_id): string
     {
         global $DIC;

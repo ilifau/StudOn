@@ -462,14 +462,14 @@ abstract class ilRegistrationGUI
 
     protected function setAccepted(bool $a_status): void
     {
-        if (!$this->privacy->confirmationRequired($this->type) && !ilCourseDefinedFieldDefinition::_hasFields($this->container->getId())) {
-            return;
-        }
-
+        // fau: memberExport - set always the acceptance time
         $agreement = new ilMemberAgreement($this->user->getId(), $this->container->getId());
-        $agreement->setAccepted($a_status);
+        if (!$this->privacy->confirmationRequired($this->type) && !ilCourseDefinedFieldDefinition::_hasFields($this->container->getId())) {
+            $agreement->setAccepted($a_status);
+        }
         $agreement->setAcceptanceTime(time());
         $agreement->save();
+        // fau.
     }
 
     /**

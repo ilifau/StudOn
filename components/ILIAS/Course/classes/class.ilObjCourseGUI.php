@@ -2711,6 +2711,11 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->logger->warning('Missing required fields');
             return false;
         }
+
+        // fau: memberExport - notify first access
+        ilMemberAgreement::_setFirstAccessTime($this->user->getId(), $this->object->getId());
+        // fau.
+
         return true;
     }
 
