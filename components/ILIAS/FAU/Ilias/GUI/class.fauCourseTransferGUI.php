@@ -1,6 +1,5 @@
 <?php
 
-namespace FAU\Ilias\GUI;
 use FAU\BaseGUI;
 use FAU\Ilias\Transfer;
 use FAU\Study\Data\ImportId;
@@ -10,7 +9,7 @@ use FAU\Study\Data\Term;
  * GUI for transferring a campo connection to another course
  * @ilCtrl_IsCalledBy fauCourseTransferGUI: ilObjCourseGUI
  */
-class fauCourseTransferGUI extends BaseGUI
+class fauCourseTransferGUI extends BaseGUI implements \ilCtrlBaseClassInterface
 {
     protected Transfer $transfer;
     protected ilObjCourse $object;

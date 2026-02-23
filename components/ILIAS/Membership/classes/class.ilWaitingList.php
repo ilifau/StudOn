@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+// fau: fauService
 use FAU\Ilias\Helper\WaitingListConstantsHelper;
+// fau.
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -27,7 +29,10 @@ use FAU\Ilias\Helper\WaitingListConstantsHelper;
  */
 abstract class ilWaitingList
 {
-    use FAU\Ilias\Helper\WaitingListHelper;   
+    // fau: fauService
+    use FAU\Ilias\Helper\WaitingListHelper;
+    // fau.
+       
     public static array $is_on_list = [];
     private int $obj_id = 0;
     private array $user_ids = [];
@@ -118,11 +123,48 @@ abstract class ilWaitingList
             "WHERE usr_id = " . $this->db->quote($a_usr_id, 'integer') . " " .
             "AND obj_id = " . $this->db->quote($this->getObjId(), 'integer') . " ";
         $res = $this->db->manipulate($query);
+
         // fau: fairSub#73 - recalculate after updating time
         $this->users[$a_usr_id]['time'] = (int) $a_subtime;
         $this->recalculate();
         // fau.        
     }
+
+    // fau: campoSub - new functions getModuleId, updateModuleId
+    // fau: regLog - raise an updateWaitingList event
+    /**
+     * Get the module id
+     * @param int $a_usr_id
+     * @return	int
+     */
+    public function getModuleId($a_usr_id)
+    {
+        return $this->users[$a_usr_id]['module_id'] ?? null;
+    }
+
+    /**
+     * Update the module id
+     * @param int $a_usr_id
+     * @param int|null $a_module_id
+     */
+    public function updateModuleId($a_usr_id, $a_module_id)
+    {
+        global $DIC;
+
+        $ilDB = $DIC['ilDB'];
+
+        $query = "UPDATE crs_waiting_list " .
+            "SET module_id = " . $ilDB->quote((int) $a_module_id, 'integer') . " " .
+            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
+            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
+        $ilDB->manipulate($query);
+
+        $this->users[$a_usr_id]['module_id'] = $a_module_id;
+        $this->raiseUpdateEvent($a_usr_id);
+    }
+    // fau.
+
+
 
     // fau: fairSub - new function updateRequest(), acceptOnList()
     // fau: regLog - raise an updateWaitingList event
@@ -332,38 +374,4 @@ abstract class ilWaitingList
         $this->recalculate();
         // fau.
     }
-
-    // fau: campoSub - new functions getModuleId, updateModuleId
-    // fau: regLog - raise an updateWaitingList event
-    /**
-     * Get the module id
-     * @param int $a_usr_id
-     * @return	int
-     */
-    public function getModuleId($a_usr_id)
-    {
-        return $this->users[$a_usr_id]['module_id'] ?? null;
-    }
-
-    /**
-     * Update the module id
-     * @param int $a_usr_id
-     * @param int|null $a_module_id
-     */
-    public function updateModuleId($a_usr_id, $a_module_id)
-    {
-        global $DIC;
-
-        $ilDB = $DIC['ilDB'];
-
-        $query = "UPDATE crs_waiting_list " .
-            "SET module_id = " . $ilDB->quote((int) $a_module_id, 'integer') . " " .
-            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
-            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
-        $ilDB->manipulate($query);
-
-        $this->users[$a_usr_id]['module_id'] = $a_module_id;
-        $this->raiseUpdateEvent($a_usr_id);
-    }
-    // fau.
 }

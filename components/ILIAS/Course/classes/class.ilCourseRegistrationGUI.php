@@ -31,6 +31,10 @@ use FAU\Ilias\Helper\CourseRegistrationGUIHelper;
  */
 class ilCourseRegistrationGUI extends ilRegistrationGUI
 {
+    // fau: fauService
+    use CourseRegistrationGUIHelper;
+    // fau.
+    
     private object $parent_gui;
     // fau: fauService
     private int $subscription_type = ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT;

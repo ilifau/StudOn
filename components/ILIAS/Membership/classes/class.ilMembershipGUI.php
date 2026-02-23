@@ -758,6 +758,28 @@ class ilMembershipGUI
             }
         }
 
+        // fau: paraSub - delete also the group membership
+        // fau: campoSub - note the unsubscription
+        global $DIC;
+        if ($this->getParentObject()->getType() == 'crs' && $this->getParentObject()->hasParallelGroups()) {
+            foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->getParentObject()->getRefId()) as $group) {
+                foreach ($participants as $user_id) {
+                    $groupParticipant = new ilGroupParticipant($group->getObjId(), $user_id);
+                    if ($groupParticipant->isMember()) {
+                        $groupParticipant->delete($user_id);
+                        $DIC->fau()->user()->deleteMembership($group->getObjId(), $user_id);
+                    }
+                }
+            }
+        }
+        else {
+            foreach ($participants as $user_id) {
+                $DIC->fau()->user()->deleteMembership($this->getParentObject()->getId(), $user_id);
+            }
+        }
+        // fau.      
+         
+
         if (!$this->getMembersObject()->deleteParticipants($participants)) {
             $this->tpl->setOnScreenMessage('failure', 'Error deleting participants.', true);
             $this->ctrl->redirect($this, 'participants');
@@ -1393,6 +1415,32 @@ class ilMembershipGUI
             if ($this->getMembersObject()->isAssigned((int) $user_id)) {
                 continue;
             }
+
+            // fau: paraSub - only add members if groups can be assigned - add to course of group
+            // fau: campoSub - note the membership with module selection when added from waiting list
+            if ($object->hasParallelGroups()) {
+                if (empty($groups = $registration->getFillableGroups((int) $user_id))) {
+                    continue;
+                }
+                foreach ($groups as $group) {
+                    // take the first found group, note the module there
+                    $group->getParticipants()->add($user_id, ilParticipants::IL_GRP_MEMBER);
+                    $DIC->fau()->user()->saveMembership($group->getObjId(), (int) $user_id, (int) $group->getWaitingList()->getModuleId((int) $user_id));
+                    break;
+                }
+                // removes the user from the group lists
+                $registration->removeUserSubscription($user_id);
+            }
+            else {
+                // note the module for the object directly
+                $DIC->fau()->user()->saveMembership($object->getId(), (int) $user_id, (int) $object->getWaitingList()->getModuleId((int) $user_id));
+            }
+
+            // add to the parent course of a parallel group
+            if (!empty($courseParticipants)) {
+                $courseParticipants->add($user_id, ilParticipants::IL_CRS_MEMBER);
+            }
+            // fau.            
 
             if ($this instanceof ilCourseMembershipGUI) {
                 $this->getMembersObject()->add($user_id, ilParticipants::IL_CRS_MEMBER);

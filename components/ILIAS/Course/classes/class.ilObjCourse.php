@@ -885,7 +885,10 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
         if ($this->getSubscriptionType() == ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD and !$this->getSubscriptionPassword()) {
             $this->appendMessage($this->lng->txt("crs_password_required"));
         }
-        if ($this->isSubscriptionMembershipLimited()) {
+        // fau: paraSub - course with for parallel groups has no max an min members setting 
+        if ($this->isSubscriptionMembershipLimited() && !$this->hasParallelGroups()) 
+        // fau. 
+        {
             if ($this->getSubscriptionMinMembers() <= 0 && $this->getSubscriptionMaxMembers() <= 0) {
                 $this->appendMessage($this->lng->txt("crs_max_and_min_members_needed"));
             }

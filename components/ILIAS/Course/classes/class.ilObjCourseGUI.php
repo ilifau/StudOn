@@ -168,6 +168,34 @@ class ilObjCourseGUI extends ilContainerGUI
         if ($this->isActiveAdministrationPanel()) {
             $this->addAdoptContentLinkToToolbar();
         }
+
+        // fau: campoTransfer - add button in toolbar
+        global $DIC;
+        $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+        if ($import_id->isForCampo() && $this->checkPermissionBool('write')) {
+            $button = ilLinkButton::getInstance();
+            $button->setCaption('fau_transfer_course');
+            $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'selectTargetCourse'));
+            $this->toolbar->addSeparator();
+            $this->toolbar->addButtonInstance($button);
+
+            if ($this->object->hasParallelGroups()) {
+                $button = ilLinkButton::getInstance();
+                $button->setCaption('fau_split_course');
+                $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'showSplitOptions'));
+                $this->toolbar->addButtonInstance($button);
+            }
+
+            if (!empty($import_id->getCourseId()) && count($DIC->fau()->study()->repo()->getObjectIdsWithImportId($import_id)) > 1)
+            {
+                $button = ilLinkButton::getInstance();
+                $button->setPrimary(true);
+                $button->setCaption('fau_solve_campo_conflict');
+                $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'showSolveOptions'));
+                $this->toolbar->addButtonInstance($button);
+            }
+        }
+        //fau.
     }
 
     public function deleteObject(bool $error = false): void
@@ -1970,6 +1998,24 @@ class ilObjCourseGUI extends ilContainerGUI
             ilCourseMembershipMailNotification::TYPE_UNSUBSCRIBE_MEMBER,
             $this->user->getId()
         );
+
+        // fau: paraSub - unsubscribe also from the groups
+        // fau: campoSub - note the unsubscription
+        global $DIC;
+        if ($this->object->hasParallelGroups()) {
+            foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->object->getRefId()) as $group) {
+                if ($group->isAssigned()) {
+                    $part = new ilGroupParticipant($group->getObjId(), $DIC->user()->getId());
+                    $part->delete($DIC->user()->getId());
+                    $DIC->fau()->user()->deleteMembership($group->getObjId(), $DIC->user()->getId());
+                }
+            }
+        }
+        else {
+            $DIC->fau()->user()->deleteMembership($this->object->getId(), $DIC->user()->getId());
+        }
+        // fau.        
+        
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('crs_unsubscribed_from_crs'), true);
 
         $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $this->tree->getParentId($this->ref_id));
@@ -2182,22 +2228,23 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         // Join/Leave
-        if ($this->access->checkAccess('join', '', $this->ref_id) && !$this->object->getMemberObject()->isAssigned()) {
-            if (ilCourseWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
-                $this->tabs_gui->addTab(
-                    'leave',
-                    $this->lng->txt('membership_leave'),
-                    $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', 'show', '')
-                );
-            } else {
-                $this->tabs_gui->addTarget(
-                    "join",
-                    $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show"),
-                    'show',
-                    ""
-                );
-            }
+        // fau: changeSub - simplified checks for join / edit request tab
+        if ($this->access->checkAccess('join', '', $this->ref_id)) {
+            // no specific command: initial join
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('join'),
+                $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show")
+            );
+        } elseif ($this->access->checkAccess('join', 'leaveWaitList', $this->ref_id)) {
+            // leave command: edit membership request
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('mem_edit_request'),
+                $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "leaveWaitList")
+            );
         }
+        // fau.
         if ($this->access->checkAccess('leave', '', $this->object->getRefId()) && $this->object->getMemberObject()->isMember()) {
             $this->tabs_gui->addTarget(
                 "crs_unsubscribe",
@@ -2260,6 +2307,19 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->tabs_gui->setTabActive('settings');
                 break;
             // fau.
+    
+            // fau: campoTransfer - forward command
+            case "faucoursetransfergui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('view_content');
+                $this->ctrl->setReturn($this, "view");
+                $transfer_gui = new fauCourseTransferGUI();
+                /** @var ilObjCourse $course */
+                $course = $this->object;
+                $transfer_gui->init($course);
+                $this->ctrl->forwardCommand($transfer_gui);
+                break;
+            // fau.            
 
             case "ilinfoscreengui":
                 $this->infoScreen();    // forwards command

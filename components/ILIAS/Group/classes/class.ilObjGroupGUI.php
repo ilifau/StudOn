@@ -1158,6 +1158,11 @@ class ilObjGroupGUI extends ilContainerGUI
     {
         $this->checkPermission('leave');
         $this->object->members_obj->delete($this->user->getId());
+
+        // fau: campoSub - note the unsubscription
+        global $DIC;
+        $DIC->fau()->user()->deleteMembership($this->object->getId(), $DIC->user()->getId());
+        // fau.        
         $this->object->members_obj->sendNotification(
             ilGroupMembershipMailNotification::TYPE_UNSUBSCRIBE_MEMBER,
             $this->user->getId()

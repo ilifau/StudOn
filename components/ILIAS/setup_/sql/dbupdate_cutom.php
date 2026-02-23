@@ -1805,5 +1805,3 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->ilias()->custom_step_132();
 ?>
-
-
