@@ -9,7 +9,7 @@ use FAU\Study\Data\Term;
  * GUI for transferring a campo connection to another course
  * @ilCtrl_IsCalledBy fauCourseTransferGUI: ilObjCourseGUI
  */
-class fauCourseTransferGUI extends BaseGUI implements \ilCtrlBaseClassInterface
+class fauCourseTransferGUI extends BaseGUI
 {
     protected Transfer $transfer;
     protected ilObjCourse $object;
