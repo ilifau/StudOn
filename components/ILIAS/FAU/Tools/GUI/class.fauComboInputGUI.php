@@ -115,7 +115,7 @@ class fauComboInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
      */
     public function render($a_mode = "")
     {
-        $tpl = new ilTemplate("tpl.prop_select.html", true, true, "Services/FAU/Tools/GUI");
+        $tpl = new ilTemplate("tpl.prop_select.html", true, true, "components/ILIAS/FAU/Tools/GUI");
 
         foreach ($this->getCustomAttributes() as $attr) {
             $tpl->setCurrentBlock('cust_attr');

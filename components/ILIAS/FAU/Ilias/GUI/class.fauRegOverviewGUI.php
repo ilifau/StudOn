@@ -49,7 +49,7 @@ class fauRegOverviewGUI extends BaseGUI implements \ilCtrlBaseClassInterface
     
     protected function show()
     {
-        $tpl = new ilTemplate("tpl.reg_overview.html",true,true,"Services/FAU/Ilias/GUI");
+        $tpl = new ilTemplate("tpl.reg_overview.html",true,true,"components/ILIAS/FAU/Ilias/GUI");
 
         $tpl->setVariable('INFO', $this->lng->txt('fau_reg_overview_info'));
 

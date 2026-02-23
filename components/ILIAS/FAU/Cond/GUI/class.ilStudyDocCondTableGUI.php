@@ -29,7 +29,7 @@ class ilStudyDocCondTableGUI extends ilTable2GUI
         $this->setEnableNumInfo(false);
         $this->setExternalSegmentation(true);
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj));
-        $this->setRowTemplate("tpl.study_doc_cond_row.html", "Services/FAU/Cond/GUI");
+        $this->setRowTemplate("tpl.study_doc_cond_row.html", "components/ILIAS/FAU/Cond/GUI");
         $this->setDefaultOrderField("program");
         $this->setDefaultOrderDirection("asc");
         $this->setPrefix("study_doc_cond");

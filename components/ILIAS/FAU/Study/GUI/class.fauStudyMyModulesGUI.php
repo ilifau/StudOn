@@ -75,7 +75,7 @@ class fauStudyMyModulesGUI extends BaseGUI implements \ilCtrlBaseClassInterface
     
     protected function show()
     {
-        $tpl = new ilTemplate("tpl.fau_study_my_modules.html",true,true,"Services/FAU/Study/GUI");
+        $tpl = new ilTemplate("tpl.fau_study_my_modules.html",true,true,"components/ILIAS/FAU/Study/GUI");
 
         $tpl->setVariable('INFO1', $this->lng->txt('fau_my_modules_info1'));
         $tpl->setVariable('INFO2', $this->lng->txt('fau_my_modules_info2'));

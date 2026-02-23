@@ -154,7 +154,7 @@ class Search
      */
     protected function getCache() :\ilCache
     {
-        $cache = new \ilCache('Services/FAU', "Search", true);
+        $cache = new \ilCache('components/ILIAS/FAU', "Search", true);
         $cache->setExpiresAfter($this->cache_seconds);
         return $cache;
     }
