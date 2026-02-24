@@ -250,6 +250,15 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         if (strlen($this->object->getImportantInformation())) {
+            // fau: courseInfoRTE - don't modify string if html is contained
+            if ($this->object->getImportantInformation() !=
+                ilUtil::secureString($this->object->getImportantInformation())
+            ) {
+                $info->addProperty(
+                    $this->lng->txt('crs_important_info'),
+                    ilUtil::makeClickable($this->object->getImportantInformation(), true)
+                );
+            } else {
             $info->addProperty(
                 $this->lng->txt('crs_important_info'),
                 "<strong>" . nl2br(
@@ -257,10 +266,24 @@ class ilObjCourseGUI extends ilContainerGUI
                 )
             );
         }
+            // fau.
+        }
+
         if (strlen($this->object->getSyllabus())) {
+            // fau: courseInfoRTE - don't modify string if html is contained
+            if ($this->object->getSyllabus() !=
+                ilUtil::secureString($this->object->getSyllabus())
+            ) {
+                $info->addProperty(
+                    $this->lng->txt('crs_syllabus'),
+                    ilUtil::makeClickable($this->object->getSyllabus(), true)
+                );
+            } else {
             $info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
                 ilUtil::makeClickable($this->object->getSyllabus(), true)
             ));
+            }
+            // fau.
         }
         if (strlen((string) $this->object->getTargetGroup())) {
             $info->addProperty(
@@ -631,13 +654,35 @@ class ilObjCourseGUI extends ilContainerGUI
         $form->addCommandButton('cancel', $this->lng->txt('cancel'));
 
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_important_info'), 'important');
+        // fau: courseInfoRTE - use RTE / HTML for important information
+        $area->setUseRTE(true);
+        $area->setRTETagSet('extended');
+        if ($this->object->getImportantInformation() ==
+            ilUtil::secureString($this->object->getImportantInformation())
+        ) {
+                $area->setValue("<strong>" . nl2br(
+                ilUtil::makeClickable($this->object->getImportantInformation(), true) . "</strong>"
+            ));
+        } else {
         $area->setValue($this->object->getImportantInformation());
+        }
+        // fau.
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
 
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_syllabus'), 'syllabus');
-        $area->setValue($this->object->getSyllabus());
+        // fau: courseInfoRTE - use RTE / HTML for syllabus
+        $area->setUseRTE(true);
+        $area->setRTETagSet('extended');
+        if ($this->object->getSyllabus() ==
+            ilUtil::secureString($this->object->getSyllabus())
+        ) {
+            $area->setValue(nl2br(ilUtil::makeClickable($this->object->getSyllabus(), true)));
+        } else {
+            $area->setValue($this->object->getSyllabus());
+        }
+        // fau.
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
@@ -709,8 +754,10 @@ class ilObjCourseGUI extends ilContainerGUI
 
         $form = $this->initInfoEditor();
         if ($form->checkInput()) {
-            $this->object->setImportantInformation((string) $form->getInput('important'));
-            $this->object->setSyllabus((string) $form->getInput('syllabus'));
+            // fau: courseInfoRTE - allow HTML in course info
+            $this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important'], false));
+            $this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus'], false));
+            // fau.
             $this->object->setTargetGroup((string) $form->getInput('target_group'));
             $this->object->setContactName((string) $form->getInput('contact_name'));
             $this->object->setContactResponsibility((string) $form->getInput('contact_responsibility'));

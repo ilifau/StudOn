@@ -221,6 +221,13 @@ class ilUtil
         global $DIC;
 
         $ret = $DIC->refinery()->string()->makeClickable()->transform($a_text);
+        // fau: courseInfoRTE - mask existing href tags
+        $ret = preg_replace('/href="(http|https|ftp|mailto)/', '"***masked_href_start_$1***', $ret);
+        // fau
+
+        // fau: courseInfoRTE - unmask existing href tags
+        $ret = preg_replace('/"\*\*\*masked_href_start_(http|https|ftp|mailto)\*\*\*/', 'href="$1', $ret);
+        // fau.        
 
         if ($detectGotoLinks) {
             $goto = '<a[^>]*href="(' . str_replace('@', '\@', ILIAS_HTTP_PATH) . '/goto';
