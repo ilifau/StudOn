@@ -295,6 +295,10 @@ class ilObjExerciseGUI extends ilObjectGUI
 
     protected function initEditCustomForm(ilPropertyFormGUI $a_form): void
     {
+        // fau: editDidacticTemplateChoice - add the form properties for didactic templates
+        $this->initDidacticTemplate($a_form);
+        // fau.
+
         $obj_service = $this->getObjectService();
         $service = $this->getService();
         /** @var ilObjExercise $exc */
@@ -461,6 +465,21 @@ class ilObjExerciseGUI extends ilObjectGUI
         );
     }
 
+    // fau: editDidacticTemplateChoice - new function getEditFormValues()
+    /**
+     * Add the didactic template setting to the form values
+     * @see ilContainerGUI
+     * @return array
+     */
+    protected function getEditFormValues(): array
+    {
+        $values = parent::getEditFormValues();
+        $values['didactic_type'] =
+            'dtpl_' . ilDidacticTemplateObjSettings::lookupTemplateId($this->object->getRefId());
+        return $values;
+    }
+    // fau.
+
     protected function getEditFormCustomValues(array &$a_values): void
     {
         $ilUser = $this->user;
@@ -549,6 +568,26 @@ class ilObjExerciseGUI extends ilObjectGUI
             )
         );
     }
+
+    // fau: editDidacticTemplateChoice - new function afterUpdate()
+    /**
+     * Set the didactic template aftern an update without confirmat
+     * @see ilContainerGUI
+     */
+    protected function afterUpdate(): void
+    {
+        // check if template is changed
+        $current_tpl_id = (int) ilDidacticTemplateObjSettings::lookupTemplateId(
+            $this->object->getRefId()
+        );
+        $new_tpl_id = (int) $this->getDidacticTemplateVar('dtpl');
+
+        if ($new_tpl_id != $current_tpl_id) {
+            ilDidacticTemplateUtils::switchTemplate($this->object->getRefId(), $new_tpl_id);
+        }
+        parent::afterUpdate();
+    }
+    // fau.    
 
     public function addContentSubTabs(string $a_activate): void
     {

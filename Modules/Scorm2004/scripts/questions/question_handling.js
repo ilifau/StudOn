@@ -908,7 +908,9 @@ ilias.questions.showFeedback = function(a_id) {
 				}
 
 				if (jQuery.inArray(questions[a_id].type, ilias.questions.enhancedQuestionTypes) === -1) {
-					ilias.questions.showCorrectAnswers(a_id);
+					// fau-patch: begin
+					ilias.questions.showCorrectAnswers(a_id, answers, true);
+					// fau-patch: end
 				}
 			} else {
 				if (ilias.questions.default_feedback) {
@@ -918,7 +920,9 @@ ilias.questions.showFeedback = function(a_id) {
 					fbtext += questions[a_id].feedback['onenotcorrect'];
 				}
 
-				ilias.questions.showCorrectAnswers(a_id);
+				// fau-patch: begin
+				ilias.questions.showCorrectAnswers(a_id, answers, true);
+				// fau-patch: end
 			}
 
 			ilias.questions.scormHandler(a_id,"correct",ilias.questions.toJSONString(answers[a_id]));
@@ -934,7 +938,9 @@ ilias.questions.showFeedback = function(a_id) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
-			ilias.questions.showCorrectAnswers(a_id);
+			// fau-patch: begin
+			ilias.questions.showCorrectAnswers(a_id, answers, true);
+			// fau-patch: end
 
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		}
@@ -954,6 +960,11 @@ ilias.questions.showFeedback = function(a_id) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
+			// fau-patch: begin
+			if (questions[a_id].type === "assClozeTest") {
+				ilias.questions.showCorrectAnswers(a_id, answers, false);
+			}
+			// fau-patch: end
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		} else {
 			jQuery('#feedback'+a_id).addClass("ilc_qfeedw_FeedbackWrong");
@@ -966,6 +977,11 @@ ilias.questions.showFeedback = function(a_id) {
 				fbtext += questions[a_id].feedback['onenotcorrect'];
 			}
 
+			// fau-patch: begin
+			if (questions[a_id].type === "assClozeTest") {
+				ilias.questions.showCorrectAnswers(a_id, answers, false);
+			}
+			// fau-patch: end
 			ilias.questions.scormHandler(a_id,"incorrect",ilias.questions.toJSONString(answers[a_id]));
 		}
 	}
@@ -1075,7 +1091,9 @@ ilias.questions.determineSuccessStatus = function()
 	return status;
 }
 
-ilias.questions.showCorrectAnswers =function(a_id) {
+// fau-patch: begin
+ilias.questions.showCorrectAnswers = function(a_id, given_answers, is_final) {
+// fau-patch: end
 
 	switch (questions[a_id].type) {
 		case 'assSingleChoice':
@@ -1208,25 +1226,48 @@ ilias.questions.showCorrectAnswers =function(a_id) {
                 const select = jQuery(`select#${a_id}_${i}`);
                 let best_values;
 
-                switch (type) {
-                    case 0:
-                        best_values = items.filter(item => item.points === maxPoints).map(item => item.value);
-                        input.val(best_values.join(' / '));
-                        input.prop('disabled', true);
-                        break;
-                    case 1:
-                        best_values = items.filter(item => item.points === maxPoints).map(item => item.value);
-                        const option = jQuery(`select#${a_id}_${i} option[id="1"]`);
-                        option.prop('selected', true);
-                        option.text(best_values.join(' / '));
-                        select.prop('disabled', true);
-                        break;
-                    case 2:
-                        const best_value = items.find(item => item.points === maxPoints).value;
-                        input.val(best_value);
-                        input.prop('disabled', true);
-                }
+				// fau-patch: begin
+				// this can be treated for all gap types in the same way
+				let cvalue = '';
+				let elem_type = type === 1 ? 'select' : 'input';
+
+				//look for correct solutions
+				for (let j = 0; j < questions[a_id].gaps[i].item.length; j++) {
+					if (questions[a_id].gaps[i].item[j].points > 0) {
+						cvalue += cvalue.length ?  ' | ' : '';
+						cvalue += questions[a_id].gaps[i].item[j].value;
+					}
+				}
+
+				// delete last check symbol
+				jQuery(`#ilAnswerCheck_${a_id}_${i}`).remove();
+
+				// check if gap is correctly answered
+				// note that when the page is refreshed, all choices get lost
+				const is_correct = given_answers[a_id].answer[i] || given_answers[a_id].passed;
+				const checkchar = is_correct
+					? `<span id="ilAnswerCheck_${a_id}_${i}" style="color:green;">&#10004;</span>` // or: 10003
+					: `<span id="ilAnswerCheck_${a_id}_${i}" style="color:red;">&#10008;</span>`; // or: 10007
+
+				// disable final or already correct gaps
+				if (is_final || is_correct) {
+					jQuery(`${elem_type}#${a_id}_${i}`).prop("disabled", true);
+				}
+
+				// add inline feedback
+				if (is_final && !is_correct) {
+					// show solution when final
+					jQuery(`${elem_type}#${a_id}_${i}`).after(`${checkchar} <em> [${cvalue}] </em>`);
+				} else {
+					// show only symbol when not final
+					jQuery(`${elem_type}#${a_id}_${i}`).after(checkchar)
+				}
 			}
+
+			if (typeof MathJax != "undefined") {
+				MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+			}
+		// fau-patch: end
 		break;
 		//end assClozeTest
 
