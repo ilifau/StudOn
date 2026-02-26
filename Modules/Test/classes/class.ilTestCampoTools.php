@@ -76,7 +76,13 @@ class ilTestCampoTools
         if (count($this->options)) {
             $insert = array();
             foreach ($this->options as $key => $value) {
-                $insert[] = array($key, $value);
+                if($key == 'matriculations') // no longer save matriculations to db
+                {
+                    $insert[] = array($key, "");                
+                }
+                else{
+                    $insert[] = array($key, $value);
+                }
             }
             
             $query = 'INSERT INTO tst_campo_options(obj_id, option_key, option_value) VALUES ('
