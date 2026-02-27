@@ -35,6 +35,11 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author       Maximilian Becker <mbecker@databay.de>
  * @ilCtrl_Calls ilTestExportGUI: ilExportGUI
  */
+
+// fau: fauService
+use FAU\Tools\Cust;
+// fau.
+
 class ilTestExportGUI extends ilExportGUI
 {
     public function __construct(
@@ -52,6 +57,16 @@ class ilTestExportGUI extends ilExportGUI
         private readonly ilTestHTMLGenerator $html_generator
     ) {
         parent::__construct($parent_gui, null);
+              
+        
+        // fau: campoGrades - button to export test results for campo
+        if (Cust::get('tst_export_campo')) {
+            $this->toolbar->addButton(
+                $this->lng->txt('ass_create_export_campo'),
+                $this->ctrl->getLinkTargetByClass("ilTestCampoGUI", "showExportForm")
+        );
+        }
+        // fau
     }
 
     /**

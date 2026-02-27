@@ -799,6 +799,16 @@ class ilObjTestGUI extends ilObjectGUI implements ilCtrlBaseClassInterface, ilDe
                 $forwarder->forward();
                 break;
 
+            // fau: campoGrades - handle commands for campo
+            case 'iltestcampogui':
+                global $ilTabs;
+                $this->prepareOutput();
+                $ilTabs->activateTab('export');
+                $new_gui = new ilTestCampoGUI($this->object);
+                $this->ctrl->forwardCommand($new_gui);
+                break;
+            // fau.
+
             case 'ilassspecfeedbackpagegui':
                 if ((!$this->access->checkAccess("write", "", $this->testrequest->getRefId()))) {
                     $this->redirectAfterMissingWrite();
