@@ -91,7 +91,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 break;
         }
         // fau.
-        return;
     }
 
 
