@@ -1693,7 +1693,10 @@ class ilObjectListGUI
         if (
             $this->getContainerObject() instanceof ilAdministrationCommandHandling
         ) {
-            if ($this->checkCommandAccess('delete', '', $this->ref_id, $this->type)) {
+            // fau: preventCampoDelete - add 'cut' command to distinct moving from delete
+            if ($this->checkCommandAccess('delete', 'cut', $this->ref_id, $this->type))
+            // fau. 
+            {
                 $this->ctrl->setParameter($this->getContainerObject(), 'item_ref_id', $this->getCommandId());
                 $cmd_link = $this->ctrl->getLinkTarget($this->getContainerObject(), 'cut');
                 $this->insertCommand($cmd_link, $this->lng->txt('move'));
@@ -1705,7 +1708,10 @@ class ilObjectListGUI
 
         // if the permission is changed here, it  has
         // also to be changed in ilContainerContentGUI, determineAdminCommands
-        if ($this->checkCommandAccess('delete', '', $this->ref_id, $this->type) && $this->container_obj->getObject()) {
+        // fau: preventCampoDelete - add 'cut' command to distinct moving check from delete
+        if ($this->checkCommandAccess('delete', 'cut', $this->ref_id, $this->type) && $this->container_obj->getObject())
+        // fau.
+        {
             $this->ctrl->setParameter(
                 $this->container_obj,
                 'ref_id',
