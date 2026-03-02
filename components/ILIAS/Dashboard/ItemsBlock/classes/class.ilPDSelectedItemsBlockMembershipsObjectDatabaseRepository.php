@@ -27,12 +27,22 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
 
     private ilDBInterface $db;
     private int $recoveryFolderId;
+    // fau: filterMyMem - class variable for term
+    private string $filterTermId;
+    // fau.
 
     public function __construct(ilDBInterface $db, int $recoveryFolderId)
     {
         $this->db = $db;
         $this->recoveryFolderId = $recoveryFolderId;
     }
+
+    // fau: filterMyMem - new function setFilterTermId
+    public function setFilterTermId(string $filterTermId)
+    {
+        $this->filterTermId = $filterTermId;
+    }
+    // fau.
 
     /**
      * @return string[]
@@ -55,6 +65,19 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
             false,
             ilDBConstants::T_TEXT
         );
+
+        // fau: filterMyMem - add term filter to query, if defined
+        $termFilter = '';
+        if (!empty($this->filterTermId)) {
+            if ($this->filterTermId == 'none') {
+                // former or no term
+                $termFilter = ' AND (od.import_id IS NULL OR od.import_id NOT LIKE ' . $this->db->quote('FAU/Term%%', 'text') . ')';
+            }
+            else {
+                // with term
+                $termFilter = ' AND od.import_id LIKE ' . $this->db->quote('FAU/Term=' . $this->filterTermId . '%%', 'text');
+            }
+        }
 
         $res = $this->db->queryF(
             "
@@ -106,10 +129,12 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
                 LEFT JOIN crs_settings ON crs_settings.obj_id = od.obj_id
                 LEFT JOIN object_translation trans ON trans.obj_id = od.obj_id AND trans.lang_code = %s
                 WHERE ua.usr_id = %s
+                $termFilter
             ",
             [ilDBConstants::T_TEXT, ilDBConstants::T_INTEGER, ilDBConstants::T_INTEGER, ilDBConstants::T_TEXT, ilDBConstants::T_INTEGER],
             ['y', 1, $this->recoveryFolderId, $actorLanguageCode, $user->getId()]
         );
+        // fau.
 
         while ($row = $this->db->fetchAssoc($res)) {
             $periodStart = null;

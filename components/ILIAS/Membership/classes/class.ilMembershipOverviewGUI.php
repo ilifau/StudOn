@@ -18,6 +18,10 @@
 
 declare(strict_types=1);
 
+// fau: filterMyMem - use Filter\Standard
+use ILIAS\UI\Implementation\Component\Input\Container\Filter\Standard;
+// fau.
+
 /**
  * Membership overview
  * @ilCtrl_Calls ilMembershipOverviewGUI: ilMembershipBlockGUI
@@ -56,10 +60,19 @@ class ilMembershipOverviewGUI implements ilCtrlBaseClassInterface
                 break;
 
             default:
-                if ($cmd === "show") {
+                // fau: filterMyMem - add allowed command
+                if (in_array($cmd, array("show", "applyFilter"))) {
                     $this->$cmd();
                 }
+                // fau.
         }
+
+        // fau: filterMyMem - add filter to page
+        global $DIC;
+        $renderer = $DIC->ui()->renderer();
+        $block = new ilMembershipBlockGUI();
+        $this->main_tpl->setContent($renderer->render($this->getFilter()) . $block->getHTML());
+        // fau.        
         $this->main_tpl->printToStdout();
     }
 
@@ -74,4 +87,28 @@ class ilMembershipOverviewGUI implements ilCtrlBaseClassInterface
         $block = new ilMembershipBlockGUI();
         $main_tpl->setContent($block->getHTML());
     }
+
+
+    // fau: filterMyMem - get the filter control
+    protected function getFilter() : Standard
+    {
+        global $DIC;
+        $select = $DIC->ui()->factory()->input()->field()->select($this->lng->txt('studydata_semester'), $DIC->fau()->study()->getTermSearchOptions())
+        ->withValue($DIC->fau()->tools()->preferences()->getTermIdForMyMemberships());
+        $action = $DIC->ctrl()->getLinkTarget($this, "applyFilter", "", true);
+        return $DIC->uiService()->filter()->standard("fauFilterMyMem", $action, ["term_id" => $select], [true], true, true);
+    }
+    // fau.
+
+    // fau: filterMyMem - apply the filter
+    protected function applyFilter()
+    {
+        global $DIC;
+        $filter_data = $DIC->uiService()->filter()->getData($this->getFilter());
+        if (!isset($filter_data['term_id']))
+            $filter_data['term_id'] = null;
+        $DIC->fau()->tools()->preferences()->setTermIdForMyMemberships($filter_data['term_id']);
+        $this->ctrl->redirect($this, 'show');
+    }
+    // fau.       
 }
