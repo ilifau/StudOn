@@ -1321,19 +1321,19 @@ class ilObjGroupGUI extends ilContainerGUI
         // fau: changeSub - simlified checks for join / edit request tab
         if ($this->access->checkAccess('join', 'join', $this->object->getRefId())) {
             // no specific command: initial join
-                $this->tabs_gui->addTab(
-                'join',
-                $this->lng->txt('join'),
-                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
-                );
+            $this->tabs_gui->addTab(
+            'join',
+            $this->lng->txt('join'),
+            $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+            );
         } elseif ($this->access->checkAccess('join', 'leaveWaitList', $this->object->getRefId())) {
             // leave command: edit membership request
             $this->tabs_gui->addTab(
                 'join',
                 $this->lng->txt('mem_edit_request'),
                 $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "leaveWaitList")
-                );
-            }
+            );
+        }
         // fau.
         if ($this->access->checkAccess('leave', '', $this->object->getRefId()) and
             $this->object->members_obj->isMember($this->user->getId())) {

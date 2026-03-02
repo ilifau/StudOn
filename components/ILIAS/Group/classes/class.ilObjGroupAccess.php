@@ -62,7 +62,9 @@ class ilObjGroupAccess extends ilObjectAccess
                     return false;
                 }
 
-                if (ilGroupWaitingList::_isOnList($ilUser->getId(), $obj_id)) {
+                // fau: changeSub - use $user_id parameter to query waiting list
+                if (ilGroupWaitingList::_isOnList($user_id, $obj_id)) {
+                    // fau.
                     return false;
                 }
 
@@ -92,7 +94,9 @@ class ilObjGroupAccess extends ilObjectAccess
             case 'leaveWaitList':
                 // Waiting list
                 if ($permission == 'join') {
-                    if (!ilGroupWaitingList::_isOnList($ilUser->getId(), $obj_id)) {
+                    // fau: changeSub - use $user_id parameter to query waiting list
+                    if (!ilGroupWaitingList::_isOnList($user_id, $obj_id)) {
+                        // fau.                        
                         return false;
                     }
                 }

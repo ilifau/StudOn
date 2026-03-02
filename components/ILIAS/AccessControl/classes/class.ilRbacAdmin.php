@@ -31,7 +31,7 @@ class ilRbacAdmin
 {
     // fau: changeSub 
     use FAU\Ilias\Helper\RbacAdminHelper;
-    // fau.    
+    // fau. 
     protected ilDBInterface $db;
     protected ilRbacReview $rbacreview;
     protected ilLogger $logger;

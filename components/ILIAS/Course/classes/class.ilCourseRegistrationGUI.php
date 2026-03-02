@@ -65,7 +65,40 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             $this->tabs->activateTab('leave');
         }
 
-        if (!$this->access->checkAccess('join', '', $this->getRefId())) {
+        // fau: changeSub - do the permission check with a fitting command
+        // fau: joinAsGuest - do the permission check with a fitting command
+        $cmd = $this->ctrl->getCmd("show");
+        switch ($cmd) {
+            case 'joinAsGuest':
+            case 'joinAsGuestConfirmed':
+                // don't check permission
+                $this->$cmd();
+                return;
+
+             // action buttons on registration screen
+            case 'updateWaitingList':
+            case 'leaveWaitingList':
+            case 'updateSubscriptionRequest':
+            case 'cancelSubscriptionRequest':
+                $checkCmd = 'leaveWaitList';
+                break;
+            case 'leaveWaitList':
+                $checkCmd = 'leaveWaitList';
+                $cmd = 'show';
+                $this->tabs->activateTab('join');
+                break;
+
+            // called for updating scubscription requests
+            case 'leave':
+                $checkCmd = 'leave';
+                $cmd = 'show';
+                break;
+
+            // called for joining
+            default:
+                $checkCmd = '';
+        }        
+        if (!$this->access->checkAccess('join', $checkCmd, $this->getRefId())) {
             $this->ctrl->setReturn($this->parent_gui, 'infoScreen');
             $this->ctrl->returnToParent($this);
             return;
@@ -74,10 +107,11 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $next_class = $this->ctrl->getNextClass($this);
         switch ($next_class) {
             default:
-                $cmd = $this->ctrl->getCmd("show");
+                // $cmd = $this->ctrl->getCmd("show");
                 $this->$cmd();
                 break;
         }
+        // fau.
     }
 
     protected function getFormTitle(): string
