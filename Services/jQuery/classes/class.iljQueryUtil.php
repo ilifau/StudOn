@@ -106,4 +106,23 @@ class iljQueryUtil
     {
         return "./node_modules/maphilight/jquery.maphilight.min.js";
     }
+
+    // fau: imageBox - new function initColorbox()
+    /**
+     * Add the colorbox functionality to the current template
+     */
+    public static function initLightbox2()
+    {
+        if (!ilContext::usesTemplate()) {
+            return;
+        }
+
+        global $DIC;
+
+        $tpl = $DIC["tpl"];
+
+        $tpl->addJavaScript("./Customizing/libs/lightbox2/js/lightbox.min.js", true, 1);
+        $tpl->addCss("./Customizing/libs/lightbox2/css/lightbox.css");
+    }
+    // fau.
 }
