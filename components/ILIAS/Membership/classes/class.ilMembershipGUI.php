@@ -1398,13 +1398,6 @@ class ilMembershipGUI
         }
         // fau.
 
-        $c_gui->addItem(
-            'waiting[]',
-            (string) $name['user_id'],
-            $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
-            ilUtil::getImagePath('standard/icon_usr.svg')
-        );
-
         $this->tpl->setContent($c_gui->getHTML());
     }
 

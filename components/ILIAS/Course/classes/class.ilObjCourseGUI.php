@@ -1288,7 +1288,6 @@ class ilObjCourseGUI extends ilContainerGUI
                 ? (string) $this->object->getSubscriptionType()
                 : (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT
         );
-        // $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
         // fau: objectSub - add option for reference to subscription object
         $opt = new ilRadioOption($this->lng->txt('sub_separate_object'), CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
