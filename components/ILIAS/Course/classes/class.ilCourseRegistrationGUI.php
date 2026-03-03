@@ -429,6 +429,17 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         return true;
     }
 
+    // fau: heavySub - avoid failures on heavy concurrency
+    // fau: fairSub#44 - add subscription requests and requests in fair time to waiting list
+    // fau: studyCond - use condition based subscription type
+    // fau: paraSub - handle subscription to parallel groups and use for updating requests
+    /**
+     * add user
+     *
+     * @access protected
+     * @param
+     * @return
+     */
     protected function add()
     {
         global $DIC;
@@ -507,19 +518,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
     protected function isWaitingListActive(): bool
     {
-        static $active = null;
-
-        if ($active !== null) {
-            return $active;
-        }
-        if (!$this->container->enabledWaitingList() || !$this->container->isSubscriptionMembershipLimited()) {
-            return $active = false;
-        }
-        if (!$this->container->getSubscriptionMaxMembers()) {
-            return $active = false;
-        }
-
-        $free = max(0, $this->container->getSubscriptionMaxMembers() - $this->participants->getCountMembers());
-        return $active = (!$free || $this->getWaitingList()->getCountUsers());
+        // fau: paraSub - use own function isWaitingListActive()
+        return $this->registration->isWaitingListActive();
+        // fau.
     }
 }

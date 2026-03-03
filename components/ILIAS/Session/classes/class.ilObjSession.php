@@ -731,4 +731,33 @@ class ilObjSession extends ilObject
     {
         return false;
     }
+
+    // fau: paraSub - functions for checking parallel group relationships
+    /**
+     * Check if the object is a parallel group
+     */
+    public function isParallelGroup()
+    {
+        return  false;
+    }
+    /**
+     * Check if the object is a parallel group
+     */
+    public function hasParallelGroups()
+    {
+        return false;
+    }
+    // fau    
+
+    // fau: new functions initWaitingList(), getWaitingList
+    public function initWaitingList()
+    {
+        $this->waiting_list_obj = new ilSessionWaitingList($this->getId());
+    }
+    public function getWaitingList() : ilSessionWaitingList
+    {
+        $this->initWaitingList();
+        return $this->waiting_list_obj;
+    }
+    // fau.       
 }

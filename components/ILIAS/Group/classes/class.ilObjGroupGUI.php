@@ -1813,7 +1813,7 @@ class ilObjGroupGUI extends ilContainerGUI
             $dur->setEnd($this->object->getRegistrationEnd());
             // fau: paraSub disable setting of time limit for parallel groups
             if (!$this->object->isParallelGroup()) {
-            $form->addItem($dur);
+                $form->addItem($dur);
             }
             // fau.
 

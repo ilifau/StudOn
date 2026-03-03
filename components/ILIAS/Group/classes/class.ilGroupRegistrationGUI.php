@@ -22,6 +22,9 @@ declare(strict_types=1);
         | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
         +-----------------------------------------------------------------------------+
 */
+// fau: paraSub - import of registration class
+use FAU\Ilias\Registration;
+// fau.
 
 /**
 * GUI class for group registrations
@@ -526,21 +529,8 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
      */
     protected function isWaitingListActive(): bool
     {
-        static $active = null;
-
-        if ($active !== null) {
-            return $active;
-        }
-        if (!$this->container->getMaxMembers()) {
-            return $active = false;
-        }
-        if (
-            !$this->container->isWaitingListEnabled() or
-            !$this->container->isMembershipLimited()) {
-            return $active = false;
-        }
-
-        $free = max(0, $this->container->getMaxMembers() - $this->participants->getCountMembers());
-        return $active = (!$free or $this->getWaitingList()->getCountUsers());
+        // fau: paraSub - use own function isWaitingListActive()
+        return $this->registration->isWaitingListActive();
+        // fau.
     }
 }

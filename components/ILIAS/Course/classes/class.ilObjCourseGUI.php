@@ -1265,6 +1265,11 @@ class ilObjCourseGUI extends ilContainerGUI
 
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->lng->txt('crs_reg'));
+        // fau: paraSub - add info about parallel group subscription
+        if ($this->object->hasParallelGroups()) {
+            $section->setInfo($this->lng->txt('fau_sub_group_by_course_info'));
+        }
+        // fau.
         $form->addItem($section);
 
         // time limit
@@ -1283,6 +1288,33 @@ class ilObjCourseGUI extends ilContainerGUI
                 ? (string) $this->object->getSubscriptionType()
                 : (string) ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT
         );
+        // $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
+
+        // fau: objectSub - add option for reference to subscription object
+        $opt = new ilRadioOption($this->lng->txt('sub_separate_object'), CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
+        $opt->setInfo($this->lng->txt('sub_separate_object_info'));
+        $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
+        $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
+        $rep_sel->setClickableTypes(array('xcos'));
+        $rep_sel->setRequired(true);
+        $rep_sel->setParentForm($form);        
+        
+        $opt->addSubItem($rep_sel);
+        if ($ref_id = $this->object->getSubscriptionRefId()) {
+            $rep_sel->setValue($ref_id);
+            $locator = new ilLocatorGUI();
+            $locator->setTextOnly(true);
+            $locator->addContextItems($ref_id);
+            $rep_loc = new ilNonEditableValueGUI();
+            $rep_loc->setValue($locator->getHTML());
+            $opt->addSubItem($rep_loc);
+        }
+        // fau: paraSub - add info for courses with parallel groups
+        if ($this->object->hasParallelGroups()) {
+            $opt->setInfo($this->lng->txt('fau_sub_combi_disabled'));
+        }
+        $reg_proc->addOption($opt);
+        // fau.        
 
         $opt = new ilRadioOption(
             $this->lng->txt('crs_subscription_options_direct'),
