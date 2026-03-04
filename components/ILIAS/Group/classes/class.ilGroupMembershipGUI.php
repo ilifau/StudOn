@@ -135,6 +135,10 @@ class ilGroupMembershipGUI extends ilMembershipGUI
      */
     protected function updateParticipantsStatus(): void
     {
+        // fau: setPassedFlag - get the posted values
+        $passed = isset($_POST['passed']) ? (array) $_POST['passed'] : [];
+        // fau.
+
         $participants = [];
         if ($this->http->wrapper()->post()->has('visible_member_ids')) {
             $participants = $this->http->wrapper()->post()->retrieve(
@@ -163,6 +167,11 @@ class ilGroupMembershipGUI extends ilMembershipGUI
             );
         }
         foreach ($participants as $mem_id) {
+            // fau: setPassedFlag - update the lp status when members are saved
+            if ($this->getParentObject()->isManualLPStatusSettingAllowed()) {
+                $this->getParentObject()->setLPStatusManually($mem_id, in_array($mem_id, $passed));
+            }
+            // fau.            
             if ($this->getMembersObject()->isAdmin($mem_id)) {
                 $this->getMembersObject()->updateContact($mem_id, in_array($mem_id, $contact));
                 $this->getMembersObject()->updateNotification($mem_id, in_array($mem_id, $notification));
@@ -275,4 +284,34 @@ class ilGroupMembershipGUI extends ilMembershipGUI
 
         return $context_options;
     }
+
+    // fau: setPassedFlag - new command bulkSetPassedFlag()
+    protected function bulkSetPassedFlag()
+    {
+        $_POST['participants'] = $_POST['participants'] ?? [];
+        $_POST['visible_member_ids'] = $_POST['visible_member_ids'] ?? [];
+        $participants = (array) $_POST['participants'];
+        $visible_members = (array) $_POST['visible_member_ids'];
+
+        if (!$this->getParentObject()->isManualLPStatusSettingAllowed()) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_permission"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        if (!is_array($participants) or !count($participants)) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("no_checkbox"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        foreach ($participants as $participant) {
+            if ($this->getMembersObject()->isAssigned((int) $participant)) {
+                $this->getParentObject()->setLPStatusManually($participant, in_array($participant, $visible_members));
+            }
+        }
+
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('grp_selected_members_set_to_passed'), true);
+        $this->ctrl->redirect($this, "participants");
+
+        return true;
+    }
+    // fau.
+
 }
