@@ -267,7 +267,7 @@ class ilTestRandomQuestionSetStagingPoolBuilder
                 // fau: taxGroupFilter - map the grouping taxonomy
                 if ($definition->getOriginalGroupTaxId()) {
                     $definition->setMappedGroupTaxId(
-                        $taxonomiesKeysMap->getMappedTaxonomyId($definition->getOriginalGroupTaxId())
+                        $taxonomiesKeysMap->getMappedTaxonomyId((int) $definition->getOriginalGroupTaxId())
                     );
                 } else {
                     $definition->setMappedGroupTaxId(null);
