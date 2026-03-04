@@ -69,9 +69,9 @@ class ilFAUAppEventListener implements ilAppEventListener
 
         switch ($a_component) {
 
-            case 'Modules/Group':
+            case 'components/ILIAS/Group':
                 if(!isset($a_parameter['role_id']))  $role_id = ilParticipants::IL_GRP_MEMBER;
-            case 'Modules/Course':
+            case 'components/ILIAS/Course':
                 switch ($a_event) {
                     case 'update':
                         self::getInstance()->handleObjectUpdate((int) $a_parameter['obj_id']);
@@ -103,7 +103,7 @@ class ilFAUAppEventListener implements ilAppEventListener
                 }
                 break;
                 
-            case 'Services/Membership':
+            case 'components/ILIAS/Membership':
                 switch ($a_event) {
                     case 'updateWaitingList':
                         self::getInstance()->handleUpdateWaitingList((int) $a_parameter['usr_id'], (int) $a_parameter['obj_id']);
@@ -111,7 +111,7 @@ class ilFAUAppEventListener implements ilAppEventListener
                 }
                 break;
 
-            case 'Services/AccessControl':
+            case 'components/ILIAS/AccessControl':
                 switch ($a_event) {
                     case 'assignUser':
                         self::getInstance()->handleAddToRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
@@ -123,7 +123,7 @@ class ilFAUAppEventListener implements ilAppEventListener
                 }
                 break;
 
-            case 'Services/Object':
+            case 'components/ILIAS/Object':
                 switch ($a_event) {
                     case 'toTrash':
                         self::getInstance()->handleObjectDelete((int) $a_parameter['obj_id']);
@@ -131,7 +131,7 @@ class ilFAUAppEventListener implements ilAppEventListener
                 }
                 break;
 
-            case 'Services/User':
+            case 'components/ILIAS/User':
                 switch ($a_event) {
                     case 'deleteUser':
                         self::getInstance()->handleUserDelete((int) $a_parameter['usr_id']);

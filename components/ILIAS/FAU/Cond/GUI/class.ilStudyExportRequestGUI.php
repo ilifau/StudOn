@@ -47,7 +47,6 @@ class ilStudyExportRequestGUI
         $ilCtrl = $DIC->ctrl();
         $rbacsystem = $DIC->rbac()->system();
 
-        include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
         $privacy = ilPrivacySettings::getInstance();
 
         $tpl = new ilTemplate("tpl.export_request.html", true, true, "components/ILIAS/FAU/Cond/GUI");
@@ -85,7 +84,6 @@ class ilStudyExportRequestGUI
         $tpl->parseCurrentBlock();
         $message = $tpl->get();
 
-        require_once('Services/Mail/classes/class.ilMail.php');
         $mail = new ilMail($ilUser->getId());
         $mail_data = new MailDeliveryData(
             'studon@uni-erlangen.de',

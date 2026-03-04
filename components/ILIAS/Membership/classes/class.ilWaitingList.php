@@ -230,9 +230,9 @@ abstract class ilWaitingList
         $ilAppEventHandler = $DIC['ilAppEventHandler'];
         $ilLog = $DIC['ilLog'];
         
-        $ilLog->write(__METHOD__ . ': Raise new event: Services/Membership updateWaitingList');
+        $ilLog->write(__METHOD__ . ': Raise new event: components/ILIAS/Membership updateWaitingList');
         $ilAppEventHandler->raise(
-            "Services/Membership",
+            "components/ILIAS/Membership",
             'updateWaitingList',
             array(
                 'obj_id' => $this->getObjId(),

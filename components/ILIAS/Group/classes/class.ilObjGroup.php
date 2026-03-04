@@ -60,6 +60,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     private int $group_status = 0;
     private int $group_type = ilGroupConstants::GRP_TYPE_UNKNOWN;
     private int $reg_type = ilGroupConstants::GRP_REGISTRATION_DIRECT;
+    // fau: objectSub - class variable
+    protected $reg_ref_id = null;
+    // fau.
     private bool $reg_unlimited = true;
     private ?ilDateTime $reg_start = null;
     private ?ilDateTime $reg_end = null;
