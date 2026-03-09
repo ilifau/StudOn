@@ -37,6 +37,10 @@ use FAU\Ilias\Registration;
 */
 class ilGroupRegistrationGUI extends ilRegistrationGUI
 {
+    // fau: studyCond
+    private int $registration_type;
+    // fau.
+
     public function __construct(ilObject $a_container)
     {
         parent::__construct($a_container);
@@ -120,6 +124,12 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
      */
     protected function fillRegistrationPeriod(): void
     {
+        // fau: objectSub - no registration period for subscription by object
+        if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
+            return;
+        }
+        // fau.
+
         $now = new ilDateTime(time(), IL_CAL_UNIX, 'UTC');
 
         if ($this->container->isRegistrationUnlimited()) {
@@ -193,6 +203,11 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
     protected function fillMaxMembers(): void
     {
         $alert = '';
+        // fau: objectSub - no max members for subscription by object
+        if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
+            return;
+        }
+        // fau.
         if (!$this->container->isMembershipLimited()) {
             return;
         }
@@ -287,11 +302,16 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
     protected function fillRegistrationType(): void
     {
-        if ($this->getWaitingList()->isOnList($this->user->getId())) {
-            return;
+        // fau: objectSub - fill registration by separate object
+        if ($this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_OBJECT) {
+           $this->fillRegistrationTypeObject($this->container->getRegistrationRefId());
+           return;
         }
+        // fau.        
 
-        switch ($this->container->getRegistrationType()) {
+        // fau: studyCond - check actual registration type
+        switch ($this->registration_type) {
+            // fau.
             case ilGroupConstants::GRP_REGISTRATION_DEACTIVATED:
                 $reg = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
                 $reg->setValue($this->lng->txt('grp_reg_disabled'));

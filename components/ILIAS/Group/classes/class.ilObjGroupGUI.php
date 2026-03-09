@@ -1030,6 +1030,29 @@ class ilObjGroupGUI extends ilContainerGUI
         return $form;
     }
 
+    // fau: objectSub - update the ref id for subscriptions
+    /**
+     * Update the chosen ref id for subscriptions
+     */
+    public function updateRegistrationRefIdObject()
+    {
+        global $DIC;
+        $form = $this->initForm();
+        $input = $form->getItemByPostVar('subscription_object');
+        $input->readFromSession();
+        if ($input->getValue()) {
+            $this->object->setRegistrationType(ilGroupConstants::GRP_REGISTRATION_OBJECT);
+            $this->object->setRegistrationRefId((int) $input->getValue());
+        } else {
+            $this->object->setRegistrationType(ilGroupConstants::GRP_REGISTRATION_DEACTIVATED);
+            $this->object->setRegistrationRefId(null);
+        }
+        $this->object->update();
+        $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
+
     public function updateInfoObject(): void
     {
         $this->checkPermission('manage_members');

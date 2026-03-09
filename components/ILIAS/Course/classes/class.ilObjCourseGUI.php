@@ -417,6 +417,12 @@ class ilObjCourseGUI extends ilContainerGUI
                 break;
 
             default:
+                // fau: objectSub - add info about subscription in separate object
+                if ($this->object->getSubscriptionType() == CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT) {
+                    $txt = $this->lng->txt('sub_separate_object');
+                    break;
+                }
+                // fau.
                 switch ($this->object->getSubscriptionType()) {
                     case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
                         $txt = $this->lng->txt("crs_info_reg_confirmation");
@@ -812,6 +818,30 @@ class ilObjCourseGUI extends ilContainerGUI
             );
         }
     }
+
+    // fau: objectSub - update the ref id for subscriptions
+    /**
+     * Update the chosen ref id for subscriptions
+     */
+    public function updateSubscriptionRefIdObject()
+    {
+        global $DIC; 
+
+        $form = $this->initEditForm();
+        $input = $form->getItemByPostVar('subscription_object');
+        $input->readFromSession();
+        if ($input->getValue()) {
+            $this->object->setSubscriptionType(CourseConstantsHelper::IL_CRS_SUBSCRIPTION_OBJECT);
+            $this->object->setSubscriptionRefId((int) $input->getValue());
+        } else {
+            $this->object->setSubscriptionType(ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION);
+            $this->object->setSubscriptionRefId(null);
+        }
+        $this->object->update();
+        $DIC->ui()->mainTemplate()->setOnScreenMessage('success', $this->lng->txt("msg_obj_modified"), true);
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
 
     public function updateObject(): void
     {
@@ -2384,7 +2414,17 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->tabs_gui->setTabActive('settings');
                 break;
             // fau.
-    
+
+            // fau: objectSub - object selection in properties form
+            case "ilpropertyformgui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('settings');
+                $this->ctrl->setReturn($this, "updateSubscriptionRefId");
+                $form = $this->initEditForm();
+                $this->ctrl->forwardCommand($form);
+                break;
+            // fau.
+
             // fau: campoTransfer - forward command
             case "faucoursetransfergui":
                 $this->checkPermission("write");

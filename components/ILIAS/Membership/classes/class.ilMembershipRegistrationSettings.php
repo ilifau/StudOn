@@ -32,6 +32,10 @@ abstract class ilMembershipRegistrationSettings
     public const TYPE_REQUEST = 3;
     public const TYPE_TUTOR = 4;
 
+    // fau: objectSub -  constant for subscription by object
+    const TYPE_OBJECT = 11;
+    // fau.
+        
     public const REGISTRATION_LINK = 5;
 
     public const REGISTRATION_LIMITED_DURATION = 6;
