@@ -569,7 +569,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
             $locator = new ilLocatorGUI();
             $locator->addRepositoryItems($ref_id);
 
-            $tpl = new ilTemplate('tpl.sub_object_link.html', true, true, 'Services/Membership');
+            $tpl = new ilTemplate('tpl.sub_object_link.html', true, true, 'components/ILIAS/Membership');
             $tpl->setVariable('TXT_INFO', $this->lng->txt('sub_separate_object_reg_info'));
             $tpl->setVariable('IMG_TYPE', ilObject::_getIcon($obj_id, 'small'));
             $tpl->setVariable('URL_OBJECT', $link);
