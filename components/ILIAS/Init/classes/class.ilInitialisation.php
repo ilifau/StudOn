@@ -1018,7 +1018,7 @@ class ilInitialisation
     /**
      * $lng initialisation
      */
-    protected static function initLanguage(bool $a_use_user_language = true): void
+    public static function initLanguage(bool $a_use_user_language = true): void
     {
         global $DIC;
 

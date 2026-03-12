@@ -423,7 +423,7 @@ adve#:#adve_minutes_info#:#Minutes of inactivity before an edit lock expires and
 adve#:#adve_page_editor_settings#:#ILIAS Page Editor
 adve#:#adve_pe_general#:#General
 adve#:#adve_rte_settings#:#TinyMCE Editor
-adve#:#adve_text_content_features#:#Text Content Menu
+adve#:#adve_text_content_features#:#Supported Characters
 adve#:#adve_use_physical#:#Use b/i/u instead of str/emp/imp
 adve#:#adve_use_physical_info#:#This setting replaces the semantic style class buttons for ‘strong’, ‘emphatic’ and ‘important’ with physical attribute buttons ‘b’ (bold), ‘i’ (italic) and ‘u’ (underline). Please note, that this may result in inconsistencies if the style editor is used and other physical attributes are assigned to the strong/emphatic/important style classes.
 adve#:#adve_use_tiny_mce#:#Enable TinyMCE Editor for WYSIWYG Editing
@@ -2178,7 +2178,8 @@ auth#:#auth_saml_deleted_idp#:#The Identity Provider has been deleted.
 auth#:#auth_saml_enable#:#Enable SAML Support
 auth#:#auth_saml_err_sqlite_driver#:#The SAML authentication requires the SQLite driver for PHP. Please install the SQLite package and try again.
 auth#:#auth_saml_idp#:#IDP
-auth#:#auth_saml_idp_selection_table_desc#:#Bitte wählen Sie den Identity Provider mit dem Sie sich anmelden möchten.
+auth#:#auth_saml_idp_deactivated_auth_failed#:#Authentication failed, the identity provider is disabled.
+auth#:#auth_saml_idp_selection_table_desc#:#Please select the identity provider you want to log in with.
 auth#:#auth_saml_idp_selection_table_title#:#Identity Provider Selection
 auth#:#auth_saml_idp_settings#:#IDP Settings
 auth#:#auth_saml_idps#:#SAML IDP List
@@ -2770,6 +2771,7 @@ buddysystem#:#buddy_bs_state_requested_p#:#Requested
 buddysystem#:#buddy_bs_state_unlinked#:#Unlinked
 buddysystem#:#buddy_bs_state_unlinked_a#:#Unlinked
 buddysystem#:#buddy_bs_state_unlinked_p#:#Unlinked
+buddysystem#:#buddy_confirm_unlink#:#Do you really want to disconnect from this contact?
 buddysystem#:#buddy_enable#:#Activate ‘Contacts’
 buddysystem#:#buddy_enable_info#:#If enabled, users are allowed to contact each other by initiating contact requests. Additionally, there is a personal user setting to allow or prevent being contacted.
 buddysystem#:#buddy_handle_contact_request#:#Contact Request
@@ -3845,7 +3847,7 @@ common#:#copy_all#:#Copy all
 common#:#copy_n_of_suffix#:#- Copy (%1$s)
 common#:#copy_of#:#Copy of
 common#:#copy_of_suffix#:#- Copy
-common#:#copy_perma_link#:#Copy link to clipboard
+common#:#copy_perma_link#:#Copy Link to Clipboard
 common#:#copy_selected_items#:#Copy
 common#:#count#:#Count
 common#:#counter_novelty#:#News
@@ -5477,6 +5479,7 @@ common#:#renderer_supported_file_types#:#Supported File Types
 common#:#renderer_supported_repo_types#:#Supported ILIAS Objects
 common#:#renderer_type_builtin#:#Built-in
 common#:#rep_main_page#:#Home
+common#:#rep_main_page_logo_alt#:#Logo ILIAS - to the start page
 common#:#repeat_scan#:#Repeating virus scan...
 common#:#repeat_scan_failed#:#Repeated scan failed.
 common#:#repeat_scan_succeded#:#Repeated scan succeeded.
@@ -7396,6 +7399,7 @@ copa#:#copa_value_reading_time_f_p#:#%s Minutes
 copa#:#copa_value_reading_time_f_s#:#%s Minute
 copa#:#obj_copa_duplicate#:#Duplicate Content Page
 copg#:#copg_active_to_small#:#This date must be higher than the starting date.
+copg#:#copg_add_content#:#Add Content
 copg#:#copg_allow_html#:#Enable HTML/Javascript
 copg#:#copg_allow_html_info#:#User may use HTML or Javascript page content. This may lead to security issues. Do not activate, if features can be used by users which you consider not being trustworthy. The support to add HTML content this way may be discontinued in a future version.
 copg#:#copg_an_error_occured#:#An error occured.
@@ -7431,6 +7435,7 @@ copg#:#copg_remove_formats#:#Remove Formatting
 copg#:#copg_sec_link_info#:#Select a target for linking the block. Attention: In this case, the content of the block must not contain any further links itself!
 copg#:#copg_snippet_cannot_be_edited#:#This is a predefined content snippet and cannot be edited here.
 copg#:#copg_unsupported_media_type#:#This media object has an unsupported media type.
+copg#:#copg_use_template#:#Use Template
 copg#:#copg_x_minutes#:#%s minute(s)
 cpad#:#cpad_reading_time_status#:#Reading Time
 cpad#:#cpad_reading_time_status_desc#:#If enabled, the estimated reading time for content page objects will be determined and displayed.
@@ -8086,7 +8091,7 @@ crs#:#mem_cron_min_members_task#:#Please inform the participants if the course w
 crs#:#obj_count_members#:#Number of members
 crs#:#sess_attendance_list#:#Attendance List
 crs#:#sess_gen_attendance_list#:#Generate List
-crs#:#sess_join_info#:#Please click Attend if you want to take part at this session.
+crs#:#sess_join_info#:#Please click on 'Attend' if you want to take part in this session.
 crs#:#sess_limit#:#Limit Number of Sessions Shown
 crs#:#sess_limit_info#:#Participants are not presented with a list of all sessions, but rather a limited number of sessions.
 crs#:#sess_num_next#:#Number of Future Sessions (from tomorrow)
@@ -8134,6 +8139,18 @@ dash#:#dash_click_here#:#Click here
 dash#:#dash_co_delete#:#Delete Dashboard style
 dash#:#dash_co_lang#:#Dashboard style by languages
 dash#:#dash_customization#:#Customize Dashboard Content
+dash#:#dash_dash_fav_remove#:#Remove
+dash#:#dash_dash_fav_remove_info#:#Are you sure you want to remove the following objects from your Favourites?
+dash#:#dash_dash_fav_remove_multiple#:#Remove Multiple Favorites
+dash#:#dash_dash_ls_remove#:#Unsubscribe
+dash#:#dash_dash_ls_remove_info#:#Are you sure you want to unsubscribe from the following learning sequences?
+dash#:#dash_dash_ls_remove_multiple#:#Unsubscribe Multiple Learning Sequences
+dash#:#dash_dash_mem_remove#:#Unsubscribe
+dash#:#dash_dash_mem_remove_info#:#Are you sure you want to unsubscribe from the following courses and groups?
+dash#:#dash_dash_mem_remove_multiple#:#Unsubscribe Multiple Courses and Groups
+dash#:#dash_dash_rc_remove#:#Remove
+dash#:#dash_dash_rc_remove_info#:#Are you sure you want to remove the following objects from your recommended content?
+dash#:#dash_dash_rc_remove_multiple#:#Remove Multiple Contents
 dash#:#dash_dashboard#:#Dashboard
 dash#:#dash_default_presentation#:#Default Presentation
 dash#:#dash_default_sortation#:#Default Sortation
@@ -8147,7 +8164,6 @@ dash#:#dash_enable_recommended_content#:#Recommended Content
 dash#:#dash_enable_study_programmes#:#Study Programmes
 dash#:#dash_enable_task#:#Tasks
 dash#:#dash_favourites#:#Favourites
-dash#:#dash_info_sure_remove_from_favs#:#Are you sure you want to remove the following objects from your Favourites?
 dash#:#dash_item_removed#:#Recommendation has been removed from the list.
 dash#:#dash_learning_sequences#:#My Learning Sequences
 dash#:#dash_list#:#List
@@ -8155,6 +8171,7 @@ dash#:#dash_main_panel#:#Main Panel
 dash#:#dash_make_favourite#:#Add to Favourites
 dash#:#dash_member_main_alt#:#Courses and groups can also be configured as a separate main menu entry.
 dash#:#dash_memberships#:#My Courses and Groups
+dash#:#dash_no_items_to_manage#:#No items available for removal.
 dash#:#dash_page_edit_info#:#The content of this page is displayed to all users on their dashboard. The contents of the various blocks of the dashboard are presented below.
 dash#:#dash_presentation#:#Presentation
 dash#:#dash_recommended_content#:#Recommended Content
@@ -8592,7 +8609,7 @@ dateplaner#:#wk_short#:#WK
 dateplaner#:#year#:#Year
 dcl#:#add_value#:#Add New Entry
 dcl#:#dcl_activate_notification#:#Enable Notification
-dcl#:#dcl_activate_view#:#Activate this view
+dcl#:#dcl_activate_view#:#Activate This View
 dcl#:#dcl_add#:#Create Data Collection
 dcl#:#dcl_add_new_field#:#Add New Field
 dcl#:#dcl_add_new_record#:#Add New Entry
@@ -8639,7 +8656,7 @@ dcl#:#dcl_date#:#Date Entry
 dcl#:#dcl_date_desc#:#Users can enter a date of their choice or select one using a calendar.
 dcl#:#dcl_date_selection#:#Date Selection
 dcl#:#dcl_date_selection_desc#:#Allow a date to be chosen from among a predefined selection of date options.
-dcl#:#dcl_deactivate_view#:#Deactivate this view
+dcl#:#dcl_deactivate_view#:#Deactivate This View
 dcl#:#dcl_default_sort_field#:#Default sort field
 dcl#:#dcl_default_sort_field_order#:#Default sort field order
 dcl#:#dcl_default_sort_field_order_desc#:#Arrange the order of the entries in the table based on this field.
@@ -8657,7 +8674,7 @@ dcl#:#dcl_detailed_view#:#Detailed View
 dcl#:#dcl_display_action_menu#:#Copy
 dcl#:#dcl_display_action_menu_desc#:#The object can be copied from the entry.
 dcl#:#dcl_display_record_alt#:#Display this entry
-dcl#:#dcl_duplicate_non_unique_entries_exist#:#This is not compatible with existing records.###23 02 2024 new variable
+dcl#:#dcl_duplicate_non_unique_entries_exist#:#Some of the existing values for this field are identical. Please make sure that all existing entries are unique in order to change this setting.
 dcl#:#dcl_edit#:#Settings for This Data Collection
 dcl#:#dcl_edit_entry_rules#:#Entry Editing
 dcl#:#dcl_edit_field#:#Edit Field
@@ -8665,7 +8682,7 @@ dcl#:#dcl_edit_perm#:#Edit Entries
 dcl#:#dcl_edit_record#:#Edit Entry
 dcl#:#dcl_edit_table#:#Settings of the Table ‘%s’
 dcl#:#dcl_editable_in_table_gui#:#Please vote in the table view.
-dcl#:#dcl_empty_detailed_view#:#Delete this detailed view
+dcl#:#dcl_empty_detailed_view#:#Delete This Detailed View
 dcl#:#dcl_empty_detailed_view_success#:#The detailed view definition has been deleted successfully.
 dcl#:#dcl_err_formula_field_not_found#:#Field with title '%s' not found
 dcl#:#dcl_error_parsing_expression#:#Error parsing expression
@@ -9614,6 +9631,7 @@ exc#:#exc_settings_feedback_mail_info#:#Tutors enter their evaluation into a mai
 exc#:#exc_settings_feedback_text#:#Text Input
 exc#:#exc_settings_feedback_text_info#:#Tutors type their evaluation in a text field. The participant receives a notification about it and the text is displayed at the assignment overview.
 exc#:#exc_show_instructions#:#Show Work Instructions
+exc#:#exc_show_more#:#Show More
 exc#:#exc_show_peer_review#:#Show Peer-Feedback
 exc#:#exc_show_submissions#:#Publish Submissions after Deadline
 exc#:#exc_show_submissions_info#:#For assignments with a fixed submission deadline, participants can view all submissions after the submission deadline.
@@ -9729,6 +9747,7 @@ exc#:#exc_type_upload#:#Upload
 exc#:#exc_type_upload_team#:#Team Upload
 exc#:#exc_value_can_not_set#:#This value can not be set.
 exc#:#exc_view_portfolio#:#View Portfolio
+exc#:#exc_view_wiki#:#View Wiki
 exc#:#exc_wait_for_files#:#Your download should start automatically. If the download doesn't start in 5 secs, please click here
 exc#:#exc_wiki_container#:#Wiki Container
 exc#:#exc_wiki_container_info#:#Location where wikis of participants will be created.
@@ -10857,7 +10876,7 @@ ldap#:#ldap_server_name#:#Name of LDAP Configuration
 ldap#:#ldap_server_name_info#:#Please choose a name for this LDAP server configuration.
 ldap#:#ldap_server_security_settings#:#Security Settings
 ldap#:#ldap_server_short#:#Server URL:
-ldap#:#ldap_server_url_info#:#A fully qualified URL for specifying the protocol, url and port to connect to. E.g "ldaps://ldap.ilias.de:636".
+ldap#:#ldap_server_url_info#:#Please enter a fully qualified URL for specifying the protocol, url and port to connect to, e.g "ldaps://ldap.ilias.de:636". Multiple URLs can be comma-separated for failover support. In case of connection failures, ILIAS will automatically rotate through the available servers. Note: During authentication, URL rotation is performed in-memory only (not persisted). In other contexts (e.g. during the asynchronous import of accounts via cron job), each failed connection will rotate the URL order and persist it to the database, helping future requests avoid recently-failed servers.
 ldap#:#ldap_server_version_info#:#LDAP version to use, usually 3.
 ldap#:#ldap_servers#:#LDAP Server
 ldap#:#ldap_settings#:#Server Settings
@@ -10972,6 +10991,7 @@ lm#:#lm_btn_lp_toggle_state_completed#:#Set Not Completed
 lm#:#lm_btn_lp_toggle_state_not_completed#:#Set Completed
 lm#:#lm_copy#:#Copy Learning Module
 lm#:#lm_edit_chapters#:#Edit Chapters
+lm#:#lm_edit_content#:#Edit Content
 lm#:#lm_edit_lm_settings#:#Edit Learning Module Settings
 lm#:#lm_est_reading_time#:#Estimated Reading Time
 lm#:#lm_est_reading_time_info#:#In Learning Modules in the repository the estimated reading time can be determined and displayed.
@@ -10989,6 +11009,7 @@ lm#:#lm_insert_page_before#:#Insert page before
 lm#:#lm_insert_page_clip#:#Insert page from clipboard
 lm#:#lm_insert_page_clip_after#:#Insert page from clipboard after
 lm#:#lm_insert_page_clip_before#:#Insert page from clipboard before
+lm#:#lm_list_pages#:#Edit Pages
 lm#:#lm_page_added#:#Page has been added.
 lm#:#lm_page_type_lm#:#LM Page
 lm#:#lm_pages_added#:#Pages have been added.
@@ -12740,8 +12761,8 @@ mmbr#:#info_refuse_sure#:#Are you sure you want to refuse the following user(s)?
 mmbr#:#mmbr_awrn_my_groups_courses#:#My Groups and Courses
 mmbr#:#mmbr_awrn_my_groups_courses_info#:#All members of groups or courses of the current user are listed.
 mmbr#:#mmbr_btn_mail_selected_users#:#Send Mail
-mmbr#:#mmbr_info_delete_sure_unsubscribe#:#Are you sure you want to unsubscribe from the following objects?
 mmbr#:#mmbr_memberships#:#Memberships
+mmbr#:#mmbr_role_error#:#Members must have at least one role assigned.
 mmbr#:#mmbr_selected_users#:#Selected Participants
 mmbr#:#mmbr_unsubscribed_from_objs#:#You have been unsubscribed from the selected objects.
 mme#:#add_languages#:#Add Language
@@ -13276,7 +13297,6 @@ pd#:#pd_ended#:#Ended
 pd#:#pd_export_profile#:#Export Personal Data
 pd#:#pd_import_personal_data#:#Import Personal Data
 pd#:#pd_my_memberships_sort_default#:#Default of Sort Option
-pd#:#pd_no_items_to_manage#:#No items available for removal.
 pd#:#pd_not_dated#:#Not Dated
 pd#:#pd_ongoing#:#Ongoing
 pd#:#pd_personal_items_default_view#:#Default View
@@ -13286,9 +13306,6 @@ pd#:#pd_presentation_mode_tile#:#Tile Presentation
 pd#:#pd_private_calendars#:#Private Calendars
 pd#:#pd_profile_data#:#Profile Data
 pd#:#pd_remove_multi_confirm#:#The objects were removed.
-pd#:#pd_remove_multiple#:#Remove Multiple Objects
-pd#:#pd_unsubscribe_memberships#:#Unsubscribe
-pd#:#pd_unsubscribe_multiple_memberships#:#Unsubscribe Multiple
 pd#:#pd_upcoming#:#Upcoming
 pd#:#pd_view_select_at_least_one#:#You have to select at least one view, either ‘Selected Items’ and/or ‘My Memberships’.
 pdesk#:#bookmark_moved_ok#:#Bookmark has been moved.
@@ -16669,7 +16686,7 @@ survey#:#survey_360_sure_appraisee_close#:#Are you sure you want to close the su
 survey#:#survey_360_sure_appraisee_close_admin#:#Are you sure you want to close the surveys for the following appraisees?
 survey#:#survey_360_sure_delete_appraises#:#Are you sure you want to remove the following appraisees?
 survey#:#survey_360_sure_delete_raters#:#Are you sure you want to remove the following raters for %s?
-survey#:#survey_access_codes#:#Authentication by Access Code
+survey#:#survey_access_code#:#Authentication by Access Code
 survey#:#survey_access_codes_info#:#Users get access to the survey by entering a code in the survey’s ‘Info’ tab. These access codes can be generated in the ‘Access Codes’ sub tab of the ‘Participants’ tab.
 survey#:#survey_activate_skill_service#:#Activate Competence Service
 survey#:#survey_activate_skill_service_info#:#Display a new ‘Competences’ tab. In this tab questions are assigned to competences. Thresholds can then be established that are required to reach a specific level of a competence.
@@ -17836,7 +17853,6 @@ wopi#:#wopi_url_byline#:#Complete URL of the WOPI Discovery, which must be acces
 wsp#:#element_already_shared#:#This object is already shared with this user.
 wsp#:#element_shared#:#Object shared.
 wsp#:#error_creating_certificate_pdf#:#The certificate could not be created. Please contact the administrator to check the certificate server.
-wsp#:#search_no_match#:#Your search did not match any results.
 wsp#:#share#:#Share
 wsp#:#share_content#:#Share Object
 wsp#:#share_with#:#Username
@@ -17858,6 +17874,7 @@ wsp#:#wsp_permission_registered_info#:#This object is shared with all registered
 wsp#:#wsp_permission_removed#:#Entry has been removed.
 wsp#:#wsp_permissions#:#Share
 wsp#:#wsp_personal_resources_description#:#Here you can manage your private files, blogs and artifacts.
+wsp#:#wsp_search_no_match#:#Your search did not match any results.
 wsp#:#wsp_send_mail#:#Send Mail
 wsp#:#wsp_set_permission_all#:#World Wide Web
 wsp#:#wsp_set_permission_all_password#:#World Wide Web with Password

@@ -613,7 +613,7 @@ class ilObjForumGUI extends ilObjectGUI implements ilDesktopItemHandling, ilForu
                 $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'));
             }
 
-            $this->showThreadsObject();
+            $this->ctrl->redirect($this, 'showThreads');
         }
     }
 

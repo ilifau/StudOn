@@ -25,16 +25,12 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
         'grp',
     ];
 
-    private ilDBInterface $db;
-    private int $recoveryFolderId;
     // fau: filterMyMem - class variable for term
     private string $filterTermId;
     // fau.
 
     public function __construct(ilDBInterface $db, int $recoveryFolderId)
     {
-        $this->db = $db;
-        $this->recoveryFolderId = $recoveryFolderId;
     }
 
     // fau: filterMyMem - new function setFilterTermId
@@ -132,7 +128,7 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
                 $termFilter
             ",
             [ilDBConstants::T_TEXT, ilDBConstants::T_INTEGER, ilDBConstants::T_INTEGER, ilDBConstants::T_TEXT, ilDBConstants::T_INTEGER],
-            ['y', 1, $this->recoveryFolderId, $actorLanguageCode, $user->getId()]
+            ['y', 1, $this->recovery_folder_id, $actorLanguageCode, $user->getId()]
         );
         // fau.
 

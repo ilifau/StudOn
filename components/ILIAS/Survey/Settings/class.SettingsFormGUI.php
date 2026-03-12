@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,11 +16,15 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Survey\Settings;
 
+use HTMLPurifier;
 use ILIAS\Survey\InternalGUIService;
 use ILIAS\Survey\Mode\UIModifier;
 use ILIAS\Survey\InternalDomainService;
+use ilObjAdvancedEditing;
 
 /**
  * Settings form
@@ -375,7 +377,7 @@ class SettingsFormGUI
 
         // anonymization
         if ($feature_config->supportsAccessCodes()) {
-            $codes = new \ilCheckboxInputGUI($lng->txt("survey_access_codes"), "acc_codes");
+            $codes = new \ilCheckboxInputGUI($lng->txt("survey_access_code"), "acc_codes");
             $codes->setInfo($lng->txt("survey_access_codes_info"));
             $codes->setChecked(!$survey->isAccessibleWithoutCode());
             $form->addItem($codes);
@@ -883,8 +885,15 @@ class SettingsFormGUI
         } else {
             $survey->setEndDate("");
         }
-        $survey->setIntroduction($form->getInput("introduction"));
-        $survey->setOutro($form->getInput("outro"));
+        $tags = ilObjAdvancedEditing::_getUsedHTMLTags("survey");
+        $purifier = new HTMLPurifier($tags);
+
+        $introduction = $form->getInput("introduction");
+        $introduction = $purifier->purify($introduction);
+        $survey->setIntroduction($introduction);
+        $outro = $form->getInput("outro");
+        $outro = $purifier->purify($outro);
+        $survey->setOutro($outro);
         $survey->setShowQuestionTitles((bool) $form->getInput("show_question_titles"));
 
         // "separate mail for each participant finished"

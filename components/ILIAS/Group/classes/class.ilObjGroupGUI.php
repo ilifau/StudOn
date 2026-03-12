@@ -484,7 +484,7 @@ class ilObjGroupGUI extends ilContainerGUI
         );
 
         if ($this->isActiveAdministrationPanel()) {
-            parent::renderObject();
+            $this->renderObject();
             $this->addAdoptContentLinkToToolbar();
             return;
         }
@@ -493,7 +493,6 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->ctrl->redirectByClass(ilMemberAgreementGUI::class);
         }
 
-        $this->tabs_gui->setTabActive('view_content');
         $this->renderObject();
     }
 
@@ -2139,7 +2138,7 @@ class ilObjGroupGUI extends ilContainerGUI
         switch ($a_tab) {
             case 'settings':
                 $this->tabs_gui->addSubTabTarget(
-                    "grp_settings",
+                    "general",
                     $this->ctrl->getLinkTarget($this, 'edit'),
                     "edit",
                     get_class($this)
