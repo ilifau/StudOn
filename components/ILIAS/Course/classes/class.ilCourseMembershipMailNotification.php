@@ -55,8 +55,8 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     const TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM = 63;	//admins
     private ilCourseWaitingList $waiting_list;
     // fau.
-    
-    
+
+
     /**
      * @var array $permanent_enabled_notifications
      * Notifications which are not affected by "mail_crs_member_notification" setting

@@ -30,7 +30,7 @@ trait SessionWaitingListHelper
         
         $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addToList');
         $ilAppEventHandler->raise(
-            "Modules/Course",
+            "components/ILIAS/Course",
             'addToWaitingList',
             array(
                     'obj_id' => $this->getObjId(),

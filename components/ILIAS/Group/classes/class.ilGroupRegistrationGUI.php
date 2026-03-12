@@ -281,12 +281,18 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 $this->container->isWaitingListEnabled() and
                 $this->container->isMembershipLimited()) {
                 $alert = $this->lng->txt('grp_warn_no_max_set_on_waiting_list');
-            } elseif (
+            } 
+            // fau: fairSub - add to waiting list if free places are needed for already waiting users (see also add() function)
+            elseif (
                 $free and
                 $this->container->isWaitingListEnabled() and
                 $this->container->isMembershipLimited() and
-                $this->getWaitingList()->getCountUsers()) {
-                $alert = $this->lng->txt('grp_warn_wl_set_on_waiting_list');
+                ($this->getWaitingList()->getCountUsers() >= $free)) {
+                $waiting_list = $this->getWaitingList();
+                $waiting = $waiting_list->getCountUsers();
+
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('grp_warn_wl_set_on_waiting_list'));
+                #$alert = $this->lng->txt('grp_warn_wl_set_on_waiting_list');
             }
             // fau.            
         }

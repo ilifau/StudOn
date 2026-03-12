@@ -20,8 +20,11 @@ declare(strict_types=0);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+
+// fau: fairSub#52 - use namespaces
 use FAU\Tools\Cust;
 use FAU\Ilias\Helper\CourseConstantsHelper;
+// fau.
 use ILIAS\News\Service as News;
 use ILIAS\FAU\Cond\GUI\ilStudyCondGUI;
 
@@ -1515,7 +1518,7 @@ class ilObjCourseGUI extends ilContainerGUI
         foreach ($wait_options as $postvalue => $langvar) {
             $option = new ilRadioOption($this->lng->txt($langvar), $postvalue);
             $option->setInfo($this->lng->txt($langvar . '_info'));
-        $wait->addOption($option);
+            $wait->addOption($option);
         }
 
         if ($this->object->hasWaitingListAutoFill()) {

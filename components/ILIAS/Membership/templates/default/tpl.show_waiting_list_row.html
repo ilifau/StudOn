@@ -1,4 +1,6 @@
-<tr class="{CSS_ROW}">
+<!-- fau: fairSub#110 - set small class for waiting list row -->
+<tr class="{CSS_ROW} small">
+	<!-- fau. -->
 	<td class="std">
 		<input type="checkbox" name="waiting[]" value="{VAL_ID}" />
 	</td>
@@ -19,6 +21,11 @@
 	<td class="std">
 		{VAL_SUBTIME}
 	</td>
+<!-- fau: fairSub#111 - add column for status -->
+<td class="std">
+	{VAL_STATUS}
+</td>
+<!-- fau. -->	
 	<td class="std">
 			<!-- BEGIN as_link -->
 			<div class="il_ContainerItemCommands2">
