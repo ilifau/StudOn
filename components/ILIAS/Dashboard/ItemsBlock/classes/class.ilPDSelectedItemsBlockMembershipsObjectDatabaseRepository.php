@@ -29,7 +29,7 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
     private string $filterTermId;
     // fau.
 
-    public function __construct(ilDBInterface $db, int $recoveryFolderId)
+    public function __construct(protected readonly ilDBInterface $db, protected readonly int $recovery_folder_id)
     {
     }
 
