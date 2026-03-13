@@ -504,9 +504,10 @@ class ilContainer extends ilObject
         $mom_noti = new ilMembershipNotifications($this->getRefId());
         $mom_noti->cloneSettings($new_obj->getRefId());
 
-        // clone filter fields
-        $container_filter_service = new ilContainerFilterService();
-        $container_filter_service->cloneFilterFields($this->getRefId(), $new_obj->getRefId());
+        // fau: studyCond - clone conditions when container is cloned
+        global $DIC;
+        $DIC->fau()->cond()->soft()->cloneConditions($this->getId(), $new_obj->getId());
+        // fau.
 
         return $new_obj;
     }
@@ -628,9 +629,10 @@ class ilContainer extends ilObject
         // delete translations
         $this->obj_trans->delete();
 
-        // delete content page
-        $this->domain->page($this)->deletePage();
-
+        // fau: studyCond - delete conditions when the container is deleted
+        global $DIC;
+        $DIC->fau()->cond()->soft()->deleteConditionsOfObject($this->getId());
+        // fau.
         return true;
     }
 

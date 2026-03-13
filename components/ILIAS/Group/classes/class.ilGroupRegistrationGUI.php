@@ -347,9 +347,14 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 break;
 
             case ilGroupConstants::GRP_REGISTRATION_PASSWORD:
-                $txt = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
-                $txt->setValue($this->lng->txt('grp_pass_request'));
-
+                // fau: studyCond - set password subscription info for studycond
+                $txt = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+                if ($this->has_studycond) {
+                    $txt->setHtml(sprintf($this->lng->txt('grp_pass_request_studycond'), $this->describe_studycond));
+                } else {
+                    $txt->setHtml($this->lng->txt('grp_pass_request'));
+                }
+                // fau.
 
                 $pass = new ilTextInputGUI($this->lng->txt('passwd'), 'grp_passw');
                 $pass->setInputType('password');
@@ -367,8 +372,16 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 // fau: fairSub - allow "request" info if waiting list is active
                 // fau.
 
-                $txt = new ilNonEditableValueGUI($this->lng->txt('mem_reg_type'));
-                $txt->setValue($this->lng->txt('grp_reg_request'));
+                // fau: studyCond - set confirmation subscription info for studycond
+                $txt = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+                if ($this->has_studycond and $this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_DIRECT) {
+                    $txt->setHtml(sprintf($this->lng->txt('group_req_direct_studycond'), $this->describe_studycond));
+                } elseif ($this->has_studycond and $this->container->getRegistrationType() == ilGroupConstants::GRP_REGISTRATION_PASSWORD) {
+                    $txt->setHtml(sprintf($this->lng->txt('grp_pass_request_studycond'), $this->describe_studycond));
+                } else {
+                    $txt->setHtml($this->lng->txt('grp_reg_request'));
+                }
+                // fau.
 
                 $sub = new ilTextAreaInputGUI($this->lng->txt('grp_reg_subject'), 'subject');
                 $subject = '';

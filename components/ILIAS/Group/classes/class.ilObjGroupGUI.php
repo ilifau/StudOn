@@ -1933,8 +1933,8 @@ class ilObjGroupGUI extends ilContainerGUI
 
 
             // fau: studyCond - add studycond setting
- /*           global $DIC;
-            $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "components/ILIAS/FAU/Cond/GUI");
+            global $DIC;
+            $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/FAU/Cond/GUI");
             if ($a_mode == 'edit') {
                 $stpl->setCurrentBlock('condition');
                 $stpl->setVariable("CONDITION_TEXT", nl2br($DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId())));
@@ -1950,7 +1950,7 @@ class ilObjGroupGUI extends ilContainerGUI
 
             if (!$this->object->isParallelGroup()) {
                 $form->addItem($studycond);
-            }*/
+            }
             // fau.
 
             // Group presentation

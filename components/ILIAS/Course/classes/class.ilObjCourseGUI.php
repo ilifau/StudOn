@@ -413,6 +413,9 @@ class ilObjCourseGUI extends ilContainerGUI
         $info->addAccessPeriodProperty();
 
         $txt = '';
+        // fau: studyCond - generate text for suscription with condition
+        $subscription_text = "";
+        // fau.
         switch ($this->object->getSubscriptionLimitationType()) {
             case ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED:
                 $txt = $this->lng->txt("crs_info_reg_deactivated");
@@ -425,6 +428,33 @@ class ilObjCourseGUI extends ilContainerGUI
                     break;
                 }
                 // fau.
+                // fau: studyCond - generate text for suscription with condition
+                global $DIC;
+                if ($DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->object->getId())) {
+                    $ctext = $DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId());
+                    switch ($this->object->getSubscriptionType()) {
+                        case ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT:
+                            $subscription_text = sprintf($this->lng->txt('crs_subscription_options_direct_studycond'), $ctext);
+                            break;
+                        case ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD:
+                            $subscription_text = sprintf($this->lng->txt('crs_subscription_options_password_studycond'), $ctext);
+                            break;
+
+                    case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
+                            $subscription_text = "";
+                            break;
+                    }
+                    $ilUser = $DIC->user();
+                    if (!$DIC->fau()->cond()->soft()->check($this->object->getId(), $ilUser->getId())) {
+                        $subscription_type = $this->object->getSubscriptionType();
+                    } else {
+                        $subscription_type = ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION;
+                    }
+                } else {
+                    $subscription_text = "";
+                    $subscription_type = $this->object->getSubscriptionType();
+                }
+                // fau.                
                 switch ($this->object->getSubscriptionType()) {
                     case ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION:
                         $txt = $this->lng->txt("crs_info_reg_confirmation");
@@ -439,7 +469,10 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         // subscription
-        $info->addProperty($this->lng->txt("crs_info_reg"), $txt);
+        // fau: studyCond - add text for subscription with condition
+        $info->addProperty($this->lng->txt("crs_info_reg"), $subscription_text . $txt);
+        // fau.
+
         if ($this->object->getSubscriptionLimitationType() != ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             if ($this->object->getSubscriptionUnlimitedStatus()) {
                 $info->addProperty(
