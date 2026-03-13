@@ -26,7 +26,6 @@ use FAU\Tools\Cust;
 use FAU\Ilias\Helper\CourseConstantsHelper;
 // fau.
 use ILIAS\News\Service as News;
-use ILIAS\FAU\Cond\GUI\ilStudyCondGUI;
 
 /**
  * Class ilObjCourseGUI
@@ -1195,6 +1194,14 @@ class ilObjCourseGUI extends ilContainerGUI
 
         return $subs;
     }
+
+    // fau: studyCond - new function updateForMemcond
+    public function updateForMemcondObject()
+    {
+        $this->update_for_memcond = true;
+        $this->updateObject();
+    }
+    // fau.
 
     protected function confirmLPSync(): void
     {
