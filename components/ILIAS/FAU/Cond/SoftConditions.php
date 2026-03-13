@@ -3,7 +3,7 @@
 namespace FAU\Cond;
 
 use ILIAS\DI\Container;
-use Cust;
+use FAU\Tools\Cust;
 use ilObject;
 use FAU\User\Data\Person;
 use FAU\Cond\Data\CosCondition;
