@@ -56,6 +56,19 @@ class WebFeedCreationDeletedObjective extends \ilAccessRBACOperationDeletedObjec
         ];
     }
 
+    // fau: fixSetupWebFeedCreationDeletedObjective
+    public function isApplicable(Environment $environment): bool
+    {
+        $db = $environment->getResource(Environment::RESOURCE_DATABASE);
+        $set = $db->queryF(
+            "SELECT ops_id FROM rbac_operations WHERE operation = %s",
+            ["text"],
+            [$this->ops_name]
+        );
+        return $db->fetchAssoc($set) !== null;
+    }
+    // fau.
+
     public function achieve(Environment $environment): Environment
     {
         $db = $environment->getResource(Environment::RESOURCE_DATABASE);
@@ -99,6 +112,16 @@ class WebFeedCreationDeletedObjective extends \ilAccessRBACOperationDeletedObjec
                 }
             }
         }
+
+        // fau: fixSetupWebFeedCreationDeletedObjective
+        // Remove the operation itself so isApplicable() returns false on subsequent runs
+        $db->manipulateF(
+            "DELETE FROM rbac_operations WHERE operation = %s",
+            ["text"],
+            [$this->ops_name]
+        );
+        // fau.
+
         return $environment;
     }
 
