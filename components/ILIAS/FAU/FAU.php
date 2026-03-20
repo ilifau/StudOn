@@ -30,6 +30,7 @@ class FAU implements \ILIAS\Component\Component
         array | \ArrayAccess &$pull,
         array | \ArrayAccess &$internal,
     ): void {
-        // ...
+        $contribute[Component\Resource\PublicAsset::class] = fn() =>
+            new Component\Resource\ComponentJS($this, "hard_restrictions.js");
     }
 }
