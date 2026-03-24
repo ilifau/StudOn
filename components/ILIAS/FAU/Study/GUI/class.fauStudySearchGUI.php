@@ -100,7 +100,7 @@ class fauStudySearchGUI extends BaseGUI implements \ilCtrlBaseClassInterface
                 $tpl->setVariable('CMD_MOVE', 'cut');
 
                 $tpl->setVariable('ICON_DOWNRIGHT', $this->renderer->render(
-                    $this->factory->image()->standard(ilUtil::getImagePath('arrow_downright.svg'), $this->lng->txt('actions'))));
+                    $this->factory->image()->standard(ilUtil::getImagePath('nav/arrow_downright.svg'), $this->lng->txt('actions'))));
             }
         }
         $this->tpl->setContent($tpl->get());
