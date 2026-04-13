@@ -1535,6 +1535,14 @@ class ilPageObjectGUI
         // ensure no cache hit, if included files/media objects have been changed
         $params["incl_elements_date"] = $this->obj->getLastUpdateOfIncludedElements();
 
+        // fau: imageBox - init lightox and add parameter to open fullscreen in box
+        if ($this instanceof ilAssQuestionPageGUI) {
+            iljQueryUtil::initLightbox2();
+            $params["fullscreen_in_lightbox"] = true;
+        } else {
+            $params["fullscreen_in_lightbox"] = false;
+        }
+        // fau.
 
         // should be modularized
         $md5_adds = ilPCSection::getCacheTriggerString($this->getPageObject());

@@ -464,6 +464,11 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         $show_manual_scoring = false,
         $show_question_text = true
     ): string {
+        
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
   
         $solutions = array();
         if (($active_id > 0) && (!$show_correct_solution)) {
@@ -668,7 +673,11 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
     public function getPreview($show_question_only = false, $showInlineFeedback = false): string
     {
         $solutions = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : array();
-
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
+        
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         if ($DIC->http()->agent()->isMobile() || $DIC->http()->agent()->isIpad()) {
             iljQueryUtil::initjQuery();
@@ -840,6 +849,10 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
     public function getTestOutput($active_id, $pass, $is_postponed = false, $user_post_solution = false, $inlineFeedback = false): string
     // hey.
     {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         if ($DIC->http()->agent()->isMobile() || $DIC->http()->agent()->isIpad()) {
             iljQueryUtil::initjQuery();

@@ -288,11 +288,23 @@ class ilAssNestedOrderingElementsInputGUI extends ilMultipleNestedOrderingElemen
     {
         return $this->getThumbPrefix() . $element['content'];
     }
-        
+
+    // fau: imageBox - get the source for image enlargement
     /**
+     * @param array $element
      * @return string
      */
-    protected function getThumbnailSource($element): string
+    protected function getEnlargeSource($element)
+    {
+        return $this->getElementImagePath() . $element['content'];
+    }
+    // fau.
+    
+    /**
+     * @param array $element
+     * @return string
+     */
+    protected function getThumbnailSource($element)
     {
         return $this->getElementImagePath() . $this->getThumbnailFilename($element);
     }
@@ -324,6 +336,12 @@ class ilAssNestedOrderingElementsInputGUI extends ilMultipleNestedOrderingElemen
                 $tpl->setCurrentBlock('item_image');
                 $tpl->setVariable("ITEM_SOURCE", $this->getThumbnailSource($element));
                 $tpl->setVariable("ITEM_CONTENT", $this->getThumbnailFilename($element));
+// fau: imageBox - add enlarge icon
+                $tpl->setVariable("ENLARGE_SOURCE", $this->getEnlargeSource($element));
+                $tpl->setVariable("ENLARGE_HREF", ilUtil::getImagePath('media/enlarge.svg'));
+                $tpl->setVariable("ENLARGE_ALT", $this->lng->txt('enlarge'));
+                $tpl->setVariable("ENLARGE_TITLE", $this->lng->txt('enlarge'));
+// fau.
                 $tpl->parseCurrentBlock();
                 break;
         }
