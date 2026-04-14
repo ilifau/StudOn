@@ -47,7 +47,7 @@ class Dates
      * Get the list of planned dates for a course
      * return string[]
      */
-    public function getPlannedDatesList(?int $course_id, bool $long, bool $with_instructors = true) : array
+    public function getPlannedDatesList(?int $course_id, bool $long, bool $with_instructors_profile = true) : array
     {
         $list = [];
         foreach ($this->repo->getPlannedDatesOfCourse((int) $course_id) as $date) {
@@ -72,7 +72,7 @@ class Dates
             if (($long || !$this->isRegular($date)) && !empty($date->getStartdate())) {
                 $parts[] = $this->getDatespan($date->getStartdate(), $date->getEnddate());
             }
-            if ($long && $with_instructors && !empty($instructors = $this->service->persons()->getInstructorsList($date->getPlannedDatesId()))) {
+            if ($long && !empty($instructors = $this->service->persons()->getInstructorsList($date->getPlannedDatesId(), $with_instructors_profile))) {
                 $parts[] = implode(', ', $instructors);
             }
 
