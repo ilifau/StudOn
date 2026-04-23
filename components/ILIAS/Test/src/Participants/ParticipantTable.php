@@ -103,7 +103,7 @@ class ParticipantTable implements DataRetrieval
             $status_of_attempt = $record->getAttemptOverviewInformation()?->getStatusOfAttempt() ?? StatusOfAttempt::NOT_YET_STARTED;
 
             $row = [
-                'name' => $this->test_object->buildName($record->getUserId(), $record->getFirstname(), $record->getLastname()),
+                'name' => $record->getDisplayName($this->lng, $this->test_object->getAnonymity()),
                 'login' => $record->getLogin(),
                 'matriculation' => $record->getMatriculation(),
                 'total_time_on_task' => $record->getAttemptOverviewInformation()?->getHumanReadableTotalTimeOnTask() ?? '',
@@ -151,7 +151,10 @@ class ParticipantTable implements DataRetrieval
             }
 
             yield $this->table_actions->onDataRow(
-                $row_builder->buildDataRow((string) $record->getUserId(), $row),
+                $row_builder->buildDataRow(
+                    "{$record->getUserId()}_{$record->getActiveId()}",
+                    $row
+                ),
                 $record
             );
         }

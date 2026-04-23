@@ -20,7 +20,7 @@ declare(strict_types=1);
 use FAU\Ilias\Helper\WaitingListConstantsHelper;
 use FAU\Ilias\Helper\WaitingListTableGUIHelper;
 
-use ILIAS\UI\Implementation\Factory as UIImplementationFactory;
+use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Renderer as UIRenderer;
 
 /**
@@ -43,7 +43,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
     protected ilWaitingList $waiting_list;
 
     private UIRenderer $renderer;
-    private UIImplementationFactory $uiFactory;
+    private UIFactory $uiFactory;
 
     public function __construct(
         object $a_parent_obj,
@@ -60,7 +60,6 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->setId('crs_wait_' . $this->getRepositoryObject()->getId());
         parent::__construct($a_parent_obj, 'participants');
         $this->setFormName('waiting');
-        $this->setPrefix('waiting');
 
         $this->lng->loadLanguageModule('grp');
         $this->lng->loadLanguageModule('crs');
@@ -91,7 +90,6 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->addMultiCommand('addToClipboard', $this->lng->txt('clipboard_add_btn'));
         // end-patch clipboard
 
-        $this->setPrefix('waiting');
         $this->setSelectAllCheckbox('waiting', true);
 
         $this->setRowTemplate("tpl.show_waiting_list_row.html", "components/ILIAS/Membership");

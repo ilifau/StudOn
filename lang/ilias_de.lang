@@ -653,7 +653,6 @@ assessment#:#errFormulaQuestion#:#Eine Formelfrage enthält fehlerhafte Angaben
 assessment#:#errRecursionInResult#:#Die Formel enthält eine nicht auflösbare Rekursion.
 assessment#:#err_category_in_use#:#Die Kategorie kann nicht gelöscht werden. Eine oder mehrere Einheiten der Kategorie sind bereits in Benutzung.
 assessment#:#err_divider_too_big#:#Der Teiler einer der Variablen in dieser Frage ist zu gross.
-assessment#:#err_divider_too_big_specific#:#Der Teiler dieser Variable ist zu gross.
 assessment#:#err_division#:#Der von Ihnen gesetzte Wert macht es unmöglich einen gültigen Wert für die Variable zu generieren.
 assessment#:#err_duplicate_results#:#Sie haben eine Ergebnisvariable mehrfach verwendet. Das ist innerhalb des Aufgabentextes nicht erlaubt!
 assessment#:#err_no_formula#:#Bitte geben Sie eine Formel zur Berechnung des Ergebnisses an.
@@ -4655,7 +4654,7 @@ common#:#mails#:#Mails
 common#:#mails_at_the_ilias_installation#:#Auf der ILIAS-Installation %2$s haben Sie %1$s neue Mail(s) erhalten
 common#:#mails_pl#:#Mail(s)
 common#:#main_menu#:#Hauptmenü
-common#:#mainbar_aria_label#:#Hauptleiste
+common#:#mainbar_aria_label#:#Hauptnavigationsleiste###01 02 2026 changed content
 common#:#mainbar_more_label#:#Mehr
 common#:#manage_members#:#Mitglieder verwalten
 common#:#marked_entries#:#Markierte Einträge
@@ -8130,6 +8129,8 @@ crs#:#tutorial_support_block_title#:#Kontaktperson
 crs#:#user_fields#:#Angaben des Persönlichen Profils
 crsv#:#crsv_create#:#Kurszertifikat erstellen
 crsv#:#crsv_create_info#:#Wählen Sie einen Kurs, für den Sie ein Zertifikat benötigen
+dash#:#add_to_favourites#:#Zu Favoriten hinzufügen
+dash#:#added_to_favourites#:#Das Objekt wurde den Favoriten hinzugefügt.
 dash#:#dash_activation#:#Aktivierung
 dash#:#dash_added_to_favs#:#Der Eintrag wurde zu den persönlichen Favoriten hinzugefügt.
 dash#:#dash_avail_presentation#:#Verfügbare Präsentationen
@@ -8167,7 +8168,6 @@ dash#:#dash_item_removed#:#Der Eintrag wurde aus der Liste entfernt.
 dash#:#dash_learning_sequences#:#Meine Lernsequenzen
 dash#:#dash_list#:#Liste
 dash#:#dash_main_panel#:#Hauptbereich
-dash#:#dash_make_favourite#:#Zu Favoriten hinzufügen
 dash#:#dash_member_main_alt#:#Eine Ansicht der Mitgliedschaften kann auch direkt im Haupmenü eingebunden werden.
 dash#:#dash_memberships#:#Meine Kurse und Gruppen
 dash#:#dash_no_items_to_manage#:#Keine Objekte zum Entfernen verfügbar.
@@ -8187,6 +8187,8 @@ dash#:#dash_view_courses_groups#:#Block ‘Meine Kurse und Gruppen’
 dash#:#dash_view_favourites#:#Block ‘Favoriten’
 dash#:#favourites_disabled_info#:#Das Setzen von Favoriten ist deaktiviert. Sie können dieses in den Magazin-Einstellungen ändern.
 dash#:#memberships_disabled_info#:#Das Setzen von Mitgliedschaften ist deaktiviert. Sie können dieses in den Kurs-Einstellungen ändern.
+dash#:#remove_from_favourites#:#Von Favoriten entfernen
+dash#:#removed_from_favourites#:#Das Objekt wurde aus den Favoriten entfernt.
 dash#:#topitem_block#:#Block
 dateplaner#:#Fr_long#:#Freitag
 dateplaner#:#Fr_short#:#Fr
@@ -9238,6 +9240,8 @@ ecs#:#ecs_wiki_export_enabled#:#Freigeben
 ecs#:#ecs_wiki_export_obj_settings#:#Einstellungen für Wikifreigaben
 error#:#error_back_to_repository#:#Zurück zum Magazin
 error#:#error_sry_error#:#Es ist leider ein Fehler aufgetreten.
+error#:#http_404_not_found#:#Die angeforderte Seite wurde nicht gefunden.
+error#:#http_500_internal_server_error#:#Es ist ein interner Serverfehler aufgetreten.
 etal#:#appointments#:#Sitzungen
 etal#:#cal_type_tals#:#Gespräche
 etal#:#change_date_of_series#:#Gesprächsserie anpassen
@@ -11796,7 +11800,7 @@ mathjax#:#mathjax_polyfill_url_desc_line1#:#Für MathJax 2 und MathJax 3 mit akt
 mathjax#:#mathjax_polyfill_url_desc_line2#:#Bitte entfernen Sie die Einbindung von polyfill.io! Siehe https://sansec.io/research/polyfill-supply-chain-attack
 mathjax#:#mathjax_script_url#:#URL des MathJax-Skripts
 mathjax#:#mathjax_script_url_desc_line1#:#Bitte verwenden Sie den Safe Mode, um XSS-Angriffe durch MathJax-Code mit Javascript zu vermeiden.<br/>Für MathJax 2 z.B. %s
-mathjax#:#mathjax_script_url_desc_line2#:#Für MathJax 3 z.B. %s
+mathjax#:#mathjax_script_url_desc_line2#:#Für MathJax 3 z.B. %s<br />Mit diesen Skripten wird MathJax durch den Browsers des Nutzers von einer externen Adresse (cdn.jsdelivr.net) abgerufen. Wenn Sie MathJax selbst hosten, verwenden Sie eine Kopie des entsprechenden Skripts mit geänderter Adresse.
 mathjax#:#mathjax_server_address#:#Server-Adresse
 mathjax#:#mathjax_server_address_info#:#z.B. http://localhost:8003
 mathjax#:#mathjax_server_cache_cleared#:#Der MathJax-Cache wurde geleert.
@@ -13040,6 +13044,7 @@ notes#:#notes_latest_comment#:#Letzter Kommentar
 notes#:#notes_latest_message#:#Letzte Mitteilung
 notes#:#notes_message_author_counterpart#:#Gesprächspartner
 notes#:#notes_message_author_you#:#Sie
+notes#:#notes_message_deleted#:#Die Mitteilung wurde gelöscht.
 notes#:#notes_messages#:#Mitteilungen
 notes#:#notes_my_comments#:#Meine Kommentare
 notes#:#notes_no_comments#:#Bisher wurde noch kein Kommentar abgegeben.
@@ -15045,9 +15050,7 @@ rep#:#rep_add_new_def_grp_content#:#Inhalt
 rep#:#rep_add_new_def_grp_feedback#:#Feedback und Evaluation
 rep#:#rep_add_new_def_grp_organisation#:#Organisation
 rep#:#rep_add_new_def_grp_templates#:#Vorlagen
-rep#:#rep_add_to_favourites#:#Zu Favoriten hinzufügen
 rep#:#rep_added_rec_content#:#Empfohlener Inhalt wurde hinzugefügt.
-rep#:#rep_added_to_favourites#:#Das Objekt wurde den Favoriten hinzugefügt.
 rep#:#rep_allowed_types#:#Allowed Types
 rep#:#rep_breadcr_crs#:#Brotkrumennavigation beginnt mit Kurs
 rep#:#rep_breadcr_crs_config#:#Konfiguration
@@ -15102,9 +15105,7 @@ rep#:#rep_object_references_cannot_be_read#:#Keine Rechte an %s weiteren Referen
 rep#:#rep_object_to_delete#:#Zu löschen
 rep#:#rep_rec_content_removed#:#Empfohlener Inhalt wurde entfernt.
 rep#:#rep_recommended_content#:#Empfohlene Inhalte
-rep#:#rep_remove_from_favourites#:#Von Favoriten entfernen
 rep#:#rep_remove_rec_content#:#Sollen die folgenden Empfehlungen wirklich entfernt werden? Die entsprechenden Inhalte bleiben weiterhin erhalten.
-rep#:#rep_removed_from_favourites#:#Das Objekt wurde aus den Favoriten entfernt.
 rep#:#rep_target_location#:#Zielort
 rep#:#rep_target_location_info#:#Bitte wählen sie den Zielort aus, an dem die ausgewählten Objekte wiederhergestellt werden sollen.
 rep#:#rep_time_based_availability#:#Zeitlich begrenzte Verfügbarkeit
@@ -16096,6 +16097,7 @@ style#:#sty_individual_styles#:#Lokale Stylesheets
 style#:#sty_keep_existing#:#Bestehende Klasse erhalten
 style#:#sty_left#:#Links
 style#:#sty_left_right_padding#:#Innenabstand Links/Rechts
+style#:#sty_legacy_image_directory_found#:#Es wurde in ILIAS 9 Verzeichnis mit Bildern gefunden. Sie können die Bilder durch klicken auf "Bilder migrieren" übertragen.
 style#:#sty_letter_spacing#:#Zeichenabstand
 style#:#sty_lightness_border#:#Helligkeit Rahmen
 style#:#sty_lightness_cell1_bg#:#Helligkeit Zelle 1 Hintergrund
@@ -16116,6 +16118,7 @@ style#:#sty_margin_and_padding#:#Außenrand und Innenabstand
 style#:#sty_media_char#:#Medien
 style#:#sty_media_queries#:#Media Queries
 style#:#sty_media_query_info#:#Für jeden Media Query wird ein eigener CSS-Abschnitt nach dem Standard-Abschnitt (ohne Media Query) eingefügt.
+style#:#sty_migrate_images#:#Bilder migrieren
 style#:#sty_min_height#:#Minimale Höhe
 style#:#sty_move_lm_styles#:#Stylesheets der Lernmodule ändern
 style#:#sty_move_obj_styles#:#Stylesheets der Objekte ändern
@@ -16174,6 +16177,7 @@ style#:#sty_special#:#Spezial
 style#:#sty_style_chars#:#Styleklasse
 style#:#sty_style_class#:#Styleklassen
 style#:#sty_style_classes_copied#:#Styleklassen wurden kopiert.
+style#:#sty_style_not_migrated#:#Dieser Content-Style wurde noch nicht in die ILIAS 10 Datenstruktur migriert. Änderungen werden noch nicht wirksam.
 style#:#sty_substyle#:#Style eines Teilbereichs
 style#:#sty_substyle_of#:#Sub-Style von
 style#:#sty_substyles#:#Style eines Teilbereichs
@@ -16720,6 +16724,7 @@ survey#:#survey_execution_sure_finish#:#Wollen Sie wirklich die Umfrage beenden?
 survey#:#survey_existing_pool#:#Vorhandenen Fragenpool verwenden
 survey#:#survey_finish#:#Umfrage beenden →
 survey#:#survey_finished#:#Die Umfrage ist beendet. Vielen Dank für Ihre Teilnahme!
+survey#:#survey_from_x_points#:#Ab X Punkten
 survey#:#survey_has_datasets_warning#:#Die Umfrage enthält bereits Ergebnisse. Sie können die Fragen erst wieder bearbeiten, wenn Sie die Datensätze aller Befragten löschen.
 survey#:#survey_has_datasets_warning_page_view#:#Die Umfrage enthält bereits Ergebnisse. Sie können die Fragen erst wieder bearbeiten, wenn Sie die Datensätze aller Befragten löschen.
 survey#:#survey_has_datasets_warning_page_view_link#:#Datensätze anzeigen
@@ -16795,7 +16800,6 @@ survey#:#survey_sync_insufficient_permissions#:#Keine ausreichenden Bedingungen.
 survey#:#survey_sync_question_copies#:#Fragenkopien synchronisieren
 survey#:#survey_sync_question_copies_info#:#Alle ausgewählten Fragen werden auf den aktuellen Stand der Poolfrage gebracht.
 survey#:#survey_sync_success#:#Die gewählten Fragen wurden aktualisiert.
-survey#:#survey_up_to_x_points#:#Bis zu x Punkten
 survey#:#survey_use_start_button#:#Sie dürfen eine Umfrage nur über die Schaltfläche "Umfrage beginnen" starten!
 survey#:#svy_activation_limited_visibility_info#:#Außerhalb des angegebenen Zeitraums wird nur der Titel der Umfrage angezeigt, die Fragen sind nicht zugänglich.
 survey#:#svy_activation_online_info#:#Nur wenn die Umfrage online ist, können Benutzer an der Umfrage teilnehmen.
@@ -17087,6 +17091,7 @@ tax#:#tax_tax_settings#:#Taxonomieeinstellungen
 tax#:#tax_taxonomy#:#Taxonomie
 tbl#:#tbl_export_csv#:#.CSV-Export
 tbl#:#tbl_export_excel#:#Excel-Export
+tbl#:#tbl_selection#:#Auswahl
 tbl#:#tbl_template_create#:#Aktuelle Ansicht speichern
 tbl#:#tbl_template_created#:#Die aktuelle Ansicht wurde gespeichert.
 tbl#:#tbl_template_delete#:#Gespeicherte Ansicht löschen
