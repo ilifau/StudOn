@@ -103,7 +103,7 @@ class fauStudyInfoGUI extends BaseGUI implements \ilCtrlBaseClassInterface
      */
     public function getDetailsLink(ImportId $import_id, int $ref_id, string $title)
     {
-        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
+        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy()->content('')])
                                ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal') . '&import_id='. $import_id->toString(). '&ref_id='.$ref_id)
                                ->withResetSignals();
         $button = $this->factory->button()->shy($title, '#')
@@ -118,7 +118,7 @@ class fauStudyInfoGUI extends BaseGUI implements \ilCtrlBaseClassInterface
      */
     protected function getDetailsModal(ImportId $import_id, int $ref_id): Modal
     {
-        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
+        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy()->content('')])
                                ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal') . '&import_id='. $import_id->toString(). '&ref_id='.$ref_id)
                                ->withResetSignals();
         return $modal;

@@ -68,7 +68,7 @@ class fauHardRestrictionsGUI extends BaseGUI implements \ilCtrlBaseClassInterfac
       //  $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
         $this->ctrl->setParameter($this, 'user_id', $this->dic->user()->getId());
 
-        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
+        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy()->content('')])
             ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal').'&import_id='. $import_id->toString());
 
         $button = $this->factory->button()->shy('» ' . $this->lng->txt('fau_rest_hard_restrictions'), '#')
@@ -102,7 +102,7 @@ class fauHardRestrictionsGUI extends BaseGUI implements \ilCtrlBaseClassInterfac
                     'fau_check_info_passed_restrictions' : 'fau_check_info_failed_restrictions');
         }
 
-        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy('')])
+        $modal = $this->factory->modal()->roundtrip('', [$this->factory->legacy()->content('')])
             ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal') . '&import_id='. $restrictions->getCheckedImportId()->toString());
 
         $button = $this->factory->button()->shy($link_label, '#')
@@ -173,13 +173,13 @@ class fauHardRestrictionsGUI extends BaseGUI implements \ilCtrlBaseClassInterfac
             $filter = 'all';
         }
 
-        $parts = [$this->factory->legacy('<p>' . $restrictions->getCheckMessage() . '</p>')];
+        $parts = [$this->factory->legacy()->content('<p>' . $restrictions->getCheckMessage() . '</p>')];
         if (!empty($restrictions->getCheckedUserCosTexts())) {
-            $parts[] = $this->factory->legacy('<p>' . $this->lng->txt('fau_your_courses_of_study') .
+            $parts[] = $this->factory->legacy()->content('<p>' . $this->lng->txt('fau_your_courses_of_study') .
                 ' ('. $restrictions->getCheckedTermTitle(). '):<br>'. $restrictions->getCheckedUserCosTexts() . '</p>');
-            $parts[] = $this->factory->legacy('<p>' . $module_info . '</p>');
+            $parts[] = $this->factory->legacy()->content('<p>' . $module_info . '</p>');
             $parts[] = $this->factory->panel()->standard($this->lng->txt('fau_rest_hard_restrictions'),
-                $this->factory->legacy($this->getCheckedRestrictionsHTML(
+                $this->factory->legacy()->content($this->getCheckedRestrictionsHTML(
                     $restrictions->getCheckedRestrictionTexts(true, $selected_module_id), $filter)));
         }
         else {
